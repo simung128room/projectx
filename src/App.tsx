@@ -1,3 +1,4 @@
+import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import React, { useState, useRef, useEffect } from 'react';
 import { 
   Gamepad2, ListChecks, Play, Square, Check, X, Shield, Terminal, CheckCircle2, 
@@ -49,7 +50,7 @@ var TextPaint = `▒▄▀▄▒█▀▄▒██▀░▀▄▀
 2
 ░█▀█░█▀▒░█▄▄░█▒█`;
 
-export default function App() {
+function AppContent() {
   const [combo, setCombo] = useState('');
   const comboRef = useRef('');
   const [running, setRunning] = useState(false);
@@ -2258,6 +2259,16 @@ CREATE TABLE admins (
       )}
 
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="*" element={<AppContent />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
