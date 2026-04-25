@@ -86,6 +86,8 @@ export default function App() {
   const [authLoading, setAuthLoading] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const [checkTurnstileToken, setCheckTurnstileToken] = useState<string | null>(null);
+  const [showCheckCaptchaModal, setShowCheckCaptchaModal] = useState(false);
+  const [savedLinesToCheck, setSavedLinesToCheck] = useState<string[]>([]);
   const TURNSTILE_SITE_KEY = '0x4AAAAAADDNPyGBIV4MApep';
 
   enum OperationType {
@@ -793,7 +795,7 @@ export default function App() {
     return selected;
   };
 
-  const checkSingle = async (acc: string, pass: string, index: number) => {
+  const checkSingle = async (acc: string, pass: string, index: number, cToken?: string | null) => {
     try {
       setTotalChecked(prev => prev + 1);
       addLog(`[${index+1}] กำลังทำ DataDome Bypass...`, 'shield', 'text-amber-400');
@@ -803,7 +805,7 @@ export default function App() {
         account: acc, 
         password: pass,
         proxy: activeProxy, // Send the formatted proxy to backend
-        turnstileToken: checkTurnstileToken
+        turnstileToken: cToken || checkTurnstileToken
       });
       const result = response.data;
 
@@ -887,6 +889,15 @@ export default function App() {
       }
     }
 
+    setSavedLinesToCheck(linesToCheck);
+    setCheckTurnstileToken(null);
+    setShowCheckCaptchaModal(true);
+  };
+
+  const executeCheck = async (token: string) => {
+    setShowCheckCaptchaModal(false);
+    setCheckTurnstileToken(token);
+
     setRunning(true);
     runningRef.current = true;
     setValidAccounts([]);
@@ -894,15 +905,15 @@ export default function App() {
     setTotalChecked(0);
     setElapsedTime('00:00:00.000');
     
-    addLog(`เริ่มตรวจสอบ... ทั้งหมด ${linesToCheck.length} รายการ [DataDome Bypass: ACTIVE]`, 'terminal', 'text-cyan-400');
+    addLog(`เริ่มตรวจสอบ... ทั้งหมด ${savedLinesToCheck.length} รายการ [DataDome Bypass: ACTIVE]`, 'terminal', 'text-cyan-400');
 
-    for (let i = 0; i < linesToCheck.length; i++) {
+    for (let i = 0; i < savedLinesToCheck.length; i++) {
       if (!runningRef.current) break;
-      const line = linesToCheck[i];
+      const line = savedLinesToCheck[i];
       const [acc, pass] = line.split(':', 2);
       if (acc && pass) {
-        await checkSingle(acc.trim(), pass.trim(), i);
-        if (!isPremium) {
+        await checkSingle(acc.trim(), pass.trim(), i, token);
+        if (!userPlan?.isPremium) {
            setDailyUsage(prev => prev + 1);
         }
       }
@@ -1864,18 +1875,9 @@ CREATE TABLE admins (
             </div>
 
               <div className="mt-6 flex flex-col gap-3 relative z-10">
-                <div className="flex justify-center mb-2">
-                  <Turnstile 
-                    siteKey={TURNSTILE_SITE_KEY}
-                    onSuccess={(token) => setCheckTurnstileToken(token)}
-                    onError={() => setCheckTurnstileToken(null)}
-                    onExpire={() => setCheckTurnstileToken(null)}
-                    options={{ theme: 'dark' }}
-                  />
-                </div>
                 <button
                   onClick={startCheck}
-                  disabled={running || !checkTurnstileToken}
+                  disabled={running}
                   className="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-3 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_4px_20px_rgba(34,211,238,0.2)]"
                 >
                   <Play className="w-5 h-5" fill="currentColor" /> เริ่มตรวจสอบไอดี
@@ -2075,6 +2077,37 @@ CREATE TABLE admins (
       </div>
 
       {/* Modals */}
+      {showCheckCaptchaModal && (
+        <div className="fixed inset-0 bg-[#09090b]/90 flex items-center justify-center p-4 z-50 backdrop-blur-md font-sans">
+          <div className="bg-[#151518] border border-white/10 rounded-3xl p-6 sm:p-8 max-w-sm w-full relative shadow-[0_0_50px_rgba(0,0,0,0.5)]">
+            <div className="text-center">
+              <Shield className="w-12 h-12 text-cyan-400 mx-auto mb-4" />
+              <h2 className="text-xl font-bold mb-2">ยืนยันรหัสความปลอดภัย</h2>
+              <p className="text-zinc-400 text-sm mb-6">กรุณายืนยันว่าคุณไม่ใช่บอท เพื่อเริ่มตรวจสอบไอดี จำนวน {savedLinesToCheck.length} รายการ</p>
+              
+              <div className="flex justify-center mb-6">
+                <Turnstile 
+                  siteKey={TURNSTILE_SITE_KEY}
+                  onSuccess={(token) => executeCheck(token)}
+                  onError={() => {
+                    Swal.fire({ title: 'ข้อผิดพลาด', text: 'ยืนยันตัวตนล้มเหลว', icon: 'error' });
+                    setCheckTurnstileToken(null);
+                  }}
+                  onExpire={() => setCheckTurnstileToken(null)}
+                  options={{ theme: 'dark' }}
+                />
+              </div>
+
+              <button
+                onClick={() => setShowCheckCaptchaModal(false)}
+                className="w-full bg-zinc-800 hover:bg-zinc-700 text-white font-bold py-3 rounded-xl transition-colors"
+              >
+                ยกเลิก
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {showPrivacy && (
         <div className="fixed inset-0 bg-[#09090b]/90 flex items-center justify-center p-4 z-50 backdrop-blur-md font-sans animate-in fade-in duration-200">
           <div className="bg-[#151518] border border-white/10 rounded-3xl p-6 sm:p-8 max-w-2xl w-full max-h-[90vh] flex flex-col relative shadow-[0_0_50px_rgba(0,0,0,0.5)]">
