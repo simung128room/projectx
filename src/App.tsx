@@ -11,6 +11,7 @@ import axios from 'axios';
 import jsQR from 'jsqr';
 import { supabase } from './lib/supabase';
 import { User as SupabaseUser } from '@supabase/supabase-js';
+import { Turnstile } from '@marsidev/react-turnstile';
 
 interface AccountResult {
   account: string;
@@ -83,6 +84,9 @@ export default function App() {
   const [authConfirmPassword, setAuthConfirmPassword] = useState('');
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const [authLoading, setAuthLoading] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [checkTurnstileToken, setCheckTurnstileToken] = useState<string | null>(null);
+  const TURNSTILE_SITE_KEY = '0x4AAAAAADDNPyGBIV4MApep';
 
   enum OperationType {
     CREATE = 'create',
@@ -548,6 +552,19 @@ export default function App() {
     }
     setAuthLoading(true);
     try {
+      if (!turnstileToken) {
+        throw new Error('กรุณายืนยันว่าคุณไม่ใช่บอท');
+      }
+
+      // Verify Turnstile locally via backend
+      const verifyRes = await axios.post(`${window.location.origin}/api/verify_turnstile`, {
+        token: turnstileToken
+      });
+
+      if (!verifyRes.data.success) {
+        throw new Error('การยืนยัน Captcha ล้มเหลว');
+      }
+
       if (authMode === 'signup') {
         const { data, error } = await supabase.auth.signUp({
           email: authEmail,
@@ -785,7 +802,8 @@ export default function App() {
       const response = await axios.post(`${window.location.origin}/api/check`, { 
         account: acc, 
         password: pass,
-        proxy: activeProxy // Send the formatted proxy to backend
+        proxy: activeProxy, // Send the formatted proxy to backend
+        turnstileToken: checkTurnstileToken
       });
       const result = response.data;
 
@@ -1516,14 +1534,24 @@ CREATE TABLE admins (
                 </div>
               )}
               
+              <div className="flex justify-center my-4">
+                <Turnstile 
+                  siteKey={TURNSTILE_SITE_KEY}
+                  onSuccess={(token) => setTurnstileToken(token)}
+                  onError={() => setTurnstileToken(null)}
+                  onExpire={() => setTurnstileToken(null)}
+                  options={{ theme: 'dark' }}
+                />
+              </div>
+
               <button 
                 type="submit"
-                disabled={authLoading}
+                disabled={authLoading || !turnstileToken}
                 className={`w-full py-4 rounded-3xl text-sm font-bold transition-all shadow-xl flex items-center justify-center gap-2 ${
                   authMode === 'login' 
                     ? 'bg-cyan-600 hover:bg-cyan-500 shadow-cyan-500/10' 
                     : 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-500/10'
-                } disabled:opacity-50`}
+                } disabled:opacity-50 disabled:cursor-not-allowed`}
               >
                 {authLoading ? (
                   <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
@@ -1836,9 +1864,18 @@ CREATE TABLE admins (
             </div>
 
               <div className="mt-6 flex flex-col gap-3 relative z-10">
+                <div className="flex justify-center mb-2">
+                  <Turnstile 
+                    siteKey={TURNSTILE_SITE_KEY}
+                    onSuccess={(token) => setCheckTurnstileToken(token)}
+                    onError={() => setCheckTurnstileToken(null)}
+                    onExpire={() => setCheckTurnstileToken(null)}
+                    options={{ theme: 'dark' }}
+                  />
+                </div>
                 <button
                   onClick={startCheck}
-                  disabled={running}
+                  disabled={running || !checkTurnstileToken}
                   className="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-3 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_4px_20px_rgba(34,211,238,0.2)]"
                 >
                   <Play className="w-5 h-5" fill="currentColor" /> เริ่มตรวจสอบไอดี

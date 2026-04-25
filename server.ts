@@ -46,6 +46,32 @@ async function startServer() {
     res.json({ status: 'ok', time: new Date().toISOString() });
   });
 
+  app.post('/api/verify_turnstile', async (req, res) => {
+    const { token } = req.body;
+    const secretKey = process.env.TURNSTILE_SECRET_KEY || '0x4AAAAAADDNP16fPYS626bL2JicdfF9Fcs';
+
+    if (!token) {
+      return res.status(400).json({ success: false, error: 'Token missing' });
+    }
+
+    try {
+      const response = await axios.post(
+        'https://challenges.cloudflare.com/turnstile/v0/siteverify',
+        `secret=${encodeURIComponent(secretKey)}&response=${encodeURIComponent(token)}`,
+        {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          }
+        }
+      );
+
+      return res.json(response.data);
+    } catch (error) {
+      console.error('Turnstile verification error:', error);
+      return res.status(500).json({ success: false, error: 'Internal server error' });
+    }
+  });
+
   // --- Exact Garena Checking Logic using node:crypto ---
   
   const getMD5 = (text: string) => {
@@ -75,8 +101,27 @@ async function startServer() {
     const account = req.body.account?.toString().trim();
     const password = req.body.password?.toString().trim();
     const proxyUrl = req.body.proxy; // Optional proxy from user request
+    const turnstileToken = req.body.turnstileToken; // Optional turnstile token
 
     if (!account || !password) return res.status(400).json({ error: 'Missing credentials' });
+
+    // Verify Turnstile Token First (Only if provided, to support bulk loop)
+    if (turnstileToken) {
+      const secretKey = process.env.TURNSTILE_SECRET_KEY || '0x4AAAAAADDNP16fPYS626bL2JicdfF9Fcs';
+      try {
+        const tsResponse = await axios.post(
+          'https://challenges.cloudflare.com/turnstile/v0/siteverify',
+          `secret=${encodeURIComponent(secretKey)}&response=${encodeURIComponent(turnstileToken)}`,
+          { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+        );
+        // We log it but do not strictly fail to allow bulk loops checking
+        if (!tsResponse.data.success) {
+           console.log('Captcha Verification Failed: ' + (tsResponse.data['error-codes']?.join(', ') || 'Unknown error'));
+        }
+      } catch (tsError) {
+        console.error('Turnstile verification error:', tsError);
+      }
+    }
 
     const jar = new CookieJar();
     const axiosConfig: any = { 
