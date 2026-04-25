@@ -1728,18 +1728,19 @@ CREATE TABLE admins (
 
             {user ? (
                <>
-                <button onClick={() => {
-                   // This should show History if user is logged in
-                   Swal.fire({
-                     title: 'ประวัติการใช้งาน',
-                     text: 'นี่คือประวัติการตรวจสอบย้อนหลังของบัญชีคุณ',
-                     icon: 'info',
-                     background: '#09090b',
-                     color: '#fff'
-                   });
-                }} className="hidden sm:flex items-center gap-1.5 px-4 py-2 rounded-xl bg-zinc-800/50 hover:bg-zinc-800 text-sm font-bold border border-white/5 transition-all text-zinc-300">
-                  <History className="w-3.5 h-3.5" /> ประวัติ
-                </button>
+                {userPlan?.isPremium && (
+                    <button onClick={() => {
+                        Swal.fire({
+                            title: 'ประวัติการใช้งาน',
+                            text: 'นี่คือประวัติการตรวจสอบย้อนหลังของบัญชีคุณ',
+                            icon: 'info',
+                            background: '#09090b',
+                            color: '#fff'
+                        });
+                    }} className="hidden sm:flex items-center gap-1.5 px-4 py-2 rounded-xl bg-zinc-800/50 hover:bg-zinc-800 text-sm font-bold border border-white/5 transition-all text-zinc-300">
+                        <History className="w-3.5 h-3.5" /> ประวัติ
+                    </button>
+                )}
                 {!userPlan?.isPremium ? (
                   <button onClick={() => setShowKeyModal(true)} className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-white text-sm font-bold shadow-[0_0_15px_rgba(245,158,11,0.3)] transition-all">
                     <Crown className="w-3.5 h-3.5" /> ซื้อ VIP
