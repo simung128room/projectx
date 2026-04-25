@@ -456,6 +456,8 @@ export default function App() {
         let days = 1;
         if (keyData.type === 'Week') days = 7;
         if (keyData.type === 'Month') days = 30;
+        if (keyData.type === '3Month') days = 90;
+        if (keyData.type === 'Year') days = 365;
         if (keyData.type === 'Lifetime') days = 9999;
         
         const expireDate = new Date();
@@ -559,7 +561,7 @@ export default function App() {
       }
 
       // Verify Turnstile locally via backend
-      const verifyRes = await axios.post(`${window.location.origin}/api/verify_turnstile`, {
+      const verifyRes = await axios.post('/api/verify_turnstile', {
         token: turnstileToken
       });
 
@@ -665,7 +667,9 @@ export default function App() {
         '<select id="swal-input1" class="swal2-input bg-zinc-900 border-white/10 text-white w-full">' +
         '<option value="Day">1 วัน (Day)</option>' +
         '<option value="Week">7 วัน (Week)</option>' +
-        '<option value="Month">30 วัน (Month)</option>' +
+        '<option value="Month">1 เดือน (Month)</option>' +
+        '<option value="3Month">3 เดือน (3 Months)</option>' +
+        '<option value="Year">1 ปี (Year)</option>' +
         '<option value="Lifetime">ถาวร (Lifetime)</option>' +
         '</select>' +
         '<input id="swal-input2" class="swal2-input bg-zinc-900 border-white/10 text-white w-full" placeholder="จำนวนคีย์ (1-50)" type="number" value="1">',
@@ -1721,38 +1725,35 @@ CREATE TABLE admins (
               </button>
             )}
 
-            {!userPlan?.isPremium ? (
-              <>
-                <div className="hidden sm:flex flex-col items-end mr-2">
-                   <span className="text-xs text-zinc-400">โควต้าใช้ฟรีวันนี้</span>
-                   <div className="flex items-center gap-2">
-                     <div className="w-24 h-1.5 bg-zinc-800 rounded-full overflow-hidden">
-                        <div className="h-full bg-cyan-500" style={{ width: `${(dailyUsage/1000)*100}%` }}></div>
-                     </div>
-                     <span className="text-xs font-bold text-white">{dailyUsage}/1000</span>
-                   </div>
-                </div>
-                <button onClick={() => setShowKeyModal(true)} className="hidden sm:flex items-center gap-1.5 px-4 py-2 rounded-xl bg-zinc-800/50 hover:bg-zinc-800 text-sm font-bold border border-white/5 transition-all text-cyan-400">
-                  <Key className="w-3.5 h-3.5" /> ใส่คีย์ VIP
-                </button>
-                <button onClick={() => setShowKeyModal(true)} className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-white text-sm font-bold shadow-[0_0_15px_rgba(245,158,11,0.3)] transition-all">
-                  <Crown className="w-3.5 h-3.5" /> ซื้อ VIP
-                </button>
-              </>
-            ) : (
-              <div className="flex items-center gap-4 bg-amber-500/10 border border-amber-500/20 px-4 py-2 rounded-2xl">
-                <Crown className="w-5 h-5 text-amber-500 drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]" />
-                <div className="flex flex-col hidden sm:flex">
-                   <span className="text-sm font-bold text-amber-500 uppercase leading-tight">{userPlan.username}</span>
-                   <span className="text-[10px] text-amber-500/80 font-bold uppercase tracking-wider leading-tight">Premium Member</span>
-                </div>
+            {user ? (
+               <>
                 <button onClick={() => {
-                   setUserPlan(null);
-                }} className="p-1.5 hover:bg-amber-500/20 rounded-lg text-amber-500 transition-colors sm:ml-2">
-                   <LogOut className="w-3.5 h-3.5" />
+                   // This should show History if user is logged in
+                   Swal.fire({
+                     title: 'ประวัติการใช้งาน',
+                     text: 'นี่คือประวัติการตรวจสอบย้อนหลังของบัญชีคุณ',
+                     icon: 'info',
+                     background: '#09090b',
+                     color: '#fff'
+                   });
+                }} className="hidden sm:flex items-center gap-1.5 px-4 py-2 rounded-xl bg-zinc-800/50 hover:bg-zinc-800 text-sm font-bold border border-white/5 transition-all text-zinc-300">
+                  <History className="w-3.5 h-3.5" /> ประวัติ
                 </button>
-              </div>
-            )}
+                {!userPlan?.isPremium ? (
+                  <button onClick={() => setShowKeyModal(true)} className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-white text-sm font-bold shadow-[0_0_15px_rgba(245,158,11,0.3)] transition-all">
+                    <Crown className="w-3.5 h-3.5" /> ซื้อ VIP
+                  </button>
+                ) : (
+                  <div className="flex items-center gap-4 bg-amber-500/10 border border-amber-500/20 px-4 py-2 rounded-2xl">
+                    <Crown className="w-5 h-5 text-amber-500 drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]" />
+                    <div className="flex flex-col hidden sm:flex">
+                        <span className="text-sm font-bold text-amber-500 uppercase leading-tight">{userPlan.username}</span>
+                        <span className="text-[10px] text-amber-500/80 font-bold uppercase tracking-wider leading-tight">Premium Member</span>
+                    </div>
+                  </div>
+                )}
+               </>
+            ) : null}
           </div>
         </div>
       </nav>
@@ -2206,7 +2207,15 @@ CREATE TABLE admins (
                   <Crown className="w-8 h-8 text-amber-400 drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]" />
                </div>
                <h2 className="text-2xl font-bold text-white mb-2 tracking-tight">VIP MEMBER</h2>
-               <p className="text-zinc-400 text-sm">เข้าถึงฟีเจอร์ระดับโปรและการตรวจสอบไม่จำกัด</p>
+               <div className="text-sm text-zinc-400 mb-6 space-y-2">
+                   <p>สิทธิพิเศษระดับพรีเมียม:</p>
+                   <ul className="text-left inline-block space-y-1">
+                       <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-500" /> ตรวจสอบไอดีไม่จำกัด (Unlimited Checks)</li>
+                       <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-500" /> Bypass DataDome ความเร็วสูง</li>
+                       <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-500" /> บันทึกประวัติการตรวจสอบย้อนหลัง</li>
+                       <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-500" /> ไม่ต้องติด Captcha (Turnstile)</li>
+                   </ul>
+               </div>
                <a href="https://discord.gg/yourlink" target="_blank" rel="noopener noreferrer" className="mt-4 inline-flex items-center gap-2 px-6 py-2.5 bg-[#5865F2] hover:bg-[#4752C4] text-white rounded-xl text-sm font-bold transition-all shadow-lg hover:scale-105">
                  <ShoppingCart className="w-4 h-4" /> ซื้อคีย์ได้ที่ Discord
                </a>
