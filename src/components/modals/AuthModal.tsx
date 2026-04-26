@@ -19,6 +19,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
   const [authConfirmPassword, setAuthConfirmPassword] = useState('');
   const [authLoading, setAuthLoading] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [showTurnstileModal, setShowTurnstileModal] = useState(false);
 
   React.useEffect(() => {
     if (show) {
@@ -28,6 +29,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
       setAuthConfirmPassword('');
       setAuthLoading(false);
       setTurnstileToken(null);
+      setShowTurnstileModal(false);
     }
   }, [show, initialMode]);
 
@@ -45,20 +47,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
     }
 
     if (!turnstileToken) {
-      Swal.fire({
-        icon: 'error',
-        title: 'ข้อผิดพลาด',
-        text: 'กรุณายืนยันว่าคุณไม่ใช่บอท',
-        background: '#09090b',
-        color: '#fff'
-      });
+      setShowTurnstileModal(true);
       return;
     }
 
-    await executeAuth();
+    await executeAuth(turnstileToken);
   };
 
-  const executeAuth = async () => {
+  const executeAuth = async (currentToken: string | null = turnstileToken) => {
     setAuthLoading(true);
     try {
       const generatedEmail = `${authUsername.toLowerCase().trim()}@apex-studio.com`;
@@ -68,7 +64,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
           email: generatedEmail,
           password: authPassword,
           options: {
-            data: { username: authUsername }
+            data: { username: authUsername },
+            ...(currentToken ? { captchaToken: currentToken } : {})
           }
         });
         
@@ -115,6 +112,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
       if (msg.includes('already registered')) msg = 'ชื่อผู้ใช้นี้ถูกใช้งานแล้ว (โปรดใช้ชื่ออื่น)';
       if (msg.includes('Invalid login credentials')) msg = 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง';
       if (msg.includes('invalid email format')) msg = 'รูปแบบชื่อผู้ใช้ไม่ถูกต้อง';
+      if (msg.includes('Email not confirmed')) msg = 'กรุณาปิดการตั้งค่า "Confirm Email" ในเมนู Authentication -> Providers ของ Supabase Dashboard (เพราะระบบใช้ Username ไม่ใช่อีเมลจริง)';
       if (msg.includes('Load failed') || msg.includes('Failed to fetch')) msg = 'การเชื่อมต่อเครือข่ายล้มเหลว (ตรวจสอบอินเทอร์เน็ต)';
       if (msg.includes('Password should be at least')) msg = 'รหัสผ่านต้องมีความยาวอย่างน้อย 6 ตัวอักษร';
       if (msg.includes('rate limit exceeded')) msg = 'คุณสมัครสมาชิกหรือพยายามเข้าสู่ระบบถี่เกินไป โปรดรอสักครู่ หรือตั้งค่า Rate Limit ใหม่ในระบบ Supabase';
@@ -214,19 +212,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
             )}
           </>
 
-        <div className="p-4 bg-zinc-900/50 border border-white/5 rounded-2xl mb-4 flex items-center justify-center min-h-[80px]">
-          <Turnstile
-            siteKey={TURNSTILE_SITE_KEY}
-            onSuccess={(token) => setTurnstileToken(token)}
-            options={{
-              theme: 'dark'
-            }}
-          />
-        </div>
-
         <button 
           type="submit"
-          disabled={authLoading || !turnstileToken}
+          disabled={authLoading}
           className={`w-full py-4 rounded-3xl text-sm font-bold transition-all shadow-xl flex items-center justify-center gap-2 ${
             authMode === 'login' 
               ? 'bg-cyan-600 hover:bg-cyan-500 shadow-cyan-500/10' 
@@ -248,6 +236,34 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
           ปิดหน้าต่าง
         </button>
       </form>
+
+      {/* Turnstile Sub-Modal */}
+      {showTurnstileModal && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm rounded-[2.5rem]">
+          <div className="bg-zinc-900 border border-white/10 rounded-3xl p-6 animate-in zoom-in-95 duration-200 shadow-2xl flex flex-col items-center max-w-[90%]">
+             <Shield className="w-10 h-10 text-cyan-500 mb-4 opacity-80" />
+             <h3 className="text-white font-bold mb-1">ยืนยันความปลอดภัย</h3>
+             <p className="text-zinc-400 text-xs mb-6 text-center">กรุณายืนยันว่าคุณไม่ใช่บอท</p>
+             <div className="min-h-[65px] flex items-center justify-center mb-6 w-full overflow-hidden">
+               <Turnstile
+                 siteKey={TURNSTILE_SITE_KEY}
+                 onSuccess={(token) => {
+                   setTurnstileToken(token);
+                   setShowTurnstileModal(false);
+                   executeAuth(token);
+                 }}
+                 options={{ theme: 'dark' }}
+               />
+             </div>
+             <button 
+               onClick={() => setShowTurnstileModal(false)}
+               className="text-xs text-zinc-500 hover:text-white transition-colors"
+             >
+               ยกเลิก
+             </button>
+          </div>
+        </div>
+      )}
     </div>
   </div>
   );
