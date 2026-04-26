@@ -522,7 +522,9 @@ async function startServer() {
 
   app.post('/api/log_error', (req, res) => {
     console.error('CLIENT ERROR:', req.body);
-    require('fs').appendFileSync('client_errors.log', JSON.stringify(req.body) + '\n');
+    import('fs').then(fs => {
+      fs.appendFileSync('client_errors.log', JSON.stringify(req.body) + '\n');
+    }).catch(console.error);
     res.json({ received: true });
   });
 

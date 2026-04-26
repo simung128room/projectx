@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { User, Shield } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { supabase } from '../../lib/supabase';
+import { Turnstile } from '@marsidev/react-turnstile';
+
+const TURNSTILE_SITE_KEY = (import.meta.env.VITE_TURNSTILE_SITE_KEY && import.meta.env.VITE_TURNSTILE_SITE_KEY.length > 5) ? import.meta.env.VITE_TURNSTILE_SITE_KEY : '0x4AAAAAADDurF1TEj8IRq9g';
 
 interface AuthModalProps {
   show: boolean;
@@ -11,20 +14,20 @@ interface AuthModalProps {
 
 export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode = 'login' }) => {
   const [authMode, setAuthMode] = useState<'login' | 'signup'>(initialMode);
-  const [authEmail, setAuthEmail] = useState('');
   const [authUsername, setAuthUsername] = useState('');
   const [authPassword, setAuthPassword] = useState('');
   const [authConfirmPassword, setAuthConfirmPassword] = useState('');
   const [authLoading, setAuthLoading] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
 
   React.useEffect(() => {
     if (show) {
       setAuthMode(initialMode);
-      setAuthEmail('');
       setAuthUsername('');
       setAuthPassword('');
       setAuthConfirmPassword('');
       setAuthLoading(false);
+      setTurnstileToken(null);
     }
   }, [show, initialMode]);
 
@@ -40,15 +43,29 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
       });
       return;
     }
+
+    if (!turnstileToken) {
+      Swal.fire({
+        icon: 'error',
+        title: 'ข้อผิดพลาด',
+        text: 'กรุณายืนยันว่าคุณไม่ใช่บอท',
+        background: '#09090b',
+        color: '#fff'
+      });
+      return;
+    }
+
     await executeAuth();
   };
 
   const executeAuth = async () => {
     setAuthLoading(true);
     try {
+      const generatedEmail = `${authUsername.toLowerCase().trim()}@apex-studio.local`;
+
       if (authMode === 'signup') {
         const { data, error } = await supabase.auth.signUp({
-          email: authEmail,
+          email: generatedEmail,
           password: authPassword,
           options: {
             data: { username: authUsername }
@@ -66,14 +83,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
         Swal.fire({
           icon: 'success',
           title: 'สร้างบัญชีสำเร็จ!',
-          text: 'กรุณาตรวจสอบอีเมลของคุณเพื่อยืนยันบัญชี (เช็คใน Junk/Spam ด้วย)',
+          text: 'สมัครสมาชิกสำเร็จ สามารถเข้าสู่ระบบได้เลย',
           background: '#09090b',
           color: '#fff'
         });
         setAuthMode('login');
       } else {
         const { data, error } = await supabase.auth.signInWithPassword({
-          email: authEmail,
+          email: generatedEmail,
           password: authPassword,
         });
 
@@ -95,12 +112,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
       console.error("Auth Error Detailed:", err);
       let msg = err?.message || 'เกิดข้อผิดพลาด';
 
-      if (msg.includes('already registered')) msg = 'ชื่อหรืออีเมลนี้ถูกใช้งานแล้ว (โปรดใช้ชื่ออื่น)';
-      if (msg.includes('Invalid login credentials')) msg = 'อีเมลหรือรหัสผ่านไม่ถูกต้อง หรือยังไม่ได้ยืนยันอีเมล';
-      if (msg.includes('invalid email format')) msg = 'รูปแบบอีเมลไม่ถูกต้อง';
+      if (msg.includes('already registered')) msg = 'ชื่อผู้ใช้นี้ถูกใช้งานแล้ว (โปรดใช้ชื่ออื่น)';
+      if (msg.includes('Invalid login credentials')) msg = 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง';
+      if (msg.includes('invalid email format')) msg = 'รูปแบบชื่อผู้ใช้ไม่ถูกต้อง';
       if (msg.includes('Load failed') || msg.includes('Failed to fetch')) msg = 'การเชื่อมต่อเครือข่ายล้มเหลว (ตรวจสอบอินเทอร์เน็ต)';
       if (msg.includes('Password should be at least')) msg = 'รหัสผ่านต้องมีความยาวอย่างน้อย 6 ตัวอักษร';
-      if (msg.includes('User already registered')) msg = 'อีเมลนี้ถูกสมัครไปแล้ว หรือรอการยืนยัน';
       
       Swal.fire({
         icon: 'error',
@@ -154,31 +170,15 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
               <div className="relative">
                 <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
                 <input 
-                  type="email" 
-                  value={authEmail}
-                  onChange={(e) => setAuthEmail(e.target.value)}
+                  type="text" 
+                  value={authUsername}
+                  onChange={(e) => setAuthUsername(e.target.value)}
                   className="w-full bg-zinc-900/50 border border-white/5 rounded-2xl py-3.5 pl-12 pr-4 outline-none focus:border-cyan-500/50 transition-all font-sans text-sm"
-                  placeholder="อีเมล"
+                  placeholder="ชื่อผู้ใช้"
                   required
                 />
               </div>
             </div>
-
-            {authMode === 'signup' && (
-              <div className="space-y-2">
-                <div className="relative">
-                  <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
-                  <input 
-                    type="text" 
-                    value={authUsername}
-                    onChange={(e) => setAuthUsername(e.target.value)}
-                    className="w-full bg-zinc-900/50 border border-white/5 rounded-2xl py-3.5 pl-12 pr-4 outline-none focus:border-cyan-500/50 transition-all font-sans text-sm"
-                    placeholder="ชื่อผู้ใช้"
-                    required
-                  />
-                </div>
-              </div>
-            )}
 
             <div className="space-y-2">
               <div className="relative">
@@ -213,9 +213,19 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
             )}
           </>
 
+        <div className="p-4 bg-zinc-900/50 border border-white/5 rounded-2xl mb-4 flex items-center justify-center min-h-[80px]">
+          <Turnstile
+            siteKey={TURNSTILE_SITE_KEY}
+            onSuccess={(token) => setTurnstileToken(token)}
+            options={{
+              theme: 'dark'
+            }}
+          />
+        </div>
+
         <button 
           type="submit"
-          disabled={authLoading}
+          disabled={authLoading || !turnstileToken}
           className={`w-full py-4 rounded-3xl text-sm font-bold transition-all shadow-xl flex items-center justify-center gap-2 ${
             authMode === 'login' 
               ? 'bg-cyan-600 hover:bg-cyan-500 shadow-cyan-500/10' 

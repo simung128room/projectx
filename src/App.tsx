@@ -72,7 +72,7 @@ function AppContent() {
   const [pendingTurnstileToken, setPendingTurnstileToken] = useState<string | null>(null);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const [savedLinesToCheck, setSavedLinesToCheck] = useState<string[]>([]);
-  const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY || '0x4AAAAAADDurF1TEj8IRq9g';
+  const TURNSTILE_SITE_KEY = (import.meta.env.VITE_TURNSTILE_SITE_KEY && import.meta.env.VITE_TURNSTILE_SITE_KEY.length > 5) ? import.meta.env.VITE_TURNSTILE_SITE_KEY : '0x4AAAAAADDurF1TEj8IRq9g';
 
   function handleDbError(error: unknown, operationType: OperationType, path: string | null) {
     const errInfo = {
