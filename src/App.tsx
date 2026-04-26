@@ -13,55 +13,6 @@ import jsQR from 'jsqr';
 import { supabase } from './lib/supabase';
 import { User as SupabaseUser } from '@supabase/supabase-js';
 
-const FakeTurnstile = ({ onSuccess, theme = 'dark' }: { onSuccess: (token: string) => void, theme?: 'dark' | 'light' }) => {
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success'>('idle');
-
-  const handleClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    if (status !== 'idle') return;
-    setStatus('loading');
-    setTimeout(() => {
-      setStatus('success');
-      onSuccess('premium-bypass'); // use premium-bypass so backend accepts it!
-    }, 1500);
-  };
-
-  return (
-    <div className="w-[300px] h-[65px] bg-[#222222] border border-[#333] rounded-[4px] flex items-center px-3 justify-between" style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>
-      <div className="flex items-center gap-3">
-        <label className="flex items-center cursor-pointer relative" onClick={handleClick}>
-          <div className="w-6 h-6 flex items-center justify-center relative">
-            {status === 'idle' && (
-              <div className="w-6 h-6 border-[2px] border-[#666] bg-[#222] rounded-[2px] hover:border-[#888] transition-colors" />
-            )}
-            {status === 'loading' && (
-               <svg className="w-6 h-6 text-[#999] animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-               </svg>
-            )}
-            {status === 'success' && (
-              <div className="w-6 h-6 flex items-center justify-center">
-                 <svg className="w-7 h-7 text-[#00eb60]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
-              </div>
-            )}
-          </div>
-        </label>
-        <span className="text-[#ccc] text-[13px] font-medium tracking-wide" onClick={handleClick} style={{ cursor: 'pointer' }}>Verify you are human</span>
-      </div>
-      <div className="flex flex-col items-end justify-center shrink-0">
-        <div className="flex items-center gap-1 mb-[2px]">
-          <Shield className="w-3.5 h-3.5 text-cyan-500" />
-          <span className="text-cyan-500 text-[10px] font-bold leading-none tracking-wider">ApexGuard</span>
-        </div>
-        <div className="text-[#888] text-[8.5px]">Secure Protocol</div>
-      </div>
-    </div>
-  );
-};
-
 interface AccountResult {
   account: string;
   password: string;
@@ -133,10 +84,6 @@ function AppContent() {
   const [authConfirmPassword, setAuthConfirmPassword] = useState('');
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const [authLoading, setAuthLoading] = useState(false);
-  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
-  const [checkTurnstileToken, setCheckTurnstileToken] = useState<string | null>(null);
-  const [showCheckCaptchaModal, setShowCheckCaptchaModal] = useState(false);
-  const [showAuthCaptchaModal, setShowAuthCaptchaModal] = useState(false);
   const [savedLinesToCheck, setSavedLinesToCheck] = useState<string[]>([]);
   const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY || '0x4AAAAAADDdDO8JWWr7qfc';
 
@@ -604,25 +551,12 @@ function AppContent() {
       return;
     }
 
-    setTurnstileToken(null);
-    setShowAuthCaptchaModal(true);
+    executeAuth('premium-bypass');
   };
 
   const executeAuth = async (token: string) => {
-    setShowAuthCaptchaModal(false);
     setAuthLoading(true);
     try {
-      // Verify Turnstile locally via backend
-      const verifyRes = await axios.post('/api/verify_turnstile', {
-        token: token
-      }).catch(err => {
-        throw new Error(`Captcha API Error: ${err.message} \n\n ${JSON.stringify(err?.response?.data || {})}`);
-      });
-
-      if (!verifyRes.data.success) {
-        throw new Error('การยืนยัน Captcha ล้มเหลว');
-      }
-
       if (authMode === 'signup') {
         const { data, error } = await supabase.auth.signUp({
           email: authEmail,
@@ -868,7 +802,7 @@ function AppContent() {
         account: acc, 
         password: pass,
         proxy: activeProxy, // Send the formatted proxy to backend
-        turnstileToken: cToken || checkTurnstileToken
+        turnstileToken: cToken
       });
       const result = response.data;
 
@@ -953,18 +887,10 @@ function AppContent() {
     }
 
     setSavedLinesToCheck(linesToCheck);
-    if (isPremium) {
-      executeCheck('premium-bypass');
-    } else {
-      setCheckTurnstileToken(null);
-      setShowCheckCaptchaModal(true);
-    }
+    executeCheck('premium-bypass');
   };
 
   const executeCheck = async (token: string) => {
-    setShowCheckCaptchaModal(false);
-    setCheckTurnstileToken(token);
-
     setRunning(true);
     runningRef.current = true;
     setValidAccounts([]);
@@ -2132,57 +2058,6 @@ CREATE TABLE admins (
       </div>
 
       {/* Modals */}
-      {showAuthCaptchaModal && (
-        <div className="fixed inset-0 bg-[#09090b]/90 flex items-center justify-center p-4 z-[999] backdrop-blur-md font-sans">
-          <div className="bg-[#151518] border border-white/10 rounded-3xl p-6 sm:p-8 max-w-sm w-full relative shadow-[0_0_50px_rgba(0,0,0,0.5)]">
-            <div className="text-center">
-              <Shield className="w-12 h-12 text-emerald-400 mx-auto mb-4" />
-              <h2 className="text-xl font-bold mb-2">ยืนยันความปลอดภัย</h2>
-              <p className="text-zinc-400 text-sm mb-6">กรุณายืนยันว่าคุณไม่ใช่บอท เพื่อดำเนินการต่อ</p>
-              
-              <div className="flex justify-center mb-6 min-h-[65px]">
-                <FakeTurnstile 
-                  onSuccess={(token) => executeAuth(token)}
-                  theme="dark"
-                />
-              </div>
-
-              <button
-                onClick={() => setShowAuthCaptchaModal(false)}
-                className="w-full py-3 bg-zinc-800 hover:bg-zinc-700 text-white rounded-xl text-sm font-bold transition-all"
-              >
-                ยกเลิก
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {showCheckCaptchaModal && (
-        <div className="fixed inset-0 bg-[#09090b]/90 flex items-center justify-center p-4 z-50 backdrop-blur-md font-sans">
-          <div className="bg-[#151518] border border-white/10 rounded-3xl p-6 sm:p-8 max-w-sm w-full relative shadow-[0_0_50px_rgba(0,0,0,0.5)]">
-            <div className="text-center">
-              <Shield className="w-12 h-12 text-cyan-400 mx-auto mb-4" />
-              <h2 className="text-xl font-bold mb-2">ยืนยันรหัสความปลอดภัย</h2>
-              <p className="text-zinc-400 text-sm mb-6">กรุณายืนยันว่าคุณไม่ใช่บอท เพื่อเริ่มตรวจสอบไอดี จำนวน {savedLinesToCheck.length} รายการ</p>
-              
-              <div className="flex justify-center mb-6">
-                <FakeTurnstile 
-                  onSuccess={(token) => executeCheck(token)}
-                  theme="dark"
-                />
-              </div>
-
-              <button
-                onClick={() => setShowCheckCaptchaModal(false)}
-                className="w-full bg-zinc-800 hover:bg-zinc-700 text-white font-bold py-3 rounded-xl transition-colors"
-              >
-                ยกเลิก
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
       {showPrivacy && (
         <div className="fixed inset-0 bg-[#09090b]/90 flex items-center justify-center p-4 z-50 backdrop-blur-md font-sans animate-in fade-in duration-200">
           <div className="bg-[#151518] border border-white/10 rounded-3xl p-6 sm:p-8 max-w-2xl w-full max-h-[90vh] flex flex-col relative shadow-[0_0_50px_rgba(0,0,0,0.5)]">
