@@ -49,7 +49,7 @@ async function startServer() {
   app.post('/api/verify_turnstile', async (req, res) => {
     try {
       const { token } = req.body;
-      const secretKey = process.env.TURNSTILE_SECRET_KEY || '0x4AAAAAADDdDBOlN6BmeibjJ1JWusta6Ag';
+      const secretKey = process.env.TURNSTILE_SECRET_KEY || '0x4AAAAAADDurH4F9lLSI4iyF2z9RNFlc9c';
 
       console.log('Verify Turnstile called with token:', token);
       
@@ -113,7 +113,7 @@ async function startServer() {
 
     // Verify Turnstile Token First (Only if provided, to support bulk loop)
     if (turnstileToken && turnstileToken !== 'premium-bypass') {
-      const secretKey = process.env.TURNSTILE_SECRET_KEY || '0x4AAAAAADDdDBOlN6BmeibjJ1JWusta6Ag';
+      const secretKey = process.env.TURNSTILE_SECRET_KEY || '0x4AAAAAADDurH4F9lLSI4iyF2z9RNFlc9c';
       try {
         const tsResponse = await axios.post(
           'https://challenges.cloudflare.com/turnstile/v0/siteverify',
