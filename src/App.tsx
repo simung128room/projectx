@@ -165,8 +165,7 @@ function AppContent() {
         
         const fetchWithCatch = async (url: string) => {
           try {
-            const fullUrl = window.location.origin + url;
-            const res = await axios.get(fullUrl);
+            const res = await axios.get(url);
             return res.data;
           } catch (e: any) {
             console.error(`Fetch ERROR for ${url}:`, {
@@ -227,7 +226,7 @@ function AppContent() {
     if (!clientIp) return;
     const checkIP = async () => {
       try {
-        const res = await axios.get(`${window.location.origin}/api/check_ip/${clientIp}`);
+        const res = await axios.get(`/api/check_ip/${clientIp}`);
         if (res.data.blocked) {
           setIsIPBlocked(true);
         }
@@ -439,15 +438,15 @@ function AppContent() {
         color: '#fff'
       });
 
-      const keyResponse = await axios.get(`${window.location.origin}/api/validate_key/${keyInput.trim()}`);
+      const keyResponse = await axios.get(`/api/validate_key/${keyInput.trim()}`);
       const keyData = keyResponse.data;
 
       if (keyData && keyData.status === 'active') {
         // 1. Mark key as used in backend
-        await axios.patch(`${window.location.origin}/api/license_keys/${keyData.id}`, { status: 'used' });
+        await axios.patch(`/api/license_keys/${keyData.id}`, { status: 'used' });
 
         // 2. Add to history in backend
-        await axios.post(`${window.location.origin}/api/used_keys`, {
+        await axios.post(`/api/used_keys`, {
           key: keyInput,
           ip: clientIp || 'Unknown',
           details: `Redeemed ${keyData.type} plan`
@@ -700,7 +699,7 @@ function AppContent() {
             created_at: new Date().toISOString()
           });
         }
-        await axios.post(`${window.location.origin}/api/license_keys/bulk`, { keys: newKeys });
+        await axios.post(`/api/license_keys/bulk`, { keys: newKeys });
         Swal.fire('สำเร็จ', `สร้างคีย์ ${count} รายการ สำเร็จ`, 'success');
       } catch (err) {
         handleDbError(err, OperationType.WRITE, 'license_keys');
@@ -730,7 +729,7 @@ function AppContent() {
       const [ip, reason] = ipData;
       if (!ip) return;
       try {
-        await axios.post(`${window.location.origin}/api/blocked_ips`, {
+        await axios.post(`/api/blocked_ips`, {
           ip,
           reason: reason || 'Violation of terms'
         });
@@ -757,7 +756,7 @@ function AppContent() {
 
     if (result.isConfirmed) {
       try {
-        await axios.delete(`${window.location.origin}/api/license_keys/${keyId}`);
+        await axios.delete(`/api/license_keys/${keyId}`);
         Swal.fire('ลบแล้ว', 'คีย์ถูกลบออกจากระบบแล้ว', 'success');
         setFirebaseKeys(prev => prev.filter(k => k.id !== keyId));
       } catch (err) {
@@ -769,7 +768,7 @@ function AppContent() {
 
   const unblockIP = async (ip: string) => {
     try {
-      await axios.delete(`${window.location.origin}/api/blocked_ips/${ip}`);
+      await axios.delete(`/api/blocked_ips/${ip}`);
       Swal.fire('สำเร็จ', 'ปลดบล็อค IP เรียบร้อย', 'success');
       setBlockedIPs(prev => prev.filter(i => i.ip !== ip));
     } catch (err) {
@@ -806,7 +805,7 @@ function AppContent() {
       addLog(`[${index+1}] กำลังทำ DataDome Bypass...`, 'shield', 'text-amber-400');
       
       const activeProxy = getFormattedProxy();
-      const response = await axios.post(`${window.location.origin}/api/check`, { 
+      const response = await axios.post(`/api/check`, { 
         account: acc, 
         password: pass,
         proxy: activeProxy, // Send the formatted proxy to backend
