@@ -117,6 +117,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
       if (msg.includes('invalid email format')) msg = 'รูปแบบชื่อผู้ใช้ไม่ถูกต้อง';
       if (msg.includes('Load failed') || msg.includes('Failed to fetch')) msg = 'การเชื่อมต่อเครือข่ายล้มเหลว (ตรวจสอบอินเทอร์เน็ต)';
       if (msg.includes('Password should be at least')) msg = 'รหัสผ่านต้องมีความยาวอย่างน้อย 6 ตัวอักษร';
+      if (msg.includes('rate limit exceeded')) msg = 'คุณสมัครสมาชิกหรือพยายามเข้าสู่ระบบถี่เกินไป โปรดรอสักครู่ หรือตั้งค่า Rate Limit ใหม่ในระบบ Supabase';
       
       Swal.fire({
         icon: 'error',
