@@ -148,10 +148,14 @@ async function startServer() {
         const url = config.url || '';
         const cookie = await jar.getCookieString(url.startsWith('http') ? url : (config.baseURL || '') + url);
         if (cookie) {
-          if (typeof config.headers.set === 'function') {
-            config.headers.set('Cookie', cookie);
-          } else {
-            (config.headers as any)['Cookie'] = cookie;
+          if (config.headers && typeof config.headers.set === 'function') {
+            try {
+              config.headers.set('Cookie', cookie);
+            } catch (ignore) {}
+          } else if (config.headers) {
+            try {
+              (config.headers as any)['Cookie'] = cookie;
+            } catch (ignore) {}
           }
         }
       } catch (e) {
@@ -179,9 +183,11 @@ async function startServer() {
     // Apply Proxy if provided
     if (proxyUrl) {
       const agent = new HttpsProxyAgent(proxyUrl);
-      client.defaults.httpsAgent = agent;
-      client.defaults.httpAgent = agent;
-      client.defaults.proxy = false; // Disable default axios proxy when using agent
+      try {
+        client.defaults.httpsAgent = agent;
+        client.defaults.httpAgent = agent;
+        client.defaults.proxy = false; // Disable default axios proxy when using agent
+      } catch (ignore) {}
     }
 
     try {
@@ -512,6 +518,12 @@ async function startServer() {
       console.error('Internal server error upserting admin:', err);
       res.status(500).json({ error: 'Internal server error' });
     }
+  });
+
+  app.post('/api/log_error', (req, res) => {
+    console.error('CLIENT ERROR:', req.body);
+    require('fs').appendFileSync('client_errors.log', JSON.stringify(req.body) + '\n');
+    res.json({ received: true });
   });
 
   if (process.env.NODE_ENV !== "production" && !process.env.VERCEL) {

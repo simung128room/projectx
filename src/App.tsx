@@ -50,6 +50,16 @@ var TextPaint = `▒▄▀▄▒█▀▄▒██▀░▀▄▀
 2
 ░█▀█░█▀▒░█▄▄░█▒█`;
 
+enum OperationType {
+  CREATE = 'create',
+  UPDATE = 'update',
+  DELETE = 'delete',
+  LIST = 'list',
+  GET = 'get',
+  WRITE = 'write',
+  AUTH = 'auth'
+}
+
 function AppContent() {
   // Navigation State
   const [activeView, setActiveView] = useState<'dashboard' | 'admin' | 'profile' | 'logs' | 'settings'>('dashboard');
@@ -95,16 +105,6 @@ function AppContent() {
   const [savedLinesToCheck, setSavedLinesToCheck] = useState<string[]>([]);
   const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY || '0x4AAAAAADDurF1TEj8IRq9g';
 
-  enum OperationType {
-    CREATE = 'create',
-    UPDATE = 'update',
-    DELETE = 'delete',
-    LIST = 'list',
-    GET = 'get',
-    WRITE = 'write',
-    AUTH = 'auth'
-  }
-
   function handleDbError(error: unknown, operationType: OperationType, path: string | null) {
     const errInfo = {
       error: error instanceof Error ? error.message : String(error),
@@ -121,6 +121,7 @@ function AppContent() {
   const [dailyUsage, setDailyUsage] = useState<number>(0);
   const [lastUsageDate, setLastUsageDate] = useState<string>('');
   const [showKeyModal, setShowKeyModal] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [vipTab, setVipTab] = useState<'key'>('key');
 
   const [proxy, setProxy] = useState<string>('');
@@ -443,7 +444,7 @@ function AppContent() {
 
   const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-  const redeemKey = async (keyInput: string, usernameInput: string = 'VIP Member') => {
+  const redeemKey = async (keyInput: string, usernameInput: string = 'ผู้ใช้งานทั่วไป') => {
     if (!keyInput) return;
     try {
       Swal.fire({
@@ -627,18 +628,22 @@ function AppContent() {
       }
     } catch (err: any) {
       console.error("Auth Error Detailed:", err);
-      let msg = err?.message || 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ';
+      let msg = err?.message || 'เกิดข้อผิดพลาด';
 
-      if (msg.includes('already registered')) msg = 'อีเมลนี้ถูกใช้งานแล้ว';
-      if (err.message?.includes('Invalid login credentials')) msg = 'อีเมลหรือรหัสผ่านไม่ถูกต้อง';
-      if (err.message?.includes('invalid email format')) msg = 'รูปแบบอีเมลไม่ถูกต้อง';
+      if (msg.includes('already registered')) msg = 'ชื่อหรืออีเมลนี้ถูกใช้งานแล้ว (โปรดใช้ชื่ออื่น)';
+      if (msg.includes('Invalid login credentials')) msg = 'อีเมลหรือรหัสผ่านไม่ถูกต้อง หรือยังไม่ได้ยืนยันอีเมล';
+      if (msg.includes('invalid email format')) msg = 'รูปแบบอีเมลไม่ถูกต้อง';
+      if (msg.includes('Load failed') || msg.includes('Failed to fetch')) msg = 'การเชื่อมต่อเครือข่ายล้มเหลว (ตรวจสอบอินเทอร์เน็ต)';
+      if (msg.includes('Password should be at least')) msg = 'รหัสผ่านต้องมีความยาวอย่างน้อย 6 ตัวอักษร';
+      if (msg.includes('User already registered')) msg = 'อีเมลนี้ถูกสมัครไปแล้ว หรือรอการยืนยัน';
       
       Swal.fire({
         icon: 'error',
-        title: 'ข้อผิดพลาด',
+        title: 'มีบางอย่างผิดพลาด',
         text: msg,
         background: '#09090b',
-        color: '#fff'
+        color: '#fff',
+        confirmButtonColor: '#0ea5e9'
       });
     } finally {
       setAuthLoading(false);
@@ -669,13 +674,21 @@ function AppContent() {
         
         Swal.fire({
           icon: 'success',
-          title: 'ส่งอีเมลอีกครั้งแล้ว',
-          text: 'โปรดตรวจสอบกล่องข้อความของคุณ',
+          title: 'APEX STUDIO',
+          text: 'ส่งลิงก์ยืนยันอีเมลเรียบร้อยแล้ว กรุณาตรวจสอบในกล่องข้อความของคุณ',
           background: '#09090b',
-          color: '#fff'
+          color: '#fff',
+          confirmButtonColor: '#0ea5e9'
         });
       } catch (err: any) {
-        Swal.fire('Error', err.message, 'error');
+        Swal.fire({
+          icon: 'error',
+          title: 'APEX STUDIO',
+          text: err.message || 'เกิดข้อผิดพลาดในการส่งอีเมล',
+          background: '#09090b',
+          color: '#fff',
+          confirmButtonColor: '#0ea5e9'
+        });
       }
     }
   };
@@ -756,7 +769,7 @@ function AppContent() {
         Swal.fire('สำเร็จ', `บล็อค IP ${ip} สำเร็จ`, 'success');
       } catch (err) {
         handleDbError(err, OperationType.WRITE, 'blocked_ips');
-        Swal.fire('Error', 'ไม่สามารถบล็อคได้: ' + (err as Error).message, 'error');
+        Swal.fire('ข้อผิดพลาด', 'ไม่สามารถบล็อคได้: ' + (err as Error).message, 'error');
       }
     }
   };
@@ -781,7 +794,7 @@ function AppContent() {
         setFirebaseKeys(prev => prev.filter(k => k.id !== keyId));
       } catch (err) {
         handleDbError(err, OperationType.DELETE, 'license_keys/' + keyId);
-        Swal.fire('Error', 'ลบไม่สำเร็จ: ' + (err as Error).message, 'error');
+        Swal.fire('ข้อผิดพลาด', 'ลบไม่สำเร็จ: ' + (err as Error).message, 'error');
       }
     }
   };
@@ -793,7 +806,7 @@ function AppContent() {
       setBlockedIPs(prev => prev.filter(i => i.ip !== ip));
     } catch (err) {
       handleDbError(err, OperationType.DELETE, 'blocked_ips/' + ip);
-      Swal.fire('Error', 'ไม่สำเร็จ: ' + (err as Error).message, 'error');
+      Swal.fire('ข้อผิดพลาด', 'ไม่สำเร็จ: ' + (err as Error).message, 'error');
     }
   };
 
@@ -952,6 +965,8 @@ function AppContent() {
     runningRef.current = false;
   };
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -962,7 +977,7 @@ function AppContent() {
         text: 'รองรับเฉพาะไฟล์ .txt เท่านั้น',
         icon: 'error'
       });
-      e.target.value = '';
+      if (fileInputRef.current) fileInputRef.current.value = '';
       return;
     }
 
@@ -977,9 +992,9 @@ function AppContent() {
         timer: 1500,
         showConfirmButton: false
       });
+      if (fileInputRef.current) fileInputRef.current.value = '';
     };
     reader.readAsText(file);
-    e.target.value = '';
   };
 
   const stopCheck = () => {
@@ -1492,27 +1507,6 @@ CREATE TABLE admins (
 
   return (
     <div className="min-h-screen bg-[#0d0d0f] text-white font-sans selection:bg-cyan-500/30">
-        {/* Navigation */}
-        <div className="flex bg-[#09090b] border-b border-white/5 p-2 gap-1 justify-center sticky top-0 z-50">
-            {[
-                { id: 'dashboard', label: 'Monitor', icon: BarChart3 },
-                { id: 'admin', label: 'Admin', icon: ShieldAlert },
-                { id: 'profile', label: 'Profile', icon: User },
-                { id: 'logs', label: 'Logs', icon: History },
-                { id: 'settings', label: 'Discord Scanner', icon: Search }
-            ].map((view) => (
-                <button
-                    key={view.id}
-                    onClick={() => setActiveView(view.id as any)}
-                    className={`px-4 py-2 rounded-lg flex items-center gap-2 text-xs font-bold transition-all ${
-                        activeView === view.id ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-400/20' : 'text-zinc-500 hover:text-zinc-300'
-                    }`}
-                >
-                    <view.icon className="w-3.5 h-3.5" />
-                    {view.label}
-                </button>
-            ))}
-        </div>
         
         {/* Main Content */}
         {activeView === 'logs' && (
@@ -1710,7 +1704,7 @@ CREATE TABLE admins (
       {/* Navbar - Shop Theme */}
 
       <nav className="sticky top-0 z-40 bg-[#0d0d0f]/80 backdrop-blur-lg border-b border-white/5">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between relative">
           <div className="flex items-center gap-8">
             <img 
               src="https://img2.pic.in.th/-59_20260425171043.png" 
@@ -1719,126 +1713,184 @@ CREATE TABLE admins (
               onClick={handleLogoClick}
             />
             <div className="hidden md:flex items-center gap-6 text-sm font-medium text-zinc-400">
-              <a href="#" className="hover:text-cyan-400 transition-colors flex items-center gap-2"><Home className="w-4 h-4"/> หน้าแรก</a>
-              <a href="#" className="hover:text-cyan-400 transition-colors flex items-center gap-2"><ShoppingCart className="w-4 h-4"/> สินค้าทั้งหมด</a>
-              <a href="#" className="hover:text-cyan-400 transition-colors flex items-center gap-2"><CreditCard className="w-4 h-4"/> เติมเงิน</a>
-              <a href="#" className="text-cyan-400 font-bold flex items-center gap-2 drop-shadow-[0_0_8px_rgba(34,211,238,0.4)]"><Shield className="w-4 h-4"/> เช็คไอดี (Checker)</a>
-              <a href="#" className="hover:text-cyan-400 transition-colors flex items-center gap-2"><Phone className="w-4 h-4"/> ติดต่อเรา</a>
+              <button onClick={() => setActiveView('dashboard')} className={`${activeView === 'dashboard' ? 'text-cyan-400 font-bold drop-shadow-[0_0_8px_rgba(34,211,238,0.4)]' : 'hover:text-cyan-400 transition-colors'} flex items-center gap-2`}><Home className="w-4 h-4"/> หน้าเช็คไอดี</button>
+              <button onClick={() => setActiveView('logs')} className={`${activeView === 'logs' ? 'text-cyan-400 font-bold drop-shadow-[0_0_8px_rgba(34,211,238,0.4)]' : 'hover:text-cyan-400 transition-colors'} flex items-center gap-2`}><History className="w-4 h-4"/> ประวัติการใช้งาน</button>
+              {isAdmin && <button onClick={() => setActiveView('admin')} className={`${activeView === 'admin' ? 'text-cyan-400 font-bold drop-shadow-[0_0_8px_rgba(34,211,238,0.4)]' : 'hover:text-cyan-400 transition-colors'} flex items-center gap-2`}><ShieldAlert className="w-4 h-4"/> ผู้ดูแลระบบ</button>}
+              <a href="#" className="hover:text-cyan-400 transition-colors flex items-center gap-2"><ShoppingCart className="w-4 h-4"/> ร้านค้า</a>
             </div>
           </div>
-          <div className="flex items-center gap-4">
-            {user ? (
-              <div className="flex items-center gap-3">
-                <div className="flex flex-col items-end hidden sm:flex">
-                  <div className="flex items-center gap-1.5">
-                    {user.is_anonymous || user.email_confirmed_at ? (
-                      <CheckCircle2 className="w-3 h-3 text-emerald-500" />
-                    ) : (
-                      <AlertTriangle className="w-3 h-3 text-amber-500" />
-                    )}
-                    <span className="text-sm font-bold text-white leading-tight truncate max-w-[120px]">
-                      {user.is_anonymous ? 'VIP Member' : user.email}
+
+          <div className="flex items-center gap-3">
+            {/* Desktop Actions */}
+            <div className="hidden md:flex items-center gap-3">
+              {user ? (
+                <>
+                  <div className="flex flex-col items-end mr-2">
+                    <div className="flex items-center gap-1.5">
+                      {user.is_anonymous || user.email_confirmed_at ? (
+                        <CheckCircle2 className="w-3 h-3 text-emerald-500" />
+                      ) : (
+                        <AlertTriangle className="w-3 h-3 text-amber-500" />
+                      )}
+                      <span className="text-sm font-bold text-white leading-tight truncate max-w-[120px]">
+                        {user.is_anonymous ? 'ผู้ใช้งานทั่วไป' : user.email}
+                      </span>
+                    </div>
+                    <span className={`text-[10px] font-bold uppercase tracking-wider ${user.is_anonymous || user.email_confirmed_at ? 'text-emerald-500' : 'text-amber-500'}`}>
+                      {user.is_anonymous ? 'Access Enabled' : user.email_confirmed_at ? 'Verified Account' : 'Needs Verification'}
                     </span>
                   </div>
-                  <span className={`text-[10px] font-bold uppercase tracking-wider ${user.is_anonymous || user.email_confirmed_at ? 'text-emerald-500' : 'text-amber-500'}`}>
-                    {user.is_anonymous ? 'Access Enabled' : user.email_confirmed_at ? 'Verified Account' : 'Needs Verification'}
-                  </span>
-                </div>
-                <div className="relative group">
-                  <button className="p-2.5 bg-zinc-800 rounded-xl border border-white/10 hover:bg-zinc-700 transition-all">
-                    <Menu className="w-5 h-5 text-zinc-300" />
-                  </button>
-                  <div className="absolute right-0 top-full mt-2 w-48 bg-[#09090b] border border-white/5 rounded-2xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all py-2 z-50">
-                    <div className="px-4 py-2 border-b border-white/5 sm:hidden">
-                      <p className="text-xs font-bold text-white truncate">{user.is_anonymous ? 'VIP Member' : user.email}</p>
-                    </div>
-                    
-                    {/* Mobile Navigation Links */}
-                    <div className="md:hidden border-b border-white/5 mb-1 pb-1">
-                      <a href="#" className="w-full px-4 py-2 text-left text-xs text-zinc-400 hover:text-cyan-400 hover:bg-white/5 flex items-center gap-2"><Home className="w-4 h-4"/> หน้าแรก</a>
-                      <a href="#" className="w-full px-4 py-2 text-left text-xs text-zinc-400 hover:text-cyan-400 hover:bg-white/5 flex items-center gap-2"><ShoppingCart className="w-4 h-4"/> สินค้าทั้งหมด</a>
-                      <a href="#" className="w-full px-4 py-2 text-left text-xs text-zinc-400 hover:text-cyan-400 hover:bg-white/5 flex items-center gap-2"><CreditCard className="w-4 h-4"/> เติมเงิน</a>
-                      <a href="#" className="w-full px-4 py-2 text-left text-xs text-cyan-400 hover:bg-white/5 flex items-center gap-2 font-bold"><Shield className="w-4 h-4"/> เช็คไอดี (Checker)</a>
-                      <a href="#" className="w-full px-4 py-2 text-left text-xs text-zinc-400 hover:text-cyan-400 hover:bg-white/5 flex items-center gap-2"><Phone className="w-4 h-4"/> ติดต่อเรา</a>
-                    </div>
 
-                    <button onClick={() => setShowProfileModal(true)} className="w-full px-4 py-2 text-left text-xs text-zinc-300 hover:bg-white/5 flex items-center gap-2">
-                      <User className="w-4 h-4" /> โปรไฟล์
+                  {userPlan?.isPremium ? (
+                    <div className="flex items-center gap-4 bg-amber-500/10 border border-amber-500/20 px-4 py-2 rounded-2xl mr-2">
+                      <Crown className="w-5 h-5 text-amber-500 drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]" />
+                      <div className="flex flex-col">
+                          <span className="text-sm font-bold text-amber-500 uppercase leading-tight">{userPlan.username}</span>
+                          <span className="text-[10px] text-amber-500/80 font-bold uppercase tracking-wider leading-tight">Premium Member</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <button onClick={() => setShowKeyModal(true)} className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-white text-sm font-bold shadow-[0_0_15px_rgba(245,158,11,0.3)] transition-all mr-2">
+                      <Crown className="w-3.5 h-3.5" /> ซื้อ VIP
                     </button>
-                    {userPlan?.isPremium && (
-                      <button onClick={() => setShowHistoryModal(true)} className="w-full px-4 py-2 text-left text-xs text-zinc-300 hover:bg-white/5 flex items-center gap-2">
-                        <History className="w-4 h-4" /> ประวัติการใช้งาน
-                      </button>
-                    )}
-                    {!user.is_anonymous && !user.email_confirmed_at && (
-                      <button onClick={resendVerification} className="w-full px-4 py-2 text-left text-xs text-amber-500 hover:bg-amber-500/10 flex items-center gap-2">
-                        <AlertTriangle className="w-4 h-4" /> ยืนยันอีเมล
-                      </button>
-                    )}
-                    <button onClick={handleLogout} className="w-full px-4 py-2 text-left text-xs text-red-500 hover:bg-red-500/10 flex items-center gap-2">
-                      <LogOut className="w-4 h-4" /> ออกจากระบบ
+                  )}
+
+                  <div className="relative group">
+                    <button className="p-2.5 bg-zinc-800 rounded-xl border border-white/10 hover:bg-zinc-700 transition-all">
+                      <User className="w-5 h-5 text-zinc-300" />
                     </button>
+                    <div className="absolute right-0 top-full mt-2 w-48 bg-[#09090b] border border-white/5 rounded-2xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all py-2 z-50">
+                      <button onClick={() => setShowProfileModal(true)} className="w-full px-4 py-2 text-left text-xs text-zinc-300 hover:bg-white/5 flex items-center gap-2">
+                        <User className="w-4 h-4" /> โปรไฟล์
+                      </button>
+                      {userPlan?.isPremium && (
+                        <button onClick={() => setShowHistoryModal(true)} className="w-full px-4 py-2 text-left text-xs text-zinc-300 hover:bg-white/5 flex items-center gap-2">
+                          <History className="w-4 h-4" /> ประวัติการใช้งาน
+                        </button>
+                      )}
+                      {!user.is_anonymous && !user.email_confirmed_at && (
+                        <button onClick={resendVerification} className="w-full px-4 py-2 text-left text-xs text-amber-500 hover:bg-amber-500/10 flex items-center gap-2">
+                          <AlertTriangle className="w-4 h-4" /> ยืนยันอีเมล
+                        </button>
+                      )}
+                      <button onClick={handleLogout} className="w-full px-4 py-2 text-left text-xs text-red-500 hover:bg-red-500/10 flex items-center gap-2">
+                        <LogOut className="w-4 h-4" /> ออกจากระบบ
+                      </button>
+                    </div>
                   </div>
-                </div>
-              </div>
-            ) : (
-              <div className="flex items-center gap-3">
-                <button 
-                  onClick={() => {
-                    setAuthMode('login');
-                    setShowAuthModal(true);
-                  }} 
-                  className="flex items-center gap-1.5 px-6 py-2.5 rounded-xl bg-zinc-800/50 hover:bg-zinc-800 text-sm font-bold border border-white/5 transition-all text-white"
-                >
-                  เข้าสู่ระบบ
-                </button>
-                <div className="relative group md:hidden">
-                  <button className="p-2.5 bg-zinc-800 rounded-xl border border-white/10 hover:bg-zinc-700 transition-all">
-                    <Menu className="w-5 h-5 text-zinc-300" />
+                </>
+              ) : (
+                <>
+                  <button 
+                    onClick={() => {
+                      setAuthMode('login');
+                      setShowAuthModal(true);
+                    }} 
+                    className="flex items-center gap-1.5 px-6 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-sm font-bold shadow-[0_4px_15px_rgba(8,145,178,0.3)] transition-all text-white"
+                  >
+                    <User className="w-4 h-4" /> เข้าระบบ / สมัครสมาชิก
                   </button>
-                  <div className="absolute right-0 top-full mt-2 w-48 bg-[#09090b] border border-white/5 rounded-2xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all py-2 z-50">
-                    <a href="#" className="w-full px-4 py-2 text-left text-xs text-zinc-400 hover:text-cyan-400 hover:bg-white/5 flex items-center gap-2"><Home className="w-4 h-4"/> หน้าแรก</a>
-                    <a href="#" className="w-full px-4 py-2 text-left text-xs text-zinc-400 hover:text-cyan-400 hover:bg-white/5 flex items-center gap-2"><ShoppingCart className="w-4 h-4"/> สินค้าทั้งหมด</a>
-                    <a href="#" className="w-full px-4 py-2 text-left text-xs text-zinc-400 hover:text-cyan-400 hover:bg-white/5 flex items-center gap-2"><CreditCard className="w-4 h-4"/> เติมเงิน</a>
-                    <a href="#" className="w-full px-4 py-2 text-left text-xs text-cyan-400 hover:bg-white/5 flex items-center gap-2 font-bold"><Shield className="w-4 h-4"/> เช็คไอดี (Checker)</a>
-                    <a href="#" className="w-full px-4 py-2 text-left text-xs text-zinc-400 hover:text-cyan-400 hover:bg-white/5 flex items-center gap-2"><Phone className="w-4 h-4"/> ติดต่อเรา</a>
-                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Mobile Actions: Login/VIP fast access and Hamburger */}
+            <div className="flex md:hidden items-center gap-2">
+              {user && !userPlan?.isPremium && (
+                <button onClick={() => setShowKeyModal(true)} className="flex items-center gap-1 px-3 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-white text-xs font-bold shadow-[0_0_15px_rgba(245,158,11,0.3)] transition-all">
+                  <Crown className="w-3 h-3" /> VIP
+                </button>
+              )}
+              <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="p-2.5 bg-zinc-800 rounded-xl border border-white/10 hover:bg-zinc-700 transition-all text-zinc-300">
+                {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile Menu Dropdown */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden absolute top-full left-0 w-full bg-[#09090b] border-b border-white/5 py-4 px-4 shadow-2xl z-50 flex flex-col gap-2">
+            {user && (
+              <div className="px-4 pb-3 mb-2 border-b border-white/5 flex flex-col gap-1">
+                <p className="text-sm font-bold text-white truncate">{user.is_anonymous ? 'ผู้ใช้งานทั่วไป' : user.email}</p>
+                <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-500">
+                  {userPlan?.isPremium ? `Premium: ${userPlan.username}` : (user.is_anonymous || user.email_confirmed_at ? 'Access Enabled' : 'Needs Verification')}
                 </div>
               </div>
             )}
+            
+            <button onClick={() => { setActiveView('dashboard'); setIsMobileMenuOpen(false); }} className={`w-full px-4 py-2.5 text-left text-sm rounded-xl font-medium transition-colors flex items-center gap-3 ${activeView === 'dashboard' ? 'bg-cyan-500/10 text-cyan-400' : 'text-zinc-400 hover:bg-white/5 hover:text-cyan-400'}`}>
+              <Home className="w-4 h-4"/> หน้าเช็คไอดี
+            </button>
+            <button onClick={() => { setActiveView('logs'); setIsMobileMenuOpen(false); }} className={`w-full px-4 py-2.5 text-left text-sm rounded-xl font-medium transition-colors flex items-center gap-3 ${activeView === 'logs' ? 'bg-cyan-500/10 text-cyan-400' : 'text-zinc-400 hover:bg-white/5 hover:text-cyan-400'}`}>
+              <History className="w-4 h-4"/> ประวัติการใช้งาน
+            </button>
+            {isAdmin && (
+              <button onClick={() => { setActiveView('admin'); setIsMobileMenuOpen(false); }} className={`w-full px-4 py-2.5 text-left text-sm rounded-xl font-medium transition-colors flex items-center gap-3 ${activeView === 'admin' ? 'bg-cyan-500/10 text-cyan-400' : 'text-zinc-400 hover:bg-white/5 hover:text-cyan-400'}`}>
+                <ShieldAlert className="w-4 h-4"/> ผู้ดูแลระบบ
+              </button>
+            )}
+            <a href="#" className="w-full px-4 py-2.5 text-left text-sm rounded-xl font-medium text-zinc-400 hover:bg-white/5 hover:text-cyan-400 transition-colors flex items-center gap-3">
+              <ShoppingCart className="w-4 h-4"/> ร้านค้า
+            </a>
+
+            {!user && (
+              <div className="mt-2 pt-2 border-t border-white/5 space-y-1">
+                <button onClick={() => { setAuthMode('login'); setShowAuthModal(true); setIsMobileMenuOpen(false); }} className="w-full px-4 py-2.5 text-left text-sm rounded-xl font-medium text-cyan-400 hover:bg-cyan-500/10 transition-colors flex items-center gap-3">
+                  <User className="w-4 h-4" /> เข้าสู่ระบบ
+                </button>
+                <button onClick={() => { 
+                  setAuthMode('signup'); 
+                  setShowAuthModal(true); 
+                  setIsMobileMenuOpen(false); 
+                }} className="w-full px-4 py-2.5 text-left text-sm rounded-xl font-medium text-emerald-400 hover:bg-emerald-500/10 transition-colors flex items-center gap-3">
+                  <User className="w-4 h-4" /> สมัครสมาชิก
+                </button>
+                <button onClick={() => { 
+                  setIsMobileMenuOpen(false);
+                  Swal.fire({
+                    title: 'ติดต่อปัญหา',
+                    text: 'หากพบปัญหาการใช้งาน กรุณาติดต่อเพจ APEX STUDIO TH',
+                    icon: 'info',
+                    background: '#09090b',
+                    color: '#fff',
+                    confirmButtonColor: '#0ea5e9'
+                  });
+                }} className="w-full px-4 py-2.5 text-left text-sm rounded-xl font-medium text-zinc-400 hover:bg-white/5 hover:text-cyan-400 transition-colors flex items-center gap-3">
+                  <Phone className="w-4 h-4" /> ติดต่อปัญหา
+                </button>
+              </div>
+            )}
+
+            {user && !userPlan?.isPremium && (
+              <button onClick={() => { setShowKeyModal(true); setIsMobileMenuOpen(false); }} className="w-full mt-2 px-4 py-2.5 text-left text-sm rounded-xl font-bold text-amber-500 bg-amber-500/10 hover:bg-amber-500/20 transition-colors flex items-center gap-3">
+                <Key className="w-4 h-4" /> กรอกคีย์ VIP
+              </button>
+            )}
 
             {user ? (
-               <>
+              <>
+                <button onClick={() => { setShowProfileModal(true); setIsMobileMenuOpen(false); }} className="w-full px-4 py-2.5 text-left text-sm rounded-xl font-medium text-zinc-300 hover:bg-white/5 transition-colors flex items-center gap-3">
+                  <User className="w-4 h-4" /> โปรไฟล์
+                </button>
                 {userPlan?.isPremium && (
-                    <button onClick={() => {
-                        Swal.fire({
-                            title: 'ประวัติการใช้งาน',
-                            text: 'นี่คือประวัติการตรวจสอบย้อนหลังของบัญชีคุณ',
-                            icon: 'info',
-                            background: '#09090b',
-                            color: '#fff'
-                        });
-                    }} className="hidden sm:flex items-center gap-1.5 px-4 py-2 rounded-xl bg-zinc-800/50 hover:bg-zinc-800 text-sm font-bold border border-white/5 transition-all text-zinc-300">
-                        <History className="w-3.5 h-3.5" /> ประวัติ
-                    </button>
-                )}
-                {!userPlan?.isPremium ? (
-                  <button onClick={() => setShowKeyModal(true)} className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-white text-sm font-bold shadow-[0_0_15px_rgba(245,158,11,0.3)] transition-all">
-                    <Crown className="w-3.5 h-3.5" /> ซื้อ VIP
+                  <button onClick={() => { setShowHistoryModal(true); setIsMobileMenuOpen(false); }} className="w-full px-4 py-2.5 text-left text-sm rounded-xl font-medium text-zinc-300 hover:bg-white/5 transition-colors flex items-center gap-3">
+                    <History className="w-4 h-4" /> ประวัติการใช้คีย์
                   </button>
-                ) : (
-                  <div className="flex items-center gap-4 bg-amber-500/10 border border-amber-500/20 px-4 py-2 rounded-2xl">
-                    <Crown className="w-5 h-5 text-amber-500 drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]" />
-                    <div className="flex flex-col hidden sm:flex">
-                        <span className="text-sm font-bold text-amber-500 uppercase leading-tight">{userPlan.username}</span>
-                        <span className="text-[10px] text-amber-500/80 font-bold uppercase tracking-wider leading-tight">Premium Member</span>
-                    </div>
-                  </div>
                 )}
-               </>
+                {!user.is_anonymous && !user.email_confirmed_at && (
+                  <button onClick={() => { resendVerification(); setIsMobileMenuOpen(false); }} className="w-full px-4 py-2.5 text-left text-sm rounded-xl font-medium text-amber-500 hover:bg-amber-500/10 transition-colors flex items-center gap-3">
+                    <AlertTriangle className="w-4 h-4" /> ยืนยันอีเมล
+                  </button>
+                )}
+                <button onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }} className="w-full mt-2 px-4 py-2.5 text-left text-sm rounded-xl font-bold text-red-500 bg-red-500/10 hover:bg-red-500/20 transition-colors flex items-center gap-3">
+                  <LogOut className="w-4 h-4" /> ออกจากระบบ
+                </button>
+              </>
             ) : null}
           </div>
-        </div>
+        )}
       </nav>
 
       {/* Verification Banner */}
@@ -1858,7 +1910,9 @@ CREATE TABLE admins (
       )}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-10 pb-24">
-        {/* Page Header */}
+        {activeView === 'dashboard' && (
+          <>
+            {/* Page Header */}
         <div className="mb-10 flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-white/5 pb-8">
           <div>
             <h1 className="text-3xl sm:text-4xl font-bold text-white flex items-center gap-3">
@@ -1919,7 +1973,7 @@ CREATE TABLE admins (
                   </button>
                   <label className="cursor-pointer bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-lg border border-white/10 text-[10px] font-bold text-cyan-400 flex items-center gap-1.5 transition-colors">
                     <Upload className="w-3.5 h-3.5" /> ไฟล์ .txt
-                    <input type="file" accept=".txt" className="hidden" onChange={handleFileUpload} />
+                    <input type="file" accept=".txt" className="hidden" onChange={handleFileUpload} ref={fileInputRef} />
                   </label>
                 </div>
               </div>
@@ -2170,6 +2224,8 @@ CREATE TABLE admins (
             )}
           </div>
         </div>
+          </>
+        )}
 
         {/* Footer */}
         <footer className="mt-20 pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4">
@@ -2303,16 +2359,8 @@ CREATE TABLE admins (
                     e.preventDefault();
                     const formData = new FormData(e.currentTarget);
                     const key = formData.get('key') as string;
-                    const username = formData.get('username') as string || 'VIP Member';
-                    if (key) redeemKey(key, username);
+                    if (key) redeemKey(key, user?.email || 'ผู้ใช้งานทั่วไป');
                   }} className="space-y-4">
-                  <div>
-                      <label className="text-[11px] text-zinc-400 font-bold uppercase tracking-wider mb-2 block">ชื่อผู้ใช้งาน (Username)</label>
-                      <div className="relative">
-                        <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
-                        <input required name="username" type="text" className="w-full bg-[#09090b] border border-white/10 rounded-xl py-3 pl-10 pr-4 text-sm focus:border-amber-500 outline-none text-white transition-all placeholder:text-zinc-600" placeholder="ชื่อที่ใช้ในระบบ" />
-                      </div>
-                  </div>
                   <div>
                       <label className="text-[11px] text-zinc-400 font-bold uppercase tracking-wider mb-2 block">คีย์สำหรับรายเดือน/รายปี (Key)</label>
                       <div className="relative">
@@ -2444,10 +2492,10 @@ CREATE TABLE admins (
               {logs.length > 0 ? logs.map((log, i) => (
                  <div key={i} className="p-3 bg-zinc-900/50 border border-white/5 rounded-xl flex flex-col text-sm break-words">
                    <div className="flex justify-between items-start mb-1 gap-4">
-                     <span className={`font-mono text-xs ${log.color}`}>{log.message}</span>
+                     <span className={`font-mono text-xs ${log.colorClass}`}>{log.text}</span>
                      <span className="text-[10px] text-zinc-500 shrink-0">{log.time}</span>
                    </div>
-                   <span className="text-[10px] text-zinc-600 uppercase">ประเภท: {log.type}</span>
+                   <span className="text-[10px] text-zinc-600 uppercase">ประเภท: {log.iconName}</span>
                  </div>
               )) : (
                 <div className="text-center text-zinc-500 py-10 flex flex-col items-center">

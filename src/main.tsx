@@ -1,37 +1,71 @@
-import {StrictMode} from 'react';
+import React, { StrictMode, Component, ErrorInfo, ReactNode } from 'react';
 import {createRoot} from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
-import eruda from 'eruda';
 
-eruda.init();
+// Remote error logging
+window.onerror = function (message, source, lineno, colno, error) {
+  fetch('/api/log_error', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ type: 'onerror', message, source, lineno, colno, stack: error?.stack })
+  }).catch(console.log);
+};
 
-// Create and style a custom floating button
-const btn = document.createElement('button');
-btn.innerText = 'LOG';
-btn.style.setProperty('position', 'fixed');
-btn.style.setProperty('bottom', '20px');
-btn.style.setProperty('right', '20px');
-btn.style.setProperty('zIndex', '999999');
-btn.style.setProperty('padding', '15px 25px');
-btn.style.setProperty('backgroundColor', '#f59e0b');
-btn.style.setProperty('color', 'white');
-btn.style.setProperty('border', 'none');
-btn.style.setProperty('borderRadius', '50px');
-btn.style.setProperty('fontSize', '18px');
-btn.style.setProperty('fontWeight', 'bold');
-btn.style.setProperty('boxShadow', '0 4px 6px rgba(0,0,0,0.3)');
+window.addEventListener('unhandledrejection', function(event) {
+  fetch('/api/log_error', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ type: 'unhandledrejection', reason: event.reason })
+  }).catch(console.log);
+});
 
-btn.onclick = () => eruda.show();
-document.body.appendChild(btn);
+interface Props {
+  children?: ReactNode;
+}
 
-// Hide the original Eruda button
-const style = document.createElement('style');
-style.innerHTML = '.eruda-entry-btn { display: none !important; }';
-document.head.appendChild(style);
+interface State {
+  hasError: boolean;
+  error?: Error;
+}
+
+class ErrorBoundary extends Component<Props, State> {
+  public state: State = {
+    hasError: false
+  };
+
+  public static getDerivedStateFromError(error: Error): State {
+    return { hasError: true, error };
+  }
+
+  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error('Uncaught error:', error, errorInfo);
+    fetch('/api/log_error', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'react_error', message: error.message, stack: error.stack, componentStack: errorInfo.componentStack })
+    }).catch(console.log);
+  }
+
+  public render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ padding: '20px', color: 'red', backgroundColor: '#000', minHeight: '100vh' }}>
+          <h1>Something went wrong.</h1>
+          <pre style={{ color: 'white', whiteSpace: 'pre-wrap' }}>{this.state.error?.message}</pre>
+          <pre style={{ color: 'gray', whiteSpace: 'pre-wrap', marginTop: '10px' }}>{this.state.error?.stack}</pre>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    <ErrorBoundary>
+      <App />
+    </ErrorBoundary>
   </StrictMode>,
 );
