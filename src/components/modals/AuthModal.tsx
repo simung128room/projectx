@@ -61,7 +61,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
   const executeAuth = async () => {
     setAuthLoading(true);
     try {
-      const generatedEmail = `${authUsername.toLowerCase().trim()}@apex-studio.local`;
+      const generatedEmail = `${authUsername.toLowerCase().trim()}@apex-studio.com`;
 
       if (authMode === 'signup') {
         const { data, error } = await supabase.auth.signUp({
