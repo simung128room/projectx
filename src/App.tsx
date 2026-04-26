@@ -88,6 +88,7 @@ function AppContent() {
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const [checkTurnstileToken, setCheckTurnstileToken] = useState<string | null>(null);
   const [showCheckCaptchaModal, setShowCheckCaptchaModal] = useState(false);
+  const [showAuthCaptchaModal, setShowAuthCaptchaModal] = useState(false);
   const [savedLinesToCheck, setSavedLinesToCheck] = useState<string[]>([]);
   const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY || '0x4AAAAAADDdDO8JWWr7qfc';
 
@@ -554,15 +555,18 @@ function AppContent() {
       });
       return;
     }
+
+    setTurnstileToken(null);
+    setShowAuthCaptchaModal(true);
+  };
+
+  const executeAuth = async (token: string) => {
+    setShowAuthCaptchaModal(false);
     setAuthLoading(true);
     try {
-      if (!turnstileToken) {
-        throw new Error('กรุณายืนยันว่าคุณไม่ใช่บอท');
-      }
-
       // Verify Turnstile locally via backend
       const verifyRes = await axios.post('/api/verify_turnstile', {
-        token: turnstileToken
+        token: token
       });
 
       if (!verifyRes.data.success) {
@@ -1552,20 +1556,10 @@ CREATE TABLE admins (
                   </div>
                 </div>
               )}
-              
-              <div className="flex justify-center my-4">
-                <Turnstile
-                  siteKey={TURNSTILE_SITE_KEY}
-                  onSuccess={(token) => setTurnstileToken(token)}
-                  onError={() => setTurnstileToken(null)}
-                  onExpire={() => setTurnstileToken(null)}
-                  options={{ theme: 'dark' }}
-                />
-              </div>
 
               <button 
                 type="submit"
-                disabled={authLoading || !turnstileToken}
+                disabled={authLoading}
                 className={`w-full py-4 rounded-3xl text-sm font-bold transition-all shadow-xl flex items-center justify-center gap-2 ${
                   authMode === 'login' 
                     ? 'bg-cyan-600 hover:bg-cyan-500 shadow-cyan-500/10' 
@@ -2083,6 +2077,38 @@ CREATE TABLE admins (
       </div>
 
       {/* Modals */}
+      {showAuthCaptchaModal && (
+        <div className="fixed inset-0 bg-[#09090b]/90 flex items-center justify-center p-4 z-[999] backdrop-blur-md font-sans">
+          <div className="bg-[#151518] border border-white/10 rounded-3xl p-6 sm:p-8 max-w-sm w-full relative shadow-[0_0_50px_rgba(0,0,0,0.5)]">
+            <div className="text-center">
+              <Shield className="w-12 h-12 text-emerald-400 mx-auto mb-4" />
+              <h2 className="text-xl font-bold mb-2">ยืนยันความปลอดภัย</h2>
+              <p className="text-zinc-400 text-sm mb-6">กรุณายืนยันว่าคุณไม่ใช่บอท เพื่อดำเนินการต่อ</p>
+              
+              <div className="flex justify-center mb-6 min-h-[65px]">
+                <Turnstile 
+                  siteKey={TURNSTILE_SITE_KEY}
+                  onSuccess={(token) => executeAuth(token)}
+                  onError={() => {
+                    Swal.fire({ title: 'ข้อผิดพลาด', text: 'ยืนยันตัวตนล้มเหลว', icon: 'error' });
+                    setShowAuthCaptchaModal(false);
+                  }}
+                  onExpire={() => setTurnstileToken(null)}
+                  options={{ theme: 'dark' }}
+                />
+              </div>
+
+              <button
+                onClick={() => setShowAuthCaptchaModal(false)}
+                className="w-full py-3 bg-zinc-800 hover:bg-zinc-700 text-white rounded-xl text-sm font-bold transition-all"
+              >
+                ยกเลิก
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showCheckCaptchaModal && (
         <div className="fixed inset-0 bg-[#09090b]/90 flex items-center justify-center p-4 z-50 backdrop-blur-md font-sans">
           <div className="bg-[#151518] border border-white/10 rounded-3xl p-6 sm:p-8 max-w-sm w-full relative shadow-[0_0_50px_rgba(0,0,0,0.5)]">
