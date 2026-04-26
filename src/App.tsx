@@ -615,6 +615,8 @@ function AppContent() {
       // Verify Turnstile locally via backend
       const verifyRes = await axios.post('/api/verify_turnstile', {
         token: token
+      }).catch(err => {
+        throw new Error(`Captcha API Error: ${err.message} \n\n ${JSON.stringify(err?.response?.data || {})}`);
       });
 
       if (!verifyRes.data.success) {
@@ -630,7 +632,9 @@ function AppContent() {
           }
         });
         
-        if (error) throw error;
+        if (error) {
+           throw new Error(`Supabase SignUp Error: ${error.message} (Code: ${(error as any).status || 500})`);
+        }
         
         Swal.fire({
           icon: 'success',
@@ -646,7 +650,9 @@ function AppContent() {
           password: authPassword,
         });
 
-        if (error) throw error;
+        if (error) {
+           throw new Error(`Supabase Login Error: ${error.message} (Code: ${(error as any).status || 500})`);
+        }
 
         Swal.fire({
           icon: 'success',
@@ -659,19 +665,12 @@ function AppContent() {
         setShowAuthModal(false);
       }
     } catch (err: any) {
-      console.error("Auth Error Detailed:", err, err?.response);
+      console.error("Auth Error Detailed:", err);
       let msg = err?.message || 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ';
-      if (err?.response?.data?.error) {
-        msg = typeof err.response.data.error === 'object' 
-          ? JSON.stringify(err.response.data.error) + ' (API Error)'
-          : err.response.data.error + ' (API Error)';
-      }
-      if (typeof msg === 'object') {
-        msg = JSON.stringify(msg);
-      }
+
       if (msg.includes('already registered')) msg = 'อีเมลนี้ถูกใช้งานแล้ว';
-      if (err.message.includes('Invalid login credentials')) msg = 'อีเมลหรือรหัสผ่านไม่ถูกต้อง';
-      if (err.message.includes('invalid email format')) msg = 'รูปแบบอีเมลไม่ถูกต้อง';
+      if (err.message?.includes('Invalid login credentials')) msg = 'อีเมลหรือรหัสผ่านไม่ถูกต้อง';
+      if (err.message?.includes('invalid email format')) msg = 'รูปแบบอีเมลไม่ถูกต้อง';
       
       Swal.fire({
         icon: 'error',
