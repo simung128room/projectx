@@ -12,7 +12,7 @@ import axios from 'axios';
 import jsQR from 'jsqr';
 import { supabase } from './lib/supabase';
 import { User as SupabaseUser } from '@supabase/supabase-js';
-import { Turnstile } from '@marsidev/react-turnstile';
+import ReCAPTCHA from 'react-google-recaptcha';
 
 interface AccountResult {
   account: string;
@@ -85,11 +85,11 @@ function AppContent() {
   const [authConfirmPassword, setAuthConfirmPassword] = useState('');
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const [authLoading, setAuthLoading] = useState(false);
-  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
-  const [checkTurnstileToken, setCheckTurnstileToken] = useState<string | null>(null);
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
+  const [checkRecaptchaToken, setCheckRecaptchaToken] = useState<string | null>(null);
   const [showCheckCaptchaModal, setShowCheckCaptchaModal] = useState(false);
   const [savedLinesToCheck, setSavedLinesToCheck] = useState<string[]>([]);
-  const TURNSTILE_SITE_KEY = '0x4AAAAAADDNPyGBIV4MApep';
+  const RECAPTCHA_SITE_KEY = import.meta.env.VITE_RECAPTCHA_SITE_KEY || '6LchxcosAAAAAA-406cXFuKohhXFZeeD3Yx9TUPv';
 
   enum OperationType {
     CREATE = 'create',
@@ -557,13 +557,13 @@ function AppContent() {
     }
     setAuthLoading(true);
     try {
-      if (!turnstileToken) {
+      if (!recaptchaToken) {
         throw new Error('กรุณายืนยันว่าคุณไม่ใช่บอท');
       }
 
-      // Verify Turnstile locally via backend
-      const verifyRes = await axios.post('/api/verify_turnstile', {
-        token: turnstileToken
+      // Verify ReCAPTCHA locally via backend
+      const verifyRes = await axios.post('/api/verify-recaptcha', {
+        token: recaptchaToken
       });
 
       if (!verifyRes.data.success) {
@@ -895,13 +895,13 @@ function AppContent() {
     }
 
     setSavedLinesToCheck(linesToCheck);
-    setCheckTurnstileToken(null);
+    setCheckRecaptchaToken(null);
     setShowCheckCaptchaModal(true);
   };
 
   const executeCheck = async (token: string) => {
     setShowCheckCaptchaModal(false);
-    setCheckTurnstileToken(token);
+    setCheckRecaptchaToken(token);
 
     setRunning(true);
     runningRef.current = true;
@@ -1551,18 +1551,16 @@ CREATE TABLE admins (
               )}
               
               <div className="flex justify-center my-4">
-                <Turnstile 
-                  siteKey={TURNSTILE_SITE_KEY}
-                  onSuccess={(token) => setTurnstileToken(token)}
-                  onError={() => setTurnstileToken(null)}
-                  onExpire={() => setTurnstileToken(null)}
-                  options={{ theme: 'dark' }}
+                <ReCAPTCHA 
+                  sitekey={RECAPTCHA_SITE_KEY}
+                  onChange={(token) => setRecaptchaToken(token)}
+                  theme="dark"
                 />
               </div>
 
               <button 
                 type="submit"
-                disabled={authLoading || !turnstileToken}
+                disabled={authLoading || !recaptchaToken}
                 className={`w-full py-4 rounded-3xl text-sm font-bold transition-all shadow-xl flex items-center justify-center gap-2 ${
                   authMode === 'login' 
                     ? 'bg-cyan-600 hover:bg-cyan-500 shadow-cyan-500/10' 
@@ -2089,15 +2087,13 @@ CREATE TABLE admins (
               <p className="text-zinc-400 text-sm mb-6">กรุณายืนยันว่าคุณไม่ใช่บอท เพื่อเริ่มตรวจสอบไอดี จำนวน {savedLinesToCheck.length} รายการ</p>
               
               <div className="flex justify-center mb-6">
-                <Turnstile 
-                  siteKey={TURNSTILE_SITE_KEY}
-                  onSuccess={(token) => executeCheck(token)}
-                  onError={() => {
-                    Swal.fire({ title: 'ข้อผิดพลาด', text: 'ยืนยันตัวตนล้มเหลว', icon: 'error' });
-                    setCheckTurnstileToken(null);
+                <ReCAPTCHA 
+                  sitekey={RECAPTCHA_SITE_KEY}
+                  onChange={(token) => {
+                      if (token) executeCheck(token);
+                      else setCheckRecaptchaToken(null);
                   }}
-                  onExpire={() => setCheckTurnstileToken(null)}
-                  options={{ theme: 'dark' }}
+                  theme="dark"
                 />
               </div>
 

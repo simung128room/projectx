@@ -72,6 +72,36 @@ async function startServer() {
     }
   });
 
+  app.post('/api/verify-recaptcha', async (req, res) => {
+    const { token } = req.body;
+    const secretKey = process.env.RECAPTCHA_SECRET_KEY;
+
+    if (!token) {
+      return res.status(400).json({ success: false, error: 'Token missing' });
+    }
+
+    if (!secretKey) {
+        return res.status(500).json({ success: false, error: 'Secret Key not configured on server' });
+    }
+
+    try {
+      const response = await axios.post(
+        'https://www.google.com/recaptcha/api/siteverify',
+        `secret=${encodeURIComponent(secretKey)}&response=${encodeURIComponent(token)}`,
+        {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          }
+        }
+      );
+
+      return res.json(response.data);
+    } catch (error) {
+      console.error('reCAPTCHA verification error:', error);
+      return res.status(500).json({ success: false, error: 'Internal server error' });
+    }
+  });
+
   // --- Exact Garena Checking Logic using node:crypto ---
   
   const getMD5 = (text: string) => {
