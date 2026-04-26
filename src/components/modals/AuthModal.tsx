@@ -239,12 +239,15 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
 
       {/* Turnstile Sub-Modal */}
       {showTurnstileModal && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm rounded-[2.5rem]">
-          <div className="bg-zinc-900 border border-white/10 rounded-3xl p-6 animate-in zoom-in-95 duration-200 shadow-2xl flex flex-col items-center max-w-[90%]">
-             <Shield className="w-10 h-10 text-cyan-500 mb-4 opacity-80" />
-             <h3 className="text-white font-bold mb-1">ยืนยันความปลอดภัย</h3>
-             <p className="text-zinc-400 text-xs mb-6 text-center">กรุณายืนยันว่าคุณไม่ใช่บอท</p>
-             <div className="min-h-[65px] flex items-center justify-center mb-6 w-full overflow-hidden">
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md rounded-[2.5rem]">
+          <div className="bg-[#09090b] border border-white/10 rounded-[2rem] p-4 pt-6 animate-in zoom-in-95 duration-200 shadow-2xl flex flex-col items-center relative">
+             <button 
+               onClick={() => setShowTurnstileModal(false)}
+               className="absolute top-3 right-3 text-zinc-500 hover:text-white transition-colors"
+             >
+               <X className="w-4 h-4" />
+             </button>
+             <div className="min-h-[65px] flex items-center justify-center w-full overflow-hidden mt-2">
                <Turnstile
                  siteKey={TURNSTILE_SITE_KEY}
                  onSuccess={(token) => {
@@ -255,12 +258,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
                  options={{ theme: 'dark' }}
                />
              </div>
-             <button 
-               onClick={() => setShowTurnstileModal(false)}
-               className="text-xs text-zinc-500 hover:text-white transition-colors"
-             >
-               ยกเลิก
-             </button>
           </div>
         </div>
       )}
