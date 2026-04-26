@@ -4,7 +4,7 @@ import {
   Gamepad2, ListChecks, Play, Square, Check, X, Shield, Terminal, CheckCircle2, 
   Home, ShoppingCart, CreditCard, Phone, Upload, Key, Crown, LogOut, User, Gift, 
   FileImage, Database, Globe, BarChart3, Settings, Activity, FileText, 
-  AlertTriangle, Download, ChevronRight, Trash2, ShieldAlert, Plus, Ban, History, Search, Copy 
+  AlertTriangle, Download, ChevronRight, Trash2, ShieldAlert, Plus, Ban, History, Search, Copy, Menu
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import Swal from 'sweetalert2';
@@ -1746,12 +1746,22 @@ CREATE TABLE admins (
                 </div>
                 <div className="relative group">
                   <button className="p-2.5 bg-zinc-800 rounded-xl border border-white/10 hover:bg-zinc-700 transition-all">
-                    <User className="w-5 h-5 text-zinc-300" />
+                    <Menu className="w-5 h-5 text-zinc-300" />
                   </button>
                   <div className="absolute right-0 top-full mt-2 w-48 bg-[#09090b] border border-white/5 rounded-2xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all py-2 z-50">
                     <div className="px-4 py-2 border-b border-white/5 sm:hidden">
                       <p className="text-xs font-bold text-white truncate">{user.is_anonymous ? 'VIP Member' : user.email}</p>
                     </div>
+                    
+                    {/* Mobile Navigation Links */}
+                    <div className="md:hidden border-b border-white/5 mb-1 pb-1">
+                      <a href="#" className="w-full px-4 py-2 text-left text-xs text-zinc-400 hover:text-cyan-400 hover:bg-white/5 flex items-center gap-2"><Home className="w-4 h-4"/> หน้าแรก</a>
+                      <a href="#" className="w-full px-4 py-2 text-left text-xs text-zinc-400 hover:text-cyan-400 hover:bg-white/5 flex items-center gap-2"><ShoppingCart className="w-4 h-4"/> สินค้าทั้งหมด</a>
+                      <a href="#" className="w-full px-4 py-2 text-left text-xs text-zinc-400 hover:text-cyan-400 hover:bg-white/5 flex items-center gap-2"><CreditCard className="w-4 h-4"/> เติมเงิน</a>
+                      <a href="#" className="w-full px-4 py-2 text-left text-xs text-cyan-400 hover:bg-white/5 flex items-center gap-2 font-bold"><Shield className="w-4 h-4"/> เช็คไอดี (Checker)</a>
+                      <a href="#" className="w-full px-4 py-2 text-left text-xs text-zinc-400 hover:text-cyan-400 hover:bg-white/5 flex items-center gap-2"><Phone className="w-4 h-4"/> ติดต่อเรา</a>
+                    </div>
+
                     <button onClick={() => setShowProfileModal(true)} className="w-full px-4 py-2 text-left text-xs text-zinc-300 hover:bg-white/5 flex items-center gap-2">
                       <User className="w-4 h-4" /> โปรไฟล์
                     </button>
@@ -1762,25 +1772,39 @@ CREATE TABLE admins (
                     )}
                     {!user.is_anonymous && !user.email_confirmed_at && (
                       <button onClick={resendVerification} className="w-full px-4 py-2 text-left text-xs text-amber-500 hover:bg-amber-500/10 flex items-center gap-2">
-                        <AlertTriangle className="w-4 h-4" /> Resend Verification
+                        <AlertTriangle className="w-4 h-4" /> ยืนยันอีเมล
                       </button>
                     )}
                     <button onClick={handleLogout} className="w-full px-4 py-2 text-left text-xs text-red-500 hover:bg-red-500/10 flex items-center gap-2">
-                      <LogOut className="w-4 h-4" /> Logout
+                      <LogOut className="w-4 h-4" /> ออกจากระบบ
                     </button>
                   </div>
                 </div>
               </div>
             ) : (
-              <button 
-                onClick={() => {
-                  setAuthMode('login');
-                  setShowAuthModal(true);
-                }} 
-                className="flex items-center gap-1.5 px-6 py-2.5 rounded-xl bg-zinc-800/50 hover:bg-zinc-800 text-sm font-bold border border-white/5 transition-all text-white"
-              >
-                เข้าสู่ระบบ
-              </button>
+              <div className="flex items-center gap-3">
+                <button 
+                  onClick={() => {
+                    setAuthMode('login');
+                    setShowAuthModal(true);
+                  }} 
+                  className="flex items-center gap-1.5 px-6 py-2.5 rounded-xl bg-zinc-800/50 hover:bg-zinc-800 text-sm font-bold border border-white/5 transition-all text-white"
+                >
+                  เข้าสู่ระบบ
+                </button>
+                <div className="relative group md:hidden">
+                  <button className="p-2.5 bg-zinc-800 rounded-xl border border-white/10 hover:bg-zinc-700 transition-all">
+                    <Menu className="w-5 h-5 text-zinc-300" />
+                  </button>
+                  <div className="absolute right-0 top-full mt-2 w-48 bg-[#09090b] border border-white/5 rounded-2xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all py-2 z-50">
+                    <a href="#" className="w-full px-4 py-2 text-left text-xs text-zinc-400 hover:text-cyan-400 hover:bg-white/5 flex items-center gap-2"><Home className="w-4 h-4"/> หน้าแรก</a>
+                    <a href="#" className="w-full px-4 py-2 text-left text-xs text-zinc-400 hover:text-cyan-400 hover:bg-white/5 flex items-center gap-2"><ShoppingCart className="w-4 h-4"/> สินค้าทั้งหมด</a>
+                    <a href="#" className="w-full px-4 py-2 text-left text-xs text-zinc-400 hover:text-cyan-400 hover:bg-white/5 flex items-center gap-2"><CreditCard className="w-4 h-4"/> เติมเงิน</a>
+                    <a href="#" className="w-full px-4 py-2 text-left text-xs text-cyan-400 hover:bg-white/5 flex items-center gap-2 font-bold"><Shield className="w-4 h-4"/> เช็คไอดี (Checker)</a>
+                    <a href="#" className="w-full px-4 py-2 text-left text-xs text-zinc-400 hover:text-cyan-400 hover:bg-white/5 flex items-center gap-2"><Phone className="w-4 h-4"/> ติดต่อเรา</a>
+                  </div>
+                </div>
+              </div>
             )}
 
             {user ? (
