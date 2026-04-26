@@ -48,7 +48,7 @@ async function startServer() {
 
   app.post('/api/verify_turnstile', async (req, res) => {
     const { token } = req.body;
-    const secretKey = process.env.TURNSTILE_SECRET_KEY || '0x4AAAAAADDNP16fPYS626bL2JicdfF9Fcs';
+    const secretKey = process.env.TURNSTILE_SECRET_KEY || '0x4AAAAAADDdDBOlN6BmeibjJ1JWusta6Ag';
 
     if (!token) {
       return res.status(400).json({ success: false, error: 'Token missing' });
@@ -107,7 +107,7 @@ async function startServer() {
 
     // Verify Turnstile Token First (Only if provided, to support bulk loop)
     if (turnstileToken) {
-      const secretKey = process.env.TURNSTILE_SECRET_KEY || '0x4AAAAAADDNP16fPYS626bL2JicdfF9Fcs';
+      const secretKey = process.env.TURNSTILE_SECRET_KEY || '0x4AAAAAADDdDBOlN6BmeibjJ1JWusta6Ag';
       try {
         const tsResponse = await axios.post(
           'https://challenges.cloudflare.com/turnstile/v0/siteverify',

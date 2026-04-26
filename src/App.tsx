@@ -89,7 +89,7 @@ function AppContent() {
   const [checkTurnstileToken, setCheckTurnstileToken] = useState<string | null>(null);
   const [showCheckCaptchaModal, setShowCheckCaptchaModal] = useState(false);
   const [savedLinesToCheck, setSavedLinesToCheck] = useState<string[]>([]);
-  const TURNSTILE_SITE_KEY = '0x4AAAAAADDNPyGBIV4MApep';
+  const TURNSTILE_SITE_KEY = '0x4AAAAAADDdDO8JWWr7qfc';
 
   enum OperationType {
     CREATE = 'create',
