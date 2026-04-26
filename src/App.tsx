@@ -116,6 +116,20 @@ function AppContent() {
   const [vipTab, setVipTab] = useState<'key'>('key');
 
   const [proxy, setProxy] = useState<string>('');
+  const [proxyHistory, setProxyHistory] = useState<string[]>([]);
+  const VIP_PROXY = '192.168.1.1:8080@user:pass\n192.168.1.2:8080@user:pass';
+
+  useEffect(() => {
+    const saved = localStorage.getItem('proxyHistory');
+    if (saved) setProxyHistory(JSON.parse(saved));
+  }, []);
+
+  const saveProxy = (p: string) => {
+    if (!p.trim()) return;
+    const newHistory = Array.from(new Set([p, ...proxyHistory]));
+    setProxyHistory(newHistory);
+    localStorage.setItem('proxyHistory', JSON.stringify(newHistory));
+  };
 
   // Firebase State
   const [firebaseKeys, setFirebaseKeys] = useState<any[]>([]);
@@ -1838,7 +1852,31 @@ CREATE TABLE admins (
                    <Globe className="w-3.5 h-3.5" /> ตั้งค่า Proxy (Bypass 403)
                 </label>
                 <div className="bg-[#09090b] border border-white/10 rounded-2xl p-5 h-48 flex flex-col gap-2">
-                   <p className="text-[10px] text-zinc-400 shrink-0">ใส่ Proxy เพื่อป้องกันการโดน IP Block (403 Forbidden) รองรับหลายบรรทัดและการสุ่ม</p>
+                   <p className="text-[10px] text-zinc-400 shrink-0">ใส่ Proxy เพื่อป้องกันการโดน IP Block (403 Forbidden)</p>
+                   <div className="flex gap-2">
+                     <select 
+                       className="flex-1 bg-zinc-900 border border-white/10 rounded-xl px-2 text-[10px] outline-none"
+                       onChange={(e) => {
+                         if (e.target.value) {
+                           setProxy(e.target.value);
+                         }
+                       }}
+                     >
+                       <option value="">เลือกจากประวัติ / VIP</option>
+                       {proxyHistory.map((h, i) => (
+                         <option key={i} value={h}>{h.substring(0, 30)}...</option>
+                       ))}
+                       {userPlan?.isPremium && (
+                         <option value={VIP_PROXY}>[VIP] Proxy Pool</option>
+                       )}
+                     </select>
+                     <button 
+                       onClick={() => saveProxy(proxy)}
+                       className="bg-zinc-800 hover:bg-zinc-700 text-[10px] font-bold px-3 py-1 rounded-xl"
+                     >
+                       บันทึก
+                     </button>
+                   </div>
                    <textarea 
                      value={proxy}
                      onChange={(e) => setProxy(e.target.value)}
@@ -1851,6 +1889,7 @@ CREATE TABLE admins (
                          <span className="text-[10px] text-zinc-400 font-bold">Proxy Rotate: Armed</span>
                       </div>
                    </div>
+                </div>
                 </div>
               </div>
             </div>
