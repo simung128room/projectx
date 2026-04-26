@@ -4,7 +4,7 @@ import {
   Gamepad2, ListChecks, Play, Square, Check, X, Shield, Terminal, CheckCircle2, 
   Home, ShoppingCart, CreditCard, Phone, Upload, Key, Crown, LogOut, User, Gift, 
   FileImage, Database, Globe, BarChart3, Settings, Activity, FileText, 
-  AlertTriangle, Download, ChevronRight, Trash2, ShieldAlert, Plus, Ban, History, Search, Copy, Menu
+  AlertTriangle, Download, ChevronRight, Trash2, ShieldAlert, Plus, Ban, History, Search, Copy, Menu, Server
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import Swal from 'sweetalert2';
@@ -18,6 +18,7 @@ import { HistoryModal } from './components/modals/HistoryModal';
 import { ProfileModal } from './components/modals/ProfileModal';
 import { KeyModal } from './components/modals/KeyModal';
 import { AuthModal } from './components/modals/AuthModal';
+import { ServerProxyModal } from './components/modals/ServerProxyModal';
 import { AdminDashboard } from './components/AdminDashboard';
 
 var TextPaint = `▒▄▀▄▒█▀▄▒██▀░▀▄▀
@@ -95,7 +96,7 @@ function AppContent() {
 
   const [proxy, setProxy] = useState<string>('');
   const [proxyHistory, setProxyHistory] = useState<string[]>([]);
-  const VIP_PROXY = '192.168.1.1:8080@user:pass\n192.168.1.2:8080@user:pass';
+  const [showServerProxyModal, setShowServerProxyModal] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem('proxyHistory');
@@ -989,9 +990,15 @@ function AppContent() {
 
   if (isAdmin) return <AdminDashboard />;
   if (!isLoaded) return (
-    <div className="min-h-screen bg-[#0d0d0f] flex flex-col items-center justify-center gap-4">
-      <div className="w-12 h-12 border-4 border-cyan-500/20 border-t-cyan-500 rounded-full animate-spin"></div>
-      <div className="text-cyan-500/50 text-xs font-mono animate-pulse">BOOTING APEX STUDIO...</div>
+    <div className="min-h-screen bg-[#0d0d0f] flex flex-col items-center justify-center gap-6">
+      <div className="relative">
+        <div className="w-16 h-16 border-4 border-emerald-500/20 rounded-full"></div>
+        <div className="absolute top-0 left-0 w-16 h-16 border-4 border-t-emerald-500 border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin"></div>
+      </div>
+      <div className="flex flex-col items-center gap-2">
+        <div className="text-emerald-500 text-sm font-bold tracking-widest uppercase animate-pulse">APEX STUDIO</div>
+        <div className="text-zinc-600 text-[10px] font-mono tracking-[0.2em]">INITIALIZING SYSTEM...</div>
+      </div>
     </div>
   );
 
@@ -1010,6 +1017,15 @@ function AppContent() {
         show={showAuthModal}
         onClose={() => setShowAuthModal(false)}
         initialMode={authMode}
+      />
+
+      <ServerProxyModal
+        show={showServerProxyModal}
+        onClose={() => setShowServerProxyModal(false)}
+        onSelectProxy={(proxies) => {
+          setProxy(proxies);
+        }}
+        currentProxy={proxy}
       />
 
       {/* Admin Login Modal Overlay */}
@@ -1379,45 +1395,15 @@ function AppContent() {
                 <label className="text-[11px] text-zinc-500 font-bold uppercase tracking-wider mb-2 flex items-center gap-2">
                    <Globe className="w-3.5 h-3.5" /> ตั้งค่า Proxy (Bypass 403)
                 </label>
-                <div className="bg-[#09090b] border border-white/10 rounded-2xl p-5 h-48 flex flex-col gap-2">
-                   <p className="text-[10px] text-zinc-400 shrink-0">ใส่ Proxy เพื่อป้องกันการโดน IP Block (403 Forbidden)</p>
-                   <div className="flex gap-2">
-                     <select 
-                       className="flex-1 bg-zinc-900 border border-white/10 rounded-xl px-2 text-[10px] outline-none"
-                       onChange={(e) => {
-                         if (e.target.value) {
-                           setProxy(e.target.value);
-                         }
-                       }}
+                <div className="bg-[#09090b] border border-white/10 rounded-2xl p-5 flex flex-col gap-2">
+                    <p className="text-[10px] text-zinc-400 shrink-0">ใช้ Proxy เพื่อป้องกันการโดน IP Block (403 Forbidden)</p>
+                    <button 
+                       onClick={() => setShowServerProxyModal(true)}
+                       className="w-full flex items-center justify-center gap-1.5 shrink-0 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-500 text-[10px] font-bold px-3 py-3 rounded-xl transition-all border border-emerald-500/20"
                      >
-                       <option value="">เลือกจากประวัติ / VIP</option>
-                       {proxyHistory.map((h, i) => (
-                         <option key={i} value={h}>{h.substring(0, 30)}...</option>
-                       ))}
-                       {userPlan?.isPremium && (
-                         <option value={VIP_PROXY}>[VIP] Proxy Pool</option>
-                       )}
-                     </select>
-                     <button 
-                       onClick={() => saveProxy(proxy)}
-                       className="bg-zinc-800 hover:bg-zinc-700 text-[10px] font-bold px-3 py-1 rounded-xl"
-                     >
-                       บันทึก
+                       <Server className="w-4 h-4" /> {proxy ? proxy : 'เลือกเซิร์ฟเวอร์'}
                      </button>
-                   </div>
-                   <textarea 
-                     value={proxy}
-                     onChange={(e) => setProxy(e.target.value)}
-                     placeholder="IP:PORT@USER:PASS&#10;IP:PORT:USER:PASS&#10;http://user:pass@host:port"
-                     className="w-full flex-1 bg-zinc-900/50 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-cyan-500 outline-none transition-all font-mono placeholder:text-zinc-700 resize-none"
-                   />
-                   <div className="pt-1 space-y-1 shrink-0">
-                      <div className="flex items-center gap-2">
-                         <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]"></div>
-                         <span className="text-[10px] text-zinc-400 font-bold">Proxy Rotate: Armed</span>
-                      </div>
-                   </div>
-                </div>
+                 </div>
               </div>
             </div>
 

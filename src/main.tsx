@@ -13,10 +13,27 @@ window.onerror = function (message, source, lineno, colno, error) {
 };
 
 window.addEventListener('unhandledrejection', function(event) {
+  // Prevent logging empty rejection reasons
+  if (event.reason && Object.keys(event.reason).length === 0 && event.reason.constructor === Object) {
+    return;
+  }
+  
+  // Attempt to stringify the reason safely or extract its message
+  let reasonDetails = event.reason;
+  if (event.reason instanceof Error) {
+    reasonDetails = event.reason.message + '\n' + event.reason.stack;
+  } else if (typeof event.reason === 'object') {
+    try {
+      reasonDetails = JSON.stringify(event.reason);
+    } catch(e) {
+      reasonDetails = String(event.reason);
+    }
+  }
+
   fetch('/api/log_error', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ type: 'unhandledrejection', reason: event.reason })
+    body: JSON.stringify({ type: 'unhandledrejection', reason: reasonDetails })
   }).catch(console.log);
 });
 
