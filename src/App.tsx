@@ -13,38 +13,12 @@ import jsQR from 'jsqr';
 import { supabase } from './lib/supabase';
 import { User as SupabaseUser } from '@supabase/supabase-js';
 import { Turnstile } from '@marsidev/react-turnstile';
-
-interface AccountResult {
-  account: string;
-  password: string;
-  uid: string;
-  shells: number;
-  cleanAt: string;
-  level: number;
-  rank: string;
-  skins: number;
-  isClean: boolean;
-  hasCodm: boolean;
-  phoneBound: boolean;
-  emailVerified: boolean;
-  fbLinked: boolean;
-  region: string;
-  otherGames: string[];
-}
-
-interface LogEntry {
-  id: string;
-  time: string;
-  text: string;
-  iconName: string;
-  colorClass: string;
-}
-
-interface UserPlan {
-  username: string;
-  isPremium: boolean;
-  premiumExpireDate: string | null;
-}
+import { AccountResult, LogEntry, UserPlan } from './types';
+import { HistoryModal } from './components/modals/HistoryModal';
+import { ProfileModal } from './components/modals/ProfileModal';
+import { KeyModal } from './components/modals/KeyModal';
+import { AuthModal } from './components/modals/AuthModal';
+import { AdminDashboard } from './components/AdminDashboard';
 
 var TextPaint = `▒▄▀▄▒█▀▄▒██▀░▀▄▀
 2
@@ -96,12 +70,7 @@ function AppContent() {
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [showTurnstileModal, setShowTurnstileModal] = useState(false);
   const [pendingTurnstileToken, setPendingTurnstileToken] = useState<string | null>(null);
-  const [authEmail, setAuthEmail] = useState('');
-  const [authUsername, setAuthUsername] = useState('');
-  const [authPassword, setAuthPassword] = useState('');
-  const [authConfirmPassword, setAuthConfirmPassword] = useState('');
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
-  const [authLoading, setAuthLoading] = useState(false);
   const [savedLinesToCheck, setSavedLinesToCheck] = useState<string[]>([]);
   const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY || '0x4AAAAAADDurF1TEj8IRq9g';
 
@@ -566,89 +535,7 @@ function AppContent() {
     }
   };
 
-  const handleAuth = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (authMode === 'signup' && authPassword !== authConfirmPassword) {
-      Swal.fire({
-        icon: 'error',
-        title: 'ข้อผิดพลาด',
-        text: 'รหัสผ่านและยืนยันรหัสผ่านไม่ตรงกัน',
-        background: '#09090b',
-        color: '#fff'
-      });
-      return;
-    }
 
-    executeAuth('premium-bypass');
-  };
-
-  const executeAuth = async (token: string) => {
-    setAuthLoading(true);
-    try {
-      if (authMode === 'signup') {
-        const { data, error } = await supabase.auth.signUp({
-          email: authEmail,
-          password: authPassword,
-          options: {
-            data: { username: authUsername }
-          }
-        });
-        
-        if (error) {
-           throw new Error(`Supabase SignUp Error: ${error.message} (Code: ${(error as any).status || 500})`);
-        }
-        
-        Swal.fire({
-          icon: 'success',
-          title: 'สร้างบัญชีสำเร็จ!',
-          text: 'กรุณาตรวจสอบอีเมลของคุณเพื่อยืนยันบัญชี (เช็คใน Junk/Spam ด้วย)',
-          background: '#09090b',
-          color: '#fff'
-        });
-        setAuthMode('login');
-      } else {
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email: authEmail,
-          password: authPassword,
-        });
-
-        if (error) {
-           throw new Error(`Supabase Login Error: ${error.message} (Code: ${(error as any).status || 500})`);
-        }
-
-        Swal.fire({
-          icon: 'success',
-          title: 'เข้าสู่ระบบสำเร็จ',
-          timer: 1500,
-          showConfirmButton: false,
-          background: '#09090b',
-          color: '#fff'
-        });
-        setShowAuthModal(false);
-      }
-    } catch (err: any) {
-      console.error("Auth Error Detailed:", err);
-      let msg = err?.message || 'เกิดข้อผิดพลาด';
-
-      if (msg.includes('already registered')) msg = 'ชื่อหรืออีเมลนี้ถูกใช้งานแล้ว (โปรดใช้ชื่ออื่น)';
-      if (msg.includes('Invalid login credentials')) msg = 'อีเมลหรือรหัสผ่านไม่ถูกต้อง หรือยังไม่ได้ยืนยันอีเมล';
-      if (msg.includes('invalid email format')) msg = 'รูปแบบอีเมลไม่ถูกต้อง';
-      if (msg.includes('Load failed') || msg.includes('Failed to fetch')) msg = 'การเชื่อมต่อเครือข่ายล้มเหลว (ตรวจสอบอินเทอร์เน็ต)';
-      if (msg.includes('Password should be at least')) msg = 'รหัสผ่านต้องมีความยาวอย่างน้อย 6 ตัวอักษร';
-      if (msg.includes('User already registered')) msg = 'อีเมลนี้ถูกสมัครไปแล้ว หรือรอการยืนยัน';
-      
-      Swal.fire({
-        icon: 'error',
-        title: 'มีบางอย่างผิดพลาด',
-        text: msg,
-        background: '#09090b',
-        color: '#fff',
-        confirmButtonColor: '#0ea5e9'
-      });
-    } finally {
-      setAuthLoading(false);
-    }
-  };
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -1061,423 +948,26 @@ function AppContent() {
     });
   };
 
-  // --- Admin Dashboard Component ---
-  const AdminDashboard = () => {
-    const successRate = totalChecked > 0 ? ((validAccounts.length / totalChecked) * 100).toFixed(1) : '0';
-
-    const DatabaseSetupGuide = () => (
-      <div className="bg-zinc-900/50 border border-amber-500/20 rounded-3xl p-8 max-w-2xl mx-auto mt-12 animate-in fade-in slide-in-from-bottom-4 duration-500 backdrop-blur-xl shadow-2xl">
-        <div className="flex items-center gap-4 mb-8">
-          <div className="p-4 bg-amber-500/20 rounded-2xl">
-            <Database className="w-8 h-8 text-amber-500" />
-          </div>
-          <div>
-            <h2 className="text-2xl font-bold text-white tracking-tight">Database Setup Required</h2>
-            <p className="text-zinc-500 text-sm mt-1">Supabase tables are missing from the current schema.</p>
-          </div>
-        </div>
-        
-        <div className="space-y-8">
-          <div className="flex gap-5">
-            <div className="flex-shrink-0 w-10 h-10 rounded-2xl bg-zinc-800 flex items-center justify-center text-zinc-400 text-sm font-black border border-white/5">01</div>
-            <div className="pt-1">
-              <h3 className="text-white font-bold mb-1 tracking-tight">Open Supabase SQL Editor</h3>
-              <p className="text-zinc-500 text-sm leading-relaxed">Go to your project at <a href="https://supabase.com/dashboard" target="_blank" rel="noreferrer" className="text-amber-500 hover:underline font-bold">Supabase Dashboard</a> and open the SQL Editor.</p>
-            </div>
-          </div>
-
-          <div className="flex gap-5">
-            <div className="flex-shrink-0 w-10 h-10 rounded-2xl bg-zinc-800 flex items-center justify-center text-zinc-400 text-sm font-black border border-white/5">02</div>
-            <div className="pt-1 flex-grow">
-              <h3 className="text-white font-bold mb-1 tracking-tight">Execute Bootstrap SQL</h3>
-              <p className="text-zinc-500 text-sm mb-4 leading-relaxed">Copy the code below, paste it into a new query, and click <strong>"Run"</strong>.</p>
-              <div className="relative group">
-                <pre className="bg-black/80 rounded-2xl p-5 text-[11px] font-mono text-zinc-400 overflow-x-auto border border-white/5 max-h-64 scrollbar-thin scrollbar-thumb-zinc-800 leading-relaxed">
-{`-- 1. Table for license keys
-CREATE TABLE license_keys (
-    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-    key text UNIQUE NOT NULL,
-    plan text NOT NULL,
-    status text NOT NULL DEFAULT 'active',
-    created_at timestamptz DEFAULT now()
-);
-
--- 2. Table for used keys
-CREATE TABLE used_keys (
-    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-    key text NOT NULL,
-    ip text NOT NULL,
-    details text,
-    used_at timestamptz DEFAULT now()
-);
-
--- 3. Table for blocked IPs
-CREATE TABLE blocked_ips (
-    ip text PRIMARY KEY,
-    reason text,
-    blocked_at timestamptz DEFAULT now()
-);
-
--- 4. Table for admins
-CREATE TABLE admins (
-    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-    username text UNIQUE NOT NULL,
-    role text NOT NULL DEFAULT 'admin',
-    granted_at timestamptz DEFAULT now()
-);`}
-                </pre>
-                <button 
-                  onClick={() => {
-                    navigator.clipboard.writeText(`CREATE TABLE license_keys (id uuid DEFAULT gen_random_uuid() PRIMARY KEY, key text UNIQUE NOT NULL, plan text NOT NULL, status text NOT NULL DEFAULT 'active', created_at timestamptz DEFAULT now()); CREATE TABLE used_keys (id uuid DEFAULT gen_random_uuid() PRIMARY KEY, key text NOT NULL, ip text NOT NULL, details text, used_at timestamptz DEFAULT now()); CREATE TABLE blocked_ips (ip text PRIMARY KEY, reason text, blocked_at timestamptz DEFAULT now()); CREATE TABLE admins (id uuid DEFAULT gen_random_uuid() PRIMARY KEY, username text UNIQUE NOT NULL, role text NOT NULL DEFAULT 'admin', granted_at timestamptz DEFAULT now());`);
-                    Swal.fire({ title: 'Copied!', text: 'SQL Code สำหรับรันใน Supabase ก๊อปปี้แล้ว', icon: 'success', timer: 2000, showConfirmButton: false, background: '#09090b', color: '#fff' });
-                  }}
-                  className="absolute top-3 right-3 p-2.5 bg-zinc-800 hover:bg-zinc-700 rounded-xl transition-all border border-white/5 text-amber-500 shadow-xl"
-                  title="Copy SQL"
-                >
-                  <Copy className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-10 pt-8 border-t border-white/5 flex items-center justify-between gap-4">
-           <div className="flex items-center gap-3 text-zinc-500 text-xs italic">
-             <div className="w-2 h-2 rounded-full bg-amber-500 animate-ping"></div>
-             Waiting for tables to be created...
-           </div>
-           <button 
-             onClick={() => window.location.reload()}
-             className="text-white text-xs font-bold uppercase tracking-widest bg-zinc-800 hover:bg-zinc-700 px-6 py-3 rounded-xl transition-all border border-white/5"
-           >
-             Refresh Now
-           </button>
-        </div>
-      </div>
-    );
-    
+  if (isAdmin) {
     return (
-      <div className="min-h-screen bg-[#050507] text-white p-4 md:p-8 animate-in fade-in duration-700 font-sans">
-        <div className="max-w-7xl mx-auto">
-          {/* Header */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-red-500/10 rounded-2xl border border-red-500/20">
-                <Crown className="w-8 h-8 text-red-500" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-red-500 to-amber-500 bg-clip-text text-transparent uppercase tracking-tighter">
-                  Apex Backend Management
-                </h1>
-                <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest mt-0.5">Control Center • {adminUsername}</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3 w-full md:w-auto">
-              <div className="bg-zinc-900/50 border border-white/5 rounded-2xl px-4 py-2 flex items-center gap-2 flex-1 md:flex-none">
-                <div className={`w-2 h-2 rounded-full ${isDBReady ? 'bg-emerald-500 animate-pulse' : 'bg-red-500'}`}></div>
-                <span className="text-[10px] font-bold text-zinc-400 uppercase">System: {isDBReady ? 'Stable' : 'DB ERROR'}</span>
-              </div>
-              <button 
-                onClick={() => setIsAdmin(false)}
-                className="bg-zinc-900 hover:bg-zinc-800 text-zinc-400 border border-white/5 px-6 py-2 rounded-2xl text-[10px] font-bold transition-all flex items-center gap-2 uppercase tracking-widest"
-              >
-                <LogOut className="w-4 h-4" /> Exit Console
-              </button>
-            </div>
-          </div>
-
-          {!isDBReady ? (
-            <DatabaseSetupGuide />
-          ) : (
-            <>
-              {/* Navigation Tabs */}
-              <div className="flex items-center gap-2 mb-8 overflow-x-auto pb-2 scrollbar-none">
-                {[
-                  { id: 'overview', label: 'Dashboard', icon: BarChart3 },
-                  { id: 'keys', label: 'License Keys', icon: Key },
-                  { id: 'history', label: 'Redeem History', icon: History },
-                  { id: 'ips', label: 'Access Control', icon: ShieldAlert }
-                ].map(tab => (
-                  <button
-                    key={tab.id}
-                    onClick={() => setAdminTab(tab.id as any)}
-                    className={`flex items-center gap-2 px-6 py-3 rounded-2xl text-xs font-bold transition-all border whitespace-nowrap ${
-                      adminTab === tab.id 
-                      ? 'bg-red-500/10 border-red-500/30 text-red-500 shadow-[0_0_20px_rgba(239,68,68,0.1)]' 
-                      : 'bg-zinc-900/50 border-white/5 text-zinc-500 hover:bg-zinc-900 hover:text-zinc-300'
-                    }`}
-                  >
-                    <tab.icon className="w-4 h-4" /> {tab.label}
-                  </button>
-                ))}
-              </div>
-
-              <AnimatePresence mode="wait">
-            {adminTab === 'overview' && (
-              <motion.div 
-                key="overview"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="space-y-8"
-              >
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                  {[
-                    { label: 'Scanned (Session)', value: totalChecked, icon: Activity, color: 'text-blue-500', bg: 'bg-blue-500/10' },
-                    { label: 'Active Keys', value: firebaseKeys.filter(k => k.status === 'active').length, icon: Database, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
-                    { label: 'Redeemed Today', value: usedKeysHistory.filter(h => new Date(h.used_at).toDateString() === new Date().toDateString()).length, icon: History, color: 'text-amber-500', bg: 'bg-amber-500/10' },
-                    { label: 'Blocked Users', value: blockedIPs.length, icon: Ban, color: 'text-red-500', bg: 'bg-red-500/10' }
-                  ].map((stat, i) => (
-                    <div key={i} className="bg-[#09090b] border border-white/5 p-6 rounded-3xl relative overflow-hidden group">
-                      <div className={`absolute top-0 right-0 w-24 h-24 ${stat.bg} blur-3xl opacity-20 -mr-8 -mt-8 transition-all group-hover:scale-150`}></div>
-                      <div className="flex items-center justify-between relative z-10">
-                        <div>
-                          <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest mb-1">{stat.label}</p>
-                          <h3 className="text-3xl font-mono font-bold tracking-tighter">{stat.value}</h3>
-                        </div>
-                        <div className={`p-4 rounded-2xl ${stat.bg} ${stat.color}`}>
-                          <stat.icon className="w-6 h-6" />
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                  <div className="lg:col-span-2 space-y-6">
-                    <div className="bg-[#09090b] border border-white/5 rounded-3xl overflow-hidden font-sans">
-                      <div className="p-6 border-b border-white/5 flex justify-between items-center bg-zinc-900/20">
-                        <h3 className="font-bold flex items-center gap-2">
-                          <Activity className="w-4 h-4 text-emerald-500" /> Session Activity Log
-                        </h3>
-                        <Activity className="w-4 h-4 text-zinc-500 animate-pulse" />
-                      </div>
-                      <div className="max-h-[500px] overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-800">
-                        <table className="w-full text-left text-sm">
-                          <thead>
-                            <tr className="text-zinc-500 border-b border-white/5 bg-zinc-900/10">
-                              <th className="p-4 font-bold uppercase text-[10px]">Target</th>
-                              <th className="p-4 font-bold uppercase text-[10px]">Result</th>
-                              <th className="p-4 font-bold uppercase text-[10px]">UID</th>
-                              <th className="p-4 font-bold uppercase text-[10px]">Time</th>
-                            </tr>
-                          </thead>
-                          <tbody className="font-mono text-[11px]">
-                            {validAccounts.length > 0 ? validAccounts.map((acc, i) => (
-                              <tr key={i} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
-                                <td className="p-4 text-zinc-300">{acc.account}</td>
-                                <td className="p-4">
-                                  <span className="text-emerald-500 font-bold bg-emerald-500/10 px-2 py-0.5 rounded uppercase text-[9px]">Verified</span>
-                                </td>
-                                <td className="p-4 text-zinc-500">{acc.uid}</td>
-                                <td className="p-4 text-zinc-600">{new Date().toLocaleTimeString()}</td>
-                              </tr>
-                            )) : (
-                              <tr>
-                                <td colSpan={4} className="p-12 text-center text-zinc-700 italic">No activity recorded in this session</td>
-                              </tr>
-                            )}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-6">
-                    <div className="bg-[#09090b] border border-white/5 rounded-3xl p-6">
-                      <h3 className="font-bold flex items-center gap-2 mb-6">
-                        <Settings className="w-4 h-4 text-zinc-500" /> Utility Tools
-                      </h3>
-                      <div className="space-y-4">
-                        <button onClick={addLicenseKey} className="w-full bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 p-4 rounded-2xl flex items-center justify-between group transition-all">
-                          <div className="flex items-center gap-3">
-                            <Plus className="w-5 h-5 text-emerald-500" />
-                            <div className="text-left">
-                              <p className="text-sm font-bold text-emerald-500">Create New Keys</p>
-                              <p className="text-[10px] text-zinc-500">Bulk generation system</p>
-                            </div>
-                          </div>
-                          <ChevronRight className="w-4 h-4 text-zinc-700" />
-                        </button>
-                        <button onClick={blockIP} className="w-full bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 p-4 rounded-2xl flex items-center justify-between group transition-all">
-                          <div className="flex items-center gap-3">
-                            <Ban className="w-5 h-5 text-red-500" />
-                            <div className="text-left">
-                              <p className="text-sm font-bold text-red-500">Block Address</p>
-                              <p className="text-[10px] text-zinc-500">Instantly restrict IP</p>
-                            </div>
-                          </div>
-                          <ChevronRight className="w-4 h-4 text-zinc-700" />
-                        </button>
-                      </div>
-                    </div>
-                    
-                    <div className="bg-zinc-900/20 border border-white/5 rounded-3xl p-6 text-center">
-                       <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest mb-4">Storage Usage</p>
-                       <div className="w-full bg-zinc-900 rounded-full h-1.5 mb-2 overflow-hidden">
-                          <div className="bg-red-500 h-full w-[15%] rounded-full shadow-[0_0_10px_rgba(239,68,68,0.5)]"></div>
-                       </div>
-                       <p className="text-zinc-600 text-[9px]">1.2MB / 512MB (Enterprise Plan)</p>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            )}
-
-            {adminTab === 'keys' && (
-              <motion.div 
-                key="keys"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                className="bg-[#09090b] border border-white/5 rounded-3xl overflow-hidden"
-              >
-                <div className="p-8 border-b border-white/5 flex justify-between items-center bg-zinc-900/20">
-                  <div>
-                    <h3 className="text-xl font-bold">Key Management</h3>
-                    <p className="text-zinc-500 text-xs mt-1">Manage and track all generated licenses</p>
-                  </div>
-                  <button onClick={addLicenseKey} className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-2xl text-xs font-bold transition-all flex items-center gap-2 shadow-[0_0_20px_rgba(16,185,129,0.2)]">
-                    <Plus className="w-4 h-4" /> GENERATE NEW KEYS
-                  </button>
-                </div>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-sm">
-                    <thead>
-                      <tr className="text-zinc-500 border-b border-white/5 bg-zinc-900/10 uppercase text-[10px] font-bold">
-                        <th className="p-4">License Key</th>
-                        <th className="p-4">Type</th>
-                        <th className="p-4">Status</th>
-                        <th className="p-4">Created At</th>
-                        <th className="p-4 text-right">Action</th>
-                      </tr>
-                    </thead>
-                    <tbody className="font-mono text-xs">
-                      {firebaseKeys.length > 0 ? firebaseKeys.map((key, i) => (
-                        <tr key={i} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
-                          <td className="p-4">
-                            <div className="flex items-center gap-3">
-                               <div className="w-2 h-2 rounded-full bg-cyan-500 shadow-[0_0_8px_rgba(6,182,212,0.5)]"></div>
-                               <span className="text-zinc-200 select-all">{key.key}</span>
-                            </div>
-                          </td>
-                          <td className="p-4">
-                            <span className="bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded text-[10px]">{key.plan}</span>
-                          </td>
-                          <td className="p-4">
-                            <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${key.status === 'active' ? 'text-emerald-500' : 'text-zinc-600'}`}>
-                              {key.status.toUpperCase()}
-                            </span>
-                          </td>
-                          <td className="p-4 text-zinc-600">{new Date(key.created_at).toLocaleDateString()}</td>
-                          <td className="p-4 text-right">
-                            <button onClick={() => deleteKey(key.id)} className="p-2 hover:bg-red-500/10 text-zinc-700 hover:text-red-500 rounded-lg transition-all">
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </td>
-                        </tr>
-                      )) : (
-                        <tr><td colSpan={5} className="p-20 text-center text-zinc-600">No keys found in database</td></tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </motion.div>
-            )}
-
-            {adminTab === 'history' && (
-              <motion.div 
-                key="history"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                className="bg-[#09090b] border border-white/5 rounded-3xl overflow-hidden"
-              >
-                 <div className="p-8 border-b border-white/5 bg-zinc-900/20">
-                    <h3 className="text-xl font-bold">Redeem Logs</h3>
-                    <p className="text-zinc-500 text-xs mt-1">Audit trail of all license usage</p>
-                 </div>
-                 <div className="overflow-x-auto">
-                  <table className="w-full text-left text-sm">
-                    <thead>
-                      <tr className="text-zinc-500 border-b border-white/5 bg-zinc-900/10 uppercase text-[10px] font-bold">
-                        <th className="p-4">Key Used</th>
-                        <th className="p-4">User IP</th>
-                        <th className="p-4">Timestamp</th>
-                        <th className="p-4">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody className="font-mono text-xs">
-                      {usedKeysHistory.length > 0 ? usedKeysHistory.map((h, i) => (
-                        <tr key={i} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
-                          <td className="p-4 text-amber-500/80">{h.key}</td>
-                          <td className="p-4 text-zinc-400">{h.ip}</td>
-                          <td className="p-4 text-zinc-600">{new Date(h.used_at).toLocaleString()}</td>
-                          <td className="p-4"><span className="text-emerald-500 font-bold bg-emerald-500/10 px-2 py-0.5 rounded text-[10px]">SUCCESS</span></td>
-                        </tr>
-                      )) : (
-                        <tr><td colSpan={4} className="p-20 text-center text-zinc-600">No history records found</td></tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </motion.div>
-            )}
-
-            {adminTab === 'ips' && (
-              <motion.div 
-                key="ips"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                className="bg-[#09090b] border border-white/5 rounded-3xl overflow-hidden"
-              >
-                 <div className="p-8 border-b border-white/5 flex justify-between items-center bg-zinc-900/20">
-                    <div>
-                      <h3 className="text-xl font-bold">IP Access Control</h3>
-                      <p className="text-zinc-500 text-xs mt-1">Permanently block malicious users</p>
-                    </div>
-                    <button onClick={blockIP} className="bg-red-600 hover:bg-red-500 text-white px-6 py-2.5 rounded-2xl text-xs font-bold transition-all flex items-center gap-2">
-                       <Ban className="w-4 h-4" /> BLOCK NEW IP
-                    </button>
-                 </div>
-                 <div className="overflow-x-auto">
-                    <table className="w-full text-left text-sm">
-                      <thead>
-                        <tr className="text-zinc-500 border-b border-white/5 bg-zinc-900/10 uppercase text-[10px] font-bold">
-                          <th className="p-4">IP Address</th>
-                          <th className="p-4">Reason</th>
-                          <th className="p-4">Date Blocked</th>
-                          <th className="p-4 text-right">Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody className="font-mono text-xs">
-                        {blockedIPs.length > 0 ? blockedIPs.map((ip, i) => (
-                          <tr key={i} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
-                            <td className="p-4 text-red-500 font-bold tracking-tight">{ip.ip}</td>
-                            <td className="p-4 text-zinc-400 italic">"{ip.reason}"</td>
-                            <td className="p-4 text-zinc-600">{new Date(ip.blocked_at).toLocaleDateString()}</td>
-                            <td className="p-4 text-right">
-                               <button onClick={() => unblockIP(ip.ip)} className="text-emerald-500 hover:text-emerald-400 text-[10px] font-bold uppercase tracking-widest bg-emerald-500/5 hover:bg-emerald-500/10 px-3 py-1.5 rounded-lg border border-emerald-500/10 transition-all">
-                                  Unblock
-                               </button>
-                            </td>
-                          </tr>
-                        )) : (
-                          <tr><td colSpan={4} className="p-20 text-center text-zinc-600">No IP blocks active</td></tr>
-                        )}
-                      </tbody>
-                    </table>
-                 </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </>
-      )}
-    </div>
-  </div>
-);
-};
+      <AdminDashboard
+        totalChecked={totalChecked}
+        validAccounts={validAccounts}
+        firebaseKeys={firebaseKeys}
+        usedKeysHistory={usedKeysHistory}
+        blockedIPs={blockedIPs}
+        adminTab={adminTab}
+        setAdminTab={setAdminTab}
+        isDBReady={isDBReady}
+        adminUsername={adminUsername}
+        setIsAdmin={setIsAdmin}
+        addLicenseKey={addLicenseKey}
+        blockIP={blockIP}
+        deleteKey={deleteKey}
+        unblockIP={unblockIP}
+      />
+    );
+  }
 
   if (isIPBlocked) return (
     <div className="min-h-screen bg-[#050507] flex items-center justify-center p-4">
@@ -1516,131 +1006,11 @@ CREATE TABLE admins (
           </div>
         )}
 
-        {/* Auth Modal Overlay */}
-        {showAuthModal && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md">
-            <div className="w-full max-w-sm bg-[#09090b] border border-white/10 rounded-[2.5rem] p-8 shadow-2xl animate-in fade-in zoom-in duration-300 overflow-hidden relative">
-            <div className={`absolute top-0 right-0 w-32 h-32 blur-[50px] rounded-full -mr-16 -mt-16 ${authMode === 'login' ? 'bg-cyan-500/10' : 'bg-emerald-500/10'}`}></div>
-            <div className="flex flex-col items-center text-center mb-6 relative z-10">
-              <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-4 border ${authMode === 'login' ? 'bg-cyan-500/10 border-cyan-500/20' : 'bg-emerald-500/10 border-emerald-500/20'}`}>
-                {authMode === 'login' ? <User className="w-8 h-8 text-cyan-500" /> : <User className="w-8 h-8 text-emerald-500" />}
-              </div>
-              <h2 className="text-xl font-bold tracking-tight">{authMode === 'login' ? 'เข้าสู่ระบบ' : 'สมัครสมาชิก'}</h2>
-              <p className="text-zinc-500 text-xs mt-1">
-                {authMode === 'login' ? 'ลงชื่อเข้าใช้เพื่อเข้าถึง APEX STUDIO' : 'เข้าร่วมกับเราเพื่อเริ่มต้นใช้งานเครื่องมือต่างๆ'}
-              </p>
-            </div>
-            
-            {/* Mode Tabs */}
-            <div className="flex p-1 bg-zinc-900/80 rounded-2xl mb-6 relative z-10 border border-white/5">
-              <button
-                type="button"
-                onClick={() => setAuthMode('login')}
-                className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all ${authMode === 'login' ? 'bg-cyan-500/20 text-cyan-400' : 'text-zinc-500 hover:text-white'}`}
-              >
-                เข้าสู่ระบบ
-              </button>
-              <button
-                type="button"
-                onClick={() => setAuthMode('signup')}
-                className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all ${authMode === 'signup' ? 'bg-emerald-500/20 text-emerald-400' : 'text-zinc-500 hover:text-white'}`}
-              >
-                สมัครสมาชิก
-              </button>
-            </div>
-
-            <form onSubmit={handleAuth} className="space-y-4 relative z-10">
-                <>
-                  <div className="space-y-2">
-                    <div className="relative">
-                      <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
-                      <input 
-                        type="email" 
-                        value={authEmail}
-                        onChange={(e) => setAuthEmail(e.target.value)}
-                        className="w-full bg-zinc-900/50 border border-white/5 rounded-2xl py-3.5 pl-12 pr-4 outline-none focus:border-cyan-500/50 transition-all font-sans text-sm"
-                        placeholder="อีเมล"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  {authMode === 'signup' && (
-                    <div className="space-y-2">
-                      <div className="relative">
-                        <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
-                        <input 
-                          type="text" 
-                          value={authUsername}
-                          onChange={(e) => setAuthUsername(e.target.value)}
-                          className="w-full bg-zinc-900/50 border border-white/5 rounded-2xl py-3.5 pl-12 pr-4 outline-none focus:border-cyan-500/50 transition-all font-sans text-sm"
-                          placeholder="ชื่อผู้ใช้"
-                          required
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="space-y-2">
-                    <div className="relative">
-                      <Shield className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
-                      <input 
-                        type="password" 
-                        value={authPassword}
-                        onChange={(e) => setAuthPassword(e.target.value)}
-                        className="w-full bg-zinc-900/50 border border-white/5 rounded-2xl py-3.5 pl-12 pr-4 outline-none focus:border-cyan-500/50 transition-all font-sans text-sm"
-                        placeholder="รหัสผ่าน"
-                        required
-                        minLength={6}
-                      />
-                    </div>
-                  </div>
-
-                  {authMode === 'signup' && (
-                    <div className="space-y-2">
-                      <div className="relative">
-                        <Shield className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
-                        <input 
-                          type="password" 
-                          value={authConfirmPassword}
-                          onChange={(e) => setAuthConfirmPassword(e.target.value)}
-                          className="w-full bg-zinc-900/50 border border-white/5 rounded-2xl py-3.5 pl-12 pr-4 outline-none focus:border-cyan-500/50 transition-all font-sans text-sm"
-                          placeholder="ยืนยันรหัสผ่าน"
-                          required
-                          minLength={6}
-                        />
-                      </div>
-                    </div>
-                  )}
-                </>
-
-              <button 
-                type="submit"
-                disabled={authLoading}
-                className={`w-full py-4 rounded-3xl text-sm font-bold transition-all shadow-xl flex items-center justify-center gap-2 ${
-                  authMode === 'login' 
-                    ? 'bg-cyan-600 hover:bg-cyan-500 shadow-cyan-500/10' 
-                    : 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-500/10'
-                } disabled:opacity-50 disabled:cursor-not-allowed`}
-              >
-                {authLoading ? (
-                  <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
-                ) : (
-                  authMode === 'login' ? 'เข้าสู่ระบบ' : 'สมัครสมาชิก'
-                )}
-              </button>
-
-              <button 
-                type="button"
-                onClick={() => setShowAuthModal(false)}
-                className="w-full text-zinc-700 hover:text-zinc-500 text-[10px] font-bold uppercase tracking-widest mt-4"
-              >
-                ปิดหน้าต่าง
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
+      <AuthModal
+        show={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        initialMode={authMode}
+      />
 
       {/* Admin Login Modal Overlay */}
       {showAdminLogin && (
@@ -1779,38 +1149,29 @@ CREATE TABLE admins (
                     </div>
                   </div>
                 </>
-              ) : (
-                <>
-                  <button 
-                    onClick={() => {
-                      setAuthMode('login');
-                      setShowAuthModal(true);
-                    }} 
-                    className="flex items-center gap-1.5 px-6 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-sm font-bold shadow-[0_4px_15px_rgba(8,145,178,0.3)] transition-all text-white"
-                  >
-                    <User className="w-4 h-4" /> เข้าระบบ / สมัครสมาชิก
-                  </button>
-                </>
-              )}
+              ) : null}
             </div>
 
-            {/* Mobile Actions: Login/VIP fast access and Hamburger */}
-            <div className="flex md:hidden items-center gap-2">
+            {/* Universal Hamburger Menu / Mobile Actions */}
+            <div className={`flex items-center gap-2`}>
               {user && !userPlan?.isPremium && (
-                <button onClick={() => setShowKeyModal(true)} className="flex items-center gap-1 px-3 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-white text-xs font-bold shadow-[0_0_15px_rgba(245,158,11,0.3)] transition-all">
+                <button onClick={() => setShowKeyModal(true)} className="flex items-center gap-1 px-3 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-white text-xs font-bold shadow-[0_0_15px_rgba(245,158,11,0.3)] transition-all md:hidden">
                   <Crown className="w-3 h-3" /> VIP
                 </button>
               )}
-              <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="p-2.5 bg-zinc-800 rounded-xl border border-white/10 hover:bg-zinc-700 transition-all text-zinc-300">
+              <button 
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
+                className={`p-2.5 bg-zinc-800 rounded-xl border border-white/10 hover:bg-zinc-700 transition-all text-zinc-300 ${user ? 'md:hidden' : 'flex'}`}
+              >
                 {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
             </div>
           </div>
         </div>
 
-        {/* Mobile Menu Dropdown */}
+        {/* Mobile / Universal Menu Dropdown */}
         {isMobileMenuOpen && (
-          <div className="md:hidden absolute top-full left-0 w-full bg-[#09090b] border-b border-white/5 py-4 px-4 shadow-2xl z-50 flex flex-col gap-2">
+          <div className={`${user ? 'md:hidden ' : ''}absolute top-full left-0 w-full bg-[#09090b] border-b border-white/5 py-4 px-4 shadow-2xl z-50 flex flex-col gap-2`}>
             {user && (
               <div className="px-4 pb-3 mb-2 border-b border-white/5 flex flex-col gap-1">
                 <p className="text-sm font-bold text-white truncate">{user.is_anonymous ? 'ผู้ใช้งานทั่วไป' : user.email}</p>
@@ -2329,120 +1690,22 @@ CREATE TABLE admins (
         </div>
       )}
 
-      {showKeyModal && (
-        <div className="fixed inset-0 bg-[#09090b]/90 flex items-center justify-center p-4 z-[70] backdrop-blur-md font-sans animate-in zoom-in-95 duration-200 overflow-y-auto">
-          <div className="bg-[#151518] border border-amber-500/20 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-[0_0_50px_rgba(245,158,11,0.15)] relative overflow-hidden my-8">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/5 blur-[80px] rounded-full pointer-events-none"></div>
+      <KeyModal
+        show={showKeyModal}
+        onClose={() => setShowKeyModal(false)}
+        vipTab={vipTab}
+        redeemKey={redeemKey}
+        userEmail={user?.email}
+      />
 
-            <div className="text-center mb-6 relative z-10">
-               <div className="w-16 h-16 bg-amber-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-amber-500/20">
-                  <Crown className="w-8 h-8 text-amber-400 drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]" />
-               </div>
-               <h2 className="text-2xl font-bold text-white mb-2 tracking-tight">VIP MEMBER</h2>
-               <div className="text-sm text-zinc-400 mb-6 space-y-2">
-                   <p>สิทธิพิเศษระดับพรีเมียม:</p>
-                   <ul className="text-left inline-block space-y-1">
-                       <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-500" /> ตรวจสอบไอดีไม่จำกัด (Unlimited Checks)</li>
-                       <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-500" /> Bypass DataDome ความเร็วสูง</li>
-                       <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-500" /> บันทึกประวัติการตรวจสอบย้อนหลัง</li>
-                       <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-500" /> ไม่ต้องติด Captcha (Turnstile)</li>
-                   </ul>
-               </div>
-               <a href="https://discord.gg/yourlink" target="_blank" rel="noopener noreferrer" className="mt-4 inline-flex items-center gap-2 px-6 py-2.5 bg-[#5865F2] hover:bg-[#4752C4] text-white rounded-xl text-sm font-bold transition-all shadow-lg hover:scale-105">
-                 <ShoppingCart className="w-4 h-4" /> ซื้อคีย์ได้ที่ Discord
-               </a>
-            </div>
-
-            <div className="relative z-10">
-              {vipTab === 'key' && (
-                  <form onSubmit={(e) => {
-                    e.preventDefault();
-                    const formData = new FormData(e.currentTarget);
-                    const key = formData.get('key') as string;
-                    if (key) redeemKey(key, user?.email || 'ผู้ใช้งานทั่วไป');
-                  }} className="space-y-4">
-                  <div>
-                      <label className="text-[11px] text-zinc-400 font-bold uppercase tracking-wider mb-2 block">คีย์สำหรับรายเดือน/รายปี (Key)</label>
-                      <div className="relative">
-                        <Key className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
-                        <input required name="key" type="text" className="w-full bg-[#09090b] border border-white/10 rounded-xl py-3 pl-10 pr-4 text-sm focus:border-amber-500 outline-none text-white transition-all placeholder:text-zinc-600" placeholder="APEX-XXXXX-XXXXX" />
-                      </div>
-                  </div>
-                  <button type="submit" className="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-white font-bold py-3.5 rounded-xl shadow-[0_4px_20px_rgba(245,158,11,0.2)] transition-all mt-4">
-                    เปิดใช้งาน
-                  </button>
-                </form>
-              )}
-            </div>
-
-            <button onClick={() => setShowKeyModal(false)} className="absolute top-6 right-6 text-zinc-500 hover:text-white transition-colors bg-zinc-800/50 hover:bg-zinc-800 p-2 rounded-full z-20">
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Profile Modal */}
-      {showProfileModal && (
-        <div className="fixed inset-0 bg-[#09090b]/90 flex items-center justify-center p-4 z-[70] backdrop-blur-md font-sans animate-in zoom-in-95 duration-200">
-          <div className="bg-[#151518] border border-white/10 rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-2xl relative overflow-hidden">
-            <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-              <User className="w-5 h-5 text-cyan-400"/> ข้อมูลโปรไฟล์
-            </h2>
-            <form onSubmit={(e) => {
-              e.preventDefault();
-              const formData = new FormData(e.currentTarget);
-              const newUsername = formData.get('username') as string;
-              if (userPlan) {
-                const newPlan = { ...userPlan, username: newUsername };
-                setUserPlan(newPlan);
-                localStorage.setItem(`checker_userplan_${clientIp}`, JSON.stringify(newPlan));
-                Swal.fire({ icon: 'success', title: 'อัพเดทสำเร็จ', text: 'บันทึกข้อมูลโปรไฟล์แล้ว', background: '#09090b', color: '#fff', timer: 1500, showConfirmButton: false });
-                setShowProfileModal(false);
-              }
-            }} className="space-y-4">
-              <div>
-                <label className="text-[11px] text-zinc-400 font-bold uppercase tracking-wider mb-2 block">ชื่อผู้ใช้งาน</label>
-                <input 
-                  required 
-                  name="username" 
-                  type="text" 
-                  defaultValue={userPlan?.username || user?.email?.split('@')[0] || ''}
-                  className="w-full bg-[#09090b] border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-cyan-500 outline-none text-white transition-all" 
-                />
-              </div>
-              <div>
-                <label className="text-[11px] text-zinc-400 font-bold uppercase tracking-wider mb-2 block">อีเมล</label>
-                <input 
-                  type="text" 
-                  readOnly
-                  disabled
-                  defaultValue={user?.email || 'ไม่มีระบบอีเมล (เข้าสู่ระบบด้วยคีย์)'}
-                  className="w-full bg-[#09090b]/50 border border-white/5 rounded-xl py-3 px-4 text-sm text-zinc-500 cursor-not-allowed opacity-50" 
-                />
-              </div>
-              <div className="p-4 rounded-xl bg-zinc-900 border border-white/5">
-                <div className="flex justify-between items-center mb-1">
-                  <span className="text-xs text-zinc-400">สถานะ:</span>
-                  <span className={`text-xs font-bold ${userPlan?.isPremium ? 'text-amber-500' : 'text-zinc-300'}`}>{userPlan?.isPremium ? 'VIP' : 'Free'}</span>
-                </div>
-                {userPlan?.isPremium && (
-                  <div className="flex justify-between items-center">
-                    <span className="text-xs text-zinc-400">หมดอายุ:</span>
-                    <span className="text-xs text-emerald-400">{new Date(userPlan.premiumExpireDate!).toLocaleDateString('th-TH')}</span>
-                  </div>
-                )}
-              </div>
-              <button type="submit" className="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 rounded-xl transition-all">
-                บันทึกการเปลี่ยนแปลง
-              </button>
-            </form>
-            <button onClick={() => setShowProfileModal(false)} className="absolute top-6 right-6 text-zinc-500 hover:text-white transition-colors bg-zinc-800/50 hover:bg-zinc-800 p-2 rounded-full">
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-      )}
+      <ProfileModal
+        show={showProfileModal}
+        onClose={() => setShowProfileModal(false)}
+        user={user}
+        userPlan={userPlan}
+        setUserPlan={setUserPlan}
+        clientIp={clientIp}
+      />
 
       {/* Turnstile Modal */}
       {showTurnstileModal && (
@@ -2481,35 +1744,11 @@ CREATE TABLE admins (
         </div>
       )}
 
-      {/* History Modal */}
-      {showHistoryModal && (
-        <div className="fixed inset-0 bg-[#09090b]/90 flex items-center justify-center p-4 z-[70] backdrop-blur-md font-sans animate-in zoom-in-95 duration-200">
-          <div className="bg-[#151518] border border-white/10 rounded-3xl p-6 sm:p-8 max-w-2xl w-full shadow-2xl relative overflow-hidden flex flex-col max-h-[80vh]">
-            <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2 shrink-0">
-              <History className="w-5 h-5 text-emerald-400"/> ประวัติการทำรายการ
-            </h2>
-            <div className="overflow-y-auto pr-2 space-y-3 custom-scrollbar flex-1 min-h-[300px]">
-              {logs.length > 0 ? logs.map((log, i) => (
-                 <div key={i} className="p-3 bg-zinc-900/50 border border-white/5 rounded-xl flex flex-col text-sm break-words">
-                   <div className="flex justify-between items-start mb-1 gap-4">
-                     <span className={`font-mono text-xs ${log.colorClass}`}>{log.text}</span>
-                     <span className="text-[10px] text-zinc-500 shrink-0">{log.time}</span>
-                   </div>
-                   <span className="text-[10px] text-zinc-600 uppercase">ประเภท: {log.iconName}</span>
-                 </div>
-              )) : (
-                <div className="text-center text-zinc-500 py-10 flex flex-col items-center">
-                  <History className="w-10 h-10 mb-2 opacity-50" />
-                  ยังไม่มีประวัติการใช้งาน
-                </div>
-              )}
-            </div>
-            <button onClick={() => setShowHistoryModal(false)} className="absolute top-6 right-6 text-zinc-500 hover:text-white transition-colors bg-zinc-800/50 hover:bg-zinc-800 p-2 rounded-full">
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-      )}
+      <HistoryModal
+        show={showHistoryModal}
+        onClose={() => setShowHistoryModal(false)}
+        logs={logs}
+      />
 
     </div>
   );
