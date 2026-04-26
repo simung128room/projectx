@@ -508,7 +508,7 @@ async function startServer() {
     }
   });
 
-  if (process.env.NODE_ENV !== "production") {
+  if (process.env.NODE_ENV !== "production" && !process.env.VERCEL) {
     console.log("Initializing Vite middleware...");
     const vite = await createViteServer({
       server: { 
@@ -519,7 +519,7 @@ async function startServer() {
     });
     app.use(vite.middlewares);
     console.log("Vite middleware initialized.");
-  } else {
+  } else if (!process.env.VERCEL) {
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
     app.get('*', (req, res) => {
@@ -527,9 +527,13 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-  });
+  if (!process.env.VERCEL) {
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(`Server running on http://localhost:${PORT}`);
+    });
+  }
+  
+  return app;
 }
 
 process.on('unhandledRejection', (reason, promise) => {
@@ -540,6 +544,16 @@ process.on('uncaughtException', (err) => {
   console.error('Uncaught Exception:', err);
 });
 
-startServer().catch(err => {
+// For Vercel Serverless Functions
+let appPromise = startServer().catch(err => {
   console.error('Failed to start server:', err);
 });
+
+export default async (req: any, res: any) => {
+  const app = await appPromise;
+  if (app) {
+    app(req, res);
+  } else {
+    res.status(500).send('Server failed to start');
+  }
+};
