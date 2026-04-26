@@ -659,12 +659,17 @@ function AppContent() {
         setShowAuthModal(false);
       }
     } catch (err: any) {
-      console.error("Auth Error:", err);
-      let msg = err.message;
-      if (err.response && err.response.data && err.response.data.error) {
-        msg = err.response.data.error + ' (API Error)';
+      console.error("Auth Error Detailed:", err, err?.response);
+      let msg = err?.message || 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ';
+      if (err?.response?.data?.error) {
+        msg = typeof err.response.data.error === 'object' 
+          ? JSON.stringify(err.response.data.error) + ' (API Error)'
+          : err.response.data.error + ' (API Error)';
       }
-      if (err.message.includes('already registered')) msg = 'อีเมลนี้ถูกใช้งานแล้ว';
+      if (typeof msg === 'object') {
+        msg = JSON.stringify(msg);
+      }
+      if (msg.includes('already registered')) msg = 'อีเมลนี้ถูกใช้งานแล้ว';
       if (err.message.includes('Invalid login credentials')) msg = 'อีเมลหรือรหัสผ่านไม่ถูกต้อง';
       if (err.message.includes('invalid email format')) msg = 'รูปแบบอีเมลไม่ถูกต้อง';
       
