@@ -9,20 +9,18 @@ eruda.init();
 // Create and style a custom floating button
 const btn = document.createElement('button');
 btn.innerText = 'LOG';
-Object.assign(btn.style, {
-  position: 'fixed',
-  bottom: '20px',
-  right: '20px',
-  zIndex: '999999',
-  padding: '15px 25px',
-  backgroundColor: '#f59e0b',
-  color: 'white',
-  border: 'none',
-  borderRadius: '50px',
-  fontSize: '18px',
-  fontWeight: 'bold',
-  boxShadow: '0 4px 6px rgba(0,0,0,0.3)',
-});
+btn.style.setProperty('position', 'fixed');
+btn.style.setProperty('bottom', '20px');
+btn.style.setProperty('right', '20px');
+btn.style.setProperty('zIndex', '999999');
+btn.style.setProperty('padding', '15px 25px');
+btn.style.setProperty('backgroundColor', '#f59e0b');
+btn.style.setProperty('color', 'white');
+btn.style.setProperty('border', 'none');
+btn.style.setProperty('borderRadius', '50px');
+btn.style.setProperty('fontSize', '18px');
+btn.style.setProperty('fontWeight', 'bold');
+btn.style.setProperty('boxShadow', '0 4px 6px rgba(0,0,0,0.3)');
 
 btn.onclick = () => eruda.show();
 document.body.appendChild(btn);
