@@ -895,13 +895,13 @@ function AppContent() {
     }
 
     setSavedLinesToCheck(linesToCheck);
-    setCheckRecaptchaToken(null);
+    setCheckTurnstileToken(null);
     setShowCheckCaptchaModal(true);
   };
 
   const executeCheck = async (token: string) => {
     setShowCheckCaptchaModal(false);
-    setCheckRecaptchaToken(token);
+    setCheckTurnstileToken(token);
 
     setRunning(true);
     runningRef.current = true;
