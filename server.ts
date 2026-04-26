@@ -47,18 +47,20 @@ async function startServer() {
   });
 
   app.post('/api/verify_turnstile', async (req, res) => {
-    const { token } = req.body;
-    const secretKey = process.env.TURNSTILE_SECRET_KEY || '0x4AAAAAADDdDBOlN6BmeibjJ1JWusta6Ag';
-
-    if (!token) {
-      return res.status(400).json({ success: false, error: 'Token missing' });
-    }
-
-    if (token === 'premium-bypass') {
-      return res.json({ success: true });
-    }
-
     try {
+      const { token } = req.body;
+      const secretKey = process.env.TURNSTILE_SECRET_KEY || '0x4AAAAAADDdDBOlN6BmeibjJ1JWusta6Ag';
+
+      console.log('Verify Turnstile called with token:', token);
+      
+      if (!token) {
+        return res.status(400).json({ success: false, error: 'Token missing' });
+      }
+
+      if (token === 'premium-bypass') {
+        return res.json({ success: true });
+      }
+
       const response = await axios.post(
         'https://challenges.cloudflare.com/turnstile/v0/siteverify',
         `secret=${encodeURIComponent(secretKey)}&response=${encodeURIComponent(token)}`,
@@ -70,9 +72,9 @@ async function startServer() {
       );
 
       return res.json(response.data);
-    } catch (error) {
-      console.error('Turnstile verification error:', error);
-      return res.status(500).json({ success: false, error: 'Internal server error' });
+    } catch (error: any) {
+      console.error('Turnstile verification error:', error.message || error);
+      return res.status(500).json({ success: false, error: 'Internal server error', detail: error.message });
     }
   });
 

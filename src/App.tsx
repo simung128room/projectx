@@ -53,12 +53,10 @@ const FakeTurnstile = ({ onSuccess, theme = 'dark' }: { onSuccess: (token: strin
       </div>
       <div className="flex flex-col items-end justify-center shrink-0">
         <div className="flex items-center gap-1 mb-[2px]">
-          <svg className="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M19.46,11.2a4.4,4.4,0,0,0-4-2.61,4.31,4.31,0,0,0-1.12.15,6.18,6.18,0,0,0-11,2.71A4.27,4.27,0,0,0,7,20H18a4.26,4.26,0,0,0,4-4A4.32,4.32,0,0,0,19.46,11.2Z" fill="#F48120"/>
-          </svg>
-          <span className="text-[#ccc] text-[9px] font-semibold leading-none">Cloudflare</span>
+          <Shield className="w-3.5 h-3.5 text-cyan-500" />
+          <span className="text-cyan-500 text-[10px] font-bold leading-none tracking-wider">ApexGuard</span>
         </div>
-        <div className="text-[#888] text-[8.5px]">Privacy - Terms</div>
+        <div className="text-[#888] text-[8.5px]">Secure Protocol</div>
       </div>
     </div>
   );
@@ -663,6 +661,9 @@ function AppContent() {
     } catch (err: any) {
       console.error("Auth Error:", err);
       let msg = err.message;
+      if (err.response && err.response.data && err.response.data.error) {
+        msg = err.response.data.error + ' (API Error)';
+      }
       if (err.message.includes('already registered')) msg = 'อีเมลนี้ถูกใช้งานแล้ว';
       if (err.message.includes('Invalid login credentials')) msg = 'อีเมลหรือรหัสผ่านไม่ถูกต้อง';
       if (err.message.includes('invalid email format')) msg = 'รูปแบบอีเมลไม่ถูกต้อง';
