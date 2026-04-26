@@ -89,7 +89,7 @@ function AppContent() {
   const [checkTurnstileToken, setCheckTurnstileToken] = useState<string | null>(null);
   const [showCheckCaptchaModal, setShowCheckCaptchaModal] = useState(false);
   const [savedLinesToCheck, setSavedLinesToCheck] = useState<string[]>([]);
-  const TURNSTILE_SITE_KEY = '0x4AAAAAADDdDO8JWWr7qfc';
+  const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY || '0x4AAAAAADDdDO8JWWr7qfc';
 
   enum OperationType {
     CREATE = 'create',
@@ -895,8 +895,12 @@ function AppContent() {
     }
 
     setSavedLinesToCheck(linesToCheck);
-    setCheckTurnstileToken(null);
-    setShowCheckCaptchaModal(true);
+    if (isPremium) {
+      executeCheck('premium-bypass');
+    } else {
+      setCheckTurnstileToken(null);
+      setShowCheckCaptchaModal(true);
+    }
   };
 
   const executeCheck = async (token: string) => {
