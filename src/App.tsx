@@ -22,7 +22,6 @@ import { ServerProxyModal } from './components/modals/ServerProxyModal';
 import { AdminDashboard } from './components/AdminDashboard';
 
 var TextPaint = `▒▄▀▄▒█▀▄▒██▀░▀▄▀
-2
 ░█▀█░█▀▒░█▄▄░█▒█`;
 
 enum OperationType {
