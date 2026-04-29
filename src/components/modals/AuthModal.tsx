@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { User, Shield } from 'lucide-react';
+import { User, Shield, X } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { supabase } from '../../lib/supabase';
 import { Turnstile } from '@marsidev/react-turnstile';
 
-const TURNSTILE_SITE_KEY = (import.meta.env.VITE_TURNSTILE_SITE_KEY && import.meta.env.VITE_TURNSTILE_SITE_KEY.length > 5) ? import.meta.env.VITE_TURNSTILE_SITE_KEY : '0x4AAAAAADDurF1TEj8IRq9g';
+const TURNSTILE_SITE_KEY = (import.meta.env.VITE_TURNSTILE_SITE_KEY && import.meta.env.VITE_TURNSTILE_SITE_KEY.length > 5) ? import.meta.env.VITE_TURNSTILE_SITE_KEY : '1x00000000000000000000AA';
 
 interface AuthModalProps {
   show: boolean;
@@ -106,7 +106,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
         onClose();
       }
     } catch (err: any) {
-      console.error("Auth Error Detailed:", err);
+      // Intentionally not logging expected auth errors to console to avoid user confusion
       let msg = err?.message || 'เกิดข้อผิดพลาด';
 
       if (msg.includes('already registered')) msg = 'ชื่อผู้ใช้นี้ถูกใช้งานแล้ว (โปรดใช้ชื่ออื่น)';
@@ -133,7 +133,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md">
-      <div className="w-full max-w-sm bg-[#09090b] border border-white/10 rounded-[2.5rem] p-8 shadow-2xl animate-in fade-in zoom-in duration-300 overflow-hidden relative">
+      <div className="w-full max-w-sm bg-zinc-950 border border-white/10 rounded-[2.5rem] p-8 shadow-xl animate-in fade-in zoom-in duration-300 overflow-hidden relative">
       <div className={`absolute top-0 right-0 w-32 h-32 blur-[50px] rounded-full -mr-16 -mt-16 ${authMode === 'login' ? 'bg-cyan-500/10' : 'bg-emerald-500/10'}`}></div>
       <div className="flex flex-col items-center text-center mb-6 relative z-10">
         <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-4 border ${authMode === 'login' ? 'bg-cyan-500/10 border-cyan-500/20' : 'bg-emerald-500/10 border-emerald-500/20'}`}>
@@ -215,7 +215,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
         <button 
           type="submit"
           disabled={authLoading}
-          className={`w-full py-4 rounded-3xl text-sm font-bold transition-all shadow-xl flex items-center justify-center gap-2 ${
+          className={`w-full py-4 rounded-2xl text-sm font-bold transition-all shadow-xl flex items-center justify-center gap-2 ${
             authMode === 'login' 
               ? 'bg-cyan-600 hover:bg-cyan-500 shadow-cyan-500/10' 
               : 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-500/10'
@@ -240,7 +240,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
       {/* Turnstile Sub-Modal */}
       {showTurnstileModal && (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md rounded-[2.5rem]">
-          <div className="bg-[#09090b] border border-white/10 rounded-[2rem] p-4 pt-6 animate-in zoom-in-95 duration-200 shadow-2xl flex flex-col items-center relative">
+          <div className="bg-zinc-950 border border-white/10 rounded-[2rem] p-4 pt-6 animate-in zoom-in-95 duration-200 shadow-xl flex flex-col items-center relative">
              <button 
                onClick={() => setShowTurnstileModal(false)}
                className="absolute top-3 right-3 text-zinc-500 hover:text-white transition-colors"

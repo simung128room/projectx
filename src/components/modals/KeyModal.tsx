@@ -13,8 +13,8 @@ export const KeyModal: React.FC<KeyModalProps> = ({ show, onClose, vipTab, redee
   if (!show) return null;
 
   return (
-    <div className="fixed inset-0 bg-[#09090b]/90 flex items-center justify-center p-4 z-[70] backdrop-blur-md font-sans animate-in zoom-in-95 duration-200 overflow-y-auto">
-      <div className="bg-[#151518] border border-amber-500/20 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-[0_0_50px_rgba(245,158,11,0.15)] relative overflow-hidden my-8">
+    <div className="fixed inset-0 bg-zinc-950/90 flex items-center justify-center p-4 z-[70] backdrop-blur-md font-sans animate-in zoom-in-95 duration-200 overflow-y-auto">
+      <div className="bg-zinc-900 border-zinc-800 border border-amber-500/20 rounded-2xl p-6 sm:p-8 max-w-lg w-full shadow-[0_0_50px_rgba(245,158,11,0.15)] relative overflow-hidden my-8">
         <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/5 blur-[80px] rounded-full pointer-events-none"></div>
 
         <div className="text-center mb-6 relative z-10">
@@ -48,7 +48,7 @@ export const KeyModal: React.FC<KeyModalProps> = ({ show, onClose, vipTab, redee
                   <label className="text-[11px] text-zinc-400 font-bold uppercase tracking-wider mb-2 block">คีย์สำหรับรายเดือน/รายปี (Key)</label>
                   <div className="relative">
                     <KeyIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
-                    <input required name="key" type="text" className="w-full bg-[#09090b] border border-white/10 rounded-xl py-3 pl-10 pr-4 text-sm focus:border-amber-500 outline-none text-white transition-all placeholder:text-zinc-600" placeholder="APEX-XXXXX-XXXXX" />
+                    <input required name="key" type="text" className="w-full bg-zinc-950 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-sm focus:border-amber-500 outline-none text-white transition-all placeholder:text-zinc-600" placeholder="APEX-XXXXX-XXXXX" />
                   </div>
               </div>
               <button type="submit" className="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-white font-bold py-3.5 rounded-xl shadow-[0_4px_20px_rgba(245,158,11,0.2)] transition-all mt-4">

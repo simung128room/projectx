@@ -12,8 +12,8 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({ show, onClose, logs 
   if (!show) return null;
 
   return (
-    <div className="fixed inset-0 bg-[#09090b]/90 flex items-center justify-center p-4 z-[70] backdrop-blur-md font-sans animate-in zoom-in-95 duration-200">
-      <div className="bg-[#151518] border border-white/10 rounded-3xl p-6 sm:p-8 max-w-2xl w-full shadow-2xl relative overflow-hidden flex flex-col max-h-[80vh]">
+    <div className="fixed inset-0 bg-zinc-950/90 flex items-center justify-center p-4 z-[70] backdrop-blur-md font-sans animate-in zoom-in-95 duration-200">
+      <div className="bg-zinc-900 border-zinc-800 border border-white/10 rounded-2xl p-6 sm:p-8 max-w-2xl w-full shadow-xl relative overflow-hidden flex flex-col max-h-[80vh]">
         <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2 shrink-0">
           <History className="w-5 h-5 text-emerald-400"/> ประวัติการทำรายการ
         </h2>

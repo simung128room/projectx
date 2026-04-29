@@ -13,27 +13,70 @@ window.onerror = function (message, source, lineno, colno, error) {
 };
 
 window.addEventListener('unhandledrejection', function(event) {
+  if (!event.reason) {
+    return;
+  }
   // Prevent logging empty rejection reasons
-  if (event.reason && Object.keys(event.reason).length === 0 && event.reason.constructor === Object) {
+  if (typeof event.reason === 'object' && Object.keys(event.reason).length === 0 && event.reason.constructor === Object) {
+    return;
+  }
+  
+  if (event.reason && typeof event.reason.message === 'string' && event.reason.message.includes('WebSocket')) {
+    event.preventDefault();
+    return;
+  }
+
+  if (typeof event.reason === 'string' && event.reason.includes('WebSocket')) {
+    event.preventDefault();
     return;
   }
   
   // Attempt to stringify the reason safely or extract its message
-  let reasonDetails = event.reason;
+  let reasonDetails: any = event.reason;
   if (event.reason instanceof Error) {
     reasonDetails = event.reason.message + '\n' + event.reason.stack;
+  } else if (event.reason.isAxiosError && event.reason.message) {
+    reasonDetails = event.reason.message;
   } else if (typeof event.reason === 'object') {
     try {
-      reasonDetails = JSON.stringify(event.reason);
+      // Just extract message if available to avoid circular JSON
+      if (event.reason.message) {
+        reasonDetails = event.reason.message;
+      } else {
+        const cache = new Set();
+        reasonDetails = JSON.stringify(event.reason, (key, value) => {
+          if (typeof value === 'object' && value !== null) {
+            if (cache.has(value)) {
+              return '[Circular]';
+            }
+            cache.add(value);
+          }
+          return value;
+        });
+      }
     } catch(e) {
       reasonDetails = String(event.reason);
     }
   }
 
+  if (!reasonDetails || reasonDetails === '{}') {
+    return;
+  }
+
+  console.error('[Unhandled Rejection] Reason:', reasonDetails);
+  
+  let payload: any = { type: 'unhandledrejection' };
+  
+  try {
+    payload.reason = typeof reasonDetails === 'string' ? reasonDetails : String(reasonDetails);
+  } catch (e) {
+    payload.reason = 'Could not stringify reason (possibly circular)';
+  }
+
   fetch('/api/log_error', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ type: 'unhandledrejection', reason: reasonDetails })
+    body: JSON.stringify(payload)
   }).catch(console.log);
 });
 
@@ -46,10 +89,13 @@ interface State {
   error?: Error;
 }
 
-class ErrorBoundary extends Component<Props, State> {
+class ErrorBoundary extends React.Component<Props, State> {
+  public state: State = {
+    hasError: false
+  };
+
   constructor(props: Props) {
     super(props);
-    this.state = { hasError: false };
   }
 
   public static getDerivedStateFromError(error: Error): State {
@@ -76,7 +122,7 @@ class ErrorBoundary extends Component<Props, State> {
       );
     }
 
-    return this.props.children;
+    return (this as any).props.children;
   }
 }
 

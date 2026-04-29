@@ -4,7 +4,7 @@ import {
   Gamepad2, ListChecks, Play, Square, Check, X, Shield, Terminal, CheckCircle2, 
   Home, ShoppingCart, CreditCard, Phone, Upload, Key, Crown, LogOut, User, Gift, 
   FileImage, Database, Globe, BarChart3, Settings, Activity, FileText, 
-  AlertTriangle, Download, ChevronRight, Trash2, ShieldAlert, Plus, Ban, History, Search, Copy, Menu, Server
+  AlertTriangle, Download, ChevronRight, Trash2, ShieldAlert, Plus, Ban, History, Search, Copy, Menu, Server, Package, Wallet
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import Swal from 'sweetalert2';
@@ -18,10 +18,12 @@ import { HistoryModal } from './components/modals/HistoryModal';
 import { ProfileModal } from './components/modals/ProfileModal';
 import { KeyModal } from './components/modals/KeyModal';
 import { AuthModal } from './components/modals/AuthModal';
-import { ServerProxyModal } from './components/modals/ServerProxyModal';
 import { AdminDashboard } from './components/AdminDashboard';
+import { HomeView } from './components/HomeView';
+import { Product, SiteStats } from './types';
 
 var TextPaint = `▒▄▀▄▒█▀▄▒██▀░▀▄▀
+2
 ░█▀█░█▀▒░█▄▄░█▒█`;
 
 enum OperationType {
@@ -36,7 +38,7 @@ enum OperationType {
 
 function AppContent() {
   // Navigation State
-  const [activeView, setActiveView] = useState<'dashboard' | 'admin' | 'profile' | 'logs' | 'settings'>('dashboard');
+  const [activeView, setActiveView] = useState<'home' | 'dashboard' | 'admin' | 'profile' | 'logs' | 'settings'>('home');
 
   const [combo, setCombo] = useState('');
   const comboRef = useRef('');
@@ -72,7 +74,7 @@ function AppContent() {
   const [pendingTurnstileToken, setPendingTurnstileToken] = useState<string | null>(null);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const [savedLinesToCheck, setSavedLinesToCheck] = useState<string[]>([]);
-  const TURNSTILE_SITE_KEY = (import.meta.env.VITE_TURNSTILE_SITE_KEY && import.meta.env.VITE_TURNSTILE_SITE_KEY.length > 5) ? import.meta.env.VITE_TURNSTILE_SITE_KEY : '0x4AAAAAADDurF1TEj8IRq9g';
+  const TURNSTILE_SITE_KEY = (import.meta.env.VITE_TURNSTILE_SITE_KEY && import.meta.env.VITE_TURNSTILE_SITE_KEY.length > 5) ? import.meta.env.VITE_TURNSTILE_SITE_KEY : '1x00000000000000000000AA';
 
   function handleDbError(error: unknown, operationType: OperationType, path: string | null) {
     const errInfo = {
@@ -93,31 +95,39 @@ function AppContent() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [vipTab, setVipTab] = useState<'key'>('key');
 
-  const [proxy, setProxy] = useState<string>('');
-  const [proxyHistory, setProxyHistory] = useState<string[]>([]);
-  const [showServerProxyModal, setShowServerProxyModal] = useState(false);
-
-  useEffect(() => {
-    const saved = localStorage.getItem('proxyHistory');
-    if (saved) setProxyHistory(JSON.parse(saved));
-  }, []);
-
-  const saveProxy = (p: string) => {
-    if (!p.trim()) return;
-    const newHistory = Array.from(new Set([p, ...proxyHistory]));
-    setProxyHistory(newHistory);
-    localStorage.setItem('proxyHistory', JSON.stringify(newHistory));
-  };
-
-  // Firebase State
+  const [threads, setThreads] = useState(5);
   const [firebaseKeys, setFirebaseKeys] = useState<any[]>([]);
   const [usedKeysHistory, setUsedKeysHistory] = useState<any[]>([]);
   const [blockedIPs, setBlockedIPs] = useState<any[]>([]);
-  const [adminTab, setAdminTab] = useState<'overview' | 'keys' | 'history' | 'ips'>('overview');
+  const [adminTab, setAdminTab] = useState<string>('overview');
   const [isIPBlocked, setIsIPBlocked] = useState(false);
+
+  // Home Store State
+  const [products, setProducts] = useState<Product[]>([]);
+  const [siteStats, setSiteStats] = useState<SiteStats>({ users: 1542, stock: 250, sales: 890 });
 
   const [isDBReady, setIsDBReady] = useState(true);
   const [dbErrorDetail, setDbErrorDetail] = useState<string | null>(null);
+
+  // Product + Stats loaders
+  useEffect(() => {
+    const savedProducts = localStorage.getItem('apex_products');
+    if (savedProducts) {
+      try { setProducts(JSON.parse(savedProducts)); } catch (e) {}
+    } else {
+      setProducts([
+        { id: '1', name: 'Garena COD Mobile Account (VIP)', description: 'ID ระดับอัลติเมท ปืนตำนาน 5-10 กระบอก รันสกินเพียบ', price: 1500, stock: 3, imageUrl: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&q=80&w=400', isPopular: true },
+        { id: '2', name: 'Free Fire High End', description: 'สายโหดสกินเต็ม ซื้อปุ๊บเล่นปั๊บ มีหมัดไฟ', price: 900, stock: 12, imageUrl: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=400' }
+      ]);
+    }
+    const savedStats = localStorage.getItem('apex_stats');
+    if (savedStats) {
+      try { setSiteStats(JSON.parse(savedStats)); } catch(e) {}
+    }
+  }, []);
+
+  useEffect(() => { localStorage.setItem('apex_products', JSON.stringify(products)); }, [products]);
+  useEffect(() => { localStorage.setItem('apex_stats', JSON.stringify(siteStats)); }, [siteStats]);
 
   // Supabase Auth Listener
   useEffect(() => {
@@ -126,7 +136,7 @@ function AppContent() {
       if (session?.user) {
         // If logged in, fetch their specific user data if needed
       }
-    });
+    }).catch(err => console.error("Supabase getSession error:", err));
 
     const { data: authListener } = supabase.auth.onAuthStateChange(
       (event, session) => {
@@ -260,39 +270,20 @@ function AppContent() {
         if (savedLogs && JSON.parse(savedLogs).length > 0) {
           setLogs(JSON.parse(savedLogs));
         } else {
-          console.log(TextPaint);
+          console.log("Welcome to APEX STUDIO System");
           setLogs([{
             id: Math.random().toString(36).substring(2, 9),
             time: new Date().toLocaleTimeString('th-TH'),
-            text: TextPaint,
-            iconName: 'terminal',
-            colorClass: 'text-cyan-400'
-          }, {
-            id: Math.random().toString(36).substring(2, 9),
-            time: new Date().toLocaleTimeString('th-TH'),
-            text: 'ระบบพร้อมใช้งาน • นโยบายความเป็นส่วนตัวเวอร์ชันละเอียด',
-            iconName: 'shield',
-            colorClass: 'text-cyan-400'
+            text: 'System Ready - Backend connected.',
+            iconName: 'check',
+            colorClass: 'text-green-500'
           }]);
         }
         setIsLoaded(true);
       })
-      .catch(() => {
+      .catch((err) => {
         setClientIp('offline_local');
-        console.log(TextPaint);
-        setLogs([{
-            id: Math.random().toString(36).substring(2, 9),
-            time: new Date().toLocaleTimeString('th-TH'),
-            text: TextPaint,
-            iconName: 'terminal',
-            colorClass: 'text-cyan-400'
-        }, {
-            id: Math.random().toString(36).substring(2, 9),
-            time: new Date().toLocaleTimeString('th-TH'),
-            text: 'ระบบพร้อมใช้งาน (ออฟไลน์) • นโยบายความเป็นส่วนตัว',
-            iconName: 'shield',
-            colorClass: 'text-cyan-400'
-        }]);
+        console.error("IP Check Failed", err);
         setIsLoaded(true);
       });
   }, []);
@@ -455,8 +446,12 @@ function AppContent() {
         localStorage.setItem(`checker_userplan_${clientIp}`, JSON.stringify(newPlan));
 
         if (!user) {
-          const { error } = await supabase.auth.signInAnonymously();
-          if (error) console.error("Error signing in anonymously:", error);
+          try {
+            const { error } = await supabase.auth.signInAnonymously();
+            if (error) console.error("Error signing in anonymously:", error);
+          } catch (err) {
+            console.error("Exception signing in anonymously:", err);
+          }
         }
 
         Swal.fire({
@@ -538,7 +533,11 @@ function AppContent() {
 
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    try {
+      await supabase.auth.signOut();
+    } catch(err) {
+      console.error("Logout error:", err);
+    }
     setUserPlan(null);
     Swal.fire({
       icon: 'info',
@@ -697,38 +696,14 @@ function AppContent() {
     }
   };
 
-  const getFormattedProxy = () => {
-    if (!proxy || !proxy.trim()) return undefined;
-    const proxyList = proxy.split('\n').map(p => p.trim()).filter(p => p);
-    if (proxyList.length === 0) return undefined;
-    const selected = proxyList[Math.floor(Math.random() * proxyList.length)];
-    
-    // IP:PORT@USER:PASS
-    if (selected.includes('@') && !selected.startsWith('http')) {
-       const [ipPort, userPass] = selected.split('@');
-       return `http://${userPass}@${ipPort}`;
-    }
-    // IP:PORT:USER:PASS
-    const parts = selected.split(':');
-    if (parts.length === 4 && !selected.startsWith('http')) {
-        return `http://${parts[2]}:${parts[3]}@${parts[0]}:${parts[1]}`;
-    }
-    if (!selected.startsWith('http')) {
-        return `http://${selected}`;
-    }
-    return selected;
-  };
-
   const checkSingle = async (acc: string, pass: string, index: number, cToken?: string | null) => {
     try {
       setTotalChecked(prev => prev + 1);
       addLog(`[${index+1}] กำลังทำ DataDome Bypass...`, 'shield', 'text-amber-400');
       
-      const activeProxy = getFormattedProxy();
       const response = await axios.post(`/api/check`, { 
         account: acc, 
         password: pass,
-        proxy: activeProxy, // Send the formatted proxy to backend
         turnstileToken: cToken
       });
       const result = response.data;
@@ -749,7 +724,9 @@ function AppContent() {
       }
     } catch (err: any) {
       setInvalidCount(prev => prev + 1);
-      addLog(`[${index+1}] ระบบขัดข้อง: ${acc} (Check logs)`, 'x', 'text-red-500 font-bold');
+      console.error(`Check failed for ${acc}:`, err);
+      const errMsg = err.response?.data?.error || err.message;
+      addLog(`[${index+1}] ระบบขัดข้อง: ${acc} (${errMsg})`, 'x', 'text-red-500 font-bold');
     }
   };
 
@@ -816,7 +793,7 @@ function AppContent() {
     setSavedLinesToCheck(linesToCheck);
     
     if (isPremium) {
-      executeCheck('premium-bypass', linesToCheck);
+      executeCheck('premium-bypass', linesToCheck).catch(console.error);
     } else {
       setPendingTurnstileToken(null);
       setShowTurnstileModal(true);
@@ -831,25 +808,38 @@ function AppContent() {
     setTotalChecked(0);
     setElapsedTime('00:00:00.000');
     
-    addLog(`เริ่มตรวจสอบ... ทั้งหมด ${linesArg.length} รายการ [DataDome Bypass: ACTIVE]`, 'terminal', 'text-cyan-400');
+    addLog(`เริ่มตรวจสอบ... ทั้งหมด ${linesArg.length} รายการ [DataDome Bypass: ACTIVE] Threads: ${threads}`, 'terminal', 'text-cyan-400');
 
-    for (let i = 0; i < linesArg.length; i++) {
-      if (!runningRef.current) break;
-      const line = linesArg[i];
-      const [acc, pass] = line.split(':', 2);
-      if (acc && pass) {
-        await checkSingle(acc.trim(), pass.trim(), i, token);
-        if (!userPlan?.isPremium) {
-           setDailyUsage(prev => prev + 1);
+    const pool = [...linesArg];
+    let active = 0;
+    
+    const worker = async () => {
+      while (pool.length > 0 && runningRef.current) {
+        const line = pool.shift();
+        if (!line) break;
+        const index = linesArg.indexOf(line);
+        const [acc, pass] = line.split(':', 2);
+        if (acc && pass) {
+          active++;
+          await checkSingle(acc.trim(), pass.trim(), index, token);
+          if (!userPlan?.isPremium) {
+            setDailyUsage(prev => prev + 1);
+          }
+          active--;
         }
       }
-      // Yield to UI to prevent hanging with 1M rows
-      if (i % 25 === 0) await delay(0);
+    };
+
+    const workers = [];
+    for (let i = 0; i < Math.min(threads, linesArg.length); i++) {
+      workers.push(worker());
     }
 
-    addLog('ตรวจสอบเสร็จสิ้น', 'check', 'text-green-400');
+    await Promise.all(workers);
+    
     setRunning(false);
     runningRef.current = false;
+    addLog('ตรวจสอบเสร็จสิ้น', 'check', 'text-green-400 font-bold');
   };
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -965,6 +955,10 @@ function AppContent() {
         blockIP={blockIP}
         deleteKey={deleteKey}
         unblockIP={unblockIP}
+        products={products}
+        setProducts={setProducts}
+        siteStats={siteStats}
+        setSiteStats={setSiteStats}
       />
     );
   }
@@ -987,7 +981,6 @@ function AppContent() {
     </div>
   );
 
-  if (isAdmin) return <AdminDashboard />;
   if (!isLoaded) return (
     <div className="min-h-screen bg-[#0d0d0f] flex flex-col items-center justify-center gap-6">
       <div className="relative">
@@ -996,7 +989,6 @@ function AppContent() {
       </div>
       <div className="flex flex-col items-center gap-2">
         <div className="text-emerald-500 text-sm font-bold tracking-widest uppercase animate-pulse">APEX STUDIO</div>
-        <div className="text-zinc-600 text-[10px] font-mono tracking-[0.2em]">INITIALIZING SYSTEM...</div>
       </div>
     </div>
   );
@@ -1018,19 +1010,10 @@ function AppContent() {
         initialMode={authMode}
       />
 
-      <ServerProxyModal
-        show={showServerProxyModal}
-        onClose={() => setShowServerProxyModal(false)}
-        onSelectProxy={(proxies) => {
-          setProxy(proxies);
-        }}
-        currentProxy={proxy}
-      />
-
       {/* Admin Login Modal Overlay */}
       {showAdminLogin && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md">
-          <div className="w-full max-w-sm bg-[#09090b] border border-white/10 rounded-[2.5rem] p-8 shadow-2xl animate-in fade-in zoom-in duration-300 overflow-hidden relative">
+          <div className="w-full max-w-sm bg-zinc-950 border border-white/10 rounded-[2.5rem] p-8 shadow-xl animate-in fade-in zoom-in duration-300 overflow-hidden relative">
             <div className="absolute top-0 right-0 w-32 h-32 bg-red-500/10 blur-[50px] rounded-full -mr-16 -mt-16"></div>
             <div className="flex flex-col items-center text-center mb-8 relative z-10">
               <div className="w-16 h-16 bg-red-500/10 rounded-2xl flex items-center justify-center mb-4 border border-red-500/20">
@@ -1098,10 +1081,19 @@ function AppContent() {
               onClick={handleLogoClick}
             />
             <div className="hidden md:flex items-center gap-6 text-sm font-medium text-zinc-400">
-              <button onClick={() => setActiveView('dashboard')} className={`${activeView === 'dashboard' ? 'text-cyan-400 font-bold drop-shadow-[0_0_8px_rgba(34,211,238,0.4)]' : 'hover:text-cyan-400 transition-colors'} flex items-center gap-2`}><Home className="w-4 h-4"/> หน้าเช็คไอดี</button>
-              <button onClick={() => setActiveView('logs')} className={`${activeView === 'logs' ? 'text-cyan-400 font-bold drop-shadow-[0_0_8px_rgba(34,211,238,0.4)]' : 'hover:text-cyan-400 transition-colors'} flex items-center gap-2`}><History className="w-4 h-4"/> ประวัติการใช้งาน</button>
-              {isAdmin && <button onClick={() => setActiveView('admin')} className={`${activeView === 'admin' ? 'text-cyan-400 font-bold drop-shadow-[0_0_8px_rgba(34,211,238,0.4)]' : 'hover:text-cyan-400 transition-colors'} flex items-center gap-2`}><ShieldAlert className="w-4 h-4"/> ผู้ดูแลระบบ</button>}
-              <a href="#" className="hover:text-cyan-400 transition-colors flex items-center gap-2"><ShoppingCart className="w-4 h-4"/> ร้านค้า</a>
+              <button onClick={() => setActiveView('home')} className={`${activeView === 'home' ? 'text-cyan-400 font-bold drop-shadow-[0_0_8px_rgba(34,211,238,0.4)]' : 'hover:text-cyan-400 transition-colors'} flex items-center gap-2`}><Home className="w-4 h-4"/> หน้าแรก</button>
+              <button onClick={() => setActiveView('home')} className={`hover:text-cyan-400 transition-colors flex items-center gap-2`}><Package className="w-4 h-4"/> สินค้าทั้งหมด</button>
+              <button onClick={() => {
+                Swal.fire({
+                  title: 'ระบบเติมเงิน',
+                  text: 'ระบบเติมเงินกำลังอยู่ในการพัฒนา เร็วๆ นี้!',
+                  icon: 'info',
+                  background: '#09090b',
+                  color: '#fff',
+                  confirmButtonColor: '#0ea5e9'
+                });
+              }} className={`hover:text-cyan-400 transition-colors flex items-center gap-2`}><Wallet className="w-4 h-4"/> เติมเงิน</button>
+              <a href="#" className="hover:text-cyan-400 transition-colors flex items-center gap-2"><Phone className="w-4 h-4"/> ติดต่อเรา</a>
             </div>
           </div>
 
@@ -1130,7 +1122,7 @@ function AppContent() {
                     <button className="p-2.5 bg-zinc-800 rounded-xl border border-white/10 hover:bg-zinc-700 transition-all">
                       <User className="w-5 h-5 text-zinc-300" />
                     </button>
-                    <div className="absolute right-0 top-full mt-2 w-48 bg-[#09090b] border border-white/5 rounded-2xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all py-2 z-50">
+                    <div className="absolute right-0 top-full mt-2 w-48 bg-zinc-950 border border-white/5 rounded-2xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all py-2 z-50">
                       <button onClick={() => setShowProfileModal(true)} className="w-full px-4 py-2 text-left text-xs text-zinc-300 hover:bg-white/5 flex items-center gap-2">
                         <User className="w-4 h-4" /> โปรไฟล์
                       </button>
@@ -1160,6 +1152,14 @@ function AppContent() {
 
             {/* Universal Hamburger Menu / Mobile Actions */}
             <div className={`flex items-center gap-2`}>
+              <div className="relative group flex">
+                <input 
+                  type="text" 
+                  placeholder="ค้นหาสินค้า..." 
+                  className="bg-zinc-800/50 border border-white/5 rounded-xl py-2 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-cyan-500/50 transition-all w-36 sm:w-48 placeholder:text-zinc-500"
+                />
+                <Search className="w-4 h-4 text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2 group-focus-within:text-cyan-400 transition-colors" />
+              </div>
               <button 
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
                 className={`p-2.5 bg-zinc-800 rounded-xl border border-white/10 hover:bg-zinc-700 transition-all text-zinc-300 flex`}
@@ -1178,7 +1178,7 @@ function AppContent() {
             animate={{ opacity: 1, y: 0, rotateX: 0 }}
             exit={{ opacity: 0, y: -20, rotateX: -15 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
-            className="absolute top-full left-0 w-full bg-[#09090b] border-b border-white/5 shadow-2xl z-50 origin-top"
+            className="absolute top-full left-0 w-full bg-zinc-950 border-b border-white/5 shadow-xl z-50 origin-top"
           >
             <div className="max-w-7xl mx-auto px-4 md:px-8 py-6 w-full flex flex-col gap-6 md:flex-row md:gap-12">
               
@@ -1231,15 +1231,21 @@ function AppContent() {
               <div className="flex flex-col gap-4 flex-1">
                 <h3 className="text-zinc-500 font-bold text-xs uppercase tracking-widest pl-2">เมนูหลัก</h3>
                 <div className="flex flex-col gap-1">
-                  <button onClick={() => { setActiveView('dashboard'); setIsMobileMenuOpen(false); }} className={`w-full px-4 py-3 text-left text-sm rounded-xl font-medium transition-colors flex items-center gap-3 ${activeView === 'dashboard' ? 'bg-cyan-500/10 text-cyan-400 font-bold border border-cyan-500/20' : 'text-zinc-400 hover:bg-white/5 hover:text-white'}`}>
-                    <Home className="w-4 h-4"/> หน้าเช็คไอดี
+                  <button onClick={() => { setActiveView('home'); setIsMobileMenuOpen(false); }} className={`w-full px-4 py-3 text-left text-sm rounded-xl font-medium transition-colors flex items-center gap-3 ${activeView === 'home' ? 'bg-cyan-500/10 text-cyan-400 font-bold border border-cyan-500/20' : 'text-zinc-400 hover:bg-white/5 hover:text-white'}`}>
+                    <Home className="w-4 h-4"/> หน้าแรก
                   </button>
-                  <button onClick={() => { setActiveView('logs'); setIsMobileMenuOpen(false); }} className={`w-full px-4 py-3 text-left text-sm rounded-xl font-medium transition-colors flex items-center gap-3 ${activeView === 'logs' ? 'bg-cyan-500/10 text-cyan-400 font-bold border border-cyan-500/20' : 'text-zinc-400 hover:bg-white/5 hover:text-white'}`}>
-                    <History className="w-4 h-4"/> ประวัติการเช็ค
+                  <button onClick={() => { setActiveView('home'); setIsMobileMenuOpen(false); }} className={`w-full px-4 py-3 text-left text-sm rounded-xl font-medium transition-colors flex items-center gap-3 text-zinc-400 hover:bg-white/5 hover:text-white`}>
+                    <Package className="w-4 h-4"/> สินค้าทั้งหมด
                   </button>
-                  <a href="#" className="w-full px-4 py-3 text-left text-sm rounded-xl font-medium text-zinc-400 hover:bg-white/5 hover:text-white transition-colors flex items-center gap-3">
-                    <ShoppingCart className="w-4 h-4"/> ร้านค้า
+                  <button onClick={() => { setIsMobileMenuOpen(false); Swal.fire({title:'ระบบเติมเงิน',text:'เร็วๆ นี้!',icon:'info',background:'#09090b',color:'#fff'}) }} className={`w-full px-4 py-3 text-left text-sm rounded-xl font-medium transition-colors flex items-center gap-3 text-zinc-400 hover:bg-white/5 hover:text-white`}>
+                    <Wallet className="w-4 h-4"/> เติมเงิน
+                  </button>
+                  <a href="#" className="w-full px-4 py-3 text-left text-sm rounded-xl font-medium transition-colors flex items-center gap-3 text-zinc-400 hover:bg-white/5 hover:text-white">
+                    <Phone className="w-4 h-4"/> ติดต่อเรา
                   </a>
+                  <button onClick={() => { setActiveView('dashboard'); setIsMobileMenuOpen(false); }} className={`w-full px-4 py-3 text-left text-sm rounded-xl font-medium transition-colors flex items-center gap-3 ${activeView === 'dashboard' ? 'bg-cyan-500/10 text-cyan-400 font-bold border border-cyan-500/20' : 'text-zinc-400 hover:bg-white/5 hover:text-white'}`}>
+                    <Activity className="w-4 h-4"/> เครื่องมือเช็คไอดี
+                  </button>
                 </div>
               </div>
 
@@ -1310,29 +1316,44 @@ function AppContent() {
       )}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-10 pb-24">
+        {activeView === 'home' && (
+          <HomeView products={products} stats={siteStats} />
+        )}
+
         {activeView === 'dashboard' && (
           <>
             {/* Page Header */}
-        <div className="mb-10 flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-white/5 pb-8">
-          <div>
-            <h1 className="text-3xl sm:text-4xl font-bold text-white flex items-center gap-3">
-              APEX CHECK <span className="px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold uppercase tracking-wider backdrop-blur-sm">BY APEX STUDIO</span>
-            </h1>
-            <p className="text-zinc-400 mt-2 text-sm">เครื่องมือเช็คไอดีเกมอัตโนมัติ แม่นยำ ปลอดภัย 100%</p>
-          </div>
-          <div className="flex items-center gap-2 bg-zinc-900/50 border border-white/5 px-4 py-2 rounded-xl backdrop-blur-sm">
-            <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)] animate-pulse"></div>
-            <span className="text-emerald-400 text-sm font-bold tracking-wide">SYSTEM ONLINE</span>
+        <div className="mb-10 flex flex-col items-center justify-center gap-4 border-b border-white/5 pb-8 overflow-hidden text-center">
+          <div className="flex flex-col items-center">
+            <div className="inline-block relative">
+              <h1 
+                className="text-4xl sm:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-cyan-400 tracking-tighter uppercase glitch-wrapper hacker-text animate-pulse" 
+                data-text="APEX CHECK ID"
+                style={{ textShadow: '0 0 20px rgba(34, 211, 238, 0.4)' }}
+              >
+                APEX CHECK ID
+              </h1>
+              {/* Overlay Glitch Effect */}
+              <h1 
+                className="absolute top-0 left-0 text-4xl sm:text-6xl font-black text-white tracking-tighter uppercase glitch w-full h-full"
+                data-text="APEX CHECK ID"
+              >
+                APEX CHECK ID
+              </h1>
+            </div>
+            
+            <div className="mt-4">
+              <p className="text-cyan-400 text-sm md:text-base font-mono typing-eff inline-block">
+                เช็คไอดีการีน่า โดย เอเปกซ์ สตูดิโอ_
+              </p>
+            </div>
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Left Panel: Combo & Controls */}
           <div className="lg:col-span-4 flex flex-col gap-6">
-            <div className="bg-[#151518]/80 backdrop-blur-xl rounded-3xl p-6 sm:p-7 border border-white/5 shadow-xl relative overflow-hidden">
-              {/* Decorative gradient blob */}
-              <div className="absolute -top-24 -right-24 w-48 h-48 bg-cyan-500/10 blur-[60px] rounded-full pointer-events-none"></div>
-              
+            <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-6 sm:p-7 relative overflow-hidden">
               <div className="flex justify-between items-center mb-5">
                 <h2 className="text-xl font-bold flex items-center gap-3 text-white">
                   <ListChecks className="w-5 h-5 text-cyan-400" /> นำเข้าข้อมูล <span className="text-xs text-zinc-500 font-mono">({combo.trim() ? combo.trim().split('\n').length : 0} รายการ)</span>
@@ -1386,23 +1407,9 @@ function AppContent() {
                   value={combo}
                   onChange={(e) => setCombo(e.target.value)}
                   rows={10}
-                  className="w-full bg-[#09090b] border border-white/10 rounded-2xl p-5 text-sm font-mono focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50 outline-none resize-none transition-all scrollbar-thin scrollbar-thumb-zinc-700 h-48"
+                  className="w-full bg-zinc-950 border border-white/10 rounded-2xl p-5 text-sm font-mono focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50 outline-none resize-none transition-all scrollbar-thin scrollbar-thumb-zinc-700 h-48"
                   placeholder="user:pass&#10;user|pass"
                 />
-              </div>
-              <div>
-                <label className="text-[11px] text-zinc-500 font-bold uppercase tracking-wider mb-2 flex items-center gap-2">
-                   <Globe className="w-3.5 h-3.5" /> ตั้งค่า Proxy (Bypass 403)
-                </label>
-                <div className="bg-[#09090b] border border-white/10 rounded-2xl p-5 flex flex-col gap-2">
-                    <p className="text-[10px] text-zinc-400 shrink-0">ใช้ Proxy เพื่อป้องกันการโดน IP Block (403 Forbidden)</p>
-                    <button 
-                       onClick={() => setShowServerProxyModal(true)}
-                       className="w-full flex items-center justify-center gap-1.5 shrink-0 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-500 text-[10px] font-bold px-3 py-3 rounded-xl transition-all border border-emerald-500/20"
-                     >
-                       <Server className="w-4 h-4" /> {proxy ? proxy : 'เลือกเซิร์ฟเวอร์'}
-                     </button>
-                 </div>
               </div>
             </div>
 
@@ -1425,28 +1432,28 @@ function AppContent() {
             </div>
 
             {/* Stats Dashboard */}
-            <div className="bg-[#151518]/80 backdrop-blur-xl rounded-3xl p-6 sm:p-7 border border-white/5 shadow-xl">
+            <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-6 sm:p-7">
               <h3 className="text-sm font-bold text-zinc-400 mb-5 uppercase tracking-wider">ภาพรวมผลลัพธ์</h3>
               <div className="grid grid-cols-2 gap-4">
-                <div className="bg-[#09090b] rounded-2xl p-4 border border-white/5 flex flex-col items-center justify-center relative overflow-hidden group">
+                <div className="bg-zinc-950 rounded-2xl p-4 border border-white/5 flex flex-col items-center justify-center relative overflow-hidden group">
                   <div className="absolute inset-x-0 bottom-0 h-0.5 bg-green-500 scale-x-0 group-hover:scale-x-100 transition-transform origin-left text-green-500"></div>
                   <Check className="text-green-500 mb-2 w-7 h-7" />
                   <span className="text-3xl font-bold text-white mb-1 font-mono">{validAccounts.length}</span>
                   <span className="text-xs text-zinc-500 font-medium">สำเร็จ (VALID)</span>
                 </div>
-                <div className="bg-[#09090b] rounded-2xl p-4 border border-white/5 flex flex-col items-center justify-center relative overflow-hidden group">
+                <div className="bg-zinc-950 rounded-2xl p-4 border border-white/5 flex flex-col items-center justify-center relative overflow-hidden group">
                   <div className="absolute inset-x-0 bottom-0 h-0.5 bg-red-500 scale-x-0 group-hover:scale-x-100 transition-transform origin-left text-red-500"></div>
                   <X className="text-red-500 mb-2 w-7 h-7" />
                   <span className="text-3xl font-bold text-white mb-1 font-mono">{invalidCount}</span>
                   <span className="text-xs text-zinc-500 font-medium">ไม่ผ่าน (INVALID)</span>
                 </div>
-                <div className="bg-[#09090b] rounded-2xl p-4 border border-white/5 flex flex-col items-center justify-center relative overflow-hidden group">
+                <div className="bg-zinc-950 rounded-2xl p-4 border border-white/5 flex flex-col items-center justify-center relative overflow-hidden group">
                   <div className="absolute inset-x-0 bottom-0 h-0.5 bg-emerald-400 scale-x-0 group-hover:scale-x-100 transition-transform origin-left text-emerald-400"></div>
                   <Shield className="text-emerald-400 mb-2 w-7 h-7" />
                   <span className="text-3xl font-bold text-white mb-1 font-mono">{validAccounts.filter(a => a.isClean).length}</span>
                   <span className="text-xs text-zinc-500 font-medium">ปกติ (CLEAN)</span>
                 </div>
-                <div className="bg-[#09090b] rounded-2xl p-4 border border-white/5 flex flex-col items-center justify-center relative overflow-hidden group">
+                <div className="bg-zinc-950 rounded-2xl p-4 border border-white/5 flex flex-col items-center justify-center relative overflow-hidden group">
                   <div className="absolute inset-x-0 bottom-0 h-0.5 bg-blue-400 scale-x-0 group-hover:scale-x-100 transition-transform origin-left text-blue-400"></div>
                   <Gamepad2 className="text-blue-400 mb-2 w-7 h-7" />
                   <span className="text-3xl font-bold text-white mb-1 font-mono">{validAccounts.filter(a => a.hasCodm).length}</span>
@@ -1466,7 +1473,7 @@ function AppContent() {
 
           {/* Right Panel: Terminal Log & Results */}
           <div className="lg:col-span-8 flex flex-col gap-6">
-            <div className="bg-[#151518]/80 backdrop-blur-xl border border-white/5 rounded-3xl p-6 sm:p-7 h-[450px] flex flex-col shadow-xl">
+            <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-6 sm:p-7 h-[450px] flex flex-col">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 pb-4 border-b border-white/5 gap-4">
                 <div className="flex items-center gap-2 flex-wrap">
                   <h3 className="font-bold text-lg flex items-center gap-2 text-white">
@@ -1485,7 +1492,7 @@ function AppContent() {
                 </div>
                 <button onClick={clearLog} className="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-xs font-medium transition-colors border border-white/5">เคลียร์ LOG</button>
               </div>
-              <div ref={logDivRef} className="flex-1 bg-[#09090b] border border-white/5 p-5 rounded-2xl text-xs sm:text-sm font-mono overflow-auto scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-transparent">
+              <div ref={logDivRef} className="flex-1 bg-zinc-950 border border-white/5 p-5 rounded-2xl text-xs sm:text-sm font-mono overflow-auto scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-transparent">
                 {logs.length === 0 && (
                   <div className="text-zinc-600 italic">ยังไม่มีบันทึก...</div>
                 )}
@@ -1511,7 +1518,7 @@ function AppContent() {
             </div>
 
             {validAccounts.length > 0 && (
-              <div className="bg-[#151518]/80 backdrop-blur-xl border border-white/5 rounded-3xl p-6 sm:p-7 shadow-xl">
+              <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-6 sm:p-7 shadow">
                 <div className="flex items-center justify-between mb-5 border-b border-white/5 pb-4">
                   <h3 className="font-bold text-lg text-white flex items-center gap-2">
                     <CheckCircle2 className="w-5 h-5 text-emerald-400" /> ผลลัพธ์ที่สำเร็จ <span className="bg-emerald-500/20 text-emerald-400 px-2.5 py-0.5 rounded-full text-sm">{validAccounts.length}</span>
@@ -1519,7 +1526,7 @@ function AppContent() {
                 </div>
                 <div className="space-y-4 max-h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-700 pr-2">
                   {validAccounts.map((acc, idx) => (
-                    <div key={idx} className="bg-[#09090b] border border-white/5 rounded-2xl p-4 sm:p-6 flex flex-col gap-5 hover:border-cyan-500/30 transition-all relative overflow-hidden group shadow-lg">
+                    <div key={idx} className="bg-zinc-950 border border-white/5 rounded-2xl p-4 sm:p-6 flex flex-col gap-5 hover:border-cyan-500/30 transition-all relative overflow-hidden group shadow-lg">
                       <div className="absolute top-0 right-0 w-48 h-48 bg-cyan-500/[0.03] blur-3xl rounded-full pointer-events-none group-hover:bg-cyan-500/10 transition-colors"></div>
                       
                       {/* Header Section */}
@@ -1530,7 +1537,9 @@ function AppContent() {
                           </div>
                           <div>
                             <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-[0.2em]">UID: {acc.uid} | {acc.region}</div>
-                            <div className="text-white font-bold font-mono text-base sm:text-lg group-hover:text-cyan-400 transition-colors">{acc.account}</div>
+                            <div className="text-white font-bold font-mono text-base sm:text-lg group-hover:text-cyan-400 transition-colors">
+                               {acc.account} {acc.codmNickname && acc.codmNickname !== 'N/A' && <span className="text-cyan-400 ml-2">({acc.codmNickname})</span>}
+                             </div>
                           </div>
                         </div>
                         <div className="flex flex-wrap items-center gap-2">
@@ -1547,14 +1556,22 @@ function AppContent() {
                           <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">สถานะไอดี</div>
                           {acc.isClean ? 
                             <span className="text-xs text-emerald-400 font-bold flex items-center gap-1.5"><Shield className="w-3.5 h-3.5" /> CLEAN (ปกติ)</span> : 
-                            <span className="text-xs text-amber-500 font-bold flex items-center gap-1.5">🔗 BOUND (เชื่อมโยง)</span>
+                            <span className="text-xs text-amber-500 font-bold flex items-center gap-1.5">
+                              🔗 BOUND (
+                                {[
+                                  acc.emailVerified ? 'Email' : null,
+                                  acc.phoneBound ? 'Phone' : null,
+                                  acc.fbLinked ? 'Facebook' : null,
+                                  acc.idCardBound ? 'ID Card' : null
+                                ].filter(Boolean).join(', ') || 'Connected'}
+                              )
+                            </span>
                           }
                         </div>
                         <div className="flex flex-col gap-1">
-                          <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Garena Mobile</div>
-                          <span className={`text-xs font-bold flex items-center gap-1.5 ${acc.phoneBound ? 'text-emerald-400' : 'text-zinc-500'}`}>
-                             {acc.phoneBound ? <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div> : null}
-                             {acc.phoneBound ? 'ผูกเบอร์แล้ว' : 'ยังไม่ผูกเบอร์'}
+                          <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">ID Card / Phone</div>
+                          <span className={`text-xs font-bold flex items-center gap-1.5 ${(acc.idCardBound || acc.phoneBound) ? 'text-amber-500' : 'text-zinc-500'}`}>
+                             {acc.idCardBound ? 'ID CARD BOUND' : (acc.phoneBound ? 'PHONE BOUND' : 'NOT BOUND')}
                           </span>
                         </div>
                         <div className="flex flex-col gap-1">
@@ -1612,8 +1629,8 @@ function AppContent() {
 
       {/* Modals */}
       {showPrivacy && (
-        <div className="fixed inset-0 bg-[#09090b]/90 flex items-center justify-center p-4 z-50 backdrop-blur-md font-sans animate-in fade-in duration-200">
-          <div className="bg-[#151518] border border-white/10 rounded-3xl p-6 sm:p-8 max-w-2xl w-full max-h-[90vh] flex flex-col relative shadow-[0_0_50px_rgba(0,0,0,0.5)]">
+        <div className="fixed inset-0 bg-zinc-950/90 flex items-center justify-center p-4 z-50 backdrop-blur-md font-sans animate-in fade-in duration-200">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 sm:p-8 max-w-2xl w-full max-h-[90vh] flex flex-col relative">
             <h2 className="text-xl sm:text-2xl font-bold mb-6 text-cyan-400 flex items-center gap-2">
               <Shield className="w-6 h-6 shrink-0" /> นโยบายความเป็นส่วนตัว (Privacy Policy)
             </h2>
@@ -1673,8 +1690,8 @@ function AppContent() {
       )}
 
       {showTerms && (
-        <div className="fixed inset-0 bg-[#09090b]/90 flex items-center justify-center p-4 z-50 backdrop-blur-md font-sans animate-in fade-in duration-200">
-          <div className="bg-[#151518] border border-white/10 rounded-3xl p-6 sm:p-8 max-w-lg w-full relative shadow-[0_0_50px_rgba(0,0,0,0.5)]">
+        <div className="fixed inset-0 bg-zinc-950/90 flex items-center justify-center p-4 z-50 backdrop-blur-md font-sans animate-in fade-in duration-200">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 sm:p-8 max-w-lg w-full relative">
             <h2 className="text-xl sm:text-2xl font-bold mb-6 flex items-center gap-2 text-white">
               <ListChecks className="w-6 h-6 shrink-0" /> ข้อกำหนดการใช้งาน
             </h2>
@@ -1714,12 +1731,13 @@ function AppContent() {
         userPlan={userPlan}
         setUserPlan={setUserPlan}
         clientIp={clientIp}
+        setActiveView={setActiveView}
       />
 
       {/* Turnstile Modal */}
       {showTurnstileModal && (
-        <div className="fixed inset-0 bg-[#09090b]/90 flex items-center justify-center p-4 z-[70] backdrop-blur-md font-sans animate-in zoom-in-95 duration-200">
-          <div className="bg-[#151518] border border-white/10 rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-2xl relative overflow-hidden flex flex-col items-center">
+        <div className="fixed inset-0 bg-zinc-950/90 flex items-center justify-center p-4 z-[70] backdrop-blur-md font-sans animate-in zoom-in-95 duration-200">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 sm:p-8 max-w-sm w-full shadow-xl relative overflow-hidden flex flex-col items-center">
             <h2 className="text-xl font-bold text-white mb-2 text-center">
               ยืนยันว่าคุณไม่ใช่บอท
             </h2>
@@ -1738,7 +1756,7 @@ function AppContent() {
               onClick={() => {
                 if (pendingTurnstileToken) {
                   setShowTurnstileModal(false);
-                  executeCheck(pendingTurnstileToken, savedLinesToCheck);
+                  executeCheck(pendingTurnstileToken, savedLinesToCheck).catch(console.error);
                 }
               }}
               disabled={!pendingTurnstileToken}

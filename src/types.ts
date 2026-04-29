@@ -14,6 +14,8 @@ export interface AccountResult {
   fbLinked: boolean;
   region: string;
   otherGames: string[];
+  codmNickname?: string;
+  idCardBound?: boolean;
 }
 
 export interface LogEntry {
@@ -26,6 +28,27 @@ export interface LogEntry {
 
 export interface UserPlan {
   username: string;
+  fullName?: string;
+  balance?: number;
+  role?: string;
   isPremium: boolean;
   premiumExpireDate: string | null;
+  registeredAt?: string;
+}
+
+export interface Product {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  imageUrl: string;
+  stock: number;
+  category?: string;
+  isPopular?: boolean;
+}
+
+export interface SiteStats {
+  users: number;
+  stock: number;
+  sales: number;
 }
