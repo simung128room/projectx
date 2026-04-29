@@ -320,7 +320,7 @@ async function startServer() {
     try {
       if (proxyUrl) {
         // 20s timeout so the proxy fails BEFORE the platform (Cloud Run/Nginx) 60s limit
-        agent = new HttpsProxyAgent(proxyUrl, { timeout: 20000, rejectUnauthorized: false });
+        agent = new HttpsProxyAgent(proxyUrl, { timeout: 20000, rejectUnauthorized: false } as any);
       } else {
         agent = new https.Agent({ rejectUnauthorized: false });
       }

@@ -52,3 +52,12 @@ export interface SiteStats {
   stock: number;
   sales: number;
 }
+
+export interface ContentItem {
+  id: string;
+  title: string;
+  image?: string;
+  text?: string;
+  fileUrl?: string;
+  type: 'free' | 'premium';
+}

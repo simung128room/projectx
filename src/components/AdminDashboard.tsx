@@ -2,7 +2,7 @@ import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Copy, Database, LogOut, BarChart3, Key, History, ShieldAlert, Activity, Ban, ChevronRight, Settings, Plus, Trash2, Crown } from 'lucide-react';
 import Swal from 'sweetalert2';
-import { AccountResult, Product, SiteStats } from '../types';
+import { AccountResult, Product, SiteStats, ContentItem } from '../types';
 import { ShoppingCart, Package, Users } from 'lucide-react';
 
 interface AdminDashboardProps {
@@ -17,6 +17,8 @@ interface AdminDashboardProps {
   setProducts?: (products: Product[]) => void;
   siteStats?: SiteStats;
   setSiteStats?: (stats: SiteStats) => void;
+  contentItems?: ContentItem[];
+  setContentItems?: (items: ContentItem[]) => void;
   isDBReady: boolean;
   adminUsername: string;
   setIsAdmin: (val: boolean) => void;
@@ -120,7 +122,9 @@ CREATE TABLE admins (
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   totalChecked, validAccounts, firebaseKeys, usedKeysHistory, blockedIPs,
   adminTab, setAdminTab, isDBReady, adminUsername, setIsAdmin,
-  addLicenseKey, blockIP, deleteKey, unblockIP
+  addLicenseKey, blockIP, deleteKey, unblockIP,
+  products = [], setProducts, siteStats = { users: 0, stock: 0, sales: 0 }, setSiteStats,
+  contentItems = [], setContentItems
 }) => {
   return (
     <div className="min-h-screen bg-[#050507] text-white p-4 md:p-8 animate-in fade-in duration-700 font-sans">
@@ -162,7 +166,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 { id: 'overview', label: 'Dashboard', icon: BarChart3 },
                 { id: 'keys', label: 'License Keys', icon: Key },
                 { id: 'history', label: 'Redeem History', icon: History },
-                { id: 'ips', label: 'Access Control', icon: ShieldAlert }
+                { id: 'ips', label: 'Access Control', icon: ShieldAlert },
+                { id: 'content', label: 'จัดการเนื้อหาฟรี/เติม', icon: Package }
               ].map(tab => (
                 <button
                   key={tab.id}
@@ -592,6 +597,100 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                </div>
             </motion.div>
           )}
+          {adminTab === 'content' && (
+            <motion.div
+              key="content"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-zinc-950 border border-white/5 rounded-3xl overflow-hidden font-sans"
+            >
+              <div className="p-6 border-b border-white/5 flex justify-between items-center bg-zinc-900/20">
+                <h3 className="font-bold flex items-center gap-2">
+                  <Package className="w-5 h-5 text-emerald-500" /> จัดการเนื้อหาฟรี / VIP
+                </h3>
+                <button
+                  onClick={() => {
+                    Swal.fire({
+                      title: 'เพิ่มเนื้อหาใหม่',
+                      html: `
+                        <input id="c-title" class="swal2-input" placeholder="หัวข้อเนื้อหา">
+                        <input id="c-image" class="swal2-input" placeholder="URL รูปภาพ (ตัวเลือก)">
+                        <textarea id="c-text" class="swal2-textarea" placeholder="รายละเอียดข้อความ"></textarea>
+                        <input id="c-file" class="swal2-input" placeholder="URL ไฟล์ดาวน์โหลด (ตัวเลือก)">
+                        <select id="c-type" class="swal2-select">
+                          <option value="free">สำหรับทุกคน (ของฟรี)</option>
+                          <option value="premium">เฉพาะ VIP (ของเติม)</option>
+                        </select>
+                      `,
+                      focusConfirm: false,
+                      background: '#09090b',
+                      color: '#fff',
+                      confirmButtonText: 'เพิ่ม',
+                      showCancelButton: true,
+                      preConfirm: () => {
+                        const title = (document.getElementById('c-title') as HTMLInputElement).value;
+                        if (!title) {
+                          Swal.showValidationMessage('กรุณาใส่หัวข้อ');
+                          return null;
+                        }
+                        return {
+                          id: Date.now().toString(),
+                          title,
+                          image: (document.getElementById('c-image') as HTMLInputElement).value,
+                          text: (document.getElementById('c-text') as HTMLTextAreaElement).value,
+                          fileUrl: (document.getElementById('c-file') as HTMLInputElement).value,
+                          type: (document.getElementById('c-type') as HTMLSelectElement).value as 'free'|'premium'
+                        }
+                      }
+                    }).then((result) => {
+                      if (result.isConfirmed && result.value && setContentItems && contentItems) {
+                        setContentItems([...contentItems, result.value]);
+                        Swal.fire({ title: 'เพิ่มแล้ว!', icon: 'success', background: '#09090b', color: '#fff'});
+                      }
+                    });
+                  }}
+                  className="bg-emerald-500 hover:bg-emerald-400 text-black px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2"
+                >
+                  <Plus className="w-4 h-4" /> เพิ่มเนื้อหา
+                </button>
+              </div>
+              <div className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {(contentItems || []).map(item => (
+                    <div key={item.id} className="bg-zinc-900 border border-white/5 rounded-2xl p-4 flex flex-col gap-3 group relative">
+                      <div className="flex justify-between items-start">
+                        <span className={`text-[10px] font-bold px-2 py-1 rounded uppercase min-w-16 text-center ${item.type === 'free' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-amber-500/10 text-amber-400'}`}>
+                          {item.type === 'free' ? 'Free' : 'VIP'}
+                        </span>
+                        <button 
+                          onClick={() => {
+                            if (setContentItems && contentItems) {
+                              setContentItems(contentItems.filter(i => i.id !== item.id));
+                            }
+                          }}
+                          className="p-1.5 bg-red-500/10 text-red-500 rounded hover:bg-red-500/20 transition-all opacity-0 group-hover:opacity-100"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                      
+                      <h4 className="font-bold text-white text-sm">{item.title}</h4>
+                      {item.image && <img src={item.image} alt={item.title} className="w-full h-24 object-cover rounded-xl" />}
+                      <p className="text-zinc-400 text-xs line-clamp-2">{item.text || '-'}</p>
+                      {item.fileUrl && <span className="text-[10px] text-cyan-400 truncate overflow-hidden block w-full">{item.fileUrl}</span>}
+                    </div>
+                  ))}
+                  {(!contentItems || contentItems.length === 0) && (
+                    <div className="col-span-full py-12 text-center text-zinc-600 italic">
+                      ยังไม่มีเนื้อหา
+                    </div>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          )}
+
         </AnimatePresence>
           </>
         )}

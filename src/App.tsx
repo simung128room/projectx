@@ -2,9 +2,9 @@ import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-ro
 import React, { useState, useRef, useEffect } from 'react';
 import { 
   Gamepad2, ListChecks, Play, Square, Check, X, Shield, Terminal, CheckCircle2, 
-  Home, ShoppingCart, CreditCard, Phone, Upload, Key, Crown, LogOut, User, Gift, 
+  Home, ShoppingCart, CreditCard, Phone, Upload, Key, Crown, LogOut, User, Gift, Lock,
   FileImage, Database, Globe, BarChart3, Settings, Activity, FileText, 
-  AlertTriangle, Download, ChevronRight, Trash2, ShieldAlert, Plus, Ban, History, Search, Copy, Menu, Server, Package, Wallet
+  AlertTriangle, Download, ChevronRight, Trash2, ShieldAlert, Plus, Ban, History, Search, Copy, Menu, Server, Package, Wallet, Fingerprint, Zap
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import Swal from 'sweetalert2';
@@ -13,13 +13,16 @@ import jsQR from 'jsqr';
 import { supabase } from './lib/supabase';
 import { User as SupabaseUser } from '@supabase/supabase-js';
 import { Turnstile } from '@marsidev/react-turnstile';
-import { AccountResult, LogEntry, UserPlan } from './types';
+import { AccountResult, LogEntry, UserPlan, ContentItem } from './types';
 import { HistoryModal } from './components/modals/HistoryModal';
 import { ProfileModal } from './components/modals/ProfileModal';
 import { KeyModal } from './components/modals/KeyModal';
 import { AuthModal } from './components/modals/AuthModal';
 import { AdminDashboard } from './components/AdminDashboard';
 import { HomeView } from './components/HomeView';
+import { LockScreen } from './components/LockScreen';
+import { ContentListView } from './components/ContentListView';
+import { AutoEnvelopeView } from './components/AutoEnvelopeView';
 import { Product, SiteStats } from './types';
 
 var TextPaint = `▒▄▀▄▒█▀▄▒██▀░▀▄▀
@@ -37,8 +40,14 @@ enum OperationType {
 }
 
 function AppContent() {
-  // Navigation State
-  const [activeView, setActiveView] = useState<'home' | 'dashboard' | 'admin' | 'profile' | 'logs' | 'settings'>('home');
+  // New Tools State
+  const [contentItems, setContentItems] = useState<ContentItem[]>([]);
+  const [activeView, setActiveView] = useState<'home' | 'dashboard' | 'admin' | 'profile' | 'logs' | 'settings' | 'free-stuff' | 'premium-stuff'>('home');
+  const [isScreenLocked, setIsScreenLocked] = useState(false);
+
+  useEffect(() => {
+    setIsScreenLocked(localStorage.getItem('apex_screen_locked') === 'true');
+  }, []);
 
   const [combo, setCombo] = useState('');
   const comboRef = useRef('');
@@ -959,6 +968,8 @@ function AppContent() {
         setProducts={setProducts}
         siteStats={siteStats}
         setSiteStats={setSiteStats}
+        contentItems={contentItems}
+        setContentItems={setContentItems}
       />
     );
   }
@@ -1083,6 +1094,27 @@ function AppContent() {
             <div className="hidden md:flex items-center gap-6 text-sm font-medium text-zinc-400">
               <button onClick={() => setActiveView('home')} className={`${activeView === 'home' ? 'text-cyan-400 font-bold drop-shadow-[0_0_8px_rgba(34,211,238,0.4)]' : 'hover:text-cyan-400 transition-colors'} flex items-center gap-2`}><Home className="w-4 h-4"/> หน้าแรก</button>
               <button onClick={() => setActiveView('home')} className={`hover:text-cyan-400 transition-colors flex items-center gap-2`}><Package className="w-4 h-4"/> สินค้าทั้งหมด</button>
+              
+              <div className="relative group">
+                <button className={`hover:text-cyan-400 transition-colors flex items-center gap-2 ${['dashboard', 'auto-envelope', 'free-stuff', 'premium-stuff'].includes(activeView) ? 'text-cyan-400 font-bold drop-shadow-[0_0_8px_rgba(34,211,238,0.4)]' : ''}`}>
+                  <Terminal className="w-4 h-4"/> โปรแกรมพิเศษ
+                </button>
+                <div className="absolute top-full left-0 mt-4 w-48 bg-zinc-900 border border-white/10 rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all flex flex-col overflow-hidden z-50">
+                  <button onClick={() => setActiveView('dashboard')} className="w-full text-left px-4 py-3 hover:bg-zinc-800 text-sm flex items-center gap-2 text-zinc-300 hover:text-white transition-colors">
+                    <Fingerprint className="w-4 h-4 text-cyan-400" /> เช็คไอดี
+                  </button>
+                  <button onClick={() => setActiveView('auto-envelope')} className="w-full text-left px-4 py-3 hover:bg-zinc-800 text-sm flex items-center gap-2 text-zinc-300 hover:text-white transition-colors">
+                    <Zap className="w-4 h-4 text-emerald-400" /> ดักซองฟรี
+                  </button>
+                  <button onClick={() => setActiveView('free-stuff')} className="w-full text-left px-4 py-3 hover:bg-zinc-800 text-sm flex items-center gap-2 text-zinc-300 hover:text-white transition-colors">
+                    <Package className="w-4 h-4 text-zinc-400" /> ของฟรี
+                  </button>
+                  <button onClick={() => setActiveView('premium-stuff')} className="w-full text-left px-4 py-3 hover:bg-zinc-800 text-sm flex items-center gap-2 text-zinc-300 hover:text-white transition-colors">
+                    <Crown className="w-4 h-4 text-amber-400" /> ของเติม VIP
+                  </button>
+                </div>
+              </div>
+
               <button onClick={() => {
                 Swal.fire({
                   title: 'ระบบเติมเงิน',
@@ -1141,7 +1173,51 @@ function AppContent() {
                           <AlertTriangle className="w-4 h-4" /> ยืนยันอีเมล
                         </button>
                       )}
-                      <button onClick={handleLogout} className="w-full px-4 py-2 text-left text-xs text-red-500 hover:bg-red-500/10 flex items-center gap-2 border-t border-white/5 mt-1 pt-1">
+                      
+                      {/* Set PIN / Lock Screen Button */}
+                      <button 
+                        onClick={() => {
+                          const existingPin = localStorage.getItem('apex_screen_pin');
+                          if (!existingPin) {
+                            Swal.fire({
+                              title: 'ตั้งรหัส PIN',
+                              text: 'ระบบจะล็อคหน้าจอทันทีเมื่อตั้งค่าสำเร็จ',
+                              input: 'text',
+                              inputAttributes: {
+                                inputmode: 'numeric',
+                                pattern: '[0-9]*',
+                                maxlength: '4'
+                              },
+                              inputPlaceholder: 'ใส่ตัวเลข 4 หลัก',
+                              showCancelButton: true,
+                              confirmButtonText: 'บันทึกและล็อค',
+                              cancelButtonText: 'ยกเลิก',
+                              background: '#09090b',
+                              color: '#fff',
+                              inputValidator: (value) => {
+                                if (!value || value.length !== 4 || !/^[0-9]+$/.test(value)) {
+                                  return 'กรุณาใส่ตัวเลข 4 หลัก';
+                                }
+                                return null;
+                              }
+                            }).then((result) => {
+                              if (result.isConfirmed) {
+                                localStorage.setItem('apex_screen_pin', result.value);
+                                localStorage.setItem('apex_screen_locked', 'true');
+                                setIsScreenLocked(true);
+                              }
+                            });
+                          } else {
+                            localStorage.setItem('apex_screen_locked', 'true');
+                            setIsScreenLocked(true);
+                          }
+                        }} 
+                        className="w-full px-4 py-2 text-left text-xs text-indigo-400 hover:bg-indigo-400/10 flex items-center gap-2 border-t border-white/5 mt-1 pt-2"
+                      >
+                        <Lock className="w-4 h-4" /> ล็อคหน้าจอ
+                      </button>
+
+                      <button onClick={handleLogout} className="w-full px-4 py-2 text-left text-xs text-red-500 hover:bg-red-500/10 flex items-center gap-2">
                         <LogOut className="w-4 h-4" /> ออกจากระบบ
                       </button>
                     </div>
@@ -1243,15 +1319,31 @@ function AppContent() {
                   <a href="#" className="w-full px-4 py-3 text-left text-sm rounded-xl font-medium transition-colors flex items-center gap-3 text-zinc-400 hover:bg-white/5 hover:text-white">
                     <Phone className="w-4 h-4"/> ติดต่อเรา
                   </a>
+                </div>
+              </div>
+
+              {/* Programs */}
+              <div className="flex flex-col gap-4 flex-1">
+                <h3 className="text-zinc-500 font-bold text-xs uppercase tracking-widest pl-2">โปรแกรมพิเศษ</h3>
+                <div className="flex flex-col gap-1">
                   <button onClick={() => { setActiveView('dashboard'); setIsMobileMenuOpen(false); }} className={`w-full px-4 py-3 text-left text-sm rounded-xl font-medium transition-colors flex items-center gap-3 ${activeView === 'dashboard' ? 'bg-cyan-500/10 text-cyan-400 font-bold border border-cyan-500/20' : 'text-zinc-400 hover:bg-white/5 hover:text-white'}`}>
-                    <Activity className="w-4 h-4"/> เครื่องมือเช็คไอดี
+                    <Fingerprint className="w-4 h-4 text-cyan-400"/> เช็คไอดี
+                  </button>
+                  <button onClick={() => { setActiveView('auto-envelope'); setIsMobileMenuOpen(false); }} className={`w-full px-4 py-3 text-left text-sm rounded-xl font-medium transition-colors flex items-center gap-3 ${activeView === 'auto-envelope' ? 'bg-emerald-500/10 text-emerald-400 font-bold border border-emerald-500/20' : 'text-zinc-400 hover:bg-white/5 hover:text-white'}`}>
+                    <Zap className="w-4 h-4 text-emerald-400"/> ดักซองฟรี
+                  </button>
+                  <button onClick={() => { setActiveView('free-stuff'); setIsMobileMenuOpen(false); }} className={`w-full px-4 py-3 text-left text-sm rounded-xl font-medium transition-colors flex items-center gap-3 ${activeView === 'free-stuff' ? 'bg-zinc-500/10 text-zinc-300 font-bold border border-zinc-500/20' : 'text-zinc-400 hover:bg-white/5 hover:text-white'}`}>
+                    <Package className="w-4 h-4"/> ของฟรี
+                  </button>
+                  <button onClick={() => { setActiveView('premium-stuff'); setIsMobileMenuOpen(false); }} className={`w-full px-4 py-3 text-left text-sm rounded-xl font-medium transition-colors flex items-center gap-3 ${activeView === 'premium-stuff' ? 'bg-amber-500/10 text-amber-400 font-bold border border-amber-500/20' : 'text-zinc-400 hover:bg-white/5 hover:text-white'}`}>
+                    <Crown className="w-4 h-4 text-amber-400"/> ของเติม VIP
                   </button>
                 </div>
               </div>
 
               {/* Extras & Support */}
               <div className="flex flex-col gap-4 flex-1">
-                <h3 className="text-zinc-500 font-bold text-xs uppercase tracking-widest pl-2">เครื่องมืออื่นๆ</h3>
+                <h3 className="text-zinc-500 font-bold text-xs uppercase tracking-widest pl-2">การตั้งค่า</h3>
                 <div className="flex flex-col gap-1">
                   {isAdmin && (
                     <button onClick={() => { setActiveView('admin'); setIsMobileMenuOpen(false); }} className={`w-full px-4 py-3 text-left text-sm rounded-xl font-medium transition-colors flex items-center gap-3 ${activeView === 'admin' ? 'bg-cyan-500/10 text-cyan-400 font-bold' : 'text-amber-500 bg-amber-500/5 hover:bg-amber-500/10 hover:text-amber-400'}`}>
@@ -1286,9 +1378,53 @@ function AppContent() {
                   </button>
                   
                   {user && (
-                    <button onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }} className="w-full px-4 py-3 mt-4 text-left text-sm rounded-xl font-bold text-red-500 bg-red-500/10 hover:bg-red-500/20 transition-colors flex items-center gap-3">
-                      <LogOut className="w-4 h-4" /> ออกจากระบบ
-                    </button>
+                    <>
+                      <button 
+                        onClick={() => {
+                          setIsMobileMenuOpen(false);
+                          const existingPin = localStorage.getItem('apex_screen_pin');
+                          if (!existingPin) {
+                            Swal.fire({
+                              title: 'ตั้งรหัส PIN',
+                              text: 'ระบบจะล็อคหน้าจอทันทีเมื่อตั้งค่าสำเร็จ',
+                              input: 'text',
+                              inputAttributes: {
+                                inputmode: 'numeric',
+                                pattern: '[0-9]*',
+                                maxlength: '4'
+                              },
+                              inputPlaceholder: 'ใส่ตัวเลข 4 หลัก',
+                              showCancelButton: true,
+                              confirmButtonText: 'บันทึกและล็อค',
+                              cancelButtonText: 'ยกเลิก',
+                              background: '#09090b',
+                              color: '#fff',
+                              inputValidator: (value) => {
+                                if (!value || value.length !== 4 || !/^[0-9]+$/.test(value)) {
+                                  return 'กรุณาใส่ตัวเลข 4 หลัก';
+                                }
+                                return null;
+                              }
+                            }).then((result) => {
+                              if (result.isConfirmed) {
+                                localStorage.setItem('apex_screen_pin', result.value);
+                                localStorage.setItem('apex_screen_locked', 'true');
+                                setIsScreenLocked(true);
+                              }
+                            });
+                          } else {
+                            localStorage.setItem('apex_screen_locked', 'true');
+                            setIsScreenLocked(true);
+                          }
+                        }}
+                        className="w-full px-4 py-3 mt-4 text-left text-sm rounded-xl font-bold text-indigo-400 bg-indigo-500/10 hover:bg-indigo-500/20 transition-colors flex items-center gap-3"
+                      >
+                        <Lock className="w-4 h-4" /> ล็อคหน้าจอ
+                      </button>
+                      <button onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }} className="w-full px-4 py-3 mt-2 text-left text-sm rounded-xl font-bold text-red-500 bg-red-500/10 hover:bg-red-500/20 transition-colors flex items-center gap-3">
+                        <LogOut className="w-4 h-4" /> ออกจากระบบ
+                      </button>
+                    </>
                   )}
                 </div>
               </div>
@@ -1318,6 +1454,18 @@ function AppContent() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-10 pb-24">
         {activeView === 'home' && (
           <HomeView products={products} stats={siteStats} />
+        )}
+
+        {activeView === 'auto-envelope' && (
+          <AutoEnvelopeView />
+        )}
+
+        {activeView === 'free-stuff' && (
+          <ContentListView type="free" items={contentItems} userPlan={userPlan} />
+        )}
+
+        {activeView === 'premium-stuff' && (
+          <ContentListView type="premium" items={contentItems} userPlan={userPlan} />
         )}
 
         {activeView === 'dashboard' && (
@@ -1722,6 +1870,14 @@ function AppContent() {
         vipTab={vipTab}
         redeemKey={redeemKey}
         userEmail={user?.email}
+      />
+
+      <LockScreen
+        isLocked={isScreenLocked}
+        onUnlock={() => {
+          setIsScreenLocked(false);
+          localStorage.removeItem('apex_screen_locked');
+        }}
       />
 
       <ProfileModal
