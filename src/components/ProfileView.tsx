@@ -1,24 +1,21 @@
 import React from 'react';
-import { User, X, Wallet, Shield, Mail, Calendar, CreditCard, ChevronRight, LogOut } from 'lucide-react';
+import { User, Wallet, Shield, Mail, Calendar, CreditCard, ChevronRight, LogOut, Package, History } from 'lucide-react';
 import Swal from 'sweetalert2';
-import { UserPlan } from '../../types';
+import { UserPlan } from '../types';
 import { User as SupabaseUser } from '@supabase/supabase-js';
 
-interface ProfileModalProps {
-  show: boolean;
-  onClose: () => void;
+interface ProfileViewProps {
   user: SupabaseUser | null;
   userPlan: UserPlan | null;
   setUserPlan: (plan: UserPlan) => void;
   clientIp: string | null;
-  setActiveView?: (view: any) => void;
+  setActiveView: (view: any) => void;
+  handleLogout: () => void;
 }
 
-export const ProfileModal: React.FC<ProfileModalProps> = ({
-  show, onClose, user, userPlan, setUserPlan, clientIp, setActiveView
+export const ProfileView: React.FC<ProfileViewProps> = ({
+  user, userPlan, setUserPlan, clientIp, setActiveView, handleLogout
 }) => {
-  if (!show) return null;
-
   const role = userPlan?.role || 'สมาชิกทั่วไป';
   const balance = userPlan?.balance || 0;
   const fullName = userPlan?.fullName || '-';
@@ -27,8 +24,8 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
   const registeredAt = userPlan?.registeredAt ? new Date(userPlan.registeredAt).toLocaleDateString('th-TH') : new Date().toLocaleDateString('th-TH');
 
   return (
-    <div className="fixed inset-0 bg-zinc-950/90 flex items-center justify-center p-4 z-[70] backdrop-blur-md font-sans animate-in zoom-in-95 duration-200">
-      <div className="bg-zinc-900 border-zinc-800 border-2 rounded-3xl w-full max-w-2xl shadow-2xl relative overflow-hidden flex flex-col md:flex-row">
+    <div className="font-sans animate-in fade-in duration-500">
+      <div className="bg-zinc-900 border-zinc-800 border rounded-3xl w-full max-w-4xl mx-auto shadow-2xl relative overflow-hidden flex flex-col md:flex-row mt-6">
         
         {/* Left Side: Balance & Quick Profile */}
         <div className="md:w-1/3 bg-zinc-950 p-6 sm:p-8 flex flex-col items-center border-b md:border-b-0 md:border-r border-zinc-800 relative overflow-hidden">
@@ -55,14 +52,21 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
               <span className="text-sm font-medium text-emerald-400 mr-1">฿</span>
               {balance.toLocaleString(undefined, {minimumFractionDigits: 2})}
             </div>
-            {setActiveView && (
-              <button 
-                onClick={() => { onClose(); setActiveView('topup'); }}
-                className="mt-3 w-full bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 py-2 rounded-xl text-xs font-bold transition-all"
-              >
-                + เติมเงิน
-              </button>
-            )}
+            <button 
+              onClick={() => {
+                Swal.fire({
+                  title: 'ระบบเติมเงิน',
+                  text: 'ระบบเติมเงินกำลังอยู่ในการพัฒนา เร็วๆ นี้!',
+                  icon: 'info',
+                  background: '#09090b',
+                  color: '#fff',
+                  confirmButtonColor: '#0ea5e9'
+                });
+              }}
+              className="mt-3 w-full bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 py-2 rounded-xl text-xs font-bold transition-all"
+            >
+              + เติมเงิน
+            </button>
           </div>
         </div>
 
@@ -72,9 +76,6 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
             <h2 className="text-xl font-bold text-white flex items-center gap-2">
               <Shield className="w-5 h-5 text-indigo-400"/> ข้อมูลส่วนตัว
             </h2>
-            <button onClick={onClose} className="p-2 hover:bg-zinc-800 rounded-full transition-colors text-zinc-500 hover:text-white">
-              <X className="w-5 h-5" />
-            </button>
           </div>
 
           <form onSubmit={(e) => {
@@ -123,20 +124,18 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
           <div>
             <h3 className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mb-3 ml-1">เมนูด่วน</h3>
             <div className="space-y-2">
-              {setActiveView && (
-                <button type="button" onClick={() => { onClose(); setActiveView('logs'); }} className="w-full flex items-center justify-between p-3 rounded-xl bg-zinc-900 border border-zinc-800 hover:border-cyan-500/30 transition-all group">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-indigo-500/10 rounded-lg text-indigo-400">
-                      <CreditCard className="w-4 h-4" />
-                    </div>
-                    <span className="text-sm font-medium text-zinc-300 group-hover:text-white transition-colors">ประวัติการทำรายการ</span>
+              <button type="button" onClick={() => setActiveView('logs')} className="w-full flex items-center justify-between p-3 rounded-xl bg-zinc-900 border border-zinc-800 hover:border-cyan-500/30 transition-all group">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-indigo-500/10 rounded-lg text-indigo-400">
+                    <History className="w-4 h-4" />
                   </div>
-                  <ChevronRight className="w-4 h-4 text-zinc-600 group-hover:text-cyan-400 transition-colors" />
-                </button>
-              )}
+                  <span className="text-sm font-medium text-zinc-300 group-hover:text-white transition-colors">ประวัติการใช้งานระบบเช็คไอดี</span>
+                </div>
+                <ChevronRight className="w-4 h-4 text-zinc-600 group-hover:text-cyan-400 transition-colors" />
+              </button>
+              
               {user && (
                 <button type="button" onClick={() => { 
-                  onClose(); 
                   Swal.fire({
                     title: 'ยืนยันการออกจากระบบ?',
                     icon: 'warning',
@@ -149,7 +148,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                     color: '#fff'
                   }).then((result) => {
                     if (result.isConfirmed) {
-                      window.location.reload();
+                      handleLogout();
                     }
                   });
                 }} className="w-full flex items-center justify-between p-3 rounded-xl bg-zinc-900 border border-zinc-800 hover:border-red-500/30 transition-all group">

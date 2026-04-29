@@ -15,12 +15,14 @@ import { User as SupabaseUser } from '@supabase/supabase-js';
 import { Turnstile } from '@marsidev/react-turnstile';
 import { AccountResult, LogEntry, UserPlan } from './types';
 import { HistoryModal } from './components/modals/HistoryModal';
-import { ProfileModal } from './components/modals/ProfileModal';
+import { ProfileView } from './components/ProfileView';
 import { KeyModal } from './components/modals/KeyModal';
-import { AuthModal } from './components/modals/AuthModal';
+import { AuthView } from './components/AuthView';
 import { AdminDashboard } from './components/AdminDashboard';
 import { HomeView } from './components/HomeView';
-import { LockScreen } from './components/LockScreen';
+import { HistoryLogsView } from './components/HistoryLogsView';
+import { ContentFeedView } from './components/ContentFeedView';
+import { AIChatView } from './components/AIChatView';
 import { Product, SiteStats } from './types';
 
 var TextPaint = `▒▄▀▄▒█▀▄▒██▀░▀▄▀
@@ -39,12 +41,7 @@ enum OperationType {
 
 function AppContent() {
   // Navigation State
-  const [activeView, setActiveView] = useState<'home' | 'dashboard' | 'admin' | 'profile' | 'logs' | 'settings'>('home');
-  const [isScreenLocked, setIsScreenLocked] = useState(false);
-
-  useEffect(() => {
-    setIsScreenLocked(localStorage.getItem('apex_screen_locked') === 'true');
-  }, []);
+  const [activeView, setActiveView] = useState<'home' | 'dashboard' | 'admin' | 'profile' | 'logs' | 'settings' | 'ai_chat' | 'free_stuff' | 'premium_stuff' | 'login' | 'signup'>('home');
 
   const [combo, setCombo] = useState('');
   const comboRef = useRef('');
@@ -73,12 +70,9 @@ function AppContent() {
 
   // Supabase Auth State
   const [user, setUser] = useState<SupabaseUser | null>(null);
-  const [showAuthModal, setShowAuthModal] = useState(false);
-  const [showProfileModal, setShowProfileModal] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [showTurnstileModal, setShowTurnstileModal] = useState(false);
   const [pendingTurnstileToken, setPendingTurnstileToken] = useState<string | null>(null);
-  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const [savedLinesToCheck, setSavedLinesToCheck] = useState<string[]>([]);
   const TURNSTILE_SITE_KEY = (import.meta.env.VITE_TURNSTILE_SITE_KEY && import.meta.env.VITE_TURNSTILE_SITE_KEY.length > 5) ? import.meta.env.VITE_TURNSTILE_SITE_KEY : '1x00000000000000000000AA';
 
@@ -758,7 +752,7 @@ function AppContent() {
         showCancelButton: true,
         confirmButtonText: 'เข้าสู่ระบบ'
       }).then((res) => {
-        if (res.isConfirmed) setShowAuthModal(true);
+        if (res.isConfirmed) setActiveView('login');
       });
       return;
     }
@@ -1003,18 +997,7 @@ function AppContent() {
     <div className="min-h-screen bg-[#0d0d0f] text-white font-sans selection:bg-cyan-500/30">
         
         {/* Main Content */}
-        {activeView === 'logs' && (
-          <div className="p-8 text-white">
-            <h2 className="text-xl font-bold mb-4">ประวัติการใช้งาน</h2>
-            <p className="text-zinc-500 text-sm">ส่วนของประวัติการใช้งาน (Logs) จะแสดงผลที่นี่</p>
-          </div>
-        )}
-
-      <AuthModal
-        show={showAuthModal}
-        onClose={() => setShowAuthModal(false)}
-        initialMode={authMode}
-      />
+        {activeView === 'logs' && <HistoryLogsView />}
 
       {/* Admin Login Modal Overlay */}
       {showAdminLogin && (
@@ -1075,20 +1058,27 @@ function AppContent() {
         </div>
       )}
 
-      {/* Navbar - Shop Theme */}
+      {/* Navbar - Brutalist Terminal Theme */}
 
-      <nav className="sticky top-0 z-40 bg-[#0d0d0f]/80 backdrop-blur-lg border-b border-white/5">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between relative">
+      <nav className="sticky top-0 z-40 bg-[#000]/80 backdrop-blur-md border-b-2 border-zinc-800 font-sans">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-[88px] flex items-center justify-between relative px-tight">
           <div className="flex items-center gap-8">
             <img 
               src="https://img2.pic.in.th/-59_20260425171043.png" 
               alt="APEX STUDIO TH" 
-              className="h-12 object-contain drop-shadow-[0_0_15px_rgba(34,211,238,0.3)] cursor-pointer active:scale-95 transition-transform select-none" 
+              className="h-10 object-contain cursor-pointer active:scale-95 transition-transform select-none grayscale hover:grayscale-0" 
               onClick={handleLogoClick}
             />
-            <div className="hidden md:flex items-center gap-6 text-sm font-medium text-zinc-400">
-              <button onClick={() => setActiveView('home')} className={`${activeView === 'home' ? 'text-cyan-400 font-bold drop-shadow-[0_0_8px_rgba(34,211,238,0.4)]' : 'hover:text-cyan-400 transition-colors'} flex items-center gap-2`}><Home className="w-4 h-4"/> หน้าแรก</button>
-              <button onClick={() => setActiveView('home')} className={`hover:text-cyan-400 transition-colors flex items-center gap-2`}><Package className="w-4 h-4"/> สินค้าทั้งหมด</button>
+            <div className="hidden md:flex items-center gap-8 text-sm font-bold text-zinc-400">
+              <button 
+                onClick={() => setActiveView('home')} 
+                className={`${activeView === 'home' ? 'text-white border-b-2 border-cyan-400 pb-1' : 'hover:text-cyan-400 transition-colors'} flex items-center gap-2`}
+              >
+                <Home className="w-4 h-4"/> หน้าแรก
+              </button>
+              <button onClick={() => setActiveView('home')} className={`hover:text-cyan-400 transition-colors flex items-center gap-2`}>
+                <Package className="w-4 h-4"/> สินค้าทั้งหมด
+              </button>
               {user && (
                 <button onClick={() => {
                   Swal.fire({
@@ -1099,7 +1089,9 @@ function AppContent() {
                     color: '#fff',
                     confirmButtonColor: '#0ea5e9'
                   });
-                }} className={`hover:text-cyan-400 transition-colors flex items-center gap-2`}><Wallet className="w-4 h-4"/> เติมเงิน</button>
+                }} className={`hover:text-cyan-400 transition-colors flex items-center gap-2`}>
+                  <Wallet className="w-4 h-4"/> เติมเงิน
+                </button>
               )}
               <a href="#" className="hover:text-cyan-400 transition-colors flex items-center gap-2"><Phone className="w-4 h-4"/> ติดต่อเรา</a>
             </div>
@@ -1107,93 +1099,50 @@ function AppContent() {
 
           <div className="flex items-center gap-3">
             {/* Desktop Actions */}
-            <div className="hidden md:flex items-center gap-3">
+            <div className="hidden md:flex items-center gap-4">
               {user ? (
                 <>
-                  <div className="flex flex-col items-end mr-2">
+                  <div className="flex flex-col items-end mr-2 px-4 py-1.5 border border-zinc-800 bg-zinc-900/50">
                     <div className="flex items-center gap-1.5">
                       {user.is_anonymous || user.email_confirmed_at ? (
-                        <CheckCircle2 className="w-3 h-3 text-emerald-500" />
+                        <div className="w-2 h-2 bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)] animate-pulse" />
                       ) : (
-                        <AlertTriangle className="w-3 h-3 text-amber-500" />
+                        <div className="w-2 h-2 bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.8)] animate-pulse" />
                       )}
-                      <span className="text-sm font-bold text-white leading-tight truncate max-w-[120px]">
+                      <span className="text-sm font-bold text-white uppercase tracking-tight truncate max-w-[120px]">
                         {user.is_anonymous ? 'ผู้ใช้งานทั่วไป' : user.email}
                       </span>
                     </div>
-                    <span className={`text-[10px] font-bold uppercase tracking-wider ${user.is_anonymous || user.email_confirmed_at ? 'text-emerald-500' : 'text-amber-500'}`}>
-                      {user.is_anonymous ? 'Access Enabled' : user.email_confirmed_at ? 'Verified Account' : 'Needs Verification'}
+                    <span className={`text-[10px] font-bold uppercase tracking-widest ${user.is_anonymous || user.email_confirmed_at ? 'text-emerald-500' : 'text-amber-500'}`}>
+                      {user.is_anonymous ? 'พร้อมใช้งาน' : user.email_confirmed_at ? 'ยืนยันตัวตนแล้ว' : 'รอการยืนยันอีเมล'}
                     </span>
                   </div>
 
                   <div className="relative group flex items-center justify-center">
-                    <button className="p-2.5 bg-zinc-800 rounded-xl border border-white/10 hover:bg-zinc-700 transition-all">
-                      <User className="w-5 h-5 text-zinc-300" />
+                    <button className="p-3 bg-white text-black hover:bg-cyan-400 transition-colors rounded-none outline outline-1 outline-white focus:outline-none">
+                      <User className="w-5 h-5" />
                     </button>
-                    <div className="absolute right-0 top-full mt-2 w-48 bg-zinc-950 border border-white/5 rounded-2xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all py-2 z-50">
-                      <button onClick={() => setShowProfileModal(true)} className="w-full px-4 py-2 text-left text-xs text-zinc-300 hover:bg-white/5 flex items-center gap-2">
+                    <div className="absolute right-0 top-full mt-3 w-56 bg-black border-2 border-zinc-800 shadow-[8px_8px_0px_rgba(0,0,0,1)] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all font-sans py-2 z-50">
+                      <button onClick={() => setActiveView('profile')} className="w-full px-4 py-3 text-left text-sm font-bold text-zinc-400 hover:bg-zinc-900 hover:text-white flex items-center gap-3">
                         <User className="w-4 h-4" /> โปรไฟล์
                       </button>
                       {userPlan?.isPremium && (
-                        <button onClick={() => setShowHistoryModal(true)} className="w-full px-4 py-2 text-left text-xs text-zinc-300 hover:bg-white/5 flex items-center gap-2">
+                        <button onClick={() => setShowHistoryModal(true)} className="w-full px-4 py-3 text-left text-sm font-bold text-zinc-400 hover:bg-zinc-900 hover:text-white flex items-center gap-3">
                           <History className="w-4 h-4" /> ประวัติการใช้คีย์
                         </button>
                       )}
                       {!userPlan?.isPremium && (
-                        <button onClick={() => setShowKeyModal(true)} className="w-full px-4 py-2 text-left text-xs text-amber-500 hover:bg-amber-500/10 flex items-center gap-2">
+                        <button onClick={() => setShowKeyModal(true)} className="w-full px-4 py-3 text-left text-sm font-bold text-amber-500 hover:bg-amber-500/10 flex items-center gap-3 border-l-2 border-transparent hover:border-amber-500">
                           <Crown className="w-4 h-4" /> อัปเกรด VIP
                         </button>
                       )}
                       {!user.is_anonymous && !user.email_confirmed_at && (
-                        <button onClick={resendVerification} className="w-full px-4 py-2 text-left text-xs text-amber-500 hover:bg-amber-500/10 flex items-center gap-2">
+                        <button onClick={resendVerification} className="w-full px-4 py-3 text-left text-sm font-bold text-amber-500 hover:bg-amber-500/10 flex items-center gap-3">
                           <AlertTriangle className="w-4 h-4" /> ยืนยันอีเมล
                         </button>
                       )}
                       
-                      {/* Set PIN / Lock Screen Button */}
-                      <button 
-                        onClick={() => {
-                          const existingPin = localStorage.getItem('apex_screen_pin');
-                          if (!existingPin) {
-                            Swal.fire({
-                              title: 'ตั้งรหัส PIN',
-                              text: 'ระบบจะล็อคหน้าจอทันทีเมื่อตั้งค่าสำเร็จ',
-                              input: 'text',
-                              inputAttributes: {
-                                inputmode: 'numeric',
-                                pattern: '[0-9]*',
-                                maxlength: '4'
-                              },
-                              inputPlaceholder: 'ใส่ตัวเลข 4 หลัก',
-                              showCancelButton: true,
-                              confirmButtonText: 'บันทึกและล็อค',
-                              cancelButtonText: 'ยกเลิก',
-                              background: '#09090b',
-                              color: '#fff',
-                              inputValidator: (value) => {
-                                if (!value || value.length !== 4 || !/^[0-9]+$/.test(value)) {
-                                  return 'กรุณาใส่ตัวเลข 4 หลัก';
-                                }
-                                return null;
-                              }
-                            }).then((result) => {
-                              if (result.isConfirmed) {
-                                localStorage.setItem('apex_screen_pin', result.value);
-                                localStorage.setItem('apex_screen_locked', 'true');
-                                setIsScreenLocked(true);
-                              }
-                            });
-                          } else {
-                            localStorage.setItem('apex_screen_locked', 'true');
-                            setIsScreenLocked(true);
-                          }
-                        }} 
-                        className="w-full px-4 py-2 text-left text-xs text-indigo-400 hover:bg-indigo-400/10 flex items-center gap-2 border-t border-white/5 mt-1 pt-2"
-                      >
-                        <Lock className="w-4 h-4" /> ล็อคหน้าจอ
-                      </button>
-
-                      <button onClick={handleLogout} className="w-full px-4 py-2 text-left text-xs text-red-500 hover:bg-red-500/10 flex items-center gap-2">
+                      <button onClick={handleLogout} className="w-full px-4 py-3 text-left text-sm font-bold text-red-500 hover:bg-red-500/10 flex items-center gap-3 border-t-2 border-zinc-800 mt-2">
                         <LogOut className="w-4 h-4" /> ออกจากระบบ
                       </button>
                     </div>
@@ -1230,34 +1179,34 @@ function AppContent() {
             animate={{ opacity: 1, y: 0, rotateX: 0 }}
             exit={{ opacity: 0, y: -20, rotateX: -15 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
-            className="absolute top-full left-0 w-full bg-zinc-950 border-b border-white/5 shadow-xl z-50 origin-top"
+            className="absolute top-full left-0 w-full bg-black border-2 border-t-0 border-zinc-800 shadow-[8px_8px_0px_#000] z-50 origin-top max-h-[calc(100vh-80px)] overflow-y-auto pb-6"
           >
             <div className="max-w-7xl mx-auto px-4 md:px-8 py-6 w-full flex flex-col gap-6 md:flex-row md:gap-12">
               
               {/* Account Overview (Mobile First) */}
               <div className="flex flex-col gap-4 flex-1">
-                <h3 className="text-zinc-500 font-bold text-xs uppercase tracking-widest pl-2">บัญชีของคุณ</h3>
-                <div className="bg-zinc-900/50 border border-white/5 rounded-2xl p-4 flex flex-col gap-3">
+                <h3 className="text-zinc-500 font-bold text-xs uppercase tracking-widest pl-2 border-l-2 border-cyan-400">บัญชีของคุณ</h3>
+                <div className="bg-zinc-900 border border-zinc-800 p-4 flex flex-col gap-3">
                   {user ? (
                     <>
                       <div className="flex flex-col gap-1">
-                        <p className="text-sm font-bold text-white truncate">{user.is_anonymous ? 'ผู้ใช้งานทั่วไป' : user.email}</p>
-                        <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-500">
-                          {userPlan?.isPremium ? `Premium: ${userPlan.username}` : (user.is_anonymous || user.email_confirmed_at ? 'Access Enabled' : 'Needs Verification')}
+                        <p className="text-sm font-bold text-white truncate font-sans">{user.is_anonymous ? 'ผู้ใช้งานทั่วไป' : user.email}</p>
+                        <div className="text-[10px] font-sans font-bold uppercase tracking-wider text-emerald-500">
+                          {userPlan?.isPremium ? `Premium: ${userPlan.username}` : (user.is_anonymous || user.email_confirmed_at ? 'พร้อมใช้งาน' : 'รอการยืนยันอีเมล')}
                         </div>
                       </div>
                       
-                      <div className="flex flex-wrap gap-2 mt-2 pt-3 border-t border-white/5">
-                        <button onClick={() => { setShowProfileModal(true); setIsMobileMenuOpen(false); }} className="px-3 py-2 text-xs rounded-xl font-medium text-zinc-300 hover:bg-white/5 transition-colors flex items-center gap-2">
+                      <div className="flex flex-col gap-2 mt-2 pt-3 border-t border-zinc-800">
+                        <button onClick={() => { setActiveView('profile'); setIsMobileMenuOpen(false); }} className="w-full px-4 py-3 text-left text-xs font-bold tracking-widest text-zinc-400 hover:bg-zinc-800 hover:text-white flex items-center gap-3 border border-zinc-800">
                           <User className="w-3.5 h-3.5" /> โปรไฟล์
                         </button>
                         {userPlan?.isPremium && (
-                          <button onClick={() => { setShowHistoryModal(true); setIsMobileMenuOpen(false); }} className="px-3 py-2 text-xs rounded-xl font-medium text-zinc-300 hover:bg-white/5 transition-colors flex items-center gap-2">
-                            <History className="w-3.5 h-3.5" /> ประวัติใช้คีย์
+                          <button onClick={() => { setShowHistoryModal(true); setIsMobileMenuOpen(false); }} className="w-full px-4 py-3 text-left text-xs font-bold tracking-widest text-zinc-400 hover:bg-zinc-800 hover:text-white flex items-center gap-3 border border-zinc-800">
+                            <History className="w-3.5 h-3.5" /> ประวัติการใช้คีย์
                           </button>
                         )}
                         {!userPlan?.isPremium && (
-                          <button onClick={() => { setShowKeyModal(true); setIsMobileMenuOpen(false); }} className="px-3 py-2 text-xs rounded-xl font-bold text-amber-500 bg-amber-500/10 hover:bg-amber-500/20 transition-colors flex items-center gap-2">
+                          <button onClick={() => { setShowKeyModal(true); setIsMobileMenuOpen(false); }} className="w-full px-4 py-3 text-left text-xs font-bold tracking-widest text-amber-500 hover:bg-amber-500/10 flex items-center gap-3 border border-amber-500/50">
                             <Key className="w-3.5 h-3.5" /> อัปเกรด VIP
                           </button>
                         )}
@@ -1265,12 +1214,12 @@ function AppContent() {
                     </>
                   ) : (
                     <div className="flex flex-col gap-3">
-                      <p className="text-xs text-zinc-400">เข้าสู่ระบบเพื่อใช้งานเต็มรูปแบบ</p>
-                      <div className="flex gap-2">
-                        <button onClick={() => { setAuthMode('login'); setShowAuthModal(true); setIsMobileMenuOpen(false); }} className="flex-1 py-2 text-xs rounded-xl font-bold text-white bg-cyan-600 hover:bg-cyan-500 transition-colors">
+                      <p className="text-xs text-zinc-400 font-sans text-center mb-2 font-bold">เข้าสู่ระบบเพื่อใช้งานเต็มรูปแบบ</p>
+                      <div className="flex flex-col gap-2">
+        <button onClick={() => { setActiveView('login'); setIsMobileMenuOpen(false); }} className="w-full py-3 text-xs font-bold tracking-widest text-black bg-cyan-400 hover:bg-cyan-300 transition-colors">
                           เข้าสู่ระบบ
                         </button>
-                        <button onClick={() => { setAuthMode('signup'); setShowAuthModal(true); setIsMobileMenuOpen(false); }} className="flex-1 py-2 text-xs rounded-xl font-bold text-white bg-emerald-600 hover:bg-emerald-500 transition-colors">
+                        <button onClick={() => { setActiveView('signup'); setIsMobileMenuOpen(false); }} className="w-full py-3 text-xs font-bold tracking-widest text-white bg-transparent border border-white hover:bg-white hover:text-black transition-colors">
                           สมัครสมาชิก
                         </button>
                       </div>
@@ -1281,27 +1230,22 @@ function AppContent() {
 
               {/* Main Navigation */}
               <div className="flex flex-col gap-4 flex-1">
-                <h3 className="text-zinc-500 font-bold text-xs uppercase tracking-widest pl-2">เมนูหลัก</h3>
+                <h3 className="text-zinc-500 font-bold text-xs uppercase tracking-widest pl-2 border-l-2 border-cyan-400">เมนูหลัก</h3>
                 <div className="flex flex-col gap-1">
-                  <button onClick={() => { setActiveView('home'); setIsMobileMenuOpen(false); }} className={`w-full px-4 py-3 text-left text-sm rounded-xl font-medium transition-colors flex items-center gap-3 ${activeView === 'home' ? 'bg-cyan-500/10 text-cyan-400 font-bold border border-cyan-500/20' : 'text-zinc-400 hover:bg-white/5 hover:text-white'}`}>
+                  <button onClick={() => { setActiveView('home'); setIsMobileMenuOpen(false); }} className={`w-full px-4 py-4 text-left text-sm tracking-widest font-bold transition-colors flex items-center gap-3 ${activeView === 'home' ? 'bg-cyan-500 text-black' : 'bg-zinc-900 border border-zinc-800 text-zinc-400 hover:border-cyan-400'}`}>
                     <Home className="w-4 h-4"/> หน้าแรก
                   </button>
-                  <button onClick={() => { setActiveView('home'); setIsMobileMenuOpen(false); }} className={`w-full px-4 py-3 text-left text-sm rounded-xl font-medium transition-colors flex items-center gap-3 text-zinc-400 hover:bg-white/5 hover:text-white`}>
+                  <button onClick={() => { setActiveView('home'); setIsMobileMenuOpen(false); }} className={`w-full px-4 py-4 text-left text-sm tracking-widest font-bold transition-colors flex items-center gap-3 bg-zinc-900 border border-zinc-800 text-zinc-400 hover:border-cyan-400`}>
                     <Package className="w-4 h-4"/> สินค้าทั้งหมด
                   </button>
                   {user && (
-                    <button onClick={() => { setIsMobileMenuOpen(false); Swal.fire({title:'ระบบเติมเงิน',text:'เร็วๆ นี้!',icon:'info',background:'#09090b',color:'#fff'}) }} className={`w-full px-4 py-3 text-left text-sm rounded-xl font-medium transition-colors flex items-center gap-3 text-zinc-400 hover:bg-white/5 hover:text-white`}>
+                    <button onClick={() => { setIsMobileMenuOpen(false); Swal.fire({title:'ระบบเติมเงิน',text:'เร็วๆ นี้!',icon:'info',background:'#09090b',color:'#fff'}) }} className={`w-full px-4 py-4 text-left text-sm tracking-widest font-bold transition-colors flex items-center gap-3 bg-zinc-900 border border-zinc-800 text-zinc-400 hover:border-cyan-400`}>
                       <Wallet className="w-4 h-4"/> เติมเงิน
                     </button>
                   )}
-                  <a href="#" className="w-full px-4 py-3 text-left text-sm rounded-xl font-medium transition-colors flex items-center gap-3 text-zinc-400 hover:bg-white/5 hover:text-white">
+                  <a href="#" className="w-full px-4 py-4 text-left text-sm tracking-widest font-bold transition-colors flex items-center gap-3 bg-zinc-900 border border-zinc-800 text-zinc-400 hover:border-cyan-400">
                     <Phone className="w-4 h-4"/> ติดต่อเรา
                   </a>
-                  {user && (
-                    <button onClick={() => { setActiveView('dashboard'); setIsMobileMenuOpen(false); }} className={`w-full px-4 py-3 text-left text-sm rounded-xl font-medium transition-colors flex items-center gap-3 ${activeView === 'dashboard' ? 'bg-cyan-500/10 text-cyan-400 font-bold border border-cyan-500/20' : 'text-zinc-400 hover:bg-white/5 hover:text-white'}`}>
-                      <Activity className="w-4 h-4"/> เครื่องมือเช็คไอดี
-                    </button>
-                  )}
                 </div>
               </div>
 
@@ -1309,85 +1253,41 @@ function AppContent() {
                 <>
                   {/* Extras & Support */}
                   <div className="flex flex-col gap-4 flex-1">
-                    <h3 className="text-zinc-500 font-bold text-xs uppercase tracking-widest pl-2">เครื่องมืออื่นๆ</h3>
+                    <h3 className="text-zinc-500 font-bold text-xs uppercase tracking-widest pl-2 border-l-2 border-cyan-400">เครื่องมืออื่นๆ</h3>
                     <div className="flex flex-col gap-1">
                       {isAdmin && (
-                        <button onClick={() => { setActiveView('admin'); setIsMobileMenuOpen(false); }} className={`w-full px-4 py-3 text-left text-sm rounded-xl font-medium transition-colors flex items-center gap-3 ${activeView === 'admin' ? 'bg-cyan-500/10 text-cyan-400 font-bold' : 'text-amber-500 bg-amber-500/5 hover:bg-amber-500/10 hover:text-amber-400'}`}>
+                        <button onClick={() => { setActiveView('admin'); setIsMobileMenuOpen(false); }} className={`w-full px-4 py-4 text-left text-sm tracking-widest font-bold transition-colors flex items-center gap-3 ${activeView === 'admin' ? 'bg-amber-500 text-black' : 'bg-zinc-900 border border-zinc-800 text-amber-500 hover:border-amber-500'}`}>
                           <ShieldAlert className="w-4 h-4"/> แผงควบคุมผู้ดูแลระบบ
                         </button>
                       )}
                       <button onClick={() => { 
+                        setActiveView('dashboard');
                         setIsMobileMenuOpen(false);
-                        Swal.fire({
-                          title: 'กำลังพัฒนา',
-                          text: 'ระบบตั้งค่ากำลังอยู่ในการพัฒนา',
-                          icon: 'info',
-                          background: '#09090b',
-                          color: '#fff',
-                          confirmButtonColor: '#0ea5e9'
-                        });
-                      }} className="w-full px-4 py-3 text-left text-sm rounded-xl font-medium text-zinc-400 hover:bg-white/5 hover:text-white transition-colors flex items-center gap-3">
-                        <Settings className="w-4 h-4" /> ตั้งค่าระบบ
+                      }} className="w-full px-4 py-4 text-left text-sm tracking-widest font-bold transition-colors flex items-center gap-3 bg-zinc-900 border border-zinc-800 text-cyan-400 hover:border-cyan-400">
+                        <Gamepad2 className="w-4 h-4" /> เช็คไอดี rov
                       </button>
                       <button onClick={() => { 
+                        setActiveView('ai_chat');
                         setIsMobileMenuOpen(false);
-                        Swal.fire({
-                          title: 'ติดต่อปัญหา',
-                          text: 'หากพบปัญหาการใช้งาน กรุณาติดต่อเพจ APEX STUDIO TH',
-                          icon: 'info',
-                          background: '#09090b',
-                          color: '#fff',
-                          confirmButtonColor: '#0ea5e9'
-                        });
-                      }} className="w-full px-4 py-3 text-left text-sm rounded-xl font-medium text-zinc-400 hover:bg-white/5 hover:text-white transition-colors flex items-center gap-3">
-                        <Phone className="w-4 h-4" /> ติดต่อปัญหา
+                      }} className="w-full px-4 py-4 text-left text-sm tracking-widest font-bold transition-colors flex items-center gap-3 bg-zinc-900 border border-zinc-800 text-fuchsia-400 hover:border-fuchsia-400">
+                        <Server className="w-4 h-4" /> คุยกับไอเอ๋อ
+                      </button>
+                      <button onClick={() => { 
+                        setActiveView('free_stuff');
+                        setIsMobileMenuOpen(false);
+                      }} className="w-full px-4 py-4 text-left text-sm tracking-widest font-bold transition-colors flex items-center gap-3 bg-zinc-900 border border-zinc-800 text-emerald-400 hover:border-emerald-400">
+                        <Gift className="w-4 h-4" /> ของฟรีของดี!!
+                      </button>
+                      <button onClick={() => { 
+                        setActiveView('premium_stuff');
+                        setIsMobileMenuOpen(false);
+                      }} className="w-full px-4 py-4 text-left text-sm tracking-widest font-bold transition-colors flex items-center gap-3 bg-amber-500/10 border border-amber-500/50 text-amber-500 hover:bg-amber-500 hover:text-black">
+                        <Crown className="w-4 h-4" /> ของเติมของโคตรดี!!
                       </button>
                       
                       {user && (
                         <>
-                          <button 
-                            onClick={() => {
-                              setIsMobileMenuOpen(false);
-                              const existingPin = localStorage.getItem('apex_screen_pin');
-                              if (!existingPin) {
-                                Swal.fire({
-                                  title: 'ตั้งรหัส PIN',
-                                  text: 'ระบบจะล็อคหน้าจอทันทีเมื่อตั้งค่าสำเร็จ',
-                                  input: 'text',
-                                  inputAttributes: {
-                                    inputmode: 'numeric',
-                                    pattern: '[0-9]*',
-                                    maxlength: '4'
-                                  },
-                                  inputPlaceholder: 'ใส่ตัวเลข 4 หลัก',
-                                  showCancelButton: true,
-                                  confirmButtonText: 'บันทึกและล็อค',
-                                  cancelButtonText: 'ยกเลิก',
-                                  background: '#09090b',
-                                  color: '#fff',
-                                  inputValidator: (value) => {
-                                    if (!value || value.length !== 4 || !/^[0-9]+$/.test(value)) {
-                                      return 'กรุณาใส่ตัวเลข 4 หลัก';
-                                    }
-                                    return null;
-                                  }
-                                }).then((result) => {
-                                  if (result.isConfirmed) {
-                                    localStorage.setItem('apex_screen_pin', result.value);
-                                    localStorage.setItem('apex_screen_locked', 'true');
-                                    setIsScreenLocked(true);
-                                  }
-                                });
-                              } else {
-                                localStorage.setItem('apex_screen_locked', 'true');
-                                setIsScreenLocked(true);
-                              }
-                            }}
-                            className="w-full px-4 py-3 mt-4 text-left text-sm rounded-xl font-bold text-indigo-400 bg-indigo-500/10 hover:bg-indigo-500/20 transition-colors flex items-center gap-3"
-                          >
-                            <Lock className="w-4 h-4" /> ล็อคหน้าจอ
-                          </button>
-                          <button onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }} className="w-full px-4 py-3 mt-2 text-left text-sm rounded-xl font-bold text-red-500 bg-red-500/10 hover:bg-red-500/20 transition-colors flex items-center gap-3">
+                          <button onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }} className="w-full px-4 py-4 mt-6 text-left text-xs uppercase tracking-widest font-black transition-colors flex items-center justify-center gap-3 bg-red-600 text-white hover:bg-red-500 shadow-[4px_4px_0px_rgba(239,68,68,0.3)] border border-transparent">
                             <LogOut className="w-4 h-4" /> ออกจากระบบ
                           </button>
                         </>
@@ -1423,6 +1323,24 @@ function AppContent() {
         {activeView === 'home' && (
           <HomeView products={products} stats={siteStats} user={user} />
         )}
+
+        {activeView === 'login' && <AuthView initialMode="login" setActiveView={setActiveView} />}
+        {activeView === 'signup' && <AuthView initialMode="signup" setActiveView={setActiveView} />}
+
+        {activeView === 'profile' && (
+          <ProfileView 
+            user={user} 
+            userPlan={userPlan} 
+            setUserPlan={setUserPlan} 
+            clientIp={clientIp} 
+            setActiveView={setActiveView} 
+            handleLogout={handleLogout} 
+          />
+        )}
+
+        {activeView === 'ai_chat' && <AIChatView />}
+        {activeView === 'free_stuff' && <ContentFeedView type="free" isAdmin={isAdmin} isPremiumUser={userPlan?.isPremium || false} />}
+        {activeView === 'premium_stuff' && <ContentFeedView type="premium" isAdmin={isAdmin} isPremiumUser={userPlan?.isPremium || false} />}
 
         {activeView === 'dashboard' && (
           <>
@@ -1826,24 +1744,6 @@ function AppContent() {
         vipTab={vipTab}
         redeemKey={redeemKey}
         userEmail={user?.email}
-      />
-
-      <LockScreen
-        isLocked={isScreenLocked}
-        onUnlock={() => {
-          setIsScreenLocked(false);
-          localStorage.removeItem('apex_screen_locked');
-        }}
-      />
-
-      <ProfileModal
-        show={showProfileModal}
-        onClose={() => setShowProfileModal(false)}
-        user={user}
-        userPlan={userPlan}
-        setUserPlan={setUserPlan}
-        clientIp={clientIp}
-        setActiveView={setActiveView}
       />
 
       {/* Turnstile Modal */}
