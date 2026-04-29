@@ -14,7 +14,6 @@ import { supabase } from './lib/supabase';
 import { User as SupabaseUser } from '@supabase/supabase-js';
 import { Turnstile } from '@marsidev/react-turnstile';
 import { AccountResult, LogEntry, UserPlan } from './types';
-import { HistoryModal } from './components/modals/HistoryModal';
 import { ProfileView } from './components/ProfileView';
 import { KeyModal } from './components/modals/KeyModal';
 import { AuthView } from './components/AuthView';
@@ -23,6 +22,7 @@ import { HomeView } from './components/HomeView';
 import { HistoryLogsView } from './components/HistoryLogsView';
 import { ContentFeedView } from './components/ContentFeedView';
 import { AIChatView } from './components/AIChatView';
+import { WalletView } from './components/WalletView';
 import { Product, SiteStats } from './types';
 
 var TextPaint = `▒▄▀▄▒█▀▄▒██▀░▀▄▀
@@ -41,7 +41,7 @@ enum OperationType {
 
 function AppContent() {
   // Navigation State
-  const [activeView, setActiveView] = useState<'home' | 'dashboard' | 'admin' | 'profile' | 'logs' | 'settings' | 'ai_chat' | 'free_stuff' | 'premium_stuff' | 'login' | 'signup'>('home');
+  const [activeView, setActiveView] = useState<'home' | 'dashboard' | 'admin' | 'profile' | 'logs' | 'settings' | 'ai_chat' | 'free_stuff' | 'premium_stuff' | 'login' | 'signup' | 'wallet'>('home');
 
   const [combo, setCombo] = useState('');
   const comboRef = useRef('');
@@ -70,7 +70,6 @@ function AppContent() {
 
   // Supabase Auth State
   const [user, setUser] = useState<SupabaseUser | null>(null);
-  const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [showTurnstileModal, setShowTurnstileModal] = useState(false);
   const [pendingTurnstileToken, setPendingTurnstileToken] = useState<string | null>(null);
   const [savedLinesToCheck, setSavedLinesToCheck] = useState<string[]>([]);
@@ -997,7 +996,6 @@ function AppContent() {
     <div className="min-h-screen bg-[#0d0d0f] text-white font-sans selection:bg-cyan-500/30">
         
         {/* Main Content */}
-        {activeView === 'logs' && <HistoryLogsView />}
 
       {/* Admin Login Modal Overlay */}
       {showAdminLogin && (
@@ -1080,16 +1078,7 @@ function AppContent() {
                 <Package className="w-4 h-4"/> สินค้าทั้งหมด
               </button>
               {user && (
-                <button onClick={() => {
-                  Swal.fire({
-                    title: 'ระบบเติมเงิน',
-                    text: 'ระบบเติมเงินกำลังอยู่ในการพัฒนา เร็วๆ นี้!',
-                    icon: 'info',
-                    background: '#09090b',
-                    color: '#fff',
-                    confirmButtonColor: '#0ea5e9'
-                  });
-                }} className={`hover:text-cyan-400 transition-colors flex items-center gap-2`}>
+                <button onClick={() => setActiveView('wallet')} className={`${activeView === 'wallet' ? 'text-white border-b-2 border-cyan-400 pb-1' : 'hover:text-cyan-400 transition-colors'} flex items-center gap-2`}>
                   <Wallet className="w-4 h-4"/> เติมเงิน
                 </button>
               )}
@@ -1126,11 +1115,9 @@ function AppContent() {
                       <button onClick={() => setActiveView('profile')} className="w-full px-4 py-3 text-left text-sm font-bold text-zinc-400 hover:bg-zinc-900 hover:text-white flex items-center gap-3">
                         <User className="w-4 h-4" /> โปรไฟล์
                       </button>
-                      {userPlan?.isPremium && (
-                        <button onClick={() => setShowHistoryModal(true)} className="w-full px-4 py-3 text-left text-sm font-bold text-zinc-400 hover:bg-zinc-900 hover:text-white flex items-center gap-3">
-                          <History className="w-4 h-4" /> ประวัติการใช้คีย์
-                        </button>
-                      )}
+                      <button onClick={() => setActiveView('logs')} className="w-full px-4 py-3 text-left text-sm font-bold text-zinc-400 hover:bg-zinc-900 hover:text-white flex items-center gap-3">
+                        <History className="w-4 h-4" /> ประวัติการใช้งานต่างๆ
+                      </button>
                       {!userPlan?.isPremium && (
                         <button onClick={() => setShowKeyModal(true)} className="w-full px-4 py-3 text-left text-sm font-bold text-amber-500 hover:bg-amber-500/10 flex items-center gap-3 border-l-2 border-transparent hover:border-amber-500">
                           <Crown className="w-4 h-4" /> อัปเกรด VIP
@@ -1200,11 +1187,9 @@ function AppContent() {
                         <button onClick={() => { setActiveView('profile'); setIsMobileMenuOpen(false); }} className="w-full px-4 py-3 text-left text-xs font-bold tracking-widest text-zinc-400 hover:bg-zinc-800 hover:text-white flex items-center gap-3 border border-zinc-800">
                           <User className="w-3.5 h-3.5" /> โปรไฟล์
                         </button>
-                        {userPlan?.isPremium && (
-                          <button onClick={() => { setShowHistoryModal(true); setIsMobileMenuOpen(false); }} className="w-full px-4 py-3 text-left text-xs font-bold tracking-widest text-zinc-400 hover:bg-zinc-800 hover:text-white flex items-center gap-3 border border-zinc-800">
-                            <History className="w-3.5 h-3.5" /> ประวัติการใช้คีย์
-                          </button>
-                        )}
+                        <button onClick={() => { setActiveView('logs'); setIsMobileMenuOpen(false); }} className="w-full px-4 py-3 text-left text-xs font-bold tracking-widest text-zinc-400 hover:bg-zinc-800 hover:text-white flex items-center gap-3 border border-zinc-800">
+                          <History className="w-3.5 h-3.5" /> ประวัติการใช้งานต่างๆ
+                        </button>
                         {!userPlan?.isPremium && (
                           <button onClick={() => { setShowKeyModal(true); setIsMobileMenuOpen(false); }} className="w-full px-4 py-3 text-left text-xs font-bold tracking-widest text-amber-500 hover:bg-amber-500/10 flex items-center gap-3 border border-amber-500/50">
                             <Key className="w-3.5 h-3.5" /> อัปเกรด VIP
@@ -1239,7 +1224,7 @@ function AppContent() {
                     <Package className="w-4 h-4"/> สินค้าทั้งหมด
                   </button>
                   {user && (
-                    <button onClick={() => { setIsMobileMenuOpen(false); Swal.fire({title:'ระบบเติมเงิน',text:'เร็วๆ นี้!',icon:'info',background:'#09090b',color:'#fff'}) }} className={`w-full px-4 py-4 text-left text-sm tracking-widest font-bold transition-colors flex items-center gap-3 bg-zinc-900 border border-zinc-800 text-zinc-400 hover:border-cyan-400`}>
+                    <button onClick={() => { setActiveView('wallet'); setIsMobileMenuOpen(false); }} className={`w-full px-4 py-4 text-left text-sm tracking-widest font-bold transition-colors flex items-center gap-3 ${activeView === 'wallet' ? 'bg-cyan-500 text-black' : 'bg-zinc-900 border border-zinc-800 text-zinc-400 hover:border-cyan-400'}`}>
                       <Wallet className="w-4 h-4"/> เติมเงิน
                     </button>
                   )}
@@ -1339,6 +1324,8 @@ function AppContent() {
         )}
 
         {activeView === 'ai_chat' && <AIChatView />}
+        {activeView === 'logs' && <HistoryLogsView usedKeysHistory={usedKeysHistory} />}
+        {activeView === 'wallet' && <WalletView userPlan={userPlan} setUserPlan={setUserPlan} />}
         {activeView === 'free_stuff' && <ContentFeedView type="free" isAdmin={isAdmin} isPremiumUser={userPlan?.isPremium || false} />}
         {activeView === 'premium_stuff' && <ContentFeedView type="premium" isAdmin={isAdmin} isPremiumUser={userPlan?.isPremium || false} />}
 
@@ -1783,11 +1770,7 @@ function AppContent() {
         </div>
       )}
 
-      <HistoryModal
-        show={showHistoryModal}
-        onClose={() => setShowHistoryModal(false)}
-        logs={logs}
-      />
+      {/* Modals removed for history */}
 
     </div>
   );

@@ -35,7 +35,8 @@ async function startServer() {
   const PORT = 3000;
 
   app.use(cors());
-  app.use(express.json());
+  app.use(express.json({ limit: '10mb' }));
+  app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
   // Logging middleware for debugging
   app.use((req, res, next) => {
@@ -45,6 +46,96 @@ async function startServer() {
 
   app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', time: new Date().toISOString() });
+  });
+
+  app.post('/api/topup/truemoney', async (req, res) => {
+    try {
+      const { voucherCode, phone } = req.body;
+      
+      if (!voucherCode || !phone) {
+        return res.status(400).json({ success: false, error: 'ข้อมูลไม่ครบถ้วน' });
+      }
+
+      console.log(`Checking voucherCode: ${voucherCode} for phone: ${phone}`);
+
+      const response = await axios.post(
+          `https://gift.truemoney.com/campaign/vouchers/${voucherCode}/redeem`,
+          {
+              mobile: phone,
+              voucher_hash: voucherCode
+          },
+          {
+              headers: {
+                  "Accept": "application/json",
+                  "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.75 Safari/537.36",
+                  "Content-Type": "application/json",
+                  "Origin": "https://gift.truemoney.com",
+                  "Accept-Language": "en-US,en;q=0.9",
+                  "Connection": "keep-alive"
+              }
+          }
+      );
+
+      const redeemData = response.data;
+
+      if (redeemData.status.code === "SUCCESS") {
+          const amount = redeemData.data.my_ticket.amount_baht;
+          return res.json({ success: true, amount });
+      } else {
+          return res.json({ success: false, error: redeemData.status.message || 'ไม่สามารถรับเงินได้' });
+      }
+    } catch (error: any) {
+        if (error.response) {
+            const errorCode = error.response.data?.status?.code || 'UNKNOWN';
+            const errorMessage = error.response.data?.status?.message || 'ไม่ทราบสาเหตุ';
+            return res.json({ success: false, error: `ไม่สามารถรับซองได้: ${errorCode} - ${errorMessage}` });
+        } else {
+            console.error("TrueMoney API Error:", error.message);
+            return res.status(500).json({ success: false, error: 'เกิดข้อผิดพลาดในการเชื่อมต่อเครือข่าย' });
+        }
+    }
+  });
+
+  app.post('/api/topup/slip', async (req, res) => {
+    try {
+      const { imageBase64 } = req.body;
+      if (!imageBase64) {
+        return res.status(400).json({ success: false, error: 'ข้อมูลไม่ครบถ้วน' });
+      }
+
+      const response = await axios.post(
+        'https://developer.easyslip.com/api/v2/verify',
+        { image: imageBase64 },
+        {
+          headers: {
+            'Authorization': `Bearer 92cb54ef-ebc7-4865-9b77-cf5967095ffc`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      if (response.data.status === 200) {
+        const amount = response.data.data.amount.amount;
+        return res.json({ success: true, amount });
+      } else {
+        const errorMsg = response.data.message;
+        if (errorMsg === 'application_expired') {
+            return res.json({ success: false, error: 'ระบบตรวจสอบสลิปขัดข้อง (API หมดอายุ) กรุณาติดต่อแอดมิน' });
+        }
+        return res.json({ success: false, error: errorMsg || 'ไม่สามารถรับเงินได้' });
+      }
+    } catch (error: any) {
+        if (error.response) {
+            const errorMsg = error.response.data?.message;
+            if (errorMsg === 'application_expired') {
+                return res.json({ success: false, error: 'ระบบตรวจสอบสลิปขัดข้อง (API หมดอายุ) กรุณาติดต่อแอดมิน' });
+            }
+            return res.json({ success: false, error: errorMsg || 'สลิปไม่ถูกต้อง หรือถูกใช้งานไปแล้ว' });
+        } else {
+            console.error("EasySlip API Error:", error.message);
+            return res.status(500).json({ success: false, error: 'เกิดข้อผิดพลาดในการเชื่อมต่อเครือข่าย' });
+        }
+    }
   });
 
   app.post('/api/verify_turnstile', async (req, res) => {
