@@ -6,6 +6,7 @@ import { Product, SiteStats } from '../types';
 interface HomeViewProps {
   products: Product[];
   stats: SiteStats;
+  user?: any;
 }
 
 const BANNERS = [
@@ -14,7 +15,7 @@ const BANNERS = [
   "https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=1200&auto=format&fit=crop"
 ];
 
-export const HomeView: React.FC<HomeViewProps> = ({ products, stats }) => {
+export const HomeView: React.FC<HomeViewProps> = ({ products, stats, user }) => {
   const [currentBanner, setCurrentBanner] = useState(0);
 
   useEffect(() => {
@@ -68,25 +69,29 @@ export const HomeView: React.FC<HomeViewProps> = ({ products, stats }) => {
       </div>
 
       {/* Quick Menu (MLD Style) */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div className={`grid gap-4 ${user ? 'grid-cols-2 sm:grid-cols-4' : 'grid-cols-2'}`}>
         <button className="bg-zinc-900 border border-zinc-800 hover:border-cyan-500/50 hover:bg-zinc-800/80 transition-all rounded-2xl p-4 flex flex-col items-center justify-center gap-3 group shadow-lg">
           <div className="w-12 h-12 rounded-full bg-cyan-500/10 flex items-center justify-center group-hover:bg-cyan-500 group-hover:scale-110 transition-all duration-300">
             <Package className="w-6 h-6 text-cyan-400 group-hover:text-white" />
           </div>
           <span className="font-bold text-white text-sm">สินค้าทั้งหมด</span>
         </button>
-        <button className="bg-zinc-900 border border-zinc-800 hover:border-emerald-500/50 hover:bg-zinc-800/80 transition-all rounded-2xl p-4 flex flex-col items-center justify-center gap-3 group shadow-lg">
-          <div className="w-12 h-12 rounded-full bg-emerald-500/10 flex items-center justify-center group-hover:bg-emerald-500 group-hover:scale-110 transition-all duration-300">
-            <Wallet className="w-6 h-6 text-emerald-400 group-hover:text-white" />
-          </div>
-          <span className="font-bold text-white text-sm">เติมเงิน</span>
-        </button>
-        <button className="bg-zinc-900 border border-zinc-800 hover:border-indigo-500/50 hover:bg-zinc-800/80 transition-all rounded-2xl p-4 flex flex-col items-center justify-center gap-3 group shadow-lg">
-          <div className="w-12 h-12 rounded-full bg-indigo-500/10 flex items-center justify-center group-hover:bg-indigo-500 group-hover:scale-110 transition-all duration-300">
-            <Gift className="w-6 h-6 text-indigo-400 group-hover:text-white" />
-          </div>
-          <span className="font-bold text-white text-sm">สุ่มรางวัล</span>
-        </button>
+        {user && (
+          <button className="bg-zinc-900 border border-zinc-800 hover:border-emerald-500/50 hover:bg-zinc-800/80 transition-all rounded-2xl p-4 flex flex-col items-center justify-center gap-3 group shadow-lg">
+            <div className="w-12 h-12 rounded-full bg-emerald-500/10 flex items-center justify-center group-hover:bg-emerald-500 group-hover:scale-110 transition-all duration-300">
+              <Wallet className="w-6 h-6 text-emerald-400 group-hover:text-white" />
+            </div>
+            <span className="font-bold text-white text-sm">เติมเงิน</span>
+          </button>
+        )}
+        {user && (
+          <button className="bg-zinc-900 border border-zinc-800 hover:border-indigo-500/50 hover:bg-zinc-800/80 transition-all rounded-2xl p-4 flex flex-col items-center justify-center gap-3 group shadow-lg">
+            <div className="w-12 h-12 rounded-full bg-indigo-500/10 flex items-center justify-center group-hover:bg-indigo-500 group-hover:scale-110 transition-all duration-300">
+              <Gift className="w-6 h-6 text-indigo-400 group-hover:text-white" />
+            </div>
+            <span className="font-bold text-white text-sm">สุ่มรางวัล</span>
+          </button>
+        )}
         <button className="bg-zinc-900 border border-zinc-800 hover:border-rose-500/50 hover:bg-zinc-800/80 transition-all rounded-2xl p-4 flex flex-col items-center justify-center gap-3 group shadow-lg">
           <div className="w-12 h-12 rounded-full bg-rose-500/10 flex items-center justify-center group-hover:bg-rose-500 group-hover:scale-110 transition-all duration-300">
             <Phone className="w-6 h-6 text-rose-400 group-hover:text-white" />
