@@ -1,9 +1,10 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Copy, Database, LogOut, BarChart3, Key, History, ShieldAlert, Activity, Ban, ChevronRight, Settings, Plus, Trash2, Crown } from 'lucide-react';
+import { Copy, Database, LogOut, BarChart3, Key, History, ShieldAlert, Activity, Ban, ChevronRight, Settings, Plus, Trash2, Crown, X, Upload, FileText } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { AccountResult, Product, SiteStats } from '../types';
 import { ShoppingCart, Package, Users } from 'lucide-react';
+import { useState, useRef } from 'react';
 
 interface AdminDashboardProps {
   totalChecked: number;
@@ -25,6 +26,316 @@ interface AdminDashboardProps {
   deleteKey: (id: string) => void;
   unblockIP: (ip: string) => void;
 }
+
+const ProductManagerModal = ({ 
+  product, 
+  onSave, 
+  onClose,
+  isEdit
+}: { 
+  product?: Product, 
+  onSave: (p: Product) => void, 
+  onClose: () => void,
+  isEdit: boolean 
+}) => {
+  const [formData, setFormData] = useState<Partial<Product>>(product || {
+    id: Math.random().toString(36).substr(2, 9),
+    name: '',
+    description: '',
+    price: 0,
+    imageUrl: '',
+    stock: 0,
+    category: ''
+  });
+
+  return (
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      <div className="bg-zinc-950 border border-zinc-800 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl relative">
+        <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+          <Package className="w-5 h-5 text-emerald-400" />
+          {isEdit ? 'แก้ไขสินค้า' : 'เพิ่มสินค้าใหม่'}
+        </h2>
+        
+        <div className="space-y-4">
+          <div>
+            <label className="block text-xs font-bold text-zinc-500 mb-1">ชื่อสินค้า</label>
+            <input 
+              type="text" 
+              value={formData.name} 
+              onChange={e => setFormData({...formData, name: e.target.value})}
+              className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500 text-sm"
+              placeholder="e.g. Netflix Premium"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-zinc-500 mb-1">รายละเอียด</label>
+            <textarea 
+              value={formData.description} 
+              onChange={e => setFormData({...formData, description: e.target.value})}
+              className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500 text-sm h-20 resize-none"
+              placeholder="รายละเอียดสินค้า..."
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-zinc-500 mb-1">ราคา (THB)</label>
+              <input 
+                type="number" 
+                value={formData.price} 
+                onChange={e => setFormData({...formData, price: parseInt(e.target.value) || 0})}
+                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500 text-sm"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-zinc-500 mb-1">สต๊อก</label>
+              <input 
+                type="number" 
+                value={formData.stock} 
+                onChange={e => setFormData({...formData, stock: parseInt(e.target.value) || 0})}
+                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500 text-sm"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-zinc-500 mb-1">URL รูปภาพ</label>
+            <input 
+              type="text" 
+              value={formData.imageUrl} 
+              onChange={e => setFormData({...formData, imageUrl: e.target.value})}
+              className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500 text-sm"
+              placeholder="https://..."
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-zinc-500 mb-1">หมวดหมู่</label>
+            <input 
+              type="text" 
+              value={formData.category} 
+              onChange={e => setFormData({...formData, category: e.target.value})}
+              className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500 text-sm"
+              placeholder="e.g. Account, Item Code"
+            />
+          </div>
+        </div>
+
+        <div className="mt-8 flex items-center gap-3">
+          <button 
+            onClick={onClose}
+            className="flex-1 px-4 py-3 bg-zinc-900 hover:bg-zinc-800 text-white rounded-xl text-sm font-bold transition-colors"
+          >
+            ยกเลิก
+          </button>
+          <button 
+            onClick={() => {
+              if(!formData.name || !formData.price) return Swal.fire({title: 'แจ้งเตือน', text: 'กรุณากรอกชื่อและราคา', icon: 'warning'});
+              onSave(formData as Product);
+            }}
+            className="flex-1 px-4 py-3 bg-emerald-500 hover:bg-emerald-400 text-black rounded-xl text-sm font-bold transition-colors"
+          >
+            บันทึกสินค้า
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const AddStockModal = ({ 
+  product, 
+  onSave, 
+  onClose 
+}: { 
+  product: Product, 
+  onSave: (p: Product) => void, 
+  onClose: () => void 
+}) => {
+  const [stockInput, setStockInput] = useState('');
+  const [fileStockPreview, setFileStockPreview] = useState<string[]>([]);
+  const [singleFilesPreview, setSingleFilesPreview] = useState<{name: string, b64: string}[]>([]);
+  const [mode, setMode] = useState<'text'|'file'|'single-file'>('file');
+  const fileRef = useRef<HTMLInputElement>(null);
+  const singleFileRef = useRef<HTMLInputElement>(null);
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const text = event.target?.result as string;
+      if (text) {
+        const lines = text.split('\n')
+                          .map(l => l.trim())
+                          .filter(l => l.length > 0);
+        setFileStockPreview(lines);
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  const handleSingleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const fileList = e.target.files;
+    if (!fileList || fileList.length === 0) return;
+    
+    // Process all selected files to strings (Base64)
+    Array.from(fileList).forEach((file: File) => {
+      // Check file size (limit 2MB per file to avoid crashing localStorage)
+      if (file.size > 2 * 1024 * 1024) {
+        Swal.fire({title: 'ไฟล์ใหญ่เกินไป', text: `ไฟล์ ${file.name} มีขนาดใหญ่กว่า 2MB`, icon: 'error', background: '#09090b', color: '#fff'});
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const b64 = event.target?.result as string;
+        if (b64) {
+          setSingleFilesPreview(prev => [...prev, {name: file.name, b64}]);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleSaveStock = () => {
+    let newItems: string[] = [];
+    if (mode === 'text' && stockInput.trim()) {
+      newItems = stockInput.split('\n').map(x => x.trim()).filter(x => x.length > 0);
+    } else if (mode === 'file' && fileStockPreview.length > 0) {
+      newItems = [...fileStockPreview];
+    } else if (mode === 'single-file' && singleFilesPreview.length > 0) {
+      // For single files, we can encode them as JSON strings containing the file data to fit into the string[] array
+      newItems = singleFilesPreview.map(f => JSON.stringify({ type: 'file', name: f.name, data: f.b64 }));
+    }
+
+    if (newItems.length === 0) {
+      return Swal.fire({title: 'ข้อมูลว่างเปล่า', text: 'ไม่ได้เพิ่มสต๊อกใหม่', icon: 'error', background: '#09090b', color: '#fff'});
+    }
+
+    const updatedProduct = { ...product };
+    updatedProduct.stockData = [...(updatedProduct.stockData || []), ...newItems];
+    updatedProduct.stock = updatedProduct.stockData.length;
+    onSave(updatedProduct);
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      <div className="bg-zinc-950 border border-zinc-800 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl relative">
+        <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+          <Database className="w-5 h-5 text-indigo-400" />
+          เพิ่มสต๊อก: {product.name}
+        </h2>
+        
+        <div className="flex bg-zinc-900 p-1 rounded-xl mb-6">
+          <button 
+            onClick={() => setMode('file')}
+            className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${mode === 'file' ? 'bg-zinc-800 text-white' : 'text-zinc-500 hover:text-zinc-300'}`}
+          >
+            ไฟล์ .txt (หลายสต๊อก)
+          </button>
+          <button 
+            onClick={() => setMode('single-file')}
+            className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${mode === 'single-file' ? 'bg-zinc-800 text-white' : 'text-zinc-500 hover:text-zinc-300'}`}
+          >
+            ไฟล์ทั่วไป (1 ไฟล์ = 1 สต๊อก)
+          </button>
+          <button 
+            onClick={() => setMode('text')}
+            className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${mode === 'text' ? 'bg-zinc-800 text-white' : 'text-zinc-500 hover:text-zinc-300'}`}
+          >
+            วางข้อความ
+          </button>
+        </div>
+
+        {mode === 'file' && (
+          <div className="space-y-4">
+            <div 
+              onClick={() => fileRef.current?.click()}
+              className="border-2 border-dashed border-zinc-800 hover:border-indigo-500/50 bg-zinc-900/50 rounded-2xl p-8 flex flex-col items-center justify-center cursor-pointer transition-colors"
+            >
+              <Upload className="w-8 h-8 text-indigo-400 mb-3" />
+              <p className="text-sm font-bold text-zinc-300">คลิกเพื่ออัพโหลดไฟล์ .txt</p>
+              <p className="text-xs text-zinc-500 mt-1">1 บรรทัด = 1 สต๊อก</p>
+              <input 
+                type="file" 
+                accept=".txt" 
+                className="hidden" 
+                ref={fileRef}
+                onChange={handleFileUpload}
+              />
+            </div>
+            {fileStockPreview.length > 0 && (
+              <div className="bg-indigo-500/10 border border-indigo-500/20 rounded-xl p-4 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <FileText className="w-5 h-5 text-indigo-400" />
+                  <div>
+                    <p className="text-sm font-bold text-indigo-400">พบข้อมูลสต๊อก</p>
+                    <p className="text-xs text-indigo-400/80">พร้อมเพิ่ม {fileStockPreview.length} รายการ</p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {mode === 'single-file' && (
+          <div className="space-y-4">
+            <div 
+              onClick={() => singleFileRef.current?.click()}
+              className="border-2 border-dashed border-zinc-800 hover:border-indigo-500/50 bg-zinc-900/50 rounded-2xl p-8 flex flex-col items-center justify-center cursor-pointer transition-colors"
+            >
+              <Upload className="w-8 h-8 text-indigo-400 mb-3" />
+              <p className="text-sm font-bold text-zinc-300">อัพโหลดไฟล์สินค้า</p>
+              <p className="text-xs text-zinc-500 mt-1">สูงสุด 2MB ต่อไฟล์ (เลือกหลายไฟล์ได้)</p>
+              <input 
+                type="file" 
+                multiple
+                className="hidden" 
+                ref={singleFileRef}
+                onChange={handleSingleFileUpload}
+              />
+            </div>
+            {singleFilesPreview.length > 0 && (
+              <div className="flex flex-col gap-2 max-h-32 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-zinc-800">
+                {singleFilesPreview.map((f, i) => (
+                  <div key={i} className="bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 flex items-center justify-between">
+                    <span className="text-xs font-medium truncate max-w-[200px] text-zinc-300">{f.name}</span>
+                    <span className="text-[10px] text-emerald-500 font-bold bg-emerald-500/10 px-2 py-0.5 rounded">Ready</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {mode === 'text' && (
+          <div>
+            <label className="block text-xs font-bold text-zinc-500 mb-2">วางข้อมูลสต๊อก (1 บรรทัด = 1 รายการ)</label>
+            <textarea 
+              value={stockInput}
+              onChange={e => setStockInput(e.target.value)}
+              className="w-full bg-zinc-900 border border-zinc-800 rounded-xl p-4 text-white focus:outline-none focus:border-indigo-500 text-sm h-40 resize-none font-mono text-xs leading-relaxed"
+              placeholder="user1:pass1&#10;user2:pass2"
+            />
+          </div>
+        )}
+
+        <div className="mt-8 flex items-center gap-3">
+          <button 
+            onClick={onClose}
+            className="flex-1 px-4 py-3 bg-zinc-900 hover:bg-zinc-800 text-white rounded-xl text-sm font-bold transition-colors"
+          >
+            ยกเลิก
+          </button>
+          <button 
+            onClick={handleSaveStock}
+            className="flex-1 px-4 py-3 bg-indigo-500 hover:bg-indigo-400 text-white rounded-xl text-sm font-bold transition-colors"
+          >
+            เพิ่มสต๊อกเข้าสู่ระบบ
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 
 const DatabaseSetupGuide = () => (
   <div className="bg-zinc-900/50 border border-amber-500/20 rounded-2xl p-8 max-w-2xl mx-auto mt-12 animate-in fade-in slide-in-from-bottom-4 duration-500 backdrop-blur-xl shadow-xl">
@@ -123,6 +434,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   addLicenseKey, blockIP, deleteKey, unblockIP,
   products = [], setProducts, siteStats = { users: 0, stock: 0, sales: 0 }, setSiteStats
 }) => {
+  const [isAddingProduct, setIsAddingProduct] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<Product | undefined>(undefined);
+  const [stockProduct, setStockProduct] = useState<Product | undefined>(undefined);
+
   return (
     <div className="min-h-screen bg-[#050507] text-white p-4 md:p-8 animate-in fade-in duration-700 font-sans">
       <div className="max-w-7xl mx-auto">
@@ -360,38 +675,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 <div className="flex justify-between items-center mb-6">
                   <h3 className="font-bold text-white flex items-center gap-2"><Package className="w-5 h-5 text-emerald-400" /> จัดการสินค้า</h3>
                   <button 
-                    onClick={() => {
-                        Swal.fire({
-                            title: 'เพิ่มสินค้าใหม่',
-                            html: `
-                              <input id="p-name" class="swal2-input" placeholder="ชื่อสินค้า">
-                              <input id="p-desc" class="swal2-input" placeholder="รายละเอียด">
-                              <input id="p-price" type="number" class="swal2-input" placeholder="ราคา">
-                              <input id="p-img" class="swal2-input" placeholder="URL รูปภาพ">
-                              <input id="p-stock" type="number" class="swal2-input" placeholder="จำนวนในสต๊อก">
-                              <input id="p-cat" class="swal2-input" placeholder="หมวดหมู่ (เช่น เกมออนไลน์, บัตรเติมเงิน)">
-                            `,
-                            focusConfirm: false,
-                            background: '#09090b',
-                            color: '#fff',
-                            preConfirm: () => {
-                              return {
-                                id: Math.random().toString(36).substr(2, 9),
-                                name: (document.getElementById('p-name') as HTMLInputElement).value,
-                                description: (document.getElementById('p-desc') as HTMLInputElement).value,
-                                price: parseInt((document.getElementById('p-price') as HTMLInputElement).value),
-                                imageUrl: (document.getElementById('p-img') as HTMLInputElement).value,
-                                stock: parseInt((document.getElementById('p-stock') as HTMLInputElement).value),
-                                category: (document.getElementById('p-cat') as HTMLInputElement).value
-                              }
-                            }
-                        }).then((result) => {
-                            if (result.isConfirmed && setProducts) {
-                                setProducts([...products, result.value!]);
-                                Swal.fire({ title: 'เพิ่มสินค้าสำเร็จ', icon: 'success', background: '#09090b', color: '#fff' });
-                            }
-                        });
-                    }}
+                    onClick={() => setIsAddingProduct(true)}
                     className="bg-emerald-500 hover:bg-emerald-400 text-black font-bold py-2 px-4 rounded-xl text-xs transition-colors flex items-center gap-2"
                   >
                     <Plus className="w-4 h-4"/> เพิ่มสินค้า
@@ -419,18 +703,50 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                             </div>
                           </td>
                           <td className="px-4 py-4 font-bold text-emerald-400">฿{p.price.toLocaleString()}</td>
-                          <td className="px-4 py-4">{p.stock}</td>
+                          <td className="px-4 py-4">
+                            <span className={`px-2 py-1 rounded text-xs font-bold ${p.stock > 0 ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-500'}`}>
+                              {p.stock}
+                            </span>
+                          </td>
                           <td className="px-4 py-4 text-right">
-                            <button 
-                                onClick={() => {
-                                    if(setProducts) {
-                                        setProducts(products.filter(prod => prod.id !== p.id));
-                                    }
-                                }}
-                                className="p-2 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-lg transition-colors"
-                            >
-                                <Trash2 className="w-4 h-4" />
-                            </button>
+                             <div className="flex items-center justify-end gap-2">
+                                <button 
+                                  onClick={() => setStockProduct(p)}
+                                  className="p-2 border border-zinc-700 bg-zinc-800/50 text-indigo-400 hover:bg-indigo-500/20 hover:border-indigo-500/50 rounded-lg transition-colors title='เพิ่มสต๊อก'"
+                                >
+                                    <Database className="w-4 h-4" />
+                                </button>
+                                <button 
+                                  onClick={() => setEditingProduct(p)}
+                                  className="p-2 border border-zinc-700 bg-zinc-800/50 text-amber-400 hover:bg-amber-500/20 hover:border-amber-500/50 rounded-lg transition-colors title='แก้ไขสินค้า'"
+                                >
+                                    <Settings className="w-4 h-4" />
+                                </button>
+                                <button 
+                                    onClick={() => {
+                                        Swal.fire({
+                                          title: 'ยืนยันการลบ',
+                                          text: `คุณต้องการลบ ${p.name} ใช่หรือไม่?`,
+                                          icon: 'warning',
+                                          showCancelButton: true,
+                                          confirmButtonColor: '#ef4444',
+                                          cancelButtonColor: '#27272a',
+                                          confirmButtonText: 'ลบเลย',
+                                          cancelButtonText: 'ยกเลิก',
+                                          background: '#09090b',
+                                          color: '#fff'
+                                        }).then((result) => {
+                                          if (result.isConfirmed && setProducts) {
+                                            setProducts(products.filter(prod => prod.id !== p.id));
+                                            Swal.fire({ title: 'ลบแล้ว!', icon: 'success', background: '#09090b', color: '#fff' });
+                                          }
+                                        })
+                                    }}
+                                    className="p-2 border border-zinc-700 bg-zinc-800/50 text-red-500 hover:bg-red-500/20 hover:border-red-500/50 rounded-lg transition-colors title='ลบสินค้า'"
+                                >
+                                    <Trash2 className="w-4 h-4" />
+                                </button>
+                             </div>
                           </td>
                         </tr>
                       ))}
@@ -596,6 +912,49 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           )}
         </AnimatePresence>
           </>
+        )}
+
+        {isAddingProduct && (
+          <ProductManagerModal 
+            isEdit={false}
+            onClose={() => setIsAddingProduct(false)}
+            onSave={(p) => {
+              if (setProducts) {
+                setProducts([...products, p]);
+                setIsAddingProduct(false);
+                Swal.fire({ title: 'เพิ่มสินค้าสำเร็จ', icon: 'success', background: '#09090b', color: '#fff' });
+              }
+            }}
+          />
+        )}
+        
+        {editingProduct && (
+          <ProductManagerModal 
+            product={editingProduct}
+            isEdit={true}
+            onClose={() => setEditingProduct(undefined)}
+            onSave={(p) => {
+              if (setProducts) {
+                setProducts(products.map(prod => prod.id === p.id ? p : prod));
+                setEditingProduct(undefined);
+                Swal.fire({ title: 'แก้ไขสินค้าสำเร็จ', icon: 'success', background: '#09090b', color: '#fff' });
+              }
+            }}
+          />
+        )}
+
+        {stockProduct && (
+          <AddStockModal 
+            product={stockProduct}
+            onClose={() => setStockProduct(undefined)}
+            onSave={(p) => {
+              if (setProducts) {
+                setProducts(products.map(prod => prod.id === p.id ? p : prod));
+                setStockProduct(undefined);
+                Swal.fire({ title: 'เพิ่มสต๊อกสำเร็จ', icon: 'success', background: '#09090b', color: '#fff' });
+              }
+            }}
+          />
         )}
       </div>
     </div>

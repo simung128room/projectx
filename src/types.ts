@@ -45,6 +45,7 @@ export interface Product {
   stock: number;
   category?: string;
   isPopular?: boolean;
+  stockData?: string[];
 }
 
 export interface SiteStats {

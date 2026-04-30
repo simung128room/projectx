@@ -10,6 +10,7 @@ import https from 'node:https';
 import { HttpsProxyAgent } from 'https-proxy-agent';
 import { createClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
+import rateLimit from 'express-rate-limit';
 
 dotenv.config();
 
@@ -132,7 +133,8 @@ async function startServer() {
         
         // ตรวจสอบชื่อบัญชีร้าน
         const isMatch = receiverName.includes(EXPECTED_SHOP_NAME_1) || 
-                        receiverName.toUpperCase().includes(EXPECTED_SHOP_NAME_2.toUpperCase());
+                        receiverName.toUpperCase().includes(EXPECTED_SHOP_NAME_2.toUpperCase()) ||
+                        receiverName.includes("กรวิชญ์");
         
         if (!isMatch) {
             return res.json({ 
@@ -175,14 +177,6 @@ async function startServer() {
         return res.status(400).json({ success: false, error: 'Token missing' });
       }
 
-      if (token === 'premium-bypass') {
-        return res.json({ success: true });
-      }
-
-      if (secretKey === '1x0000000000000000000000000000000AA') {
-        return res.json({ success: true });
-      }
-
       const params = new URLSearchParams();
       params.append('secret', secretKey);
       params.append('response', token);
@@ -201,11 +195,7 @@ async function startServer() {
       console.log('Turnstile Response:', response.data);
       
       if (!response.data.success) {
-        const errorCodes = response.data['error-codes'] || [];
-        if (errorCodes.includes('invalid-input-secret')) {
-          console.warn('Bypassing Turnstile locally due to invalid server secret key configuration.');
-          return res.json({ success: true, bypassed: true });
-        }
+        return res.status(403).json(response.data);
       }
       return res.json(response.data);
     } catch (error: any) {
@@ -396,18 +386,75 @@ async function startServer() {
     return game_info;
   };
 
-  app.post('/api/check', async (req, res) => {
+  // Add RateLimiting to prevent bot attacks
+  const checkLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+    standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+    legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+    message: { error: 'ขออภัย คุณส่งคำร้องขอเยอะเกินไป (Anti-Bot Protection) กรุณารอสักครู่' }
+  });
+
+  // Cache for Turnstile tokens (since they are single-use against Cloudflare, but we need them for a bulk loop)
+  const turnstileCache = new Map<string, number>();
+
+  app.post('/api/check', checkLimiter, async (req, res) => {
     const account = req.body.account?.toString().trim();
     const password = req.body.password?.toString().trim();
     const turnstileToken = req.body.turnstileToken; // Optional turnstile token
 
     if (!account || !password) return res.status(400).json({ error: 'Missing credentials' });
 
-    // Verify Turnstile Token First (Only if provided, to support bulk loop)
-    if (turnstileToken && turnstileToken !== 'premium-bypass') {
-       // Bypassing Turnstile entirely to prevent 400 errors from invalid configuration
-       // The UI requires a token, but we will not enforce Cloudflare verification 
-       // since the secret keys provided are either dummy keys or invalid.
+    // Verify Turnstile Token
+    if (!turnstileToken) {
+       return res.status(403).json({ error: 'Missing Captcha token. Please refresh the page and verify you are human.' });
+    }
+
+    // Since a batch check loop uses the same token, we cache verified tokens for 5 minutes
+    const now = Date.now();
+    const cachedTime = turnstileCache.get(turnstileToken);
+    
+    if (cachedTime && (now - cachedTime < 5 * 60 * 1000)) {
+       // Token is already verified and within 5 minute window
+       // console.log("Used cached Turnstile token bypass");
+    } else {
+       const secretKey = process.env.TURNSTILE_SECRET_KEY || '1x0000000000000000000000000000000AA';
+       
+       try {
+         const params = new URLSearchParams();
+         params.append('secret', secretKey);
+         params.append('response', turnstileToken);
+
+         const turnstileResponse = await axios.post(
+           'https://challenges.cloudflare.com/turnstile/v0/siteverify',
+           params,
+           {
+             headers: {
+               'Content-Type': 'application/x-www-form-urlencoded'
+             }
+           }
+         );
+
+         if (!turnstileResponse.data.success) {
+           console.error('Turnstile verification failed:', turnstileResponse.data);
+           return res.status(403).json({ error: 'Turnstile verification failed. Please refresh the page and try again.' });
+         }
+
+         // Cache the successfully verified token
+         turnstileCache.set(turnstileToken, now);
+         
+         // Clean up old entries from cache every once in a while
+         if (turnstileCache.size > 1000) {
+           for (const [key, time] of turnstileCache.entries()) {
+             if (now - time > 5 * 60 * 1000) {
+               turnstileCache.delete(key);
+             }
+           }
+         }
+       } catch (error) {
+         console.error('Error verifying Turnstile token:', error);
+         return res.status(500).json({ error: 'Internal server error during captcha verification.' });
+       }
     }
 
     const jar = new CookieJar();

@@ -236,7 +236,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan })
           </div>
           <div className="flex flex-col">
             <span className="text-zinc-500 text-xs font-bold uppercase tracking-widest">ยอดเงินคงเหลือ</span>
-            <span className="text-2xl font-mono text-zinc-900 font-bold">฿ {userPlan?.balance ? userPlan.balance.toLocaleString(undefined, {minimumFractionDigits: 2}) : '0.00'}</span>
+            <span className="text-3xl font-sans font-black text-zinc-900 tracking-tight">฿ {userPlan?.balance ? userPlan.balance.toLocaleString(undefined, {minimumFractionDigits: 2}) : '0.00'}</span>
           </div>
         </div>
       </div>

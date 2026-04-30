@@ -41,7 +41,29 @@ enum OperationType {
 
 function AppContent() {
   // Navigation State
-  const [activeView, setActiveView] = useState<'home' | 'dashboard' | 'admin' | 'profile' | 'logs' | 'settings' | 'ai_chat' | 'free_stuff' | 'premium_stuff' | 'login' | 'signup' | 'wallet'>('home');
+  const [activeView, setRawActiveView] = useState<'home' | 'dashboard' | 'admin' | 'profile' | 'logs' | 'settings' | 'ai_chat' | 'free_stuff' | 'premium_stuff' | 'login' | 'signup' | 'wallet'>('home');
+  const [isPageTransitioning, setIsPageTransitioning] = useState(false);
+
+  const setActiveView = (view: any) => {
+    if (activeView === view) return;
+    setIsPageTransitioning(true);
+    setTimeout(() => {
+      setRawActiveView(view);
+      setIsPageTransitioning(false);
+    }, 600);
+  };
+  const prevViewRef = useRef(activeView);
+
+  useEffect(() => {
+    if (prevViewRef.current !== activeView) {
+      setIsPageTransitioning(true);
+      const timer = setTimeout(() => {
+        setIsPageTransitioning(false);
+      }, 700);
+      prevViewRef.current = activeView;
+      return () => clearTimeout(timer);
+    }
+  }, [activeView]);
 
   const [combo, setCombo] = useState('');
   const comboRef = useRef('');
@@ -101,8 +123,100 @@ function AppContent() {
   const [adminTab, setAdminTab] = useState<string>('overview');
   const [isIPBlocked, setIsIPBlocked] = useState(false);
 
+  const [purchaseHistory, setPurchaseHistory] = useState<any[]>(() => {
+    const saved = localStorage.getItem('apex_purchase_history');
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) { return []; }
+    }
+    return [];
+  });
+
+  useEffect(() => { localStorage.setItem('apex_purchase_history', JSON.stringify(purchaseHistory)); }, [purchaseHistory]);
+
+  const handlePurchase = (product: Product) => {
+    if (!userPlan || userPlan.balance < product.price) {
+      Swal.fire({
+        icon: 'error',
+        title: 'ยอดเงินไม่เพียงพอ',
+        text: 'กรุณาเติมเงินก่อนทำการสั่งซื้อสินค้า',
+        confirmButtonColor: '#dc2626'
+      });
+      return;
+    }
+
+    // Deduct balance
+    setUserPlan(prev => prev ? { ...prev, balance: prev.balance - product.price } : prev);
+    
+    // Add to history
+    const historyItem = {
+      id: Math.random().toString(36).substring(7),
+      productId: product.id,
+      productName: product.name,
+      price: product.price,
+      secretData: `APEX-${Math.random().toString(36).substring(2, 10).toUpperCase()}`, // Simulated item data
+      timestamp: new Date().toISOString()
+    };
+    setPurchaseHistory(prev => [historyItem, ...prev]);
+
+    // Show success and redirect
+    Swal.fire({
+      icon: 'success',
+      title: 'สั่งซื้อสำเร็จ!',
+      text: 'กรุณาตรวจสอบสินค้าที่ประวัติการสั่งซื้อ',
+      confirmButtonColor: '#16a34a',
+      confirmButtonText: 'ตกลง'
+    }).then(() => {
+      setActiveView('logs');
+    });
+  };
+
+  const defaultProducts = [
+    { 
+      id: '1', 
+      name: 'คีย์ประจำเว็บ (ถาวร)', 
+      description: '[+] ยศในดิสคอร์ด (Member VIP)\n[+] ใช้งานแผงควบคุมระบบตรวจสอบแบบ VIP\n[+] บังคับบายพาส DataDome (เร็วขึ้น x2)\n[+] ตรวจสอบไม่จำกัดจำนวนครั้ง\n[+] สคริปต์ส่วนตัวอัปเดตตลอดชีพ', 
+      price: 49, 
+      stock: 999999,
+      imageUrl: 'https://i.pinimg.com/originals/a0/ba/af/a0baaf3c2a93fb5f5228e9d29efeb134.gif',
+      isPopular: true 
+    },
+    { 
+      id: '2', 
+      name: 'คีย์ประจำเว็บ (30 วัน)', 
+      description: '[+] ใช้งานได้ 30 วัน\n[+] ใช้งานแผงควบคุมระบบ\n[+] บายพาสระดับมาตรฐาน\n[+] ตรวจสอบไม่จำกัดจำนวนครั้ง', 
+      price: 25, 
+      stock: 999999,
+      imageUrl: 'https://i.pinimg.com/originals/2c/31/35/2c3135cb17c6eedaf309b5311dd689ae.gif',
+      isPopular: false 
+    },
+    { 
+      id: '3', 
+      name: 'Garena COD Mobile Account (VIP)', 
+      description: 'ID ระดับอัลติเมท ปืนตำนาน 5-10 กระบอก รันสกินเพียบ', 
+      price: 1500, 
+      stock: 3, 
+      imageUrl: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&q=80&w=400', 
+      isPopular: false 
+    },
+    { 
+      id: '4', 
+      name: 'Free Fire High End', 
+      description: 'สายโหดสกินเต็ม ซื้อปุ๊บเล่นปั๊บ มีหมัดไฟ ดาบคาตานะ', 
+      price: 900, 
+      stock: 12, 
+      imageUrl: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=400',
+      isPopular: false
+    }
+  ];
+
   // Home Store State
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<Product[]>(() => {
+    const saved = localStorage.getItem('apex_products_v3');
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) { return defaultProducts; }
+    }
+    return defaultProducts;
+  });
   const [siteStats, setSiteStats] = useState<SiteStats>({ users: 913, stock: 16738, sales: 248, topups: 15400 });
 
   const [isDBReady, setIsDBReady] = useState(true);
@@ -110,22 +224,13 @@ function AppContent() {
 
   // Product + Stats loaders
   useEffect(() => {
-    const savedProducts = localStorage.getItem('apex_products');
-    if (savedProducts) {
-      try { setProducts(JSON.parse(savedProducts)); } catch (e) {}
-    } else {
-      setProducts([
-        { id: '1', name: 'Garena COD Mobile Account (VIP)', description: 'ID ระดับอัลติเมท ปืนตำนาน 5-10 กระบอก รันสกินเพียบ', price: 1500, stock: 3, imageUrl: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&q=80&w=400', isPopular: true },
-        { id: '2', name: 'Free Fire High End', description: 'สายโหดสกินเต็ม ซื้อปุ๊บเล่นปั๊บ มีหมัดไฟ', price: 900, stock: 12, imageUrl: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=400' }
-      ]);
-    }
     const savedStats = localStorage.getItem('apex_stats');
     if (savedStats) {
       try { setSiteStats(JSON.parse(savedStats)); } catch(e) {}
     }
   }, []);
 
-  useEffect(() => { localStorage.setItem('apex_products', JSON.stringify(products)); }, [products]);
+  useEffect(() => { localStorage.setItem('apex_products_v3', JSON.stringify(products)); }, [products]);
   useEffect(() => { localStorage.setItem('apex_stats', JSON.stringify(siteStats)); }, [siteStats]);
 
   // Supabase Auth Listener
@@ -485,48 +590,7 @@ function AppContent() {
     }
   };
   const handleLogoClick = () => {
-    const nextClicks = logoClicks + 1;
-    if (nextClicks >= 5) {
-      setLogoClicks(0);
-      setShowAdminLogin(true);
-    } else {
-      setLogoClicks(nextClicks);
-      // Reset clicks after 2 seconds of inactivity
-      setTimeout(() => setLogoClicks(0), 2000);
-    }
-  };
-
-  const handleAdminLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (adminUsername === 'admin_apex' && adminPassword === '123456!?/asqi') {
-      try {
-        // Automatically sign in the admin to Firebase as well if needed
-        // but for now we just keep the existing logic
-        setIsAdmin(true);
-        setShowAdminLogin(false);
-        Swal.fire({
-          icon: 'success',
-          title: 'ยินดีต้อนรับทีมพัฒนา',
-          text: 'เข้าสู่ระบบหลังบ้าน Apex Backend สำเร็จ',
-          timer: 1500,
-          showConfirmButton: false,
-          background: '#ffffff',
-          color: '#18181b'
-        });
-      } catch (err) {
-        console.error("Supabase Admin Error:", err);
-        setIsAdmin(true); 
-        setShowAdminLogin(false);
-      }
-    } else {
-      Swal.fire({
-        icon: 'error',
-        title: 'สิทธิ์การเข้าถึงถูกปฏิเสธ',
-        text: 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง',
-        background: '#ffffff',
-        color: '#18181b'
-      });
-    }
+    setActiveView('login');
   };
 
 
@@ -538,6 +602,8 @@ function AppContent() {
       console.error("Logout error:", err);
     }
     setUserPlan(null);
+    setUser(null);
+    setActiveView('home');
     Swal.fire({
       icon: 'info',
       title: 'ออกจากระบบแล้ว',
@@ -791,12 +857,9 @@ function AppContent() {
 
     setSavedLinesToCheck(linesToCheck);
     
-    if (isPremium) {
-      executeCheck('premium-bypass', linesToCheck).catch(console.error);
-    } else {
-      setPendingTurnstileToken(null);
-      setShowTurnstileModal(true);
-    }
+    // Always show Turnstile modal to fetch a real token, even for premium (Turnstile is invisible for good users)
+    setPendingTurnstileToken(null);
+    setShowTurnstileModal(true);
   };
 
   const executeCheck = async (token: string, linesArg: string[] = savedLinesToCheck) => {
@@ -985,7 +1048,7 @@ function AppContent() {
       <div className="relative flex items-center justify-center">
         <div className="w-20 h-20 border-4 border-zinc-100 rounded-full"></div>
         <div className="absolute top-0 left-0 w-20 h-20 border-4 border-t-red-500 border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin"></div>
-        <img src="https://img2.pic.in.th/IMG_6076fed1c24256d4269f.png" alt="Logo" className="w-10 h-10 object-contain absolute opacity-80" />
+        <img src="https://img2.pic.in.th/IMG_6076fed1c24256d4269f.png" alt="Logo" className="w-10 h-10 object-contain absolute opacity-70 grayscale brightness-0" />
       </div>
       <div className="flex flex-col items-center gap-2">
         <div className="text-zinc-900 text-lg font-bold tracking-widest animate-pulse">กำลังโหลดข้อมูล...</div>
@@ -996,61 +1059,19 @@ function AppContent() {
 
   return (
     <div className="min-h-screen w-full overflow-x-hidden bg-zinc-50 text-zinc-900 font-sans selection:bg-cyan-500/30 flex relative">
-      {/* Admin Login Modal Overlay */}
-      {showAdminLogin && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md">
-          <div className="w-full max-w-sm bg-white border border-zinc-200 rounded-[2.5rem] p-8 shadow-2xl animate-in fade-in zoom-in duration-300 overflow-hidden relative">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-red-100 blur-[50px] rounded-full -mr-16 -mt-16 pointer-events-none"></div>
-            <div className="flex flex-col items-center text-center mb-8 relative z-10">
-              <div className="w-16 h-16 bg-red-50 rounded-2xl flex items-center justify-center mb-4 border border-red-100">
-                <Crown className="w-8 h-8 text-red-500" />
-              </div>
-              <h2 className="text-xl font-bold tracking-tight text-zinc-900">Backend Entry</h2>
-              <p className="text-zinc-500 text-xs mt-1">APEX STUDIO AUTHORIZATION REQUIRED</p>
+      {/* Page Transition Overlay */}
+      {isPageTransitioning && (
+        <div className="fixed inset-0 z-[200] bg-zinc-50 flex items-center justify-center p-4">
+          <div className="flex flex-col items-center gap-6 animate-in fade-in duration-200">
+            <div className="relative flex items-center justify-center">
+              <div className="w-24 h-24 border-[3px] border-zinc-200 rounded-full"></div>
+              <div className="absolute top-0 left-0 w-24 h-24 border-[3px] border-t-zinc-800 border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin"></div>
+              <img src="https://img2.pic.in.th/IMG_6076fed1c24256d4269f.png" alt="Logo" className="w-12 h-12 object-contain absolute opacity-70 grayscale brightness-0" />
             </div>
-
-            <form onSubmit={handleAdminLogin} className="space-y-4 relative z-10">
-              <div className="space-y-2">
-                <div className="relative">
-                  <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
-                  <input 
-                    type="text" 
-                    value={adminUsername}
-                    onChange={(e) => setAdminUsername(e.target.value)}
-                    className="w-full bg-zinc-50 border border-zinc-200 text-zinc-900 rounded-2xl py-3.5 pl-12 pr-4 outline-none focus:border-red-300 focus:bg-white transition-all font-mono text-sm placeholder:text-zinc-400"
-                    placeholder="Enter Username"
-                    autoFocus
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <div className="relative">
-                  <Key className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
-                  <input 
-                    type="password" 
-                    value={adminPassword}
-                    onChange={(e) => setAdminPassword(e.target.value)}
-                    className="w-full bg-zinc-50 border border-zinc-200 text-zinc-900 rounded-2xl py-3.5 pl-12 pr-4 outline-none focus:border-red-300 focus:bg-white transition-all font-mono text-sm placeholder:text-zinc-400"
-                    placeholder="Enter Password"
-                  />
-                </div>
-              </div>
-              <div className="pt-2 flex gap-3">
-                <button 
-                  type="button"
-                  onClick={() => setShowAdminLogin(false)}
-                  className="flex-1 bg-white hover:bg-zinc-50 py-3.5 rounded-2xl text-xs font-bold transition-all border border-zinc-200 text-zinc-600"
-                >
-                  CANCEL
-                </button>
-                <button 
-                  type="submit"
-                  className="flex-1 bg-red-600 hover:bg-red-500 py-3.5 rounded-2xl text-xs font-bold transition-all text-white shadow-lg shadow-red-500/20"
-                >
-                  ENTER
-                </button>
-              </div>
-            </form>
+            <div className="flex flex-col items-center">
+              <h2 className="text-xl font-black text-zinc-800 tracking-tight animate-pulse">กำลังโหลดข้อมูล...</h2>
+              <p className="text-zinc-500 text-sm font-medium mt-1">โปรดรอสักครู่</p>
+            </div>
           </div>
         </div>
       )}
@@ -1123,7 +1144,7 @@ function AppContent() {
                  <div className="flex flex-col truncate flex-1 leading-tight">
                    {userPlan?.isPremium && <span className="text-[10px] font-bold text-amber-500 uppercase tracking-widest mb-0.5"><Crown className="w-3 h-3 inline mr-1 -mt-0.5"/>PREMIUM</span>}
                    <span className="text-sm font-bold text-zinc-900 truncate">{user.is_anonymous ? 'ผู้ใช้งานทั่วไป' : user.email}</span>
-                   <span className="text-xs text-zinc-500 flex items-center gap-1 font-mono mt-0.5"><Wallet className="w-3 h-3"/> ฿{userPlan?.balance ? userPlan.balance.toLocaleString(undefined, {minimumFractionDigits: 2}) : '0.00'}</span>
+                   <span className="text-xs text-zinc-600 flex items-center gap-1 font-sans font-bold mt-0.5"><Wallet className="w-3 h-3"/> ฿{userPlan?.balance ? userPlan.balance.toLocaleString(undefined, {minimumFractionDigits: 2}) : '0.00'}</span>
                  </div>
                </div>
                <div className="grid grid-cols-2 gap-2">
@@ -1206,7 +1227,7 @@ function AppContent() {
                       </div>
                       <div className="flex flex-col flex-1 truncate">
                         <span className="text-sm font-bold text-zinc-900 truncate">{user.is_anonymous ? 'ผู้ใช้งานทั่วไป' : user.email}</span>
-                        <span className="text-xs text-zinc-500 font-mono mt-0.5">฿{userPlan?.balance ? userPlan.balance.toLocaleString(undefined, {minimumFractionDigits: 2}) : '0.00'}</span>
+                        <span className="text-xs text-zinc-600 font-sans font-bold mt-0.5">฿{userPlan?.balance ? userPlan.balance.toLocaleString(undefined, {minimumFractionDigits: 2}) : '0.00'}</span>
                       </div>
                     </div>
                   ) : (
@@ -1280,10 +1301,14 @@ function AppContent() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-10 pb-24 w-full flex-1 flex flex-col">
         {activeView === 'home' && (
-          <HomeView products={products} stats={siteStats} user={user} setActiveView={setActiveView} />
+          <HomeView products={products} stats={siteStats} user={user} setActiveView={setActiveView} handlePurchase={handlePurchase} />
         )}
 
-        {activeView === 'login' && <AuthView initialMode="login" setActiveView={setActiveView} />}
+        {activeView === 'login' && <AuthView initialMode="login" setActiveView={setActiveView} onAdminLogin={(username) => {
+          setIsAdmin(true);
+          setAdminUsername(username);
+          setActiveView('admin');
+        }} />}
         {activeView === 'signup' && <AuthView initialMode="signup" setActiveView={setActiveView} />}
 
         {activeView === 'profile' && (
@@ -1298,7 +1323,7 @@ function AppContent() {
         )}
 
         {activeView === 'ai_chat' && <AIChatView />}
-        {activeView === 'logs' && <HistoryLogsView usedKeysHistory={usedKeysHistory} />}
+        {activeView === 'logs' && <HistoryLogsView usedKeysHistory={usedKeysHistory} purchaseHistory={purchaseHistory} />}
         {activeView === 'wallet' && <WalletView userPlan={userPlan} setUserPlan={setUserPlan} />}
         {activeView === 'free_stuff' && <ContentFeedView type="free" isAdmin={isAdmin} isPremiumUser={userPlan?.isPremium || false} />}
         {activeView === 'premium_stuff' && <ContentFeedView type="premium" isAdmin={isAdmin} isPremiumUser={userPlan?.isPremium || false} />}
@@ -1723,7 +1748,7 @@ function AppContent() {
               <ListChecks className="w-6 h-6 shrink-0 text-red-500" /> ข้อกำหนดการใช้งาน
             </h2>
             <div className="space-y-4 text-sm text-zinc-600">
-              <p>1. เครื่องมือนี้ใช้เพื่อการศึกษา ทดสอบ อย่างปลอดภัย และตรวจสอบสถานะบัญชีของตนเองที่ได้รับอนุญาตเท่านั้น</p>
+              <p>1. เครื่องมือนี้ใช้เพื่อการศึกษา อย่างปลอดภัย และตรวจสอบสถานะบัญชีของตนเองที่ได้รับอนุญาตเท่านั้น</p>
               <p>2. ห้ามนำไปใช้ในทางที่ผิดกฎหมายหรือละเมิดสิทธิของผู้อื่น</p>
               <p>3. ผู้ใช้ต้องรับผิดชอบต่อผลจากการใช้งานเครื่องมือนี้ด้วยตนเอง</p>
               <p>4. ผู้พัฒนาไม่รับประกันความถูกต้อง 100% ของผลการตรวจสอบ (เป็นการจำลอง)</p>

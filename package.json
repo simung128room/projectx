@@ -24,6 +24,7 @@
     "dotenv": "^17.2.3",
     "eruda": "^3.4.3",
     "express": "^4.22.1",
+    "express-rate-limit": "^8.4.1",
     "firebase": "^12.12.1",
     "https-proxy-agent": "^9.0.0",
     "jsqr": "^1.4.0",
