@@ -96,6 +96,8 @@ async function startServer() {
     }
   });
 
+  const usedSlips = new Set<string>();
+
   app.post('/api/topup/slip', async (req, res) => {
     try {
       const { imageBase64 } = req.body;
@@ -121,6 +123,15 @@ async function startServer() {
       // Checking response format from SlipOK
       if (response.data.success === true || response.data.code === '0000' || response.data.data?.amount !== undefined) {
         const amount = response.data.data?.amount;
+        const transRef = response.data.data?.transRef;
+        
+        if (transRef) {
+          if (usedSlips.has(transRef)) {
+            return res.json({ success: false, error: 'สลิปนี้ถูกใช้งานไปแล้ว' });
+          }
+          usedSlips.add(transRef);
+        }
+
         return res.json({ success: true, amount });
       } else {
         const errorMsg = response.data.data?.message || response.data.message;

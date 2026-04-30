@@ -73,16 +73,24 @@ export const HomeView: React.FC<HomeViewProps> = ({ products, stats, user, setAc
         <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shrink-0 shadow-sm border border-red-100 relative z-10">
           <Bell className="w-6 h-6 text-red-500 animate-bounce" />
         </div>
-        <div className="flex-1 relative z-10">
+        <div className="flex-1 relative z-10 overflow-hidden">
           <h3 className="font-bold text-red-700 text-sm mb-1 uppercase tracking-wider font-sans">ประกาศจากผู้ดูแลระบบ</h3>
-          <p className="text-red-900 text-sm font-medium">ยินดีต้อนรับเข้าเว็บ APEX STUDIO ระบบอัตโนมัติตลอด 24 ชม.</p>
+          <div className="whitespace-nowrap overflow-hidden">
+            <motion.div
+              animate={{ x: ["100%", "-100%"] }}
+              transition={{ repeat: Infinity, duration: 12, ease: "linear" }}
+              className="inline-block"
+            >
+              <p className="text-red-900 text-sm font-medium">ยินดีต้อนรับเข้าเว็บ APEX STUDIO ระบบอัตโนมัติตลอด 24 ชม. | สมัครสมาชิกวันนี้รับโปรโมชั่นพิเศษมากมาย</p>
+            </motion.div>
+          </div>
         </div>
       </div>
 
-      {/* Real-time Stats & Feed */}
-      <div className="grid grid-cols-2 lg:grid-cols-6 gap-3">
+      {/* Real-time Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {/* Stat 1: Users */}
-        <div className="col-span-1 flex items-center gap-3 p-3 rounded-2xl border border-zinc-200 bg-white shadow-sm hover:border-zinc-300 transition-colors">
+        <div className="flex items-center gap-3 p-3 rounded-2xl border border-zinc-200 bg-white shadow-sm hover:border-zinc-300 transition-colors">
           <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-zinc-100 text-zinc-500">
              <Users className="w-5 h-5" />
           </div>
@@ -100,7 +108,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ products, stats, user, setAc
         </div>
 
         {/* Stat 2: Sales */}
-        <div className="col-span-1 flex items-center gap-3 p-3 rounded-2xl border border-zinc-200 bg-white shadow-sm hover:border-zinc-300 transition-colors">
+        <div className="flex items-center gap-3 p-3 rounded-2xl border border-zinc-200 bg-white shadow-sm hover:border-zinc-300 transition-colors">
           <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-zinc-100 text-zinc-500">
              <TrendingUp className="w-5 h-5" />
           </div>
@@ -117,26 +125,8 @@ export const HomeView: React.FC<HomeViewProps> = ({ products, stats, user, setAc
           </div>
         </div>
 
-        {/* Live Feed - placed in the middle */}
-        <div className="col-span-2 bg-zinc-900 rounded-2xl p-3 flex items-center overflow-hidden border border-zinc-800 shadow-sm relative">
-          <div className="bg-red-500 text-white text-[10px] font-bold px-3 py-1 rounded-lg uppercase tracking-wider shrink-0 z-10 shadow-sm">
-            Live
-          </div>
-          <div className="flex-1 overflow-hidden ml-4 relative">
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              key={realtimeStats.sales}
-              className="flex items-center gap-2 text-zinc-300 text-xs sm:text-sm font-medium whitespace-nowrap"
-            >
-               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0"></span>
-               User <span className="font-mono text-white">***{Math.floor(Math.random() * 900) + 100}</span> เพิ่งสั่งซื้อสินค้าระดับพรีเมียมเมื่อสักครู่นี้...
-            </motion.div>
-          </div>
-        </div>
-
         {/* Stat 3: Stock */}
-        <div className="col-span-1 flex items-center gap-3 p-3 rounded-2xl border border-zinc-200 bg-white shadow-sm hover:border-zinc-300 transition-colors">
+        <div className="flex items-center gap-3 p-3 rounded-2xl border border-zinc-200 bg-white shadow-sm hover:border-zinc-300 transition-colors">
           <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-zinc-100 text-zinc-500">
              <Package className="w-5 h-5" />
           </div>
@@ -154,7 +144,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ products, stats, user, setAc
         </div>
 
         {/* Stat 4: Topups */}
-        <div className="col-span-1 flex items-center gap-3 p-3 rounded-2xl border border-zinc-200 bg-white shadow-sm hover:border-zinc-300 transition-colors">
+        <div className="flex items-center gap-3 p-3 rounded-2xl border border-zinc-200 bg-white shadow-sm hover:border-zinc-300 transition-colors">
           <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-zinc-100 text-zinc-500">
              <Wallet className="w-5 h-5" />
           </div>
@@ -169,6 +159,24 @@ export const HomeView: React.FC<HomeViewProps> = ({ products, stats, user, setAc
               {(realtimeStats.topups || 15400).toLocaleString()}
             </motion.span>
           </div>
+        </div>
+      </div>
+
+      {/* Live Feed - placed below stats */}
+      <div className="bg-zinc-900 rounded-2xl p-3 flex items-center overflow-hidden border border-zinc-800 shadow-sm relative">
+        <div className="bg-red-500 text-white text-[10px] font-bold px-3 py-1 rounded-lg uppercase tracking-wider shrink-0 z-10 shadow-sm">
+          Live
+        </div>
+        <div className="flex-1 overflow-hidden ml-4 relative">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            key={realtimeStats.sales}
+            className="flex items-center gap-2 text-zinc-300 text-xs sm:text-sm font-medium whitespace-nowrap"
+          >
+             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0"></span>
+             User <span className="font-mono text-white">***{Math.floor(Math.random() * 900) + 100}</span> เพิ่งสั่งซื้อสินค้าระดับพรีเมียมเมื่อสักครู่นี้...
+          </motion.div>
         </div>
       </div>
 
