@@ -103,36 +103,35 @@ async function startServer() {
         return res.status(400).json({ success: false, error: 'ข้อมูลไม่ครบถ้วน' });
       }
 
+      const imageBuffer = Buffer.from(imageBase64, 'base64');
+      const blob = new Blob([imageBuffer], { type: 'image/jpeg' });
+      const form = new FormData();
+      form.append('files', blob, 'slip.jpg');
+
       const response = await axios.post(
-        'https://developer.easyslip.com/api/v2/verify',
-        { image: imageBase64 },
+        'https://api.slipok.com/api/line/apikey/65331',
+        form,
         {
           headers: {
-            'Authorization': `Bearer 92cb54ef-ebc7-4865-9b77-cf5967095ffc`,
-            'Content-Type': 'application/json'
+            'x-authorization': 'SLIPOKA9ZEE71'
           }
         }
       );
 
-      if (response.data.status === 200) {
-        const amount = response.data.data.amount.amount;
+      // Checking response format from SlipOK
+      if (response.data.success === true || response.data.code === '0000' || response.data.data?.amount !== undefined) {
+        const amount = response.data.data?.amount;
         return res.json({ success: true, amount });
       } else {
-        const errorMsg = response.data.message;
-        if (errorMsg === 'application_expired') {
-            return res.json({ success: false, error: 'ระบบตรวจสอบสลิปขัดข้อง (API หมดอายุ) กรุณาติดต่อแอดมิน' });
-        }
+        const errorMsg = response.data.data?.message || response.data.message;
         return res.json({ success: false, error: errorMsg || 'ไม่สามารถรับเงินได้' });
       }
     } catch (error: any) {
         if (error.response) {
             const errorMsg = error.response.data?.message;
-            if (errorMsg === 'application_expired') {
-                return res.json({ success: false, error: 'ระบบตรวจสอบสลิปขัดข้อง (API หมดอายุ) กรุณาติดต่อแอดมิน' });
-            }
             return res.json({ success: false, error: errorMsg || 'สลิปไม่ถูกต้อง หรือถูกใช้งานไปแล้ว' });
         } else {
-            console.error("EasySlip API Error:", error.message);
+            console.error("SlipOK API Error:", error.message);
             return res.status(500).json({ success: false, error: 'เกิดข้อผิดพลาดในการเชื่อมต่อเครือข่าย' });
         }
     }

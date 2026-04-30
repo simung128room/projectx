@@ -72,14 +72,14 @@ export const ContentFeedView: React.FC<{ type: 'free' | 'premium', isAdmin: bool
   };
 
   return (
-    <div className="w-full max-w-5xl mx-auto p-4 md:p-8 animate-in fade-in duration-500 font-sans text-white">
-      <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-8 bg-zinc-900 border border-white/5 rounded-2xl p-6">
+    <div className="w-full max-w-5xl mx-auto p-4 md:p-8 animate-in fade-in duration-500 font-sans text-zinc-900">
+      <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-8 bg-white border border-zinc-200 shadow-sm rounded-3xl p-6">
         <div className="flex items-center gap-4">
-          <div className={`p-3 rounded-2xl border ${type === 'premium' ? 'bg-amber-500/10 border-amber-500/20 text-amber-500' : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500'}`}>
+          <div className={`p-4 rounded-2xl ${type === 'premium' ? 'bg-amber-50 text-amber-500' : 'bg-emerald-50 text-emerald-500'}`}>
             {type === 'premium' ? <Crown className="w-8 h-8"/> : <Gift className="w-8 h-8"/>}
           </div>
           <div>
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-white to-zinc-400 bg-clip-text text-transparent uppercase tracking-tighter">
+            <h1 className="text-2xl font-bold text-zinc-900 tracking-tighter">
               {type === 'premium' ? 'ของเติมของโคตรดี!!' : 'ของฟรีของดี!!'}
             </h1>
             <p className="text-zinc-500 text-xs font-bold uppercase tracking-widest mt-1">คลังความรู้และทรัพยากร</p>
@@ -89,17 +89,17 @@ export const ContentFeedView: React.FC<{ type: 'free' | 'premium', isAdmin: bool
 
       <div className="flex flex-col md:flex-row gap-4 mb-6">
         <div className="relative flex-1">
-          <Search className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" />
+          <Search className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400" />
           <input 
             type="text" 
             placeholder="ค้นหาจากชื่อ หรือ Keyword..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-zinc-900 border border-white/5 rounded-xl py-3 pl-12 pr-4 text-white placeholder:text-zinc-500 focus:outline-none focus:border-cyan-500/50"
+            className="w-full bg-white border border-zinc-200 rounded-2xl py-3 pl-12 pr-4 text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-red-400 focus:ring-4 focus:ring-red-50 transition-all shadow-sm"
           />
         </div>
         {isAdmin && (
-          <button onClick={handleAdd} className="bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 px-6 rounded-xl transition-all flex items-center justify-center gap-2 whitespace-nowrap">
+          <button onClick={handleAdd} className="bg-red-600 hover:bg-red-500 text-white font-bold py-3 px-6 rounded-2xl transition-all flex items-center justify-center gap-2 whitespace-nowrap shadow-sm">
             <Plus className="w-5 h-5"/> เพิ่มเนื้อหา
           </button>
         )}
@@ -109,47 +109,49 @@ export const ContentFeedView: React.FC<{ type: 'free' | 'premium', isAdmin: bool
         {filteredItems.map(item => {
           const locked = type === 'premium' && !isAdmin && !isPremiumUser;
           return (
-            <motion.div key={item.id} layout initial={{opacity:0, scale:0.95}} animate={{opacity:1, scale:1}} className="bg-zinc-900 border border-white/5 rounded-2xl p-5 relative overflow-hidden group">
+            <motion.div key={item.id} layout initial={{opacity:0, scale:0.95}} animate={{opacity:1, scale:1}} className="bg-white border border-zinc-200 rounded-3xl p-5 relative overflow-hidden group shadow-sm hover:shadow-md transition-shadow">
               <div className="flex justify-between items-start mb-3">
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-bold text-zinc-400 bg-white/5 px-2 py-0.5 rounded-full uppercase">
+                  <span className="text-[10px] font-bold text-zinc-600 bg-zinc-100 px-2 py-0.5 rounded-full uppercase border border-zinc-200">
                     {item.contentType}
                   </span>
                   {item.keyword && (
-                    <span className="text-[10px] font-bold text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded-full uppercase">
+                    <span className="text-[10px] font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded-full uppercase border border-red-100">
                       #{item.keyword}
                     </span>
                   )}
                 </div>
                 {isAdmin && (
-                  <button onClick={() => handleDelete(item.id)} className="text-red-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button onClick={() => handleDelete(item.id)} className="text-red-500 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity p-1 bg-red-50 rounded-md">
                     <Trash2 className="w-4 h-4"/>
                   </button>
                 )}
               </div>
               
-              <h3 className="text-lg font-bold text-white mb-4 line-clamp-1">{item.title}</h3>
+              <h3 className="text-lg font-bold text-zinc-900 mb-4 line-clamp-1">{item.title}</h3>
 
-              <div className="bg-zinc-950 rounded-xl border border-white/5 overflow-hidden">
+              <div className="bg-zinc-50 rounded-2xl border border-zinc-100 overflow-hidden">
                 {locked ? (
-                  <div className="h-32 flex flex-col items-center justify-center bg-zinc-950/80 backdrop-blur-sm relative">
+                  <div className="h-32 flex flex-col items-center justify-center bg-zinc-50 backdrop-blur-sm relative">
                     <Lock className="w-8 h-8 text-amber-500 mb-2"/>
-                    <span className="text-xs font-bold text-amber-500">วีไอพีเท่านั้น</span>
-                    <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/50"></div>
+                    <span className="text-xs font-bold text-amber-600 bg-amber-100 px-3 py-1 rounded-full">วีไอพีเท่านั้น</span>
+                    <div className="absolute inset-0 bg-gradient-to-b from-transparent to-white/50"></div>
                   </div>
                 ) : (
                   <div className="p-4">
                     {item.contentType === 'text' && (
-                      <p className="text-sm text-zinc-300 font-mono whitespace-pre-wrap">{item.content}</p>
+                      <p className="text-sm text-zinc-700 font-mono whitespace-pre-wrap">{item.content}</p>
                     )}
                     {item.contentType === 'image' && (
                       <div className="w-full flex justify-center">
-                        <img src={item.content} alt={item.title} className="max-h-48 object-contain rounded-lg" onError={(e) => (e.currentTarget.src = 'https://placehold.co/600x400/18181b/52525b?text=Image+Not+Found')} />
+                        <img src={item.content || undefined} alt={item.title} className="max-h-48 object-contain rounded-lg" onError={(e) => (e.currentTarget.src = 'https://placehold.co/600x400/f4f4f5/a1a1aa?text=Image+Not+Found')} />
                       </div>
                     )}
                     {item.contentType === 'file' && (
-                      <a href={item.content} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 py-3 rounded-xl border border-indigo-500/20 transition-all text-sm font-bold w-full">
-                        <Download className="w-4 h-4"/> ดาวน์โหลดไฟล์
+                      <a href={item.content} target="_blank" rel="noopener noreferrer" 
+                         className="flex items-center justify-center gap-3 bg-white hover:bg-zinc-50 text-zinc-900 py-3 rounded-xl border border-zinc-200 transition-all duration-300 w-full shadow-sm hover:shadow-md font-bold">
+                        <Download className="w-5 h-5 text-emerald-500"/>
+                        <span className="text-sm">ดาวน์โหลดไฟล์</span>
                       </a>
                     )}
                   </div>
@@ -159,7 +161,7 @@ export const ContentFeedView: React.FC<{ type: 'free' | 'premium', isAdmin: bool
           );
         })}
         {filteredItems.length === 0 && (
-          <div className="col-span-1 md:col-span-2 text-center py-12 text-zinc-500 border border-dashed border-white/10 rounded-2xl">
+          <div className="col-span-1 md:col-span-2 text-center py-12 text-zinc-400 border-2 border-dashed border-zinc-200 rounded-3xl bg-white shadow-sm">
             ไม่พบเนื้อหาในหมวดหมู่นี้
           </div>
         )}

@@ -2,11 +2,14 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Outfit", "Kanit", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Kanit", "Outfit", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", "IBM Plex Sans Thai", ui-monospace, SFMono-Regular, monospace;
 }
 
 @layer utilities {
+  .text-stroke-red {
+    -webkit-text-stroke-color: #ef4444;
+  }
   .text-stroke-white {
     -webkit-text-stroke-color: white;
   }
@@ -25,29 +28,43 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: #09090b; /* background match */
+    background: white;
   }
   .glitch::before {
     left: 2px;
-    text-shadow: -1px 0 red;
+    text-shadow: -1px 0 #ef4444;
     animation: glitch-anim-1 2s infinite linear alternate-reverse;
   }
   .glitch::after {
     left: -2px;
-    text-shadow: -1px 0 blue;
+    text-shadow: -1px 0 #000;
     animation: glitch-anim-2 3s infinite linear alternate-reverse;
   }
-  
+
   .typing-eff {
     overflow: hidden;
     white-space: nowrap;
-    border-right: 0.1em solid #22d3ee;
+    border-right: 0.1em solid #ef4444;
     animation: typing 3s steps(40, end), blink 0.75s step-end infinite;
     max-width: fit-content;
   }
-  
+
   .hacker-text {
-    text-shadow: 0 0 10px rgba(34, 211, 238, 0.8), 0 0 20px rgba(34, 211, 238, 0.5);
+    text-shadow: 0 0 10px rgba(239, 68, 68, 0.8), 0 0 20px rgba(239, 68, 68, 0.5);
+  }
+
+  .icon {
+    font-size: 38px;
+    color: #ef4444;
+    cursor: pointer;
+    transition: 0.25s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .icon:hover {
+    transform: translateY(-15px) scale(1.7);
   }
 }
 
@@ -75,6 +92,6 @@
 }
 
 @keyframes blink {
-  from, to { border-color: transparent }
-  50% { border-color: #22d3ee; }
+  from, to { border-color: transparent; }
+  50% { border-color: #ef4444; }
 }

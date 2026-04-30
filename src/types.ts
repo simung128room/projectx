@@ -51,6 +51,7 @@ export interface SiteStats {
   users: number;
   stock: number;
   sales: number;
+  topups: number;
 }
 
 export interface ContentItem {
