@@ -124,6 +124,22 @@ async function startServer() {
       if (response.data.success === true || response.data.code === '0000' || response.data.data?.amount !== undefined) {
         const amount = response.data.data?.amount;
         const transRef = response.data.data?.transRef;
+        const receiverProxy = response.data.data?.receiver?.proxy?.value || '';
+        const receiverName = response.data.data?.receiver?.displayName || response.data.data?.receiver?.name || '';
+        
+        const EXPECTED_SHOP_NAME_1 = "ด.ช. กรวิชญ์ มาตขาว";
+        const EXPECTED_SHOP_NAME_2 = "Master Korawit Makthaw";
+        
+        // ตรวจสอบชื่อบัญชีร้าน
+        const isMatch = receiverName.includes(EXPECTED_SHOP_NAME_1) || 
+                        receiverName.toUpperCase().includes(EXPECTED_SHOP_NAME_2.toUpperCase());
+        
+        if (!isMatch) {
+            return res.json({ 
+              success: false, 
+              error: `ชื่อบัญชีผู้รับเงินไม่สมบูรณ์ (สลิปโอนไปที่: ${receiverName || 'ไม่ระบุ'}) ไม่ตรงกับชื่อบัญชีของทางร้าน กรุณาติดต่อแอดมิน` 
+            });
+        }
         
         if (transRef) {
           if (usedSlips.has(transRef)) {

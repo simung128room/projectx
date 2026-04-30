@@ -119,7 +119,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode, setActiveView }
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-red-100 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/3 opacity-60"></div>
         
         <div className="relative z-10 text-left">
-          <img src="https://img2.pic.in.th/pic/-59_20260425171043.png" alt="Logo" className="h-10 mb-12" />
+          <img src="https://img2.pic.in.th/IMG_6076fed1c24256d4269f.png" alt="Logo" className="h-10 mb-12 brightness-0" />
           <h1 className="text-4xl lg:text-5xl font-black text-zinc-900 tracking-tight leading-tight mb-6">
             เข้าถึงบริการระดับพรีเมียม <br/> ที่ดีที่สุดจาก <span className="text-red-600">APEX STUDIO</span>
           </h1>
@@ -155,7 +155,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode, setActiveView }
         <div className="w-full max-w-sm mx-auto">
           {/* Mobile Logo */}
           <div className="md:hidden flex justify-center mb-8">
-            <img src="https://img2.pic.in.th/pic/-59_20260425171043.png" alt="Logo" className="h-12" />
+            <img src="https://img2.pic.in.th/IMG_6076fed1c24256d4269f.png" alt="Logo" className="h-12 brightness-0" />
           </div>
 
           <div className="text-center md:text-left mb-10">
@@ -226,7 +226,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode, setActiveView }
                         checked={rememberMe}
                         onChange={(e) => setRememberMe(e.target.checked)}
                       />
-                      <div className={`w-5 h-5 rounded border transition-all duration-300 shadow-sm ${rememberMe ? 'bg-zinc-900 border-zinc-900' : 'bg-zinc-100 border-zinc-300 group-hover:border-zinc-500'}`}>
+                      <div className={`w-5 h-5 rounded border transition-all duration-300 shadow-sm ${rememberMe ? 'bg-red-600 border-red-600' : 'bg-zinc-100 border-zinc-300 group-hover:border-zinc-500'}`}>
                         {rememberMe && <svg className="w-3.5 h-3.5 text-white absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
                       </div>
                     </div>
@@ -240,7 +240,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode, setActiveView }
             <button 
               type="submit"
               disabled={authLoading}
-              className="w-full py-4 mt-6 rounded-2xl text-sm font-bold transition-all flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed bg-zinc-900 hover:bg-zinc-800 text-white shadow-md active:scale-[0.98]"
+              className="w-full py-4 mt-6 rounded-2xl text-sm font-bold transition-all flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed bg-red-600 hover:bg-red-700 text-white shadow-md active:scale-[0.98]"
             >
               {authLoading ? (
                 <>
@@ -284,22 +284,24 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode, setActiveView }
 
           {/* Turnstile Modal */}
           {showTurnstileModal && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-900/40 backdrop-blur-sm p-4">
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
               <div className="bg-white border border-zinc-200 p-8 rounded-3xl flex flex-col items-center relative animate-in zoom-in-95 duration-200 shadow-xl max-w-sm w-full">
                  <div className="w-16 h-16 rounded-2xl bg-zinc-50 flex items-center justify-center mb-6 border border-zinc-100 shadow-sm">
                    <Shield className="w-8 h-8 text-zinc-900" />
                  </div>
                  <h3 className="text-zinc-900 text-xl font-bold mb-2 text-center">ยืนยันตัวตน</h3>
                  <p className="text-zinc-500 text-sm font-medium mb-6 text-center leading-relaxed">เพื่อความปลอดภัย กรุณายืนยันว่าคุณไม่ใช่บอท</p>
-                 <div className="min-h-[65px] flex items-center justify-center w-full overflow-hidden rounded-2xl bg-zinc-50 p-4 border border-zinc-200">
-                   <Turnstile
-                     siteKey={TURNSTILE_SITE_KEY}
-                     onSuccess={(token) => {
-                       setTurnstileToken(token);
-                       setShowTurnstileModal(false);
-                       executeAuth(token);
-                     }}
-                   />
+                 <div className="bg-zinc-50 border border-zinc-200 rounded-2xl mb-6 flex items-center justify-center w-full h-[80px] overflow-hidden">
+                   <div className="h-[65px] w-full max-w-[300px] overflow-hidden flex items-start justify-center">
+                     <Turnstile
+                       siteKey={TURNSTILE_SITE_KEY}
+                       onSuccess={(token) => {
+                         setTurnstileToken(token);
+                         setShowTurnstileModal(false);
+                         executeAuth(token);
+                       }}
+                     />
+                   </div>
                  </div>
               </div>
             </div>

@@ -75,7 +75,7 @@ export const AIChatView: React.FC = () => {
       <div className="flex-1 bg-white border border-zinc-200 rounded-3xl overflow-hidden flex flex-col relative shadow-sm">
         {/* Chat window */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.03]">
-           <img src="https://img2.pic.in.th/IMG_6076fed1c24256d4269f.th.png" alt="Logo Background" className="w-64 md:w-96 grayscale object-contain" />
+           <img src="https://img2.pic.in.th/IMG_6076fed1c24256d4269f.png" alt="Logo Background" className="w-64 md:w-96 grayscale object-contain" />
         </div>
         <div className="flex-1 p-4 md:p-6 overflow-y-auto flex flex-col gap-4 scrollbar-thin scrollbar-thumb-zinc-200 scrollbar-track-transparent relative z-10">
           <AnimatePresence>

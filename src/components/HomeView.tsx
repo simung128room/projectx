@@ -73,8 +73,8 @@ export const HomeView: React.FC<HomeViewProps> = ({ products, stats, user, setAc
         <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shrink-0 shadow-sm border border-red-100 relative z-10">
           <Bell className="w-6 h-6 text-red-500 animate-bounce" />
         </div>
-        <div className="flex-1 relative z-10 overflow-hidden">
-          <h3 className="font-bold text-red-700 text-sm mb-1 uppercase tracking-wider font-sans">ประกาศจากผู้ดูแลระบบ</h3>
+        <div className="flex-1 relative z-10 overflow-hidden min-w-0">
+          <h3 className="font-bold text-red-700 text-sm mb-1 uppercase tracking-wider font-sans truncate">ประกาศจากผู้ดูแลระบบ</h3>
           <div className="whitespace-nowrap overflow-hidden">
             <motion.div
               animate={{ x: ["100%", "-100%"] }}
@@ -163,11 +163,11 @@ export const HomeView: React.FC<HomeViewProps> = ({ products, stats, user, setAc
       </div>
 
       {/* Live Feed - placed below stats */}
-      <div className="bg-zinc-900 rounded-2xl p-3 flex items-center overflow-hidden border border-zinc-800 shadow-sm relative">
+      <div className="bg-red-600 rounded-2xl p-3 flex items-center overflow-hidden border border-zinc-800 shadow-sm relative">
         <div className="bg-red-500 text-white text-[10px] font-bold px-3 py-1 rounded-lg uppercase tracking-wider shrink-0 z-10 shadow-sm">
           Live
         </div>
-        <div className="flex-1 overflow-hidden ml-4 relative">
+        <div className="flex-1 overflow-hidden ml-4 relative min-w-0">
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -191,7 +191,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ products, stats, user, setAc
           const colorStyles = {
             blue: "bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white",
             emerald: "bg-emerald-50 text-emerald-600 group-hover:bg-emerald-500 group-hover:text-white",
-            zinc: "bg-zinc-100 text-zinc-600 group-hover:bg-zinc-900 group-hover:text-white",
+            zinc: "bg-zinc-100 text-zinc-600 group-hover:bg-red-600 group-hover:text-white",
             red: "bg-red-50 text-red-600 group-hover:bg-red-500 group-hover:text-white"
           };
           return (
@@ -216,17 +216,17 @@ export const HomeView: React.FC<HomeViewProps> = ({ products, stats, user, setAc
       <div id="products" className="pt-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4 pb-4">
           <div>
-            <h2 className="text-3xl font-black text-zinc-900 tracking-tight flex items-center gap-3">
+            <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-zinc-900 tracking-tight flex items-center gap-3">
               <span className="w-2 h-8 bg-red-500 rounded-full inline-block"></span>
               สินค้าแนะนำ
             </h2>
             <p className="text-zinc-500 mt-2 text-sm pl-5 font-medium tracking-wide">แนะนำไอเทมสุดฮิตและบัญชีเกมที่น่าสนใจ</p>
           </div>
           
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 sm:pb-0 scrollbar-hide">
-             <button className="px-5 py-2 bg-zinc-900 text-white rounded-full text-sm font-bold shadow-md shadow-zinc-900/20 transition-colors">🎮 ทั้งหมด</button>
-             <button className="px-5 py-2 bg-white border border-zinc-200 text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900 rounded-full text-sm font-medium transition-colors whitespace-nowrap">🔥 บัญชีเกม</button>
-             <button className="px-5 py-2 bg-white border border-zinc-200 text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900 rounded-full text-sm font-medium transition-colors whitespace-nowrap">💎 เติมเงิน</button>
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 sm:pb-0 scrollbar-hide w-full max-w-full">
+             <button className="px-5 py-2 bg-red-600 text-white rounded-full text-sm font-bold shadow-md shadow-red-600/30 transition-colors whitespace-nowrap shrink-0">🎮 ทั้งหมด</button>
+             <button className="px-5 py-2 bg-white border border-zinc-200 text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900 rounded-full text-sm font-medium transition-colors whitespace-nowrap shrink-0">🔥 บัญชีเกม</button>
+             <button className="px-5 py-2 bg-white border border-zinc-200 text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900 rounded-full text-sm font-medium transition-colors whitespace-nowrap shrink-0">💎 เติมเงิน</button>
           </div>
         </div>
 
@@ -269,7 +269,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ products, stats, user, setAc
                     
                     {product.stock <= 0 && (
                       <div className="absolute inset-0 bg-white/70 backdrop-blur-[2px] flex items-center justify-center z-10">
-                        <span className="bg-zinc-900 text-white font-bold rounded-full px-6 py-2 text-sm shadow-xl">สินค้าหมด</span>
+                        <span className="bg-red-600 text-white font-bold rounded-full px-6 py-2 text-sm shadow-xl">สินค้าหมด</span>
                       </div>
                     )}
                   </div>
@@ -290,7 +290,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ products, stats, user, setAc
                     
                     <button 
                       disabled={product.stock <= 0}
-                      className="w-full relative mt-2 font-bold text-sm py-4 rounded-2xl text-white bg-zinc-900 hover:bg-black transition-colors disabled:opacity-50 disabled:bg-zinc-200 disabled:text-zinc-500 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-md hover:shadow-xl active:scale-[0.98]"
+                      className="w-full relative mt-2 font-bold text-sm py-4 rounded-2xl text-white bg-red-600 hover:bg-red-700 transition-colors disabled:opacity-50 disabled:bg-zinc-200 disabled:text-zinc-500 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-md hover:shadow-xl active:scale-[0.98]"
                     >
                       <ShoppingCart className="w-4 h-4"/> สั่งซื้อสินค้า
                     </button>

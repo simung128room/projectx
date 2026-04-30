@@ -6,6 +6,20 @@
   --font-mono: "JetBrains Mono", "IBM Plex Sans Thai", ui-monospace, SFMono-Regular, monospace;
 }
 
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+  html, body {
+    overflow-x: hidden;
+    width: 100%;
+  }
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+}
+
 @layer utilities {
   .text-stroke-red {
     -webkit-text-stroke-color: #ef4444;
