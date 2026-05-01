@@ -70,6 +70,75 @@ function ElapsedTimeDisplay({ running, startTime }: { running: boolean, startTim
 }
 
 function AppContent() {
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [adminUsername, setAdminUsername] = useState('');
+  const [adminPassword, setAdminPassword] = useState('');
+  const [user, setUser] = useState<SupabaseUser | null>(null);
+  const [userPlan, setUserPlan] = useState<UserPlan | null>(null);
+  const [siteSettings, setSiteSettings] = useState({ 
+    site_name: 'APEX STUDIO',
+    truewallet_phone: '0951378403',
+    contact_line: '@apex_studio'
+  });
+
+  // Home Store State (Moved up to prevent TDZ)
+  const defaultProducts = [
+    { 
+      id: '1', 
+      name: 'คีย์ประจำเว็บ (ถาวร)', 
+      description: '[+] ยศในดิสคอร์ด (Member VIP)\n[+] ใช้งานแผงควบคุมระบบตรวจสอบแบบ VIP\n[+] บังคับบายพาส DataDome (เร็วขึ้น x2)\n[+] ตรวจสอบไม่จำกัดจำนวนครั้ง\n[+] สคริปต์ส่วนตัวอัปเดตตลอดชีพ', 
+      price: 49, 
+      stock: 999999,
+      imageUrl: 'https://i.pinimg.com/originals/a0/ba/af/a0baaf3c2a93fb5f5228e9d29efeb134.gif',
+      isPopular: true 
+    },
+    { 
+      id: '2', 
+      name: 'คีย์ประจำเว็บ (30 วัน)', 
+      description: '[+] ใช้งานได้ 30 วัน\n[+] ใช้งานแผงควบคุมระบบ\n[+] บายพาสระดับมาตรฐาน\n[+] ตรวจสอบไม่จำกัดจำนวนครั้ง', 
+      price: 25, 
+      stock: 999999,
+      imageUrl: 'https://i.pinimg.com/originals/2c/31/35/2c3135cb17c6eedaf309b5311dd689ae.gif',
+      isPopular: false 
+    },
+    { 
+      id: '3', 
+      name: 'Garena COD Mobile Account (VIP)', 
+      description: 'ID ระดับอัลติเมท ปืนตำนาน 5-10 กระบอก รันสกินเพียบ', 
+      price: 1500, 
+      stock: 3, 
+      imageUrl: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&q=80&w=400', 
+      isPopular: false 
+    },
+    { 
+      id: '4', 
+      name: 'Free Fire High End', 
+      description: 'สายโหดสกินเต็ม ซื้อปุ๊บเล่นปั๊บ มีหมัดไฟ ดาบคาตานะ', 
+      price: 900, 
+      stock: 12, 
+      imageUrl: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=400',
+      isPopular: false
+    }
+  ];
+
+  const [products, setProducts] = useState<Product[]>(() => {
+    const saved = localStorage.getItem('apex_products_v3');
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) { return defaultProducts; }
+    }
+    return defaultProducts;
+  });
+  const [siteStats, setSiteStats] = useState<SiteStats>({ users: 913, stock: 16738, sales: 248, topups: 15400 });
+
+  const [threads, setThreads] = useState(5);
+  const [firebaseKeys, setFirebaseKeys] = useState<any[]>([]);
+  const [usedKeysHistory, setUsedKeysHistory] = useState<any[]>([]);
+  const [blockedIPs, setBlockedIPs] = useState<any[]>([]);
+  const [adminTab, setAdminTab] = useState<string>('overview');
+  const [isIPBlocked, setIsIPBlocked] = useState(false);
+  const [lastUsageDate, setLastUsageDate] = useState<string>('');
+  const [showKeyModal, setShowKeyModal] = useState(false);
+
   // Navigation State
   const [activeView, setRawActiveView] = useState<'home' | 'dashboard' | 'admin' | 'profile' | 'logs' | 'history' | 'settings' | 'ai_chat' | 'free_stuff' | 'premium_stuff' | 'login' | 'signup' | 'wallet' | 'redeem'>('home');
   const [isPageTransitioning, setIsPageTransitioning] = useState(false);
@@ -130,12 +199,7 @@ function AppContent() {
 
   const [logoClicks, setLogoClicks] = useState(0);
   const [showAdminLogin, setShowAdminLogin] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [adminUsername, setAdminUsername] = useState('');
-  const [adminPassword, setAdminPassword] = useState('');
-
-  // Supabase Auth State
-  const [user, setUser] = useState<SupabaseUser | null>(null);
+  const [dailyUsage, setDailyUsage] = useState<number>(0);
   const [showTurnstileModal, setShowTurnstileModal] = useState(false);
   const [pendingTurnstileToken, setPendingTurnstileToken] = useState<string | null>(null);
   const [savedLinesToCheck, setSavedLinesToCheck] = useState<string[]>([]);
@@ -154,10 +218,6 @@ function AppContent() {
     console.error('Database Error: ', JSON.stringify(errInfo));
   }
 
-  const [userPlan, setUserPlan] = useState<UserPlan | null>(null);
-  const [dailyUsage, setDailyUsage] = useState<number>(0);
-  const [lastUsageDate, setLastUsageDate] = useState<string>('');
-  const [showKeyModal, setShowKeyModal] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -170,18 +230,6 @@ function AppContent() {
   }, [isMobileMenuOpen]);
 
   const [vipTab, setVipTab] = useState<'key'>('key');
-
-  const [threads, setThreads] = useState(5);
-  const [firebaseKeys, setFirebaseKeys] = useState<any[]>([]);
-  const [usedKeysHistory, setUsedKeysHistory] = useState<any[]>([]);
-  const [blockedIPs, setBlockedIPs] = useState<any[]>([]);
-  const [adminTab, setAdminTab] = useState<string>('overview');
-  const [isIPBlocked, setIsIPBlocked] = useState(false);
-  const [siteSettings, setSiteSettings] = useState({ 
-    site_name: 'APEX STUDIO',
-    truewallet_phone: '0951378403',
-    contact_line: '@apex_studio'
-  });
 
   const [purchaseHistory, setPurchaseHistory] = useState<any[]>(() => {
     const saved = localStorage.getItem('apex_purchase_history');
@@ -265,55 +313,6 @@ function AppContent() {
       setActiveView('history');
     });
   };
-
-  const defaultProducts = [
-    { 
-      id: '1', 
-      name: 'คีย์ประจำเว็บ (ถาวร)', 
-      description: '[+] ยศในดิสคอร์ด (Member VIP)\n[+] ใช้งานแผงควบคุมระบบตรวจสอบแบบ VIP\n[+] บังคับบายพาส DataDome (เร็วขึ้น x2)\n[+] ตรวจสอบไม่จำกัดจำนวนครั้ง\n[+] สคริปต์ส่วนตัวอัปเดตตลอดชีพ', 
-      price: 49, 
-      stock: 999999,
-      imageUrl: 'https://i.pinimg.com/originals/a0/ba/af/a0baaf3c2a93fb5f5228e9d29efeb134.gif',
-      isPopular: true 
-    },
-    { 
-      id: '2', 
-      name: 'คีย์ประจำเว็บ (30 วัน)', 
-      description: '[+] ใช้งานได้ 30 วัน\n[+] ใช้งานแผงควบคุมระบบ\n[+] บายพาสระดับมาตรฐาน\n[+] ตรวจสอบไม่จำกัดจำนวนครั้ง', 
-      price: 25, 
-      stock: 999999,
-      imageUrl: 'https://i.pinimg.com/originals/2c/31/35/2c3135cb17c6eedaf309b5311dd689ae.gif',
-      isPopular: false 
-    },
-    { 
-      id: '3', 
-      name: 'Garena COD Mobile Account (VIP)', 
-      description: 'ID ระดับอัลติเมท ปืนตำนาน 5-10 กระบอก รันสกินเพียบ', 
-      price: 1500, 
-      stock: 3, 
-      imageUrl: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&q=80&w=400', 
-      isPopular: false 
-    },
-    { 
-      id: '4', 
-      name: 'Free Fire High End', 
-      description: 'สายโหดสกินเต็ม ซื้อปุ๊บเล่นปั๊บ มีหมัดไฟ ดาบคาตานะ', 
-      price: 900, 
-      stock: 12, 
-      imageUrl: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=400',
-      isPopular: false
-    }
-  ];
-
-  // Home Store State
-  const [products, setProducts] = useState<Product[]>(() => {
-    const saved = localStorage.getItem('apex_products_v3');
-    if (saved) {
-      try { return JSON.parse(saved); } catch (e) { return defaultProducts; }
-    }
-    return defaultProducts;
-  });
-  const [siteStats, setSiteStats] = useState<SiteStats>({ users: 913, stock: 16738, sales: 248, topups: 15400 });
 
   const [isDBReady, setIsDBReady] = useState(true);
   const [dbErrorDetail, setDbErrorDetail] = useState<string | null>(null);
