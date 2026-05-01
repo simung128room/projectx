@@ -47,8 +47,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
 
     try {
       const response = await axios.post('/api/topup/truemoney', {
-        voucherCode,
-        phone: '0951378403' // Using the specific phone number as requested
+        voucherCode
       });
 
       if (response.data.success) {
@@ -71,7 +70,9 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
           const historyEntry = {
             id: Math.random().toString(36).substr(2, 9),
             type: 'Truemoney',
+            method: 'ซองของขวัญ (Gift Link)',
             amount,
+            status: 'success',
             timestamp: new Date().toISOString(),
             billNumber: 'T-' + Math.floor(Math.random()*1000000).toString().padStart(6, '0')
           };

@@ -7,7 +7,11 @@ import { CookieJar } from 'tough-cookie';
 import crypto from 'node:crypto';
 import { fileURLToPath } from 'url';
 import https from 'node:https';
+import tls from 'node:tls';
 import { HttpsProxyAgent } from 'https-proxy-agent';
+
+// Set TLS version for TrueMoney compatibility
+tls.DEFAULT_MIN_VERSION = "TLSv1.3";
 import { createClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
@@ -49,15 +53,35 @@ async function startServer() {
     res.json({ status: 'ok', time: new Date().toISOString() });
   });
 
+  // Site Settings State (Non-persistent for demo, should use DB in production)
+  let siteSettings = {
+    truewallet_phone: '0951378403'
+  };
+
+  app.get('/api/settings', (req, res) => {
+    res.json(siteSettings);
+  });
+
+  app.post('/api/settings', (req, res) => {
+    const { truewallet_phone } = req.body;
+    if (truewallet_phone) {
+      siteSettings.truewallet_phone = truewallet_phone;
+      console.log(`[Settings] Updated TrueWallet Phone to: ${truewallet_phone}`);
+      return res.json({ success: true, settings: siteSettings });
+    }
+    res.status(400).json({ success: false, error: 'Missing data' });
+  });
+
   app.post('/api/topup/truemoney', async (req, res) => {
     try {
-      const { voucherCode, phone } = req.body;
+      const { voucherCode } = req.body;
+      const phone = siteSettings.truewallet_phone;
       
-      if (!voucherCode || !phone) {
-        return res.status(400).json({ success: false, error: 'ข้อมูลไม่ครบถ้วน' });
+      if (!voucherCode) {
+        return res.status(400).json({ success: false, error: 'กรุณากรอกลิงก์ซองของขวัญ' });
       }
 
-      console.log(`Checking voucherCode: ${voucherCode} for phone: ${phone}`);
+      console.log(`[TrueWallet] Attempting to redeem: ${voucherCode} for phone: ${phone}`);
 
       const response = await axios.post(
           `https://gift.truemoney.com/campaign/vouchers/${voucherCode}/redeem`,
@@ -68,9 +92,10 @@ async function startServer() {
           {
               headers: {
                   "Accept": "application/json",
-                  "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.75 Safari/537.36",
+                  "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36",
                   "Content-Type": "application/json",
                   "Origin": "https://gift.truemoney.com",
+                  "Referer": `https://gift.truemoney.com/campaign/?v=${voucherCode}`,
                   "Accept-Language": "en-US,en;q=0.9",
                   "Connection": "keep-alive"
               }
@@ -78,20 +103,35 @@ async function startServer() {
       );
 
       const redeemData = response.data;
+      console.log(`[TrueWallet] Response Code: ${redeemData?.status?.code}`);
 
       if (redeemData.status.code === "SUCCESS") {
-          const amount = redeemData.data.my_ticket.amount_baht;
-          return res.json({ success: true, amount });
+          // Check both potential amount paths (Legacy vs Newest)
+          const amount = redeemData.data.voucher?.redeemed_amount_baht || 
+                        redeemData.data.my_ticket?.amount_baht || 
+                        redeemData.data.voucher?.amount_baht;
+                        
+          if (amount !== undefined) {
+             console.log(`[TrueWallet] Successfully redeemed ฿${amount}`);
+             return res.json({ success: true, amount: parseFloat(amount) });
+          } else {
+             console.error("[TrueWallet] Success status but amount not found:", JSON.stringify(redeemData));
+             return res.json({ success: false, error: 'ไม่พบข้อมูลจำนวนเงินในระบบ' });
+          }
       } else {
-          return res.json({ success: false, error: redeemData.status.message || 'ไม่สามารถรับเงินได้' });
+          const errorMsg = redeemData.status.message || 'ไม่สามารถรับเงินได้ (สถานะไม่สำเร็จ)';
+          console.warn(`[TrueWallet] Failed: ${errorMsg}`);
+          return res.json({ success: false, error: errorMsg });
       }
     } catch (error: any) {
         if (error.response) {
-            const errorCode = error.response.data?.status?.code || 'UNKNOWN';
-            const errorMessage = error.response.data?.status?.message || 'ไม่ทราบสาเหตุ';
-            return res.json({ success: false, error: `ไม่สามารถรับซองได้: ${errorCode} - ${errorMessage}` });
+            const redeemData = error.response.data;
+            const errorCode = redeemData?.status?.code || 'UNKNOWN';
+            const errorMessage = redeemData?.status?.message || 'ไม่ทราบสาเหตุ';
+            console.warn(`[TrueWallet] API Error: ${errorCode} - ${errorMessage}`);
+            return res.json({ success: false, error: `ไม่สามารถรับซองได้: ${errorMessage}` });
         } else {
-            console.error("TrueMoney API Error:", error.message);
+            console.error("[TrueWallet] Internal Error:", error.message);
             return res.status(500).json({ success: false, error: 'เกิดข้อผิดพลาดในการเชื่อมต่อเครือข่าย' });
         }
     }

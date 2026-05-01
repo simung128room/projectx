@@ -453,6 +453,42 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     return [];
   });
 
+  const [siteSettings, setSiteSettings] = useState({ truewallet_phone: '0951378403' });
+
+  useEffect(() => {
+    if (adminTab === 'settings') {
+      const fetchSettings = async () => {
+        try {
+          const res = await axios.get('/api/settings');
+          if (res.data) setSiteSettings(res.data);
+        } catch (err) {}
+      };
+      fetchSettings();
+    }
+  }, [adminTab]);
+
+  const handleSaveSettings = async () => {
+    try {
+      const res = await axios.post('/api/settings', siteSettings);
+      if (res.data.success) {
+        Swal.fire({ 
+          title: 'สำเร็จ', 
+          text: 'บันทึกการตั้งค่าระบบเรียบร้อยแล้ว', 
+          icon: 'success', 
+          confirmButtonColor: '#dc2626',
+          background: '#fff',
+          color: '#000'
+        });
+      }
+    } catch (err: any) {
+      Swal.fire({
+        title: 'ผิดพลาด',
+        text: err.response?.data?.error || 'ไม่สามารถบันทึกข้อมูลได้',
+        icon: 'error'
+      });
+    }
+  };
+
   // Calculate Stats
   const totalOrders = purchaseHistory.length;
   const totalMoney = topupHistory.reduce((acc, curr) => acc + (curr.amount || 0), 0);
@@ -515,6 +551,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 { id: 'keys', label: 'License Keys', icon: Key },
                 { id: 'history', label: 'Redeem Logs', icon: History },
                 { id: 'ips', label: 'Access Control', icon: ShieldAlert },
+                { id: 'settings', label: 'Site Settings', icon: Settings },
                 { id: 'system', label: 'System Info', icon: Cpu }
               ].map(tab => (
                 <button
@@ -1035,6 +1072,61 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                </div>
             </motion.div>
           )}
+
+          {adminTab === 'settings' && (
+            <motion.div 
+              key="settings"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="space-y-6"
+            >
+              <div className="bg-white border border-zinc-200 shadow-sm rounded-3xl overflow-hidden">
+                <div className="p-6 border-b border-zinc-100 bg-zinc-50/50">
+                  <h3 className="font-bold text-zinc-900 flex items-center gap-2"><Settings className="w-5 h-5 text-zinc-500" /> Site Settings</h3>
+                  <p className="text-zinc-500 text-xs mt-1">ตั้งค่าพารามิเตอร์ต่างๆ ของระบบ</p>
+                </div>
+                <div className="p-6 space-y-8">
+                  <div className="p-6 bg-zinc-50 border border-zinc-200 rounded-3xl">
+                    <label className="block text-sm font-bold text-zinc-700 mb-2 flex items-center gap-2">
+                       <Wallet className="w-4 h-4 text-red-500" /> TrueWallet Receiver Phone
+                    </label>
+                    <p className="text-[11px] text-zinc-500 mb-6 leading-relaxed">เบอร์โทรศัพท์ที่ใช้รับเงินจากระบบ "ซองของขวัญ (Angpao)" กรุณาตรวจสอบให้แน่ใจว่าเป็นเบอร์ที่รับเงินได้จริง</p>
+                    <div className="flex flex-col sm:flex-row gap-3">
+                      <input 
+                        type="text"
+                        value={siteSettings.truewallet_phone}
+                        onChange={(e) => setSiteSettings({ ...siteSettings, truewallet_phone: e.target.value })}
+                        className="bg-white border border-zinc-200 rounded-2xl px-5 py-4 text-zinc-900 text-sm font-bold focus:outline-none focus:border-red-500 flex-1 shadow-inner"
+                        placeholder="095xxxxxxx"
+                      />
+                      <button 
+                        onClick={handleSaveSettings}
+                        className="bg-zinc-900 text-white px-8 py-4 rounded-2xl text-xs font-bold hover:bg-zinc-800 transition-all active:scale-[0.98] shadow-lg shadow-black/10 whitespace-nowrap"
+                      >
+                        บันทึกข้อมูล
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="p-6 border border-zinc-100 rounded-3xl">
+                    <h4 className="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-4">API Configuration</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-[11px]">
+                      <div className="flex items-center justify-between p-3 bg-zinc-50 rounded-xl border border-zinc-100">
+                        <span className="text-zinc-500 font-bold uppercase">Angpao API</span>
+                        <span className="text-emerald-600 font-black">ACTIVE</span>
+                      </div>
+                      <div className="flex items-center justify-between p-3 bg-zinc-50 rounded-xl border border-zinc-100">
+                        <span className="text-zinc-500 font-bold uppercase">Bank Slip API</span>
+                        <span className="text-emerald-600 font-black">ACTIVE</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
           {adminTab === 'system' && (
             <motion.div 
               key="system"
@@ -1070,6 +1162,26 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     ))}
                   </div>
 
+                  <div className="mt-8 border-t border-zinc-100 pt-8">
+                    <h4 className="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                       <Gift className="w-4 h-4 text-red-500" /> Third-party Integrations
+                    </h4>
+                    <div className="bg-zinc-50 border border-zinc-100 rounded-3xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                       <div className="flex items-center gap-4">
+                         <div className="w-12 h-12 bg-white rounded-2xl shadow-sm border border-zinc-200 flex items-center justify-center">
+                           <Globe className="w-6 h-6 text-zinc-400" />
+                         </div>
+                         <div className="text-center sm:text-left">
+                           <p className="text-sm font-black text-zinc-900">Manybaht TrueWallet API</p>
+                           <p className="text-xs font-medium text-zinc-500 select-all">https://github.com/manybaht/Manybaht-Truewallet-API</p>
+                         </div>
+                       </div>
+                       <a href="https://github.com/manybaht/Manybaht-Truewallet-API" target="_blank" rel="noopener noreferrer" className="bg-white border border-zinc-200 text-zinc-700 px-6 py-2.5 rounded-xl text-xs font-bold hover:bg-zinc-100 transition-all flex items-center gap-2">
+                         <Copy className="w-4 h-4" /> View Source
+                       </a>
+                    </div>
+                  </div>
+
                   <div className="mt-8">
                     <h4 className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-4 flex items-center gap-2">
                        <Database className="w-4 h-4" /> Environment Information
@@ -1077,7 +1189,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     <div className="bg-zinc-50 border border-zinc-100 rounded-2xl p-4 font-mono text-xs space-y-3">
                       <div className="flex justify-between border-b border-zinc-200/60 pb-2">
                          <span className="text-zinc-500 font-bold">Node JS</span>
-                         <span className="text-zinc-700">v20.x.x</span>
+                         <span className="text-zinc-700">v22.x.x</span>
                       </div>
                       <div className="flex justify-between border-b border-zinc-200/60 pb-2">
                          <span className="text-zinc-500 font-bold">Database</span>
