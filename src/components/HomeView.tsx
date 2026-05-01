@@ -1,7 +1,7 @@
 import Swal from 'sweetalert2';
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ShoppingCart, Package, Wallet, Phone, History, ChevronRight, Bell, Users, TrendingUp, Star, ArrowLeft } from 'lucide-react';
+import { ShoppingCart, Package, Wallet, Phone, History, ChevronRight, Bell, Users, TrendingUp, Star, ArrowLeft, Key } from 'lucide-react';
 import { Product, SiteStats } from '../types';
 
 interface HomeViewProps {
@@ -9,6 +9,7 @@ interface HomeViewProps {
   stats: SiteStats;
   user?: any;
   setActiveView: (view: any) => void;
+  setShowWalletModal: (show: boolean) => void;
   handlePurchase: (product: Product) => void;
 }
 
@@ -16,7 +17,7 @@ const BANNERS = [
   "https://img2.pic.in.th/3B7FAB24-03F9-4935-8856-757B88CB4C97.png"
 ];
 
-export const HomeView: React.FC<HomeViewProps> = ({ products, stats, user, setActiveView, handlePurchase }) => {
+export const HomeView: React.FC<HomeViewProps> = ({ products, stats, user, setActiveView, setShowWalletModal, handlePurchase }) => {
   const [currentBanner, setCurrentBanner] = useState(0);
   const [realtimeStats, setRealtimeStats] = useState(stats);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
@@ -326,7 +327,6 @@ export const HomeView: React.FC<HomeViewProps> = ({ products, stats, user, setAc
       <div className={`grid gap-4 ${user ? 'grid-cols-2 lg:grid-cols-4' : 'grid-cols-2 lg:grid-cols-4'}`}>
         {[
           { icon: Package, label: 'สินค้าทั้งหมด', id: 'Store', color: 'blue', action: () => document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' }) },
-          { icon: ShoppingCart, label: 'สินค้าแนะนำ', id: 'Recommend', color: 'emerald', action: () => document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' }) },
           { icon: Wallet, label: 'เติมเงิน', id: 'Topup', color: 'zinc', action: () => {
             if (!user) {
               Swal.fire({
@@ -336,10 +336,10 @@ export const HomeView: React.FC<HomeViewProps> = ({ products, stats, user, setAc
                 confirmButtonColor: '#dc2626'
               })
             } else {
-              window.location.hash = 'wallet';
-              setActiveView('wallet');
+              setShowWalletModal(true);
             }
           }},
+          { icon: Key, label: 'เปิดใช้งานคีย์', id: 'Redeem', color: 'amber', action: () => setActiveView('redeem') },
           { icon: History, label: 'ประวัติ', id: 'History', color: 'red', action: () => {
             if (!user) {
               Swal.fire({

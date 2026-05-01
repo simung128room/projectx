@@ -23,6 +23,7 @@ import { HistoryLogsView } from './components/HistoryLogsView';
 import { ContentFeedView } from './components/ContentFeedView';
 import { AIChatView } from './components/AIChatView';
 import { WalletView } from './components/WalletView';
+import { RedeemKeyView } from './components/RedeemKeyView';
 import { Product, SiteStats } from './types';
 
 var TextPaint = `▒▄▀▄▒█▀▄▒██▀░▀▄▀
@@ -41,7 +42,7 @@ enum OperationType {
 
 function AppContent() {
   // Navigation State
-  const [activeView, setRawActiveView] = useState<'home' | 'dashboard' | 'admin' | 'profile' | 'logs' | 'settings' | 'ai_chat' | 'free_stuff' | 'premium_stuff' | 'login' | 'signup' | 'wallet'>('home');
+  const [activeView, setRawActiveView] = useState<'home' | 'dashboard' | 'admin' | 'profile' | 'logs' | 'settings' | 'ai_chat' | 'free_stuff' | 'premium_stuff' | 'login' | 'signup' | 'wallet' | 'redeem'>('home');
   const [isPageTransitioning, setIsPageTransitioning] = useState(false);
 
   const setActiveView = (view: any) => {
@@ -113,6 +114,7 @@ function AppContent() {
   const [dailyUsage, setDailyUsage] = useState<number>(0);
   const [lastUsageDate, setLastUsageDate] = useState<string>('');
   const [showKeyModal, setShowKeyModal] = useState(false);
+  const [showWalletModal, setShowWalletModal] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [vipTab, setVipTab] = useState<'key'>('key');
 
@@ -1100,8 +1102,11 @@ function AppContent() {
             {user && (
               <>
                 <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mt-6 mb-3 pl-3">สมาชิก</div>
-                <button onClick={() => setActiveView('wallet')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'wallet' ? 'bg-red-600 text-white shadow-md shadow-red-600/20' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'}`}>
+                <button onClick={() => setShowWalletModal(true)} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900`}>
                   <Wallet className="w-5 h-5"/> เติมเงิน
+                </button>
+                <button onClick={() => setActiveView('redeem')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'redeem' ? 'bg-red-600 text-white shadow-md shadow-red-600/20' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'}`}>
+                  <Key className="w-5 h-5"/> เปิดใช้งานคีย์
                 </button>
                 <button onClick={() => setActiveView('logs')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'logs' ? 'bg-red-600 text-white shadow-md shadow-red-600/20' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'}`}>
                   <History className="w-5 h-5"/> ประวัติการใช้งาน
@@ -1138,9 +1143,14 @@ function AppContent() {
            {user ? (
              <div className="flex flex-col gap-3">
                <div className="flex items-center gap-3 bg-zinc-50 p-4 rounded-3xl border border-zinc-200">
-                 <div className="w-10 h-10 bg-zinc-200 rounded-full flex items-center justify-center text-zinc-600 font-bold shrink-0">
-                    <User className="w-5 h-5"/>
-                 </div>
+                 <div className="w-10 h-10 bg-white border border-zinc-200 rounded-full flex items-center justify-center overflow-hidden shrink-0">
+                    <img 
+                      src={`https://api.dicebear.com/7.x/pixel-art/svg?seed=${userPlan?.username || user?.email?.split('@')[0] || 'guest'}&backgroundColor=ffdfbf,c0aede,d1d4f9`} 
+                      alt="avatar" 
+                      className="w-full h-full object-cover"
+                      referrerPolicy="no-referrer"
+                    />
+                  </div>
                  <div className="flex flex-col truncate flex-1 leading-tight">
                    {userPlan?.isPremium && <span className="text-[10px] font-bold text-amber-500 uppercase tracking-widest mb-0.5"><Crown className="w-3 h-3 inline mr-1 -mt-0.5"/>PREMIUM</span>}
                    <span className="text-sm font-bold text-zinc-900 truncate">{user.is_anonymous ? 'ผู้ใช้งานทั่วไป' : user.email}</span>
@@ -1180,9 +1190,20 @@ function AppContent() {
             </button>
             <button 
               onClick={() => user ? setActiveView('profile') : setActiveView('login')} 
-              className="w-10 h-10 rounded-xl bg-zinc-50 border border-zinc-200 flex items-center justify-center text-zinc-600 active:scale-95 transition-all"
+              className="w-10 h-10 rounded-xl bg-zinc-50 border border-zinc-200 flex items-center justify-center text-zinc-600 active:scale-95 transition-all overflow-hidden"
             >
-              <User className="w-5 h-5" />
+              {user ? (
+                <img 
+                  src={`https://api.dicebear.com/7.x/pixel-art/svg?seed=${encodeURIComponent(userPlan?.username || user?.email?.split('@')[0] || 'guest')}`} 
+                  alt="avatar" 
+                  className="w-full h-full object-cover"
+                  referrerPolicy="no-referrer"
+                />
+              ) : (
+                <div className="w-10 h-10 rounded-xl bg-zinc-100 border border-zinc-200 flex items-center justify-center text-zinc-400">
+                  <User className="w-5 h-5" />
+                </div>
+              )}
             </button>
             <button 
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
@@ -1222,8 +1243,13 @@ function AppContent() {
                   {/* Account card */}
                   {user ? (
                     <div className="flex items-center gap-3 bg-zinc-50 p-4 rounded-3xl border border-zinc-200">
-                      <div className="w-12 h-12 bg-white rounded-full border border-zinc-200 flex items-center justify-center text-zinc-400">
-                         <User className="w-6 h-6"/>
+                      <div className="w-12 h-12 bg-white rounded-full border border-zinc-200 flex items-center justify-center overflow-hidden shrink-0">
+                        <img 
+                          src={`https://api.dicebear.com/7.x/pixel-art/svg?seed=${encodeURIComponent(userPlan?.username || user?.email?.split('@')[0] || 'guest')}&backgroundColor=ffdfbf,c0aede,d1d4f9`} 
+                          alt="avatar" 
+                          className="w-full h-full object-cover"
+                          referrerPolicy="no-referrer"
+                        />
                       </div>
                       <div className="flex flex-col flex-1 truncate">
                         <span className="text-sm font-bold text-zinc-900 truncate">{user.is_anonymous ? 'ผู้ใช้งานทั่วไป' : user.email}</span>
@@ -1250,8 +1276,11 @@ function AppContent() {
                   </a>
                   {user && (
                     <>
-                      <button onClick={() => { setActiveView('wallet'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'wallet' ? 'bg-zinc-100 text-zinc-900' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'}`}>
+                      <button onClick={() => { setShowWalletModal(true); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900`}>
                         <Wallet className="w-4 h-4"/> เติมเงิน
+                      </button>
+                      <button onClick={() => { setActiveView('redeem'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'redeem' ? 'bg-zinc-100 text-zinc-900' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'}`}>
+                        <Key className="w-4 h-4"/> เปิดใช้งานคีย์
                       </button>
                       <button onClick={() => { setActiveView('logs'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'logs' ? 'bg-zinc-100 text-zinc-900' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'}`}>
                         <History className="w-4 h-4"/> ประวัติการใช้งาน
@@ -1301,7 +1330,7 @@ function AppContent() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-10 pb-24 w-full flex-1 flex flex-col">
         {activeView === 'home' && (
-          <HomeView products={products} stats={siteStats} user={user} setActiveView={setActiveView} handlePurchase={handlePurchase} />
+          <HomeView products={products} stats={siteStats} user={user} setActiveView={setActiveView} setShowWalletModal={setShowWalletModal} handlePurchase={handlePurchase} />
         )}
 
         {activeView === 'login' && <AuthView initialMode="login" setActiveView={setActiveView} onAdminLogin={(username) => {
@@ -1317,16 +1346,33 @@ function AppContent() {
             userPlan={userPlan} 
             setUserPlan={setUserPlan} 
             clientIp={clientIp} 
-            setActiveView={setActiveView} 
+            setActiveView={setActiveView}
+            setShowWalletModal={setShowWalletModal}
             handleLogout={handleLogout} 
           />
         )}
 
         {activeView === 'ai_chat' && <AIChatView />}
         {activeView === 'logs' && <HistoryLogsView usedKeysHistory={usedKeysHistory} purchaseHistory={purchaseHistory} />}
-        {activeView === 'wallet' && <WalletView userPlan={userPlan} setUserPlan={setUserPlan} />}
         {activeView === 'free_stuff' && <ContentFeedView type="free" isAdmin={isAdmin} isPremiumUser={userPlan?.isPremium || false} />}
         {activeView === 'premium_stuff' && <ContentFeedView type="premium" isAdmin={isAdmin} isPremiumUser={userPlan?.isPremium || false} />}
+
+        {activeView === 'redeem' && (
+          <RedeemKeyView 
+            redeemKey={redeemKey} 
+            userEmail={user?.email || 'Guest'} 
+            onBack={() => setActiveView('home')} 
+            onGoToStore={() => {
+              setActiveView('home');
+              setTimeout(() => {
+                const element = document.getElementById('products');
+                if (element) {
+                  element.scrollIntoView({ behavior: 'smooth' });
+                }
+              }, 100);
+            }}
+          />
+        )}
 
         {activeView === 'dashboard' && (
           <>
@@ -1814,6 +1860,8 @@ function AppContent() {
           </div>
         </div>
       )}
+
+      {showWalletModal && <WalletView userPlan={userPlan} setUserPlan={setUserPlan} onClose={() => setShowWalletModal(false)} />}
 
       {/* Modals removed for history */}
 

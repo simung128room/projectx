@@ -1,10 +1,11 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Copy, Database, LogOut, BarChart3, Key, History, ShieldAlert, Activity, Ban, ChevronRight, Settings, Plus, Trash2, Crown, X, Upload, FileText } from 'lucide-react';
+import { Copy, Database, LogOut, BarChart3, Key, History, ShieldAlert, Activity, Ban, ChevronRight, Settings, Plus, Trash2, Crown, X, Upload, FileText, LayoutDashboard, LineChart, Cpu, HardDrive } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { AccountResult, Product, SiteStats } from '../types';
 import { ShoppingCart, Package, Users } from 'lucide-react';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
 interface AdminDashboardProps {
   totalChecked: number;
@@ -475,11 +476,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             {/* Navigation Tabs */}
             <div className="flex items-center gap-2 mb-8 overflow-x-auto pb-2 scrollbar-none">
               {[
-                { id: 'overview', label: 'Dashboard', icon: BarChart3 },
-                { id: 'store', label: 'จัดการร้านค้า', icon: Package },
+                { id: 'overview', label: 'Dashboard', icon: LayoutDashboard },
+                { id: 'store', label: 'Shop Manager', icon: Package },
+                { id: 'analytics', label: 'Analytics', icon: LineChart },
                 { id: 'keys', label: 'License Keys', icon: Key },
-                { id: 'history', label: 'Redeem History', icon: History },
-                { id: 'ips', label: 'Access Control', icon: ShieldAlert }
+                { id: 'history', label: 'Redeem Logs', icon: History },
+                { id: 'ips', label: 'Access Control', icon: ShieldAlert },
+                { id: 'system', label: 'System Info', icon: Cpu }
               ].map(tab => (
                 <button
                   key={tab.id}
@@ -607,6 +610,77 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </motion.div>
           )}
 
+
+          {adminTab === 'analytics' && (
+            <motion.div 
+              key="analytics"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="space-y-6"
+            >
+              <div className="bg-zinc-950 border border-white/5 rounded-3xl p-6 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 blur-3xl opacity-50 rounded-full translate-x-1/2 -translate-y-1/2"></div>
+                
+                <div className="mb-6">
+                  <h3 className="text-xl font-bold mb-1 flex items-center gap-2">
+                    <LineChart className="w-5 h-5 text-indigo-400" />
+                    Revenue Analytics
+                  </h3>
+                  <p className="text-zinc-500 text-xs">Monthly revenue and user growth metrics</p>
+                </div>
+
+                <div className="h-72 w-full mt-8">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart
+                      data={[
+                        { name: 'Jan', revenue: 4000, users: 2400 },
+                        { name: 'Feb', revenue: 3000, users: 1398 },
+                        { name: 'Mar', revenue: 2000, users: 9800 },
+                        { name: 'Apr', revenue: 2780, users: 3908 },
+                        { name: 'May', revenue: 1890, users: 4800 },
+                        { name: 'Jun', revenue: 2390, users: 3800 },
+                        { name: 'Jul', revenue: 3490, users: 4300 },
+                      ]}
+                      margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+                    >
+                      <defs>
+                        <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#818cf8" stopOpacity={0.3}/>
+                          <stop offset="95%" stopColor="#818cf8" stopOpacity={0}/>
+                        </linearGradient>
+                      </defs>
+                      <XAxis dataKey="name" stroke="#52525b" fontSize={12} tickLine={false} axisLine={false} />
+                      <YAxis stroke="#52525b" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `฿${value}`} />
+                      <Tooltip 
+                        contentStyle={{ backgroundColor: '#09090b', borderColor: '#27272a', borderRadius: '12px' }}
+                        itemStyle={{ color: '#e4e4e7', fontSize: '14px', fontWeight: 'bold' }}
+                      />
+                      <Area type="monotone" dataKey="revenue" stroke="#818cf8" strokeWidth={3} fillOpacity={1} fill="url(#colorRevenue)" />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8 pt-8 border-t border-white/5">
+                  <div className="bg-zinc-900/50 p-4 rounded-2xl border border-white/5">
+                    <p className="text-zinc-500 text-xs font-bold uppercase mb-1">Total Revenue</p>
+                    <p className="text-2xl font-black text-indigo-400">฿19,550</p>
+                    <p className="text-emerald-500 text-[10px] mt-1 font-bold">+12% from last month</p>
+                  </div>
+                  <div className="bg-zinc-900/50 p-4 rounded-2xl border border-white/5">
+                    <p className="text-zinc-500 text-xs font-bold uppercase mb-1">Active Users</p>
+                    <p className="text-2xl font-black text-emerald-400">2,420</p>
+                    <p className="text-emerald-500 text-[10px] mt-1 font-bold">+5% from last month</p>
+                  </div>
+                  <div className="bg-zinc-900/50 p-4 rounded-2xl border border-white/5">
+                    <p className="text-zinc-500 text-xs font-bold uppercase mb-1">Conversion Rate</p>
+                    <p className="text-2xl font-black text-amber-400">4.2%</p>
+                    <p className="text-red-500 text-[10px] mt-1 font-bold">-1% from last month</p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
 
           {adminTab === 'store' && (
             <motion.div 
@@ -910,6 +984,67 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                </div>
             </motion.div>
           )}
+          {adminTab === 'system' && (
+            <motion.div 
+              key="system"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="space-y-6"
+            >
+              <div className="bg-zinc-950 border border-white/5 rounded-3xl overflow-hidden">
+                <div className="p-8 border-b border-white/5 flex justify-between items-center bg-zinc-900/20">
+                  <div>
+                    <h3 className="text-xl font-bold flex items-center gap-2"><Cpu className="w-5 h-5 text-indigo-400" /> System Monitoring</h3>
+                    <p className="text-zinc-500 text-xs mt-1">Realtime node state and resource allocation</p>
+                  </div>
+                </div>
+                <div className="p-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {[
+                      { label: "CPU Usage", value: "14%", icon: Cpu, color: "text-amber-500" },
+                      { label: "Memory (RAM)", value: "512MB / 1GB", icon: HardDrive, color: "text-indigo-400" },
+                      { label: "Network IO", value: "24 Mbps", icon: Activity, color: "text-emerald-500" },
+                      { label: "Uptime", value: "94 Days", icon: BarChart3, color: "text-cyan-400" }
+                    ].map((stat, i) => (
+                      <div key={i} className="bg-zinc-900/20 border border-white/5 p-4 rounded-2xl flex items-center gap-4">
+                        <div className={`p-3 rounded-xl bg-zinc-900 ${stat.color}`}>
+                          <stat.icon className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <p className="text-zinc-500 text-[10px] font-bold uppercase">{stat.label}</p>
+                          <p className="text-lg font-bold font-mono">{stat.value}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="mt-8">
+                    <h4 className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-4">Environment Information</h4>
+                    <div className="bg-zinc-900/20 border border-white/5 rounded-2xl p-4 font-mono text-xs space-y-3">
+                      <div className="flex justify-between border-b border-white/5 pb-2">
+                         <span className="text-zinc-500">Node JS</span>
+                         <span className="text-zinc-300">v20.x.x</span>
+                      </div>
+                      <div className="flex justify-between border-b border-white/5 pb-2">
+                         <span className="text-zinc-500">Database</span>
+                         <span className="text-zinc-300 text-emerald-400">Connected (Supabase)</span>
+                      </div>
+                      <div className="flex justify-between border-b border-white/5 pb-2">
+                         <span className="text-zinc-500">Build Mode</span>
+                         <span className="text-zinc-300">Production</span>
+                      </div>
+                      <div className="flex justify-between">
+                         <span className="text-zinc-500">Vite Config</span>
+                         <span className="text-amber-400">Optimized</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
         </AnimatePresence>
           </>
         )}

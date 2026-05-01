@@ -1,5 +1,5 @@
 import React from 'react';
-import { User, Wallet, Shield, Mail, Calendar, CreditCard, ChevronRight, LogOut, Package, History } from 'lucide-react';
+import { User, Wallet, Shield, Mail, Calendar, CreditCard, ChevronRight, LogOut, Package, History, Key } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { UserPlan } from '../types';
 import { User as SupabaseUser } from '@supabase/supabase-js';
@@ -10,11 +10,12 @@ interface ProfileViewProps {
   setUserPlan: (plan: UserPlan) => void;
   clientIp: string | null;
   setActiveView: (view: any) => void;
+  setShowWalletModal: (show: boolean) => void;
   handleLogout: () => void;
 }
 
 export const ProfileView: React.FC<ProfileViewProps> = ({
-  user, userPlan, setUserPlan, clientIp, setActiveView, handleLogout
+  user, userPlan, setUserPlan, clientIp, setActiveView, setShowWalletModal, handleLogout
 }) => {
   const role = userPlan?.role || 'สมาชิกทั่วไป';
   const balance = userPlan?.balance || 0;
@@ -31,10 +32,13 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
         <div className="md:w-1/3 bg-zinc-50 p-6 sm:p-8 flex flex-col items-center border-b md:border-b-0 md:border-r border-zinc-200 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-red-500/5 blur-[50px] rounded-full pointer-events-none"></div>
           
-          <div className="w-24 h-24 rounded-full bg-white p-1 mb-4 relative z-10 border shadow-sm border-zinc-200">
-            <div className="w-full h-full bg-zinc-100 rounded-full flex items-center justify-center">
-              <User className="w-10 h-10 text-red-500" />
-            </div>
+          <div className="w-24 h-24 rounded-full bg-white p-1 mb-4 relative z-10 border shadow-sm border-zinc-200 overflow-hidden">
+            <img 
+              src={`https://api.dicebear.com/7.x/pixel-art/svg?seed=${username || 'guest'}&backgroundColor=ffdfbf,c0aede,d1d4f9,ffd5dc,ffeb3b`} 
+              alt="avatar" 
+              className="w-full h-full rounded-full object-cover"
+              referrerPolicy="no-referrer"
+            />
             <div className="absolute bottom-1 right-1 bg-emerald-500 w-5 h-5 rounded-full border-4 border-white"></div>
           </div>
           
@@ -54,7 +58,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             </div>
             <button 
               onClick={() => {
-                setActiveView('wallet');
+                setShowWalletModal(true);
               }}
               className="mt-3 w-full bg-emerald-50 hover:bg-emerald-100 text-emerald-600 border border-emerald-100 py-2 rounded-xl text-xs font-bold transition-all"
             >
@@ -125,6 +129,16 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                   <span className="text-sm font-medium text-zinc-700 group-hover:text-zinc-900 transition-colors">ประวัติการใช้งานระบบเช็คไอดี</span>
                 </div>
                 <ChevronRight className="w-4 h-4 text-zinc-400 group-hover:text-red-500 transition-colors" />
+              </button>
+
+              <button type="button" onClick={() => setActiveView('redeem')} className="w-full flex items-center justify-between p-3 rounded-2xl bg-white border border-zinc-200 hover:border-amber-200 hover:bg-amber-50/30 transition-all group shadow-sm">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-amber-50 rounded-lg text-amber-500">
+                    <Key className="w-4 h-4" />
+                  </div>
+                  <span className="text-sm font-medium text-zinc-700 group-hover:text-zinc-900 transition-colors">เปิดใช้งานคีย์ไลเซนส์ (Redeem Key)</span>
+                </div>
+                <ChevronRight className="w-4 h-4 text-zinc-400 group-hover:text-amber-500 transition-colors" />
               </button>
               
               {user && (

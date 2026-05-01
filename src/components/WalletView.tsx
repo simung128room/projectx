@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Wallet, Gift, QrCode, Ticket, ArrowRight, CreditCard, Landmark, AlertTriangle, Copy } from 'lucide-react';
+import { Wallet, Gift, QrCode, Ticket, ArrowRight, CreditCard, Landmark, AlertTriangle, Copy, X } from 'lucide-react';
 import Swal from 'sweetalert2';
 import axios from 'axios';
 import { UserPlan } from '../types';
@@ -7,9 +7,10 @@ import { UserPlan } from '../types';
 interface WalletViewProps {
   userPlan: UserPlan | null;
   setUserPlan: React.Dispatch<React.SetStateAction<UserPlan | null>>;
+  onClose: () => void;
 }
 
-export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan }) => {
+export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, onClose }) => {
   const [activeTab, setActiveTab] = useState<'truemoney' | 'bank' | 'code'>('truemoney');
   const [truemoneyLink, setTruemoneyLink] = useState('');
   const [redeemCode, setRedeemCode] = useState('');
@@ -221,25 +222,36 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan })
   };
 
   return (
-    <div className="w-full max-w-5xl mx-auto p-4 md:p-8 animate-in fade-in duration-500 font-sans text-zinc-900">
-      <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex flex-col gap-2">
-          <h1 className="text-3xl font-bold flex items-center gap-3">
-            <Wallet className="w-8 h-8 text-red-500" />
-            ระบบเติมเงิน
-          </h1>
-          <p className="text-zinc-500 font-medium">Topup Selection / เลือกช่องทางการชำระเงิน</p>
-        </div>
-        <div className="bg-white border border-zinc-200 shadow-sm px-6 py-4 rounded-2xl flex items-center gap-4">
-          <div className="p-3 bg-red-50 text-red-600 rounded-xl">
-            <Wallet className="w-6 h-6" />
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+      <div className="bg-zinc-50 w-full max-w-5xl max-h-[90vh] overflow-y-auto rounded-3xl shadow-2xl relative animate-in fade-in zoom-in-95 duration-300 font-sans text-zinc-900 border border-zinc-200">
+        <button 
+          onClick={onClose}
+          className="absolute top-6 right-6 p-2 bg-white text-zinc-400 hover:text-zinc-600 rounded-xl hover:bg-zinc-100 transition-colors shadow-sm border border-zinc-200 z-10"
+        >
+          <X className="w-6 h-6" />
+        </button>
+
+        <div className="p-6 md:p-10">
+          <div className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6 pr-12">
+            <div className="flex flex-col gap-2">
+              <h1 className="text-3xl font-bold flex items-center gap-3">
+                <div className="p-2.5 bg-red-100 text-red-600 rounded-2xl">
+                  <Wallet className="w-8 h-8" />
+                </div>
+                ระบบเติมเงิน
+              </h1>
+              <p className="text-zinc-500 font-medium ml-1">Topup Selection / เลือกช่องทางการชำระเงิน</p>
+            </div>
+            <div className="bg-white border border-zinc-200 shadow-sm px-6 py-4 rounded-2xl flex items-center gap-4 shrink-0">
+              <div className="p-3 bg-red-50 text-red-600 rounded-xl">
+                <Wallet className="w-6 h-6" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-zinc-500 text-xs font-bold uppercase tracking-widest">ยอดเงินคงเหลือ</span>
+                <span className="text-3xl font-sans font-black text-zinc-900 tracking-tight">฿ {userPlan?.balance ? userPlan.balance.toLocaleString(undefined, {minimumFractionDigits: 2}) : '0.00'}</span>
+              </div>
+            </div>
           </div>
-          <div className="flex flex-col">
-            <span className="text-zinc-500 text-xs font-bold uppercase tracking-widest">ยอดเงินคงเหลือ</span>
-            <span className="text-3xl font-sans font-black text-zinc-900 tracking-tight">฿ {userPlan?.balance ? userPlan.balance.toLocaleString(undefined, {minimumFractionDigits: 2}) : '0.00'}</span>
-          </div>
-        </div>
-      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Payment Methods Sidebar */}
@@ -435,6 +447,8 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan })
             </div>
           )}
         </div>
+      </div>
+      </div>
       </div>
     </div>
   );
