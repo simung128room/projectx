@@ -1095,14 +1095,16 @@ async function startServer() {
 
   app.post('/api/log_error', (req, res) => {
     console.error('CLIENT ERROR:', req.body);
-    import('fs').then(fs => {
-      try {
-        const safeBody = typeof req.body === 'object' ? JSON.stringify(req.body) : String(req.body);
-        fs.appendFileSync('client_errors.log', safeBody + '\n');
-      } catch (err) {
-        console.error('Failed to log client error:', err);
-      }
-    }).catch(console.error);
+    if (!process.env.VERCEL) {
+      import('fs').then(fs => {
+        try {
+          const safeBody = typeof req.body === 'object' ? JSON.stringify(req.body) : String(req.body);
+          fs.appendFileSync('client_errors.log', safeBody + '\n');
+        } catch (err) {
+          console.error('Failed to log client error to file:', err);
+        }
+      }).catch(console.error);
+    }
     res.json({ received: true });
   });
 

@@ -277,6 +277,31 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ purchaseHistory = [], 
                   </span>
                 </div>
 
+                {selectedItem.secretData && (
+                  <div className="mt-2 p-4 bg-emerald-50 border border-emerald-100 rounded-2xl flex flex-col gap-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">ข้อมูลสินค้า / คีย์</span>
+                      <button 
+                        onClick={() => {
+                          navigator.clipboard.writeText(selectedItem.secretData);
+                          const btn = document.getElementById('copy-secret-btn');
+                          if (btn) {
+                             btn.innerText = 'คัดลอกแล้ว!';
+                             setTimeout(() => { if (btn) btn.innerText = 'คัดลอก'; }, 2000);
+                          }
+                        }}
+                        id="copy-secret-btn"
+                        className="text-[10px] font-bold text-emerald-600 bg-white px-2 py-1 rounded-md border border-emerald-200 shadow-sm active:scale-95 transition-all"
+                      >
+                         คัดลอก
+                      </button>
+                    </div>
+                    <div className="text-sm font-bold font-mono text-emerald-700 break-all bg-white/50 p-2 rounded-xl border border-emerald-100/50">
+                      {selectedItem.secretData}
+                    </div>
+                  </div>
+                )}
+
                 <div className="flex items-center justify-between p-3 border-t border-zinc-100/80">
                   <span className="text-xs font-medium text-zinc-500">สถานะ</span>
                   <div>{getStatusBadge(selectedItem.status || 'success')}</div>
