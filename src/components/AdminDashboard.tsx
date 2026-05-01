@@ -354,13 +354,31 @@ const DatabaseSetupGuide = () => (
       <div className="flex gap-5">
         <div className="flex-shrink-0 w-10 h-10 rounded-2xl bg-zinc-800 flex items-center justify-center text-zinc-400 text-sm font-black border border-white/5">01</div>
         <div className="pt-1">
+          <h3 className="text-white font-bold mb-1 tracking-tight">Configure Environment Variables</h3>
+          <p className="text-zinc-500 text-sm leading-relaxed mb-4">
+            If you haven't already, go to <strong>Settings</strong> {'>'} <strong>Secrets</strong> and set these keys:
+          </p>
+          <div className="space-y-2">
+            {['VITE_SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY'].map(key => (
+              <div key={key} className="flex items-center justify-between bg-black/40 rounded-xl px-4 py-2 border border-white/5">
+                <code className="text-[10px] text-zinc-300">{key}</code>
+                <span className="text-[10px] text-amber-500 font-bold uppercase tracking-tighter">Required</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="flex gap-5">
+        <div className="flex-shrink-0 w-10 h-10 rounded-2xl bg-zinc-800 flex items-center justify-center text-zinc-400 text-sm font-black border border-white/5">02</div>
+        <div className="pt-1">
           <h3 className="text-white font-bold mb-1 tracking-tight">Open Supabase SQL Editor</h3>
           <p className="text-zinc-500 text-sm leading-relaxed">Go to your project at <a href="https://supabase.com/dashboard" target="_blank" rel="noreferrer" className="text-amber-500 hover:underline font-bold">Supabase Dashboard</a> and open the SQL Editor.</p>
         </div>
       </div>
 
       <div className="flex gap-5">
-        <div className="flex-shrink-0 w-10 h-10 rounded-2xl bg-zinc-800 flex items-center justify-center text-zinc-400 text-sm font-black border border-white/5">02</div>
+        <div className="flex-shrink-0 w-10 h-10 rounded-2xl bg-zinc-800 flex items-center justify-center text-zinc-400 text-sm font-black border border-white/5">03</div>
         <div className="pt-1 flex-grow">
           <h3 className="text-white font-bold mb-1 tracking-tight">Execute Bootstrap SQL</h3>
           <p className="text-zinc-500 text-sm mb-4 leading-relaxed">Copy the code below, paste it into a new query, and click <strong>"Run"</strong>.</p>

@@ -314,7 +314,7 @@ function AppContent() {
     });
   };
 
-  const [isDBReady, setIsDBReady] = useState(true);
+  const [isDBReady, setIsDBReady] = useState(false);
   const [dbErrorDetail, setDbErrorDetail] = useState<string | null>(null);
 
   // Product + Stats loaders
@@ -397,12 +397,16 @@ function AppContent() {
           if (ipsData) setBlockedIPs(ipsData);
           if (settingsData) setSiteSettings(settingsData);
           
-          if (keysData || historyData || ipsData) {
+          if (keysData && historyData && ipsData) {
             setIsDBReady(true);
             setDbErrorDetail(null);
-          } else if (!healthData) {
+          } else {
             setIsDBReady(false);
-            setDbErrorDetail("Cannot connect to backend server. Please try refreshing.");
+            if (!healthData) {
+              setDbErrorDetail("Cannot connect to backend server. Please try refreshing.");
+            } else {
+              setDbErrorDetail("Tables missing or environment variables (URL/Key) not correctly configured.");
+            }
           }
         }
       } catch (err: any) {

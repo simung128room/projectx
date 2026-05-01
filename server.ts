@@ -24,8 +24,12 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const supabaseUrl = process.env.VITE_SUPABASE_URL || 'https://ryybzmtkoeyfxecclqrr.supabase.co/';
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'no-key-provided-please-check-env';
 
+console.log(`[Database] Initializing with URL: ${supabaseUrl}`);
+if (supabaseUrl === 'https://ryybzmtkoeyfxecclqrr.supabase.co/') {
+  console.warn('[Database] WARNING: Using default placeholder Supabase URL. Please set VITE_SUPABASE_URL in your environment variables.');
+}
 if (supabaseServiceKey === 'no-key-provided-please-check-env') {
-  console.warn('SUPABASE_SERVICE_ROLE_KEY is missing! Backend DB operations will fail.');
+  console.warn('[Database] WARNING: SUPABASE_SERVICE_ROLE_KEY is missing! Backend DB operations will fail.');
 }
 
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey || '', {
