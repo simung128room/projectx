@@ -169,6 +169,11 @@ function AppContent() {
   const [blockedIPs, setBlockedIPs] = useState<any[]>([]);
   const [adminTab, setAdminTab] = useState<string>('overview');
   const [isIPBlocked, setIsIPBlocked] = useState(false);
+  const [siteSettings, setSiteSettings] = useState({ 
+    site_name: 'APEX STUDIO',
+    truewallet_phone: '0951378403',
+    contact_line: '@apex_studio'
+  });
 
   const [purchaseHistory, setPurchaseHistory] = useState<any[]>(() => {
     const saved = localStorage.getItem('apex_purchase_history');
@@ -363,24 +368,27 @@ function AppContent() {
           }
         };
 
-        const [healthData, keysData, historyData, ipsData] = await Promise.all([
+        const [healthData, keysData, historyData, ipsData, settingsData] = await Promise.all([
           fetchWithCatch('/api/health'),
           fetchWithCatch('/api/license_keys'),
           fetchWithCatch('/api/used_keys'),
-          fetchWithCatch('/api/blocked_ips')
+          fetchWithCatch('/api/blocked_ips'),
+          fetchWithCatch('/api/settings')
         ]);
 
         console.log("Fetch results:", { 
           health: !!healthData, 
           keys: !!keysData, 
           history: !!historyData, 
-          ips: !!ipsData 
+          ips: !!ipsData,
+          settings: !!settingsData
         });
 
         if (isMounted) {
           if (keysData) setFirebaseKeys(keysData);
           if (historyData) setUsedKeysHistory(historyData);
           if (ipsData) setBlockedIPs(ipsData);
+          if (settingsData) setSiteSettings(settingsData);
           
           if (keysData || historyData || ipsData) {
             setIsDBReady(true);
@@ -1815,8 +1823,8 @@ function AppContent() {
         {/* Footer */}
         <footer className="mt-auto pt-6 border-t border-zinc-100 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 pb-6 w-full text-[10px] text-zinc-400 font-medium">
           <div className="flex items-center gap-2">
-            <img src="https://img2.pic.in.th/IMG_6076fed1c24256d4269f.png" alt="APEX STUDIO TH" className="h-4 object-contain brightness-0 hover:opacity-50 transition-opacity cursor-pointer" />
-            <p>&copy; 2026 APEX STUDIO TH. All rights reserved.</p>
+            <img src="https://img2.pic.in.th/IMG_6076fed1c24256d4269f.png" alt={siteSettings.site_name} className="h-4 object-contain brightness-0 hover:opacity-50 transition-opacity cursor-pointer" />
+            <p>&copy; {new Date().getFullYear()} {siteSettings.site_name} TH. All rights reserved.</p>
           </div>
           <div className="flex items-center gap-3">
             <button onClick={() => setShowPrivacy(true)} className="hover:text-zinc-800 transition-colors">นโยบายความเป็นส่วนตัว</button>

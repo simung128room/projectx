@@ -453,7 +453,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     return [];
   });
 
-  const [siteSettings, setSiteSettings] = useState({ truewallet_phone: '0951378403' });
+  const [siteSettings, setSiteSettings] = useState({ 
+    site_name: 'APEX STUDIO',
+    truewallet_phone: '0951378403',
+    contact_line: '@apex_studio'
+  });
 
   useEffect(() => {
     if (adminTab === 'settings') {
@@ -1087,25 +1091,64 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <p className="text-zinc-500 text-xs mt-1">ตั้งค่าพารามิเตอร์ต่างๆ ของระบบ</p>
                 </div>
                 <div className="p-6 space-y-8">
-                  <div className="p-6 bg-zinc-50 border border-zinc-200 rounded-3xl">
-                    <label className="block text-sm font-bold text-zinc-700 mb-2 flex items-center gap-2">
-                       <Wallet className="w-4 h-4 text-red-500" /> TrueWallet Receiver Phone
-                    </label>
-                    <p className="text-[11px] text-zinc-500 mb-6 leading-relaxed">เบอร์โทรศัพท์ที่ใช้รับเงินจากระบบ "ซองของขวัญ (Angpao)" กรุณาตรวจสอบให้แน่ใจว่าเป็นเบอร์ที่รับเงินได้จริง</p>
-                    <div className="flex flex-col sm:flex-row gap-3">
-                      <input 
-                        type="text"
-                        value={siteSettings.truewallet_phone}
-                        onChange={(e) => setSiteSettings({ ...siteSettings, truewallet_phone: e.target.value })}
-                        className="bg-white border border-zinc-200 rounded-2xl px-5 py-4 text-zinc-900 text-sm font-bold focus:outline-none focus:border-red-500 flex-1 shadow-inner"
-                        placeholder="095xxxxxxx"
-                      />
-                      <button 
-                        onClick={handleSaveSettings}
-                        className="bg-zinc-900 text-white px-8 py-4 rounded-2xl text-xs font-bold hover:bg-zinc-800 transition-all active:scale-[0.98] shadow-lg shadow-black/10 whitespace-nowrap"
-                      >
-                        บันทึกข้อมูล
-                      </button>
+                   <div className="p-6 bg-zinc-50 border border-zinc-200 rounded-3xl">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                      <div className="space-y-4">
+                        <label className="block text-sm font-bold text-zinc-700 flex items-center gap-2">
+                           <Globe className="w-4 h-4 text-indigo-500" /> ชื่อเว็บไซต์ (Site Name)
+                        </label>
+                        <input 
+                          type="text"
+                          value={siteSettings.site_name}
+                          onChange={(e) => setSiteSettings({ ...siteSettings, site_name: e.target.value })}
+                          className="w-full bg-white border border-zinc-200 rounded-2xl px-5 py-4 text-zinc-900 text-sm font-bold focus:outline-none focus:border-indigo-500 shadow-inner"
+                          placeholder="APEX STUDIO"
+                        />
+                      </div>
+                      <div className="space-y-4">
+                        <label className="block text-sm font-bold text-zinc-700 flex items-center gap-2">
+                           <Phone className="w-4 h-4 text-emerald-500" /> เบอร์รับเงินวอลเล็ต
+                        </label>
+                        <input 
+                          type="text"
+                          value={siteSettings.truewallet_phone}
+                          onChange={(e) => setSiteSettings({ ...siteSettings, truewallet_phone: e.target.value })}
+                          className="w-full bg-white border border-zinc-200 rounded-2xl px-5 py-4 text-zinc-900 text-sm font-bold focus:outline-none focus:border-emerald-500 shadow-inner"
+                          placeholder="095xxxxxxx"
+                        />
+                      </div>
+                      <div className="space-y-4">
+                        <label className="block text-sm font-bold text-zinc-700 flex items-center gap-2">
+                           <Plus className="w-4 h-4 text-blue-500" /> ติดต่อเรา (LINE ID)
+                        </label>
+                        <input 
+                          type="text"
+                          value={siteSettings.contact_line}
+                          onChange={(e) => setSiteSettings({ ...siteSettings, contact_line: e.target.value })}
+                          className="w-full bg-white border border-zinc-200 rounded-2xl px-5 py-4 text-zinc-900 text-sm font-bold focus:outline-none focus:border-blue-500 shadow-inner"
+                          placeholder="@line_id"
+                        />
+                      </div>
+                      <div className="flex items-end">
+                        <button 
+                          onClick={handleSaveSettings}
+                          className="w-full bg-zinc-900 text-white px-8 py-5 rounded-2xl text-sm font-black hover:bg-zinc-800 transition-all active:scale-[0.98] shadow-xl shadow-black/10 uppercase tracking-widest flex items-center justify-center gap-3"
+                        >
+                          <Settings className="w-5 h-5" /> บันทึกการตั้งค่า
+                        </button>
+                      </div>
+                    </div>
+                    <div className="p-4 bg-amber-50 border border-amber-100 rounded-2xl flex items-start gap-4">
+                      <div className="p-2 bg-amber-500/20 rounded-xl">
+                        <AlertTriangle className="w-5 h-5 text-amber-600" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-amber-800">หมายเหตุสำคัญ (Vercel Persistence)</p>
+                        <p className="text-[10px] text-amber-700/80 mt-1 leading-relaxed">
+                          เนื่องจากระบบรันบน Vercel (Serverless), การตั้งค่าที่บันทึกผ่านหน้านี้จะถูกรีเซ็ตหาก Server Restart <br/>
+                          เพื่อการตั้งค่าแบบถาวร กรุณาไปที่ Vercel Dashboard {'>'} Settings {'>'} Environment Variables และตั้งค่า VITE_SITE_NAME, TRUEWALLET_PHONE, CONTACT_LINE
+                        </p>
+                      </div>
                     </div>
                   </div>
 

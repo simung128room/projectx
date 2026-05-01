@@ -55,7 +55,9 @@ async function startServer() {
 
   // Site Settings State (Durable with Environment Variables)
   let siteSettings = {
-    truewallet_phone: process.env.TRUEWALLET_PHONE || '0951378403'
+    site_name: process.env.VITE_SITE_NAME || 'APEX STUDIO',
+    truewallet_phone: process.env.TRUEWALLET_PHONE || '0951378403',
+    contact_line: process.env.CONTACT_LINE || '@apex_studio'
   };
 
   app.get('/api/settings', (req, res) => {
@@ -63,13 +65,13 @@ async function startServer() {
   });
 
   app.post('/api/settings', (req, res) => {
-    const { truewallet_phone } = req.body;
-    if (truewallet_phone) {
-      siteSettings.truewallet_phone = truewallet_phone;
-      console.log(`[Settings] Updated TrueWallet Phone to: ${truewallet_phone}`);
-      return res.json({ success: true, settings: siteSettings });
-    }
-    res.status(400).json({ success: false, error: 'Missing data' });
+    const { truewallet_phone, site_name, contact_line } = req.body;
+    if (truewallet_phone !== undefined) siteSettings.truewallet_phone = truewallet_phone;
+    if (site_name !== undefined) siteSettings.site_name = site_name;
+    if (contact_line !== undefined) siteSettings.contact_line = contact_line;
+    
+    console.log(`[Settings] Updated:`, siteSettings);
+    return res.json({ success: true, settings: siteSettings });
   });
 
   app.post('/api/topup/truemoney', async (req, res) => {
