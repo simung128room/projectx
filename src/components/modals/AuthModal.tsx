@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { User, Shield, X } from 'lucide-react';
+import { User, Shield, X, Mail } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { supabase } from '../../lib/supabase';
 import { Turnstile } from '@marsidev/react-turnstile';
 
-const TURNSTILE_SITE_KEY = (import.meta.env.VITE_TURNSTILE_SITE_KEY && import.meta.env.VITE_TURNSTILE_SITE_KEY.length > 5) ? import.meta.env.VITE_TURNSTILE_SITE_KEY : '1x00000000000000000000AA';
+const rawEnvKey = (import.meta.env.VITE_TURNSTILE_SITE_KEY || '').trim();
+const TURNSTILE_SITE_KEY = rawEnvKey.length > 5 ? rawEnvKey : '0x4AAAAAADDurF1TEj8IRq9g';
 
 interface AuthModalProps {
   show: boolean;
@@ -15,8 +16,8 @@ interface AuthModalProps {
 export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode = 'login' }) => {
   const [authMode, setAuthMode] = useState<'login' | 'signup'>(initialMode);
   const [authUsername, setAuthUsername] = useState('');
+  const [authEmail, setAuthEmail] = useState('');
   const [authPassword, setAuthPassword] = useState('');
-  const [authConfirmPassword, setAuthConfirmPassword] = useState('');
   const [authLoading, setAuthLoading] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const [showTurnstileModal, setShowTurnstileModal] = useState(false);
@@ -25,43 +26,40 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
     if (show) {
       setAuthMode(initialMode);
       setAuthUsername('');
+      setAuthEmail('');
       setAuthPassword('');
-      setAuthConfirmPassword('');
       setAuthLoading(false);
       setTurnstileToken(null);
       setShowTurnstileModal(false);
     }
   }, [show, initialMode]);
 
+  const isVerifying = !!TURNSTILE_SITE_KEY && !turnstileToken;
+
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (authMode === 'signup' && authPassword !== authConfirmPassword) {
-      Swal.fire({
-        icon: 'error',
-        title: 'ข้อผิดพลาด',
-        text: 'รหัสผ่านและยืนยันรหัสผ่านไม่ตรงกัน',
-        background: '#09090b',
-        color: '#fff'
-      });
-      return;
-    }
 
-    if (!turnstileToken) {
+    if (TURNSTILE_SITE_KEY && !turnstileToken) {
       setShowTurnstileModal(true);
       return;
     }
 
-    await executeAuth(turnstileToken);
+    await executeAuth(turnstileToken || 'bypass');
   };
 
   const executeAuth = async (currentToken: string | null = turnstileToken) => {
     setAuthLoading(true);
     try {
-      const generatedEmail = `${authUsername.toLowerCase().trim()}@apex-studio.com`;
+      const defaultEmail = `${authUsername.toLowerCase().trim()}@apex-studio.com`;
+      let loginEmail = authUsername;
+      if (authMode === 'login' && !authUsername.includes('@')) {
+         loginEmail = defaultEmail;
+      }
 
       if (authMode === 'signup') {
+        const signupEmail = authEmail.trim() || defaultEmail;
         const { data, error } = await supabase.auth.signUp({
-          email: generatedEmail,
+          email: signupEmail,
           password: authPassword,
           options: {
             data: { username: authUsername },
@@ -80,19 +78,29 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
         Swal.fire({
           icon: 'success',
           title: 'สร้างบัญชีสำเร็จ!',
-          text: 'สมัครสมาชิกสำเร็จ สามารถเข้าสู่ระบบได้เลย',
+          text: 'กำลังเข้าสู่ระบบ...',
+          timer: 1500,
+          showConfirmButton: false,
           background: '#09090b',
           color: '#fff'
         });
-        setAuthMode('login');
+        onClose();
       } else {
         const { data, error } = await supabase.auth.signInWithPassword({
-          email: generatedEmail,
+          email: loginEmail,
           password: authPassword,
         });
 
         if (error) {
-           throw new Error(`Supabase Login Error: ${error.message}`);
+          if (authUsername.includes('@')) {
+              const { error: emailError } = await supabase.auth.signInWithPassword({
+                email: authUsername,
+                password: authPassword,
+              });
+              if (emailError) throw emailError;
+           } else {
+             throw new Error(`Supabase Login Error: ${error.message}`);
+           }
         }
 
         Swal.fire({
@@ -152,14 +160,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
           onClick={() => setAuthMode('login')}
           className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all ${authMode === 'login' ? 'bg-cyan-500/20 text-cyan-400' : 'text-zinc-500 hover:text-white'}`}
         >
-          เข้าสู่ระบบ
+          เข้าสู่ระบบ / Login
         </button>
         <button
           type="button"
           onClick={() => setAuthMode('signup')}
           className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all ${authMode === 'signup' ? 'bg-emerald-500/20 text-emerald-400' : 'text-zinc-500 hover:text-white'}`}
         >
-          สมัครสมาชิก
+          สมัครสมาชิก / Sign up
         </button>
       </div>
 
@@ -173,11 +181,27 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
                   value={authUsername}
                   onChange={(e) => setAuthUsername(e.target.value)}
                   className="w-full bg-zinc-900/50 border border-white/5 rounded-2xl py-3.5 pl-12 pr-4 outline-none focus:border-cyan-500/50 transition-all font-sans text-sm"
-                  placeholder="ชื่อผู้ใช้"
+                  placeholder="ชื่อผู้ใช้ / Username"
                   required
                 />
               </div>
             </div>
+
+            {authMode === 'signup' && (
+              <div className="space-y-2">
+                <div className="relative">
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
+                  <input 
+                    type="email" 
+                    value={authEmail}
+                    onChange={(e) => setAuthEmail(e.target.value)}
+                    className="w-full bg-zinc-900/50 border border-white/5 rounded-2xl py-3.5 pl-12 pr-4 outline-none focus:border-cyan-500/50 transition-all font-sans text-sm"
+                    placeholder="อีเมล / Email"
+                    required
+                  />
+                </div>
+              </div>
+            )}
 
             <div className="space-y-2">
               <div className="relative">
@@ -187,35 +211,18 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
                   value={authPassword}
                   onChange={(e) => setAuthPassword(e.target.value)}
                   className="w-full bg-zinc-900/50 border border-white/5 rounded-2xl py-3.5 pl-12 pr-4 outline-none focus:border-cyan-500/50 transition-all font-sans text-sm"
-                  placeholder="รหัสผ่าน"
+                  placeholder="รหัสผ่าน / Password"
                   required
                   minLength={6}
                 />
               </div>
             </div>
-
-            {authMode === 'signup' && (
-              <div className="space-y-2">
-                <div className="relative">
-                  <Shield className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
-                  <input 
-                    type="password" 
-                    value={authConfirmPassword}
-                    onChange={(e) => setAuthConfirmPassword(e.target.value)}
-                    className="w-full bg-zinc-900/50 border border-white/5 rounded-2xl py-3.5 pl-12 pr-4 outline-none focus:border-cyan-500/50 transition-all font-sans text-sm"
-                    placeholder="ยืนยันรหัสผ่าน"
-                    required
-                    minLength={6}
-                  />
-                </div>
-              </div>
-            )}
           </>
 
         <button 
           type="submit"
           disabled={authLoading}
-          className={`w-full py-4 rounded-2xl text-sm font-bold transition-all shadow-xl flex items-center justify-center gap-2 ${
+          className={`w-full py-4 mt-6 rounded-2xl text-sm font-bold transition-all shadow-xl flex items-center justify-center gap-2 ${
             authMode === 'login' 
               ? 'bg-cyan-600 hover:bg-cyan-500 shadow-cyan-500/10' 
               : 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-500/10'
@@ -224,7 +231,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
           {authLoading ? (
             <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
           ) : (
-            authMode === 'login' ? 'เข้าสู่ระบบ' : 'สมัครสมาชิก'
+            authMode === 'login' ? 'เข้าสู่ระบบ / Login' : 'สมัครสมาชิก / Sign up'
           )}
         </button>
 
@@ -236,32 +243,50 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
           ปิดหน้าต่าง
         </button>
       </form>
+    </div>
 
-      {/* Turnstile Sub-Modal */}
       {showTurnstileModal && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md rounded-[2.5rem]">
-          <div className="bg-zinc-950 border border-white/10 rounded-[2rem] p-4 pt-6 animate-in zoom-in-95 duration-200 shadow-xl flex flex-col items-center relative">
-             <button 
-               onClick={() => setShowTurnstileModal(false)}
-               className="absolute top-3 right-3 text-zinc-500 hover:text-white transition-colors"
-             >
-               <X className="w-4 h-4" />
-             </button>
-             <div className="min-h-[65px] flex items-center justify-center w-full overflow-hidden mt-2">
-               <Turnstile
-                 siteKey={TURNSTILE_SITE_KEY}
-                 onSuccess={(token) => {
-                   setTurnstileToken(token);
-                   setShowTurnstileModal(false);
-                   executeAuth(token);
-                 }}
-                 options={{ theme: 'dark' }}
-               />
-             </div>
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-[80] backdrop-blur-sm animate-in zoom-in-95 duration-200">
+          <div className="bg-[#050507] border border-white/10 rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-xl relative overflow-hidden flex flex-col items-center">
+            <div className="bg-white/5 border border-white/10 rounded-2xl mb-2 flex items-center justify-center w-full h-[80px] overflow-hidden">
+              <div className="h-[65px] w-full max-w-[300px] overflow-hidden flex items-start justify-center">
+                {TURNSTILE_SITE_KEY ? (
+                  <Turnstile
+                    siteKey={TURNSTILE_SITE_KEY}
+                    onSuccess={(token) => {
+                      setTurnstileToken(token);
+                      setShowTurnstileModal(false);
+                      executeAuth(token);
+                    }}
+                    options={{ theme: 'dark' }}
+                  />
+                ) : (
+                  <div className="p-3 text-red-500 rounded-xl text-center text-[10px] font-bold">
+                    ยังไม่ได้ตั้งค่า VITE_TURNSTILE_SITE_KEY<br/>Bypass Mode Active
+                  </div>
+                )}
+              </div>
+            </div>
+            {!TURNSTILE_SITE_KEY && (
+              <button
+                onClick={() => {
+                  setShowTurnstileModal(false);
+                  executeAuth("bypass");
+                }}
+                className="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3.5 rounded-2xl transition-all shadow-sm mb-4 text-xs"
+              >
+                ดำเนินการต่อ (Bypass)
+              </button>
+            )}
+            <button 
+              onClick={() => setShowTurnstileModal(false)}
+              className="text-[10px] font-bold text-zinc-500 hover:text-zinc-300 transition-colors uppercase tracking-widest mt-2"
+            >
+              Cancel
+            </button>
           </div>
         </div>
       )}
-    </div>
   </div>
   );
 };

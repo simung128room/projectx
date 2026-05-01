@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { 
   Gamepad2, ListChecks, Play, Square, Check, X, Shield, Terminal, CheckCircle2, 
   Home, ShoppingCart, CreditCard, Phone, Upload, Key, Crown, LogOut, User, Gift, Lock,
@@ -24,7 +24,9 @@ import { ContentFeedView } from './components/ContentFeedView';
 import { AIChatView } from './components/AIChatView';
 import { WalletView } from './components/WalletView';
 import { RedeemKeyView } from './components/RedeemKeyView';
+import { HistoryView } from './components/HistoryView';
 import { Product, SiteStats } from './types';
+import { getAvatarUrl } from './lib/avatar';
 
 var TextPaint = `▒▄▀▄▒█▀▄▒██▀░▀▄▀
 2
@@ -40,19 +42,54 @@ enum OperationType {
   AUTH = 'auth'
 }
 
+function ElapsedTimeDisplay({ running, startTime }: { running: boolean, startTime: number | null }) {
+  const [elapsedTime, setElapsedTime] = useState('00:00:00.000');
+
+  useEffect(() => {
+    let timer: any;
+    if (running && startTime) {
+      timer = setInterval(() => {
+        const now = performance.now();
+        const diff = now - startTime;
+        const hours = Math.floor(diff / 3600000).toString().padStart(2, '0');
+        const minutes = Math.floor((diff % 3600000) / 60000).toString().padStart(2, '0');
+        const seconds = Math.floor((diff % 60000) / 1000).toString().padStart(2, '0');
+        const ms = Math.floor(diff % 1000).toString().padStart(3, '0');
+        setElapsedTime(`${hours}:${minutes}:${seconds}.${ms}`);
+      }, 67);
+    }
+    return () => clearInterval(timer);
+  }, [running, startTime]);
+
+  if (elapsedTime === '00:00:00.000') return null;
+  return (
+    <div className="px-3 py-1 bg-zinc-50 rounded-full border border-zinc-200 text-xs font-mono text-zinc-600 font-bold">
+      {elapsedTime}
+    </div>
+  );
+}
+
 function AppContent() {
   // Navigation State
-  const [activeView, setRawActiveView] = useState<'home' | 'dashboard' | 'admin' | 'profile' | 'logs' | 'settings' | 'ai_chat' | 'free_stuff' | 'premium_stuff' | 'login' | 'signup' | 'wallet' | 'redeem'>('home');
+  const [activeView, setRawActiveView] = useState<'home' | 'dashboard' | 'admin' | 'profile' | 'logs' | 'history' | 'settings' | 'ai_chat' | 'free_stuff' | 'premium_stuff' | 'login' | 'signup' | 'wallet' | 'redeem'>('home');
   const [isPageTransitioning, setIsPageTransitioning] = useState(false);
 
-  const setActiveView = (view: any) => {
+  const setActiveView = useCallback((view: any) => {
     if (activeView === view) return;
     setIsPageTransitioning(true);
     setTimeout(() => {
       setRawActiveView(view);
       setIsPageTransitioning(false);
     }, 600);
-  };
+  }, [activeView]);
+
+  const handleAdminLogin = useCallback((username: string) => {
+    setIsAdmin(true);
+    setAdminUsername(username);
+    setUser({ id: 'admin', email: 'admin_apex@apex-studio.com', user_metadata: { name: 'Admin Apex' } } as any);
+    setUserPlan({ username: 'Admin Apex', isPremium: true, premiumExpireDate: new Date(Date.now() + 86400000 * 365).toISOString(), balance: 9999999 } as any);
+    setRawActiveView('home'); // Send admin to home or keep them wherever, but enable menus.
+  }, []);
   const prevViewRef = useRef(activeView);
 
   useEffect(() => {
@@ -77,8 +114,6 @@ function AppContent() {
   const logDivRef = useRef<HTMLDivElement>(null);
 
   const [startTime, setStartTime] = useState<number | null>(null);
-  const [elapsedTime, setElapsedTime] = useState('00:00:00.000');
-  const timerRef = useRef<any>(null);
   
   const [showPrivacy, setShowPrivacy] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
@@ -96,7 +131,8 @@ function AppContent() {
   const [showTurnstileModal, setShowTurnstileModal] = useState(false);
   const [pendingTurnstileToken, setPendingTurnstileToken] = useState<string | null>(null);
   const [savedLinesToCheck, setSavedLinesToCheck] = useState<string[]>([]);
-  const TURNSTILE_SITE_KEY = (import.meta.env.VITE_TURNSTILE_SITE_KEY && import.meta.env.VITE_TURNSTILE_SITE_KEY.length > 5) ? import.meta.env.VITE_TURNSTILE_SITE_KEY : '1x00000000000000000000AA';
+  const rawEnvKey = (import.meta.env.VITE_TURNSTILE_SITE_KEY || '').trim();
+  const TURNSTILE_SITE_KEY = rawEnvKey.length > 5 ? rawEnvKey : '0x4AAAAAADDurF1TEj8IRq9g';
 
   function handleDbError(error: unknown, operationType: OperationType, path: string | null) {
     const errInfo = {
@@ -114,8 +150,17 @@ function AppContent() {
   const [dailyUsage, setDailyUsage] = useState<number>(0);
   const [lastUsageDate, setLastUsageDate] = useState<string>('');
   const [showKeyModal, setShowKeyModal] = useState(false);
-  const [showWalletModal, setShowWalletModal] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => { document.body.style.overflow = ''; };
+  }, [isMobileMenuOpen]);
+
   const [vipTab, setVipTab] = useState<'key'>('key');
 
   const [threads, setThreads] = useState(5);
@@ -133,10 +178,27 @@ function AppContent() {
     return [];
   });
 
-  useEffect(() => { localStorage.setItem('apex_purchase_history', JSON.stringify(purchaseHistory)); }, [purchaseHistory]);
+  const [topupHistory, setTopupHistory] = useState<any[]>(() => {
+    const saved = localStorage.getItem('apex_topup_history');
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) { return []; }
+    }
+    return [];
+  });
+  useEffect(() => { localStorage.setItem('apex_topup_history', JSON.stringify(topupHistory.slice(0, 50))); }, [topupHistory]);
 
   const handlePurchase = (product: Product) => {
-    if (!userPlan || userPlan.balance < product.price) {
+    if (product.stock <= 0) {
+      Swal.fire({
+        icon: 'error',
+        title: 'สินค้าหมด',
+        text: 'สินค้าหน้านี้ไม่มีสต๊อกที่พร้อมจำหน่าย',
+        confirmButtonColor: '#dc2626'
+      });
+      return;
+    }
+
+    if (!userPlan || (userPlan.balance || 0) < product.price) {
       Swal.fire({
         icon: 'error',
         title: 'ยอดเงินไม่เพียงพอ',
@@ -146,8 +208,23 @@ function AppContent() {
       return;
     }
 
+    // Get item data
+    let secretData = `APEX-${Math.random().toString(36).substring(2, 10).toUpperCase()}`; // fallback
+    
+    // Update product stock
+    setProducts(prevProducts => prevProducts.map(p => {
+      if (p.id === product.id) {
+        if (p.stockData && p.stockData.length > 0) {
+           secretData = p.stockData[0];
+           return { ...p, stock: p.stock - 1, stockData: p.stockData.slice(1) };
+        }
+        return { ...p, stock: p.stock > 0 ? p.stock - 1 : 0 };
+      }
+      return p;
+    }));
+
     // Deduct balance
-    setUserPlan(prev => prev ? { ...prev, balance: prev.balance - product.price } : prev);
+    setUserPlan(prev => prev ? { ...prev, balance: (prev.balance || 0) - product.price } : prev);
     
     // Add to history
     const historyItem = {
@@ -155,10 +232,14 @@ function AppContent() {
       productId: product.id,
       productName: product.name,
       price: product.price,
-      secretData: `APEX-${Math.random().toString(36).substring(2, 10).toUpperCase()}`, // Simulated item data
-      timestamp: new Date().toISOString()
+      secretData: secretData,
+      date: new Date().toISOString(),
+      billNumber: 'B-' + Math.floor(Math.random()*1000000).toString().padStart(6, '0')
     };
     setPurchaseHistory(prev => [historyItem, ...prev]);
+
+    // Update site stats for admin
+    setSiteStats(prev => ({...prev, sales: prev.sales + product.price, stock: Math.max(0, prev.stock - 1)}));
 
     // Show success and redirect
     Swal.fire({
@@ -168,7 +249,7 @@ function AppContent() {
       confirmButtonColor: '#16a34a',
       confirmButtonText: 'ตกลง'
     }).then(() => {
-      setActiveView('logs');
+      setActiveView('history');
     });
   };
 
@@ -399,25 +480,12 @@ function AppContent() {
     comboRef.current = combo;
   }, [combo]);
 
-  const updateElapsedTime = () => {
-    if (!startTime) return;
-    const now = performance.now();
-    const diff = now - startTime;
-    const hours = Math.floor(diff / 3600000).toString().padStart(2, '0');
-    const minutes = Math.floor((diff % 3600000) / 60000).toString().padStart(2, '0');
-    const seconds = Math.floor((diff % 60000) / 1000).toString().padStart(2, '0');
-    const ms = Math.floor(diff % 1000).toString().padStart(3, '0');
-    setElapsedTime(`${hours}:${minutes}:${seconds}.${ms}`);
-  };
-
   useEffect(() => {
     if (running) {
       setStartTime(performance.now());
-      timerRef.current = setInterval(updateElapsedTime, 67); // ~15fps update for performance
     } else {
-      if (timerRef.current) clearInterval(timerRef.current);
+      setStartTime(null);
     }
-    return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, [running]);
 
   // Save Data by IP
@@ -882,7 +950,21 @@ function AppContent() {
         const line = pool.shift();
         if (!line) break;
         const index = linesArg.indexOf(line);
-        const [acc, pass] = line.split(':', 2);
+        let acc = '';
+        let pass = '';
+        const firstColon = line.indexOf(':');
+        if (firstColon !== -1) {
+          const parts = line.split(':');
+          if (parts.length >= 3 && parts[1].includes('@')) {
+             acc = parts[1];
+             const secondColon = line.indexOf(':', firstColon + 1);
+             pass = line.substring(secondColon + 1);
+          } else {
+             acc = parts[0];
+             pass = line.substring(firstColon + 1);
+          }
+        }
+        
         if (acc && pass) {
           active++;
           await checkSingle(acc.trim(), pass.trim(), index, token);
@@ -1002,30 +1084,7 @@ function AppContent() {
     });
   };
 
-  if (isAdmin) {
-    return (
-      <AdminDashboard
-        totalChecked={totalChecked}
-        validAccounts={validAccounts}
-        firebaseKeys={firebaseKeys}
-        usedKeysHistory={usedKeysHistory}
-        blockedIPs={blockedIPs}
-        adminTab={adminTab}
-        setAdminTab={setAdminTab}
-        isDBReady={isDBReady}
-        adminUsername={adminUsername}
-        setIsAdmin={setIsAdmin}
-        addLicenseKey={addLicenseKey}
-        blockIP={blockIP}
-        deleteKey={deleteKey}
-        unblockIP={unblockIP}
-        products={products}
-        setProducts={setProducts}
-        siteStats={siteStats}
-        setSiteStats={setSiteStats}
-      />
-    );
-  }
+
 
   if (isIPBlocked) return (
     <div className="min-h-screen bg-[#050507] flex items-center justify-center p-4">
@@ -1102,13 +1161,13 @@ function AppContent() {
             {user && (
               <>
                 <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mt-6 mb-3 pl-3">สมาชิก</div>
-                <button onClick={() => setShowWalletModal(true)} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900`}>
+                <button onClick={() => setActiveView('wallet')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'wallet' ? 'bg-red-600 text-white shadow-md shadow-red-600/20' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'}`}>
                   <Wallet className="w-5 h-5"/> เติมเงิน
                 </button>
                 <button onClick={() => setActiveView('redeem')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'redeem' ? 'bg-red-600 text-white shadow-md shadow-red-600/20' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'}`}>
                   <Key className="w-5 h-5"/> เปิดใช้งานคีย์
                 </button>
-                <button onClick={() => setActiveView('logs')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'logs' ? 'bg-red-600 text-white shadow-md shadow-red-600/20' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'}`}>
+                <button onClick={() => setActiveView('history')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'history' ? 'bg-red-600 text-white shadow-md shadow-red-600/20' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'}`}>
                   <History className="w-5 h-5"/> ประวัติการใช้งาน
                 </button>
               </>
@@ -1119,7 +1178,7 @@ function AppContent() {
                 <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-3 mt-10 pl-3">เครื่องมืออื่นๆ</div>
                 {isAdmin && (
                   <button onClick={() => setActiveView('admin')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'admin' ? 'bg-indigo-50 text-indigo-700' : 'text-indigo-600 hover:bg-indigo-50 hover:text-indigo-700'}`}>
-                    <ShieldAlert className="w-5 h-5"/> แผงควบคุมผู้ดูแลระบบ
+                    <ShieldAlert className="w-5 h-5"/> จัดการหลังบ้าน
                   </button>
                 )}
                 <button onClick={() => setActiveView('dashboard')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'dashboard' ? 'bg-red-600 text-white shadow-md shadow-red-600/20' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'}`}>
@@ -1145,7 +1204,7 @@ function AppContent() {
                <div className="flex items-center gap-3 bg-zinc-50 p-4 rounded-3xl border border-zinc-200">
                  <div className="w-10 h-10 bg-white border border-zinc-200 rounded-full flex items-center justify-center overflow-hidden shrink-0">
                     <img 
-                      src={`https://api.dicebear.com/7.x/pixel-art/svg?seed=${userPlan?.username || user?.email?.split('@')[0] || 'guest'}&backgroundColor=ffdfbf,c0aede,d1d4f9`} 
+                      src={getAvatarUrl(userPlan?.username || user?.email?.split('@')[0] || 'guest')} 
                       alt="avatar" 
                       className="w-full h-full object-cover"
                       referrerPolicy="no-referrer"
@@ -1194,7 +1253,7 @@ function AppContent() {
             >
               {user ? (
                 <img 
-                  src={`https://api.dicebear.com/7.x/pixel-art/svg?seed=${encodeURIComponent(userPlan?.username || user?.email?.split('@')[0] || 'guest')}`} 
+                  src={getAvatarUrl(encodeURIComponent(userPlan?.username || user?.email?.split('@')[0] || 'guest'))} 
                   alt="avatar" 
                   className="w-full h-full object-cover"
                   referrerPolicy="no-referrer"
@@ -1245,7 +1304,7 @@ function AppContent() {
                     <div className="flex items-center gap-3 bg-zinc-50 p-4 rounded-3xl border border-zinc-200">
                       <div className="w-12 h-12 bg-white rounded-full border border-zinc-200 flex items-center justify-center overflow-hidden shrink-0">
                         <img 
-                          src={`https://api.dicebear.com/7.x/pixel-art/svg?seed=${encodeURIComponent(userPlan?.username || user?.email?.split('@')[0] || 'guest')}&backgroundColor=ffdfbf,c0aede,d1d4f9`} 
+                          src={getAvatarUrl(encodeURIComponent(userPlan?.username || user?.email?.split('@')[0] || 'guest'))} 
                           alt="avatar" 
                           className="w-full h-full object-cover"
                           referrerPolicy="no-referrer"
@@ -1276,13 +1335,13 @@ function AppContent() {
                   </a>
                   {user && (
                     <>
-                      <button onClick={() => { setShowWalletModal(true); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900`}>
+                      <button onClick={() => { setActiveView('wallet'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'wallet' ? 'bg-zinc-100 text-zinc-900' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'}`}>
                         <Wallet className="w-4 h-4"/> เติมเงิน
                       </button>
                       <button onClick={() => { setActiveView('redeem'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'redeem' ? 'bg-zinc-100 text-zinc-900' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'}`}>
                         <Key className="w-4 h-4"/> เปิดใช้งานคีย์
                       </button>
-                      <button onClick={() => { setActiveView('logs'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'logs' ? 'bg-zinc-100 text-zinc-900' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'}`}>
+                      <button onClick={() => { setActiveView('history'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'history' ? 'bg-zinc-100 text-zinc-900' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'}`}>
                         <History className="w-4 h-4"/> ประวัติการใช้งาน
                       </button>
                     </>
@@ -1292,6 +1351,13 @@ function AppContent() {
                 {user && (
                   <div className="flex flex-col gap-1 pt-4 border-t border-zinc-100">
                     <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1 pl-2">เครื่องมือ</div>
+                    
+                    {isAdmin && (
+                      <button onClick={() => { setActiveView('admin'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'admin' ? 'bg-indigo-50 text-indigo-700' : 'text-indigo-600 hover:bg-indigo-50 hover:text-indigo-700'}`}>
+                        <ShieldAlert className="w-5 h-5"/> จัดการหลังบ้าน
+                      </button>
+                    )}
+
                     <button onClick={() => { setActiveView('dashboard'); setIsMobileMenuOpen(false); }} className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900">
                        <Gamepad2 className="w-4 h-4" /> ตรวจสอบไอดี
                     </button>
@@ -1330,14 +1396,10 @@ function AppContent() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-10 pb-24 w-full flex-1 flex flex-col">
         {activeView === 'home' && (
-          <HomeView products={products} stats={siteStats} user={user} setActiveView={setActiveView} setShowWalletModal={setShowWalletModal} handlePurchase={handlePurchase} />
+          <HomeView products={products} stats={siteStats} user={user} setActiveView={setActiveView} handlePurchase={handlePurchase} />
         )}
 
-        {activeView === 'login' && <AuthView initialMode="login" setActiveView={setActiveView} onAdminLogin={(username) => {
-          setIsAdmin(true);
-          setAdminUsername(username);
-          setActiveView('admin');
-        }} />}
+        {activeView === 'login' && <AuthView initialMode="login" setActiveView={setActiveView} onAdminLogin={handleAdminLogin} />}
         {activeView === 'signup' && <AuthView initialMode="signup" setActiveView={setActiveView} />}
 
         {activeView === 'profile' && (
@@ -1346,21 +1408,47 @@ function AppContent() {
             userPlan={userPlan} 
             setUserPlan={setUserPlan} 
             clientIp={clientIp} 
-            setActiveView={setActiveView}
-            setShowWalletModal={setShowWalletModal}
+            setActiveView={setActiveView} 
             handleLogout={handleLogout} 
           />
         )}
 
         {activeView === 'ai_chat' && <AIChatView />}
         {activeView === 'logs' && <HistoryLogsView usedKeysHistory={usedKeysHistory} purchaseHistory={purchaseHistory} />}
+        {activeView === 'history' && <HistoryView purchaseHistory={purchaseHistory} topupHistory={topupHistory} usedKeysHistory={usedKeysHistory} />}
+        {activeView === 'wallet' && <WalletView userPlan={userPlan} setUserPlan={setUserPlan} onTopupSuccess={(entry) => setTopupHistory(prev => [entry, ...prev])} />}
         {activeView === 'free_stuff' && <ContentFeedView type="free" isAdmin={isAdmin} isPremiumUser={userPlan?.isPremium || false} />}
         {activeView === 'premium_stuff' && <ContentFeedView type="premium" isAdmin={isAdmin} isPremiumUser={userPlan?.isPremium || false} />}
+
+        {activeView === 'admin' && isAdmin && (
+          <AdminDashboard
+            totalChecked={totalChecked}
+            validAccounts={validAccounts}
+            firebaseKeys={firebaseKeys}
+            usedKeysHistory={usedKeysHistory}
+            blockedIPs={blockedIPs}
+            adminTab={adminTab}
+            setAdminTab={setAdminTab}
+            isDBReady={isDBReady}
+            adminUsername={adminUsername}
+            setIsAdmin={setIsAdmin}
+            addLicenseKey={addLicenseKey}
+            blockIP={blockIP}
+            deleteKey={deleteKey}
+            unblockIP={unblockIP}
+            products={products}
+            setProducts={setProducts}
+            siteStats={siteStats}
+            setSiteStats={setSiteStats}
+          />
+        )}
 
         {activeView === 'redeem' && (
           <RedeemKeyView 
             redeemKey={redeemKey} 
-            userEmail={user?.email || 'Guest'} 
+            userEmail={user?.email || 'Guest'}
+            isLoggedIn={!!user}
+            onLoginClick={() => setActiveView('login')}
             onBack={() => setActiveView('home')} 
             onGoToStore={() => {
               setActiveView('home');
@@ -1562,11 +1650,7 @@ function AppContent() {
                         บันทึกเรียลไทม์
                       </h3>
                       <div className="flex items-center gap-2">
-                        {elapsedTime !== '00:00:00.000' && (
-                          <div className="px-3 py-1 bg-zinc-50 rounded-full border border-zinc-200 text-xs font-mono text-zinc-600 font-bold">
-                            {elapsedTime}
-                          </div>
-                        )}
+                        <ElapsedTimeDisplay running={running} startTime={startTime} />
                         <div className="px-3 py-1 bg-red-50 border border-red-200 rounded-full text-[10px] font-bold text-red-600 uppercase tracking-widest">
                           Secured Mode
                         </div>
@@ -1826,42 +1910,44 @@ function AppContent() {
       {showTurnstileModal && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-[70] backdrop-blur-sm font-sans animate-in zoom-in-95 duration-200">
           <div className="bg-white border border-zinc-200 rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-xl relative overflow-hidden flex flex-col items-center">
-            <h2 className="text-xl font-bold text-zinc-900 mb-2 text-center">
-              ยืนยันว่าคุณไม่ใช่บอท
-            </h2>
-            <p className="text-zinc-500 text-xs mb-6 text-center">
-              ผู้ใช้ฟรีจำเป็นต้องยืนยัน Captcha ก่อนเริ่มการใช้งาน
-            </p>
-            <div className="bg-zinc-50 border border-zinc-100 rounded-2xl mb-6 flex items-center justify-center w-full h-[80px] overflow-hidden">
+            <div className="bg-zinc-50 border border-zinc-100 rounded-2xl mb-2 flex items-center justify-center w-full h-[80px] overflow-hidden">
               <div className="h-[65px] w-full max-w-[300px] overflow-hidden flex items-start justify-center">
-                <Turnstile
-                  siteKey={TURNSTILE_SITE_KEY}
-                  onSuccess={(token) => {
-                    setPendingTurnstileToken(token);
-                  }}
-                />
+                {TURNSTILE_SITE_KEY ? (
+                  <Turnstile
+                    siteKey={TURNSTILE_SITE_KEY}
+                    onSuccess={(token) => {
+                      setPendingTurnstileToken(token);
+                      setShowTurnstileModal(false);
+                      executeCheck(token, savedLinesToCheck).catch(console.error);
+                    }}
+                  />
+                ) : (
+                  <div className="p-3 bg-red-100 text-red-600 rounded-xl text-center text-[10px] font-bold">
+                    ยังไม่ได้ตั้งค่า VITE_TURNSTILE_SITE_KEY<br/>Bypass Mode Active
+                  </div>
+                )}
               </div>
             </div>
-            <button
-              onClick={() => {
-                if (pendingTurnstileToken) {
+            {!TURNSTILE_SITE_KEY && (
+              <button
+                onClick={() => {
                   setShowTurnstileModal(false);
-                  executeCheck(pendingTurnstileToken, savedLinesToCheck).catch(console.error);
-                }
-              }}
-              disabled={!pendingTurnstileToken}
-              className="w-full bg-red-600 hover:bg-red-500 disabled:opacity-50 text-white font-bold py-3.5 rounded-2xl transition-all disabled:cursor-not-allowed shadow-sm"
+                  executeCheck("bypass", savedLinesToCheck).catch(console.error);
+                }}
+                className="w-full bg-red-600 hover:bg-red-500 text-white font-bold py-3.5 rounded-2xl transition-all shadow-sm mb-4"
+              >
+                ดำเนินการต่อ (Bypass)
+              </button>
+            )}
+            <button 
+              onClick={() => setShowTurnstileModal(false)}
+              className="text-[10px] font-bold text-zinc-400 hover:text-zinc-600 transition-colors uppercase tracking-widest mt-2"
             >
-              ดำเนินการต่อ
-            </button>
-            <button onClick={() => setShowTurnstileModal(false)} className="absolute top-4 right-4 text-zinc-400 hover:text-zinc-900 transition-colors bg-zinc-50 hover:bg-zinc-100 p-2 rounded-full">
-              <X className="w-4 h-4" />
+              Cancel
             </button>
           </div>
         </div>
       )}
-
-      {showWalletModal && <WalletView userPlan={userPlan} setUserPlan={setUserPlan} onClose={() => setShowWalletModal(false)} />}
 
       {/* Modals removed for history */}
 

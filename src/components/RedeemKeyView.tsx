@@ -5,17 +5,19 @@ import { motion } from 'motion/react';
 interface RedeemKeyViewProps {
   redeemKey: (key: string, email: string) => void;
   userEmail?: string;
+  isLoggedIn: boolean;
   onBack: () => void;
   onGoToStore: () => void;
+  onLoginClick: () => void;
 }
 
-export const RedeemKeyView: React.FC<RedeemKeyViewProps> = ({ redeemKey, userEmail, onBack, onGoToStore }) => {
+export const RedeemKeyView: React.FC<RedeemKeyViewProps> = ({ redeemKey, userEmail, isLoggedIn, onBack, onGoToStore, onLoginClick }) => {
   const [keyInput, setKeyInput] = useState('');
   const [isFocused, setIsFocused] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (keyInput) {
+    if (keyInput && isLoggedIn) {
       redeemKey(keyInput, userEmail || 'ผู้ใช้งานทั่วไป');
     }
   };
@@ -109,26 +111,33 @@ export const RedeemKeyView: React.FC<RedeemKeyViewProps> = ({ redeemKey, userEma
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div>
-                    <div className={`relative transition-all duration-300 rounded-[1.5rem] bg-white border-2 ${isFocused || keyInput ? 'border-red-500 shadow-[0_0_0_4px_rgba(239,68,68,0.1)]' : 'border-zinc-200 hover:border-zinc-300'}`}>
+                    <div className={`relative transition-all duration-300 rounded-[1.5rem] bg-white border-2 ${isFocused || keyInput ? 'border-red-500 shadow-[0_0_0_4px_rgba(239,68,68,0.1)]' : 'border-zinc-200 hover:border-zinc-300'} ${!isLoggedIn ? 'opacity-50 select-none pointer-events-none' : ''}`}>
                       <div className="flex items-center gap-4 px-5">
                         <KeyIcon className={`w-6 h-6 transition-colors duration-300 ${isFocused || keyInput ? 'text-red-500' : 'text-zinc-400'}`} />
                         <input 
                           required
+                          disabled={!isLoggedIn}
                           value={keyInput}
                           onChange={(e) => setKeyInput(e.target.value.toUpperCase())}
                           onFocus={() => setIsFocused(true)}
                           onBlur={() => setIsFocused(false)}
                           type="text" 
-                          className="w-full bg-transparent py-5 text-zinc-900 font-mono text-lg md:text-xl focus:outline-none placeholder:text-zinc-300 tracking-wider" 
+                          className="w-full bg-transparent py-5 text-zinc-900 font-mono text-lg md:text-xl focus:outline-none placeholder:text-zinc-300 tracking-wider disabled:bg-transparent" 
                           placeholder="XXXX-XXXX-XXXX-XXXX" 
                         />
                       </div>
                     </div>
+                    {!isLoggedIn && (
+                      <div className="mt-3 text-center">
+                        <p className="text-sm font-bold text-red-500 mb-2">กรุณาเข้าสู่ระบบก่อนกรอกคีย์</p>
+                        <button type="button" onClick={onLoginClick} className="px-4 py-2 bg-red-50 text-red-600 rounded-lg text-sm font-bold hover:bg-red-100 transition-colors">เข้าสู่ระบบ / สมัครสมาชิก</button>
+                      </div>
+                    )}
                   </div>
 
                   <button 
                     type="submit" 
-                    disabled={!keyInput}
+                    disabled={!keyInput || !isLoggedIn}
                     className="w-full relative group h-16 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                   >
                     <div className="absolute inset-0 bg-red-600 rounded-xl blur-lg opacity-20 group-hover:opacity-40 transition-opacity"></div>

@@ -169,7 +169,11 @@ async function startServer() {
   app.post('/api/verify_turnstile', async (req, res) => {
     try {
       const { token } = req.body;
-      const secretKey = process.env.TURNSTILE_SECRET_KEY || '1x0000000000000000000000000000000AA';
+      const secretKey = process.env.TURNSTILE_SECRET_KEY || '';
+
+      if (!secretKey) {
+          return res.json({ success: true, message: "Bypassed missing Turnstile Secret Key." });
+      }
 
       console.log('Verify Turnstile called with token:', token);
       
@@ -418,12 +422,15 @@ async function startServer() {
        // Token is already verified and within 5 minute window
        // console.log("Used cached Turnstile token bypass");
     } else {
-       const secretKey = process.env.TURNSTILE_SECRET_KEY || '1x0000000000000000000000000000000AA';
+       const secretKey = process.env.TURNSTILE_SECRET_KEY || '';
        
-       try {
-         const params = new URLSearchParams();
-         params.append('secret', secretKey);
-         params.append('response', turnstileToken);
+       if (!secretKey) {
+           turnstileCache.set(turnstileToken, now);
+       } else {
+           try {
+             const params = new URLSearchParams();
+             params.append('secret', secretKey);
+             params.append('response', turnstileToken);
 
          const turnstileResponse = await axios.post(
            'https://challenges.cloudflare.com/turnstile/v0/siteverify',
@@ -454,6 +461,7 @@ async function startServer() {
        } catch (error) {
          console.error('Error verifying Turnstile token:', error);
          return res.status(500).json({ error: 'Internal server error during captcha verification.' });
+       }
        }
     }
 

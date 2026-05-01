@@ -429,6 +429,8 @@ CREATE TABLE admins (
   </div>
 );
 
+import { AdminUserManagement } from './AdminUserManagement';
+
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   totalChecked, validAccounts, firebaseKeys, usedKeysHistory, blockedIPs,
   adminTab, setAdminTab, isDBReady, adminUsername, setIsAdmin,
@@ -438,31 +440,62 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [isAddingProduct, setIsAddingProduct] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | undefined>(undefined);
   const [stockProduct, setStockProduct] = useState<Product | undefined>(undefined);
+  
+  const [purchaseHistory, setPurchaseHistory] = useState<any[]>(() => {
+    const saved = localStorage.getItem('apex_purchase_history');
+    if (saved) { try { return JSON.parse(saved); } catch (e) { return []; } }
+    return [];
+  });
+
+  const [topupHistory, setTopupHistory] = useState<any[]>(() => {
+    const saved = localStorage.getItem('apex_topup_history');
+    if (saved) { try { return JSON.parse(saved); } catch (e) { return []; } }
+    return [];
+  });
+
+  // Calculate Stats
+  const totalOrders = purchaseHistory.length;
+  const totalMoney = topupHistory.reduce((acc, curr) => acc + (curr.amount || 0), 0);
+  const totalRevenue = purchaseHistory.reduce((acc, curr) => acc + (curr.price || 0), 0);
+  
+  const today = new Date();
+  const startOfDay = new Date(today.setHours(0,0,0,0));
+  const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay()));
+  const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
+  const salesToday = purchaseHistory.filter(x => new Date(x.timestamp) >= startOfDay).reduce((acc, curr) => acc + (curr.price || 0), 0);
+  const salesWeek = purchaseHistory.filter(x => new Date(x.timestamp) >= startOfWeek).reduce((acc, curr) => acc + (curr.price || 0), 0);
+  const salesMonth = purchaseHistory.filter(x => new Date(x.timestamp) >= startOfMonth).reduce((acc, curr) => acc + (curr.price || 0), 0);
+
+  const totalKeys = firebaseKeys.length;
+  const usedKeys = firebaseKeys.filter(k => k.status === 'used').length + usedKeysHistory.length;
+  const remainingKeys = firebaseKeys.filter(k => k.status === 'active').length;
+  const usersWhoBought = new Set(purchaseHistory.map(x => x.userId || 'guest')).size;
 
   return (
-    <div className="min-h-screen bg-[#050507] text-white p-4 md:p-8 animate-in fade-in duration-700 font-sans">
+    <div className="min-h-screen bg-zinc-50 text-zinc-900 p-4 md:p-8 animate-in fade-in duration-700 font-sans">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
           <div className="flex items-center gap-4">
-            <div className="p-3 bg-red-500/10 rounded-2xl border border-red-500/20">
-              <Crown className="w-8 h-8 text-red-500" />
+            <div className="p-3 bg-red-600 rounded-2xl shadow-md shadow-red-600/20">
+              <Crown className="w-8 h-8 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-red-500 to-amber-500 bg-clip-text text-transparent uppercase tracking-tighter">
-                Apex Backend Management
+              <h1 className="text-2xl font-black text-zinc-900 tracking-tighter">
+                Admin <span className="text-red-600">Dashboard</span>
               </h1>
               <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest mt-0.5">Control Center • {adminUsername}</p>
             </div>
           </div>
           <div className="flex items-center gap-3 w-full md:w-auto">
-            <div className="bg-zinc-900/50 border border-white/5 rounded-2xl px-4 py-2 flex items-center gap-2 flex-1 md:flex-none">
+            <div className="bg-white border border-zinc-200 shadow-sm rounded-2xl px-4 py-2 flex items-center gap-2 flex-1 md:flex-none">
               <div className={`w-2 h-2 rounded-full ${isDBReady ? 'bg-emerald-500 animate-pulse' : 'bg-red-500'}`}></div>
-              <span className="text-[10px] font-bold text-zinc-400 uppercase">System: {isDBReady ? 'Stable' : 'DB ERROR'}</span>
+              <span className="text-[10px] font-bold text-zinc-500 uppercase">System: {isDBReady ? 'Stable' : 'DB ERROR'}</span>
             </div>
             <button 
               onClick={() => setIsAdmin(false)}
-              className="bg-zinc-900 hover:bg-zinc-800 text-zinc-400 border border-white/5 px-6 py-2 rounded-2xl text-[10px] font-bold transition-all flex items-center gap-2 uppercase tracking-widest"
+              className="bg-white hover:bg-zinc-100 text-zinc-600 border border-zinc-200 shadow-sm px-6 py-2 rounded-2xl text-[10px] font-bold transition-all flex items-center gap-2 uppercase tracking-widest"
             >
               <LogOut className="w-4 h-4" /> Exit Console
             </button>
@@ -477,8 +510,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             <div className="flex items-center gap-2 mb-8 overflow-x-auto pb-2 scrollbar-none">
               {[
                 { id: 'overview', label: 'Dashboard', icon: LayoutDashboard },
+                { id: 'users', label: 'จัดการผู้ใช้', icon: Users },
                 { id: 'store', label: 'Shop Manager', icon: Package },
-                { id: 'analytics', label: 'Analytics', icon: LineChart },
                 { id: 'keys', label: 'License Keys', icon: Key },
                 { id: 'history', label: 'Redeem Logs', icon: History },
                 { id: 'ips', label: 'Access Control', icon: ShieldAlert },
@@ -487,10 +520,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 <button
                   key={tab.id}
                   onClick={() => setAdminTab(tab.id as any)}
-                  className={`flex items-center gap-2 px-6 py-3 rounded-2xl text-xs font-bold transition-all border whitespace-nowrap ${
+                  className={`flex items-center gap-2 px-6 py-3 rounded-2xl text-xs font-bold transition-all border shadow-sm whitespace-nowrap ${
                     adminTab === tab.id 
-                    ? 'bg-red-500/10 border-red-500/30 text-red-500 shadow-[0_0_20px_rgba(239,68,68,0.1)]' 
-                    : 'bg-zinc-900/50 border-white/5 text-zinc-500 hover:bg-zinc-900 hover:text-zinc-300'
+                    ? 'bg-red-600 border-red-600 text-white shadow-red-600/20' 
+                    : 'bg-white border-zinc-200 text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'
                   }`}
                 >
                   <tab.icon className="w-4 h-4" /> {tab.label}
@@ -509,17 +542,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             >
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {[
-                  { label: 'Scanned (Session)', value: totalChecked, icon: Activity, color: 'text-blue-500', bg: 'bg-blue-500/10' },
-                  { label: 'Active Keys', value: firebaseKeys.filter(k => k.status === 'active').length, icon: Database, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
-                  { label: 'Redeemed Today', value: usedKeysHistory.filter(h => new Date(h.used_at).toDateString() === new Date().toDateString()).length, icon: History, color: 'text-amber-500', bg: 'bg-amber-500/10' },
-                  { label: 'Blocked Users', value: blockedIPs.length, icon: Ban, color: 'text-red-500', bg: 'bg-red-500/10' }
+                  { label: 'ผู้ใช้งานทั้งหมด', value: siteStats.users.toLocaleString(), icon: Users, color: 'text-zinc-900', bg: 'bg-zinc-100' },
+                  { label: 'ยอดขายทั้งหมด (สินค้า)', value: totalOrders.toLocaleString(), icon: Package, color: 'text-red-500', bg: 'bg-red-50' },
+                  { label: 'คำสั่งซื้อที่สำเร็จ', value: totalOrders.toLocaleString(), icon: ShoppingCart, color: 'text-emerald-500', bg: 'bg-emerald-50' },
+                  { label: 'รายได้รวม (บาท)', value: totalRevenue.toLocaleString(), icon: Activity, color: 'text-red-600', bg: 'bg-red-50' },
+                  { label: 'คีย์ในระบบทั้งหมด', value: totalKeys.toLocaleString(), icon: Key, color: 'text-zinc-900', bg: 'bg-zinc-100' },
+                  { label: 'คีย์ที่ถูกใช้แล้ว', value: usedKeys.toLocaleString(), icon: History, color: 'text-zinc-500', bg: 'bg-zinc-100' },
+                  { label: 'คีย์ที่เหลืออยู่', value: remainingKeys.toLocaleString(), icon: Database, color: 'text-red-500', bg: 'bg-red-50' },
+                  { label: 'ผู้ใช้ที่ซื้อสินค้า', value: usersWhoBought.toLocaleString(), icon: Users, color: 'text-zinc-900', bg: 'bg-zinc-100' }
                 ].map((stat, i) => (
-                  <div key={i} className="bg-zinc-950 border border-white/5 p-6 rounded-3xl relative overflow-hidden group">
-                    <div className={`absolute top-0 right-0 w-24 h-24 ${stat.bg} blur-3xl opacity-20 -mr-8 -mt-8 transition-all group-hover:scale-150`}></div>
+                  <div key={i} className="bg-white border border-zinc-200 p-6 rounded-3xl relative overflow-hidden group shadow-sm hover:shadow-md transition-all">
+                    <div className={`absolute top-0 right-0 w-24 h-24 ${stat.bg} blur-3xl opacity-50 -mr-8 -mt-8 transition-all group-hover:scale-150`}></div>
                     <div className="flex items-center justify-between relative z-10">
                       <div>
-                        <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest mb-1">{stat.label}</p>
-                        <h3 className="text-3xl font-mono font-bold tracking-tighter">{stat.value}</h3>
+                        <p className="text-zinc-500 text-[11px] font-bold uppercase tracking-widest mb-1">{stat.label}</p>
+                        <h3 className="text-3xl font-black text-zinc-900 tracking-tighter">{stat.value}</h3>
                       </div>
                       <div className={`p-4 rounded-2xl ${stat.bg} ${stat.color}`}>
                         <stat.icon className="w-6 h-6" />
@@ -531,79 +568,56 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2 space-y-6">
-                  <div className="bg-zinc-950 border border-white/5 rounded-3xl overflow-hidden font-sans">
-                    <div className="p-6 border-b border-white/5 flex justify-between items-center bg-zinc-900/20">
-                      <h3 className="font-bold flex items-center gap-2">
-                        <Activity className="w-4 h-4 text-emerald-500" /> Session Activity Log
+                  <div className="bg-white border border-zinc-200 rounded-3xl overflow-hidden shadow-sm">
+                    <div className="p-6 border-b border-zinc-100 flex justify-between items-center bg-zinc-50/50">
+                      <h3 className="font-bold flex items-center gap-2 text-zinc-900">
+                        <LineChart className="w-5 h-5 text-red-500" /> สถิติยอดขาย (Sales Stats)
                       </h3>
-                      <Activity className="w-4 h-4 text-zinc-500 animate-pulse" />
                     </div>
-                    <div className="max-h-[500px] overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-800">
-                      <table className="w-full text-left text-sm">
-                        <thead>
-                          <tr className="text-zinc-500 border-b border-white/5 bg-zinc-900/10">
-                            <th className="p-4 font-bold uppercase text-[10px]">Target</th>
-                            <th className="p-4 font-bold uppercase text-[10px]">Result</th>
-                            <th className="p-4 font-bold uppercase text-[10px]">UID</th>
-                            <th className="p-4 font-bold uppercase text-[10px]">Time</th>
-                          </tr>
-                        </thead>
-                        <tbody className="font-mono text-[11px]">
-                          {validAccounts.length > 0 ? validAccounts.map((acc, i) => (
-                            <tr key={i} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
-                              <td className="p-4 text-zinc-300">{acc.account}</td>
-                              <td className="p-4">
-                                <span className="text-emerald-500 font-bold bg-emerald-500/10 px-2 py-0.5 rounded uppercase text-[9px]">Verified</span>
-                              </td>
-                              <td className="p-4 text-zinc-500">{acc.uid}</td>
-                              <td className="p-4 text-zinc-600">{new Date().toLocaleTimeString()}</td>
-                            </tr>
-                          )) : (
-                            <tr>
-                              <td colSpan={4} className="p-12 text-center text-zinc-700 italic">No activity recorded in this session</td>
-                            </tr>
-                          )}
-                        </tbody>
-                      </table>
+                    <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+                      <div className="bg-zinc-50 border border-zinc-100 rounded-2xl p-6 text-center">
+                        <p className="text-zinc-500 text-xs font-bold uppercase mb-2">วันนี้ขายไป</p>
+                        <p className="text-3xl font-black text-red-600">{salesToday.toLocaleString()} <span className="text-sm font-bold text-zinc-400">บาท</span></p>
+                      </div>
+                      <div className="bg-zinc-50 border border-zinc-100 rounded-2xl p-6 text-center">
+                        <p className="text-zinc-500 text-xs font-bold uppercase mb-2">สัปดาห์นี้ขายไป</p>
+                        <p className="text-3xl font-black text-red-600">{salesWeek.toLocaleString()} <span className="text-sm font-bold text-zinc-400">บาท</span></p>
+                      </div>
+                      <div className="bg-zinc-50 border border-zinc-100 rounded-2xl p-6 text-center">
+                        <p className="text-zinc-500 text-xs font-bold uppercase mb-2">เดือนนี้ขายไป</p>
+                        <p className="text-3xl font-black text-red-600">{salesMonth.toLocaleString()} <span className="text-sm font-bold text-zinc-400">บาท</span></p>
+                      </div>
                     </div>
                   </div>
                 </div>
 
                 <div className="space-y-6">
-                  <div className="bg-zinc-950 border border-white/5 rounded-3xl p-6">
-                    <h3 className="font-bold flex items-center gap-2 mb-6">
-                      <Settings className="w-4 h-4 text-zinc-500" /> Utility Tools
+                  <div className="bg-white border border-zinc-200 rounded-3xl p-6 shadow-sm">
+                    <h3 className="font-bold flex items-center gap-2 mb-6 text-zinc-900">
+                      <Settings className="w-5 h-5 text-red-500" /> Quick Actions
                     </h3>
                     <div className="space-y-4">
-                      <button onClick={addLicenseKey} className="w-full bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 p-4 rounded-2xl flex items-center justify-between group transition-all">
+                      <button onClick={() => setAdminTab('keys')} className="w-full bg-red-50 hover:bg-red-100 border border-red-100 p-4 rounded-2xl flex items-center justify-between group transition-all">
                         <div className="flex items-center gap-3">
-                          <Plus className="w-5 h-5 text-emerald-500" />
+                          <Plus className="w-5 h-5 text-red-600" />
                           <div className="text-left">
-                            <p className="text-sm font-bold text-emerald-500">Create New Keys</p>
-                            <p className="text-[10px] text-zinc-500">Bulk generation system</p>
+                            <p className="text-sm font-bold text-red-600">จัดการคีย์ (Add Keys)</p>
+                            <p className="text-[10px] text-red-500/70">เพิ่มจำนวนคีย์เข้าสต๊อก</p>
                           </div>
                         </div>
-                        <ChevronRight className="w-4 h-4 text-zinc-700" />
+                        <ChevronRight className="w-4 h-4 text-red-600" />
                       </button>
-                      <button onClick={blockIP} className="w-full bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 p-4 rounded-2xl flex items-center justify-between group transition-all">
+                      <button onClick={() => setAdminTab('users')} className="w-full bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 p-4 rounded-2xl flex items-center justify-between group transition-all">
                         <div className="flex items-center gap-3">
-                          <Ban className="w-5 h-5 text-red-500" />
+                          <Users className="w-5 h-5 text-zinc-700" />
                           <div className="text-left">
-                            <p className="text-sm font-bold text-red-500">Block Address</p>
-                            <p className="text-[10px] text-zinc-500">Instantly restrict IP</p>
+                            <p className="text-sm font-bold text-zinc-900">จัดการผู้ใช้ (User Management)</p>
+                            <p className="text-[10px] text-zinc-500">เปลี่ยนรหัสผ่านและรายละเอียด</p>
                           </div>
                         </div>
-                        <ChevronRight className="w-4 h-4 text-zinc-700" />
+                        <ChevronRight className="w-4 h-4 text-zinc-400" />
                       </button>
                     </div>
-                  </div>
-                  
-                  <div className="bg-zinc-900/20 border border-white/5 rounded-3xl p-6 text-center">
-                     <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest mb-4">Storage Usage</p>
-                     <div className="w-full bg-zinc-900 rounded-full h-1.5 mb-2 overflow-hidden">
-                        <div className="bg-red-500 h-full w-[15%] rounded-full shadow-[0_0_10px_rgba(239,68,68,0.5)]"></div>
-                     </div>
-                     <p className="text-zinc-600 text-[9px]">1.2MB / 512MB (Enterprise Plan)</p>
                   </div>
                 </div>
               </div>
@@ -682,6 +696,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </motion.div>
           )}
 
+          {adminTab === 'users' && (
+            <motion.div 
+              key="users"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="space-y-6"
+            >
+              <AdminUserManagement 
+                purchaseHistory={purchaseHistory} 
+                topupHistory={topupHistory} 
+                usedKeysHistory={usedKeysHistory} 
+              />
+            </motion.div>
+          )}
           {adminTab === 'store' && (
             <motion.div 
               key="store"
@@ -691,9 +720,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               className="space-y-6"
             >
               {/* Site Stats */}
-              <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 shadow-xl relative overflow-hidden">
+              <div className="bg-white border border-zinc-200 rounded-3xl p-6 shadow-sm relative overflow-hidden">
                 <div className="flex justify-between items-center mb-6">
-                  <h3 className="font-bold text-white flex items-center gap-2"><BarChart3 className="w-5 h-5 text-indigo-400" /> ตั้งค่าสถิติหน้าแรก</h3>
+                  <h3 className="font-bold text-zinc-900 flex items-center gap-2"><BarChart3 className="w-5 h-5 text-red-500" /> ตั้งค่าสถิติหน้าแรก</h3>
                   <button 
                     onClick={() => {
                         let currentUsers = siteStats.users;
@@ -707,8 +736,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                               <input id="swal-sales" class="swal2-input" placeholder="ยอดขาย" value="${currentSales}">
                             `,
                             focusConfirm: false,
-                            background: '#09090b',
-                            color: '#fff',
+                            confirmButtonColor: '#dc2626',
                             preConfirm: () => {
                               return {
                                 users: parseInt((document.getElementById('swal-users') as HTMLInputElement).value),
@@ -719,46 +747,46 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         }).then((result) => {
                             if (result.isConfirmed && setSiteStats) {
                                 setSiteStats(result.value!);
-                                Swal.fire({ title: 'บันทึกสำเร็จ', icon: 'success', background: '#09090b', color: '#fff' });
+                                Swal.fire({ title: 'บันทึกสำเร็จ', icon: 'success', confirmButtonColor: '#16a34a' });
                             }
                         });
                     }}
-                    className="bg-indigo-500 hover:bg-indigo-400 text-white font-bold py-2 px-4 rounded-xl text-xs transition-colors"
+                    className="bg-red-50 hover:bg-red-100 text-red-600 font-bold py-2 px-4 rounded-xl text-xs transition-colors"
                   >
                     แก้ไขสถิติ
                   </button>
                 </div>
                 <div className="grid grid-cols-3 gap-4">
-                  <div className="bg-[#09090b] rounded-2xl p-4 border border-white/5 flex flex-col items-center justify-center">
-                    <span className="text-3xl font-black text-white">{siteStats.users.toLocaleString()}</span>
+                  <div className="bg-zinc-50 rounded-2xl p-4 border border-zinc-100 flex flex-col items-center justify-center">
+                    <span className="text-3xl font-black text-zinc-900">{siteStats.users.toLocaleString()}</span>
                     <span className="text-zinc-500 text-xs font-bold uppercase tracking-wider mt-1">ผู้ใช้งาน</span>
                   </div>
-                  <div className="bg-[#09090b] rounded-2xl p-4 border border-white/5 flex flex-col items-center justify-center">
-                    <span className="text-3xl font-black text-white">{siteStats.stock.toLocaleString()}</span>
+                  <div className="bg-zinc-50 rounded-2xl p-4 border border-zinc-100 flex flex-col items-center justify-center">
+                    <span className="text-3xl font-black text-zinc-900">{siteStats.stock.toLocaleString()}</span>
                     <span className="text-zinc-500 text-xs font-bold uppercase tracking-wider mt-1">สต๊อกสินค้า</span>
                   </div>
-                  <div className="bg-[#09090b] rounded-2xl p-4 border border-white/5 flex flex-col items-center justify-center">
-                    <span className="text-3xl font-black text-white">{siteStats.sales.toLocaleString()}</span>
+                  <div className="bg-zinc-50 rounded-2xl p-4 border border-zinc-100 flex flex-col items-center justify-center">
+                    <span className="text-3xl font-black text-zinc-900">{siteStats.sales.toLocaleString()}</span>
                     <span className="text-zinc-500 text-xs font-bold uppercase tracking-wider mt-1">ยอดขาย</span>
                   </div>
                 </div>
               </div>
 
               {/* Products List */}
-              <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 shadow-xl relative overflow-hidden">
+              <div className="bg-white border border-zinc-200 rounded-3xl p-6 shadow-sm relative overflow-hidden">
                 <div className="flex justify-between items-center mb-6">
-                  <h3 className="font-bold text-white flex items-center gap-2"><Package className="w-5 h-5 text-emerald-400" /> จัดการสินค้า</h3>
+                  <h3 className="font-bold text-zinc-900 flex items-center gap-2"><Package className="w-5 h-5 text-red-500" /> จัดการสินค้า</h3>
                   <button 
                     onClick={() => setIsAddingProduct(true)}
-                    className="bg-emerald-500 hover:bg-emerald-400 text-black font-bold py-2 px-4 rounded-xl text-xs transition-colors flex items-center gap-2"
+                    className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-xl text-xs transition-colors flex items-center gap-2"
                   >
                     <Plus className="w-4 h-4"/> เพิ่มสินค้า
                   </button>
                 </div>
 
                 <div className="overflow-x-auto">
-                  <table className="w-full text-left text-sm text-zinc-400">
-                    <thead className="text-xs uppercase bg-[#09090b] text-zinc-500 font-bold tracking-wider">
+                  <table className="w-full text-left text-sm text-zinc-600">
+                    <thead className="text-xs uppercase bg-zinc-50 text-zinc-500 font-bold tracking-wider">
                       <tr>
                         <th className="px-4 py-3 rounded-l-xl">สินค้า</th>
                         <th className="px-4 py-3">ราคา</th>
@@ -768,17 +796,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     </thead>
                     <tbody>
                       {products.map((p, i) => (
-                        <tr key={i} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                        <tr key={i} className="border-b border-zinc-100 hover:bg-zinc-50/50 transition-colors">
                           <td className="px-4 py-4 flex items-center gap-3">
-                            <img src={p.imageUrl || undefined} alt={p.name} className="w-10 h-10 rounded-lg object-cover bg-zinc-800" />
+                            <img src={p.imageUrl || undefined} alt={p.name} className="w-10 h-10 rounded-lg object-cover bg-zinc-100" />
                             <div>
-                                <div className="text-white font-bold">{p.name}</div>
+                                <div className="text-zinc-900 font-bold">{p.name}</div>
                                 <div className="text-xs text-zinc-500 truncate max-w-[200px]">{p.description}</div>
                             </div>
                           </td>
-                          <td className="px-4 py-4 font-bold text-emerald-400">฿{p.price.toLocaleString()}</td>
+                          <td className="px-4 py-4 font-bold text-emerald-600">฿{p.price.toLocaleString()}</td>
                           <td className="px-4 py-4">
-                            <span className={`px-2 py-1 rounded text-xs font-bold ${p.stock > 0 ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-500'}`}>
+                            <span className={`px-2 py-1 rounded text-xs font-bold ${p.stock > 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'}`}>
                               {p.stock}
                             </span>
                           </td>
@@ -786,37 +814,41 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                              <div className="flex items-center justify-end gap-2">
                                 <button 
                                   onClick={() => setStockProduct(p)}
-                                  className="p-2 border border-zinc-700 bg-zinc-800/50 text-indigo-400 hover:bg-indigo-500/20 hover:border-indigo-500/50 rounded-lg transition-colors title='เพิ่มสต๊อก'"
+                                  className="p-2 border border-zinc-200 bg-white text-zinc-600 hover:bg-zinc-50 hover:border-zinc-300 rounded-lg transition-colors title='เพิ่มสต๊อก'"
                                 >
                                     <Database className="w-4 h-4" />
                                 </button>
                                 <button 
                                   onClick={() => setEditingProduct(p)}
-                                  className="p-2 border border-zinc-700 bg-zinc-800/50 text-amber-400 hover:bg-amber-500/20 hover:border-amber-500/50 rounded-lg transition-colors title='แก้ไขสินค้า'"
+                                  className="p-2 border border-zinc-200 bg-white text-zinc-600 hover:bg-zinc-50 hover:border-zinc-300 rounded-lg transition-colors"
+                                  title="แก้ไขสินค้า"
                                 >
                                     <Settings className="w-4 h-4" />
                                 </button>
-                                <button 
-                                    onClick={() => {
-                                        Swal.fire({
-                                          title: 'ยืนยันการลบ',
-                                          text: `คุณต้องการลบ ${p.name} ใช่หรือไม่?`,
-                                          icon: 'warning',
-                                          showCancelButton: true,
-                                          confirmButtonColor: '#ef4444',
-                                          cancelButtonColor: '#27272a',
-                                          confirmButtonText: 'ลบเลย',
-                                          cancelButtonText: 'ยกเลิก',
-                                          background: '#09090b',
-                                          color: '#fff'
-                                        }).then((result) => {
-                                          if (result.isConfirmed && setProducts) {
-                                            setProducts(products.filter(prod => prod.id !== p.id));
-                                            Swal.fire({ title: 'ลบแล้ว!', icon: 'success', background: '#09090b', color: '#fff' });
-                                          }
-                                        })
-                                    }}
-                                    className="p-2 border border-zinc-700 bg-zinc-800/50 text-red-500 hover:bg-red-500/20 hover:border-red-500/50 rounded-lg transition-colors title='ลบสินค้า'"
+                                <button
+                                  onClick={() => {
+                                    if(setProducts && products.length > 0) {
+                                      Swal.fire({
+                                        title: 'ยืนยันการลบ',
+                                        text: 'คุณต้องการลบสินค้านี้ใช่หรือไม่?',
+                                        icon: 'warning',
+                                        showCancelButton: true,
+                                        confirmButtonColor: '#dc2626',
+                                        cancelButtonColor: '#71717a',
+                                        confirmButtonText: 'ลบ',
+                                        cancelButtonText: 'ยกเลิก',
+                                        background: '#09090b',
+                                        color: '#fff'
+                                      }).then((result) => {
+                                        if (result.isConfirmed) {
+                                          setProducts(products.filter(prod => prod.id !== p.id));
+                                          Swal.fire({ title: 'ลบสำเร็จ', icon: 'success', background: '#09090b', color: '#fff', showConfirmButton: false, timer: 1000 });
+                                        }
+                                      });
+                                    }
+                                  }}
+                                  className="p-2 border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
+                                  title="ลบสินค้า"
                                 >
                                     <Trash2 className="w-4 h-4" />
                                 </button>
@@ -826,38 +858,32 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       ))}
                     </tbody>
                   </table>
-                  {products.length === 0 && (
-                      <div className="text-center py-8 text-zinc-500">
-                          ยังไม่มีสินค้า
-                      </div>
-                  )}
                 </div>
               </div>
             </motion.div>
           )}
 
           {adminTab === 'keys' && (
-
             <motion.div 
               key="keys"
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="bg-zinc-950 border border-white/5 rounded-3xl overflow-hidden"
+              className="bg-white border border-zinc-200 shadow-sm rounded-3xl overflow-hidden"
             >
-              <div className="p-8 border-b border-white/5 flex justify-between items-center bg-zinc-900/20">
+              <div className="p-6 border-b border-zinc-100 flex justify-between items-center bg-zinc-50/50">
                 <div>
-                  <h3 className="text-xl font-bold">Key Management</h3>
-                  <p className="text-zinc-500 text-xs mt-1">Manage and track all generated licenses</p>
+                  <h3 className="font-bold text-zinc-900 flex items-center gap-2"><Key className="w-5 h-5 text-red-500" /> Key Management</h3>
+                  <p className="text-zinc-500 text-xs mt-1">จัดการคีย์และสต๊อก</p>
                 </div>
-                <button onClick={addLicenseKey} className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-2xl text-xs font-bold transition-all flex items-center gap-2 shadow-[0_0_20px_rgba(16,185,129,0.2)]">
-                  <Plus className="w-4 h-4" /> GENERATE NEW KEYS
+                <button onClick={addLicenseKey} className="bg-red-600 hover:bg-red-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-sm">
+                  <Plus className="w-4 h-4" /> สร้างคีย์เพิ่ม
                 </button>
               </div>
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm">
-                  <thead>
-                    <tr className="text-zinc-500 border-b border-white/5 bg-zinc-900/10 uppercase text-[10px] font-bold">
+                <table className="w-full text-left text-sm text-zinc-600">
+                  <thead className="text-xs uppercase bg-zinc-50 text-zinc-500 font-bold tracking-wider">
+                    <tr>
                       <th className="p-4">License Key</th>
                       <th className="p-4">Type</th>
                       <th className="p-4">Status</th>
@@ -865,32 +891,42 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       <th className="p-4 text-right">Action</th>
                     </tr>
                   </thead>
-                  <tbody className="font-mono text-xs">
+                  <tbody className="text-xs">
                     {firebaseKeys.length > 0 ? firebaseKeys.map((key, i) => (
-                      <tr key={i} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
+                      <tr key={i} className="border-b border-zinc-100 hover:bg-zinc-50/50 transition-colors">
                         <td className="p-4">
                           <div className="flex items-center gap-3">
-                             <div className="w-2 h-2 rounded-full bg-cyan-500 shadow-[0_0_8px_rgba(6,182,212,0.5)]"></div>
-                             <span className="text-zinc-200 select-all">{key.key}</span>
+                             <div className="w-2 h-2 rounded-full bg-cyan-500"></div>
+                             <span className="text-zinc-900 font-mono font-bold">{key.key}</span>
+                             <button 
+                               onClick={() => {
+                                 navigator.clipboard.writeText(key.key);
+                                 Swal.fire({ title: 'Copied!', text: 'คัดลอกคีย์สำเร็จ', icon: 'success', timer: 1000, showConfirmButton: false, confirmButtonColor: '#16a34a' });
+                               }}
+                               className="text-zinc-400 hover:text-emerald-600 transition-colors p-1"
+                               title="Copy Key"
+                             >
+                               <Copy className="w-4 h-4" />
+                             </button>
                           </div>
                         </td>
                         <td className="p-4">
-                          <span className="bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded text-[10px]">{key.plan}</span>
+                          <span className="bg-zinc-100 text-zinc-600 px-2 py-0.5 rounded text-[10px] uppercase font-bold">{key.plan}</span>
                         </td>
                         <td className="p-4">
-                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${key.status === 'active' ? 'text-emerald-500' : 'text-zinc-600'}`}>
-                            {key.status.toUpperCase()}
+                          <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase ${key.status === 'active' ? 'bg-emerald-50 text-emerald-600' : 'bg-zinc-100 text-zinc-500'}`}>
+                            {key.status}
                           </span>
                         </td>
-                        <td className="p-4 text-zinc-600">{new Date(key.created_at).toLocaleDateString()}</td>
+                        <td className="p-4 text-zinc-500">{new Date(key.created_at).toLocaleDateString()}</td>
                         <td className="p-4 text-right">
-                          <button onClick={() => deleteKey(key.id)} className="p-2 hover:bg-red-500/10 text-zinc-700 hover:text-red-500 rounded-lg transition-all">
+                          <button onClick={() => deleteKey(key.id)} className="p-2 hover:bg-red-50 text-zinc-400 hover:text-red-600 rounded-lg transition-all">
                             <Trash2 className="w-4 h-4" />
                           </button>
                         </td>
                       </tr>
                     )) : (
-                      <tr><td colSpan={5} className="p-20 text-center text-zinc-600">No keys found in database</td></tr>
+                      <tr><td colSpan={5} className="p-12 text-center text-zinc-500"> ไม่มีข้อมูลคีย์ในระบบ </td></tr>
                     )}
                   </tbody>
                 </table>
@@ -904,32 +940,42 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="bg-zinc-950 border border-white/5 rounded-3xl overflow-hidden"
+              className="bg-white border border-zinc-200 shadow-sm rounded-3xl overflow-hidden"
             >
-               <div className="p-8 border-b border-white/5 bg-zinc-900/20">
-                  <h3 className="text-xl font-bold">Redeem Logs</h3>
-                  <p className="text-zinc-500 text-xs mt-1">Audit trail of all license usage</p>
+               <div className="p-6 border-b border-zinc-100 bg-zinc-50/50">
+                  <h3 className="font-bold text-zinc-900 flex items-center gap-2"><History className="w-5 h-5 text-red-500" /> Redeem Logs</h3>
+                  <p className="text-zinc-500 text-xs mt-1">ประวัติการใช้งานคีย์</p>
                </div>
                <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm">
-                  <thead>
-                    <tr className="text-zinc-500 border-b border-white/5 bg-zinc-900/10 uppercase text-[10px] font-bold">
+                <table className="w-full text-left text-sm text-zinc-600">
+                  <thead className="text-xs uppercase bg-zinc-50 text-zinc-500 font-bold tracking-wider">
+                    <tr>
                       <th className="p-4">Key Used</th>
                       <th className="p-4">User IP</th>
                       <th className="p-4">Timestamp</th>
                       <th className="p-4">Status</th>
                     </tr>
                   </thead>
-                  <tbody className="font-mono text-xs">
+                  <tbody className="text-xs font-mono">
                     {usedKeysHistory.length > 0 ? usedKeysHistory.map((h, i) => (
-                      <tr key={i} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
-                        <td className="p-4 text-amber-500/80">{h.key}</td>
-                        <td className="p-4 text-zinc-400">{h.ip}</td>
-                        <td className="p-4 text-zinc-600">{new Date(h.used_at).toLocaleString()}</td>
-                        <td className="p-4"><span className="text-emerald-500 font-bold bg-emerald-500/10 px-2 py-0.5 rounded text-[10px]">SUCCESS</span></td>
+                      <tr key={i} className="border-b border-zinc-100 hover:bg-zinc-50/50 transition-colors">
+                        <td className="p-4">
+                          <div className="flex items-center gap-2">
+                             <span className="text-amber-600 font-bold">{h.key}</span>
+                             <button onClick={() => { navigator.clipboard.writeText(h.key); Swal.fire({ title: 'Copied!', text: 'คัดลอกสำเร็จ', icon: 'success', timer: 1000, showConfirmButton: false, confirmButtonColor: '#16a34a' }); }} className="text-zinc-400 hover:text-amber-600"><Copy className="w-3 h-3" /></button>
+                          </div>
+                        </td>
+                        <td className="p-4">
+                          <div className="flex items-center gap-2">
+                            <span className="text-zinc-500">{h.ip}</span>
+                            <button onClick={() => { navigator.clipboard.writeText(h.ip); Swal.fire({ title: 'Copied!', text: 'คัดลอก IP สำเร็จ', icon: 'success', timer: 1000, showConfirmButton: false, confirmButtonColor: '#16a34a' }); }} className="text-zinc-400 hover:text-zinc-600"><Copy className="w-3 h-3" /></button>
+                          </div>
+                        </td>
+                        <td className="p-4 text-zinc-500">{new Date(h.used_at).toLocaleString()}</td>
+                        <td className="p-4"><span className="text-emerald-600 font-bold bg-emerald-50 px-2 py-1 rounded text-[10px]">SUCCESS</span></td>
                       </tr>
                     )) : (
-                      <tr><td colSpan={4} className="p-20 text-center text-zinc-600">No history records found</td></tr>
+                      <tr><td colSpan={4} className="p-12 text-center text-zinc-500"> ไม่มีประวัติการใช้งาน </td></tr>
                     )}
                   </tbody>
                 </table>
@@ -943,21 +989,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="bg-zinc-950 border border-white/5 rounded-3xl overflow-hidden"
+              className="bg-white border border-zinc-200 shadow-sm rounded-3xl overflow-hidden"
             >
-               <div className="p-8 border-b border-white/5 flex justify-between items-center bg-zinc-900/20">
+               <div className="p-6 border-b border-zinc-100 flex justify-between items-center bg-zinc-50/50">
                   <div>
-                    <h3 className="text-xl font-bold">IP Access Control</h3>
-                    <p className="text-zinc-500 text-xs mt-1">Permanently block malicious users</p>
+                    <h3 className="font-bold text-zinc-900 flex items-center gap-2"><Ban className="w-5 h-5 text-red-500" /> IP Access Control</h3>
+                    <p className="text-zinc-500 text-xs mt-1">แบนผู้ใช้งานที่ไม่พึงประสงค์</p>
                   </div>
-                  <button onClick={blockIP} className="bg-red-600 hover:bg-red-500 text-white px-6 py-2.5 rounded-2xl text-xs font-bold transition-all flex items-center gap-2">
-                     <Ban className="w-4 h-4" /> BLOCK NEW IP
+                  <button onClick={blockIP} className="bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 rounded-2xl text-xs font-bold transition-all flex items-center gap-2 shadow-sm">
+                     <Ban className="w-4 h-4" /> แบน IP ใหม่
                   </button>
                </div>
                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-sm">
-                    <thead>
-                      <tr className="text-zinc-500 border-b border-white/5 bg-zinc-900/10 uppercase text-[10px] font-bold">
+                  <table className="w-full text-left text-sm text-zinc-600">
+                    <thead className="text-xs uppercase bg-zinc-50 text-zinc-500 font-bold tracking-wider">
+                      <tr>
                         <th className="p-4">IP Address</th>
                         <th className="p-4">Reason</th>
                         <th className="p-4">Date Blocked</th>
@@ -966,18 +1012,23 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     </thead>
                     <tbody className="font-mono text-xs">
                       {blockedIPs.length > 0 ? blockedIPs.map((ip, i) => (
-                        <tr key={i} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
-                          <td className="p-4 text-red-500 font-bold tracking-tight">{ip.ip}</td>
-                          <td className="p-4 text-zinc-400 italic">"{ip.reason}"</td>
-                          <td className="p-4 text-zinc-600">{new Date(ip.blocked_at).toLocaleDateString()}</td>
+                        <tr key={i} className="border-b border-zinc-100 hover:bg-zinc-50/50 transition-colors">
+                          <td className="p-4">
+                            <div className="flex items-center gap-2">
+                              <span className="text-red-600 font-bold tracking-tight">{ip.ip}</span>
+                              <button onClick={() => { navigator.clipboard.writeText(ip.ip); Swal.fire({ title: 'Copied!', text: 'คัดลอก IP สำเร็จ', icon: 'success', timer: 1000, showConfirmButton: false, confirmButtonColor: '#16a34a' }); }} className="text-zinc-400 hover:text-red-600"><Copy className="w-3 h-3" /></button>
+                            </div>
+                          </td>
+                          <td className="p-4 text-zinc-500 italic">"{ip.reason}"</td>
+                          <td className="p-4 text-zinc-500">{new Date(ip.blocked_at).toLocaleDateString()}</td>
                           <td className="p-4 text-right">
-                             <button onClick={() => unblockIP(ip.ip)} className="text-emerald-500 hover:text-emerald-400 text-[10px] font-bold uppercase tracking-widest bg-emerald-500/5 hover:bg-emerald-500/10 px-3 py-1.5 rounded-lg border border-emerald-500/10 transition-all">
-                                Unblock
+                             <button onClick={() => unblockIP(ip.ip)} className="text-emerald-600 hover:text-emerald-700 text-[10px] font-bold uppercase tracking-widest bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-lg border border-emerald-100 transition-all">
+                                ปลดแบน (Unblock)
                              </button>
                           </td>
                         </tr>
                       )) : (
-                        <tr><td colSpan={4} className="p-20 text-center text-zinc-600">No IP blocks active</td></tr>
+                        <tr><td colSpan={4} className="p-12 text-center text-zinc-500">ไม่มีรายการแบน</td></tr>
                       )}
                     </tbody>
                   </table>
@@ -992,51 +1043,53 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               exit={{ opacity: 0, x: -20 }}
               className="space-y-6"
             >
-              <div className="bg-zinc-950 border border-white/5 rounded-3xl overflow-hidden">
-                <div className="p-8 border-b border-white/5 flex justify-between items-center bg-zinc-900/20">
+              <div className="bg-white border border-zinc-200 shadow-sm rounded-3xl overflow-hidden">
+                <div className="p-6 border-b border-zinc-100 flex justify-between items-center bg-zinc-50/50">
                   <div>
-                    <h3 className="text-xl font-bold flex items-center gap-2"><Cpu className="w-5 h-5 text-indigo-400" /> System Monitoring</h3>
+                    <h3 className="font-bold text-zinc-900 flex items-center gap-2"><Cpu className="w-5 h-5 text-indigo-500" /> System Monitoring</h3>
                     <p className="text-zinc-500 text-xs mt-1">Realtime node state and resource allocation</p>
                   </div>
                 </div>
                 <div className="p-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     {[
-                      { label: "CPU Usage", value: "14%", icon: Cpu, color: "text-amber-500" },
-                      { label: "Memory (RAM)", value: "512MB / 1GB", icon: HardDrive, color: "text-indigo-400" },
-                      { label: "Network IO", value: "24 Mbps", icon: Activity, color: "text-emerald-500" },
-                      { label: "Uptime", value: "94 Days", icon: BarChart3, color: "text-cyan-400" }
+                      { label: "CPU Usage", value: "14%", icon: Cpu, color: "text-amber-600", bg: "bg-amber-50" },
+                      { label: "Memory (RAM)", value: "512MB / 1GB", icon: HardDrive, color: "text-indigo-600", bg: "bg-indigo-50" },
+                      { label: "Network IO", value: "24 Mbps", icon: Activity, color: "text-emerald-600", bg: "bg-emerald-50" },
+                      { label: "Uptime", value: "94 Days", icon: BarChart3, color: "text-cyan-600", bg: "bg-cyan-50" }
                     ].map((stat, i) => (
-                      <div key={i} className="bg-zinc-900/20 border border-white/5 p-4 rounded-2xl flex items-center gap-4">
-                        <div className={`p-3 rounded-xl bg-zinc-900 ${stat.color}`}>
+                      <div key={i} className="bg-zinc-50 border border-zinc-100 p-4 rounded-2xl flex items-center gap-4 transition-colors hover:bg-zinc-100/50">
+                        <div className={`p-3 rounded-xl ${stat.bg} ${stat.color}`}>
                           <stat.icon className="w-5 h-5" />
                         </div>
                         <div>
                           <p className="text-zinc-500 text-[10px] font-bold uppercase">{stat.label}</p>
-                          <p className="text-lg font-bold font-mono">{stat.value}</p>
+                          <p className="text-lg font-bold font-mono text-zinc-900">{stat.value}</p>
                         </div>
                       </div>
                     ))}
                   </div>
 
                   <div className="mt-8">
-                    <h4 className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-4">Environment Information</h4>
-                    <div className="bg-zinc-900/20 border border-white/5 rounded-2xl p-4 font-mono text-xs space-y-3">
-                      <div className="flex justify-between border-b border-white/5 pb-2">
-                         <span className="text-zinc-500">Node JS</span>
-                         <span className="text-zinc-300">v20.x.x</span>
+                    <h4 className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+                       <Database className="w-4 h-4" /> Environment Information
+                    </h4>
+                    <div className="bg-zinc-50 border border-zinc-100 rounded-2xl p-4 font-mono text-xs space-y-3">
+                      <div className="flex justify-between border-b border-zinc-200/60 pb-2">
+                         <span className="text-zinc-500 font-bold">Node JS</span>
+                         <span className="text-zinc-700">v20.x.x</span>
                       </div>
-                      <div className="flex justify-between border-b border-white/5 pb-2">
-                         <span className="text-zinc-500">Database</span>
-                         <span className="text-zinc-300 text-emerald-400">Connected (Supabase)</span>
+                      <div className="flex justify-between border-b border-zinc-200/60 pb-2">
+                         <span className="text-zinc-500 font-bold">Database</span>
+                         <span className="text-emerald-600 font-bold">Connected (Supabase)</span>
                       </div>
-                      <div className="flex justify-between border-b border-white/5 pb-2">
-                         <span className="text-zinc-500">Build Mode</span>
-                         <span className="text-zinc-300">Production</span>
+                      <div className="flex justify-between border-b border-zinc-200/60 pb-2">
+                         <span className="text-zinc-500 font-bold">Build Mode</span>
+                         <span className="text-indigo-600 font-bold">Production</span>
                       </div>
                       <div className="flex justify-between">
-                         <span className="text-zinc-500">Vite Config</span>
-                         <span className="text-amber-400">Optimized</span>
+                         <span className="text-zinc-500 font-bold">Vite Config</span>
+                         <span className="text-amber-600 font-bold">Optimized</span>
                       </div>
                     </div>
                   </div>

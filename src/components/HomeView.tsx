@@ -9,7 +9,6 @@ interface HomeViewProps {
   stats: SiteStats;
   user?: any;
   setActiveView: (view: any) => void;
-  setShowWalletModal: (show: boolean) => void;
   handlePurchase: (product: Product) => void;
 }
 
@@ -17,7 +16,7 @@ const BANNERS = [
   "https://img2.pic.in.th/3B7FAB24-03F9-4935-8856-757B88CB4C97.png"
 ];
 
-export const HomeView: React.FC<HomeViewProps> = ({ products, stats, user, setActiveView, setShowWalletModal, handlePurchase }) => {
+export const HomeView: React.FC<HomeViewProps> = ({ products, stats, user, setActiveView, handlePurchase }) => {
   const [currentBanner, setCurrentBanner] = useState(0);
   const [realtimeStats, setRealtimeStats] = useState(stats);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
@@ -336,7 +335,8 @@ export const HomeView: React.FC<HomeViewProps> = ({ products, stats, user, setAc
                 confirmButtonColor: '#dc2626'
               })
             } else {
-              setShowWalletModal(true);
+              window.location.hash = 'wallet';
+              setActiveView('wallet');
             }
           }},
           { icon: Key, label: 'เปิดใช้งานคีย์', id: 'Redeem', color: 'amber', action: () => setActiveView('redeem') },
@@ -420,11 +420,6 @@ export const HomeView: React.FC<HomeViewProps> = ({ products, stats, user, setAc
                     {product.isPopular && (
                       <div className="absolute top-2 right-2 bg-red-500 text-white text-[9px] font-bold rounded-full px-2 py-1 z-10 shadow-md">
                          ยอดนิยม
-                      </div>
-                    )}
-                    {product.category && (
-                      <div className="absolute top-2 left-2 bg-white/90 backdrop-blur text-zinc-900 text-[9px] font-bold rounded-full px-2 py-1 z-10 shadow-sm">
-                        {product.category}
                       </div>
                     )}
                     <img 

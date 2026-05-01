@@ -1,8 +1,9 @@
 import React from 'react';
-import { User, Wallet, Shield, Mail, Calendar, CreditCard, ChevronRight, LogOut, Package, History, Key } from 'lucide-react';
+import { User, Wallet, Shield, Mail, Calendar, CreditCard, ChevronRight, LogOut, Package, History, Key, Copy } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { UserPlan } from '../types';
 import { User as SupabaseUser } from '@supabase/supabase-js';
+import { getAvatarUrl } from '../lib/avatar';
 
 interface ProfileViewProps {
   user: SupabaseUser | null;
@@ -10,12 +11,11 @@ interface ProfileViewProps {
   setUserPlan: (plan: UserPlan) => void;
   clientIp: string | null;
   setActiveView: (view: any) => void;
-  setShowWalletModal: (show: boolean) => void;
   handleLogout: () => void;
 }
 
 export const ProfileView: React.FC<ProfileViewProps> = ({
-  user, userPlan, setUserPlan, clientIp, setActiveView, setShowWalletModal, handleLogout
+  user, userPlan, setUserPlan, clientIp, setActiveView, handleLogout
 }) => {
   const role = userPlan?.role || 'สมาชิกทั่วไป';
   const balance = userPlan?.balance || 0;
@@ -34,7 +34,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           
           <div className="w-24 h-24 rounded-full bg-white p-1 mb-4 relative z-10 border shadow-sm border-zinc-200 overflow-hidden">
             <img 
-              src={`https://api.dicebear.com/7.x/pixel-art/svg?seed=${username || 'guest'}&backgroundColor=ffdfbf,c0aede,d1d4f9,ffd5dc,ffeb3b`} 
+              src={getAvatarUrl(username || 'guest')} 
               alt="avatar" 
               className="w-full h-full rounded-full object-cover"
               referrerPolicy="no-referrer"
@@ -58,7 +58,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             </div>
             <button 
               onClick={() => {
-                setShowWalletModal(true);
+                setActiveView('wallet');
               }}
               className="mt-3 w-full bg-emerald-50 hover:bg-emerald-100 text-emerald-600 border border-emerald-100 py-2 rounded-xl text-xs font-bold transition-all"
             >
@@ -105,8 +105,19 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             
             <div>
               <label className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mb-1.5 block ml-1">อีเมล</label>
-              <div className="w-full bg-zinc-50 border border-zinc-100 rounded-xl py-2.5 px-4 text-sm text-zinc-500 cursor-not-allowed flex items-center gap-2">
-                <Mail className="w-4 h-4 text-zinc-400" /> {email}
+              <div className="w-full bg-zinc-50 border border-zinc-100 rounded-xl py-2.5 px-4 text-sm text-zinc-500 cursor-not-allowed flex items-center justify-between gap-2 overflow-hidden">
+                <div className="flex items-center gap-2 truncate">
+                  <Mail className="w-4 h-4 text-zinc-400 shrink-0" />
+                  <span className="truncate">{email}</span>
+                </div>
+                <button 
+                  type="button"
+                  onClick={() => { navigator.clipboard.writeText(email); Swal.fire({ title: 'Copied!', text: 'คัดลอกอีเมลสำเร็จ', icon: 'success', timer: 1000, showConfirmButton: false, background: '#09090b', color: '#fff' }); }}
+                  className="p-1 hover:bg-zinc-200 rounded-md transition-colors text-zinc-400 hover:text-zinc-600 shrink-0"
+                  title="Copy Email"
+                >
+                  <Copy className="w-4 h-4" />
+                </button>
               </div>
             </div>
 
@@ -121,14 +132,24 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           <div>
             <h3 className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mb-3 ml-1">เมนูด่วน</h3>
             <div className="space-y-2">
-              <button type="button" onClick={() => setActiveView('logs')} className="w-full flex items-center justify-between p-3 rounded-2xl bg-white border border-zinc-200 hover:border-red-200 hover:bg-zinc-50 transition-all group shadow-sm">
+              <button type="button" onClick={() => setActiveView('history')} className="w-full flex items-center justify-between p-3 rounded-2xl bg-white border border-zinc-200 hover:border-red-200 hover:bg-zinc-50 transition-all group shadow-sm">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-red-100 rounded-lg text-red-600">
+                    <History className="w-4 h-4" />
+                  </div>
+                  <span className="text-sm font-medium text-zinc-700 group-hover:text-zinc-900 transition-colors">ประวัติการทำรายการ (History)</span>
+                </div>
+                <ChevronRight className="w-4 h-4 text-zinc-400 group-hover:text-red-500 transition-colors" />
+              </button>
+
+              <button type="button" onClick={() => setActiveView('logs')} className="w-full flex items-center justify-between p-3 rounded-2xl bg-white border border-zinc-200 hover:border-indigo-200 hover:bg-zinc-50 transition-all group shadow-sm">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-indigo-50 rounded-lg text-indigo-500">
                     <History className="w-4 h-4" />
                   </div>
-                  <span className="text-sm font-medium text-zinc-700 group-hover:text-zinc-900 transition-colors">ประวัติการใช้งานระบบเช็คไอดี</span>
+                  <span className="text-sm font-medium text-zinc-700 group-hover:text-zinc-900 transition-colors">ประวัติระบบเช็คไอดี (Checker Logs)</span>
                 </div>
-                <ChevronRight className="w-4 h-4 text-zinc-400 group-hover:text-red-500 transition-colors" />
+                <ChevronRight className="w-4 h-4 text-zinc-400 group-hover:text-indigo-500 transition-colors" />
               </button>
 
               <button type="button" onClick={() => setActiveView('redeem')} className="w-full flex items-center justify-between p-3 rounded-2xl bg-white border border-zinc-200 hover:border-amber-200 hover:bg-amber-50/30 transition-all group shadow-sm">
