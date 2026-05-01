@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Search, History, ShieldAlert, Edit, CheckCircle, Ban, Wallet, ArrowRightLeft, Eye, RefreshCw, HandCoins } from 'lucide-react';
+import { Users, Search, History, ShieldAlert, Edit, CheckCircle, Ban, Wallet, ArrowRightLeft, Eye, RefreshCw, HandCoins, Copy } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -154,7 +154,19 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
               <tbody>
                 {filteredUsers.length > 0 ? filteredUsers.map((u, i) => (
                   <tr key={i} className="border-b border-zinc-100 hover:bg-zinc-50/50 transition-colors">
-                    <td className="px-4 py-4 font-bold text-zinc-900">{u.email}</td>
+                    <td className="px-4 py-4 font-bold text-zinc-900 flex items-center gap-2">
+                      {u.email}
+                      <button 
+                         onClick={(e) => {
+                           e.stopPropagation();
+                           navigator.clipboard.writeText(u.email);
+                           Swal.fire({ title: 'Copied!', text: 'คัดลอกอีเมลแล้ว', icon: 'success', timer: 1000, showConfirmButton: false, background: '#09090b', color: '#fff' });
+                         }}
+                         className="text-zinc-300 hover:text-zinc-500 transition-colors"
+                      >
+                         <Copy className="w-3 h-3" />
+                      </button>
+                    </td>
                     <td className="px-4 py-4">
                       <span className={`px-2 py-1 rounded-full text-[10px] uppercase tracking-widest font-bold ${u.role === 'Admin' ? 'bg-red-50 text-red-600 border border-red-100' : u.role === 'Premium' ? 'bg-amber-50 text-amber-600 border border-amber-100' : 'bg-zinc-100 text-zinc-600 border border-zinc-200'}`}>
                         {u.role}

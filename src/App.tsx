@@ -103,6 +103,14 @@ function AppContent() {
     }
   }, [activeView]);
 
+  useEffect(() => {
+    if (isAdmin) {
+      document.body.classList.add('admin-mode');
+    } else {
+      document.body.classList.remove('admin-mode');
+    }
+  }, [isAdmin]);
+
   const [combo, setCombo] = useState('');
   const comboRef = useRef('');
   const [running, setRunning] = useState(false);

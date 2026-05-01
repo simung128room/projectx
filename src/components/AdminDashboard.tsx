@@ -841,7 +841,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           <td className="px-4 py-4 flex items-center gap-3">
                             <img src={p.imageUrl || undefined} alt={p.name} className="w-10 h-10 rounded-lg object-cover bg-zinc-100" />
                             <div>
-                                <div className="text-zinc-900 font-bold">{p.name}</div>
+                                <div className="text-zinc-900 font-bold flex items-center gap-2">
+                                  {p.name}
+                                  <button 
+                                    onClick={() => {
+                                      navigator.clipboard.writeText(p.name);
+                                      Swal.fire({ title: 'Copied!', text: 'คัดลอกชื่อสินค้าแล้ว', icon: 'success', timer: 1000, showConfirmButton: false, background: '#09090b', color: '#fff' });
+                                    }}
+                                    className="text-zinc-300 hover:text-zinc-500 transition-colors"
+                                  >
+                                    <Copy className="w-3 h-3" />
+                                  </button>
+                                </div>
                                 <div className="text-xs text-zinc-500 truncate max-w-[200px]">{p.description}</div>
                             </div>
                           </td>
