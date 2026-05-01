@@ -367,7 +367,7 @@ const DatabaseSetupGuide = () => (
           <div className="relative group">
             <pre className="bg-black/80 rounded-2xl p-5 text-[11px] font-mono text-zinc-400 overflow-x-auto border border-white/5 max-h-64 scrollbar-thin scrollbar-thumb-zinc-800 leading-relaxed">
 {`-- 1. Table for license keys
-CREATE TABLE license_keys (
+CREATE TABLE IF NOT EXISTS license_keys (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     key text UNIQUE NOT NULL,
     plan text NOT NULL,
@@ -376,7 +376,7 @@ CREATE TABLE license_keys (
 );
 
 -- 2. Table for used keys
-CREATE TABLE used_keys (
+CREATE TABLE IF NOT EXISTS used_keys (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     key text NOT NULL,
     ip text NOT NULL,
@@ -385,14 +385,14 @@ CREATE TABLE used_keys (
 );
 
 -- 3. Table for blocked IPs
-CREATE TABLE blocked_ips (
+CREATE TABLE IF NOT EXISTS blocked_ips (
     ip text PRIMARY KEY,
     reason text,
     blocked_at timestamptz DEFAULT now()
 );
 
 -- 4. Table for admins
-CREATE TABLE admins (
+CREATE TABLE IF NOT EXISTS admins (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     username text UNIQUE NOT NULL,
     role text NOT NULL DEFAULT 'admin',
@@ -401,7 +401,7 @@ CREATE TABLE admins (
             </pre>
             <button 
               onClick={() => {
-                navigator.clipboard.writeText(`CREATE TABLE license_keys (id uuid DEFAULT gen_random_uuid() PRIMARY KEY, key text UNIQUE NOT NULL, plan text NOT NULL, status text NOT NULL DEFAULT 'active', created_at timestamptz DEFAULT now()); CREATE TABLE used_keys (id uuid DEFAULT gen_random_uuid() PRIMARY KEY, key text NOT NULL, ip text NOT NULL, details text, used_at timestamptz DEFAULT now()); CREATE TABLE blocked_ips (ip text PRIMARY KEY, reason text, blocked_at timestamptz DEFAULT now()); CREATE TABLE admins (id uuid DEFAULT gen_random_uuid() PRIMARY KEY, username text UNIQUE NOT NULL, role text NOT NULL DEFAULT 'admin', granted_at timestamptz DEFAULT now());`);
+                navigator.clipboard.writeText(`CREATE TABLE IF NOT EXISTS license_keys (id uuid DEFAULT gen_random_uuid() PRIMARY KEY, key text UNIQUE NOT NULL, plan text NOT NULL, status text NOT NULL DEFAULT 'active', created_at timestamptz DEFAULT now()); CREATE TABLE IF NOT EXISTS used_keys (id uuid DEFAULT gen_random_uuid() PRIMARY KEY, key text NOT NULL, ip text NOT NULL, details text, used_at timestamptz DEFAULT now()); CREATE TABLE IF NOT EXISTS blocked_ips (ip text PRIMARY KEY, reason text, blocked_at timestamptz DEFAULT now()); CREATE TABLE IF NOT EXISTS admins (id uuid DEFAULT gen_random_uuid() PRIMARY KEY, username text UNIQUE NOT NULL, role text NOT NULL DEFAULT 'admin', granted_at timestamptz DEFAULT now());`);
                 Swal.fire({ title: 'Copied!', text: 'SQL Code สำหรับรันใน Supabase ก๊อปปี้แล้ว', icon: 'success', timer: 2000, showConfirmButton: false, background: '#09090b', color: '#fff' });
               }}
               className="absolute top-3 right-3 p-2.5 bg-zinc-800 hover:bg-zinc-700 rounded-xl transition-all border border-white/5 text-amber-500 shadow-xl"
