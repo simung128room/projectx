@@ -938,7 +938,6 @@ function AppContent() {
     setValidAccounts([]);
     setInvalidCount(0);
     setTotalChecked(0);
-    setElapsedTime('00:00:00.000');
     
     addLog(`เริ่มตรวจสอบ... ทั้งหมด ${linesArg.length} รายการ [DataDome Bypass: ACTIVE] Threads: ${threads}`, 'terminal', 'text-cyan-400');
 

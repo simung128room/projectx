@@ -53,9 +53,9 @@ async function startServer() {
     res.json({ status: 'ok', time: new Date().toISOString() });
   });
 
-  // Site Settings State (Non-persistent for demo, should use DB in production)
+  // Site Settings State (Durable with Environment Variables)
   let siteSettings = {
-    truewallet_phone: '0951378403'
+    truewallet_phone: process.env.TRUEWALLET_PHONE || '0951378403'
   };
 
   app.get('/api/settings', (req, res) => {
@@ -81,59 +81,56 @@ async function startServer() {
         return res.status(400).json({ success: false, error: 'กรุณากรอกลิงก์ซองของขวัญ' });
       }
 
-      console.log(`[TrueWallet] Attempting to redeem: ${voucherCode} for phone: ${phone}`);
+      // Extract voucher hash from URL or use as is
+      let voucherHash = voucherCode.trim();
+      
+      // If it's a full URL, extract from ?v= or &v=
+      const urlMatch = voucherHash.match(/[?&]v=([^&#\s]+)/);
+      if (urlMatch) {
+        voucherHash = urlMatch[1];
+      } else if (voucherHash.includes('truemoney.com')) {
+        // Fallback for some links that might skip the 'v=' but contain hash in some way
+        const parts = voucherHash.split('/');
+        const lastPart = parts[parts.length - 1];
+        if (lastPart && lastPart.length >= 10) {
+          voucherHash = lastPart;
+        }
+      }
+      
+      // Final cleanup: just in case there's whitespace or extra chars
+      voucherHash = voucherHash.replace(/[^a-zA-Z0-9]/g, '');
 
-      const response = await axios.post(
-          `https://gift.truemoney.com/campaign/vouchers/${voucherCode}/redeem`,
-          {
-              mobile: phone,
-              voucher_hash: voucherCode
-          },
-          {
-              headers: {
-                  "Accept": "application/json",
-                  "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36",
-                  "Content-Type": "application/json",
-                  "Origin": "https://gift.truemoney.com",
-                  "Referer": `https://gift.truemoney.com/campaign/?v=${voucherCode}`,
-                  "Accept-Language": "en-US,en;q=0.9",
-                  "Connection": "keep-alive"
-              }
-          }
-      );
+      console.log(`[TrueWallet] Attempting to redeem via XPLUEM: "${voucherHash}" for phone: ${phone}`);
 
-      const redeemData = response.data;
-      console.log(`[TrueWallet] Response Code: ${redeemData?.status?.code}`);
+      // Using the new API: https://api.xpluem.com/:link/:phone
+      const response = await axios.get(`https://api.xpluem.com/${voucherHash}/${phone}`, {
+          timeout: 15000,
+          validateStatus: (status) => status < 500
+      });
 
-      if (redeemData.status.code === "SUCCESS") {
-          // Check both potential amount paths (Legacy vs Newest)
-          const amount = redeemData.data.voucher?.redeemed_amount_baht || 
-                        redeemData.data.my_ticket?.amount_baht || 
-                        redeemData.data.voucher?.amount_baht;
-                        
-          if (amount !== undefined) {
-             console.log(`[TrueWallet] Successfully redeemed ฿${amount}`);
-             return res.json({ success: true, amount: parseFloat(amount) });
-          } else {
-             console.error("[TrueWallet] Success status but amount not found:", JSON.stringify(redeemData));
-             return res.json({ success: false, error: 'ไม่พบข้อมูลจำนวนเงินในระบบ' });
-          }
+      const result = response.data;
+      console.log(`[TrueWallet] XPLUEM Response:`, JSON.stringify(result));
+
+      if (result.success === true) {
+          const amount = result.data?.amount || 0;
+          console.log(`[TrueWallet] Successfully redeemed ฿${amount}`);
+          return res.json({ 
+            success: true, 
+            amount: parseFloat(amount),
+            message: result.message || 'รับเงินสำเร็จ'
+          });
       } else {
-          const errorMsg = redeemData.status.message || 'ไม่สามารถรับเงินได้ (สถานะไม่สำเร็จ)';
+          const errorMsg = result.message || 'ไม่สามารถรับเงินได้ (สถานะไม่สำเร็จ)';
           console.warn(`[TrueWallet] Failed: ${errorMsg}`);
           return res.json({ success: false, error: errorMsg });
       }
     } catch (error: any) {
+        console.error("[TrueWallet] Gateway Error:", error.message);
         if (error.response) {
-            const redeemData = error.response.data;
-            const errorCode = redeemData?.status?.code || 'UNKNOWN';
-            const errorMessage = redeemData?.status?.message || 'ไม่ทราบสาเหตุ';
-            console.warn(`[TrueWallet] API Error: ${errorCode} - ${errorMessage}`);
-            return res.json({ success: false, error: `ไม่สามารถรับซองได้: ${errorMessage}` });
-        } else {
-            console.error("[TrueWallet] Internal Error:", error.message);
-            return res.status(500).json({ success: false, error: 'เกิดข้อผิดพลาดในการเชื่อมต่อเครือข่าย' });
+            const result = error.response.data;
+            return res.json({ success: false, error: result?.message || 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์ API' });
         }
+        return res.status(500).json({ success: false, error: 'เกิดข้อผิดพลาดในการเชื่อมต่อเครือข่าย' });
     }
   });
 

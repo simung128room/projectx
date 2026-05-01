@@ -18,13 +18,22 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
   const handleTruemoneyTopup = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const regex = /https:\/\/gift\.truemoney\.com\/campaign\/\?v=([a-zA-Z0-9]{18})/;
-    const match = truemoneyLink.match(regex);
+    const trimmedLink = truemoneyLink.trim();
+    let voucherCode = '';
+    
+    // Check if it's a direct hash or a potential TrueMoney link
+    if (trimmedLink.length >= 10) {
+      if (/^[a-zA-Z0-9]+$/.test(trimmedLink)) {
+        voucherCode = trimmedLink;
+      } else if (trimmedLink.includes('truemoney.com') || trimmedLink.includes('?v=')) {
+        voucherCode = trimmedLink;
+      }
+    }
 
-    if (!match) {
+    if (!voucherCode) {
       Swal.fire({
         title: 'ข้อมูลไม่ถูกต้อง',
-        text: 'รูปแบบลิงก์ซองอั่งเปาไม่ถูกต้อง',
+        text: 'รูปแบบลิงก์ซองอั่งเปาไม่ถูกต้อง กรุณาใช้ลิงก์ที่ถูกต้องหรือกรอกเฉพาะรหัสอั่งเปา',
         icon: 'error',
         background: '#09090b',
         color: '#fff',
@@ -32,8 +41,6 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
       });
       return;
     }
-
-    const voucherCode = match[1];
 
     Swal.fire({
       title: 'กำลังตรวจสอบ',
