@@ -2,11 +2,11 @@ import React from 'react';
 import { User, Wallet, Shield, Mail, Calendar, CreditCard, ChevronRight, LogOut, Package, History, Key, Copy } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { UserPlan } from '../types';
-import { User as SupabaseUser } from 'firebase/auth';
+import { User as FirebaseUser } from 'firebase/auth';
 import { getAvatarUrl } from '../lib/avatar';
 
 interface ProfileViewProps {
-  user: SupabaseUser | null;
+  user: FirebaseUser | null;
   userPlan: UserPlan | null;
   setUserPlan: (plan: UserPlan) => void;
   clientIp: string | null;

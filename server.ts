@@ -35,7 +35,7 @@ const db = getFirestore(firebaseApp);
 console.log(`[Server] --- VERSION 1.0.5 REBOOT ---`);
 console.log(`[Database] Initializing Firebase`);
 
-async function startServer() {
+
   const app = express();
   const PORT = 3000;
 
@@ -53,10 +53,7 @@ async function startServer() {
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
-  // Listen on port 3000 IMMEDIATELY so the health check works while Vite initializes
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`[Server] Core API listening on http://0.0.0.0:${PORT}`);
-  });
+  
 
   // Logging middleware for debugging
   app.use((req, res, next) => {
@@ -1077,49 +1074,32 @@ async function startServer() {
     res.json({ received: true });
   });
 
-  if (process.env.NODE_ENV !== "production" && !process.env.VERCEL) {
+
+if (!process.env.VERCEL) {
+  if (process.env.NODE_ENV !== "production") {
     console.log("Initializing Vite middleware (async)...");
     createViteServer({
-      server: { 
-        middlewareMode: true,
-        hmr: false 
-      },
+      server: { middlewareMode: true, hmr: false },
       appType: "spa",
     }).then(vite => {
       app.use(vite.middlewares);
       console.log("Vite middleware attached.");
+      app.listen(3000, "0.0.0.0", () => {
+        console.log(`[Server] Listening on http://0.0.0.0:3000`);
+      });
     }).catch(err => {
       console.error("Failed to initialize Vite middleware:", err);
     });
-  } else if (!process.env.VERCEL) {
+  } else {
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
     app.get('*', (req, res) => {
       res.sendFile(path.join(distPath, 'index.html'));
     });
+    app.listen(3000, "0.0.0.0", () => {
+      console.log(`[Server] Listening on http://0.0.0.0:3000`);
+    });
   }
-
-  return app;
 }
+export default app;
 
-import fs from 'node:fs';
-
-// Global Rejection Handler
-process.on('unhandledRejection', (reason: any) => {
-  console.error('Unhandled Rejection:', reason);
-  try {
-    fs.appendFileSync('crash.log', `${new Date().toISOString()}: Unhandled Rejection: ${JSON.stringify(reason)}\n`);
-  } catch (e) {}
-});
-
-process.on('uncaughtException', (err) => {
-  console.error('Uncaught Exception:', err);
-  try {
-    fs.appendFileSync('crash.log', `${new Date().toISOString()}: Uncaught Exception: ${err.stack}\n`);
-  } catch (e) {}
-});
-
-// Start the server
-startServer().catch(err => {
-  console.error('CRITICAL: Server failed to start:', err);
-});

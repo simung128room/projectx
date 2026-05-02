@@ -12,7 +12,7 @@ import axios from 'axios';
 import jsQR from 'jsqr';
 import { auth } from './lib/firebase';
 import { onAuthStateChanged, signInAnonymously as firebaseSignInAnonymously, signOut as firebaseSignOut, sendEmailVerification } from 'firebase/auth';
-import { User as SupabaseUser } from 'firebase/auth';
+import { User as FirebaseUser } from 'firebase/auth';
 import { Turnstile } from '@marsidev/react-turnstile';
 import { AccountResult, LogEntry, UserPlan } from './types';
 import { ProfileView } from './components/ProfileView';
@@ -74,7 +74,7 @@ function AppContent() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [adminUsername, setAdminUsername] = useState('');
   const [adminPassword, setAdminPassword] = useState('');
-  const [user, setUser] = useState<SupabaseUser | null>(null);
+  const [user, setUser] = useState<FirebaseUser | null>(null);
   const [userPlan, setUserPlan] = useState<UserPlan | null>(null);
   const [siteSettings, setSiteSettings] = useState({ 
     site_name: 'APEX STUDIO',
@@ -399,7 +399,7 @@ function AppContent() {
               if (ipsRes.error) errors.push(`blocked_ips: ${ipsRes.error}`);
               
               if (errors.length > 0) {
-                setDbErrorDetail("Supabase Error: " + errors.join(" | "));
+                setDbErrorDetail("Firebase Error: " + errors.join(" | "));
               } else {
                 setDbErrorDetail("เชื่อมต่อสำเร็จ แต่ยังไม่มีข้อมูลในตาราง (Tables empty)");
               }

@@ -346,8 +346,8 @@ const DatabaseSetupGuide = ({ dbErrorDetail }: { dbErrorDetail?: string | null }
         <Database className="w-8 h-8 text-amber-500" />
       </div>
       <div>
-        <h2 className="text-2xl font-bold text-white tracking-tight">Database Setup Required</h2>
-        <p className="text-zinc-500 text-sm mt-1">Supabase tables are missing from the current schema.</p>
+        <h2 className="text-2xl font-bold text-white tracking-tight">System Offline / Database Connectivity Issue</h2>
+        <p className="text-zinc-500 text-sm mt-1">The application backend or database is currently unreachable.</p>
       </div>
     </div>
     
@@ -355,105 +355,28 @@ const DatabaseSetupGuide = ({ dbErrorDetail }: { dbErrorDetail?: string | null }
       <div className="mb-8 p-4 bg-red-600/10 border border-red-600/20 rounded-2xl">
         <div className="flex items-center gap-2 mb-2">
           <ShieldAlert className="w-4 h-4 text-red-500" />
-          <h4 className="text-red-500 text-[10px] font-black uppercase tracking-widest">สถานะปัจจุบัน:</h4>
+          <h4 className="text-red-500 text-[10px] font-black uppercase tracking-widest">สถานะปัจจุบัน (Status):</h4>
         </div>
         <p className="text-red-200/80 text-xs font-mono break-all bg-black/40 p-3 rounded-xl border border-white/5">{dbErrorDetail}</p>
       </div>
     )}
     
-    <div className="space-y-8">
-      <div className="flex gap-5">
-        <div className="flex-shrink-0 w-10 h-10 rounded-2xl bg-zinc-800 flex items-center justify-center text-zinc-400 text-sm font-black border border-white/5">01</div>
-        <div className="pt-1">
-          <h3 className="text-white font-bold mb-1 tracking-tight">Configure Environment Variables</h3>
-          <p className="text-zinc-500 text-sm leading-relaxed mb-4">
-            If you haven't already, go to <strong>Settings</strong> {'>'} <strong>Secrets</strong> and set these keys:
-          </p>
-          <div className="space-y-2">
-            {['VITE_SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY'].map(key => (
-              <div key={key} className="flex items-center justify-between bg-black/40 rounded-xl px-4 py-2 border border-white/5">
-                <code className="text-[10px] text-zinc-300">{key}</code>
-                <span className="text-[10px] text-amber-500 font-bold uppercase tracking-tighter">Required</span>
-              </div>
-            ))}
-          </div>
+    <div className="space-y-4">
+      <div className="bg-black/40 border border-white/5 rounded-2xl p-6">
+        <h3 className="text-white font-bold mb-2">Troubleshooting Steps</h3>
+        <ul className="list-disc list-inside text-sm text-zinc-400 space-y-2">
+          <li>Ensure the backend server is running correctly.</li>
+          <li>If hosted on Vercel, check the Serverless Function logs for errors.</li>
+        </ul>
+        <div className="mt-6 flex justify-end">
+          <button 
+           onClick={() => window.location.reload()}
+           className="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold rounded-xl transition"
+          >
+           Refresh Application
+          </button>
         </div>
       </div>
-
-      <div className="flex gap-5">
-        <div className="flex-shrink-0 w-10 h-10 rounded-2xl bg-zinc-800 flex items-center justify-center text-zinc-400 text-sm font-black border border-white/5">02</div>
-        <div className="pt-1">
-          <h3 className="text-white font-bold mb-1 tracking-tight">Open Supabase SQL Editor</h3>
-          <p className="text-zinc-500 text-sm leading-relaxed">Go to your project at <a href="https://supabase.com/dashboard" target="_blank" rel="noreferrer" className="text-amber-500 hover:underline font-bold">Supabase Dashboard</a> and open the SQL Editor.</p>
-        </div>
-      </div>
-
-      <div className="flex gap-5">
-        <div className="flex-shrink-0 w-10 h-10 rounded-2xl bg-zinc-800 flex items-center justify-center text-zinc-400 text-sm font-black border border-white/5">03</div>
-        <div className="pt-1 flex-grow">
-          <h3 className="text-white font-bold mb-1 tracking-tight">Execute Bootstrap SQL</h3>
-          <p className="text-zinc-500 text-sm mb-4 leading-relaxed">Copy the code below, paste it into a new query, and click <strong>"Run"</strong>.</p>
-          <div className="relative group">
-            <pre className="bg-black/80 rounded-2xl p-5 text-[11px] font-mono text-zinc-400 overflow-x-auto border border-white/5 max-h-64 scrollbar-thin scrollbar-thumb-zinc-800 leading-relaxed">
-{`-- 1. Table for license keys
-CREATE TABLE IF NOT EXISTS license_keys (
-    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-    key text UNIQUE NOT NULL,
-    plan text NOT NULL,
-    status text NOT NULL DEFAULT 'active',
-    created_at timestamptz DEFAULT now()
-);
-
--- 2. Table for used keys
-CREATE TABLE IF NOT EXISTS used_keys (
-    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-    key text NOT NULL,
-    ip text NOT NULL,
-    details text,
-    used_at timestamptz DEFAULT now()
-);
-
--- 3. Table for blocked IPs
-CREATE TABLE IF NOT EXISTS blocked_ips (
-    ip text PRIMARY KEY,
-    reason text,
-    blocked_at timestamptz DEFAULT now()
-);
-
--- 4. Table for admins
-CREATE TABLE IF NOT EXISTS admins (
-    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-    username text UNIQUE NOT NULL,
-    role text NOT NULL DEFAULT 'admin',
-    granted_at timestamptz DEFAULT now()
-);`}
-            </pre>
-            <button 
-              onClick={() => {
-                navigator.clipboard.writeText(`CREATE TABLE IF NOT EXISTS license_keys (id uuid DEFAULT gen_random_uuid() PRIMARY KEY, key text UNIQUE NOT NULL, plan text NOT NULL, status text NOT NULL DEFAULT 'active', created_at timestamptz DEFAULT now()); CREATE TABLE IF NOT EXISTS used_keys (id uuid DEFAULT gen_random_uuid() PRIMARY KEY, key text NOT NULL, ip text NOT NULL, details text, used_at timestamptz DEFAULT now()); CREATE TABLE IF NOT EXISTS blocked_ips (ip text PRIMARY KEY, reason text, blocked_at timestamptz DEFAULT now()); CREATE TABLE IF NOT EXISTS admins (id uuid DEFAULT gen_random_uuid() PRIMARY KEY, username text UNIQUE NOT NULL, role text NOT NULL DEFAULT 'admin', granted_at timestamptz DEFAULT now());`);
-                Swal.fire({ title: 'Copied!', text: 'SQL Code สำหรับรันใน Supabase ก๊อปปี้แล้ว', icon: 'success', timer: 2000, showConfirmButton: false, background: '#09090b', color: '#fff' });
-              }}
-              className="absolute top-3 right-3 p-2.5 bg-zinc-800 hover:bg-zinc-700 rounded-xl transition-all border border-white/5 text-amber-500 shadow-xl"
-              title="Copy SQL"
-            >
-              <Copy className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div className="mt-10 pt-8 border-t border-white/5 flex items-center justify-between gap-4">
-       <div className="flex items-center gap-3 text-zinc-500 text-xs italic">
-         <div className="w-2 h-2 rounded-full bg-amber-500 animate-ping"></div>
-         Waiting for tables to be created...
-       </div>
-       <button 
-         onClick={() => window.location.reload()}
-         className="text-white text-xs font-bold uppercase tracking-widest bg-zinc-800 hover:bg-zinc-700 px-6 py-3 rounded-xl transition-all border border-white/5"
-       >
-         Refresh Now
-       </button>
     </div>
   </div>
 );
@@ -1276,7 +1199,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       </div>
                       <div className="flex justify-between border-b border-zinc-200/60 pb-2">
                          <span className="text-zinc-500 font-bold">Database</span>
-                         <span className="text-emerald-600 font-bold">Connected (Supabase)</span>
+                         <span className="text-emerald-600 font-bold">Connected (Firebase)</span>
                       </div>
                       <div className="flex justify-between border-b border-zinc-200/60 pb-2">
                          <span className="text-zinc-500 font-bold">Build Mode</span>
