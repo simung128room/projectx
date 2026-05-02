@@ -24,23 +24,20 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const supabaseUrl = process.env.VITE_SUPABASE_URL || 'https://xuszhqyahucrhupppzil.supabase.co';
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh1c3pocXlhaHVjcmh1cHBwemlsIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NzY2MTUxMCwiZXhwIjoyMDkzMjM3NTEwfQ.m9OkrXwzmxyBZKWgIRftElDNFPFPU9jL6JzCrDRWDfA';
 
-console.log(`[Server] --- VERSION 1.0.2 REBOOT ---`);
+console.log(`[Server] --- VERSION 1.0.4 REBOOT ---`);
 console.log(`[Database] Initializing with URL: ${supabaseUrl}`);
-if (supabaseUrl.includes('xuszhqyahucrhupppzil')) {
-  console.log('[Database] Correct Supabase URL detected.');
-} else {
-  console.warn('[Database] WARNING: Still using an unexpected URL:', supabaseUrl);
-}
-if (supabaseServiceKey.length < 50) {
-  console.warn('[Database] WARNING: SUPABASE_SERVICE_ROLE_KEY looks invalid or missing! Backend DB operations will fail.');
-}
 
-const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey || '', {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false
-  }
-});
+let supabaseAdmin: any;
+try {
+  supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey || '', {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
+  });
+} catch (err) {
+  console.error('[Database] Critical error initializing Supabase client:', err);
+}
 
 async function startServer() {
   const app = express();
@@ -48,13 +45,22 @@ async function startServer() {
 
   // API health check immediately
   app.get('/api/health', (req, res) => {
-    console.log('[Health] OK');
-    res.json({ status: 'ok', time: new Date().toISOString() });
+    console.log(`[Health] Request from ${req.headers['x-forwarded-for'] || req.ip}`);
+    res.json({ 
+      status: 'ok', 
+      time: new Date().toISOString(),
+      env: process.env.NODE_ENV || 'development'
+    });
   });
 
   app.use(cors());
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ limit: '10mb', extended: true }));
+
+  // Listen on port 3000 IMMEDIATELY so the health check works while Vite initializes
+  app.listen(PORT, "0.0.0.0", () => {
+    console.log(`[Server] Core API listening on http://0.0.0.0:${PORT}`);
+  });
 
   // Logging middleware for debugging
   app.use((req, res, next) => {
@@ -1123,16 +1129,19 @@ async function startServer() {
   });
 
   if (process.env.NODE_ENV !== "production" && !process.env.VERCEL) {
-    console.log("Initializing Vite middleware...");
-    const vite = await createViteServer({
+    console.log("Initializing Vite middleware (async)...");
+    createViteServer({
       server: { 
         middlewareMode: true,
-        hmr: false // Explicitly disable HMR to avoid port conflicts
+        hmr: false 
       },
       appType: "spa",
+    }).then(vite => {
+      app.use(vite.middlewares);
+      console.log("Vite middleware attached.");
+    }).catch(err => {
+      console.error("Failed to initialize Vite middleware:", err);
     });
-    app.use(vite.middlewares);
-    console.log("Vite middleware initialized.");
   } else if (!process.env.VERCEL) {
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
@@ -1141,17 +1150,24 @@ async function startServer() {
     });
   }
 
-  // Always listen on port 3000
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`[Server] Listening on http://0.0.0.0:${PORT}`);
-  });
-  
   return app;
 }
+
+import fs from 'node:fs';
 
 // Global Rejection Handler
 process.on('unhandledRejection', (reason: any) => {
   console.error('Unhandled Rejection:', reason);
+  try {
+    fs.appendFileSync('crash.log', `${new Date().toISOString()}: Unhandled Rejection: ${JSON.stringify(reason)}\n`);
+  } catch (e) {}
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception:', err);
+  try {
+    fs.appendFileSync('crash.log', `${new Date().toISOString()}: Uncaught Exception: ${err.stack}\n`);
+  } catch (e) {}
 });
 
 // Start the server
