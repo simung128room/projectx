@@ -955,6 +955,57 @@ console.log(`[Database] Initializing Firebase`);
     }
   });
 
+  // --- Custom Pages Endpoints ---
+  app.get('/api/pages', async (req, res) => {
+    if (!db) return res.json([]);
+    try {
+      const snapshot = await getDocs(query(collection(db, 'custom_pages')));
+      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      res.json(data);
+    } catch (err) {
+      console.error('Internal server error fetching pages:', err);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  app.post('/api/pages', async (req, res) => {
+    if (!db) return res.status(500).json({ error: 'DB not connected' });
+    try {
+      const pageData = req.body;
+      const { id, ...dataToSave } = pageData;
+      const docRef = await addDoc(collection(db, 'custom_pages'), { ...dataToSave, created_at: new Date().toISOString() });
+      res.json({ id: docRef.id, ...dataToSave });
+    } catch (err) {
+      console.error('Internal server error creating page:', err);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  app.put('/api/pages/:id', async (req, res) => {
+    if (!db) return res.status(500).json({ error: 'DB not connected' });
+    try {
+      const pageData = req.body;
+      const { id, ...dataToSave } = pageData;
+      const docRef = doc(db, 'custom_pages', req.params.id);
+      await updateDoc(docRef, dataToSave);
+      res.json({ id: req.params.id, ...dataToSave });
+    } catch (err) {
+      console.error('Internal server error updating page:', err);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  app.delete('/api/pages/:id', async (req, res) => {
+    if (!db) return res.status(500).json({ error: 'DB not connected' });
+    try {
+      await deleteDoc(doc(db, 'custom_pages', req.params.id));
+      res.json({ success: true });
+    } catch (err) {
+      console.error('Internal server error deleting page:', err);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
   app.get('/api/license_keys', async (req, res) => {
     try {
       const snapshot = await getDocs(query(collection(db, 'license_keys'), orderBy('created_at', 'desc')));

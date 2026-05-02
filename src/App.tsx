@@ -21,6 +21,7 @@ import { AuthView } from './components/AuthView';
 import { AdminDashboard } from './components/AdminDashboard';
 import { HomeView } from './components/HomeView';
 import { ProductDetailView } from './components/ProductDetailView';
+import { PageView } from './components/PageView';
 import { HistoryLogsView } from './components/HistoryLogsView';
 import { ContentFeedView } from './components/ContentFeedView';
 import { AIChatView } from './components/AIChatView';
@@ -131,6 +132,8 @@ function AppContent() {
     return defaultProducts;
   });
   const [siteStats, setSiteStats] = useState<SiteStats>({ users: 913, stock: 16738, sales: 248, topups: 15400 });
+  const [customPages, setCustomPages] = useState<any[]>([]);
+  const [selectedPage, setSelectedPage] = useState<any>(null);
 
   const [threads, setThreads] = useState(5);
   const [firebaseKeys, setFirebaseKeys] = useState<any[]>([]);
@@ -142,7 +145,7 @@ function AppContent() {
   const [showKeyModal, setShowKeyModal] = useState(false);
 
   // Navigation State
-  const [activeView, setRawActiveView] = useState<'home' | 'dashboard' | 'admin' | 'profile' | 'logs' | 'history' | 'settings' | 'ai_chat' | 'free_stuff' | 'premium_stuff' | 'login' | 'signup' | 'wallet' | 'redeem' | 'product_detail'>('home');
+  const [activeView, setRawActiveView] = useState<'home' | 'dashboard' | 'admin' | 'profile' | 'logs' | 'history' | 'settings' | 'ai_chat' | 'free_stuff' | 'premium_stuff' | 'login' | 'signup' | 'wallet' | 'redeem' | 'product_detail' | 'custom_page'>('home');
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [isPageTransitioning, setIsPageTransitioning] = useState(false);
 
@@ -403,13 +406,14 @@ function AppContent() {
           }
         };
 
-        const [healthRes, keysRes, historyRes, ipsRes, settingsRes, productsRes] = await Promise.all([
+        const [healthRes, keysRes, historyRes, ipsRes, settingsRes, productsRes, pagesRes] = await Promise.all([
           fetchWithCatch('/api/health'),
           fetchWithCatch('/api/license_keys'),
           fetchWithCatch('/api/used_keys'),
           fetchWithCatch('/api/blocked_ips'),
           fetchWithCatch('/api/settings'),
-          fetchWithCatch('/api/products')
+          fetchWithCatch('/api/products'),
+          fetchWithCatch('/api/pages')
         ]);
 
         if (isMounted) {
@@ -419,6 +423,7 @@ function AppContent() {
           const ipsData = ipsRes.data;
           const settingsData = settingsRes.data;
           const productsData = productsRes.data;
+          const pagesData = pagesRes.data;
 
           if (keysData) setFirebaseKeys(keysData);
           if (historyData) setUsedKeysHistory(historyData);
@@ -426,6 +431,7 @@ function AppContent() {
           if (settingsData) setSiteSettings(settingsData);
           if (productsData && productsData.length > 0) setProducts(productsData);
           else if (productsData) setProducts(defaultProducts); // fallback if empty
+          if (pagesData) setCustomPages(pagesData);
           
           if (keysData && historyData && ipsData) {
             setIsDBReady(true);
@@ -1204,6 +1210,18 @@ function AppContent() {
             <button onClick={() => setActiveView('home')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900`}>
               <ShoppingCart className="w-5 h-5"/> สินค้าทั้งหมด
             </button>
+            {customPages.map(page => (
+              <button 
+                key={page.id}
+                onClick={() => {
+                  setSelectedPage(page);
+                  setActiveView('custom_page');
+                }} 
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'custom_page' && selectedPage?.id === page.id ? 'bg-red-600 text-white shadow-md shadow-red-600/20' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'}`}
+              >
+                <FileText className="w-5 h-5"/> {page.title}
+              </button>
+            ))}
             <a href="https://line.me" target="_blank" rel="noopener noreferrer" className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900">
               <Phone className="w-5 h-5"/> ติดต่อเรา
             </a>
@@ -1379,6 +1397,19 @@ function AppContent() {
                     <button onClick={() => { setActiveView('home'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900`}>
                       <ShoppingCart className="w-4 h-4"/> สินค้าทั้งหมด
                     </button>
+                    {customPages.map(page => (
+                      <button 
+                        key={page.id}
+                        onClick={() => {
+                          setSelectedPage(page);
+                          setActiveView('custom_page');
+                          setIsMobileMenuOpen(false);
+                        }} 
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'custom_page' && selectedPage?.id === page.id ? 'bg-zinc-100 text-zinc-900' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'}`}
+                      >
+                        <FileText className="w-4 h-4"/> {page.title}
+                      </button>
+                    ))}
                   <a href="https://line.me" target="_blank" rel="noopener noreferrer" className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900">
                     <Phone className="w-4 h-4"/> ติดต่อเรา
                   </a>
@@ -1457,6 +1488,13 @@ function AppContent() {
           />
         )}
 
+        {activeView === 'custom_page' && selectedPage && (
+          <PageView 
+            page={selectedPage} 
+            onBack={() => setActiveView('home')} 
+          />
+        )}
+
         {activeView === 'login' && <AuthView initialMode="login" setActiveView={setActiveView} onAdminLogin={handleAdminLogin} />}
         {activeView === 'signup' && <AuthView initialMode="signup" setActiveView={setActiveView} />}
 
@@ -1499,6 +1537,8 @@ function AppContent() {
             setProducts={setProducts}
             siteStats={siteStats}
             setSiteStats={setSiteStats}
+            customPages={customPages}
+            setCustomPages={setCustomPages}
           />
         )}
 

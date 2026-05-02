@@ -172,7 +172,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
                    }`}
                 >
                   <ShoppingCart className="w-5 h-5" />
-                  {product.stock > 0 ? `สั่งซื้อเลย (รวม ฿{(product.price * purchaseQuantity).toLocaleString()})` : 'สินค้าหมดชั่วคราว'}
+                  {product.stock > 0 ? 'สั่งชื้อเลย' : 'สินค้าหมดชั่วคราว'}
                 </button>
               </div>
             ) : (

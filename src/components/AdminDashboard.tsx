@@ -19,6 +19,8 @@ interface AdminDashboardProps {
   setProducts?: (products: Product[]) => void;
   siteStats?: SiteStats;
   setSiteStats?: (stats: SiteStats) => void;
+  customPages?: any[];
+  setCustomPages?: React.Dispatch<React.SetStateAction<any[]>>;
   isDBReady: boolean;
   dbErrorDetail?: string | null;
   adminUsername: string;
@@ -382,12 +384,14 @@ const DatabaseSetupGuide = ({ dbErrorDetail }: { dbErrorDetail?: string | null }
 );
 
 import { AdminUserManagement } from './AdminUserManagement';
+import { AdminPagesManagement } from './AdminPagesManagement';
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   totalChecked, validAccounts, firebaseKeys, usedKeysHistory, blockedIPs,
   adminTab, setAdminTab, isDBReady, dbErrorDetail, adminUsername, setIsAdmin,
   addLicenseKey, blockIP, deleteKey, unblockIP,
-  products = [], setProducts, siteStats = { users: 0, stock: 0, sales: 0 }, setSiteStats
+  products = [], setProducts, siteStats = { users: 0, stock: 0, sales: 0 }, setSiteStats,
+  customPages = [], setCustomPages
 }) => {
   const [isAddingProduct, setIsAddingProduct] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | undefined>(undefined);
@@ -507,6 +511,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 { id: 'keys', label: 'License Keys', icon: Key },
                 { id: 'history', label: 'Redeem Logs', icon: History },
                 { id: 'ips', label: 'Access Control', icon: ShieldAlert },
+                { id: 'pages', label: 'จัดการหน้าเพจ', icon: FileText },
                 { id: 'settings', label: 'Site Settings', icon: Settings },
                 { id: 'system', label: 'System Info', icon: Cpu }
               ].map(tab => (
@@ -1006,6 +1011,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   </tbody>
                 </table>
               </div>
+            </motion.div>
+          )}
+
+          {adminTab === 'pages' && (
+            <motion.div 
+              key="pages"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="space-y-6"
+            >
+              <AdminPagesManagement customPages={customPages} setCustomPages={setCustomPages as any} />
             </motion.div>
           )}
 
