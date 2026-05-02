@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Copy, Database, LogOut, BarChart3, Key, History, ShieldAlert, Activity, Ban, ChevronRight, Settings, Plus, Trash2, Crown, X, Upload, FileText, LayoutDashboard, LineChart, Cpu, HardDrive, ShoppingCart, Package, Users, Wallet, Gift, Globe, Phone, AlertTriangle } from 'lucide-react';
+import { Copy, Database, LogOut, BarChart3, Key, History, ShieldAlert, Activity, Ban, ChevronRight, Settings, Plus, Trash2, Crown, X, Upload, FileText, LayoutDashboard, LineChart, Cpu, HardDrive, ShoppingCart, Package, Users, Wallet, Gift, Globe, Phone, AlertTriangle, Download } from 'lucide-react';
 import Swal from 'sweetalert2';
 import axios from 'axios';
 import { AccountResult, Product, SiteStats } from '../types';
@@ -880,9 +880,26 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <h3 className="font-bold text-zinc-900 flex items-center gap-2"><Key className="w-5 h-5 text-red-500" /> Key Management</h3>
                   <p className="text-zinc-500 text-xs mt-1">จัดการคีย์และสต๊อก</p>
                 </div>
-                <button onClick={addLicenseKey} className="bg-red-600 hover:bg-red-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-sm">
-                  <Plus className="w-4 h-4" /> สร้างคีย์เพิ่ม
-                </button>
+                <div className="flex items-center gap-2">
+                  <button onClick={() => {
+                    const activeKeys = firebaseKeys.filter(k => k.status === 'active').map(k => k.key).join('\n');
+                    const usedKeysStr = firebaseKeys.filter(k => k.status === 'used').map(k => k.key).join('\n');
+                    const historyKeysStr = usedKeysHistory.map(k => k.key).join('\n');
+                    const text = `=== ACTIVE (ยังไม่ได้ใช้) ===\n${activeKeys || 'ไม่มี'}\n\n=== USED (ใช้แล้ว) ===\n${usedKeysStr || historyKeysStr ? `${usedKeysStr}${usedKeysStr && historyKeysStr ? '\n' : ''}${historyKeysStr}` : 'ไม่มี'}`;
+                    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `license_keys_${new Date().toISOString().slice(0, 10)}.txt`;
+                    link.click();
+                    URL.revokeObjectURL(url);
+                  }} className="bg-zinc-800 hover:bg-zinc-900 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-sm">
+                    <Download className="w-4 h-4" /> บันทึกเป็น TXT
+                  </button>
+                  <button onClick={addLicenseKey} className="bg-red-600 hover:bg-red-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-sm">
+                    <Plus className="w-4 h-4" /> สร้างคีย์เพิ่ม
+                  </button>
+                </div>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm text-zinc-600">
