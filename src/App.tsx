@@ -397,7 +397,7 @@ function AppContent() {
           } else {
             setIsDBReady(false);
             if (!healthData) {
-              setDbErrorDetail("Backend API ไม่ตอบสนอง (Offline)");
+              setDbErrorDetail(`Backend API ไม่ตอบสนอง (Offline): ${healthRes.error || "Unknown Error"}`);
             } else {
               const errors = [];
               if (keysRes.error) errors.push(`license_keys: ${keysRes.error}`);

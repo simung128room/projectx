@@ -11,7 +11,7 @@ import tls from 'node:tls';
 import { HttpsProxyAgent } from 'https-proxy-agent';
 
 // Set TLS version for TrueMoney compatibility
-tls.DEFAULT_MIN_VERSION = "TLSv1.3";
+// tls.DEFAULT_MIN_VERSION = "TLSv1.3"; // Removed as it might cause crashes in some environments
 import { createClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
@@ -43,6 +43,12 @@ async function startServer() {
   const app = express();
   const PORT = 3000;
 
+  // API health check immediately
+  app.get('/api/health', (req, res) => {
+    console.log('[Health] OK');
+    res.json({ status: 'ok', time: new Date().toISOString() });
+  });
+
   app.use(cors());
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ limit: '10mb', extended: true }));
@@ -53,10 +59,9 @@ async function startServer() {
     next();
   });
 
-  app.get('/api/health', (req, res) => {
-    res.json({ status: 'ok', time: new Date().toISOString() });
-  });
-
+  // Remove duplicate health check below
+  // app.get('/api/health', (req, res) => { ... })
+  
   // Site Settings State (Durable with Environment Variables)
   let siteSettings = {
     site_name: process.env.VITE_SITE_NAME || 'APEX STUDIO',
@@ -1133,39 +1138,20 @@ async function startServer() {
     });
   }
 
-  if (!process.env.VERCEL) {
-    app.listen(PORT, "0.0.0.0", () => {
-      console.log(`Server running on http://localhost:${PORT}`);
-    });
-  }
+  // Always listen on port 3000
+  app.listen(PORT, "0.0.0.0", () => {
+    console.log(`[Server] Listening on http://0.0.0.0:${PORT}`);
+  });
   
   return app;
 }
 
-process.on('unhandledRejection', (reason: any, promise) => {
-  if (reason && (reason.name === 'CanceledError' || reason.code === 'ERR_CANCELED' || reason.message === 'canceled')) {
-    return; // Ignore axios aborts
-  }
-  if (!reason || (typeof reason === 'object' && Object.keys(reason).length === 0)) {
-    return; // Ignore empty reasons
-  }
-  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+// Global Rejection Handler
+process.on('unhandledRejection', (reason: any) => {
+  console.error('Unhandled Rejection:', reason);
 });
 
-process.on('uncaughtException', (err) => {
-  console.error('Uncaught Exception:', err);
+// Start the server
+startServer().catch(err => {
+  console.error('CRITICAL: Server failed to start:', err);
 });
-
-// For Vercel Serverless Functions
-let appPromise = startServer().catch(err => {
-  console.error('Failed to start server:', err);
-});
-
-export default async (req: any, res: any) => {
-  const app = await appPromise;
-  if (app) {
-    app(req, res);
-  } else {
-    res.status(500).send('Server failed to start');
-  }
-};
