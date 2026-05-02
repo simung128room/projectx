@@ -462,7 +462,7 @@ import { AdminUserManagement } from './AdminUserManagement';
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   totalChecked, validAccounts, firebaseKeys, usedKeysHistory, blockedIPs,
-  adminTab, setAdminTab, isDBReady, adminUsername, setIsAdmin,
+  adminTab, setAdminTab, isDBReady, dbErrorDetail, adminUsername, setIsAdmin,
   addLicenseKey, blockIP, deleteKey, unblockIP,
   products = [], setProducts, siteStats = { users: 0, stock: 0, sales: 0 }, setSiteStats
 }) => {

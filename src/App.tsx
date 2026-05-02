@@ -1452,6 +1452,7 @@ function AppContent() {
             adminTab={adminTab}
             setAdminTab={setAdminTab}
             isDBReady={isDBReady}
+            dbErrorDetail={dbErrorDetail}
             adminUsername={adminUsername}
             setIsAdmin={setIsAdmin}
             addLicenseKey={addLicenseKey}
