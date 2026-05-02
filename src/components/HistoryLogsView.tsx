@@ -56,8 +56,85 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({ usedKeysHistor
   );
 
   const DetailsModal = () => {
+    const [showSecret, setShowSecret] = useState(false);
     if (!selectedItem) return null;
     const { details: item, type } = selectedItem;
+    const isPurchase = ['key_purchase', 'general_purchase', 'special_purchase'].includes(type);
+
+    if (isPurchase) {
+      return (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200" onClick={() => setSelectedItem(null)}>
+          <div className="bg-white rounded-[2rem] w-full max-w-md overflow-hidden relative shadow-2xl" onClick={e => e.stopPropagation()}>
+            <div className="p-6 pb-4 relative">
+              <button onClick={() => setSelectedItem(null)} className="absolute top-4 right-4 text-zinc-400 hover:text-zinc-600 transition-colors">
+                <X className="w-6 h-6" />
+              </button>
+              <h3 className="text-2xl font-black text-red-600 mb-1">รายละเอียดการซื้อ</h3>
+              <p className="text-zinc-500 text-sm font-medium">หมายเลขบิล: <span className="font-mono text-zinc-900 bg-zinc-100 px-2 py-0.5 rounded-md">BILL-{item.id?.toUpperCase()}</span></p>
+            </div>
+
+            <div className="px-6 space-y-6">
+              <div className="bg-pink-50 border border-pink-100 rounded-2xl p-5 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-pink-100/50 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
+                
+                <div className="flex justify-between items-center mb-3 relative z-10">
+                  <span className="text-sm font-bold text-pink-600">วันที่ซื้อ</span>
+                  <span className="text-sm font-medium text-zinc-900">{new Date(item.timestamp || item.usedAt || item.date).toLocaleString('th-TH')}</span>
+                </div>
+                <div className="flex justify-between items-center mb-4 relative z-10">
+                  <span className="text-sm font-bold text-pink-600">จำนวนรายการ</span>
+                  <span className="text-sm font-medium text-zinc-900">1 รายการ</span>
+                </div>
+                <div className="h-px bg-pink-100/60 mb-4 relative z-10"></div>
+                <div className="flex justify-between items-center relative z-10">
+                  <span className="text-sm font-bold text-pink-600">ราคารวม</span>
+                  <span className="text-xl font-black text-rose-600">฿ {item.price?.toLocaleString() || 0}</span>
+                </div>
+              </div>
+
+              <div>
+                <h4 className="font-black text-zinc-900 mb-4">รายการสินค้า</h4>
+                <div className="bg-white border rounded-2xl p-4 flex flex-col gap-4 shadow-sm border-zinc-200">
+                  <div className="flex gap-4 items-center">
+                    <div className="w-16 h-16 bg-zinc-50 border border-zinc-100 rounded-xl flex items-center justify-center shrink-0 text-zinc-400">
+                      <Package className="w-8 h-8" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h5 className="font-bold text-zinc-900 text-sm md:text-base truncate">{item.productName}</h5>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-xs text-zinc-500 font-medium bg-zinc-100 px-2 py-0.5 rounded-md">จำนวน 1 ชิ้น</span>
+                        <span className="text-sm font-black text-rose-600">฿ {item.price?.toLocaleString() || 0}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <button 
+                    onClick={() => setShowSecret(!showSecret)}
+                    className="w-full py-2.5 bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 text-zinc-800 text-sm font-bold rounded-xl transition-all"
+                  >
+                    {showSecret ? 'ซ่อนรายละเอียด' : 'ดูรายละเอียด'}
+                  </button>
+                  {showSecret && item.secretData && (
+                    <div className="mt-2 animate-in fade-in slide-in-from-top-2 duration-200 pt-2 border-t border-zinc-100">
+                       <span className="text-xs font-bold text-zinc-500 mb-2 block">โค้ด / ข้อมูลสินค้า</span>
+                       <CopyBox text={item.secretData} id={item.id} />
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="p-6 mt-2">
+              <button 
+                onClick={() => setSelectedItem(null)}
+                className="w-full py-4 bg-red-600 hover:bg-red-700 text-white rounded-2xl text-base font-black transition-all shadow-md shadow-red-600/20"
+              >
+                ปิด
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
 
     return (
       <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200" onClick={() => setSelectedItem(null)}>
@@ -71,11 +148,11 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({ usedKeysHistor
           <div className="p-6 flex flex-col gap-4">
             <div className="flex justify-between items-center">
               <span className="text-zinc-500 text-sm font-medium">หมายเลขบิล</span>
-              <span className="font-mono font-bold text-xs bg-zinc-100 px-2 py-0.5 rounded text-zinc-700">BILL-{item.id.toUpperCase()}</span>
+              <span className="font-mono font-bold text-xs bg-zinc-100 px-2 py-0.5 rounded text-zinc-700">BILL-{item.id?.toUpperCase()}</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-zinc-500 text-sm font-medium">วันที่และเวลา</span>
-              <span className="text-sm font-medium text-zinc-900">{new Date(item.timestamp || item.usedAt).toLocaleString('th-TH')}</span>
+              <span className="text-sm font-medium text-zinc-900">{new Date(item.timestamp || item.usedAt || item.date).toLocaleString('th-TH')}</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-zinc-500 text-sm font-medium">สถานะรายการ</span>
@@ -92,7 +169,7 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({ usedKeysHistor
                 </div>
                 <div className="flex justify-between items-center mt-2">
                    <span className="text-zinc-500 text-sm font-medium">จำนวนเงิน</span>
-                   <span className="text-xl font-black text-blue-600">+{item.amount.toLocaleString()} ฿</span>
+                   <span className="text-xl font-black text-blue-600">+{item.amount?.toLocaleString() || 0} ฿</span>
                 </div>
               </>
             )}
@@ -106,23 +183,6 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({ usedKeysHistor
                 <div className="flex flex-col gap-2 pt-4 border-t border-zinc-100 mt-2">
                    <span className="text-zinc-500 text-sm font-medium">รายละเอียดคีย์</span>
                    <CopyBox text={item.key} id={item.id} />
-                </div>
-              </>
-            )}
-
-            {['key_purchase', 'general_purchase', 'special_purchase'].includes(type) && (
-              <>
-                <div className="flex justify-between items-center">
-                  <span className="text-zinc-500 text-sm font-medium shrink-0 pr-4">สินค้า</span>
-                  <span className="text-sm font-bold text-zinc-900 text-right">{item.productName}</span>
-                </div>
-                <div className="flex justify-between items-center mt-2">
-                   <span className="text-zinc-500 text-sm font-medium">จำนวนเงิน</span>
-                   <span className="text-xl font-black text-rose-600">-{item.price.toLocaleString()} ฿</span>
-                </div>
-                <div className="flex flex-col gap-2 pt-4 border-t border-zinc-100 mt-2">
-                   <span className="text-zinc-500 text-sm font-medium">รายละเอียดสินค้า (คีย์ / ข้อมูล)</span>
-                   <CopyBox text={item.secretData} id={item.id} />
                 </div>
               </>
             )}

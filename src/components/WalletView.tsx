@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Wallet, Gift, QrCode, Ticket, ArrowRight, CreditCard, Landmark, AlertTriangle, Copy } from 'lucide-react';
+import { Wallet, Gift, QrCode, ArrowRight, Landmark, AlertTriangle, Copy, X, ShieldCheck, CheckCircle2 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import axios from 'axios';
 import { UserPlan } from '../types';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface WalletViewProps {
   userPlan: UserPlan | null;
@@ -11,9 +12,8 @@ interface WalletViewProps {
 }
 
 export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, onTopupSuccess }) => {
-  const [activeTab, setActiveTab] = useState<'truemoney' | 'bank' | 'code'>('truemoney');
+  const [openModal, setOpenModal] = useState<'truemoney' | 'bank' | null>(null);
   const [truemoneyLink, setTruemoneyLink] = useState('');
-  const [redeemCode, setRedeemCode] = useState('');
 
   const handleTruemoneyTopup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,6 +42,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
       return;
     }
 
+    setOpenModal(null); // Close modal on submit
     Swal.fire({
       title: 'กำลังตรวจสอบ',
       text: 'ระบบกำลังตรวจสอบซองอั่งเปาของคุณ...',
@@ -126,6 +127,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
     const file = e.target.files?.[0];
     if (!file) return;
 
+    setOpenModal(null); // Close modal on submit
     Swal.fire({
       title: 'กำลังตรวจสอบ',
       text: 'ระบบกำลังตรวจสอบสลิปการโอนเงินของคุณ...',
@@ -142,7 +144,6 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
     const reader = new FileReader();
     reader.onload = async (event) => {
       const result = event.target?.result as string;
-      // Extract base64 without data type
       const imageBase64 = result.split(',')[1];
       
       try {
@@ -208,246 +209,220 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
     e.target.value = ''; // Reset input
   };
 
-  const handleRedeemCode = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!redeemCode.trim()) return;
-    
-    Swal.fire({
-      title: 'ตรวจสอบโค้ด',
-      text: 'กำลังตรวจสอบการใช้งานโค้ด...',
-      icon: 'info',
-      background: '#09090b',
-      color: '#fff',
-      showConfirmButton: false,
-      timer: 1500
-    }).then(() => {
-      Swal.fire({
-        title: 'ผิดพลาด',
-        text: 'โค้ดไม่ถูกต้องหรือถูกใช้งานไปแล้ว',
-        icon: 'error',
-        background: '#09090b',
-        color: '#fff',
-        confirmButtonColor: '#0ea5e9'
-      });
-    });
-  };
-
   return (
     <div className="w-full max-w-5xl mx-auto p-4 md:p-8 animate-in fade-in duration-500 font-sans text-zinc-900">
-      <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex flex-col gap-2">
-          <h1 className="text-3xl font-bold flex items-center gap-3">
-            <Wallet className="w-8 h-8 text-red-500" />
-            ระบบเติมเงิน
-          </h1>
-          <p className="text-zinc-500 font-medium">Topup Selection / เลือกช่องทางการชำระเงิน</p>
+      <div className="mb-10 flex flex-col items-center justify-center gap-4 text-center">
+        <div className="w-16 h-16 bg-zinc-100 rounded-full flex items-center justify-center text-zinc-900 shadow-sm border border-zinc-200">
+          <Wallet className="w-8 h-8" />
         </div>
-        <div className="bg-white border border-zinc-200 shadow-sm px-6 py-4 rounded-2xl flex items-center gap-4">
-          <div className="p-3 bg-red-50 text-red-600 rounded-xl">
-            <Wallet className="w-6 h-6" />
-          </div>
-          <div className="flex flex-col">
-            <span className="text-zinc-500 text-xs font-bold uppercase tracking-widest">ยอดเงินคงเหลือ</span>
-            <span className="text-3xl font-sans font-black text-zinc-900 tracking-tight">฿ {userPlan?.balance ? userPlan.balance.toLocaleString(undefined, {minimumFractionDigits: 2}) : '0.00'}</span>
+        <div>
+          <h1 className="text-3xl font-black mb-2 tracking-tight">ระบบเติมเงินอัตโนมัติ</h1>
+          <p className="text-zinc-500 font-medium">เลือกช่องทางการเติมเงินที่คุณสะดวกที่สุด</p>
+        </div>
+        <div className="bg-white border border-zinc-200 shadow-sm px-6 py-4 rounded-3xl flex items-center justify-center gap-4 mt-2">
+          <div className="flex flex-col text-center">
+            <span className="text-zinc-500 text-xs font-bold uppercase tracking-widest mb-1">ยอดเงินคงเหลือของคุณ</span>
+            <span className="text-4xl font-sans font-black text-zinc-900 tracking-tight">
+              ฿ {userPlan?.balance ? userPlan.balance.toLocaleString(undefined, {minimumFractionDigits: 2}) : '0.00'}
+            </span>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Payment Methods Sidebar */}
-        <div className="col-span-1 flex flex-col gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+        {/* Card 1: TrueMoney */}
+        <div className="bg-white border border-zinc-200 rounded-3xl p-6 sm:p-8 flex flex-col items-center text-center shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
+          <div className="absolute top-0 right-0 p-4">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-600 text-[10px] font-black rounded-full border border-emerald-100 uppercase tracking-widest">
+              <ShieldCheck className="w-3.5 h-3.5" /> ตรวจสอบอัตโนมัติ
+            </span>
+          </div>
+          <div className="w-24 h-24 mb-6 group-hover:scale-110 transition-transform duration-300">
+            <img src="https://img1.pic.in.th/images/IMG_6162.png" alt="TrueMoney Wallet" className="w-full h-full object-contain drop-shadow-sm" />
+          </div>
+          <h2 className="text-2xl font-black text-zinc-900 mb-3">ซองอั่งเปา</h2>
+          <p className="text-zinc-500 text-sm mb-8 leading-relaxed px-4">
+            เติมเงินผ่านคิวอาร์โค้ดหรือลิงก์ซองของขวัญ TrueMoney Wallet สะดวก รวดเร็ว
+          </p>
           <button
-            onClick={() => setActiveTab('truemoney')}
-            className={`flex items-center justify-between p-4 rounded-3xl border transition-all duration-300 shadow-sm hover:shadow-md ${activeTab === 'truemoney' ? 'bg-orange-50 border-orange-200' : 'bg-white border-zinc-200 hover:border-orange-200'}`}
+            onClick={() => setOpenModal('truemoney')}
+            className="w-full mt-auto py-4 bg-[#FF8C19] hover:bg-[#E67D16] text-white font-bold rounded-2xl transition-all shadow-md shadow-[#FF8C19]/20 flex items-center justify-center gap-2 group-hover:-translate-y-1"
           >
-            <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-xl ${activeTab === 'truemoney' ? 'bg-orange-100 text-orange-600' : 'bg-zinc-50 text-zinc-500'}`}>
-                <Gift className="w-5 h-5" />
-              </div>
-              <div className="text-left">
-                <p className={`font-bold ${activeTab === 'truemoney' ? 'text-orange-900' : 'text-zinc-700'}`}>Truemoney Wallet</p>
-                <p className="text-xs opacity-70">(อั่งเปา)</p>
-              </div>
-            </div>
-            {activeTab === 'truemoney' && <ArrowRight className="w-4 h-4 text-orange-500" />}
-          </button>
-
-          <button
-            onClick={() => setActiveTab('bank')}
-            className={`flex items-center justify-between p-4 rounded-3xl border transition-all duration-300 shadow-sm hover:shadow-md ${activeTab === 'bank' ? 'bg-blue-50 border-blue-200' : 'bg-white border-zinc-200 hover:border-blue-200'}`}
-          >
-            <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-xl ${activeTab === 'bank' ? 'bg-blue-100 text-blue-600' : 'bg-zinc-50 text-zinc-500'}`}>
-                <Landmark className="w-5 h-5" />
-              </div>
-              <div className="text-left">
-                <p className={`font-bold ${activeTab === 'bank' ? 'text-blue-900' : 'text-zinc-700'}`}>ธนาคาร</p>
-                <p className="text-xs opacity-70">(เช็คสลิป)</p>
-              </div>
-            </div>
-            {activeTab === 'bank' && <ArrowRight className="w-4 h-4 text-blue-500" />}
-          </button>
-
-          <button
-            onClick={() => setActiveTab('code')}
-            className={`flex items-center justify-between p-4 rounded-3xl border transition-all duration-300 shadow-sm hover:shadow-md ${activeTab === 'code' ? 'bg-emerald-50 border-emerald-200' : 'bg-white border-zinc-200 hover:border-emerald-200'}`}
-          >
-            <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-xl ${activeTab === 'code' ? 'bg-emerald-100 text-emerald-600' : 'bg-zinc-50 text-zinc-500'}`}>
-                <Ticket className="w-5 h-5" />
-              </div>
-              <div className="text-left">
-                <p className={`font-bold ${activeTab === 'code' ? 'text-emerald-900' : 'text-zinc-700'}`}>กรอกโค้ด</p>
-                <p className="text-xs opacity-70">(Redeem Code)</p>
-              </div>
-            </div>
-            {activeTab === 'code' && <ArrowRight className="w-4 h-4 text-emerald-500" />}
+            เลือก <ArrowRight className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Payment Form Area */}
-        <div className="col-span-1 md:col-span-2">
-          {activeTab === 'truemoney' && (
-            <div className="bg-white border border-zinc-200 shadow-sm rounded-3xl p-6 md:p-8 animate-in fade-in slide-in-from-right-4 duration-500">
-              <div className="mb-6">
-                <span className="inline-block px-3 py-1 bg-orange-50 text-orange-600 text-xs font-bold rounded-full mb-3 border border-orange-100">
-                  0% ค่าธรรมเนียม
-                </span>
-                <h2 className="text-2xl font-bold text-zinc-900 mb-2">Truemoney Wallet (ซองของขวัญ)</h2>
-                <p className="text-zinc-600 text-sm leading-relaxed">
-                  กรุณาสร้างซองของขวัญ (อั่งเปา) จากแอป Truemoney Wallet และนำลิงก์มาวางด้านล่าง
-                  ยอดเงินจะเข้าสู่ระบบทันทีโดยไม่มีการหักค่าธรรมเนียม
-                </p>
-              </div>
+        {/* Card 2: Bank Slip */}
+        <div className="bg-white border border-zinc-200 rounded-3xl p-6 sm:p-8 flex flex-col items-center text-center shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
+          <div className="absolute top-0 right-0 p-4">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-600 text-[10px] font-black rounded-full border border-emerald-100 uppercase tracking-widest">
+              <ShieldCheck className="w-3.5 h-3.5" /> ตรวจสอบอัตโนมัติ
+            </span>
+          </div>
+          <div className="w-24 h-24 mb-6 group-hover:scale-110 transition-transform duration-300">
+            <img src="https://img2.pic.in.th/IMG_6164.png" alt="Bank Transfer" className="w-full h-full object-contain drop-shadow-sm" />
+          </div>
+          <h2 className="text-2xl font-black text-zinc-900 mb-3">สลิปโอนเงิน</h2>
+          <p className="text-zinc-500 text-sm mb-8 leading-relaxed px-4">
+            อัพโหลดสลิปธนาคารพร้อม QR Code เพื่อเติมเงินเข้าระบบ ใช้งานง่าย รวดเร็ว
+          </p>
+          <button
+            onClick={() => setOpenModal('bank')}
+            className="w-full mt-auto py-4 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-2xl transition-all shadow-md shadow-purple-600/20 flex items-center justify-center gap-2 group-hover:-translate-y-1"
+          >
+            เลือก <ArrowRight className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
 
-              <form onSubmit={handleTruemoneyTopup} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-bold text-zinc-700 mb-2">ลิงก์ซองของขวัญ (Truemoney Link)</label>
-                  <input
-                    type="text"
-                    value={truemoneyLink}
-                    onChange={(e) => setTruemoneyLink(e.target.value)}
-                    placeholder="https://gift.truemoney.com/campaign/?v=..."
-                    className="w-full bg-zinc-50 border border-zinc-200 rounded-2xl p-4 text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-100 transition-all font-sans"
-                    required
-                  />
+      <AnimatePresence>
+        {openModal === 'truemoney' && (
+          <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-200">
+            <motion.div 
+              initial={{ scale: 0.95, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 20 }}
+              className="bg-white rounded-[2rem] w-full max-w-md overflow-hidden relative shadow-2xl p-6 sm:p-8"
+            >
+              <button 
+                onClick={() => setOpenModal(null)}
+                className="absolute top-6 right-6 text-zinc-400 hover:text-zinc-900 transition-colors bg-zinc-100 hover:bg-zinc-200 p-2 rounded-full"
+              >
+                <X className="w-5 h-5" />
+              </button>
+              
+              <div className="flex flex-col items-center text-center mb-8 pt-4">
+                <div className="w-24 h-24 mb-4">
+                  <img src="https://img1.pic.in.th/images/IMG_6162.png" alt="TrueMoney Wallet" className="w-full h-full object-contain drop-shadow-sm" />
                 </div>
-                <button
-                  type="submit"
-                  className="w-full py-4 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-2xl transition-all shadow-md shadow-orange-500/20"
-                >
-                  ยืนยันการเติมเงิน
-                </button>
-              </form>
-
-              <div className="mt-8 p-4 bg-zinc-50 rounded-2xl border border-zinc-100">
-                <h3 className="text-sm font-bold text-orange-600 mb-2 flex items-center gap-2">
-                  <AlertTriangle className="w-4 h-4" /> ข้อควรระวัง
-                </h3>
-                <ul className="text-xs text-zinc-500 space-y-1 list-disc list-inside">
-                  <li>ต้องสร้างซองแบบ "สุ่มจำนวนเงิน" และกรอกจำนวนคนรับเป็น 1 คนเท่านั้น</li>
-                  <li>ระบบจะทำการเติมเงินให้อัตโนมัติใน 1-3 วินาที</li>
-                  <li>หากมีปัญหาในการเติมเงิน โปรดติดต่อแอดมินพร้อมแนบลิงก์ซอง</li>
-                </ul>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'bank' && (
-            <div className="bg-white border border-zinc-200 shadow-sm rounded-3xl p-6 md:p-8 animate-in fade-in slide-in-from-right-4 duration-500">
-               <div className="mb-6">
-                <span className="inline-block px-3 py-1 bg-blue-50 text-blue-600 text-xs font-bold rounded-full mb-3 border border-blue-100">
-                  0% ค่าธรรมเนียม
-                </span>
-                <h2 className="text-2xl font-bold text-zinc-900 mb-2">โอนผ่านธนาคาร</h2>
-                <p className="text-zinc-600 text-sm leading-relaxed">
-                  จำเป็นต้องทำการโอนเงินผ่านแอพพลิเคชั่น Mobile Banking ของธนาคาร ที่มี QR Code ในสลิปโอนเงิน มิเช่นนั้นระบบจะไม่สามารถตรวจสอบการโอนเงินของท่านได้ (ไม่รองรับสลิปธนาคารที่ไม่มี QR Code หรือการโอนจาก E-Wallet)
-                </p>
+                <h3 className="text-2xl font-black text-zinc-900">รับเงินผ่านซองของขวัญ</h3>
+                <p className="text-zinc-500 font-medium text-sm mt-1">TrueMoney Wallet</p>
               </div>
 
-              <div className="flex flex-col p-6 bg-zinc-50 border border-zinc-200 rounded-3xl mb-6 w-full max-w-sm mx-auto shadow-sm">
-                <div className="flex flex-col sm:flex-row items-center gap-4 mb-4">
-                  <div className="w-12 h-12 bg-[#00A950] rounded-full flex items-center justify-center font-bold text-white shadow-md shrink-0 border-2 border-white flex-col leading-none">
-                    <span className="text-[10px] uppercase font-black">K</span>
-                    <span className="text-[8px] uppercase">Bank</span>
+              <div className="space-y-4">
+                <div className="bg-red-50 border border-red-200 rounded-2xl p-4 flex gap-3 text-red-800">
+                  <AlertTriangle className="w-5 h-5 shrink-0 text-red-500" />
+                  <div className="text-sm">
+                    <span className="font-bold block mb-1">ไม่มีนโยบายคืนเงิน</span>
+                    โปรดตรวจสอบความถูกต้องก่อนกดเติมเงิน หากทำการเติมเงินแล้ว จะไม่สามารถขอรับเงินคืนได้ในทุกกรณี
                   </div>
-                  <div className="flex-1 text-center sm:text-left">
-                    <p className="text-sm text-zinc-500 font-medium">ธนาคารกสิกรไทย</p>
-                    <div className="flex items-center justify-center sm:justify-start gap-3 mt-1">
-                      <p className="text-xl font-bold tracking-widest text-[#00A950] font-mono">1963870325</p>
+                </div>
+
+                <div className="bg-orange-50 border border-orange-200 rounded-2xl p-4 flex gap-3 text-orange-800">
+                  <AlertTriangle className="w-5 h-5 shrink-0 text-orange-500" />
+                  <div className="text-sm">
+                    <span className="font-bold block mb-1">ค่าธรรมเนียมการเติมเงิน 2.9%</span>
+                    ตัวอย่าง: เติมเงิน 100 บาท จะได้รับ 97.10 บาทเข้าสู่ระบบ
+                  </div>
+                </div>
+
+                <form onSubmit={handleTruemoneyTopup} className="mt-8 space-y-4">
+                  <div>
+                    <label className="block text-sm font-bold text-zinc-900 mb-2">ลิงก์ซองของขวัญ</label>
+                    <input
+                      type="text"
+                      value={truemoneyLink}
+                      onChange={(e) => setTruemoneyLink(e.target.value)}
+                      placeholder="https://gift.truemoney.com/campaign/?v=..."
+                      className="w-full bg-zinc-50 border-2 border-zinc-200 rounded-2xl p-4 text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-orange-500 focus:bg-white transition-all font-sans"
+                      required
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    className="w-full py-4 bg-orange-500 hover:bg-orange-600 text-white font-black rounded-2xl transition-all shadow-lg shadow-orange-500/25 text-lg flex items-center justify-center gap-2"
+                  >
+                    เติมเงิน
+                  </button>
+                </form>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {openModal === 'bank' && (
+          <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-200">
+             <motion.div 
+              initial={{ scale: 0.95, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 20 }}
+              className="bg-white rounded-[2rem] w-full max-w-lg overflow-hidden relative shadow-2xl max-h-[90vh] overflow-y-auto p-6 sm:p-8"
+            >
+              <button 
+                onClick={() => setOpenModal(null)}
+                className="absolute top-6 right-6 text-zinc-400 hover:text-zinc-900 transition-colors bg-zinc-100 hover:bg-zinc-200 p-2 rounded-full z-10"
+              >
+                <X className="w-5 h-5" />
+              </button>
+              
+              <div className="flex flex-col items-center text-center mb-8 pt-4">
+                <div className="w-24 h-24 mb-4">
+                  <img src="https://img2.pic.in.th/IMG_6164.png" alt="Bank Transfer" className="w-full h-full object-contain drop-shadow-sm" />
+                </div>
+                <h3 className="text-2xl font-black text-zinc-900">อัพโหลดสลิปโอนเงิน</h3>
+                <p className="text-zinc-500 font-medium text-sm mt-1">Bank Transfer Slip</p>
+              </div>
+
+              <div className="space-y-6">
+                {/* ข้อมูลบัญชีสีชมพู */}
+                <div className="bg-pink-50 border border-pink-200 rounded-3xl p-6 relative overflow-hidden group shadow-sm">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-pink-100 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
+                  <div className="relative z-10 flex flex-col items-center justify-center text-center space-y-3">
+                    <p className="text-xs font-bold text-pink-500 uppercase tracking-widest bg-white/50 px-3 py-1 rounded-full border border-pink-100">โอนเงินเข้าบัญชีนี้</p>
+                    <div className="flex bg-white shadow-sm border border-zinc-100 rounded-full pr-4 p-1 gap-3 items-center">
+                      <div className="w-8 h-8 rounded-full bg-[#00A950] flex items-center justify-center text-white text-xs font-black">K</div>
+                      <span className="font-bold text-zinc-900 text-sm">ธนาคารกสิกรไทย</span>
+                    </div>
+                    <p className="font-bold text-zinc-900 text-xl tracking-tight">กรวิชญ์ มาตขาว</p>
+                    <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-2xl border border-zinc-100 shadow-sm mt-2">
+                      <span className="text-2xl sm:text-3xl font-black text-pink-600 font-mono tracking-wider select-all">1963870325</span>
                       <button 
                         onClick={() => {
                           navigator.clipboard.writeText('1963870325');
-                          Swal.fire({
-                            toast: true,
-                            position: 'top-end',
-                            icon: 'success',
-                            title: 'คัดลอกเลขบัญชีแล้ว',
-                            showConfirmButton: false,
-                            timer: 1500
-                          });
+                          Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'คัดลอกเลขบัญชีแล้ว', showConfirmButton: false, timer: 1500 });
                         }}
-                        className="p-1.5 bg-zinc-200 hover:bg-zinc-300 text-zinc-600 hover:text-zinc-900 rounded-md transition-colors"
-                        title="คัดลอกเลขบัญชี"
+                        className="ml-2 p-2.5 bg-pink-50 hover:bg-pink-100 text-pink-600 rounded-xl transition-all shadow-sm border border-pink-100 active:scale-95"
                       >
-                        <Copy className="w-4 h-4" />
+                        <Copy className="w-5 h-5" />
                       </button>
                     </div>
                   </div>
                 </div>
-                <div className="bg-white p-4 rounded-xl border border-zinc-200 flex justify-between items-center shadow-sm">
-                  <p className="text-sm text-zinc-500">ชื่อบัญชี</p>
-                  <p className="font-bold text-zinc-900 text-lg">กริวชญ์</p>
-                </div>
-              </div>
-              
-              <div className="text-center">
-                 <label className="flex flex-col items-center justify-center w-full py-8 bg-zinc-50 hover:bg-zinc-100 focus:bg-zinc-100 text-zinc-900 font-bold rounded-3xl transition-all border-2 border-dashed border-zinc-200 hover:border-blue-400 cursor-pointer shadow-sm group">
+
+                {/* โซนอัพโหลดสลิป */}
+                <label className="flex flex-col items-center justify-center w-full py-12 bg-zinc-50 hover:bg-purple-50 text-zinc-900 rounded-3xl transition-all border-2 border-dashed border-zinc-200 hover:border-purple-300 cursor-pointer group relative overflow-hidden shadow-sm">
                    <input type="file" className="hidden" accept="image/png, image/jpeg" onChange={handleSlipUpload} />
-                   <div className="bg-blue-50 p-4 rounded-full mb-4 group-hover:scale-110 transition-transform group-hover:bg-blue-100">
-                     <QrCode className="w-8 h-8 text-blue-500" />
+                   <div className="w-20 h-20 bg-white shadow-md border border-zinc-100 rounded-full flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300 relative z-10 text-purple-600">
+                     <QrCode className="w-10 h-10" />
                    </div>
-                   <span className="text-lg">อัพโหลดรูปสลิปได้ที่นี่</span>
-                   <span className="text-xs font-normal text-zinc-500 mt-2 max-w-xs text-center leading-relaxed">
-                     รูปต้องเกิดจากการสร้างโดยแอพธนาคารและมี QR Code เท่านั้น (รองรับ PNG, JPEG)
-                   </span>
-                 </label>
-              </div>
-            </div>
-          )}
+                   <span className="text-xl font-black relative z-10 text-zinc-900 group-hover:text-purple-700 transition-colors">คลิกเพื่ออัพโหลดรูปสลิป</span>
+                   <span className="text-sm text-zinc-500 mt-2 relative z-10 font-medium bg-white px-3 py-1 rounded-full border border-zinc-100">รองรับ PNG, JPEG (ที่มี QR Code เท่านั้น)</span>
+                </label>
 
-          {activeTab === 'code' && (
-            <div className="bg-white border border-zinc-200 shadow-sm rounded-3xl p-6 md:p-8 animate-in fade-in slide-in-from-right-4 duration-500">
-               <div className="mb-6">
-                <h2 className="text-2xl font-bold text-zinc-900 mb-2">กรอกโค้ด (Redeem Code)</h2>
-                <p className="text-zinc-600 text-sm leading-relaxed">
-                  นำโค้ดที่ได้รับจากกิจกรรม หรือ โปรโมชั่น มากรอกเพื่อรับเครดิตหรือรางวัลฟรี
-                </p>
-              </div>
-
-              <form onSubmit={handleRedeemCode} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-bold text-zinc-700 mb-2">รหัสโค้ด / Code</label>
-                  <input
-                    type="text"
-                    value={redeemCode}
-                    onChange={(e) => setRedeemCode(e.target.value.toUpperCase())}
-                    placeholder="ENTER YOUR CODE"
-                    className="w-full bg-zinc-50 border border-zinc-200 rounded-2xl p-4 text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100 transition-all font-sans uppercase font-bold tracking-widest text-center text-lg"
-                    required
-                  />
+                {/* ขั้นตอนวิธีใช้ */}
+                <div className="bg-white border text-left border-zinc-100 p-5 rounded-3xl shadow-sm">
+                  <h4 className="font-black text-zinc-900 mb-4 flex items-center gap-2"><CheckCircle2 className="w-5 h-5 text-emerald-500"/> ขั้นตอนการใช้งาน</h4>
+                  <div className="grid grid-cols-2 gap-y-4 gap-x-2 text-[13px] sm:text-sm text-zinc-600 font-medium">
+                    <div className="flex items-start gap-2"><div className="w-5 h-5 shrink-0 bg-purple-50 text-purple-600 rounded-full flex items-center justify-center font-bold text-xs mt-0.5">1</div> คัดลอกเลขบัญชี</div>
+                    <div className="flex items-start gap-2"><div className="w-5 h-5 shrink-0 bg-purple-50 text-purple-600 rounded-full flex items-center justify-center font-bold text-xs mt-0.5">2</div> เปิดแอปธนาคาร</div>
+                    <div className="flex items-start gap-2"><div className="w-5 h-5 shrink-0 bg-purple-50 text-purple-600 rounded-full flex items-center justify-center font-bold text-xs mt-0.5">3</div> โอนเงินเข้าบัญชี</div>
+                    <div className="flex items-start gap-2"><div className="w-5 h-5 shrink-0 bg-purple-50 text-purple-600 rounded-full flex items-center justify-center font-bold text-xs mt-0.5">4</div> บันทึกสลิป</div>
+                    <div className="flex items-start gap-2"><div className="w-5 h-5 shrink-0 bg-purple-50 text-purple-600 rounded-full flex items-center justify-center font-bold text-xs mt-0.5">5</div> กลับมาที่หน้านี้</div>
+                    <div className="flex items-start gap-2"><div className="w-5 h-5 shrink-0 bg-purple-50 text-purple-600 rounded-full flex items-center justify-center font-bold text-xs mt-0.5">6</div> อัพโหลดสลิป</div>
+                  </div>
                 </div>
-                <button
-                  type="submit"
-                  className="w-full py-4 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-2xl transition-all shadow-md shadow-emerald-500/20"
-                >
-                  ใช้งานโค้ด
-                </button>
-              </form>
-            </div>
-          )}
-        </div>
-      </div>
+
+                {/* หมายเหตุ */}
+                <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex gap-3 text-amber-800 text-[13px] font-medium leading-relaxed">
+                  <AlertTriangle className="w-5 h-5 shrink-0 text-amber-500" />
+                  สลิปการโอนเงินจะถูกตรวจสอบโดยอัตโนมัติ กรุณาไม่อัพโหลดสลิปซ้ำ หรือสลิปที่ไม่มี QR Code เพื่อป้องกันการถูกแบน
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
+

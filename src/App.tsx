@@ -431,7 +431,8 @@ function AppContent() {
           if (settingsData) setSiteSettings(settingsData);
           if (productsData && productsData.length > 0) setProducts(productsData);
           else if (productsData) setProducts(defaultProducts); // fallback if empty
-          if (pagesData) setCustomPages(pagesData);
+          if (Array.isArray(pagesData)) setCustomPages(pagesData);
+          else if (pagesData && pagesData.data && Array.isArray(pagesData.data)) setCustomPages(pagesData.data);
           
           if (keysData && historyData && ipsData) {
             setIsDBReady(true);
@@ -1210,7 +1211,7 @@ function AppContent() {
             <button onClick={() => setActiveView('home')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900`}>
               <ShoppingCart className="w-5 h-5"/> สินค้าทั้งหมด
             </button>
-            {customPages.map(page => (
+            {(customPages || []).map(page => (
               <button 
                 key={page.id}
                 onClick={() => {
@@ -1397,7 +1398,7 @@ function AppContent() {
                     <button onClick={() => { setActiveView('home'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900`}>
                       <ShoppingCart className="w-4 h-4"/> สินค้าทั้งหมด
                     </button>
-                    {customPages.map(page => (
+                    {(customPages || []).map(page => (
                       <button 
                         key={page.id}
                         onClick={() => {
