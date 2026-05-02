@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { User, Shield, Mail, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import Swal from 'sweetalert2';
-import { supabase } from '../lib/supabase';
+import { auth } from '../lib/firebase';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 import { Turnstile } from '@marsidev/react-turnstile';
 
 const rawEnvKey = (import.meta.env.VITE_TURNSTILE_SITE_KEY || '').trim();
@@ -88,21 +89,17 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
 
       if (authMode === 'signup') {
         const signupEmail = authEmail.trim() || generatedEmail;
-        const { data, error } = await supabase.auth.signUp({
-          email: signupEmail,
-          password: authPassword,
-          options: {
-            data: { username: authUsername },
-            ...(currentToken ? { captchaToken: currentToken } : {})
-          }
-        });
+        let data, error;
+        try {
+           const creds = await createUserWithEmailAndPassword(auth, signupEmail, authPassword);
+           data = { user: creds.user };
+        } catch(e) {
+           error = e;
+        }
         
         if (error) {
-           throw new Error(`Supabase SignUp Error: ${error.message}`);
-        }
-
-        if (data?.user?.identities && data.user.identities.length === 0) {
-          throw new Error('User already registered');
+           const errObj = error as Error;
+           throw new Error(`Firebase SignUp Error: ${errObj.message}`);
         }
         
         Swal.fire({
@@ -114,13 +111,16 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
         });
         setActiveView('home');
       } else {
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email: loginEmail,
-          password: authPassword,
-        });
+        let error;
+        try {
+           await signInWithEmailAndPassword(auth, loginEmail, authPassword);
+        } catch(e) {
+           error = e;
+        }
 
         if (error) {
-           throw new Error(`Supabase Login Error: ${error.message}`);
+           const errObj = error as Error;
+           throw new Error(`Firebase Login Error: ${errObj.message}`);
         }
 
         Swal.fire({

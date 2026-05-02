@@ -10,34 +10,30 @@ import https from 'node:https';
 import tls from 'node:tls';
 import { HttpsProxyAgent } from 'https-proxy-agent';
 
-// Set TLS version for TrueMoney compatibility
-// tls.DEFAULT_MIN_VERSION = "TLSv1.3"; // Removed as it might cause crashes in some environments
-import { createClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
+import { initializeApp } from 'firebase/app';
+import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy, limit, setDoc } from 'firebase/firestore';
 
 dotenv.config({ override: true });
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// Initialize Supabase Admin client
-const supabaseUrl = process.env.VITE_SUPABASE_URL || 'https://xuszhqyahucrhupppzil.supabase.co';
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh1c3pocXlhaHVjcmh1cHBwemlsIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NzY2MTUxMCwiZXhwIjoyMDkzMjM3NTEwfQ.m9OkrXwzmxyBZKWgIRftElDNFPFPU9jL6JzCrDRWDfA';
+const firebaseConfig = {
+  apiKey: "AIzaSyA-2RnxebSvtzkD8JG8_OCsH2-BAncV8dw",
+  authDomain: "apex-gen.firebaseapp.com",
+  projectId: "apex-gen",
+  storageBucket: "apex-gen.firebasestorage.app",
+  messagingSenderId: "219914284298",
+  appId: "1:219914284298:web:49637b2ca503e157421ef3",
+  measurementId: "G-85MRQPP2Z6"
+};
 
-console.log(`[Server] --- VERSION 1.0.4 REBOOT ---`);
-console.log(`[Database] Initializing with URL: ${supabaseUrl}`);
+const firebaseApp = initializeApp(firebaseConfig);
+const db = getFirestore(firebaseApp);
 
-let supabaseAdmin: any;
-try {
-  supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey || '', {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false
-    }
-  });
-} catch (err) {
-  console.error('[Database] Critical error initializing Supabase client:', err);
-}
+console.log(`[Server] --- VERSION 1.0.5 REBOOT ---`);
+console.log(`[Database] Initializing Firebase`);
 
 async function startServer() {
   const app = express();
@@ -914,12 +910,9 @@ async function startServer() {
   // --- Supabase Proxy Routes ---
   app.get('/api/license_keys', async (req, res) => {
     try {
-      const { data, error } = await supabaseAdmin.from('license_keys').select('*').order('created_at', { ascending: false });
-      if (error) {
-        console.error('Supabase error fetching license_keys:', JSON.stringify(error));
-        return res.status(500).json({ error: error.message, detail: error.details, hint: error.hint });
-      }
-      res.json(data || []);
+      const snapshot = await getDocs(query(collection(db, 'license_keys'), orderBy('created_at', 'desc')));
+      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      res.json(data);
     } catch (err) {
       console.error('Internal server error fetching license_keys:', err);
       res.status(500).json({ error: 'Internal server error' });
@@ -929,12 +922,9 @@ async function startServer() {
   app.post('/api/license_keys', async (req, res) => {
     try {
       const { key, plan, status } = req.body;
-      const { data, error } = await supabaseAdmin.from('license_keys').insert([{ key, plan, status, created_at: new Date().toISOString() }]).select();
-      if (error) {
-        console.error('Supabase error inserting license_key:', error);
-        return res.status(500).json({ error: error.message });
-      }
-      res.json(data[0]);
+      const newDoc = { key, plan, status, created_at: new Date().toISOString() };
+      const docRef = await addDoc(collection(db, 'license_keys'), newDoc);
+      res.json({ id: docRef.id, ...newDoc });
     } catch (err) {
       console.error('Internal server error inserting license_key:', err);
       res.status(500).json({ error: 'Internal server error' });
@@ -943,11 +933,7 @@ async function startServer() {
 
   app.delete('/api/license_keys/:id', async (req, res) => {
     try {
-      const { error } = await supabaseAdmin.from('license_keys').delete().eq('id', req.params.id);
-      if (error) {
-        console.error('Supabase error deleting license_key:', error);
-        return res.status(500).json({ error: error.message });
-      }
+      await deleteDoc(doc(db, 'license_keys', req.params.id));
       res.json({ success: true });
     } catch (err) {
       console.error('Internal server error deleting license_key:', err);
@@ -958,12 +944,9 @@ async function startServer() {
   app.patch('/api/license_keys/:id', async (req, res) => {
     try {
       const { status } = req.body;
-      const { data, error } = await supabaseAdmin.from('license_keys').update({ status }).eq('id', req.params.id).select();
-      if (error) {
-        console.error('Supabase error updating license_key:', error);
-        return res.status(500).json({ error: error.message });
-      }
-      res.json(data[0]);
+      const docRef = doc(db, 'license_keys', req.params.id);
+      await updateDoc(docRef, { status });
+      res.json({ id: req.params.id, status });
     } catch (err) {
       console.error('Internal server error updating license_key:', err);
       res.status(500).json({ error: 'Internal server error' });
@@ -973,12 +956,12 @@ async function startServer() {
   app.post('/api/license_keys/bulk', async (req, res) => {
     try {
       const { keys } = req.body; // Array of { key, type, status, created_at }
-      const { data, error } = await supabaseAdmin.from('license_keys').insert(keys).select();
-      if (error) {
-        console.error('Supabase error bulk inserting license_keys:', error);
-        return res.status(500).json({ error: error.message });
+      const results = [];
+      for (const k of keys) {
+         const docRef = await addDoc(collection(db, 'license_keys'), { ...k, created_at: new Date().toISOString() });
+         results.push({ id: docRef.id, ...k });
       }
-      res.json(data);
+      res.json(results);
     } catch (err) {
       console.error('Internal server error bulk inserting license_keys:', err);
       res.status(500).json({ error: 'Internal server error' });
@@ -987,19 +970,9 @@ async function startServer() {
 
   app.get('/api/validate_key/:key', async (req, res) => {
     try {
-      const { data, error } = await supabaseAdmin
-        .from('license_keys')
-        .select('*')
-        .eq('key', req.params.key)
-        .single();
-      
-      if (error) {
-        if (error.code === 'PGRST116') { // Not found
-          return res.status(404).json({ error: 'Key not found' });
-        }
-        console.error('Supabase error validating key:', error);
-        return res.status(500).json({ error: error.message });
-      }
+      const snapshot = await getDocs(query(collection(db, 'license_keys')));
+      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })).find((d: any) => d.key === req.params.key);
+      if (!data) return res.status(404).json({ error: 'Key not found' });
       res.json(data);
     } catch (err) {
       console.error('Internal server error validating key:', err);
@@ -1009,12 +982,9 @@ async function startServer() {
 
   app.get('/api/used_keys', async (req, res) => {
     try {
-      const { data, error } = await supabaseAdmin.from('used_keys').select('*').order('used_at', { ascending: false }).limit(100);
-      if (error) {
-        console.error('Supabase error fetching used_keys:', JSON.stringify(error));
-        return res.status(500).json({ error: error.message, detail: error.details, hint: error.hint });
-      }
-      res.json(data || []);
+      const snapshot = await getDocs(query(collection(db, 'used_keys'), orderBy('used_at', 'desc'), limit(100)));
+      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      res.json(data);
     } catch (err) {
       console.error('Internal server error fetching used_keys:', err);
       res.status(500).json({ error: 'Internal server error' });
@@ -1024,17 +994,9 @@ async function startServer() {
   app.post('/api/used_keys', async (req, res) => {
     try {
       const { key, ip, details } = req.body;
-      const { data, error } = await supabaseAdmin.from('used_keys').insert([{ 
-        key, 
-        ip, 
-        details, 
-        used_at: new Date().toISOString() 
-      }]).select();
-      if (error) {
-        console.error('Supabase error inserting used_key:', error);
-        return res.status(500).json({ error: error.message });
-      }
-      res.json(data[0]);
+      const newDoc = { key, ip, details, used_at: new Date().toISOString() };
+      const docRef = await addDoc(collection(db, 'used_keys'), newDoc);
+      res.json({ id: docRef.id, ...newDoc });
     } catch (err) {
       console.error('Internal server error inserting used_key:', err);
       res.status(500).json({ error: 'Internal server error' });
@@ -1043,12 +1005,9 @@ async function startServer() {
 
   app.get('/api/blocked_ips', async (req, res) => {
     try {
-      const { data, error } = await supabaseAdmin.from('blocked_ips').select('*').order('blocked_at', { ascending: false });
-      if (error) {
-        console.error('Supabase error fetching blocked_ips:', JSON.stringify(error));
-        return res.status(500).json({ error: error.message, detail: error.details, hint: error.hint });
-      }
-      res.json(data || []);
+      const snapshot = await getDocs(query(collection(db, 'blocked_ips'), orderBy('blocked_at', 'desc')));
+      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      res.json(data);
     } catch (err) {
       console.error('Internal server error fetching blocked_ips:', err);
       res.status(500).json({ error: 'Internal server error' });
@@ -1058,12 +1017,11 @@ async function startServer() {
   app.post('/api/blocked_ips', async (req, res) => {
     try {
       const { ip, reason } = req.body;
-      const { data, error } = await supabaseAdmin.from('blocked_ips').upsert([{ ip, reason, blocked_at: new Date().toISOString() }]).select();
-      if (error) {
-        console.error('Supabase error upserting blocked_ip:', error);
-        return res.status(500).json({ error: error.message });
-      }
-      res.json(data[0]);
+      const newDoc = { ip, reason, blocked_at: new Date().toISOString() };
+      // Note: simplistic upsert simulation using ip as doc ID
+      const docRef = doc(db, 'blocked_ips', ip);
+      await setDoc(docRef, newDoc);
+      res.json({ id: ip, ...newDoc });
     } catch (err) {
       console.error('Internal server error upserting blocked_ip:', err);
       res.status(500).json({ error: 'Internal server error' });
@@ -1072,11 +1030,7 @@ async function startServer() {
 
   app.delete('/api/blocked_ips/:ip', async (req, res) => {
     try {
-      const { error } = await supabaseAdmin.from('blocked_ips').delete().eq('ip', req.params.ip);
-      if (error) {
-        console.error('Supabase error deleting blocked_ip:', error);
-        return res.status(500).json({ error: error.message });
-      }
+      await deleteDoc(doc(db, 'blocked_ips', req.params.ip));
       res.json({ success: true });
     } catch (err) {
       console.error('Internal server error deleting blocked_ip:', err);
@@ -1086,7 +1040,8 @@ async function startServer() {
 
   app.get('/api/check_ip/:ip', async (req, res) => {
     try {
-      const { data, error } = await supabaseAdmin.from('blocked_ips').select('*').eq('ip', req.params.ip).single();
+      const snapshot = await getDocs(query(collection(db, 'blocked_ips')));
+      const data = snapshot.docs.map(doc => doc.data()).find((d: any) => d.ip === req.params.ip);
       res.json({ blocked: !!data });
     } catch (err) {
       console.error('Internal server error checking IP:', err);
@@ -1097,16 +1052,10 @@ async function startServer() {
   app.post('/api/admins', async (req, res) => {
     try {
       const { username, role } = req.body;
-      const { data, error } = await supabaseAdmin.from('admins').upsert([{ 
-        username, 
-        role, 
-        granted_at: new Date().toISOString() 
-      }]).select();
-      if (error) {
-        console.error('Supabase error upserting admin:', error);
-        return res.status(500).json({ error: error.message });
-      }
-      res.json(data[0]);
+      const newDoc = { username, role, granted_at: new Date().toISOString() };
+      const docRef = doc(db, 'admins', username);
+      await setDoc(docRef, newDoc);
+      res.json({ id: username, ...newDoc });
     } catch (err) {
       console.error('Internal server error upserting admin:', err);
       res.status(500).json({ error: 'Internal server error' });

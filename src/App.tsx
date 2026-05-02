@@ -10,8 +10,9 @@ import { motion, AnimatePresence } from 'motion/react';
 import Swal from 'sweetalert2';
 import axios from 'axios';
 import jsQR from 'jsqr';
-import { supabase } from './lib/supabase';
-import { User as SupabaseUser } from '@supabase/supabase-js';
+import { auth } from './lib/firebase';
+import { onAuthStateChanged, signInAnonymously as firebaseSignInAnonymously, signOut as firebaseSignOut, sendEmailVerification } from 'firebase/auth';
+import { User as SupabaseUser } from 'firebase/auth';
 import { Turnstile } from '@marsidev/react-turnstile';
 import { AccountResult, LogEntry, UserPlan } from './types';
 import { ProfileView } from './components/ProfileView';
@@ -328,27 +329,12 @@ function AppContent() {
   useEffect(() => { localStorage.setItem('apex_products_v3', JSON.stringify(products)); }, [products]);
   useEffect(() => { localStorage.setItem('apex_stats', JSON.stringify(siteStats)); }, [siteStats]);
 
-  // Supabase Auth Listener
+  // Firebase Auth Listener
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        // If logged in, fetch their specific user data if needed
-      }
-    }).catch(err => console.error("Supabase getSession error:", err));
-
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setUser(session?.user ?? null);
-        if (session?.user) {
-          // If logged in, fetch their specific user data if needed
-        }
-      }
-    );
-
-    return () => {
-      authListener.subscription.unsubscribe();
-    };
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+    return () => unsubscribe();
   }, []);
 
   // Backend API Listeners
@@ -651,7 +637,7 @@ function AppContent() {
 
         if (!user) {
           try {
-            const { error } = await supabase.auth.signInAnonymously();
+            await firebaseSignInAnonymously(auth); const error = null;
             if (error) console.error("Error signing in anonymously:", error);
           } catch (err) {
             console.error("Exception signing in anonymously:", err);
@@ -697,7 +683,7 @@ function AppContent() {
 
   const handleLogout = async () => {
     try {
-      await supabase.auth.signOut();
+      await firebaseSignOut(auth);
     } catch(err) {
       console.error("Logout error:", err);
     }
@@ -717,10 +703,7 @@ function AppContent() {
   const resendVerification = async () => {
     if (user && !user.email_confirmed_at && user.email) {
       try {
-        const { error } = await supabase.auth.resend({
-          type: 'signup',
-          email: user.email,
-        });
+        await sendEmailVerification(user); const error = null;
         if (error) throw error;
         
         Swal.fire({
