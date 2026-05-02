@@ -21,11 +21,11 @@ dotenv.config();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Initialize Supabase Admin client
-const supabaseUrl = process.env.VITE_SUPABASE_URL || 'https://xuszhqyahucrhupppzil.supabase.co/';
+const supabaseUrl = process.env.VITE_SUPABASE_URL || 'https://xuszhqyahucrhupppzil.supabase.co';
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh1c3pocXlhaHVjcmh1cHBwemlsIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NzY2MTUxMCwiZXhwIjoyMDkzMjM3NTEwfQ.m9OkrXwzmxyBZKWgIRftElDNFPFPU9jL6JzCrDRWDfA';
 
 console.log(`[Database] Initializing with URL: ${supabaseUrl}`);
-if (supabaseUrl === 'https://xuszhqyahucrhupppzil.supabase.co/') {
+if (supabaseUrl === 'https://xuszhqyahucrhupppzil.supabase.co') {
   console.log('[Database] Using configured user Supabase URL.');
 }
 if (supabaseServiceKey.length < 50) {

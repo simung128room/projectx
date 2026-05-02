@@ -363,19 +363,15 @@ function AppContent() {
         const fetchWithCatch = async (url: string) => {
           try {
             const res = await axios.get(url);
-            return res.data;
+            return { data: res.data, error: null };
           } catch (e: any) {
-            console.error(`Fetch ERROR for ${url}:`, {
-              message: e.message,
-              code: e.code,
-              status: e.response?.status,
-              data: e.response?.data
-            });
-            return null;
+            const errorMsg = e.response?.data?.error || e.message;
+            console.error(`Fetch ERROR for ${url}:`, errorMsg);
+            return { data: null, error: errorMsg };
           }
         };
 
-        const [healthData, keysData, historyData, ipsData, settingsData] = await Promise.all([
+        const [healthRes, keysRes, historyRes, ipsRes, settingsRes] = await Promise.all([
           fetchWithCatch('/api/health'),
           fetchWithCatch('/api/license_keys'),
           fetchWithCatch('/api/used_keys'),
@@ -383,15 +379,13 @@ function AppContent() {
           fetchWithCatch('/api/settings')
         ]);
 
-        console.log("Fetch results:", { 
-          health: !!healthData, 
-          keys: !!keysData, 
-          history: !!historyData, 
-          ips: !!ipsData,
-          settings: !!settingsData
-        });
-
         if (isMounted) {
+          const healthData = healthRes.data;
+          const keysData = keysRes.data;
+          const historyData = historyRes.data;
+          const ipsData = ipsRes.data;
+          const settingsData = settingsRes.data;
+
           if (keysData) setFirebaseKeys(keysData);
           if (historyData) setUsedKeysHistory(historyData);
           if (ipsData) setBlockedIPs(ipsData);
@@ -403,13 +397,19 @@ function AppContent() {
           } else {
             setIsDBReady(false);
             if (!healthData) {
-              setDbErrorDetail("Backend Server (API) is not responding. Please wait or refresh.");
+              setDbErrorDetail("Backend API ไม่ตอบสนอง (Offline)");
             } else {
-              const missing = [];
-              if (!keysData) missing.push("license_keys");
-              if (!historyData) missing.push("used_keys");
-              if (!ipsData) missing.push("blocked_ips");
-              setDbErrorDetail(`Database connection ok, but tables missing: ${missing.join(", ")}. Please run the SQL bootstrap in Supabase.`);
+              const errors = [];
+              if (keysRes.error) errors.push(`license_keys: ${keysRes.error}`);
+              if (historyRes.error) errors.push(`used_keys: ${historyRes.error}`);
+              if (ipsRes.error) errors.push(`blocked_ips: ${ipsRes.error}`);
+              
+              if (errors.length > 0) {
+                // แสดง Error จริงที่ตอบกลับมาจาก Supabase
+                setDbErrorDetail("Supabase Error: " + errors.join(" | "));
+              } else {
+                setDbErrorDetail("เชื่อมต่อสำเร็จ แต่ยังไม่มีข้อมูลในตาราง (Tables empty)");
+              }
             }
           }
         }

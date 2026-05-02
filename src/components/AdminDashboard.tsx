@@ -20,6 +20,7 @@ interface AdminDashboardProps {
   siteStats?: SiteStats;
   setSiteStats?: (stats: SiteStats) => void;
   isDBReady: boolean;
+  dbErrorDetail?: string | null;
   adminUsername: string;
   setIsAdmin: (val: boolean) => void;
   addLicenseKey: () => void;
@@ -338,7 +339,7 @@ const AddStockModal = ({
 };
 
 
-const DatabaseSetupGuide = () => (
+const DatabaseSetupGuide = ({ dbErrorDetail }: { dbErrorDetail?: string | null }) => (
   <div className="bg-zinc-900/50 border border-amber-500/20 rounded-2xl p-8 max-w-2xl mx-auto mt-12 animate-in fade-in slide-in-from-bottom-4 duration-500 backdrop-blur-xl shadow-xl">
     <div className="flex items-center gap-4 mb-8">
       <div className="p-4 bg-amber-500/20 rounded-2xl">
@@ -349,6 +350,16 @@ const DatabaseSetupGuide = () => (
         <p className="text-zinc-500 text-sm mt-1">Supabase tables are missing from the current schema.</p>
       </div>
     </div>
+    
+    {dbErrorDetail && (
+      <div className="mb-8 p-4 bg-red-600/10 border border-red-600/20 rounded-2xl">
+        <div className="flex items-center gap-2 mb-2">
+          <ShieldAlert className="w-4 h-4 text-red-500" />
+          <h4 className="text-red-500 text-[10px] font-black uppercase tracking-widest">สถานะปัจจุบัน:</h4>
+        </div>
+        <p className="text-red-200/80 text-xs font-mono break-all bg-black/40 p-3 rounded-xl border border-white/5">{dbErrorDetail}</p>
+      </div>
+    )}
     
     <div className="space-y-8">
       <div className="flex gap-5">
@@ -561,7 +572,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         </div>
 
         {!isDBReady ? (
-          <DatabaseSetupGuide />
+          <DatabaseSetupGuide dbErrorDetail={dbErrorDetail} />
         ) : (
           <>
             {/* Navigation Tabs */}
