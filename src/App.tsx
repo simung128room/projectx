@@ -16,6 +16,7 @@ import { User as FirebaseUser } from 'firebase/auth';
 import { Turnstile } from '@marsidev/react-turnstile';
 import { AccountResult, LogEntry, UserPlan } from './types';
 import { ProfileView } from './components/ProfileView';
+import { TesterView } from './components/TesterView';
 import { KeyModal } from './components/modals/KeyModal';
 import { AuthView } from './components/AuthView';
 import { AdminDashboard } from './components/AdminDashboard';
@@ -81,48 +82,13 @@ function AppContent() {
   const [siteSettings, setSiteSettings] = useState({ 
     site_name: 'APEX STUDIO',
     truewallet_phone: '0951378403',
-    contact_line: '@apex_studio'
+    contact_line: '@apex_studio',
+    tester_mode: true,
+    tester_keys: 'tester_1234'
   });
 
   // Home Store State (Moved up to prevent TDZ)
-  const defaultProducts = [
-    { 
-      id: '1', 
-      name: 'คีย์ประจำเว็บ (ถาวร)', 
-      description: '[+] ยศในดิสคอร์ด (Member VIP)\n[+] ใช้งานแผงควบคุมระบบตรวจสอบแบบ VIP\n[+] บังคับบายพาส DataDome (เร็วขึ้น x2)\n[+] ตรวจสอบไม่จำกัดจำนวนครั้ง\n[+] สคริปต์ส่วนตัวอัปเดตตลอดชีพ', 
-      price: 49, 
-      stock: 999999,
-      imageUrl: 'https://i.pinimg.com/originals/a0/ba/af/a0baaf3c2a93fb5f5228e9d29efeb134.gif',
-      isPopular: true 
-    },
-    { 
-      id: '2', 
-      name: 'คีย์ประจำเว็บ (30 วัน)', 
-      description: '[+] ใช้งานได้ 30 วัน\n[+] ใช้งานแผงควบคุมระบบ\n[+] บายพาสระดับมาตรฐาน\n[+] ตรวจสอบไม่จำกัดจำนวนครั้ง', 
-      price: 25, 
-      stock: 999999,
-      imageUrl: 'https://i.pinimg.com/originals/2c/31/35/2c3135cb17c6eedaf309b5311dd689ae.gif',
-      isPopular: false 
-    },
-    { 
-      id: '3', 
-      name: 'Garena COD Mobile Account (VIP)', 
-      description: 'ID ระดับอัลติเมท ปืนตำนาน 5-10 กระบอก รันสกินเพียบ', 
-      price: 1500, 
-      stock: 3, 
-      imageUrl: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&q=80&w=400', 
-      isPopular: false 
-    },
-    { 
-      id: '4', 
-      name: 'Free Fire High End', 
-      description: 'สายโหดสกินเต็ม ซื้อปุ๊บเล่นปั๊บ มีหมัดไฟ ดาบคาตานะ', 
-      price: 900, 
-      stock: 12, 
-      imageUrl: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=400',
-      isPopular: false
-    }
-  ];
+  const defaultProducts: Product[] = [];
 
   const [products, setProducts] = useState<Product[]>(() => {
     const saved = localStorage.getItem('apex_products_v3');
@@ -143,6 +109,8 @@ function AppContent() {
   const [isIPBlocked, setIsIPBlocked] = useState(false);
   const [lastUsageDate, setLastUsageDate] = useState<string>('');
   const [showKeyModal, setShowKeyModal] = useState(false);
+  const [isTesterVerified, setIsTesterVerified] = useState(() => sessionStorage.getItem('tester_verified') === 'true');
+  const [testerError, setTesterError] = useState<string | null>(null);
 
   // Navigation State
   const [activeView, setRawActiveView] = useState<'home' | 'dashboard' | 'admin' | 'profile' | 'logs' | 'history' | 'settings' | 'ai_chat' | 'free_stuff' | 'premium_stuff' | 'login' | 'signup' | 'wallet' | 'redeem' | 'product_detail' | 'custom_page'>('home');
@@ -165,6 +133,17 @@ function AppContent() {
     setUserPlan({ username: 'Admin Apex', isPremium: true, premiumExpireDate: new Date(Date.now() + 86400000 * 365).toISOString(), balance: 9999999 } as any);
     setRawActiveView('home'); // Send admin to home or keep them wherever, but enable menus.
   }, []);
+
+  const handleTesterVerify = (key: string) => {
+    const keys = siteSettings.tester_keys.split(',').map(k => k.trim());
+    if (keys.includes(key)) {
+      setIsTesterVerified(true);
+      sessionStorage.setItem('tester_verified', 'true');
+      setTesterError(null);
+    } else {
+      setTesterError('คีย์ไม่ถูกต้อง หรือไม่มีสิทธิ์เข้าถึง');
+    }
+  };
   const prevViewRef = useRef(activeView);
 
   useEffect(() => {
@@ -1173,6 +1152,16 @@ function AppContent() {
       </div>
     </div>
   );
+
+  if (siteSettings.tester_mode && !isTesterVerified && !isAdmin && activeView !== 'login') {
+    return (
+      <TesterView 
+        onVerify={handleTesterVerify} 
+        error={testerError}
+        onAdminLoginTrigger={() => setActiveView('login')}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen w-full overflow-x-hidden bg-zinc-50 text-zinc-900 font-sans selection:bg-cyan-500/30 flex relative">

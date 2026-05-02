@@ -412,7 +412,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [siteSettings, setSiteSettings] = useState({ 
     site_name: 'APEX STUDIO',
     truewallet_phone: '0951378403',
-    contact_line: '@apex_studio'
+    contact_line: '@apex_studio',
+    tester_mode: false,
+    tester_keys: ''
   });
 
   useEffect(() => {
@@ -1131,6 +1133,39 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           placeholder="@line_id"
                         />
                       </div>
+                      
+                      <div className="space-y-4 md:col-span-2 lg:col-span-3">
+                        <label className="block text-sm font-bold text-zinc-700 flex items-center gap-2">
+                           <ShieldAlert className="w-4 h-4 text-red-500" /> โหมด Tester (ปิดเว็บชั่วคราว)
+                        </label>
+                        <div className="flex items-center gap-3 mb-4">
+                          <label className="relative inline-flex items-center cursor-pointer">
+                            <input 
+                              type="checkbox" 
+                              className="sr-only peer" 
+                              checked={siteSettings.tester_mode}
+                              onChange={(e) => setSiteSettings({ ...siteSettings, tester_mode: e.target.checked })}
+                            />
+                            <div className="w-11 h-6 bg-zinc-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-500"></div>
+                          </label>
+                          <span className="text-sm font-medium text-zinc-700">{siteSettings.tester_mode ? 'เปิดใช้งาน (ผู้เข้าชมต้องกรอกคีย์)' : 'ปิดการใช้งาน (เข้าชมได้ปกติ)'}</span>
+                        </div>
+                        {siteSettings.tester_mode && (
+                          <div className="space-y-4">
+                            <label className="block text-sm font-bold text-zinc-700 flex items-center gap-2">
+                              <Key className="w-4 h-4 text-amber-500" /> คีย์สำหรับเข้าเว็บ (คั่นด้วยลูกน้ำ)
+                            </label>
+                            <input 
+                              type="text"
+                              value={siteSettings.tester_keys}
+                              onChange={(e) => setSiteSettings({ ...siteSettings, tester_keys: e.target.value })}
+                              className="w-full bg-white border border-zinc-200 rounded-2xl px-5 py-4 text-zinc-900 text-sm font-bold focus:outline-none focus:border-red-500 shadow-inner"
+                              placeholder="เช่น test_1234, apex_tester"
+                            />
+                          </div>
+                        )}
+                      </div>
+
                       <div className="flex items-end">
                         <button 
                           onClick={handleSaveSettings}

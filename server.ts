@@ -64,10 +64,12 @@ console.log(`[Database] Initializing Firebase`);
   // app.get('/api/health', (req, res) => { ... })
   
   // Site Settings State (Durable with Environment Variables)
-  let siteSettings = {
+  let siteSettings: any = {
     site_name: process.env.VITE_SITE_NAME || 'APEX STUDIO',
     truewallet_phone: process.env.TRUEWALLET_PHONE || '0951378403',
-    contact_line: process.env.CONTACT_LINE || '@apex_studio'
+    contact_line: process.env.CONTACT_LINE || '@apex_studio',
+    tester_mode: true,
+    tester_keys: 'tester_1234'
   };
 
   app.get('/api/settings', (req, res) => {
@@ -75,10 +77,12 @@ console.log(`[Database] Initializing Firebase`);
   });
 
   app.post('/api/settings', (req, res) => {
-    const { truewallet_phone, site_name, contact_line } = req.body;
+    const { truewallet_phone, site_name, contact_line, tester_mode, tester_keys } = req.body;
     if (truewallet_phone !== undefined) siteSettings.truewallet_phone = truewallet_phone;
     if (site_name !== undefined) siteSettings.site_name = site_name;
     if (contact_line !== undefined) siteSettings.contact_line = contact_line;
+    if (tester_mode !== undefined) siteSettings.tester_mode = tester_mode;
+    if (tester_keys !== undefined) siteSettings.tester_keys = tester_keys;
     
     console.log(`[Settings] Updated:`, siteSettings);
     return res.json({ success: true, settings: siteSettings });

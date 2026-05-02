@@ -231,15 +231,19 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
         {/* Card 1: TrueMoney */}
-        <div className="bg-white border border-zinc-200 rounded-3xl p-6 sm:p-8 flex flex-col items-center text-center shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
-          <div className="absolute top-0 right-0 p-4">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-600 text-[10px] font-black rounded-full border border-emerald-100 uppercase tracking-widest">
-              <ShieldCheck className="w-3.5 h-3.5" /> ตรวจสอบอัตโนมัติ
-            </span>
-          </div>
-          <div className="w-24 h-24 mb-6 group-hover:scale-110 transition-transform duration-300">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.1 }}
+          whileHover={{ y: -5, boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)' }}
+          className="bg-white border border-zinc-200 rounded-3xl p-6 sm:p-8 flex flex-col items-center text-center shadow-sm transition-all group relative overflow-hidden"
+        >
+          <motion.div 
+            whileHover={{ scale: 1.1, rotate: 5 }}
+            className="w-24 h-24 mb-6 transition-transform duration-300"
+          >
             <img src="https://img1.pic.in.th/images/IMG_6162.png" alt="TrueMoney Wallet" className="w-full h-full object-contain drop-shadow-sm" />
-          </div>
+          </motion.div>
           <h2 className="text-2xl font-black text-zinc-900 mb-3">ซองอั่งเปา</h2>
           <p className="text-zinc-500 text-sm mb-8 leading-relaxed px-4">
             เติมเงินผ่านคิวอาร์โค้ดหรือลิงก์ซองของขวัญ TrueMoney Wallet สะดวก รวดเร็ว
@@ -250,18 +254,22 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
           >
             เลือก <ArrowRight className="w-5 h-5" />
           </button>
-        </div>
+        </motion.div>
 
         {/* Card 2: Bank Slip */}
-        <div className="bg-white border border-zinc-200 rounded-3xl p-6 sm:p-8 flex flex-col items-center text-center shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
-          <div className="absolute top-0 right-0 p-4">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-600 text-[10px] font-black rounded-full border border-emerald-100 uppercase tracking-widest">
-              <ShieldCheck className="w-3.5 h-3.5" /> ตรวจสอบอัตโนมัติ
-            </span>
-          </div>
-          <div className="w-24 h-24 mb-6 group-hover:scale-110 transition-transform duration-300">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.2 }}
+          whileHover={{ y: -5, boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)' }}
+          className="bg-white border border-zinc-200 rounded-3xl p-6 sm:p-8 flex flex-col items-center text-center shadow-sm transition-all group relative overflow-hidden"
+        >
+          <motion.div 
+            whileHover={{ scale: 1.1, rotate: -5 }}
+            className="w-24 h-24 mb-6 transition-transform duration-300"
+          >
             <img src="https://img2.pic.in.th/IMG_6164.png" alt="Bank Transfer" className="w-full h-full object-contain drop-shadow-sm" />
-          </div>
+          </motion.div>
           <h2 className="text-2xl font-black text-zinc-900 mb-3">สลิปโอนเงิน</h2>
           <p className="text-zinc-500 text-sm mb-8 leading-relaxed px-4">
             อัพโหลดสลิปธนาคารพร้อม QR Code เพื่อเติมเงินเข้าระบบ ใช้งานง่าย รวดเร็ว
@@ -272,7 +280,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
           >
             เลือก <ArrowRight className="w-5 h-5" />
           </button>
-        </div>
+        </motion.div>
       </div>
 
       <AnimatePresence>
@@ -370,7 +378,9 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
                   <div className="relative z-10 flex flex-col items-center justify-center text-center space-y-3">
                     <p className="text-xs font-bold text-pink-500 uppercase tracking-widest bg-white/50 px-3 py-1 rounded-full border border-pink-100">โอนเงินเข้าบัญชีนี้</p>
                     <div className="flex bg-white shadow-sm border border-zinc-100 rounded-full pr-4 p-1 gap-3 items-center">
-                      <div className="w-8 h-8 rounded-full bg-[#00A950] flex items-center justify-center text-white text-xs font-black">K</div>
+                      <div className="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden border border-zinc-100">
+                        <img src="https://img2.pic.in.th/IMG_6166.png" alt="KBank" className="w-full h-full object-cover" />
+                      </div>
                       <span className="font-bold text-zinc-900 text-sm">ธนาคารกสิกรไทย</span>
                     </div>
                     <p className="font-bold text-zinc-900 text-xl tracking-tight">กรวิชญ์ มาตขาว</p>
