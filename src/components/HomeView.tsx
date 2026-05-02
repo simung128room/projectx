@@ -10,7 +10,7 @@ interface HomeViewProps {
   stats: SiteStats;
   user?: any;
   setActiveView: (view: any) => void;
-  handlePurchase: (product: Product) => void;
+  handlePurchase: (product: Product, quantity: number) => void;
 }
 
 const BANNERS = [
@@ -24,11 +24,13 @@ export const HomeView: React.FC<HomeViewProps> = ({ products, stats, user, setAc
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [showConfirmPurchase, setShowConfirmPurchase] = useState(false);
   const [isProductLoading, setIsProductLoading] = useState(false);
+  const [purchaseQuantity, setPurchaseQuantity] = useState(1);
 
   const handleProductSelect = (product: Product | null) => {
     setIsProductLoading(true);
     setTimeout(() => {
       setSelectedProduct(product);
+      setPurchaseQuantity(1);
       setIsProductLoading(false);
     }, 600);
   };
@@ -132,6 +134,36 @@ export const HomeView: React.FC<HomeViewProps> = ({ products, stats, user, setAc
               </div>
             </div>
 
+            <div className="mb-6 flex flex-col gap-2">
+              <label className="font-bold text-zinc-900 text-sm">จำนวนชิ้นที่ต้องการซื้อ</label>
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={() => setPurchaseQuantity(Math.max(1, purchaseQuantity - 1))}
+                  className="w-12 h-12 rounded-xl bg-zinc-100 flex items-center justify-center font-black text-xl hover:bg-zinc-200 transition-colors"
+                >
+                  -
+                </button>
+                <input
+                  type="number"
+                  min="1"
+                  max={selectedProduct.stock >= 999999 ? 999 : selectedProduct.stock}
+                  value={purchaseQuantity}
+                  onChange={(e) => {
+                    const val = parseInt(e.target.value);
+                    if (!isNaN(val)) setPurchaseQuantity(Math.min(selectedProduct.stock >= 999999 ? 999 : selectedProduct.stock, Math.max(1, val)));
+                  }}
+                  className="flex-1 h-12 bg-white border-2 border-zinc-200 rounded-xl text-center font-black text-xl outline-none focus:border-red-500 transition-colors appearance-none m-0"
+                  style={{ WebkitAppearance: 'none', MozAppearance: 'textfield' }}
+                />
+                <button
+                  onClick={() => setPurchaseQuantity(Math.min(selectedProduct.stock >= 999999 ? 999 : selectedProduct.stock, purchaseQuantity + 1))}
+                  className="w-12 h-12 rounded-xl bg-zinc-100 flex items-center justify-center font-black text-xl hover:bg-zinc-200 transition-colors"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+
             <button 
                onClick={() => {
                  if (!user) {
@@ -163,8 +195,8 @@ export const HomeView: React.FC<HomeViewProps> = ({ products, stats, user, setAc
                 </div>
                 <h3 className="font-black text-2xl text-zinc-900 mb-2">ยืนยันการสั่งซื้อ</h3>
                 <p className="text-zinc-500 text-sm mb-6 leading-relaxed">
-                   คุณต้องการสั่งซื้อ <span className="font-bold text-zinc-900">{selectedProduct.name}</span> <br/>
-                   ในราคา <span className="font-bold text-red-600">฿{selectedProduct.price.toLocaleString()}</span> ใช่หรือไม่?
+                   คุณต้องการสั่งซื้อ <span className="font-bold text-zinc-900">{selectedProduct.name}</span> จำนวน <span className="font-bold text-zinc-900">{purchaseQuantity}</span> ชิ้น <br/>
+                   ในราคา <span className="font-bold text-red-600">฿{(selectedProduct.price * purchaseQuantity).toLocaleString()}</span> ใช่หรือไม่?
                 </p>
 
                 <div className="flex items-center gap-3 w-full">
@@ -176,7 +208,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ products, stats, user, setAc
                    </button>
                    <button 
                      onClick={() => {
-                        handlePurchase(selectedProduct);
+                        handlePurchase(selectedProduct, purchaseQuantity);
                         setShowConfirmPurchase(false);
                         setSelectedProduct(null);
                      }}

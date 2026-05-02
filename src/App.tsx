@@ -249,59 +249,68 @@ function AppContent() {
   });
   useEffect(() => { localStorage.setItem('apex_topup_history', JSON.stringify(topupHistory.slice(0, 50))); }, [topupHistory]);
 
-  const handlePurchase = (product: Product) => {
-    if (product.stock <= 0) {
+  const handlePurchase = (product: Product, quantity: number = 1) => {
+    if (product.stock < quantity) {
       Swal.fire({
         icon: 'error',
-        title: 'สินค้าหมด',
-        text: 'สินค้าหน้านี้ไม่มีสต๊อกที่พร้อมจำหน่าย',
+        title: 'สินค้าไม่เพียงพอ',
+        text: 'สินค้าหน้านี้มีสต๊อกไม่พอสำหรับจำนวนที่คุณต้องการ',
         confirmButtonColor: '#dc2626'
       });
       return;
     }
 
-    if (!userPlan || (userPlan.balance || 0) < product.price) {
+    const totalPrice = product.price * quantity;
+
+    if (!userPlan || (userPlan.balance || 0) < totalPrice) {
       Swal.fire({
         icon: 'error',
         title: 'ยอดเงินไม่เพียงพอ',
-        text: 'กรุณาเติมเงินก่อนทำการสั่งซื้อสินค้า',
+        text: `กรุณาเติมเงินก่อนทำการสั่งซื้อสินค้า (ยอดรวม: ฿${totalPrice.toLocaleString()})`,
         confirmButtonColor: '#dc2626'
       });
       return;
     }
 
-    // Get item data
-    let secretData = `APEX-${Math.random().toString(36).substring(2, 10).toUpperCase()}`; // fallback
-    
+    const newHistoryItems: any[] = [];
+
     // Update product stock
     setProducts(prevProducts => prevProducts.map(p => {
       if (p.id === product.id) {
-        if (p.stockData && p.stockData.length > 0) {
-           secretData = p.stockData[0];
-           return { ...p, stock: p.stock - 1, stockData: p.stockData.slice(1) };
+        let currentStockData = p.stockData ? [...p.stockData] : [];
+        for (let i = 0; i < quantity; i++) {
+          let secretData = `APEX-${Math.random().toString(36).substring(2, 10).toUpperCase()}`;
+          if (currentStockData.length > 0) {
+            secretData = currentStockData.shift() as string;
+          }
+          
+          newHistoryItems.push({
+            id: Math.random().toString(36).substring(7),
+            productId: product.id,
+            productName: quantity > 1 ? `${product.name} (ชิ้นที่ ${i + 1})` : product.name,
+            price: product.price,
+            secretData: secretData,
+            date: new Date().toISOString(),
+            billNumber: 'B-' + Math.floor(Math.random()*1000000).toString().padStart(6, '0')
+          });
         }
-        return { ...p, stock: p.stock > 0 ? p.stock - 1 : 0 };
+        return { 
+          ...p, 
+          stock: p.stock > 0 ? p.stock - quantity : 0, 
+          stockData: currentStockData 
+        };
       }
       return p;
     }));
 
     // Deduct balance
-    setUserPlan(prev => prev ? { ...prev, balance: (prev.balance || 0) - product.price } : prev);
+    setUserPlan(prev => prev ? { ...prev, balance: (prev.balance || 0) - totalPrice } : prev);
     
     // Add to history
-    const historyItem = {
-      id: Math.random().toString(36).substring(7),
-      productId: product.id,
-      productName: product.name,
-      price: product.price,
-      secretData: secretData,
-      date: new Date().toISOString(),
-      billNumber: 'B-' + Math.floor(Math.random()*1000000).toString().padStart(6, '0')
-    };
-    setPurchaseHistory(prev => [historyItem, ...prev]);
+    setPurchaseHistory(prev => [...newHistoryItems, ...prev]);
 
     // Update site stats for admin
-    setSiteStats(prev => ({...prev, sales: prev.sales + product.price, stock: Math.max(0, prev.stock - 1)}));
+    setSiteStats(prev => ({...prev, sales: prev.sales + totalPrice, stock: Math.max(0, prev.stock - quantity)}));
 
     // Show success and redirect
     Swal.fire({
@@ -905,19 +914,6 @@ function AppContent() {
       return;
     }
 
-    if (!user.is_anonymous && !user.email_confirmed_at) {
-      Swal.fire({ 
-        title: 'ยังไม่ยืนยันอีเมล', 
-        text: 'กรุณายืนยันอีเมลของคุณก่อนเริ่มการทำงาน ทีมงานส่งลิงก์ไปให้ทางอีเมลแล้ว', 
-        icon: 'error',
-        showCancelButton: true,
-        confirmButtonText: 'ส่งอีเมลยืนยันอีกครั้ง'
-      }).then((res) => {
-        if (res.isConfirmed) resendVerification();
-      });
-      return;
-    }
-
     const MAX_DAILY = 1000;
     const isPremium = userPlan?.isPremium;
     let linesToCheck = lines;
@@ -1390,21 +1386,7 @@ function AppContent() {
           )}
         </AnimatePresence>
 
-      {/* Verification Banner */}
-      {user && !user.is_anonymous && !user.email_confirmed_at && (
-        <div className="bg-amber-500/10 border-b border-amber-500/20 py-2.5 px-4 text-center relative z-30">
-          <p className="text-xs text-amber-500 font-bold flex items-center justify-center gap-2">
-            <AlertTriangle className="w-4 h-4" />
-            บัญชีของคุณยังไม่ได้ยืนยันอีเมล! กรุณาตรวจสอบอีเมลของคุณ
-            <button 
-              onClick={resendVerification}
-              className="ml-4 underline hover:text-amber-400 transition-colors"
-            >
-              ส่งอีเมลยืนยันอีกครั้ง
-            </button>
-          </p>
-        </div>
-      )}
+      {/* Verification Banner Removed */}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-10 pb-24 w-full flex-1 flex flex-col">
         {activeView === 'home' && (
