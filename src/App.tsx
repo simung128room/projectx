@@ -397,7 +397,15 @@ function AppContent() {
           } else {
             setIsDBReady(false);
             if (!healthData) {
-              setDbErrorDetail(`Backend API ไม่ตอบสนอง (Offline): ${healthRes.error || "Unknown Error"}`);
+              let errorMsg: string = "Unknown Error";
+              if (healthRes.error) {
+                if (typeof healthRes.error === 'object') {
+                  errorMsg = (healthRes.error as any).message || JSON.stringify(healthRes.error);
+                } else {
+                  errorMsg = String(healthRes.error);
+                }
+              }
+              setDbErrorDetail(`Backend API ไม่ตอบสนอง (Offline): ${errorMsg}`);
             } else {
               const errors = [];
               if (keysRes.error) errors.push(`license_keys: ${keysRes.error}`);
@@ -405,7 +413,6 @@ function AppContent() {
               if (ipsRes.error) errors.push(`blocked_ips: ${ipsRes.error}`);
               
               if (errors.length > 0) {
-                // แสดง Error จริงที่ตอบกลับมาจาก Supabase
                 setDbErrorDetail("Supabase Error: " + errors.join(" | "));
               } else {
                 setDbErrorDetail("เชื่อมต่อสำเร็จ แต่ยังไม่มีข้อมูลในตาราง (Tables empty)");

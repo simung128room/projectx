@@ -16,7 +16,7 @@ import { createClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
 
-dotenv.config();
+dotenv.config({ override: true });
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -24,9 +24,12 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const supabaseUrl = process.env.VITE_SUPABASE_URL || 'https://xuszhqyahucrhupppzil.supabase.co';
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh1c3pocXlhaHVjcmh1cHBwemlsIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NzY2MTUxMCwiZXhwIjoyMDkzMjM3NTEwfQ.m9OkrXwzmxyBZKWgIRftElDNFPFPU9jL6JzCrDRWDfA';
 
+console.log(`[Server] --- VERSION 1.0.2 REBOOT ---`);
 console.log(`[Database] Initializing with URL: ${supabaseUrl}`);
-if (supabaseUrl === 'https://xuszhqyahucrhupppzil.supabase.co') {
-  console.log('[Database] Using configured user Supabase URL.');
+if (supabaseUrl.includes('xuszhqyahucrhupppzil')) {
+  console.log('[Database] Correct Supabase URL detected.');
+} else {
+  console.warn('[Database] WARNING: Still using an unexpected URL:', supabaseUrl);
 }
 if (supabaseServiceKey.length < 50) {
   console.warn('[Database] WARNING: SUPABASE_SERVICE_ROLE_KEY looks invalid or missing! Backend DB operations will fail.');
