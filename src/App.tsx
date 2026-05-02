@@ -403,9 +403,13 @@ function AppContent() {
           } else {
             setIsDBReady(false);
             if (!healthData) {
-              setDbErrorDetail("Cannot connect to backend server. Please try refreshing.");
+              setDbErrorDetail("Backend Server (API) is not responding. Please wait or refresh.");
             } else {
-              setDbErrorDetail("Tables missing or environment variables (URL/Key) not correctly configured.");
+              const missing = [];
+              if (!keysData) missing.push("license_keys");
+              if (!historyData) missing.push("used_keys");
+              if (!ipsData) missing.push("blocked_ips");
+              setDbErrorDetail(`Database connection ok, but tables missing: ${missing.join(", ")}. Please run the SQL bootstrap in Supabase.`);
             }
           }
         }

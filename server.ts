@@ -21,15 +21,15 @@ dotenv.config();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Initialize Supabase Admin client
-const supabaseUrl = process.env.VITE_SUPABASE_URL || 'https://ryybzmtkoeyfxecclqrr.supabase.co/';
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'no-key-provided-please-check-env';
+const supabaseUrl = process.env.VITE_SUPABASE_URL || 'https://xuszhqyahucrhupppzil.supabase.co/';
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh1c3pocXlhaHVjcmh1cHBwemlsIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NzY2MTUxMCwiZXhwIjoyMDkzMjM3NTEwfQ.m9OkrXwzmxyBZKWgIRftElDNFPFPU9jL6JzCrDRWDfA';
 
 console.log(`[Database] Initializing with URL: ${supabaseUrl}`);
-if (supabaseUrl === 'https://ryybzmtkoeyfxecclqrr.supabase.co/') {
-  console.warn('[Database] WARNING: Using default placeholder Supabase URL. Please set VITE_SUPABASE_URL in your environment variables.');
+if (supabaseUrl === 'https://xuszhqyahucrhupppzil.supabase.co/') {
+  console.log('[Database] Using configured user Supabase URL.');
 }
-if (supabaseServiceKey === 'no-key-provided-please-check-env') {
-  console.warn('[Database] WARNING: SUPABASE_SERVICE_ROLE_KEY is missing! Backend DB operations will fail.');
+if (supabaseServiceKey.length < 50) {
+  console.warn('[Database] WARNING: SUPABASE_SERVICE_ROLE_KEY looks invalid or missing! Backend DB operations will fail.');
 }
 
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey || '', {
