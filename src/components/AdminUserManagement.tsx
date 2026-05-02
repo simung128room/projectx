@@ -16,14 +16,10 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
       try {
         return JSON.parse(saved);
       } catch (e) {
-        return null;
+        return [];
       }
     }
-    return [
-      { id: '1', email: 'user@example.com', role: 'Premium', balance: 150, status: 'active', registered: '2026-04-10T10:00:00Z' },
-      { id: '2', email: 'guest123@gmail.com', role: 'Member', balance: 0, status: 'active', registered: '2026-04-15T10:00:00Z' },
-      { id: '3', email: 'admin_apex@apex-studio.com', role: 'Admin', balance: 9999999, status: 'active', registered: '2026-05-01T10:00:00Z' }
-    ];
+    return [];
   });
 
   const [search, setSearch] = useState('');
@@ -117,9 +113,9 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
     });
   };
 
-  // Mock function to match history by email
-  const userPurchaseHistory = purchaseHistory.filter(h => h.username && selectedUser && selectedUser.email && h.username.toLowerCase().includes(selectedUser.email.split('@')[0].toLowerCase()));
-  const userTopupHistory = topupHistory.filter(h => h.username && selectedUser && selectedUser.email && h.username.toLowerCase() === selectedUser.email.toLowerCase());
+  // Match history by username/email
+  const userPurchaseHistory = purchaseHistory.filter(h => h.username && selectedUser && selectedUser.email && (h.username.toLowerCase() === selectedUser.email.toLowerCase() || h.username.toLowerCase() === selectedUser.email.split('@')[0].toLowerCase() || selectedUser.email.toLowerCase().startsWith(h.username.toLowerCase())));
+  const userTopupHistory = topupHistory.filter(h => h.username && selectedUser && selectedUser.email && (h.username.toLowerCase() === selectedUser.email.toLowerCase() || h.username.toLowerCase() === selectedUser.email.split('@')[0].toLowerCase() || selectedUser.email.toLowerCase().startsWith(h.username.toLowerCase())));
   const userKeysHistory = usedKeysHistory; // For simulation, assuming keys might be linked later, currently we just show all or none
 
   return (

@@ -76,6 +76,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
         try {
           const historyEntry = {
             id: Math.random().toString(36).substr(2, 9),
+            username: userPlan?.username || 'Unknown',
             type: 'Truemoney',
             method: 'ซองของขวัญ (Gift Link)',
             amount,

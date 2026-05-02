@@ -843,10 +843,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                         cancelButtonText: 'ยกเลิก',
                                         background: '#09090b',
                                         color: '#fff'
-                                      }).then((result) => {
+                                      }).then(async (result) => {
                                         if (result.isConfirmed) {
-                                          setProducts(products.filter(prod => prod.id !== p.id));
-                                          Swal.fire({ title: 'ลบสำเร็จ', icon: 'success', background: '#09090b', color: '#fff', showConfirmButton: false, timer: 1000 });
+                                          try {
+                                            await axios.delete(`/api/products/${p.id}`);
+                                            setProducts(products.filter(prod => prod.id !== p.id));
+                                            Swal.fire({ title: 'ลบสำเร็จ', icon: 'success', background: '#09090b', color: '#fff', showConfirmButton: false, timer: 1000 });
+                                          } catch (err) {
+                                            Swal.fire('Error', 'ไม่สามารถลบสินค้าได้', 'error');
+                                          }
                                         }
                                       });
                                     }
@@ -1241,11 +1246,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           <ProductManagerModal 
             isEdit={false}
             onClose={() => setIsAddingProduct(false)}
-            onSave={(p) => {
+            onSave={async (p) => {
               if (setProducts) {
-                setProducts([...products, p]);
-                setIsAddingProduct(false);
-                Swal.fire({ title: 'เพิ่มสินค้าสำเร็จ', icon: 'success', background: '#09090b', color: '#fff' });
+                try {
+                  const res = await axios.post('/api/products', p);
+                  setProducts([...products, res.data]);
+                  setIsAddingProduct(false);
+                  Swal.fire({ title: 'เพิ่มสินค้าสำเร็จ', icon: 'success', background: '#09090b', color: '#fff' });
+                } catch (err) {
+                  Swal.fire('Error', 'ไม่สามารถเพิ่มสินค้าได้', 'error');
+                }
               }
             }}
           />
@@ -1256,11 +1266,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             product={editingProduct}
             isEdit={true}
             onClose={() => setEditingProduct(undefined)}
-            onSave={(p) => {
+            onSave={async (p) => {
               if (setProducts) {
-                setProducts(products.map(prod => prod.id === p.id ? p : prod));
-                setEditingProduct(undefined);
-                Swal.fire({ title: 'แก้ไขสินค้าสำเร็จ', icon: 'success', background: '#09090b', color: '#fff' });
+                try {
+                  const res = await axios.put(`/api/products/${p.id}`, p);
+                  setProducts(products.map(prod => prod.id === p.id ? res.data : prod));
+                  setEditingProduct(undefined);
+                  Swal.fire({ title: 'แก้ไขสินค้าสำเร็จ', icon: 'success', background: '#09090b', color: '#fff' });
+                } catch (err) {
+                  Swal.fire('Error', 'ไม่สามารถแก้ไขสินค้าได้', 'error');
+                }
               }
             }}
           />
@@ -1270,11 +1285,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           <AddStockModal 
             product={stockProduct}
             onClose={() => setStockProduct(undefined)}
-            onSave={(p) => {
+            onSave={async (p) => {
               if (setProducts) {
-                setProducts(products.map(prod => prod.id === p.id ? p : prod));
-                setStockProduct(undefined);
-                Swal.fire({ title: 'เพิ่มสต๊อกสำเร็จ', icon: 'success', background: '#09090b', color: '#fff' });
+                try {
+                  const res = await axios.put(`/api/products/${p.id}`, p);
+                  setProducts(products.map(prod => prod.id === p.id ? res.data : prod));
+                  setStockProduct(undefined);
+                  Swal.fire({ title: 'เพิ่มสต๊อกสำเร็จ', icon: 'success', background: '#09090b', color: '#fff' });
+                } catch (err) {
+                  Swal.fire('Error', 'ไม่สามารถอัพเดตสต๊อกได้', 'error');
+                }
               }
             }}
           />

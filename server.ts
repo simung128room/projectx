@@ -904,6 +904,57 @@ console.log(`[Database] Initializing Firebase`);
   });
 
   // --- Supabase Proxy Routes ---
+  // --- Products Endpoints ---
+  app.get('/api/products', async (req, res) => {
+    if (!db) return res.json([]);
+    try {
+      const snapshot = await getDocs(query(collection(db, 'products')));
+      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      res.json(data);
+    } catch (err) {
+      console.error('Internal server error fetching products:', err);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  app.post('/api/products', async (req, res) => {
+    if (!db) return res.status(500).json({ error: 'DB not connected' });
+    try {
+      const product = req.body;
+      const { id, ...dataToSave } = product;
+      const docRef = await addDoc(collection(db, 'products'), dataToSave);
+      res.json({ id: docRef.id, ...dataToSave });
+    } catch (err) {
+      console.error('Internal server error creating product:', err);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  app.put('/api/products/:id', async (req, res) => {
+    if (!db) return res.status(500).json({ error: 'DB not connected' });
+    try {
+      const product = req.body;
+      const { id, ...dataToSave } = product;
+      const docRef = doc(db, 'products', req.params.id);
+      await updateDoc(docRef, dataToSave);
+      res.json({ id: req.params.id, ...dataToSave });
+    } catch (err) {
+      console.error('Internal server error updating product:', err);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  app.delete('/api/products/:id', async (req, res) => {
+    if (!db) return res.status(500).json({ error: 'DB not connected' });
+    try {
+      await deleteDoc(doc(db, 'products', req.params.id));
+      res.json({ success: true });
+    } catch (err) {
+      console.error('Internal server error deleting product:', err);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
   app.get('/api/license_keys', async (req, res) => {
     try {
       const snapshot = await getDocs(query(collection(db, 'license_keys'), orderBy('created_at', 'desc')));

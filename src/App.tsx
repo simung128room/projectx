@@ -20,6 +20,7 @@ import { KeyModal } from './components/modals/KeyModal';
 import { AuthView } from './components/AuthView';
 import { AdminDashboard } from './components/AdminDashboard';
 import { HomeView } from './components/HomeView';
+import { ProductDetailView } from './components/ProductDetailView';
 import { HistoryLogsView } from './components/HistoryLogsView';
 import { ContentFeedView } from './components/ContentFeedView';
 import { AIChatView } from './components/AIChatView';
@@ -141,7 +142,8 @@ function AppContent() {
   const [showKeyModal, setShowKeyModal] = useState(false);
 
   // Navigation State
-  const [activeView, setRawActiveView] = useState<'home' | 'dashboard' | 'admin' | 'profile' | 'logs' | 'history' | 'settings' | 'ai_chat' | 'free_stuff' | 'premium_stuff' | 'login' | 'signup' | 'wallet' | 'redeem'>('home');
+  const [activeView, setRawActiveView] = useState<'home' | 'dashboard' | 'admin' | 'profile' | 'logs' | 'history' | 'settings' | 'ai_chat' | 'free_stuff' | 'premium_stuff' | 'login' | 'signup' | 'wallet' | 'redeem' | 'product_detail'>('home');
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [isPageTransitioning, setIsPageTransitioning] = useState(false);
 
   const setActiveView = useCallback((view: any) => {
@@ -249,7 +251,7 @@ function AppContent() {
   });
   useEffect(() => { localStorage.setItem('apex_topup_history', JSON.stringify(topupHistory.slice(0, 50))); }, [topupHistory]);
 
-  const handlePurchase = (product: Product, quantity: number = 1) => {
+  const handlePurchase = async (product: Product, quantity: number = 1) => {
     if (product.stock < quantity) {
       Swal.fire({
         icon: 'error',
@@ -273,6 +275,7 @@ function AppContent() {
     }
 
     const newHistoryItems: any[] = [];
+    let updatedProductData: Product | null = null;
 
     // Update product stock
     setProducts(prevProducts => prevProducts.map(p => {
@@ -286,6 +289,7 @@ function AppContent() {
           
           newHistoryItems.push({
             id: Math.random().toString(36).substring(7),
+            username: userPlan?.username || user?.email?.split('@')[0] || 'Unknown',
             productId: product.id,
             productName: quantity > 1 ? `${product.name} (ชิ้นที่ ${i + 1})` : product.name,
             price: product.price,
@@ -294,14 +298,25 @@ function AppContent() {
             billNumber: 'B-' + Math.floor(Math.random()*1000000).toString().padStart(6, '0')
           });
         }
-        return { 
+        const newProduct = { 
           ...p, 
           stock: p.stock > 0 ? p.stock - quantity : 0, 
           stockData: currentStockData 
         };
+        updatedProductData = newProduct;
+        return newProduct;
       }
       return p;
     }));
+
+    // Async sync with backend
+    if (updatedProductData) {
+      try {
+         await axios.put(`/api/products/${(updatedProductData as Product).id}`, updatedProductData);
+      } catch (err) {
+         console.warn("Failed to sync purchase with backend products DB:", err);
+      }
+    }
 
     // Deduct balance
     setUserPlan(prev => prev ? { ...prev, balance: (prev.balance || 0) - totalPrice } : prev);
@@ -342,6 +357,28 @@ function AppContent() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
+      
+      // Track real users for AdminUserManagement
+      if (currentUser && !currentUser.isAnonymous && currentUser.email) {
+        const savedUsers = localStorage.getItem('apex_users_list');
+        let usersList: any[] = savedUsers ? JSON.parse(savedUsers) : [];
+        const existingIdx = usersList.findIndex(u => u.email === currentUser.email);
+        const userObj = {
+          id: currentUser.uid,
+          email: currentUser.email,
+          role: currentUser.email === 'admin_apex@apex-studio.com' ? 'Admin' : 'Member',
+          balance: 0,
+          status: 'active',
+          registered: currentUser.metadata.creationTime || new Date().toISOString()
+        };
+        if (existingIdx >= 0) {
+          usersList[existingIdx] = { ...usersList[existingIdx], ...userObj, balance: usersList[existingIdx].balance };
+        } else {
+          usersList.push(userObj);
+        }
+        localStorage.setItem('apex_users_list', JSON.stringify(usersList));
+        setSiteStats(prev => ({ ...prev, users: usersList.length }));
+      }
     });
     return () => unsubscribe();
   }, []);
@@ -366,12 +403,13 @@ function AppContent() {
           }
         };
 
-        const [healthRes, keysRes, historyRes, ipsRes, settingsRes] = await Promise.all([
+        const [healthRes, keysRes, historyRes, ipsRes, settingsRes, productsRes] = await Promise.all([
           fetchWithCatch('/api/health'),
           fetchWithCatch('/api/license_keys'),
           fetchWithCatch('/api/used_keys'),
           fetchWithCatch('/api/blocked_ips'),
-          fetchWithCatch('/api/settings')
+          fetchWithCatch('/api/settings'),
+          fetchWithCatch('/api/products')
         ]);
 
         if (isMounted) {
@@ -380,11 +418,14 @@ function AppContent() {
           const historyData = historyRes.data;
           const ipsData = ipsRes.data;
           const settingsData = settingsRes.data;
+          const productsData = productsRes.data;
 
           if (keysData) setFirebaseKeys(keysData);
           if (historyData) setUsedKeysHistory(historyData);
           if (ipsData) setBlockedIPs(ipsData);
           if (settingsData) setSiteSettings(settingsData);
+          if (productsData && productsData.length > 0) setProducts(productsData);
+          else if (productsData) setProducts(defaultProducts); // fallback if empty
           
           if (keysData && historyData && ipsData) {
             setIsDBReady(true);
@@ -1390,7 +1431,30 @@ function AppContent() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-10 pb-24 w-full flex-1 flex flex-col">
         {activeView === 'home' && (
-          <HomeView products={products} stats={siteStats} user={user} setActiveView={setActiveView} handlePurchase={handlePurchase} />
+          <HomeView 
+            products={products} 
+            stats={siteStats} 
+            user={user} 
+            purchaseHistory={purchaseHistory} 
+            setActiveView={setActiveView} 
+            onProductClick={(id) => {
+              setSelectedProductId(id);
+              setActiveView('product_detail');
+            }} 
+          />
+        )}
+
+        {activeView === 'product_detail' && selectedProductId && (
+          <ProductDetailView
+            product={products.find(p => p.id === selectedProductId)!}
+            user={user}
+            onBack={() => setActiveView('home')}
+            handlePurchase={(p, q) => {
+              handlePurchase(p, q);
+              setActiveView('home');
+            }}
+            setActiveView={setActiveView}
+          />
         )}
 
         {activeView === 'login' && <AuthView initialMode="login" setActiveView={setActiveView} onAdminLogin={handleAdminLogin} />}

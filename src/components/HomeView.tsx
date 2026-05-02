@@ -9,30 +9,29 @@ interface HomeViewProps {
   products: Product[];
   stats: SiteStats;
   user?: any;
+  purchaseHistory?: any[];
   setActiveView: (view: any) => void;
-  handlePurchase: (product: Product, quantity: number) => void;
+  onProductClick: (id: string) => void;
 }
 
 const BANNERS = [
-  "https://img2.pic.in.th/3B7FAB24-03F9-4935-8856-757B88CB4C97.png"
+  "https://img2.pic.in.th/86B05EC5-E611-42BD-A4E1-3E266EA3C2E8.png"
 ];
 
-export const HomeView: React.FC<HomeViewProps> = ({ products, stats, user, setActiveView, handlePurchase }) => {
+export const HomeView: React.FC<HomeViewProps> = ({ products, stats, user, purchaseHistory, setActiveView, onProductClick }) => {
   const [currentBanner, setCurrentBanner] = useState(0);
   const [realtimeStats, setRealtimeStats] = useState(stats);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [showConfirmPurchase, setShowConfirmPurchase] = useState(false);
   const [isProductLoading, setIsProductLoading] = useState(false);
-  const [purchaseQuantity, setPurchaseQuantity] = useState(1);
 
   const handleProductSelect = (product: Product | null) => {
-    setIsProductLoading(true);
-    setTimeout(() => {
-      setSelectedProduct(product);
-      setPurchaseQuantity(1);
-      setIsProductLoading(false);
-    }, 600);
+    if (product) {
+      setIsProductLoading(true);
+      setTimeout(() => {
+        onProductClick(product.id);
+        setIsProductLoading(false);
+      }, 300); // reduced delay for better UX
+    }
   };
 
   // Sync with props
@@ -66,160 +65,6 @@ export const HomeView: React.FC<HomeViewProps> = ({ products, stats, user, setAc
             <p className="text-zinc-500 text-sm font-medium mt-1">โปรดรอสักครู่</p>
           </div>
         </div>
-      </div>
-    );
-  }
-
-  if (selectedProduct) {
-    return (
-      <div className="font-sans text-zinc-900 bg-white min-h-[calc(100vh-80px)] pb-32 animate-in fade-in duration-500">
-        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 lg:gap-16 pt-4 sm:pt-8 px-4 sm:px-6 lg:px-8">
-          {/* Left Column: Image & Back */}
-          <div className="w-full lg:w-[55%] flex flex-col gap-4">
-            <button 
-              onClick={() => handleProductSelect(null)} 
-              className="flex items-center gap-2 text-zinc-500 hover:text-zinc-900 transition-colors font-bold w-fit mb-2"
-            >
-              <ArrowLeft className="w-5 h-5" /> กลับสู่หมวดหมู่
-            </button>
-            <div className="relative w-full aspect-square bg-zinc-100 rounded-[2rem] sm:rounded-[3rem] overflow-hidden shadow-lg border border-zinc-200 group">
-              <img 
-                src={selectedProduct.imageUrl || "https://images.unsplash.com/photo-1605810230434-7631ac76ec81?q=80&w=400&auto=format&fit=crop"} 
-                alt={selectedProduct.name}
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent pointer-events-none"></div>
-              {selectedProduct.isPopular && (
-                <div className="absolute top-6 left-6 bg-red-600 text-white text-sm font-black px-5 py-2.5 rounded-full uppercase tracking-wider shadow-xl shadow-red-600/30">
-                  กำลังฮิต 🔥
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Right Column: Details */}
-          <div className="w-full lg:w-[45%] flex flex-col lg:py-16">
-            <div className="mb-8">
-               {selectedProduct.category && <span className="text-red-600 font-bold text-sm tracking-wider uppercase mb-3 block">{selectedProduct.category}</span>}
-               <h1 className="font-black text-3xl sm:text-4xl lg:text-5xl text-zinc-900 leading-[1.1] mb-6 tracking-tight">{selectedProduct.name}</h1>
-               <div className="flex flex-wrap items-center gap-3 mb-8">
-                 <div className="bg-zinc-100 text-zinc-700 text-sm font-bold px-4 py-2 rounded-xl flex items-center gap-2">
-                   <Package className="w-4 h-4"/> สต็อก: <span className="text-zinc-900">{selectedProduct.stock >= 999999 ? 'ไม่จำกัด' : selectedProduct.stock} ชิ้น</span>
-                 </div>
-               </div>
-               <div className="text-4xl sm:text-5xl lg:text-6xl font-black text-red-600 tracking-tighter">
-                 ฿{selectedProduct.price.toLocaleString()}
-               </div>
-            </div>
-
-            <div className="w-full h-px bg-zinc-200 my-8"></div>
-
-            <div className="flex-1 mb-10">
-              <h4 className="font-bold text-zinc-900 text-lg mb-4 flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-file-text"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>
-                รายละเอียดสินค้า
-              </h4>
-              <div className="text-zinc-600 text-sm sm:text-base whitespace-pre-wrap leading-relaxed">
-                {selectedProduct.description}
-              </div>
-            </div>
-
-            <div className="bg-amber-50 border border-amber-200 text-amber-800 p-5 rounded-2xl text-sm font-medium leading-relaxed flex items-start gap-4 mb-8">
-              <div className="mt-0.5 shrink-0 w-8 h-8 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-alert-circle"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
-              </div>
-              <div className="flex flex-col">
-                <span className="font-bold block text-amber-900 mb-1">ข้อกำหนดและเงื่อนไข</span>
-                <span className="opacity-90">สินค้าที่ซื้อแล้วไม่สามารถเปลี่ยนหรือคืนเงินได้ กรุณาตรวจสอบให้แน่ใจก่อนทำการสั่งซื้อ หากพบปัญหากรุณาติดต่อแอดมินทันที</span>
-              </div>
-            </div>
-
-            <div className="mb-6 flex flex-col gap-2">
-              <label className="font-bold text-zinc-900 text-sm">จำนวนชิ้นที่ต้องการซื้อ</label>
-              <div className="flex items-center gap-4">
-                <button
-                  onClick={() => setPurchaseQuantity(Math.max(1, purchaseQuantity - 1))}
-                  className="w-12 h-12 rounded-xl bg-zinc-100 flex items-center justify-center font-black text-xl hover:bg-zinc-200 transition-colors"
-                >
-                  -
-                </button>
-                <input
-                  type="number"
-                  min="1"
-                  max={selectedProduct.stock >= 999999 ? 999 : selectedProduct.stock}
-                  value={purchaseQuantity}
-                  onChange={(e) => {
-                    const val = parseInt(e.target.value);
-                    if (!isNaN(val)) setPurchaseQuantity(Math.min(selectedProduct.stock >= 999999 ? 999 : selectedProduct.stock, Math.max(1, val)));
-                  }}
-                  className="flex-1 h-12 bg-white border-2 border-zinc-200 rounded-xl text-center font-black text-xl outline-none focus:border-red-500 transition-colors appearance-none m-0"
-                  style={{ WebkitAppearance: 'none', MozAppearance: 'textfield' }}
-                />
-                <button
-                  onClick={() => setPurchaseQuantity(Math.min(selectedProduct.stock >= 999999 ? 999 : selectedProduct.stock, purchaseQuantity + 1))}
-                  className="w-12 h-12 rounded-xl bg-zinc-100 flex items-center justify-center font-black text-xl hover:bg-zinc-200 transition-colors"
-                >
-                  +
-                </button>
-              </div>
-            </div>
-
-            <button 
-               onClick={() => {
-                 if (!user) {
-                   Swal.fire({
-                     icon: 'warning',
-                     title: 'กรุณาเข้าสู่ระบบ',
-                     text: 'คุณต้องเข้าสู่ระบบก่อนทำการสั่งซื้อสินค้า',
-                     confirmButtonColor: '#dc2626',
-                     confirmButtonText: 'รับทราบ'
-                   });
-                    return;
-                 }
-                 setShowConfirmPurchase(true);
-               }}
-               disabled={selectedProduct.stock <= 0}
-               className="w-full font-black text-xl py-5 rounded-2xl text-white bg-red-600 hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-3 shadow-xl shadow-red-600/20 active:scale-[0.98]"
-            >
-              <ShoppingCart className="w-6 h-6"/> ยืนยันการสั่งซื้อสินค้า
-            </button>
-          </div>
-        </div>
-
-        {/* Confirm Purchase Modal */}
-        {showConfirmPurchase && (
-          <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-[60] backdrop-blur-sm animate-in fade-in duration-200">
-             <div className="bg-white border border-zinc-200 rounded-[32px] p-6 sm:p-8 max-w-sm w-full shadow-2xl relative flex flex-col items-center text-center">
-                <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mb-4">
-                   <ShoppingCart className="w-8 h-8 text-red-600" />
-                </div>
-                <h3 className="font-black text-2xl text-zinc-900 mb-2">ยืนยันการสั่งซื้อ</h3>
-                <p className="text-zinc-500 text-sm mb-6 leading-relaxed">
-                   คุณต้องการสั่งซื้อ <span className="font-bold text-zinc-900">{selectedProduct.name}</span> จำนวน <span className="font-bold text-zinc-900">{purchaseQuantity}</span> ชิ้น <br/>
-                   ในราคา <span className="font-bold text-red-600">฿{(selectedProduct.price * purchaseQuantity).toLocaleString()}</span> ใช่หรือไม่?
-                </p>
-
-                <div className="flex items-center gap-3 w-full">
-                   <button 
-                     onClick={() => setShowConfirmPurchase(false)}
-                     className="flex-1 py-3.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 font-bold rounded-xl transition-colors text-sm"
-                   >
-                     ยกเลิก
-                   </button>
-                   <button 
-                     onClick={() => {
-                        handlePurchase(selectedProduct, purchaseQuantity);
-                        setShowConfirmPurchase(false);
-                        setSelectedProduct(null);
-                     }}
-                     className="flex-1 py-3.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl transition-colors text-sm shadow-md shadow-red-600/20"
-                   >
-                     ยืนยันการสั่งซื้อ
-                   </button>
-                </div>
-             </div>
-          </div>
-        )}
       </div>
     );
   }
@@ -357,7 +202,15 @@ export const HomeView: React.FC<HomeViewProps> = ({ products, stats, user, setAc
               className="flex items-center gap-2 text-zinc-300 text-xs sm:text-sm font-medium whitespace-nowrap"
             >
                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0"></span>
-               User <span className="font-mono text-white">***{Math.floor(Math.random() * 900) + 100}</span> เพิ่งสั่งซื้อสินค้าระดับพรีเมียมเมื่อสักครู่นี้...
+               {purchaseHistory && purchaseHistory.length > 0 && purchaseHistory[0].username ? (
+                 <>
+                   ผู้ใช้ <span className="font-mono text-white">{purchaseHistory[0].username}</span> เพิ่งสั่งซื้อ <span className="text-white">{purchaseHistory[0].productName}</span> เมื่อสักครู่นี้...
+                 </>
+               ) : (
+                 <>
+                   User <span className="font-mono text-white">***{Math.floor(Math.random() * 900) + 100}</span> เพิ่งสั่งซื้อสินค้าระดับพรีเมียมเมื่อสักครู่นี้...
+                 </>
+               )}
             </motion.div>
           </div>
         </div>
