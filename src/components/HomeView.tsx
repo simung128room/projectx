@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ShoppingCart, Package, Wallet, Phone, History, ChevronRight, Bell, Users, TrendingUp, Star, ArrowLeft, Key } from 'lucide-react';
 import { Product, SiteStats } from '../types';
+import { AnimatedScroll } from './AnimatedScroll';
 
 interface HomeViewProps {
   products: Product[];
@@ -195,42 +196,47 @@ export const HomeView: React.FC<HomeViewProps> = ({ products, stats, user, setAc
     <div className="space-y-8 pb-24 font-sans text-zinc-900 mt-4 sm:mt-6">
       
       {/* Banner carousel */}
-      <div className="relative w-full aspect-[21/9] sm:aspect-[24/9] md:aspect-[32/11] rounded-3xl overflow-hidden shadow-sm border border-zinc-100">
-        <AnimatePresence mode="wait">
-          <motion.img
-            key={currentBanner}
-            src={BANNERS[currentBanner] || undefined}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.5 }}
-            className="absolute inset-0 w-full h-full object-cover"
-          />
-        </AnimatePresence>
-      </div>
+      <AnimatedScroll>
+        <div className="relative w-full aspect-[21/9] sm:aspect-[24/9] md:aspect-[32/11] rounded-3xl overflow-hidden shadow-sm border border-zinc-100">
+          <AnimatePresence mode="wait">
+            <motion.img
+              key={currentBanner}
+              src={BANNERS[currentBanner] || undefined}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.5 }}
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+          </AnimatePresence>
+        </div>
+      </AnimatedScroll>
 
       {/* Admin Announcement */}
-      <div className="bg-red-50 border border-red-100 rounded-2xl p-4 flex items-start sm:items-center gap-4 shadow-sm relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-red-500/10 rounded-full blur-[40px] pointer-events-none"></div>
-        <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shrink-0 shadow-sm border border-red-100 relative z-10">
-          <Bell className="w-6 h-6 text-red-500 animate-bounce" />
-        </div>
-        <div className="flex-1 relative z-10 overflow-hidden min-w-0">
-          <h3 className="font-bold text-red-700 text-sm mb-1 uppercase tracking-wider font-sans truncate">ประกาศจากผู้ดูแลระบบ</h3>
-          <div className="whitespace-nowrap overflow-hidden">
-            <motion.div
-              animate={{ x: ["100%", "-100%"] }}
-              transition={{ repeat: Infinity, duration: 12, ease: "linear" }}
-              className="inline-block"
-            >
-              <p className="text-red-900 text-sm font-medium">ยินดีต้อนรับเข้าเว็บ APEX STUDIO ระบบอัตโนมัติตลอด 24 ชม. | สมัครสมาชิกวันนี้รับโปรโมชั่นพิเศษมากมาย</p>
-            </motion.div>
+      <AnimatedScroll delay={100}>
+        <div className="bg-red-50 border border-red-100 rounded-2xl p-4 flex items-start sm:items-center gap-4 shadow-sm relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-red-500/10 rounded-full blur-[40px] pointer-events-none"></div>
+          <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shrink-0 shadow-sm border border-red-100 relative z-10">
+            <Bell className="w-6 h-6 text-red-500 animate-bounce" />
+          </div>
+          <div className="flex-1 relative z-10 overflow-hidden min-w-0">
+            <h3 className="font-bold text-red-700 text-sm mb-1 uppercase tracking-wider font-sans truncate">ประกาศจากผู้ดูแลระบบ</h3>
+            <div className="whitespace-nowrap overflow-hidden">
+              <motion.div
+                animate={{ x: ["100%", "-100%"] }}
+                transition={{ repeat: Infinity, duration: 12, ease: "linear" }}
+                className="inline-block"
+              >
+                <p className="text-red-900 text-sm font-medium">ยินดีต้อนรับเข้าเว็บ APEX STUDIO ระบบอัตโนมัติตลอด 24 ชม. | สมัครสมาชิกวันนี้รับโปรโมชั่นพิเศษมากมาย</p>
+              </motion.div>
+            </div>
           </div>
         </div>
-      </div>
+      </AnimatedScroll>
 
       {/* Real-time Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <AnimatedScroll delay={200}>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {/* Stat 1: Users */}
         <div className="flex items-center gap-3 p-3 rounded-2xl border border-zinc-200 bg-white shadow-sm hover:border-zinc-300 transition-colors">
           <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-zinc-100 text-zinc-500">
@@ -302,28 +308,32 @@ export const HomeView: React.FC<HomeViewProps> = ({ products, stats, user, setAc
             </motion.span>
           </div>
         </div>
-      </div>
+        </div>
+      </AnimatedScroll>
 
       {/* Live Feed - placed below stats */}
-      <div className="bg-red-600 rounded-2xl p-3 flex items-center overflow-hidden border border-zinc-800 shadow-sm relative">
-        <div className="bg-red-500 text-white text-[10px] font-bold px-3 py-1 rounded-lg uppercase tracking-wider shrink-0 z-10 shadow-sm">
-          Live
+      <AnimatedScroll delay={150}>
+        <div className="bg-red-600 rounded-2xl p-3 flex items-center overflow-hidden border border-zinc-800 shadow-sm relative">
+          <div className="bg-red-500 text-white text-[10px] font-bold px-3 py-1 rounded-lg uppercase tracking-wider shrink-0 z-10 shadow-sm">
+            Live
+          </div>
+          <div className="flex-1 overflow-hidden ml-4 relative min-w-0">
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              key={realtimeStats.sales}
+              className="flex items-center gap-2 text-zinc-300 text-xs sm:text-sm font-medium whitespace-nowrap"
+            >
+               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0"></span>
+               User <span className="font-mono text-white">***{Math.floor(Math.random() * 900) + 100}</span> เพิ่งสั่งซื้อสินค้าระดับพรีเมียมเมื่อสักครู่นี้...
+            </motion.div>
+          </div>
         </div>
-        <div className="flex-1 overflow-hidden ml-4 relative min-w-0">
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            key={realtimeStats.sales}
-            className="flex items-center gap-2 text-zinc-300 text-xs sm:text-sm font-medium whitespace-nowrap"
-          >
-             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0"></span>
-             User <span className="font-mono text-white">***{Math.floor(Math.random() * 900) + 100}</span> เพิ่งสั่งซื้อสินค้าระดับพรีเมียมเมื่อสักครู่นี้...
-          </motion.div>
-        </div>
-      </div>
+      </AnimatedScroll>
 
       {/* Grid Menu Icons */}
-      <div className={`grid gap-4 ${user ? 'grid-cols-2 lg:grid-cols-4' : 'grid-cols-2 lg:grid-cols-4'}`}>
+      <AnimatedScroll delay={200}>
+        <div className={`grid gap-4 ${user ? 'grid-cols-2 lg:grid-cols-4' : 'grid-cols-2 lg:grid-cols-4'}`}>
         {[
           { icon: Package, label: 'สินค้าทั้งหมด', id: 'Store', color: 'blue', action: () => document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' }) },
           { icon: Wallet, label: 'เติมเงิน', id: 'Topup', color: 'zinc', action: () => {
@@ -377,10 +387,12 @@ export const HomeView: React.FC<HomeViewProps> = ({ products, stats, user, setAc
           );
         })}
       </div>
+      </AnimatedScroll>
 
       {/* Featured Products */}
-      <div id="products" className="pt-8">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4 pb-4">
+      <AnimatedScroll delay={250}>
+        <div id="products" className="pt-8">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4 pb-4">
           <div>
             <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-zinc-900 tracking-tight flex items-center gap-3">
               <span className="w-2 h-8 bg-red-500 rounded-full inline-block"></span>
@@ -462,6 +474,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ products, stats, user, setAc
           </div>
         )}
       </div>
+      </AnimatedScroll>
 
       {/* Category Modal */}
       {showCategoryModal && (

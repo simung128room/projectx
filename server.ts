@@ -1,5 +1,4 @@
 import express from 'express';
-import { createServer as createViteServer } from 'vite';
 import path from 'path';
 import cors from 'cors';
 import axios from 'axios';
@@ -1078,9 +1077,11 @@ console.log(`[Database] Initializing Firebase`);
 if (!process.env.VERCEL) {
   if (process.env.NODE_ENV !== "production") {
     console.log("Initializing Vite middleware (async)...");
-    createViteServer({
-      server: { middlewareMode: true, hmr: false },
-      appType: "spa",
+    import('vite').then(({ createServer: createViteServer }) => {
+      return createViteServer({
+        server: { middlewareMode: true, hmr: false },
+        appType: "spa",
+      });
     }).then(vite => {
       app.use(vite.middlewares);
       console.log("Vite middleware attached.");

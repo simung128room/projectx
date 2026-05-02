@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, Plus, Trash2, Image as ImageIcon, FileText, Download, Lock, Crown, Gift } from 'lucide-react';
 import { motion } from 'motion/react';
 import Swal from 'sweetalert2';
+import { AnimatedScroll } from './AnimatedScroll';
 
 interface ContentItem {
   id: string;
@@ -73,6 +74,7 @@ export const ContentFeedView: React.FC<{ type: 'free' | 'premium', isAdmin: bool
 
   return (
     <div className="w-full max-w-5xl mx-auto p-4 md:p-8 animate-in fade-in duration-500 font-sans text-zinc-900">
+      <AnimatedScroll>
       <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-8 bg-white border border-zinc-200 shadow-sm rounded-3xl p-6">
         <div className="flex items-center gap-4">
           <div className={`p-4 rounded-2xl ${type === 'premium' ? 'bg-amber-50 text-amber-500' : 'bg-emerald-50 text-emerald-500'}`}>
@@ -86,7 +88,9 @@ export const ContentFeedView: React.FC<{ type: 'free' | 'premium', isAdmin: bool
           </div>
         </div>
       </div>
+      </AnimatedScroll>
 
+      <AnimatedScroll delay={100}>
       <div className="flex flex-col md:flex-row gap-4 mb-6">
         <div className="relative flex-1">
           <Search className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400" />
@@ -104,12 +108,14 @@ export const ContentFeedView: React.FC<{ type: 'free' | 'premium', isAdmin: bool
           </button>
         )}
       </div>
+      </AnimatedScroll>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {filteredItems.map(item => {
+        {filteredItems.map((item, i) => {
           const locked = type === 'premium' && !isAdmin && !isPremiumUser;
           return (
-            <motion.div key={item.id} layout initial={{opacity:0, scale:0.95}} animate={{opacity:1, scale:1}} className="bg-white border border-zinc-200 rounded-3xl p-5 relative overflow-hidden group shadow-sm hover:shadow-md transition-shadow">
+            <AnimatedScroll key={item.id} delay={i * 50}>
+            <motion.div layout initial={{opacity:0, scale:0.95}} animate={{opacity:1, scale:1}} className="bg-white border border-zinc-200 rounded-3xl p-5 relative overflow-hidden group shadow-sm hover:shadow-md transition-shadow">
               <div className="flex justify-between items-start mb-3">
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] font-bold text-zinc-600 bg-zinc-100 px-2 py-0.5 rounded-full uppercase border border-zinc-200">
@@ -158,6 +164,7 @@ export const ContentFeedView: React.FC<{ type: 'free' | 'premium', isAdmin: bool
                 )}
               </div>
             </motion.div>
+            </AnimatedScroll>
           );
         })}
         {filteredItems.length === 0 && (
