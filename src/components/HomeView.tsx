@@ -242,7 +242,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ products, categories, stats,
       <AnimatedScroll delay={200}>
         <div className={`grid gap-4 ${user ? 'grid-cols-2 lg:grid-cols-4' : 'grid-cols-2 lg:grid-cols-4'}`}>
         {[
-          { icon: Package, label: 'สินค้าทั้งหมด', id: 'Store', color: 'blue', action: () => document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' }) },
+          { icon: Package, label: 'สินค้าทั้งหมด', id: 'Store', color: 'blue', action: () => { setActiveView('categories'); window.scrollTo({ top: 0, behavior: 'smooth' }); } },
           { icon: Wallet, label: 'เติมเงิน', id: 'Topup', color: 'zinc', action: () => {
             if (!user) {
               Swal.fire({

@@ -34,6 +34,8 @@ import { CategoryProductsView } from './components/CategoryProductsView';
 import { PopupBanner } from './components/PopupBanner';
 import { Product, SiteStats, Category } from './types';
 import { getAvatarUrl } from './lib/avatar';
+import { ContactView } from './components/ContactView';
+
 
 var TextPaint = `▒▄▀▄▒█▀▄▒██▀░▀▄▀
 2
@@ -107,7 +109,7 @@ function AppContent() {
   const [showKeyModal, setShowKeyModal] = useState(false);
 
   // Navigation State
-  const [activeView, setRawActiveView] = useState<'home' | 'categories' | 'category_products' | 'dashboard' | 'admin' | 'profile' | 'logs' | 'history' | 'settings' | 'ai_chat' | 'free_stuff' | 'premium_stuff' | 'login' | 'signup' | 'wallet' | 'redeem' | 'product_detail' | 'custom_page'>('home');
+  const [activeView, setRawActiveView] = useState<'home' | 'categories' | 'category_products' | 'dashboard' | 'admin' | 'profile' | 'logs' | 'history' | 'settings' | 'ai_chat' | 'free_stuff' | 'premium_stuff' | 'contact' | 'login' | 'signup' | 'wallet' | 'redeem' | 'product_detail' | 'custom_page'>('home');
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>('all');
   const [isPageTransitioning, setIsPageTransitioning] = useState(false);
@@ -388,9 +390,14 @@ function AppContent() {
               role: currentUser.email === 'admin_apex@apex-studio.com' ? 'Admin' : 'Member'
             };
             setUserPlan(initialPlan);
-            await axios.post(`/api/users/${currentUser.uid}`, initialPlan);
+            try {
+              await axios.post(`/api/users/${currentUser.uid}`, initialPlan);
+            } catch (postErr) {
+              console.error("Failed to create initial user plan:", postErr);
+            }
+          } else {
+            console.error("Auth sync error:", err);
           }
-          console.error("Auth sync error:", err);
         }
       }
     });
@@ -1184,20 +1191,24 @@ function AppContent() {
             <button onClick={() => setActiveView('home')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'home' ? 'bg-red-600 text-white shadow-md shadow-red-600/20' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'}`}>
               <Home className="w-5 h-5"/> หน้าแรก
             </button>
-            <button onClick={() => { setActiveView('home'); document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' }); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900`}>
+            <button onClick={() => { setActiveView('categories'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'categories' ? 'bg-red-600 text-white shadow-md shadow-red-600/20' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'}`}>
               <ShoppingCart className="w-5 h-5"/> สินค้าทั้งหมด
             </button>
-            <button onClick={() => { if (!user) { Swal.fire({ icon: 'warning', title: 'กรุณาเข้าสู่ระบบ', text: 'โปรดเข้าสู่ระบบก่อนทำรายการ' }); } else { setActiveView('wallet'); } }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'wallet' ? 'bg-red-600 text-white shadow-md shadow-red-600/20' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'}`}>
-              <Wallet className="w-5 h-5"/> เติมเงิน
-            </button>
-            <button onClick={() => { if (!user) { Swal.fire({ icon: 'warning', title: 'กรุณาเข้าสู่ระบบ', text: 'โปรดเข้าสู่ระบบก่อนทำรายการ' }); } else { setActiveView('history'); } }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'history' ? 'bg-red-600 text-white shadow-md shadow-red-600/20' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'}`}>
-              <History className="w-5 h-5"/> ประวัติการสั่งซื้อ
-            </button>
-            <a href={(siteSettings?.contact_line || '').startsWith('@') ? `https://line.me/R/ti/p/${siteSettings.contact_line}` : (siteSettings?.contact_line || 'https://line.me')} target="_blank" rel="noopener noreferrer" className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900">
+            {user && (
+              <>
+                <button onClick={() => setActiveView('wallet')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'wallet' ? 'bg-red-600 text-white shadow-md shadow-red-600/20' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'}`}>
+                  <Wallet className="w-5 h-5"/> เติมเงิน
+                </button>
+                <button onClick={() => setActiveView('history')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'history' ? 'bg-red-600 text-white shadow-md shadow-red-600/20' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'}`}>
+                  <History className="w-5 h-5"/> ประวัติการสั่งซื้อ
+                </button>
+              </>
+            )}
+            <button onClick={() => { setActiveView('contact'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'contact' ? 'bg-red-600 text-white shadow-md shadow-red-600/20' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'}`}>
               <Phone className="w-5 h-5"/> ติดต่อปัญหา
-            </a>
+            </button>
 
-            {(customPages && customPages.length > 0) && (
+            {(user && customPages && customPages.length > 0) && (
               <>
                 <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mt-6 mb-3 pl-3">หน้าอื่นๆ</div>
                 {customPages.map(page => (
@@ -1360,21 +1371,25 @@ function AppContent() {
                     <button onClick={() => { setActiveView('home'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'home' ? 'bg-zinc-100 text-zinc-900' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'}`}>
                       <Home className="w-4 h-4"/> หน้าแรก
                     </button>
-                    <button onClick={() => { setActiveView('home'); setIsMobileMenuOpen(false); document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' }); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900`}>
+                    <button onClick={() => { setActiveView('categories'); setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'categories' ? 'bg-zinc-100 text-zinc-900' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'}`}>
                       <ShoppingCart className="w-4 h-4"/> สินค้าทั้งหมด
                     </button>
-                    <button onClick={() => { if (!user) { Swal.fire({ icon: 'warning', title: 'กรุณาเข้าสู่ระบบ', text: 'โปรดเข้าสู่ระบบก่อนทำรายการ' }); } else { setActiveView('wallet'); setIsMobileMenuOpen(false); } }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'wallet' ? 'bg-zinc-100 text-zinc-900' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'}`}>
-                      <Wallet className="w-4 h-4"/> เติมเงิน
-                    </button>
-                    <button onClick={() => { if (!user) { Swal.fire({ icon: 'warning', title: 'กรุณาเข้าสู่ระบบ', text: 'โปรดเข้าสู่ระบบก่อนทำรายการ' }); } else { setActiveView('history'); setIsMobileMenuOpen(false); } }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'history' ? 'bg-zinc-100 text-zinc-900' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'}`}>
-                      <History className="w-4 h-4"/> ประวัติการสั่งซื้อ
-                    </button>
-                    <a href={(siteSettings?.contact_line || '').startsWith('@') ? `https://line.me/R/ti/p/${siteSettings.contact_line}` : (siteSettings?.contact_line || 'https://line.me')} target="_blank" rel="noopener noreferrer" className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900">
+                    {user && (
+                      <>
+                        <button onClick={() => { setActiveView('wallet'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'wallet' ? 'bg-zinc-100 text-zinc-900' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'}`}>
+                          <Wallet className="w-4 h-4"/> เติมเงิน
+                        </button>
+                        <button onClick={() => { setActiveView('history'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'history' ? 'bg-zinc-100 text-zinc-900' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'}`}>
+                          <History className="w-4 h-4"/> ประวัติการสั่งซื้อ
+                        </button>
+                      </>
+                    )}
+                    <button onClick={() => { setActiveView('contact'); setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'contact' ? 'bg-zinc-100 text-zinc-900' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'}`}>
                       <Phone className="w-4 h-4"/> ติดต่อปัญหา
-                    </a>
+                    </button>
                   </div>
 
-                  {(customPages && customPages.length > 0) && (
+                  {(user && customPages && customPages.length > 0) && (
                     <div className="py-2 border-t border-zinc-50">
                       <div className="flex items-center gap-3 mb-2 px-2">
                         <div className="flex-1 h-px bg-zinc-200"></div>
@@ -1520,6 +1535,7 @@ function AppContent() {
           />
         )}
 
+        {activeView === 'contact' && <ContactView onBack={() => setActiveView('home')} facebookLink={siteSettings?.contact_line} />}
         {activeView === 'custom_page' && selectedPage && (
           <PageView 
             page={selectedPage} 

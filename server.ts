@@ -1037,8 +1037,12 @@ console.log(`[Database] Initializing Firebase`);
         totalTopupsAmount += (data.amount || 0);
       });
 
+      // Users count from users collection
+      const usersSnap = await getDocs(query(collection(db, 'users')));
+      let totalUsersCount = usersSnap.size;
+
       res.json({
-        users: (uniqueBuyers.size || 0) + (siteSettings.stats_users_offset || 0),
+        users: totalUsersCount + (siteSettings.stats_users_offset || 0),
         sales: totalSales + (siteSettings.stats_sales_offset || 0),
         stock: totalStock,
         totalOrders: totalPurchaseOrders,
