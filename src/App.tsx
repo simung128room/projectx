@@ -1184,36 +1184,34 @@ function AppContent() {
             <button onClick={() => setActiveView('home')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'home' ? 'bg-red-600 text-white shadow-md shadow-red-600/20' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'}`}>
               <Home className="w-5 h-5"/> หน้าแรก
             </button>
-            <button onClick={() => setActiveView('home')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900`}>
+            <button onClick={() => { setActiveView('home'); document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' }); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900`}>
               <ShoppingCart className="w-5 h-5"/> สินค้าทั้งหมด
             </button>
-            {(customPages || []).map(page => (
-              <button 
-                key={page.id}
-                onClick={() => {
-                  setSelectedPage(page);
-                  setActiveView('custom_page');
-                }} 
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'custom_page' && selectedPage?.id === page.id ? 'bg-red-600 text-white shadow-md shadow-red-600/20' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'}`}
-              >
-                <FileText className="w-5 h-5"/> {page.title}
-              </button>
-            ))}
-            <a href="https://line.me" target="_blank" rel="noopener noreferrer" className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900">
-              <Phone className="w-5 h-5"/> ติดต่อเรา
+            <button onClick={() => { if (!user) { Swal.fire({ icon: 'warning', title: 'กรุณาเข้าสู่ระบบ', text: 'โปรดเข้าสู่ระบบก่อนทำรายการ' }); } else { setActiveView('wallet'); } }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'wallet' ? 'bg-red-600 text-white shadow-md shadow-red-600/20' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'}`}>
+              <Wallet className="w-5 h-5"/> เติมเงิน
+            </button>
+            <button onClick={() => { if (!user) { Swal.fire({ icon: 'warning', title: 'กรุณาเข้าสู่ระบบ', text: 'โปรดเข้าสู่ระบบก่อนทำรายการ' }); } else { setActiveView('history'); } }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'history' ? 'bg-red-600 text-white shadow-md shadow-red-600/20' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'}`}>
+              <History className="w-5 h-5"/> ประวัติการสั่งซื้อ
+            </button>
+            <a href={(siteSettings?.contact_line || '').startsWith('@') ? `https://line.me/R/ti/p/${siteSettings.contact_line}` : (siteSettings?.contact_line || 'https://line.me')} target="_blank" rel="noopener noreferrer" className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900">
+              <Phone className="w-5 h-5"/> ติดต่อปัญหา
             </a>
-            {user && (
+
+            {(customPages && customPages.length > 0) && (
               <>
-                <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mt-6 mb-3 pl-3">สมาชิก</div>
-                <button onClick={() => setActiveView('wallet')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'wallet' ? 'bg-red-600 text-white shadow-md shadow-red-600/20' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'}`}>
-                  <Wallet className="w-5 h-5"/> เติมเงิน
-                </button>
-                <button onClick={() => setActiveView('redeem')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'redeem' ? 'bg-red-600 text-white shadow-md shadow-red-600/20' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'}`}>
-                  <Key className="w-5 h-5"/> เปิดใช้งานคีย์
-                </button>
-                <button onClick={() => setActiveView('history')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'history' ? 'bg-red-600 text-white shadow-md shadow-red-600/20' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'}`}>
-                  <History className="w-5 h-5"/> ประวัติการใช้งาน
-                </button>
+                <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mt-6 mb-3 pl-3">หน้าอื่นๆ</div>
+                {customPages.map(page => (
+                  <button 
+                    key={page.id}
+                    onClick={() => {
+                      setSelectedPage(page);
+                      setActiveView('custom_page');
+                    }} 
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'custom_page' && selectedPage?.id === page.id ? 'bg-red-600 text-white shadow-md shadow-red-600/20' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'}`}
+                  >
+                    <FileText className="w-5 h-5"/> {page.title}
+                  </button>
+                ))}
               </>
             )}
 
@@ -1225,6 +1223,9 @@ function AppContent() {
                     <ShieldAlert className="w-5 h-5"/> จัดการหลังบ้าน
                   </button>
                 )}
+                <button onClick={() => setActiveView('redeem')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'redeem' ? 'bg-red-600 text-white shadow-md shadow-red-600/20' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'}`}>
+                  <Key className="w-5 h-5"/> เปิดใช้งานคีย์
+                </button>
                 <button onClick={() => setActiveView('dashboard')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'dashboard' ? 'bg-red-600 text-white shadow-md shadow-red-600/20' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'}`}>
                    <Gamepad2 className="w-5 h-5" /> ตรวจสอบไอดี
                 </button>
@@ -1235,7 +1236,7 @@ function AppContent() {
                    <Gift className="w-5 h-5" /> แจกของฟรี
                 </button>
                 <button onClick={() => setActiveView('premium_stuff')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'premium_stuff' ? 'bg-amber-100 text-amber-800' : 'text-amber-600 hover:bg-amber-50 hover:text-amber-800'}`}>
-                   <Crown className="w-5 h-5" /> สินค้าพรีเมียม
+                   <Crown className="w-5 h-5" /> ของเติมของโคตรดี!!
                 </button>
               </>
             )}
@@ -1359,58 +1360,69 @@ function AppContent() {
                     <button onClick={() => { setActiveView('home'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'home' ? 'bg-zinc-100 text-zinc-900' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'}`}>
                       <Home className="w-4 h-4"/> หน้าแรก
                     </button>
-                    <button onClick={() => { setActiveView('home'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900`}>
+                    <button onClick={() => { setActiveView('home'); setIsMobileMenuOpen(false); document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' }); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900`}>
                       <ShoppingCart className="w-4 h-4"/> สินค้าทั้งหมด
                     </button>
-                    {(customPages || []).map(page => (
-                      <button 
-                        key={page.id}
-                        onClick={() => {
-                          setSelectedPage(page);
-                          setActiveView('custom_page');
-                          setIsMobileMenuOpen(false);
-                        }} 
-                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'custom_page' && selectedPage?.id === page.id ? 'bg-zinc-100 text-zinc-900' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'}`}
-                      >
-                        <FileText className="w-4 h-4"/> {page.title}
-                      </button>
-                    ))}
-                    <a href="https://line.me" target="_blank" rel="noopener noreferrer" className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900">
-                      <Phone className="w-4 h-4"/> ติดต่อเรา
+                    <button onClick={() => { if (!user) { Swal.fire({ icon: 'warning', title: 'กรุณาเข้าสู่ระบบ', text: 'โปรดเข้าสู่ระบบก่อนทำรายการ' }); } else { setActiveView('wallet'); setIsMobileMenuOpen(false); } }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'wallet' ? 'bg-zinc-100 text-zinc-900' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'}`}>
+                      <Wallet className="w-4 h-4"/> เติมเงิน
+                    </button>
+                    <button onClick={() => { if (!user) { Swal.fire({ icon: 'warning', title: 'กรุณาเข้าสู่ระบบ', text: 'โปรดเข้าสู่ระบบก่อนทำรายการ' }); } else { setActiveView('history'); setIsMobileMenuOpen(false); } }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'history' ? 'bg-zinc-100 text-zinc-900' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'}`}>
+                      <History className="w-4 h-4"/> ประวัติการสั่งซื้อ
+                    </button>
+                    <a href={(siteSettings?.contact_line || '').startsWith('@') ? `https://line.me/R/ti/p/${siteSettings.contact_line}` : (siteSettings?.contact_line || 'https://line.me')} target="_blank" rel="noopener noreferrer" className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900">
+                      <Phone className="w-4 h-4"/> ติดต่อปัญหา
                     </a>
                   </div>
-                
-                  <div className="py-2 border-t border-zinc-50">
-                    <div className="flex items-center gap-3 mb-2 px-2">
-                      <div className="flex-1 h-px bg-zinc-200"></div>
-                      <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest text-center shrink-0">เครื่องมือ</p>
-                      <div className="flex-1 h-px bg-zinc-200"></div>
+
+                  {(customPages && customPages.length > 0) && (
+                    <div className="py-2 border-t border-zinc-50">
+                      <div className="flex items-center gap-3 mb-2 px-2">
+                        <div className="flex-1 h-px bg-zinc-200"></div>
+                        <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest text-center shrink-0">หน้าอื่นๆ</p>
+                        <div className="flex-1 h-px bg-zinc-200"></div>
+                      </div>
+                      {customPages.map(page => (
+                        <button 
+                          key={page.id}
+                          onClick={() => {
+                            setSelectedPage(page);
+                            setActiveView('custom_page');
+                            setIsMobileMenuOpen(false);
+                          }} 
+                          className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'custom_page' && selectedPage?.id === page.id ? 'bg-zinc-100 text-zinc-900' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'}`}
+                        >
+                          <FileText className="w-4 h-4"/> {page.title}
+                        </button>
+                      ))}
                     </div>
-                    {user && (
-                      <>
-                        <button onClick={() => { setActiveView('wallet'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'wallet' ? 'bg-zinc-100 text-zinc-900' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'}`}>
-                          <Wallet className="w-4 h-4"/> เติมเงิน
-                        </button>
-                        <button onClick={() => { setActiveView('redeem'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'redeem' ? 'bg-zinc-100 text-zinc-900' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'}`}>
-                          <Key className="w-4 h-4"/> เปิดใช้งานคีย์
-                        </button>
-                        <button onClick={() => { setActiveView('history'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'history' ? 'bg-zinc-100 text-zinc-900' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'}`}>
-                          <History className="w-4 h-4"/> ประวัติการสั่งซื้อ
-                        </button>
-                      </>
-                    )}
-                    <button onClick={() => { setActiveView('dashboard'); setIsMobileMenuOpen(false); }} className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900">
-                       <Gamepad2 className="w-4 h-4" /> ตรวจสอบไอดี
-                    </button>
-                    <button onClick={() => { setActiveView('free_stuff'); setIsMobileMenuOpen(false); }} className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900">
-                       <Gift className="w-4 h-4" /> แจกของฟรี
-                    </button>
-                    {isAdmin && (
-                      <button onClick={() => { setActiveView('admin'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'admin' ? 'bg-red-50 text-red-600' : 'text-red-600 hover:bg-red-50 hover:text-red-700'}`}>
-                        <ShieldAlert className="w-4 h-4"/> จัดการหลังบ้าน
+                  )}
+                
+                  {user && (
+                    <div className="py-2 border-t border-zinc-50">
+                      <div className="flex items-center gap-3 mb-2 px-2">
+                        <div className="flex-1 h-px bg-zinc-200"></div>
+                        <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest text-center shrink-0">เครื่องมือ</p>
+                        <div className="flex-1 h-px bg-zinc-200"></div>
+                      </div>
+                      <button onClick={() => { setActiveView('redeem'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'redeem' ? 'bg-zinc-100 text-zinc-900' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'}`}>
+                        <Key className="w-4 h-4"/> เปิดใช้งานคีย์
                       </button>
-                    )}
-                  </div>
+                      <button onClick={() => { setActiveView('dashboard'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'dashboard' ? 'bg-zinc-100 text-zinc-900' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'}`}>
+                         <Gamepad2 className="w-4 h-4" /> ตรวจสอบไอดี
+                      </button>
+                      <button onClick={() => { setActiveView('free_stuff'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'free_stuff' ? 'bg-zinc-100 text-zinc-900' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'}`}>
+                         <Gift className="w-4 h-4" /> แจกของฟรี
+                      </button>
+                      <button onClick={() => { setActiveView('premium_stuff'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'premium_stuff' ? 'bg-amber-100 text-amber-800' : 'text-amber-600 hover:bg-amber-50 hover:text-amber-800'}`}>
+                         <Crown className="w-4 h-4" /> ของเติมของโคตรดี!!
+                      </button>
+                      {isAdmin && (
+                        <button onClick={() => { setActiveView('admin'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'admin' ? 'bg-red-50 text-red-600' : 'text-red-600 hover:bg-red-50 hover:text-red-700'}`}>
+                          <ShieldAlert className="w-4 h-4"/> จัดการหลังบ้าน
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 {user && (

@@ -203,18 +203,23 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
           
           {/* Form Header */}
           <div className="mb-10 flex justify-between items-start">
-            <div>
-              <motion.h2 key={authMode + "title"} initial={{opacity:0, x:-20}} animate={{opacity:1, x:0}} transition={{type: "spring", bounce: 0.4}} className="text-3xl sm:text-4xl font-black text-zinc-900 tracking-tight leading-tight mb-2">
-                {authMode === 'login' ? 'เข้าสู่ระบบ' : 'สมัครสมาชิก'}
-              </motion.h2>
-              <motion.p key={authMode + "desc"} initial={{opacity:0, x:-20}} animate={{opacity:1, x:0}} transition={{delay:0.1, type: "spring", bounce: 0.4}} className="text-zinc-500 font-bold text-sm tracking-wider uppercase">
-                {authMode === 'login' ? 'Login' : 'Register'}
-              </motion.p>
+            <div className="relative">
+              <AnimatePresence mode="wait">
+                <motion.div key={authMode + "header"}>
+                  <motion.h2 initial={{opacity:0, y:-20}} animate={{opacity:1, y:0}} exit={{opacity:0, y:20}} transition={{type: "spring", bounce: 0.4}} className="text-3xl sm:text-4xl font-black text-zinc-900 tracking-tight leading-tight mb-2">
+                    {authMode === 'login' ? 'เข้าสู่ระบบ' : 'สมัครสมาชิก'}
+                  </motion.h2>
+                  <motion.p initial={{opacity:0, y:-20}} animate={{opacity:1, y:0}} exit={{opacity:0, y:20}} transition={{delay:0.05, type: "spring", bounce: 0.4}} className="text-zinc-500 font-bold text-sm tracking-wider uppercase">
+                    {authMode === 'login' ? 'Login' : 'Register'}
+                  </motion.p>
+                </motion.div>
+              </AnimatePresence>
             </div>
             <motion.div 
-              initial={{opacity:0, scale:0.8, rotate:-5}} 
+              key={authMode + "logo"}
+              initial={{opacity:0, scale:0.8, rotate:15}} 
               animate={{opacity:1, scale:1, rotate:0}} 
-              transition={{type: "spring", bounce: 0.5, delay: 0.2}}
+              transition={{type: "spring", bounce: 0.5, delay: 0.1}}
               className="shrink-0 ml-4"
             >
               <img src="https://img2.pic.in.th/IMG_6076fed1c24256d4269f.png" alt="Logo" className="h-14 sm:h-16 object-contain grayscale-[100%] contrast-125 opacity-70" />
@@ -351,33 +356,39 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
 
             <motion.button 
               layout
-              type="submit"
+              type="submit" 
               disabled={authLoading}
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.98 }}
-              className="w-full py-3.5 mt-8 rounded-xl text-base font-bold transition-all flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed bg-red-600 hover:bg-red-700 text-white"
+              className="w-full py-3.5 mt-8 rounded-xl text-base font-bold transition-all flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed bg-red-600 hover:bg-red-700 text-white overflow-hidden relative"
             >
-              {authLoading ? (
-                <>
-                  <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
-                  <span>กำลังประมวลผล...</span>
-                </>
-              ) : (
-                <span>{authMode === 'login' ? 'เข้าสู่ระบบ' : 'สมัครสมาชิก'}</span>
-              )}
+              <AnimatePresence mode="wait">
+                {authLoading ? (
+                  <motion.div key="loading" initial={{opacity:0, y:10}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-10}} className="flex items-center gap-2">
+                    <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                    <span>กำลังประมวลผล...</span>
+                  </motion.div>
+                ) : (
+                  <motion.span key={authMode + "btn"} initial={{opacity:0, y:10}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-10}}>
+                    {authMode === 'login' ? 'เข้าสู่ระบบ' : 'สมัครสมาชิก'}
+                  </motion.span>
+                )}
+              </AnimatePresence>
             </motion.button>
           </form>
           
-          <div className="mt-8 text-center text-sm font-medium border-t border-zinc-100 pt-8">
-            {authMode === 'login' ? (
-              <button onClick={() => { setAuthMode('signup'); setActiveView('signup'); }} className="text-zinc-600 hover:text-red-600 transition-colors">
-                ถ้ายังไม่มีบัญชี <span className="font-bold underline">สมัครสมาชิกเลย!</span>
-              </button>
-            ) : (
-              <button onClick={() => { setAuthMode('login'); setActiveView('login'); }} className="text-zinc-600 hover:text-red-600 transition-colors">
-                ถ้ามีบัญชีแล้ว <span className="font-bold underline">เข้าสู่ระบบเลย!</span>
-              </button>
-            )}
+          <div className="mt-8 text-center text-sm font-medium border-t border-zinc-100 pt-8 relative min-h-[60px]">
+            <AnimatePresence mode="wait">
+              {authMode === 'login' ? (
+                <motion.button key="to-signup" initial={{opacity:0, y:10}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-10}} onClick={() => { setAuthMode('signup'); setActiveView('signup'); }} className="text-zinc-600 hover:text-red-600 transition-colors absolute inset-0 m-auto h-max w-max">
+                  ถ้ายังไม่มีบัญชี <span className="font-bold underline">สมัครสมาชิกเลย!</span>
+                </motion.button>
+              ) : (
+                <motion.button key="to-login" initial={{opacity:0, y:10}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-10}} onClick={() => { setAuthMode('login'); setActiveView('login'); }} className="text-zinc-600 hover:text-red-600 transition-colors absolute inset-0 m-auto h-max w-max">
+                  ถ้ามีบัญชีแล้ว <span className="font-bold underline">เข้าสู่ระบบเลย!</span>
+                </motion.button>
+              )}
+            </AnimatePresence>
           </div>
 
         </div>
