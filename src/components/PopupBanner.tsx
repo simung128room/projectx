@@ -2,18 +2,29 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Check } from 'lucide-react';
 
-export const PopupBanner: React.FC = () => {
+interface PopupBannerProps {
+  enabled: boolean;
+  imgUrl: string;
+  linkUrl: string;
+}
+
+export const PopupBanner: React.FC<PopupBannerProps> = ({ enabled, imgUrl, linkUrl }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [dontShow, setDontShow] = useState(false);
 
   useEffect(() => {
+    if (!enabled) {
+      setIsOpen(false);
+      return;
+    }
+
     const hideUntil = localStorage.getItem('hidePopupUntil');
     if (!hideUntil || Date.now() > parseInt(hideUntil, 10)) {
       // Add a slight delay so it doesn't instantly snap on load
       const showTimer = setTimeout(() => setIsOpen(true), 1500);
       return () => clearTimeout(showTimer);
     }
-  }, []);
+  }, [enabled]);
 
   const handleClose = () => {
     if (dontShow) {
@@ -22,6 +33,14 @@ export const PopupBanner: React.FC = () => {
     }
     setIsOpen(false);
   };
+
+  const ImageContent = () => (
+    <img 
+      src={imgUrl || "https://images.unsplash.com/photo-1607083206968-13611e3d76db?auto=format&fit=crop&q=80&w=1500&h=1500"} 
+      alt="Announcement" 
+      className="w-full h-full object-cover"
+    />
+  );
 
   return (
     <AnimatePresence>
@@ -43,11 +62,13 @@ export const PopupBanner: React.FC = () => {
             
             {/* The 1500x1500 image aspect box */}
             <div className="w-full aspect-square relative bg-zinc-100 flex items-center justify-center">
-              <img 
-                src="https://images.unsplash.com/photo-1607083206968-13611e3d76db?auto=format&fit=crop&q=80&w=1500&h=1500" 
-                alt="Announcement" 
-                className="w-full h-full object-cover"
-              />
+              {linkUrl ? (
+                <a href={linkUrl} target="_blank" rel="noopener noreferrer" className="w-full h-full block">
+                  <ImageContent />
+                </a>
+              ) : (
+                <ImageContent />
+              )}
             </div>
 
             <div className="p-4 sm:px-6 bg-white flex items-center justify-between border-t border-zinc-100">

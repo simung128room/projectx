@@ -87,7 +87,10 @@ console.log(`[Database] Initializing Firebase`);
     truewallet_phone: process.env.TRUEWALLET_PHONE || '0951378403',
     contact_line: process.env.CONTACT_LINE || '@apex_studio',
     stats_users_offset: 1250,
-    stats_sales_offset: 0
+    stats_sales_offset: 0,
+    popup_img_url: 'https://images.unsplash.com/photo-1607083206968-13611e3d76db?auto=format&fit=crop&q=80&w=1500&h=1500',
+    popup_enabled: true,
+    popup_link: ''
   };
 
   app.get('/api/settings', (req, res) => {
@@ -95,12 +98,15 @@ console.log(`[Database] Initializing Firebase`);
   });
 
   app.post('/api/settings', (req, res) => {
-    const { truewallet_phone, site_name, contact_line, stats_users_offset, stats_sales_offset } = req.body;
+    const { truewallet_phone, site_name, contact_line, stats_users_offset, stats_sales_offset, popup_img_url, popup_enabled, popup_link } = req.body;
     if (truewallet_phone !== undefined) siteSettings.truewallet_phone = truewallet_phone;
     if (site_name !== undefined) siteSettings.site_name = site_name;
     if (contact_line !== undefined) siteSettings.contact_line = contact_line;
     if (stats_users_offset !== undefined) siteSettings.stats_users_offset = parseInt(stats_users_offset) || 0;
     if (stats_sales_offset !== undefined) siteSettings.stats_sales_offset = parseInt(stats_sales_offset) || 0;
+    if (popup_img_url !== undefined) siteSettings.popup_img_url = popup_img_url;
+    if (popup_enabled !== undefined) siteSettings.popup_enabled = popup_enabled === true || popup_enabled === 'true';
+    if (popup_link !== undefined) siteSettings.popup_link = popup_link;
     
     console.log(`[Settings] Updated:`, siteSettings);
     return res.json({ success: true, settings: siteSettings });

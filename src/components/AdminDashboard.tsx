@@ -483,7 +483,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     truewallet_phone: '0951378403',
     contact_line: '@apex_studio',
     stats_users_offset: 0,
-    stats_sales_offset: 0
+    stats_sales_offset: 0,
+    popup_img_url: 'https://images.unsplash.com/photo-1607083206968-13611e3d76db?auto=format&fit=crop&q=80&w=1500&h=1500',
+    popup_enabled: true,
+    popup_link: ''
   });
 
   useEffect(() => {
@@ -1341,7 +1344,55 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     </div>
                   </div>
 
-                  <div className="p-6 border border-zinc-100 rounded-3xl">
+                  <div className="mt-8 border-t border-zinc-100 pt-8">
+                    <div className="mb-6">
+                      <h4 className="text-zinc-900 font-bold flex items-center gap-2"><Globe className="w-5 h-5 text-zinc-500" /> Popup Banner Announcement</h4>
+                      <p className="text-zinc-500 text-sm mt-1">ตั้งค่าป็อปอัพประกาศหน้าแรก แนะนำรูปขนาด 1500x1500px</p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      <div className="space-y-4 col-span-1 md:col-span-2">
+                        <label className="flex items-center gap-3 cursor-pointer group w-fit">
+                          <div className="relative flex items-center justify-center">
+                            <input 
+                              type="checkbox" 
+                              className="sr-only" 
+                              checked={siteSettings.popup_enabled}
+                              onChange={(e) => setSiteSettings({ ...siteSettings, popup_enabled: e.target.checked })}
+                            />
+                            <div className={`w-5 h-5 rounded border-2 transition-all duration-300 flex items-center justify-center ${siteSettings.popup_enabled ? 'bg-red-600 border-red-600' : 'bg-white border-zinc-300 group-hover:border-zinc-400'}`}>
+                              {siteSettings.popup_enabled && <Check className="w-3.5 h-3.5 text-white" />}
+                            </div>
+                          </div>
+                          <span className="text-sm font-bold text-zinc-700">เปิดใช้งานป็อปอัพประกาศ</span>
+                        </label>
+                      </div>
+
+                      <div className="space-y-4 col-span-1 md:col-span-2">
+                        <label className="block text-sm font-bold text-zinc-700">รูปภาพประกาศ (URL)</label>
+                        <input 
+                          type="text"
+                          value={siteSettings.popup_img_url}
+                          onChange={(e) => setSiteSettings({ ...siteSettings, popup_img_url: e.target.value })}
+                          className="w-full bg-white border border-zinc-200 rounded-2xl px-5 py-4 text-zinc-900 text-sm font-bold focus:outline-none focus:border-red-500 shadow-inner"
+                          placeholder="https://images.unsplash.com/photo-..."
+                        />
+                      </div>
+
+                      <div className="space-y-4 col-span-1 md:col-span-2">
+                         <label className="block text-sm font-bold text-zinc-700">ลิ้งค์ปลายทางเมื่อคลิกรูปภาพ (ปล่อยว่างได้)</label>
+                         <input 
+                           type="text"
+                           value={siteSettings.popup_link}
+                           onChange={(e) => setSiteSettings({ ...siteSettings, popup_link: e.target.value })}
+                           className="w-full bg-white border border-zinc-200 rounded-2xl px-5 py-4 text-zinc-900 text-sm font-bold focus:outline-none focus:border-red-500 shadow-inner"
+                           placeholder="https://facebook.com/..."
+                         />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-6 border border-zinc-100 rounded-3xl mt-8">
                     <h4 className="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-4">API Configuration</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-[11px]">
                       <div className="flex items-center justify-between p-3 bg-zinc-50 rounded-xl border border-zinc-100">

@@ -1158,7 +1158,11 @@ function AppContent() {
 
   return (
     <div className="min-h-screen w-full overflow-x-hidden bg-zinc-50 text-zinc-900 font-sans selection:bg-cyan-500/30 flex relative">
-      <PopupBanner />
+      <PopupBanner 
+        enabled={siteSettings?.popup_enabled ?? false} 
+        imgUrl={siteSettings?.popup_img_url ?? ''} 
+        linkUrl={siteSettings?.popup_link ?? ''} 
+      />
       {/* Page Transition Overlay */}
       {isPageTransitioning && (
         <div className="fixed inset-0 z-[200] bg-zinc-50 flex items-center justify-center p-4">
