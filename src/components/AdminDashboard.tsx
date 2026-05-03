@@ -21,6 +21,10 @@ interface AdminDashboardProps {
   setSiteStats?: (stats: SiteStats) => void;
   customPages?: any[];
   setCustomPages?: React.Dispatch<React.SetStateAction<any[]>>;
+  categories?: any[];
+  setCategories?: React.Dispatch<React.SetStateAction<any[]>>;
+  usersList?: any[];
+  onRefreshData?: () => void;
   isDBReady: boolean;
   dbErrorDetail?: string | null;
   adminUsername: string;
@@ -47,6 +51,7 @@ const ProductManagerModal = ({
     name: '',
     description: '',
     price: 0,
+    originalPrice: 0,
     imageUrl: '',
     stock: 0,
     category: ''
@@ -54,7 +59,7 @@ const ProductManagerModal = ({
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="bg-zinc-950 border border-zinc-800 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl relative">
+      <div className="bg-zinc-950 border border-zinc-800 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl relative max-h-[90vh] overflow-y-auto">
         <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
           <Package className="w-5 h-5 text-emerald-400" />
           {isEdit ? 'แก้ไขสินค้า' : 'เพิ่มสินค้าใหม่'}
@@ -82,7 +87,7 @@ const ProductManagerModal = ({
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-zinc-500 mb-1">ราคา (THB)</label>
+              <label className="block text-xs font-bold text-zinc-500 mb-1">ราคาปัจจุบัน (THB)</label>
               <input 
                 type="number" 
                 value={formData.price} 
@@ -91,12 +96,34 @@ const ProductManagerModal = ({
               />
             </div>
             <div>
+              <label className="block text-xs font-bold text-zinc-500 mb-1 text-zinc-400">ราคาเต็ม (ถ้ามี)</label>
+              <input 
+                type="number" 
+                value={formData.originalPrice || 0} 
+                onChange={e => setFormData({...formData, originalPrice: parseInt(e.target.value) || 0})}
+                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-white/50 focus:outline-none focus:border-red-500 text-sm"
+                placeholder="฿0"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
               <label className="block text-xs font-bold text-zinc-500 mb-1">สต๊อก</label>
               <input 
                 type="number" 
                 value={formData.stock} 
                 onChange={e => setFormData({...formData, stock: parseInt(e.target.value) || 0})}
                 className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500 text-sm"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-zinc-500 mb-1">หมวดหมู่</label>
+              <input 
+                type="text" 
+                value={formData.category} 
+                onChange={e => setFormData({...formData, category: e.target.value})}
+                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500 text-sm"
+                placeholder="Account"
               />
             </div>
           </div>
@@ -108,16 +135,6 @@ const ProductManagerModal = ({
               onChange={e => setFormData({...formData, imageUrl: e.target.value})}
               className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500 text-sm"
               placeholder="https://..."
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-bold text-zinc-500 mb-1">หมวดหมู่</label>
-            <input 
-              type="text" 
-              value={formData.category} 
-              onChange={e => setFormData({...formData, category: e.target.value})}
-              className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500 text-sm"
-              placeholder="e.g. Account, Item Code"
             />
           </div>
         </div>
@@ -154,6 +171,7 @@ const AddStockModal = ({
   onClose: () => void 
 }) => {
   const [stockInput, setStockInput] = useState('');
+  const [linesPerStock, setLinesPerStock] = useState(1);
   const [fileStockPreview, setFileStockPreview] = useState<string[]>([]);
   const [singleFilesPreview, setSingleFilesPreview] = useState<{name: string, b64: string}[]>([]);
   const [mode, setMode] = useState<'text'|'file'|'single-file'>('file');
@@ -201,9 +219,24 @@ const AddStockModal = ({
   const handleSaveStock = () => {
     let newItems: string[] = [];
     if (mode === 'text' && stockInput.trim()) {
-      newItems = stockInput.split('\n').map(x => x.trim()).filter(x => x.length > 0);
+      const lines = stockInput.split('\n').map(x => x.trim()).filter(x => x.length > 0);
+      if (linesPerStock > 1) {
+        for (let i = 0; i < lines.length; i += linesPerStock) {
+          const chunk = lines.slice(i, i + linesPerStock).join('\n');
+          newItems.push(chunk);
+        }
+      } else {
+        newItems = lines;
+      }
     } else if (mode === 'file' && fileStockPreview.length > 0) {
-      newItems = [...fileStockPreview];
+      if (linesPerStock > 1) {
+        for (let i = 0; i < fileStockPreview.length; i += linesPerStock) {
+          const chunk = fileStockPreview.slice(i, i + linesPerStock).join('\n');
+          newItems.push(chunk);
+        }
+      } else {
+        newItems = [...fileStockPreview];
+      }
     } else if (mode === 'single-file' && singleFilesPreview.length > 0) {
       // For single files, we can encode them as JSON strings containing the file data to fit into the string[] array
       newItems = singleFilesPreview.map(f => JSON.stringify({ type: 'file', name: f.name, data: f.b64 }));
@@ -265,13 +298,25 @@ const AddStockModal = ({
                 onChange={handleFileUpload}
               />
             </div>
+            
+            <div className="flex items-center justify-between bg-zinc-900 p-3 rounded-xl border border-zinc-800">
+              <label className="text-sm font-bold text-zinc-400">จำนวนบรรทัดต่อ 1 สต๊อก</label>
+              <input 
+                type="number" 
+                min="1" 
+                value={linesPerStock} 
+                onChange={(e) => setLinesPerStock(Math.max(1, parseInt(e.target.value) || 1))} 
+                className="w-20 bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-1 text-white text-center font-bold"
+              />
+            </div>
+
             {fileStockPreview.length > 0 && (
               <div className="bg-indigo-500/10 border border-indigo-500/20 rounded-xl p-4 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <FileText className="w-5 h-5 text-indigo-400" />
                   <div>
                     <p className="text-sm font-bold text-indigo-400">พบข้อมูลสต๊อก</p>
-                    <p className="text-xs text-indigo-400/80">พร้อมเพิ่ม {fileStockPreview.length} รายการ</p>
+                    <p className="text-xs text-indigo-400/80">พร้อมเพิ่ม {Math.ceil(fileStockPreview.length / linesPerStock)} รายการ (จาก {fileStockPreview.length} บรรทัด)</p>
                   </div>
                 </div>
               </div>
@@ -310,14 +355,32 @@ const AddStockModal = ({
         )}
 
         {mode === 'text' && (
-          <div>
-            <label className="block text-xs font-bold text-zinc-500 mb-2">วางข้อมูลสต๊อก (1 บรรทัด = 1 รายการ)</label>
-            <textarea 
-              value={stockInput}
-              onChange={e => setStockInput(e.target.value)}
-              className="w-full bg-zinc-900 border border-zinc-800 rounded-xl p-4 text-white focus:outline-none focus:border-indigo-500 text-sm h-40 resize-none font-mono text-xs leading-relaxed"
-              placeholder="user1:pass1&#10;user2:pass2"
-            />
+          <div className="space-y-4">
+            <div className="flex items-center justify-between bg-zinc-900 p-3 rounded-xl border border-zinc-800">
+              <label className="text-sm font-bold text-zinc-400">จำนวนบรรทัดต่อ 1 สต๊อก</label>
+              <input 
+                type="number" 
+                min="1" 
+                value={linesPerStock} 
+                onChange={(e) => setLinesPerStock(Math.max(1, parseInt(e.target.value) || 1))} 
+                className="w-20 bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-1 text-white text-center font-bold"
+              />
+            </div>
+            
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="text-xs font-bold text-zinc-500">วางข้อมูลสต๊อก</label>
+                <span className="text-[10px] text-zinc-600 bg-zinc-900 px-2 py-0.5 rounded">
+                  คำนวณได้: {stockInput.trim() ? Math.ceil(stockInput.split('\n').filter(x => x.trim().length > 0).length / linesPerStock) : 0} สต๊อก
+                </span>
+              </div>
+              <textarea 
+                value={stockInput}
+                onChange={e => setStockInput(e.target.value)}
+                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl p-4 text-white focus:outline-none focus:border-indigo-500 text-sm h-40 resize-none font-mono text-xs leading-relaxed"
+                placeholder="ข้อมูลบรรทัดที่ 1&#10;ข้อมูลบรรทัดที่ 2&#10;ข้อมูลบรรทัดที่ 3&#10;..."
+              />
+            </div>
           </div>
         )}
 
@@ -385,17 +448,23 @@ const DatabaseSetupGuide = ({ dbErrorDetail }: { dbErrorDetail?: string | null }
 
 import { AdminUserManagement } from './AdminUserManagement';
 import { AdminPagesManagement } from './AdminPagesManagement';
+import { AdminCategoriesManagement } from './AdminCategoriesManagement';
+import { AdminToolsManagement } from './AdminToolsManagement';
+import { Menu } from 'lucide-react';
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({
-  totalChecked, validAccounts, firebaseKeys, usedKeysHistory, blockedIPs,
+  totalChecked, validAccounts, firebaseKeys = [], usedKeysHistory = [], blockedIPs = [],
   adminTab, setAdminTab, isDBReady, dbErrorDetail, adminUsername, setIsAdmin,
   addLicenseKey, blockIP, deleteKey, unblockIP,
   products = [], setProducts, siteStats = { users: 0, stock: 0, sales: 0 }, setSiteStats,
-  customPages = [], setCustomPages
+  customPages = [], setCustomPages,
+  categories = [], setCategories,
+  usersList = [], onRefreshData
 }) => {
   const [isAddingProduct, setIsAddingProduct] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | undefined>(undefined);
   const [stockProduct, setStockProduct] = useState<Product | undefined>(undefined);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   
   const [purchaseHistory, setPurchaseHistory] = useState<any[]>(() => {
     const saved = localStorage.getItem('apex_purchase_history');
@@ -413,8 +482,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     site_name: 'APEX STUDIO',
     truewallet_phone: '0951378403',
     contact_line: '@apex_studio',
-    tester_mode: false,
-    tester_keys: ''
+    stats_users_offset: 0,
+    stats_sales_offset: 0
   });
 
   useEffect(() => {
@@ -452,9 +521,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   };
 
   // Calculate Stats
-  const totalOrders = purchaseHistory.length;
-  const totalMoney = topupHistory.reduce((acc, curr) => acc + (curr.amount || 0), 0);
-  const totalRevenue = purchaseHistory.reduce((acc, curr) => acc + (curr.price || 0), 0);
+  const totalOrders = siteStats.sales !== undefined ? (siteStats as any).totalOrders || purchaseHistory.length : purchaseHistory.length;
+  const totalMoney = (siteStats as any).topups || topupHistory.reduce((acc, curr) => acc + (curr.amount || curr.money || 0), 0);
+  const totalRevenue = siteStats.sales || purchaseHistory.reduce((acc, curr) => acc + (curr.price || 0), 0);
   
   const today = new Date();
   const startOfDay = new Date(today.setHours(0,0,0,0));
@@ -470,76 +539,121 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const remainingKeys = firebaseKeys.filter(k => k.status === 'active').length;
   const usersWhoBought = new Set(purchaseHistory.map(x => x.userId || 'guest')).size;
 
+  const SidebarItem = ({ id, label, icon: Icon }: any) => (
+    <button
+      onClick={() => {
+        setAdminTab(id);
+        setIsSidebarOpen(false);
+      }}
+      className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition-all ${
+        adminTab === id 
+        ? 'bg-red-600 text-white shadow-lg shadow-red-600/20' 
+        : 'text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900'
+      }`}
+    >
+      <Icon className="w-4 h-4" />
+      {label}
+    </button>
+  );
+
+  const Separator = ({ label }: { label: string }) => (
+    <div className="py-2 px-4">
+      <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest text-center">{label}</p>
+    </div>
+  );
+
   return (
-    <div className="min-h-screen bg-zinc-50 text-zinc-900 p-4 md:p-8 animate-in fade-in duration-700 font-sans">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-red-600 rounded-2xl shadow-md shadow-red-600/20">
-              <Crown className="w-8 h-8 text-white" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-black text-zinc-900 tracking-tighter">
-                Admin <span className="text-red-600">Dashboard</span>
-              </h1>
-              <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest mt-0.5">Control Center • {adminUsername}</p>
-            </div>
+    <div className="min-h-screen bg-zinc-50 flex flex-col md:flex-row font-sans">
+      {/* Mobile Header */}
+      <div className="md:hidden bg-white border-b border-zinc-200 px-4 py-4 flex items-center justify-between sticky top-0 z-40">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-red-600 rounded-lg">
+            <Crown className="w-5 h-5 text-white" />
           </div>
-          <div className="flex items-center gap-3 w-full md:w-auto">
-            <div className="bg-white border border-zinc-200 shadow-sm rounded-2xl px-4 py-2 flex items-center gap-2 flex-1 md:flex-none">
-              <div className={`w-2 h-2 rounded-full ${isDBReady ? 'bg-emerald-500 animate-pulse' : 'bg-red-500'}`}></div>
-              <span className="text-[10px] font-bold text-zinc-500 uppercase">System: {isDBReady ? 'Stable' : 'DB ERROR'}</span>
-            </div>
-            <button 
-              onClick={() => setIsAdmin(false)}
-              className="bg-white hover:bg-zinc-100 text-zinc-600 border border-zinc-200 shadow-sm px-6 py-2 rounded-2xl text-[10px] font-bold transition-all flex items-center gap-2 uppercase tracking-widest"
-            >
-              <LogOut className="w-4 h-4" /> Exit Console
-            </button>
+          <h1 className="text-lg font-black text-zinc-900 tracking-tighter">Admin Panel</h1>
+        </div>
+        <button 
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          className="p-2 bg-zinc-100 rounded-lg text-zinc-600"
+        >
+          <Menu className="w-6 h-6" />
+        </button>
+      </div>
+
+      {/* Sidebar */}
+      <div className={`fixed md:sticky top-0 left-0 h-screen w-72 bg-white border-r border-zinc-200 p-6 z-50 transform transition-transform duration-300 md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className="flex items-center gap-4 mb-8">
+          <div className="p-3 bg-red-600 rounded-2xl shadow-md shadow-red-600/20">
+            <Crown className="w-6 h-6 text-white" />
+          </div>
+          <div>
+            <h1 className="text-xl font-black text-zinc-900 tracking-tight">Console</h1>
+            <p className="text-zinc-400 text-[10px] uppercase font-bold tracking-widest">System Control</p>
           </div>
         </div>
 
+        <div className="space-y-1 overflow-y-auto max-h-[calc(100vh-160px)] pr-2 scrollbar-none">
+          <SidebarItem id="overview" label="หน้าขภาพรวม" icon={LayoutDashboard} />
+          
+          <Separator label="————- เมนูหลัก —————" />
+          <SidebarItem id="store" label="จัดการสินค้า" icon={Package} />
+          <SidebarItem id="categories" label="จัดการหมวดหมู่" icon={LayoutDashboard} />
+          <SidebarItem id="users" label="จัดการผู้ใช้งาน" icon={Users} />
+          <SidebarItem id="keys" label="License Keys" icon={Key} />
+          
+          <Separator label="————- เครื่องมือ —————" />
+          <SidebarItem id="pages" label="จัดการหน้าเพจ" icon={FileText} />
+          <SidebarItem id="tools" label="แจกรางวัล (Tools)" icon={Gift} />
+          <SidebarItem id="ips" label="Access Control" icon={ShieldAlert} />
+          <SidebarItem id="history" label="ประวัติการใช้งาน" icon={History} />
+          
+          <Separator label="————- ตั้งค่า —————" />
+          <SidebarItem id="settings" label="Site Settings" icon={Settings} />
+          <SidebarItem id="system" label="System Stats" icon={Cpu} />
+        </div>
+
+        <div className="absolute bottom-6 left-6 right-6 space-y-3">
+          <div className="bg-zinc-50 border border-zinc-200 rounded-2xl p-3 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-red-600 flex items-center justify-center text-white font-black text-sm shadow-md shadow-red-600/20">
+              {adminUsername.charAt(0).toUpperCase()}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[12px] font-black text-zinc-900 truncate uppercase tracking-tight">{adminUsername}</p>
+              <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">Admin Role</p>
+            </div>
+          </div>
+          <button 
+            onClick={() => setIsAdmin(false)}
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-zinc-900 text-zinc-400 hover:text-white rounded-xl text-xs font-bold hover:bg-black transition-all shadow-sm"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+            ออกจากระบบ
+          </button>
+        </div>
+      </div>
+
+      {/* Overlay for mobile sidebar */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 md:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
+      {/* Main Content */}
+      <div className="flex-1 p-4 md:p-8 overflow-y-auto">
         {!isDBReady ? (
           <DatabaseSetupGuide dbErrorDetail={dbErrorDetail} />
         ) : (
-          <>
-            {/* Navigation Tabs */}
-            <div className="flex items-center gap-2 mb-8 overflow-x-auto pb-2 scrollbar-none">
-              {[
-                { id: 'overview', label: 'Dashboard', icon: LayoutDashboard },
-                { id: 'users', label: 'จัดการผู้ใช้', icon: Users },
-                { id: 'store', label: 'Shop Manager', icon: Package },
-                { id: 'keys', label: 'License Keys', icon: Key },
-                { id: 'history', label: 'Redeem Logs', icon: History },
-                { id: 'ips', label: 'Access Control', icon: ShieldAlert },
-                { id: 'pages', label: 'จัดการหน้าเพจ', icon: FileText },
-                { id: 'settings', label: 'Site Settings', icon: Settings },
-                { id: 'system', label: 'System Info', icon: Cpu }
-              ].map(tab => (
-                <button
-                  key={tab.id}
-                  onClick={() => setAdminTab(tab.id as any)}
-                  className={`flex items-center gap-2 px-6 py-3 rounded-2xl text-xs font-bold transition-all border shadow-sm whitespace-nowrap ${
-                    adminTab === tab.id 
-                    ? 'bg-red-600 border-red-600 text-white shadow-red-600/20' 
-                    : 'bg-white border-zinc-200 text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'
-                  }`}
-                >
-                  <tab.icon className="w-4 h-4" /> {tab.label}
-                </button>
-              ))}
-            </div>
-
-            <AnimatePresence mode="wait">
-          {adminTab === 'overview' && (
-            <motion.div 
-              key="overview"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="space-y-8"
-            >
+          <AnimatePresence mode="wait">
+            {adminTab === 'overview' && (
+              <motion.div
+                key="overview"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="space-y-8"
+              >
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {[
                   { label: 'ผู้ใช้งานทั้งหมด', value: siteStats.users.toLocaleString(), icon: Users, color: 'text-zinc-900', bg: 'bg-zinc-100' },
@@ -708,6 +822,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 purchaseHistory={purchaseHistory} 
                 topupHistory={topupHistory} 
                 usedKeysHistory={usedKeysHistory} 
+                users={usersList}
+                onRefresh={onRefreshData || (() => {})}
               />
             </motion.div>
           )}
@@ -815,7 +931,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                 <div className="text-xs text-zinc-500 truncate max-w-[200px]">{p.description}</div>
                             </div>
                           </td>
-                          <td className="px-4 py-4 font-bold text-emerald-600">฿{p.price.toLocaleString()}</td>
+                          <td className="px-4 py-4 font-bold">
+                            <div className="flex flex-col">
+                              {p.originalPrice && p.originalPrice > p.price && (
+                                <span className="text-[10px] text-zinc-400 line-through">฿{p.originalPrice.toLocaleString()}</span>
+                              )}
+                              <span className="text-emerald-600">฿{p.price.toLocaleString()}</span>
+                            </div>
+                          </td>
                           <td className="px-4 py-4">
                             <span className={`px-2 py-1 rounded text-xs font-bold ${p.stock > 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'}`}>
                               {p.stock}
@@ -824,8 +947,28 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           <td className="px-4 py-4 text-right">
                              <div className="flex items-center justify-end gap-2">
                                 <button 
+                                  onClick={() => {
+                                    if (!p.stockData || p.stockData.length === 0) {
+                                      return Swal.fire('ไม่มีสต๊อก', 'สินค้านี้ยังไม่มีข้อมูลสต๊อกให้ดาวน์โหลด', 'error');
+                                    }
+                                    const text = p.stockData.join('\n');
+                                    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+                                    const url = URL.createObjectURL(blob);
+                                    const link = document.createElement('a');
+                                    link.href = url;
+                                    link.download = `stock_${p.name}.txt`;
+                                    link.click();
+                                    URL.revokeObjectURL(url);
+                                  }}
+                                  className="p-2 border border-blue-200 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
+                                  title="โหลดสต๊อก TXT เพื่อดูรายบรรทัด"
+                                >
+                                    <FileText className="w-4 h-4" />
+                                </button>
+                                <button 
                                   onClick={() => setStockProduct(p)}
-                                  className="p-2 border border-zinc-200 bg-white text-zinc-600 hover:bg-zinc-50 hover:border-zinc-300 rounded-lg transition-colors title='เพิ่มสต๊อก'"
+                                  className="p-2 border border-zinc-200 bg-white text-zinc-600 hover:bg-zinc-50 hover:border-zinc-300 rounded-lg transition-colors"
+                                  title="เพิ่มสต๊อก"
                                 >
                                     <Database className="w-4 h-4" />
                                 </button>
@@ -993,38 +1136,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     {usedKeysHistory.length > 0 ? usedKeysHistory.map((h, i) => (
                       <tr key={i} className="border-b border-zinc-100 hover:bg-zinc-50/50 transition-colors">
                         <td className="p-4">
-                          <div className="flex items-center gap-2">
-                             <span className="text-amber-600 font-bold">{h.key}</span>
-                             <button onClick={() => { navigator.clipboard.writeText(h.key); Swal.fire({ title: 'Copied!', text: 'คัดลอกสำเร็จ', icon: 'success', timer: 1000, showConfirmButton: false, confirmButtonColor: '#16a34a' }); }} className="text-zinc-400 hover:text-amber-600"><Copy className="w-3 h-3" /></button>
-                          </div>
+                          <span className="text-zinc-900 font-bold">{h.key}</span>
                         </td>
-                        <td className="p-4">
-                          <div className="flex items-center gap-2">
-                            <span className="text-zinc-500">{h.ip}</span>
-                            <button onClick={() => { navigator.clipboard.writeText(h.ip); Swal.fire({ title: 'Copied!', text: 'คัดลอก IP สำเร็จ', icon: 'success', timer: 1000, showConfirmButton: false, confirmButtonColor: '#16a34a' }); }} className="text-zinc-400 hover:text-zinc-600"><Copy className="w-3 h-3" /></button>
-                          </div>
-                        </td>
+                        <td className="p-4 text-zinc-500">{h.ip}</td>
                         <td className="p-4 text-zinc-500">{new Date(h.used_at).toLocaleString()}</td>
-                        <td className="p-4"><span className="text-emerald-600 font-bold bg-emerald-50 px-2 py-1 rounded text-[10px]">SUCCESS</span></td>
+                        <td className="p-4">
+                           <span className="bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded text-[10px] uppercase font-bold">Success</span>
+                        </td>
                       </tr>
                     )) : (
                       <tr><td colSpan={4} className="p-12 text-center text-zinc-500"> ไม่มีประวัติการใช้งาน </td></tr>
                     )}
                   </tbody>
                 </table>
-              </div>
-            </motion.div>
-          )}
-
-          {adminTab === 'pages' && (
-            <motion.div 
-              key="pages"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="space-y-6"
-            >
-              <AdminPagesManagement customPages={customPages} setCustomPages={setCustomPages as any} />
+               </div>
             </motion.div>
           )}
 
@@ -1081,6 +1206,39 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </motion.div>
           )}
 
+          {adminTab === 'pages' && (
+            <motion.div 
+              key="pages"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+            >
+              <AdminPagesManagement customPages={customPages} setCustomPages={setCustomPages} />
+            </motion.div>
+          )}
+
+          {adminTab === 'categories' && (
+            <motion.div 
+              key="categories"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+            >
+              <AdminCategoriesManagement categories={categories} setCategories={setCategories} />
+            </motion.div>
+          )}
+
+          {adminTab === 'tools' && (
+            <motion.div 
+              key="tools"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+            >
+              <AdminToolsManagement />
+            </motion.div>
+          )}
+
           {adminTab === 'settings' && (
             <motion.div 
               key="settings"
@@ -1133,37 +1291,31 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           placeholder="@line_id"
                         />
                       </div>
-                      
-                      <div className="space-y-4 md:col-span-2 lg:col-span-3">
+
+                      <div className="space-y-4">
                         <label className="block text-sm font-bold text-zinc-700 flex items-center gap-2">
-                           <ShieldAlert className="w-4 h-4 text-red-500" /> โหมด Tester (ปิดเว็บชั่วคราว)
+                           <Users className="w-4 h-4 text-purple-500" /> ปรับจํานวนผู้ใช้งาน (User Offset)
                         </label>
-                        <div className="flex items-center gap-3 mb-4">
-                          <label className="relative inline-flex items-center cursor-pointer">
-                            <input 
-                              type="checkbox" 
-                              className="sr-only peer" 
-                              checked={siteSettings.tester_mode}
-                              onChange={(e) => setSiteSettings({ ...siteSettings, tester_mode: e.target.checked })}
-                            />
-                            <div className="w-11 h-6 bg-zinc-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-500"></div>
-                          </label>
-                          <span className="text-sm font-medium text-zinc-700">{siteSettings.tester_mode ? 'เปิดใช้งาน (ผู้เข้าชมต้องกรอกคีย์)' : 'ปิดการใช้งาน (เข้าชมได้ปกติ)'}</span>
-                        </div>
-                        {siteSettings.tester_mode && (
-                          <div className="space-y-4">
-                            <label className="block text-sm font-bold text-zinc-700 flex items-center gap-2">
-                              <Key className="w-4 h-4 text-amber-500" /> คีย์สำหรับเข้าเว็บ (คั่นด้วยลูกน้ำ)
-                            </label>
-                            <input 
-                              type="text"
-                              value={siteSettings.tester_keys}
-                              onChange={(e) => setSiteSettings({ ...siteSettings, tester_keys: e.target.value })}
-                              className="w-full bg-white border border-zinc-200 rounded-2xl px-5 py-4 text-zinc-900 text-sm font-bold focus:outline-none focus:border-red-500 shadow-inner"
-                              placeholder="เช่น test_1234, apex_tester"
-                            />
-                          </div>
-                        )}
+                        <input 
+                          type="number"
+                          value={siteSettings.stats_users_offset}
+                          onChange={(e) => setSiteSettings({ ...siteSettings, stats_users_offset: parseInt(e.target.value) || 0 })}
+                          className="w-full bg-white border border-zinc-200 rounded-2xl px-5 py-4 text-zinc-900 text-sm font-bold focus:outline-none focus:border-purple-500 shadow-inner"
+                          placeholder="1250"
+                        />
+                      </div>
+
+                      <div className="space-y-4">
+                        <label className="block text-sm font-bold text-zinc-700 flex items-center gap-2">
+                           <Activity className="w-4 h-4 text-red-500" /> ปรับยอดขายสินค้า (Sales Offset)
+                        </label>
+                        <input 
+                          type="number"
+                          value={siteSettings.stats_sales_offset}
+                          onChange={(e) => setSiteSettings({ ...siteSettings, stats_sales_offset: parseInt(e.target.value) || 0 })}
+                          className="w-full bg-white border border-zinc-200 rounded-2xl px-5 py-4 text-zinc-900 text-sm font-bold focus:outline-none focus:border-red-500 shadow-inner"
+                          placeholder="0"
+                        />
                       </div>
 
                       <div className="flex items-end">
@@ -1180,10 +1332,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         <AlertTriangle className="w-5 h-5 text-amber-600" />
                       </div>
                       <div>
-                        <p className="text-xs font-bold text-amber-800">หมายเหตุสำคัญ (Vercel Persistence)</p>
+                        <p className="text-xs font-bold text-amber-800">หมายเหตุเกี่ยวกับข้อมูลสถิติ</p>
                         <p className="text-[10px] text-amber-700/80 mt-1 leading-relaxed">
-                          เนื่องจากระบบรันบน Vercel (Serverless), การตั้งค่าที่บันทึกผ่านหน้านี้จะถูกรีเซ็ตหาก Server Restart <br/>
-                          เพื่อการตั้งค่าแบบถาวร กรุณาไปที่ Vercel Dashboard {'>'} Settings {'>'} Environment Variables และตั้งค่า VITE_SITE_NAME, TRUEWALLET_PHONE, CONTACT_LINE
+                          ผู้ใช้งาน = ยอดปรับแต่ง (Offset) + ผู้ใช้งานจริงที่เคยสั่งซื้อ <br/>
+                          ยอดขาย = ยอดปรับแต่ง (Offset) + ยอดเงินจริงจากออเดอร์
                         </p>
                       </div>
                     </div>
@@ -1291,7 +1443,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           )}
 
         </AnimatePresence>
-          </>
         )}
 
         {isAddingProduct && (
@@ -1344,7 +1495,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   setProducts(products.map(prod => prod.id === p.id ? res.data : prod));
                   setStockProduct(undefined);
                   Swal.fire({ title: 'เพิ่มสต๊อกสำเร็จ', icon: 'success', background: '#09090b', color: '#fff' });
-                } catch (err) {
+                } catch (err: any) {
+                  console.error(err.response?.data || err);
                   Swal.fire('Error', 'ไม่สามารถอัพเดตสต๊อกได้', 'error');
                 }
               }

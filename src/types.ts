@@ -36,11 +36,21 @@ export interface UserPlan {
   registeredAt?: string;
 }
 
+export interface Category {
+  id: string;
+  name: string;
+  title: string;
+  subtitle: string;
+  bannerUrl: string;
+}
+
 export interface Product {
   id: string;
   name: string;
   description: string;
   price: number;
+  originalPrice?: number;
+  soldCount?: number;
   imageUrl: string;
   stock: number;
   category?: string;

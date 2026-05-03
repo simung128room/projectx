@@ -2,26 +2,27 @@ import Swal from 'sweetalert2';
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ShoppingCart, Package, Wallet, Phone, History, ChevronRight, Bell, Users, TrendingUp, Star, ArrowLeft, Key } from 'lucide-react';
-import { Product, SiteStats } from '../types';
+import { Product, SiteStats, Category } from '../types';
 import { AnimatedScroll } from './AnimatedScroll';
 
 interface HomeViewProps {
   products: Product[];
+  categories: Category[];
   stats: SiteStats;
   user?: any;
   purchaseHistory?: any[];
   setActiveView: (view: any) => void;
   onProductClick: (id: string) => void;
+  onSelectCategory: (categoryId: string) => void;
 }
 
 const BANNERS = [
   "https://img2.pic.in.th/86B05EC5-E611-42BD-A4E1-3E266EA3C2E8.png"
 ];
 
-export const HomeView: React.FC<HomeViewProps> = ({ products, stats, user, purchaseHistory, setActiveView, onProductClick }) => {
+export const HomeView: React.FC<HomeViewProps> = ({ products, categories, stats, user, purchaseHistory, setActiveView, onProductClick, onSelectCategory }) => {
   const [currentBanner, setCurrentBanner] = useState(0);
   const [realtimeStats, setRealtimeStats] = useState(stats);
-  const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [isProductLoading, setIsProductLoading] = useState(false);
 
   const handleProductSelect = (product: Product | null) => {
@@ -39,10 +40,10 @@ export const HomeView: React.FC<HomeViewProps> = ({ products, stats, user, purch
     setRealtimeStats(stats);
   }, [stats]);
 
-  const totalStock = products.reduce((sum, product) => {
+  const totalStock = Array.isArray(products) ? products.reduce((sum, product) => {
     // If stock is "unlimited" (represented by 99999 or more), we don't count it towards the total stock
     return sum + (product.stock >= 99999 ? 0 : product.stock);
-  }, 0);
+  }, 0) : 0;
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -74,7 +75,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ products, stats, user, purch
       
       {/* Banner carousel */}
       <AnimatedScroll>
-        <div className="relative w-full aspect-[21/9] sm:aspect-[24/9] md:aspect-[32/11] rounded-3xl overflow-hidden shadow-sm border border-zinc-100">
+        <div className="relative w-full aspect-[1640/500] rounded-3xl overflow-hidden shadow-sm border border-zinc-100">
           <AnimatePresence mode="wait">
             <motion.img
               key={currentBanner}
@@ -113,104 +114,125 @@ export const HomeView: React.FC<HomeViewProps> = ({ products, stats, user, purch
 
       {/* Real-time Stats */}
       <AnimatedScroll delay={200}>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        {/* Stat 1: Users */}
-        <div className="flex items-center gap-3 p-3 rounded-2xl border border-zinc-200 bg-white shadow-sm hover:border-zinc-300 transition-colors">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-zinc-100 text-zinc-500">
-             <Users className="w-5 h-5" />
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+          
+          {/* Stat 1: Users */}
+          <div className="relative p-6 rounded-3xl border border-zinc-200 bg-white shadow-sm overflow-hidden flex flex-col justify-center">
+            <div className="absolute -right-4 -bottom-4 text-zinc-100/50 pointer-events-none">
+              <Users className="w-32 h-32" />
+            </div>
+            <div className="relative z-10 flex flex-col">
+              <span className="text-zinc-600 font-bold mb-2">ผู้ใช้งาน</span>
+              <div className="flex items-baseline gap-2">
+                <motion.span 
+                  key={realtimeStats.users}
+                  initial={{ opacity: 0.5 }}
+                  animate={{ opacity: 1 }}
+                  className="text-4xl sm:text-5xl font-black text-red-600 tracking-tight"
+                >
+                  {realtimeStats.users.toLocaleString()}
+                </motion.span>
+                <span className="text-zinc-500 font-bold text-sm">คน</span>
+              </div>
+            </div>
           </div>
-          <div className="flex flex-col">
-            <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">ผู้ใช้งาน</span>
-            <motion.span 
-              key={realtimeStats.users}
-              initial={{ opacity: 0.5 }}
-              animate={{ opacity: 1 }}
-              className="text-sm font-black font-mono text-zinc-900 tracking-tight"
-            >
-              {realtimeStats.users.toLocaleString()}
-            </motion.span>
-          </div>
-        </div>
 
-        {/* Stat 2: Sales */}
-        <div className="flex items-center gap-3 p-3 rounded-2xl border border-zinc-200 bg-white shadow-sm hover:border-zinc-300 transition-colors">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-zinc-100 text-zinc-500">
-             <TrendingUp className="w-5 h-5" />
+          {/* Stat 2: Stock */}
+          <div className="relative p-6 rounded-3xl border border-zinc-200 bg-white shadow-sm overflow-hidden flex flex-col justify-center">
+            <div className="absolute -right-4 -bottom-4 text-zinc-100/50 pointer-events-none">
+              <Package className="w-32 h-32" />
+            </div>
+            <div className="relative z-10 flex flex-col">
+              <span className="text-zinc-600 font-bold mb-2">สต็อก</span>
+              <div className="flex items-baseline gap-2">
+                <motion.span 
+                  key={totalStock}
+                  initial={{ opacity: 0.5 }}
+                  animate={{ opacity: 1 }}
+                  className="text-4xl sm:text-5xl font-black text-red-600 tracking-tight"
+                >
+                  {totalStock.toLocaleString()}
+                </motion.span>
+                <span className="text-zinc-500 font-bold text-sm">ชิ้น</span>
+              </div>
+            </div>
           </div>
-          <div className="flex flex-col">
-            <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">ยอดขาย</span>
-            <motion.span 
-              key={realtimeStats.sales}
-              initial={{ opacity: 0.5 }}
-              animate={{ opacity: 1 }}
-              className="text-sm font-black font-mono text-zinc-900 tracking-tight"
-            >
-              {realtimeStats.sales.toLocaleString()}
-            </motion.span>
-          </div>
-        </div>
 
-        {/* Stat 3: Stock */}
-        <div className="flex items-center gap-3 p-3 rounded-2xl border border-zinc-200 bg-white shadow-sm hover:border-zinc-300 transition-colors">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-zinc-100 text-zinc-500">
-             <Package className="w-5 h-5" />
+          {/* Stat 3: Sales (Transactions) */}
+          <div className="col-span-2 lg:col-span-1 relative p-6 rounded-3xl border border-zinc-200 bg-white shadow-sm overflow-hidden flex flex-col justify-center">
+            <div className="absolute -right-4 -bottom-4 text-zinc-100/50 pointer-events-none">
+              <History className="w-32 h-32" />
+            </div>
+            <div className="relative z-10 flex flex-col">
+              <span className="text-zinc-600 font-bold mb-2">ยอดขาย</span>
+              <div className="flex items-baseline gap-2">
+                <motion.span 
+                  key={realtimeStats.sales}
+                  initial={{ opacity: 0.5 }}
+                  animate={{ opacity: 1 }}
+                  className="text-4xl sm:text-5xl font-black text-red-600 tracking-tight"
+                >
+                  {realtimeStats.sales.toLocaleString()}
+                </motion.span>
+                <span className="text-zinc-500 font-bold text-sm">ครั้ง</span>
+              </div>
+            </div>
           </div>
-          <div className="flex flex-col">
-            <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">สต็อก</span>
-            <motion.span 
-              key={totalStock}
-              initial={{ opacity: 0.5 }}
-              animate={{ opacity: 1 }}
-              className="text-sm font-black font-mono text-zinc-900 tracking-tight"
-            >
-              {totalStock.toLocaleString()}
-            </motion.span>
-          </div>
-        </div>
 
-        {/* Stat 4: Topups */}
-        <div className="flex items-center gap-3 p-3 rounded-2xl border border-zinc-200 bg-white shadow-sm hover:border-zinc-300 transition-colors">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-zinc-100 text-zinc-500">
-             <Wallet className="w-5 h-5" />
-          </div>
-          <div className="flex flex-col">
-            <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">ยอดเติม</span>
-            <motion.span 
-              key={realtimeStats.topups}
-              initial={{ opacity: 0.5 }}
-              animate={{ opacity: 1 }}
-              className="text-sm font-black font-mono text-zinc-900 tracking-tight"
-            >
-              {(realtimeStats.topups || 15400).toLocaleString()}
-            </motion.span>
-          </div>
-        </div>
         </div>
       </AnimatedScroll>
 
-      {/* Live Feed - placed below stats */}
-      <AnimatedScroll delay={150}>
-        <div className="bg-red-600 rounded-2xl p-3 flex items-center overflow-hidden border border-zinc-800 shadow-sm relative">
-          <div className="bg-red-500 text-white text-[10px] font-bold px-3 py-1 rounded-lg uppercase tracking-wider shrink-0 z-10 shadow-sm">
-            Live
+      {/* Latest Products Feed */}
+      <AnimatedScroll delay={210}>
+        <div className="pt-2">
+          <div className="flex flex-col mb-4">
+            <h2 className="text-xl font-bold text-zinc-900 leading-tight">รายการสินค้าล่าสุด</h2>
+            <p className="text-xs text-zinc-500 font-medium mt-1">สินค้าที่ลูกค้าเพิ่งซื้อไปเมื่อสักครู่</p>
           </div>
-          <div className="flex-1 overflow-hidden ml-4 relative min-w-0">
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              key={realtimeStats.sales}
-              className="flex items-center gap-2 text-zinc-300 text-xs sm:text-sm font-medium whitespace-nowrap"
+
+          <div className="flex overflow-hidden relative group w-full">
+            <motion.div 
+              className="flex gap-4 pr-4 w-max shrink-0 hover:[animation-play-state:paused]"
+              animate={{ x: ["0%", "-50%"] }}
+              transition={{ ease: "linear", duration: 40, repeat: Infinity }}
             >
-               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0"></span>
-               {purchaseHistory && purchaseHistory.length > 0 && purchaseHistory[0].username ? (
-                 <>
-                   ผู้ใช้ <span className="font-mono text-white">{purchaseHistory[0].username}</span> เพิ่งสั่งซื้อ <span className="text-white">{purchaseHistory[0].productName}</span> เมื่อสักครู่นี้...
-                 </>
-               ) : (
-                 <>
-                   User <span className="font-mono text-white">***{Math.floor(Math.random() * 900) + 100}</span> เพิ่งสั่งซื้อสินค้าระดับพรีเมียมเมื่อสักครู่นี้...
-                 </>
-               )}
+              {[...(purchaseHistory && purchaseHistory.length > 0 ? purchaseHistory.slice(0, 10) : [1,2,3,4,5]), ...(purchaseHistory && purchaseHistory.length > 0 ? purchaseHistory.slice(0, 10) : [1,2,3,4,5])].map((purchase: any, index) => {
+                const i = index % 10;
+                let isDummy = typeof purchase === 'number';
+                const dummyProduct = isDummy ? products[i % (products.length || 1)] : null;
+                const matchedProduct = !isDummy ? products.find(p => p.name === purchase.productName) : null;
+                
+                const minsAgo = Math.floor(Math.random() * 5) + i * 2 + 1; 
+
+                return (
+                  <div 
+                    key={index}
+                    className="shrink-0 w-[280px] bg-white border border-zinc-200 p-3 rounded-2xl flex gap-4 transition-all cursor-default"
+                  >
+                    <div className="w-16 h-16 rounded-xl bg-zinc-100 shrink-0 overflow-hidden relative">
+                      {(matchedProduct?.imageUrl || dummyProduct?.imageUrl) ? (
+                        <img src={matchedProduct?.imageUrl || dummyProduct?.imageUrl} alt="Product" className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-red-500"><ShoppingCart className="w-6 h-6"/></div>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0 flex flex-col justify-center">
+                      <div className="text-sm font-bold text-zinc-900 truncate">
+                        {!isDummy && purchase.username ? purchase.username.substring(0, 2) + '***' : 'Us***'}
+                      </div>
+                      <div className="text-xs text-zinc-500 truncate mt-0.5">
+                        {!isDummy ? purchase.productName : (dummyProduct?.name || 'สินค้าพรีเมียม')}
+                      </div>
+                      <div className="flex items-center justify-between mt-1.5">
+                        <span className="text-sm font-black text-red-600">
+                          ฿{!isDummy ? (matchedProduct?.price || purchase.price || 0) : (dummyProduct?.price || 50)}
+                        </span>
+                        <span className="text-[10px] text-zinc-400 font-semibold">{!isDummy ? purchase.amount || 1 : 1} ชิ้น • {minsAgo} นาทีที่แล้ว</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </motion.div>
           </div>
         </div>
@@ -274,127 +296,162 @@ export const HomeView: React.FC<HomeViewProps> = ({ products, stats, user, purch
       </div>
       </AnimatedScroll>
 
-      {/* Featured Products */}
-      <AnimatedScroll delay={250}>
-        <div id="products" className="pt-8">
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4 pb-4">
-          <div>
-            <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-zinc-900 tracking-tight flex items-center gap-3">
-              <span className="w-2 h-8 bg-red-500 rounded-full inline-block"></span>
-              สินค้าแนะนำ <Star className="w-6 h-6 text-yellow-400 fill-yellow-400" />
-            </h2>
-            <p className="text-zinc-500 mt-2 text-sm pl-5 font-medium tracking-wide">สินค้าทั่วไป</p>
-          </div>
-          
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 sm:pb-0 scrollbar-hide w-full max-w-full">
-             <button onClick={() => setShowCategoryModal(true)} className="px-6 py-3 bg-zinc-100/80 hover:bg-zinc-200 text-zinc-900 rounded-2xl text-sm font-bold border border-zinc-200 transition-colors whitespace-nowrap shrink-0 flex items-center gap-2">
-               <Package className="w-4 h-4" /> ดูสินค้าทั้งหมด
-             </button>
-          </div>
-        </div>
-
-        {products.length === 0 ? (
-          <div className="border-2 border-dashed border-zinc-200 bg-white rounded-3xl p-16 text-center shadow-sm">
-            <div className="animate-pulse mb-6 flex justify-center">
-              <Package className="w-16 h-16 text-zinc-200" />
+      {/* Categories Section */}
+      <AnimatedScroll delay={220}>
+        <div className="pt-8">
+          <div className="flex items-center justify-between mb-6 pb-3 border-b-2 border-zinc-900">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-red-600 rounded-xl flex items-center justify-center shadow-lg shadow-red-500/20">
+                <Package className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-zinc-900 leading-tight">หมวดหมู่แนะนำ</h2>
+                <p className="text-[11px] text-zinc-500 font-medium">สินค้าแนะนำสำหรับคุณ</p>
+              </div>
             </div>
-            <h3 className="text-xl font-bold text-zinc-400">ยังไม่มีสินค้าในขณะนี้</h3>
-            <p className="text-zinc-400 text-sm mt-2 font-medium">โปรดรอการอัพเดทจากผู้ดูแลระบบ</p>
+            <button 
+              onClick={() => setActiveView('categories')}
+              className="bg-zinc-900 text-white px-5 py-2.5 rounded-xl text-xs font-bold hover:bg-zinc-800 transition-all active:scale-95 flex items-center gap-2"
+            >
+              ดูเพิ่มเติม <ChevronRight className="w-3.5 h-3.5" />
+            </button>
           </div>
-        ) : (
-          <div className={`grid gap-4 sm:gap-6 mx-auto w-full max-w-3xl ${products.length === 1 ? 'grid-cols-1 max-w-sm' : 'grid-cols-2'}`}>
-            {products.map((product, i) => (
-              <motion.div
-                key={product.id}
-                initial={{ opacity: 0, y: 20 }}
+
+          <div className="flex flex-col gap-4">
+            {categories && categories.slice(0, 3).map((cat, i) => (
+              <motion.button 
+                key={cat.id}
+                initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: i * 0.05 }}
-                className={`group bg-white rounded-[24px] overflow-hidden hover:-translate-y-1 transition-all duration-300 flex flex-col h-full bg-clip-padding ${i === 0 ? 'border-2 border-pink-500 shadow-lg shadow-pink-500/20 ring-4 ring-pink-500/10' : 'border border-zinc-200 hover:shadow-xl'}`}
+                transition={{ delay: i * 0.1 }}
+                onClick={() => onSelectCategory(cat.name)}
+                className="group w-full bg-white border border-zinc-200 rounded-2xl overflow-hidden hover:border-red-500 hover:shadow-xl hover:shadow-red-500/5 transition-all text-left"
               >
-                {/* Image Section */}
-                <div className="relative aspect-square overflow-hidden bg-zinc-100 p-1.5">
-                  <div className="w-full h-full rounded-[18px] overflow-hidden relative">
-                    {product.isPopular && (
-                      <div className="absolute top-2 right-2 bg-red-500 text-white text-[9px] font-bold rounded-full px-2 py-1 z-10 shadow-md">
-                         ยอดนิยม
+                <div className="relative aspect-[1640/500] bg-zinc-900 overflow-hidden">
+                  {cat.bannerUrl ? (
+                    <img src={cat.bannerUrl} alt={cat.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center gap-4">
+                      <div className="bg-red-600 text-white text-[10px] font-bold px-3 py-1.5 rounded-lg tracking-widest text-center leading-tight">
+                        REXZY<br/>STUDIO
                       </div>
-                    )}
-                    <img 
-                      src={product.imageUrl || "https://images.unsplash.com/photo-1605810230434-7631ac76ec81?q=80&w=400&auto=format&fit=crop"} 
-                      alt={product.name}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-all duration-700"
-                    />
-                    
-                    {product.stock <= 0 && (
-                      <div className="absolute inset-0 bg-white/70 backdrop-blur-[2px] flex items-center justify-center z-10">
-                        <span className="bg-red-600 text-white font-bold rounded-full px-4 py-1.5 text-xs shadow-xl">สินค้าหมด</span>
+                      <div className="text-white text-lg font-bold tracking-widest">
+                        BANNER 1640×500
                       </div>
-                    )}
+                    </div>
+                  )}
+                  {/* Overlay icon on hover */}
+                  <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100 duration-300">
+                    <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white border border-white/30">
+                      <ChevronRight className="w-6 h-6" />
+                    </div>
                   </div>
                 </div>
-
-                {/* Content Section */}
-                <div className="p-4 flex flex-col flex-1">
-                  <h3 className="font-bold text-zinc-900 text-base leading-tight mb-4 line-clamp-2">{product.name}</h3>
-                  <div className="mt-auto flex flex-col gap-4">
-                    <div className="flex items-center justify-between">
-                       <div className="bg-zinc-100 text-zinc-600 text-[10px] font-bold px-2 py-1 rounded-lg flex items-center gap-1.5">
-                         <Package className="w-3 h-3"/> สต็อก: {product.stock >= 999999 ? 'ไม่จำกัด' : product.stock}
-                       </div>
-                       <div className="text-right">
-                         <span className="text-xl font-black text-red-600 tracking-tight">฿{product.price.toLocaleString()}</span>
-                       </div>
+                <div className="p-4 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-red-50 rounded-xl flex items-center justify-center text-red-600 group-hover:bg-red-600 group-hover:text-white transition-all">
+                      <Package className="w-5 h-5" />
                     </div>
-                    
-                    <button 
-                      onClick={() => handleProductSelect(product)}
-                      className="w-full relative mt-1 font-bold text-xs py-3 rounded-xl text-zinc-900 bg-zinc-100/80 hover:bg-zinc-200 border border-zinc-200 transition-colors flex items-center justify-center gap-2"
-                    >
-                      ดูสินค้า
+                    <div>
+                      <h3 className="text-base font-bold text-red-600 group-hover:text-red-700">{cat.title}</h3>
+                      <p className="text-xs text-zinc-400 mt-0.5 font-medium flex items-center gap-1">
+                        <TrendingUp className="w-3 h-3" /> สินค้ายอดนิยม
+                      </p>
+                    </div>
+                  </div>
+                  {(() => {
+                    const catProducts = products.filter(p => p.category === cat.name);
+                    if (catProducts.length === 0) return <div className="text-sm font-bold text-zinc-400 bg-zinc-50 px-3 py-1 rounded-lg border border-zinc-200 whitespace-nowrap">ไม่ทราบราคา</div>;
+                    const prices = catProducts.map(p => p.price);
+                    const minP = Math.min(...prices);
+                    const maxP = Math.max(...prices);
+                    return minP === maxP ? (
+                      <div className="text-sm font-black text-red-600 bg-red-50 px-3 py-1 rounded-lg border border-red-100 whitespace-nowrap">฿{minP.toLocaleString()}</div>
+                    ) : (
+                      <div className="text-sm font-black text-red-600 bg-red-50 px-3 py-1 rounded-lg border border-red-100 whitespace-nowrap">฿{minP.toLocaleString()} - ฿{maxP.toLocaleString()}</div>
+                    );
+                  })()}
+                </div>
+              </motion.button>
+            ))}
+          </div>
+        </div>
+      </AnimatedScroll>
+
+      {/* Featured Products */}
+      <AnimatedScroll delay={250}>
+        <div id="products" className="pt-12">
+          <div className="flex items-center justify-between mb-8 pb-3 border-b-2 border-zinc-900">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-red-600 rounded-xl flex items-center justify-center shadow-lg shadow-red-500/20">
+                <ShoppingCart className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-zinc-900 leading-tight">สินค้าทั่วไป</h2>
+                <p className="text-[11px] text-zinc-500 font-medium">สินค้าแนะนำสำหรับคุณ</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {products.slice(0, 8).map((product, i) => (
+              <motion.div
+                key={product.id}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.3, delay: i * 0.05 }}
+                className="bg-white border border-zinc-200 rounded-2xl overflow-hidden hover:shadow-xl transition-all h-full flex flex-col group"
+              >
+                <div className="aspect-square bg-zinc-900 relative overflow-hidden">
+                  {product.imageUrl ? (
+                    <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <div className="text-center">
+                        <div className="text-[10px] font-black text-red-600 tracking-tighter mb-1">REXZY STUDIO</div>
+                        <div className="text-white text-xs font-bold leading-tight">PREVIEW<br/>1500×1500</div>
+                      </div>
+                    </div>
+                  )}
+                  {product.stock <= 0 && (
+                     <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex items-center justify-center z-10 transition-opacity opacity-0 group-hover:opacity-100">
+                        <span className="bg-red-600 text-white font-bold rounded-full px-4 py-1.5 text-xs">สินค้าหมด</span>
+                     </div>
+                  )}
+                </div>
+
+                <div className="p-3.5 flex flex-col flex-1">
+                  <h3 className="font-bold text-zinc-900 text-sm line-clamp-1 mb-1">{product.name}</h3>
+                  <div className="flex items-center gap-2 mb-0.5">
+                    {product.originalPrice && product.originalPrice > product.price && (
+                      <span className="text-[10px] text-zinc-400 line-through">฿{product.originalPrice.toLocaleString()}</span>
+                    )}
+                    <div className="text-red-600 font-bold text-sm">฿{product.price.toLocaleString()}</div>
+                  </div>
+                  
+                  {product.stock <= 0 ? (
+                    <button className="w-full mt-3 bg-red-100 text-red-600 rounded-xl py-2.5 text-xs font-bold flex items-center justify-center gap-1.5 cursor-default">
+                      <Package className="w-3.5 h-3.5" /> สินค้าหมด
                     </button>
+                  ) : (
+                    <button 
+                      onClick={() => onProductClick(product.id)}
+                      className="w-full mt-3 bg-zinc-900 text-white hover:bg-zinc-800 rounded-xl py-2.5 text-xs font-bold transition-colors active:scale-95 flex items-center justify-center gap-2"
+                    >
+                      <ShoppingCart className="w-3.5 h-3.5" /> สั่งซื้อสินค้า
+                    </button>
+                  )}
+                  
+                  <div className="mt-3 pt-3 border-t border-zinc-50 flex items-center justify-center gap-1.5 text-[10px] text-zinc-400 font-bold uppercase tracking-wider">
+                    <span className={`w-1.5 h-1.5 rounded-full ${product.stock > 0 ? 'bg-emerald-400 animate-pulse' : 'bg-zinc-200'}`}></span>
+                    คงเหลือ {product.stock >= 999999 ? 'ไม่จำกัด' : `${product.stock} ชิ้น`}
                   </div>
                 </div>
               </motion.div>
             ))}
           </div>
-        )}
-      </div>
-      </AnimatedScroll>
-
-      {/* Category Modal */}
-      {showCategoryModal && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white border border-zinc-200 rounded-[32px] p-8 max-w-md w-full shadow-2xl relative">
-            <button onClick={() => setShowCategoryModal(false)} className="absolute top-6 right-6 text-zinc-400 hover:text-zinc-900 transition-colors bg-zinc-50 hover:bg-zinc-100 p-2 rounded-full">
-               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-            </button>
-            <div className="flex items-center gap-4 mb-6">
-               <div className="w-12 h-12 bg-red-50 text-red-600 rounded-2xl flex items-center justify-center">
-                 <Package className="w-6 h-6" />
-               </div>
-               <div>
-                  <h3 className="font-black text-xl text-zinc-900 tracking-tight">หมวดหมู่สินค้า</h3>
-                  <p className="text-zinc-500 text-sm font-medium">เลือกหมวดหมู่สินค้าที่คุณสนใจ</p>
-               </div>
-            </div>
-            
-            <div className="flex flex-col gap-3">
-              <button onClick={() => setShowCategoryModal(false)} className="w-full bg-zinc-50 hover:bg-red-50 border border-zinc-200 hover:border-red-200 hover:text-red-600 text-zinc-700 py-4 px-6 rounded-2xl font-bold flex items-center gap-3 transition-colors text-left group">
-                <span className="text-xl group-hover:scale-110 transition-transform">🎮</span> 
-                <span>ทั้งหมด</span>
-              </button>
-              <button onClick={() => setShowCategoryModal(false)} className="w-full bg-zinc-50 hover:bg-red-50 border border-zinc-200 hover:border-red-200 hover:text-red-600 text-zinc-700 py-4 px-6 rounded-2xl font-bold flex items-center gap-3 transition-colors text-left group">
-                <span className="text-xl group-hover:scale-110 transition-transform">🔥</span> 
-                <span>บัญชีเกม</span>
-              </button>
-              <button onClick={() => setShowCategoryModal(false)} className="w-full bg-zinc-50 hover:bg-red-50 border border-zinc-200 hover:border-red-200 hover:text-red-600 text-zinc-700 py-4 px-6 rounded-2xl font-bold flex items-center gap-3 transition-colors text-left group">
-                <span className="text-xl group-hover:scale-110 transition-transform">💎</span> 
-                <span>เติมเงิน</span>
-              </button>
-            </div>
-          </div>
         </div>
-      )}
+      </AnimatedScroll>
 
     </div>
   );

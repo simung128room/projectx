@@ -1,0 +1,77 @@
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { X, Check } from 'lucide-react';
+
+export const PopupBanner: React.FC = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [dontShow, setDontShow] = useState(false);
+
+  useEffect(() => {
+    const hideUntil = localStorage.getItem('hidePopupUntil');
+    if (!hideUntil || Date.now() > parseInt(hideUntil, 10)) {
+      // Add a slight delay so it doesn't instantly snap on load
+      const showTimer = setTimeout(() => setIsOpen(true), 1500);
+      return () => clearTimeout(showTimer);
+    }
+  }, []);
+
+  const handleClose = () => {
+    if (dontShow) {
+      const twentyFourHours = 24 * 60 * 60 * 1000;
+      localStorage.setItem('hidePopupUntil', (Date.now() + twentyFourHours).toString());
+    }
+    setIsOpen(false);
+  };
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-8 bg-zinc-950/80 backdrop-blur-md">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col"
+          >
+            <button
+              onClick={handleClose}
+              className="absolute top-4 right-4 z-10 w-10 h-10 bg-black/30 hover:bg-black/50 backdrop-blur-md rounded-full flex items-center justify-center text-white transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            
+            {/* The 1500x1500 image aspect box */}
+            <div className="w-full aspect-square relative bg-zinc-100 flex items-center justify-center">
+              <img 
+                src="https://images.unsplash.com/photo-1607083206968-13611e3d76db?auto=format&fit=crop&q=80&w=1500&h=1500" 
+                alt="Announcement" 
+                className="w-full h-full object-cover"
+              />
+            </div>
+
+            <div className="p-4 sm:px-6 bg-white flex items-center justify-between border-t border-zinc-100">
+              <label className="flex items-center gap-3 cursor-pointer group">
+                <div className="relative flex items-center justify-center">
+                  <input 
+                    type="checkbox" 
+                    className="sr-only" 
+                    checked={dontShow}
+                    onChange={(e) => setDontShow(e.target.checked)}
+                  />
+                  <div className={`w-5 h-5 rounded border-2 transition-all duration-300 flex items-center justify-center ${dontShow ? 'bg-red-600 border-red-600' : 'bg-white border-zinc-300 group-hover:border-zinc-400'}`}>
+                    {dontShow && <Check className="w-3.5 h-3.5 text-white" />}
+                  </div>
+                </div>
+                <span className="text-zinc-600 text-sm font-semibold select-none group-hover:text-zinc-900 transition-colors">ไม่แสดงอีกใน 24 ชั่วโมง</span>
+              </label>
+              <button onClick={handleClose} className="px-5 py-2.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-900 text-sm font-bold rounded-xl transition-colors">
+                ปิดหน้าต่าง
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
+  );
+};

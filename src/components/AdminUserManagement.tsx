@@ -1,42 +1,30 @@
-import React, { useState, useEffect } from 'react';
-import { Users, Search, History, ShieldAlert, Edit, CheckCircle, Ban, Wallet, ArrowRightLeft, Eye, RefreshCw, HandCoins, Copy } from 'lucide-react';
+import React, { useState } from 'react';
+import { Users, Search, Edit, CheckCircle, Ban, Wallet, ArrowRightLeft, Eye, RefreshCw, HandCoins, Copy } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { motion, AnimatePresence } from 'motion/react';
+import axios from 'axios';
 
 interface AdminUserManagementProps {
   purchaseHistory: any[];
   topupHistory: any[];
   usedKeysHistory: any[];
+  users: any[];
+  onRefresh: () => void;
 }
 
-export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purchaseHistory, topupHistory, usedKeysHistory }) => {
-  const [users, setUsers] = useState<any[]>(() => {
-    const saved = localStorage.getItem('apex_users_list');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        return [];
-      }
-    }
-    return [];
-  });
-
+export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purchaseHistory, topupHistory, usedKeysHistory, users, onRefresh }) => {
   const [search, setSearch] = useState('');
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [actionTab, setActionTab] = useState<'info'|'purchase'|'topup'|'keys'>('info');
 
-  useEffect(() => {
-    localStorage.setItem('apex_users_list', JSON.stringify(users));
-  }, [users]);
-
   const filteredUsers = users.filter(u => 
-    u.email.toLowerCase().includes(search.toLowerCase()) || 
-    u.role.toLowerCase().includes(search.toLowerCase())
+    (u.email || '').toLowerCase().includes(search.toLowerCase()) || 
+    (u.role || '').toLowerCase().includes(search.toLowerCase()) ||
+    (u.username || '').toLowerCase().includes(search.toLowerCase())
   );
 
-  const handleUpdateBalance = (user: any, type: 'add' | 'deduct') => {
-    Swal.fire({
+  const handleUpdateBalance = async (user: any, type: 'add' | 'deduct') => {
+    const { value } = await Swal.fire({
       title: type === 'add' ? 'เพิ่มเงิน (Add Balance)' : 'หักเงิน (Deduct Balance)',
       input: 'number',
       inputLabel: 'จำนวนเงิน (บาท)',
@@ -44,28 +32,31 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
       showCancelButton: true,
       confirmButtonText: 'ยืนยัน',
       confirmButtonColor: type === 'add' ? '#10b981' : '#dc2626'
-    }).then((res) => {
-      if (res.isConfirmed && res.value) {
-        const amount = Number(res.value);
-        setUsers(users.map(u => {
-          if (u.id === user.id) {
-            const newBalance = type === 'add' ? (u.balance || 0) + amount : Math.max(0, (u.balance || 0) - amount);
-            return { ...u, balance: newBalance };
-          }
-          return u;
-        }));
-        setSelectedUser({...user, balance: type === 'add' ? (user.balance || 0) + amount : Math.max(0, (user.balance || 0) - amount)});
-        Swal.fire({ icon: 'success', title: 'สำเร็จ!', showConfirmButton: false, timer: 1500 });
-      }
     });
+
+    if (value) {
+      const amount = Number(value);
+      const newBalance = type === 'add' ? (user.balance || 0) + amount : Math.max(0, (user.balance || 0) - amount);
+      
+      try {
+        Swal.showLoading();
+        await axios.post(`/api/users/${user.id || user.uid}`, { balance: newBalance });
+        setSelectedUser({ ...user, balance: newBalance });
+        onRefresh();
+        Swal.fire({ icon: 'success', title: 'สำเร็จ!', showConfirmButton: false, timer: 1500 });
+      } catch (err) {
+        Swal.fire('Error', 'ไม่สามารถบันทึกข้อมูลได้', 'error');
+      }
+    }
   };
 
-  const handleEditUser = (user: any) => {
-    Swal.fire({
+  const handleEditUser = async (user: any) => {
+    const { value } = await Swal.fire({
       title: 'แก้ไขข้อมูลผู้ใช้',
       html: `
         <div class="space-y-4">
-          <input id="swal-role" class="swal2-input" placeholder="Role (Member, Admin, Premium)" value="${user.role}">
+          <input id="swal-role" class="swal2-input w-full" placeholder="Role (Member, Admin, Premium)" value="${user.role || 'Member'}">
+          <input id="swal-username" class="swal2-input w-full" placeholder="Display Name" value="${user.username || ''}">
         </div>
       `,
       showCancelButton: true,
@@ -73,44 +64,48 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
       confirmButtonColor: '#dc2626',
       preConfirm: () => {
         return {
-          role: (document.getElementById('swal-role') as HTMLInputElement).value
+          role: (document.getElementById('swal-role') as HTMLInputElement).value,
+          username: (document.getElementById('swal-username') as HTMLInputElement).value
         };
       }
-    }).then((res) => {
-      if (res.isConfirmed && res.value) {
-        setUsers(users.map(u => {
-          if (u.id === user.id) {
-            return { ...u, role: res.value.role };
-          }
-          return u;
-        }));
-        setSelectedUser({...user, role: res.value.role});
-        Swal.fire({ icon: 'success', title: 'อัปเดตข้อมูลแล้ว', showConfirmButton: false, timer: 1500 });
-      }
     });
+
+    if (value) {
+      try {
+        Swal.showLoading();
+        await axios.post(`/api/users/${user.id || user.uid}`, value);
+        setSelectedUser({ ...user, ...value });
+        onRefresh();
+        Swal.fire({ icon: 'success', title: 'อัปเดตข้อมูลแล้ว', showConfirmButton: false, timer: 1500 });
+      } catch (err) {
+        Swal.fire('Error', 'ไม่สามารถบันทึกข้อมูลได้', 'error');
+      }
+    }
   };
 
-  const handleToggleBan = (user: any) => {
+  const handleToggleBan = async (user: any) => {
     const isBanned = user.status === 'banned';
-    Swal.fire({
+    const result = await Swal.fire({
       title: isBanned ? 'ปลดแบนผู้ใช้นี้?' : 'แบนผู้ใช้นี้เข้าสู่ระบบ?',
       text: isBanned ? 'ผู้ใช้จะสามารถเข้าสู่ระบบและใช้งานได้ตามปกติ' : 'ผู้ใช้จะไม่สามารถเข้าสู่ระบบและใช้บริการได้อีก',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonText: isBanned ? 'ปลดแบน' : 'ยืนยันการแบน',
       confirmButtonColor: isBanned ? '#10b981' : '#dc2626'
-    }).then(res => {
-      if (res.isConfirmed) {
-        setUsers(users.map(u => {
-          if (u.id === user.id) {
-            return { ...u, status: isBanned ? 'active' : 'banned' };
-          }
-          return u;
-        }));
-        setSelectedUser({...user, status: isBanned ? 'active' : 'banned'});
-        Swal.fire({ icon: 'success', title: 'สำเร็จ!', showConfirmButton: false, timer: 1500 });
-      }
     });
+
+    if (result.isConfirmed) {
+      const newStatus = isBanned ? 'active' : 'banned';
+      try {
+        Swal.showLoading();
+        await axios.post(`/api/users/${user.id || user.uid}`, { status: newStatus });
+        setSelectedUser({ ...user, status: newStatus });
+        onRefresh();
+        Swal.fire({ icon: 'success', title: 'สำเร็จ!', showConfirmButton: false, timer: 1500 });
+      } catch (err) {
+        Swal.fire('Error', 'ไม่สามารถบันทึกข้อมูลได้', 'error');
+      }
+    }
   };
 
   // Match history by username/email

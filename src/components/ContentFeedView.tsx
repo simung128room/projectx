@@ -4,13 +4,19 @@ import { motion } from 'motion/react';
 import Swal from 'sweetalert2';
 import { AnimatedScroll } from './AnimatedScroll';
 
-interface ContentItem {
+interface ContentAttachment {
+  type: 'text' | 'image' | 'file';
+  data: string;
+}
+
+export interface ContentItem {
   id: string;
   type: 'free' | 'premium';
-  contentType: 'text' | 'image' | 'file';
   title: string;
-  content: string;
   keyword: string;
+  attachments: ContentAttachment[];
+  unlockAt?: string; // ISO date string
+  createdAt?: string;
 }
 
 export const ContentFeedView: React.FC<{ type: 'free' | 'premium', isAdmin: boolean, isPremiumUser: boolean }> = ({ type, isAdmin, isPremiumUser }) => {
@@ -102,28 +108,47 @@ export const ContentFeedView: React.FC<{ type: 'free' | 'premium', isAdmin: bool
             className="w-full bg-white border border-zinc-200 rounded-2xl py-3 pl-12 pr-4 text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-red-400 focus:ring-4 focus:ring-red-50 transition-all shadow-sm"
           />
         </div>
-        {isAdmin && (
-          <button onClick={handleAdd} className="bg-red-600 hover:bg-red-500 text-white font-bold py-3 px-6 rounded-2xl transition-all flex items-center justify-center gap-2 whitespace-nowrap shadow-sm">
-            <Plus className="w-5 h-5"/> เพิ่มเนื้อหา
-          </button>
-        )}
       </div>
       </AnimatedScroll>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {filteredItems.map((item, i) => {
-          const locked = type === 'premium' && !isAdmin && !isPremiumUser;
+          // Compatibility with old format
+          const attachments: ContentAttachment[] = item.attachments || ((item as any).content ? [{ type: ((item as any).contentType as any) || 'text', data: (item as any).content }] : []);
+          
+          let isTimeLocked = false;
+          let timeRemaining = '';
+          if (item.unlockAt) {
+            const unlockTime = new Date(item.unlockAt).getTime();
+            const now = new Date().getTime();
+            if (unlockTime > now) {
+              isTimeLocked = true;
+              const diff = unlockTime - now;
+              const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+              const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+              const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+              timeRemaining = `เปิดให้ใช้งานใน ${d} วัน ${h} ชั่วโมง ${m} นาที`;
+            }
+          }
+
+          const locked = (type === 'premium' && !isAdmin && !isPremiumUser) || (isTimeLocked && !isAdmin);
+
           return (
             <AnimatedScroll key={item.id} delay={i * 50}>
             <motion.div layout initial={{opacity:0, scale:0.95}} animate={{opacity:1, scale:1}} className="bg-white border border-zinc-200 rounded-3xl p-5 relative overflow-hidden group shadow-sm hover:shadow-md transition-shadow">
               <div className="flex justify-between items-start mb-3">
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] font-bold text-zinc-600 bg-zinc-100 px-2 py-0.5 rounded-full uppercase border border-zinc-200">
-                    {item.contentType}
+                    {attachments.length} ไฟล์
                   </span>
                   {item.keyword && (
                     <span className="text-[10px] font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded-full uppercase border border-red-100">
                       #{item.keyword}
+                    </span>
+                  )}
+                  {isTimeLocked && (
+                    <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full uppercase border border-blue-100">
+                      ตั้งเวลาเปิด
                     </span>
                   )}
                 </div>
@@ -137,28 +162,62 @@ export const ContentFeedView: React.FC<{ type: 'free' | 'premium', isAdmin: bool
               <h3 className="text-lg font-bold text-zinc-900 mb-4 line-clamp-1">{item.title}</h3>
 
               <div className="bg-zinc-50 rounded-2xl border border-zinc-100 overflow-hidden">
-                {locked ? (
+                {locked && !isAdmin ? (
                   <div className="h-32 flex flex-col items-center justify-center bg-zinc-50 backdrop-blur-sm relative">
                     <Lock className="w-8 h-8 text-amber-500 mb-2"/>
-                    <span className="text-xs font-bold text-amber-600 bg-amber-100 px-3 py-1 rounded-full">วีไอพีเท่านั้น</span>
+                    {isTimeLocked ? (
+                      <span className="text-xs font-bold text-blue-600 bg-blue-100 px-3 py-1 rounded-full">{timeRemaining}</span>
+                    ) : (
+                      <span className="text-xs font-bold text-amber-600 bg-amber-100 px-3 py-1 rounded-full">วีไอพีเท่านั้น</span>
+                    )}
                     <div className="absolute inset-0 bg-gradient-to-b from-transparent to-white/50"></div>
                   </div>
                 ) : (
-                  <div className="p-4">
-                    {item.contentType === 'text' && (
-                      <p className="text-sm text-zinc-700 font-mono whitespace-pre-wrap">{item.content}</p>
-                    )}
-                    {item.contentType === 'image' && (
-                      <div className="w-full flex justify-center">
-                        <img src={item.content || undefined} alt={item.title} className="max-h-48 object-contain rounded-lg" onError={(e) => (e.currentTarget.src = 'https://placehold.co/600x400/f4f4f5/a1a1aa?text=Image+Not+Found')} />
+                  <div className="p-4 space-y-4">
+                    {attachments.map((att, idx) => (
+                      <div key={idx} className="mb-2">
+                        {att.type === 'text' && (
+                          <div className="relative group/copy cursor-pointer" onClick={() => {
+                            navigator.clipboard.writeText(att.data);
+                            Swal.fire({title: 'คัดลอกข้อความแล้ว!', timer: 1000, showConfirmButton: false});
+                          }}>
+                            <p className="text-sm text-zinc-700 font-mono whitespace-pre-wrap bg-white p-3 rounded-xl border border-zinc-200 line-clamp-[10]">{att.data}</p>
+                            <div className="absolute inset-0 bg-emerald-500/10 opacity-0 group-hover/copy:opacity-100 transition-opacity rounded-xl flex items-center justify-center backdrop-blur-[1px]">
+                              <span className="bg-emerald-500 text-white text-xs font-bold px-2 py-1 rounded shadow">คลิกเพื่อคัดลอก</span>
+                            </div>
+                          </div>
+                        )}
+                        {att.type === 'image' && (
+                          <div className="w-full flex justify-center relative group/img">
+                            <img src={att.data || undefined} alt="attachment" className="max-h-48 object-contain rounded-lg" onError={(e) => (e.currentTarget.src = 'https://placehold.co/600x400/f4f4f5/a1a1aa?text=Image+Not+Found')} />
+                            <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover/img:opacity-100 transition-opacity">
+                              {isAdmin && (
+                                <button onClick={(e) => { e.stopPropagation(); navigator.clipboard.writeText(att.data); Swal.fire({title:'Copy URL แล้ว', timer:1000, showConfirmButton:false}); }} className="bg-black/50 text-white p-2 rounded-lg hover:bg-black text-xs font-bold">Copy URL</button>
+                              )}
+                              <a href={att.data} target="_blank" rel="noopener noreferrer" className="bg-black/50 text-white p-2 rounded-lg hover:bg-black text-xs font-bold">ดูรูปเต็ม</a>
+                            </div>
+                          </div>
+                        )}
+                        {att.type === 'file' && (
+                          <a href={att.data} target="_blank" rel="noopener noreferrer" 
+                             className="flex items-center justify-between bg-white hover:bg-emerald-50 hover:border-emerald-200 text-zinc-900 overflow-hidden rounded-xl border border-zinc-200 transition-all duration-300 w-full shadow-sm hover:shadow-md font-bold group/file">
+                            <div className="flex bg-emerald-50 text-emerald-600 p-4 items-center justify-center">
+                               <Download className="w-5 h-5 group-hover/file:scale-110 transition-transform"/>
+                            </div>
+                            <div className="flex-1 px-4 py-3 truncate text-sm">
+                              {att.data.split('/').pop() || 'ดาวน์โหลดไฟล์'}
+                            </div>
+                            {isAdmin && (
+                              <button onClick={(e) => { e.preventDefault(); navigator.clipboard.writeText(att.data); Swal.fire({title: 'คัดลอกลิ้งค์แล้ว', timer: 1000, showConfirmButton:false}); }} className="mr-3 text-xs bg-zinc-100 px-3 py-1.5 rounded-lg text-zinc-500 hover:bg-zinc-200">Copy URL</button>
+                            )}
+                          </a>
+                        )}
                       </div>
-                    )}
-                    {item.contentType === 'file' && (
-                      <a href={item.content} target="_blank" rel="noopener noreferrer" 
-                         className="flex items-center justify-center gap-3 bg-white hover:bg-zinc-50 text-zinc-900 py-3 rounded-xl border border-zinc-200 transition-all duration-300 w-full shadow-sm hover:shadow-md font-bold">
-                        <Download className="w-5 h-5 text-emerald-500"/>
-                        <span className="text-sm">ดาวน์โหลดไฟล์</span>
-                      </a>
+                    ))}
+                    {locked && isAdmin && isTimeLocked && (
+                      <div className="mt-2 text-xs font-bold text-blue-600 bg-blue-50 p-3 rounded-xl border border-blue-100 text-center shadow-sm">
+                        (มุมมองแอดมิน) สถานะปัจจุบัน: 🔒 ล็อค<br/>จะเปิดให้ผู้ใช้ทั่วไปโหลดจริง:<br/>{new Date(item.unlockAt!).toLocaleString('th-TH')}
+                      </div>
                     )}
                   </div>
                 )}

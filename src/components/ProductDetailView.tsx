@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { Product } from '../types';
-import { ArrowLeft, Box, CheckCircle2, ChevronRight, FileText, ShoppingCart, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Box, CheckCircle2, ChevronRight, FileText, ShoppingCart, AlertCircle, Download } from 'lucide-react';
 import Swal from 'sweetalert2';
 
 interface ProductDetailViewProps {
   product: Product;
   user: any;
   onBack: () => void;
-  handlePurchase: (product: Product, quantity: number) => void;
+  handlePurchase: (product: Product, quantity: number) => Promise<void>;
   setActiveView: (view: any) => void;
 }
 
@@ -44,7 +44,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
             transition={{ type: "spring", stiffness: 300 }}
           >
             <img 
-              src={product.imageUrl} 
+              src={product.imageUrl || undefined} 
               alt={product.name}
               className="absolute inset-0 w-full h-full object-cover z-10 transition-transform duration-700 group-hover:scale-110"
               onError={(e) => {
@@ -62,14 +62,16 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
         {/* Right Side: Details & Actions */}
         <div className="w-full md:w-7/12 lg:w-1/2 p-6 md:p-8 flex flex-col">
           <div className="flex items-center gap-2 mb-3">
-             <span className="px-3 py-1 bg-red-50 text-red-600 font-bold text-xs rounded-lg border border-red-100">PRODUCT</span>
+             <span className="px-3 py-1 bg-red-50 text-red-600 font-bold text-xs rounded-lg border border-red-100 flex items-center gap-1.5 uppercase tracking-widest">
+                <Box className="w-3 h-3" /> Product
+             </span>
              {product.stock > 0 ? (
-               <span className="px-3 py-1 bg-emerald-50 text-emerald-600 font-bold text-xs rounded-lg border border-emerald-100 flex items-center gap-1.5">
-                 <CheckCircle2 className="w-3.5 h-3.5" /> มีสินค้าพร้อมจำหน่าย
+               <span className="px-3 py-1 bg-emerald-50 text-emerald-600 font-bold text-xs rounded-lg border border-emerald-100 flex items-center gap-1.5 uppercase tracking-widest">
+                 <CheckCircle2 className="w-3.5 h-3.5" /> INSTOCK
                </span>
              ) : (
-               <span className="px-3 py-1 bg-zinc-100 text-zinc-600 font-bold text-xs rounded-lg border border-zinc-200 flex items-center gap-1.5">
-                 <Box className="w-3.5 h-3.5" /> สินค้าหมดชั่วคราว
+               <span className="px-3 py-1 bg-zinc-100 text-zinc-600 font-bold text-xs rounded-lg border border-zinc-200 flex items-center gap-1.5 uppercase tracking-widest">
+                 <Box className="w-3.5 h-3.5" /> OUT OF STOCK
                </span>
              )}
           </div>
@@ -99,10 +101,27 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
           </div>
 
           <div className="mb-8 flex-1">
-            <h4 className="font-bold text-zinc-900 text-lg mb-3 flex items-center gap-2">
-              <FileText className="w-5 h-5 text-red-500" />
-              รายละเอียดสินค้า
-            </h4>
+            <div className="flex items-center justify-between mb-3 pr-2">
+              <h4 className="font-bold text-zinc-900 text-lg flex items-center gap-2">
+                <FileText className="w-5 h-5 text-red-500" />
+                รายละเอียดสินค้า
+              </h4>
+              <button 
+                onClick={() => {
+                  const content = `[PRODUCT INFORMATION]\nProduct Name: ${product.name}\nPrice: ฿${product.price}\nStock: ${product.stock >= 999999 ? 'Unlimited' : product.stock}\n\n[DESCRIPTION]\n${product.description || 'No description available.'}`;
+                  const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+                  const url = URL.createObjectURL(blob);
+                  const link = document.createElement('a');
+                  link.href = url;
+                  link.download = `${product.name.replace(/[^\wก-๙]/g, '_')}_details.txt`;
+                  link.click();
+                  URL.revokeObjectURL(url);
+                }}
+                className="text-[10px] font-bold text-zinc-500 hover:text-red-600 transition-colors flex items-center gap-1.5 bg-white border border-zinc-200 px-3 py-1.5 rounded-xl shadow-sm active:scale-95"
+              >
+                <Download className="w-3.5 h-3.5" /> DOWNLOAD .TXT
+              </button>
+            </div>
             <div className="text-zinc-600 text-sm leading-relaxed whitespace-pre-wrap bg-zinc-50/50 p-5 rounded-2xl border border-zinc-100 min-h-[120px]">
               {product.description || "ไม่มีรายละเอียดสินค้าระบุไว้"}
             </div>
@@ -201,13 +220,20 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
                      ยกเลิก
                    </button>
                    <button 
-                     onClick={() => {
-                        handlePurchase(product, purchaseQuantity);
-                        setShowConfirmPurchase(false);
-                     }}
-                     className="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl transition-colors text-sm shadow-md shadow-red-600/20"
+                     disabled={showConfirmPurchase === 'loading' as any}
+                      onClick={async () => {
+                        setShowConfirmPurchase('loading' as any);
+                        try {
+                          await handlePurchase(product, purchaseQuantity);
+                        } finally {
+                          setShowConfirmPurchase(false);
+                        }
+                      }}
+                     className="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl transition-colors text-sm shadow-md shadow-red-600/20 disabled:opacity-50 flex items-center justify-center gap-2"
                    >
-                     ยืนยันการชำระเงิน
+                     {showConfirmPurchase === 'loading' as any ? (
+                       <><div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div> กำลังทำรายการ...</>
+                     ) : 'ยืนยันการชำระเงิน'}
                    </button>
                 </div>
               </motion.div>

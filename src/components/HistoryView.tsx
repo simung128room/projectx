@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { History, Key, CreditCard, ShoppingCart, ChevronRight, X, Star, Gift, ArrowLeft } from 'lucide-react';
+import { ShoppingCart, Key, CreditCard, Gift, Star, History, ChevronRight, ChevronLeft } from 'lucide-react';
+import { ReceiptModal } from './modals/ReceiptModal';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface HistoryViewProps {
@@ -39,7 +40,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ purchaseHistory = [], 
     },
     {
       id: 'topup_gift',
-      title: 'ประวัติการเติมเงินซองอั่งเปา',
+      title: 'ประวัติการเติมเงิน (อังเปา)',
       subtitle: 'True Money Wallet Gift History',
       icon: Gift,
       bg: 'bg-red-50',
@@ -47,7 +48,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ purchaseHistory = [], 
     },
     {
       id: 'topup_slip',
-      title: 'ประวัติการเติมเงินสลิป',
+      title: 'ประวัติการเติมเงิน (ธนาคาร)',
       subtitle: 'Bank Slip History',
       icon: CreditCard,
       bg: 'bg-emerald-50',
@@ -75,9 +76,9 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ purchaseHistory = [], 
       case 'special_product':
         return purchaseHistory.filter(p => p.is_special).map(p => ({ ...p, type: 'special_product', title: p.productName || 'สินค้าพิเศษ', icon: Star, color: 'text-amber-500', bg: 'bg-amber-50', money: -(p.price || 0), date: p.date || p.timestamp }));
       case 'topup_gift':
-        return topupHistory.filter(t => t.method?.toLowerCase().includes('gift') || t.method?.toLowerCase().includes('อั่งเปา')).map(t => ({ ...t, type: 'topup_gift', title: 'เติมเงินซองอั่งเปา', icon: Gift, color: 'text-red-500', bg: 'bg-red-50', money: t.amount, date: t.date || t.timestamp }));
+        return topupHistory.filter(t => t.method?.toLowerCase().includes('gift') || t.method?.toLowerCase().includes('อั่งเปา')).map(t => ({ ...t, type: 'topup_gift', title: 'TrueMoney Wallet (อังเปา)', icon: Gift, color: 'text-red-500', bg: 'bg-red-50', money: t.amount, date: t.date || t.timestamp }));
       case 'topup_slip':
-        return topupHistory.filter(t => !t.method?.toLowerCase().includes('gift') && !t.method?.toLowerCase().includes('อั่งเปา')).map(t => ({ ...t, type: 'topup_slip', title: 'เติมเงินสลิป', icon: CreditCard, color: 'text-emerald-500', bg: 'bg-emerald-50', money: t.amount, date: t.date || t.timestamp }));
+        return topupHistory.filter(t => !t.method?.toLowerCase().includes('gift') && !t.method?.toLowerCase().includes('อั่งเปา')).map(t => ({ ...t, type: 'topup_slip', title: 'ธนาคาร เช็คสลิป', icon: CreditCard, color: 'text-emerald-500', bg: 'bg-emerald-50', money: t.amount, date: t.date || t.timestamp }));
       case 'key_usage':
         return usedKeysHistory.map(k => ({ ...k, type: 'key_usage', title: 'ใช้งานคีย์', icon: Key, color: 'text-purple-500', bg: 'bg-purple-50', money: 0, date: k.used_at || k.date || new Date().toISOString(), productName: k.key || k.code }));
       default:
@@ -151,7 +152,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ purchaseHistory = [], 
                     onClick={() => setCurrentCategory(null)}
                     className="p-2.5 bg-white border border-zinc-200 text-zinc-500 rounded-xl hover:bg-zinc-100 hover:text-zinc-900 transition-colors mr-2"
                   >
-                    <ArrowLeft className="w-5 h-5" />
+                    <ChevronLeft className="w-5 h-5" />
                   </button>
                   <div className={`p-2.5 ${currentCategoryInfo?.bg} ${currentCategoryInfo?.color} rounded-xl`}>
                     {currentCategoryInfo && <currentCategoryInfo.icon className="w-6 h-6" />}
@@ -223,103 +224,8 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ purchaseHistory = [], 
         )}
       </AnimatePresence>
 
-      {/* Modern Minimal Modal */}
-      {selectedItem && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-zinc-900/40 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white w-full max-w-sm rounded-[2rem] shadow-2xl relative overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col">
-            <div className={`h-24 ${selectedItem.bg} w-full absolute top-0 left-0 right-0 opacity-50`}></div>
-            
-            <button 
-              onClick={() => setSelectedItem(null)}
-              className="absolute top-4 right-4 p-2 bg-white/80 backdrop-blur-md rounded-full text-zinc-500 hover:text-zinc-900 hover:bg-white transition-colors z-10"
-            >
-              <X className="w-4 h-4" />
-            </button>
-
-            <div className="pt-8 px-6 pb-6 relative z-10 flex flex-col">
-              <div className={`w-16 h-16 rounded-[1.25rem] flex items-center justify-center mb-4 ${selectedItem.bg} ${selectedItem.color} border-4 border-white shadow-sm mx-auto`}>
-                <selectedItem.icon className="w-7 h-7" />
-              </div>
-              
-              <div className="text-center mb-6">
-                <h3 className="text-lg font-bold text-zinc-900 mb-1">{selectedItem.title}</h3>
-                <p className="text-xs font-medium text-zinc-500">{new Date(selectedItem.date).toLocaleString('th-TH')}</p>
-              </div>
-
-              <div className="space-y-1 bg-zinc-50 rounded-2xl p-2 border border-zinc-100">
-                <div className="flex items-center justify-between p-3">
-                  <span className="text-xs font-medium text-zinc-500">หมายเลขบิล</span>
-                  <span className="text-xs font-bold font-mono text-zinc-900 bg-white px-2 py-1 rounded-md border border-zinc-200 shadow-sm">
-                    {selectedItem.billNumber || (selectedItem.type.includes('topup') ? 'T-' : 'P-') + Math.floor(Math.random()*1000000)}
-                  </span>
-                </div>
-                
-                {selectedItem.type.includes('topup') ? (
-                  <div className="flex items-center justify-between p-3 border-t border-zinc-100/80">
-                    <span className="text-xs font-medium text-zinc-500">ช่องทาง</span>
-                    <span className="text-xs font-bold text-zinc-900 flex items-center gap-2">
-                       {selectedItem.method || 'ไม่ระบุ'}
-                    </span>
-                  </div>
-                ) : (
-                  <div className="flex items-center justify-between p-3 border-t border-zinc-100/80">
-                    <span className="text-xs font-medium text-zinc-500">รายการ</span>
-                    <span className="text-xs font-bold text-zinc-900 max-w-[150px] truncate text-right">
-                      {selectedItem.productName || selectedItem.key || 'ไม่ระบุ'}
-                    </span>
-                  </div>
-                )}
-
-                <div className="flex items-center justify-between p-3 border-t border-zinc-100/80">
-                  <span className="text-xs font-medium text-zinc-500">จำนวนเงิน</span>
-                  <span className={`text-sm font-bold font-mono ${selectedItem.money > 0 ? 'text-emerald-500' : selectedItem.money < 0 ? 'text-red-500' : 'text-zinc-900'}`}>
-                    {selectedItem.money > 0 ? '+' : ''}{selectedItem.money} ฿
-                  </span>
-                </div>
-
-                {selectedItem.secretData && (
-                  <div className="mt-2 p-4 bg-emerald-50 border border-emerald-100 rounded-2xl flex flex-col gap-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">ข้อมูลสินค้า / คีย์</span>
-                      <button 
-                        onClick={() => {
-                          navigator.clipboard.writeText(selectedItem.secretData);
-                          const btn = document.getElementById('copy-secret-btn');
-                          if (btn) {
-                             btn.innerText = 'คัดลอกแล้ว!';
-                             setTimeout(() => { if (btn) btn.innerText = 'คัดลอก'; }, 2000);
-                          }
-                        }}
-                        id="copy-secret-btn"
-                        className="text-[10px] font-bold text-emerald-600 bg-white px-2 py-1 rounded-md border border-emerald-200 shadow-sm active:scale-95 transition-all"
-                      >
-                         คัดลอก
-                      </button>
-                    </div>
-                    <div className="text-sm font-bold font-mono text-emerald-700 break-all bg-white/50 p-2 rounded-xl border border-emerald-100/50">
-                      {selectedItem.secretData}
-                    </div>
-                  </div>
-                )}
-
-                <div className="flex items-center justify-between p-3 border-t border-zinc-100/80">
-                  <span className="text-xs font-medium text-zinc-500">สถานะ</span>
-                  <div>{getStatusBadge(selectedItem.status || 'success')}</div>
-                </div>
-              </div>
-
-              <div className="mt-6">
-                <button 
-                  onClick={() => setSelectedItem(null)}
-                  className="w-full py-3.5 bg-zinc-900 hover:bg-zinc-800 text-white rounded-2xl text-sm font-bold transition-all active:scale-[0.98] shadow-md shadow-zinc-900/20"
-                >
-                  ปิดหน้าต่าง
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Stunning Receipt-Style Modal */}
+      <ReceiptModal selectedItem={selectedItem} setSelectedItem={setSelectedItem} />
     </div>
   );
 };

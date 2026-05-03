@@ -12,7 +12,7 @@ import { HttpsProxyAgent } from 'https-proxy-agent';
 import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
 import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy, limit, setDoc } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, getDoc, addDoc, updateDoc, deleteDoc, doc, query, orderBy, limit, setDoc } from 'firebase/firestore';
 
 dotenv.config({ override: true });
 
@@ -48,7 +48,25 @@ console.log(`[Database] Initializing Firebase`);
     });
   });
 
-  app.use(cors());
+  app.use(cors({
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+      
+      const allowedOrigins = [
+        'https://apexcheck.space',
+        'http://localhost:3000'
+      ];
+      
+      // Allow cloud run domains dynamically
+      if (origin.endsWith('.run.app') || allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    credentials: true
+  }));
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
@@ -68,8 +86,8 @@ console.log(`[Database] Initializing Firebase`);
     site_name: process.env.VITE_SITE_NAME || 'APEX STUDIO',
     truewallet_phone: process.env.TRUEWALLET_PHONE || '0951378403',
     contact_line: process.env.CONTACT_LINE || '@apex_studio',
-    tester_mode: true,
-    tester_keys: 'tester_1234'
+    stats_users_offset: 1250,
+    stats_sales_offset: 0
   };
 
   app.get('/api/settings', (req, res) => {
@@ -77,12 +95,12 @@ console.log(`[Database] Initializing Firebase`);
   });
 
   app.post('/api/settings', (req, res) => {
-    const { truewallet_phone, site_name, contact_line, tester_mode, tester_keys } = req.body;
+    const { truewallet_phone, site_name, contact_line, stats_users_offset, stats_sales_offset } = req.body;
     if (truewallet_phone !== undefined) siteSettings.truewallet_phone = truewallet_phone;
     if (site_name !== undefined) siteSettings.site_name = site_name;
     if (contact_line !== undefined) siteSettings.contact_line = contact_line;
-    if (tester_mode !== undefined) siteSettings.tester_mode = tester_mode;
-    if (tester_keys !== undefined) siteSettings.tester_keys = tester_keys;
+    if (stats_users_offset !== undefined) siteSettings.stats_users_offset = parseInt(stats_users_offset) || 0;
+    if (stats_sales_offset !== undefined) siteSettings.stats_sales_offset = parseInt(stats_sales_offset) || 0;
     
     console.log(`[Settings] Updated:`, siteSettings);
     return res.json({ success: true, settings: siteSettings });
@@ -90,7 +108,7 @@ console.log(`[Database] Initializing Firebase`);
 
   app.post('/api/topup/truemoney', async (req, res) => {
     try {
-      const { voucherCode } = req.body;
+      const { voucherCode, uid } = req.body;
       const phone = siteSettings.truewallet_phone;
       
       if (!voucherCode) {
@@ -128,11 +146,26 @@ console.log(`[Database] Initializing Firebase`);
       console.log(`[TrueWallet] XPLUEM Response:`, JSON.stringify(result));
 
       if (result.success === true) {
-          const amount = result.data?.amount || 0;
+          const amount = parseFloat(result.data?.amount || 0);
           console.log(`[TrueWallet] Successfully redeemed ฿${amount}`);
+
+          if (uid) {
+            try {
+              const userRef = doc(db, 'users', uid);
+              const userDoc = await getDoc(userRef);
+              if (userDoc.exists()) {
+                const currentBalance = userDoc.data().balance || 0;
+                await updateDoc(userRef, { balance: currentBalance + amount });
+                console.log(`[TrueWallet] Updated balance for user ${uid} (+฿${amount})`);
+              }
+            } catch (syncErr) {
+              console.error(`[TrueWallet] Balance sync error:`, syncErr);
+            }
+          }
+
           return res.json({ 
             success: true, 
-            amount: parseFloat(amount),
+            amount,
             message: result.message || 'รับเงินสำเร็จ'
           });
       } else {
@@ -154,7 +187,7 @@ console.log(`[Database] Initializing Firebase`);
 
   app.post('/api/topup/slip', async (req, res) => {
     try {
-      const { imageBase64 } = req.body;
+      const { imageBase64, uid } = req.body;
       if (!imageBase64) {
         return res.status(400).json({ success: false, error: 'ข้อมูลไม่ครบถ้วน' });
       }
@@ -201,6 +234,20 @@ console.log(`[Database] Initializing Firebase`);
             return res.json({ success: false, error: 'สลิปนี้ถูกใช้งานไปแล้ว' });
           }
           usedSlips.add(transRef);
+        }
+
+        if (uid) {
+          try {
+            const userRef = doc(db, 'users', uid);
+            const userDoc = await getDoc(userRef);
+            if (userDoc.exists()) {
+              const currentBalance = userDoc.data().balance || 0;
+              await updateDoc(userRef, { balance: currentBalance + amount });
+              console.log(`[Slip] Updated balance for user ${uid} (+฿${amount})`);
+            }
+          } catch (syncErr) {
+            console.error(`[Slip] Balance sync error:`, syncErr);
+          }
         }
 
         return res.json({ success: true, amount });
@@ -959,6 +1006,151 @@ console.log(`[Database] Initializing Firebase`);
     }
   });
 
+  app.get('/api/stats', async (req, res) => {
+    if (!db) return res.json({ users: 0, sales: 0, stock: 0 });
+    try {
+      // Products sum for stock
+      const productsSnap = await getDocs(query(collection(db, 'products')));
+      let totalStock = 0;
+      productsSnap.forEach(doc => {
+        const data = doc.data();
+        if (data.stock > 0 && data.stock < 999999) totalStock += data.stock;
+      });
+
+      // Purchases sum for sales
+      const purchasesSnap = await getDocs(query(collection(db, 'purchases')));
+      let totalSales = 0;
+      let totalPurchaseOrders = 0;
+      let uniqueBuyers = new Set();
+      purchasesSnap.forEach(doc => {
+        const data = doc.data();
+        totalSales += (data.price || 0);
+        totalPurchaseOrders++;
+        if (data.username) uniqueBuyers.add(data.username);
+      });
+
+      // Topups sum for topup info if needed (admin)
+      const topupsSnap = await getDocs(query(collection(db, 'topups')));
+      let totalTopupsAmount = 0;
+      topupsSnap.forEach(doc => {
+        const data = doc.data();
+        totalTopupsAmount += (data.amount || 0);
+      });
+
+      res.json({
+        users: (uniqueBuyers.size || 0) + (siteSettings.stats_users_offset || 0),
+        sales: totalSales + (siteSettings.stats_sales_offset || 0),
+        stock: totalStock,
+        totalOrders: totalPurchaseOrders,
+        totalTopupsAmount
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  // --- Purchases Endpoints ---
+  app.get('/api/purchases', async (req, res) => {
+    if (!db) return res.json([]);
+    try {
+      const snapshot = await getDocs(query(collection(db, 'purchases'), orderBy('date', 'desc'), limit(100)));
+      const data = snapshot.docs.map(doc => ({ dbId: doc.id, ...doc.data() }));
+      res.json(data);
+    } catch (err) {
+      console.error('Internal server error fetching purchases:', err);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  app.post('/api/purchases', async (req, res) => {
+    if (!db) return res.status(500).json({ error: 'DB not connected' });
+    try {
+      const data = req.body;
+      const docRef = await addDoc(collection(db, 'purchases'), data);
+      res.json({ dbId: docRef.id, ...data });
+    } catch (err) {
+      console.error('Internal server error creating purchase:', err);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  // --- Topups Endpoints ---
+  app.get('/api/topups', async (req, res) => {
+    if (!db) return res.json([]);
+    try {
+      const snapshot = await getDocs(query(collection(db, 'topups'), orderBy('date', 'desc'), limit(100)));
+      const data = snapshot.docs.map(doc => ({ dbId: doc.id, ...doc.data() }));
+      res.json(data);
+    } catch (err) {
+      console.error('Internal server error fetching topups:', err);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  app.post('/api/topups', async (req, res) => {
+    if (!db) return res.status(500).json({ error: 'DB not connected' });
+    try {
+      const data = req.body;
+      const docRef = await addDoc(collection(db, 'topups'), data);
+      res.json({ dbId: docRef.id, ...data });
+    } catch (err) {
+      console.error('Internal server error creating topup:', err);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  // --- Categories Endpoints ---
+  app.get('/api/categories', async (req, res) => {
+    if (!db) return res.json([]);
+    try {
+      const snapshot = await getDocs(query(collection(db, 'categories')));
+      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      res.json(data);
+    } catch (err) {
+      console.error('Internal server error fetching categories:', err);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  app.post('/api/categories', async (req, res) => {
+    if (!db) return res.status(500).json({ error: 'DB not connected' });
+    try {
+      const data = req.body;
+      const { id, ...dataToSave } = data;
+      const docRef = await addDoc(collection(db, 'categories'), dataToSave);
+      res.json({ id: docRef.id, ...dataToSave });
+    } catch (err) {
+      console.error('Internal server error creating category:', err);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  app.put('/api/categories/:id', async (req, res) => {
+    if (!db) return res.status(500).json({ error: 'DB not connected' });
+    try {
+      const data = req.body;
+      const { id, ...dataToSave } = data;
+      const docRef = doc(db, 'categories', req.params.id);
+      await updateDoc(docRef, dataToSave);
+      res.json({ id: req.params.id, ...dataToSave });
+    } catch (err) {
+      console.error('Internal server error updating category:', err);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  app.delete('/api/categories/:id', async (req, res) => {
+    if (!db) return res.status(500).json({ error: 'DB not connected' });
+    try {
+      await deleteDoc(doc(db, 'categories', req.params.id));
+      res.json({ success: true });
+    } catch (err) {
+      console.error('Internal server error deleting category:', err);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
   // --- Custom Pages Endpoints ---
   app.get('/api/pages', async (req, res) => {
     if (!db) return res.json([]);
@@ -1160,6 +1352,49 @@ console.log(`[Database] Initializing Firebase`);
       res.json({ id: username, ...newDoc });
     } catch (err) {
       console.error('Internal server error upserting admin:', err);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  // --- User Profiles Endpoints ---
+  app.get('/api/users/:uid', async (req, res) => {
+    if (!db) return res.status(500).json({ error: 'DB not connected' });
+    try {
+      const docRef = doc(db, 'users', req.params.uid);
+      const snapshot = await getDoc(docRef);
+      if (snapshot.exists()) {
+        res.json(snapshot.data());
+      } else {
+        res.status(404).json({ error: 'User not found' });
+      }
+    } catch (err) {
+      console.error('Error fetching user:', err);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  app.post('/api/users/:uid', async (req, res) => {
+    if (!db) return res.status(500).json({ error: 'DB not connected' });
+    try {
+      const { uid } = req.params;
+      const data = req.body;
+      const docRef = doc(db, 'users', uid);
+      await setDoc(docRef, { ...data, updatedAt: new Date().toISOString() }, { merge: true });
+      res.json({ success: true });
+    } catch (err) {
+      console.error('Error saving user:', err);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  app.get('/api/users', async (req, res) => {
+    if (!db) return res.json([]);
+    try {
+      const snapshot = await getDocs(query(collection(db, 'users')));
+      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      res.json(data);
+    } catch (err) {
+      console.error('Error fetching all users:', err);
       res.status(500).json({ error: 'Internal server error' });
     }
   });
