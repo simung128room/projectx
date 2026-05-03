@@ -93,6 +93,16 @@ export const ContentFeedView: React.FC<{ type: 'free' | 'premium', isAdmin: bool
             <p className="text-zinc-500 text-xs font-bold uppercase tracking-widest mt-1">คลังความรู้และทรัพยากร</p>
           </div>
         </div>
+        
+        {isAdmin && (
+          <button 
+            onClick={handleAdd}
+            className={`px-5 py-3 text-sm font-bold text-white rounded-xl shadow-lg transition-transform hover:scale-105 active:scale-95 flex items-center gap-2 ${type === 'premium' ? 'bg-amber-500 shadow-amber-500/20' : 'bg-emerald-500 shadow-emerald-500/20'}`}
+          >
+            <Plus className="w-5 h-5"/>
+            เพิ่มเนื้อหาใหม่
+          </button>
+        )}
       </div>
       </AnimatedScroll>
 
