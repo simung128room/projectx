@@ -653,8 +653,8 @@ const app = express();
     let agent;
     try {
       if (proxyUrl) {
-        // 20s timeout so the proxy fails BEFORE the platform (Cloud Run/Nginx) 60s limit
-        agent = new HttpsProxyAgent(proxyUrl, { timeout: 20000, rejectUnauthorized: false } as any);
+        // 10s timeout so the proxy fails BEFORE the platform (Cloud Run/Nginx) limit
+        agent = new HttpsProxyAgent(proxyUrl, { timeout: 10000, rejectUnauthorized: false } as any);
       } else {
         agent = new https.Agent({ rejectUnauthorized: false });
       }
@@ -665,8 +665,8 @@ const app = express();
 
     
     const controller = new AbortController();
-    // 25s hard limit for the whole route to ensure we respond with JSON before platform drop
-    const timeoutId = setTimeout(() => controller.abort(), 25000); 
+    // 10s hard limit for the whole route to ensure we respond with JSON before platform drop
+    const timeoutId = setTimeout(() => controller.abort(), 10000); 
 
     
     // Make sure we clear the timeout when the request closes or route returns
@@ -683,7 +683,7 @@ const app = express();
       httpsAgent: agent,
       httpAgent: agent,
       proxy: false,
-      timeout: 20000,
+      timeout: 10000,
       signal: controller.signal,
       validateStatus: (status: number) => status < 500
     };
