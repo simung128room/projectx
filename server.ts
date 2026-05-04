@@ -13,6 +13,7 @@ import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
 import { initializeApp } from 'firebase/app';
 import { getFirestore, collection, getDocs, getDoc, addDoc, updateDoc, deleteDoc, doc, query, orderBy, limit, setDoc } from 'firebase/firestore';
+import admin from 'firebase-admin';
 
 dotenv.config({ override: true });
 
@@ -31,12 +32,50 @@ const firebaseConfig = {
 const firebaseApp = initializeApp(firebaseConfig);
 const db = getFirestore(firebaseApp);
 
+admin.initializeApp({
+  projectId: "apex-gen"
+});
+
 console.log(`[Server] --- VERSION 1.0.5 REBOOT ---`);
 console.log(`[Database] Initializing Firebase`);
 
 
   const app = express();
   const PORT = 3000;
+
+  // Custom Authentication Middleware
+  const requireAuth = async (req: any, res: any, next: any) => {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ error: 'Unauthorized: Missing or invalid Authorization header' });
+    }
+    const token = authHeader.split('Bearer ')[1];
+    try {
+      const decodedToken = await admin.auth().verifyIdToken(token);
+      req.user = decodedToken;
+      next();
+    } catch (error) {
+      console.error('Error verifying Firebase ID token:', error);
+      return res.status(401).json({ error: 'Unauthorized: Invalid token' });
+    }
+  };
+
+  const requireAdmin = async (req: any, res: any, next: any) => {
+    await requireAuth(req, res, async () => {
+      try {
+        if (req.user.email === 'abopboa.b@gmail.com') return next();
+        const adminDoc = await getDoc(doc(db, 'admins', req.user.uid));
+        if (adminDoc.exists()) {
+          next();
+        } else {
+          res.status(403).json({ error: 'Forbidden: Admin access required' });
+        }
+      } catch (error) {
+        console.error('Error checking admin status:', error);
+        res.status(500).json({ error: 'Internal server error confirming admin' });
+      }
+    });
+  };
 
   // API health check immediately
   app.get('/api/health', (req, res) => {
@@ -97,7 +136,7 @@ console.log(`[Database] Initializing Firebase`);
     res.json(siteSettings);
   });
 
-  app.post('/api/settings', (req, res) => {
+  app.post('/api/settings', requireAdmin, (req, res) => {
     const { truewallet_phone, site_name, contact_line, stats_users_offset, stats_sales_offset, popup_img_url, popup_enabled, popup_link } = req.body;
     if (truewallet_phone !== undefined) siteSettings.truewallet_phone = truewallet_phone;
     if (site_name !== undefined) siteSettings.site_name = site_name;
@@ -974,7 +1013,7 @@ console.log(`[Database] Initializing Firebase`);
     }
   });
 
-  app.post('/api/products', async (req, res) => {
+  app.post('/api/products', requireAdmin, async (req, res) => {
     if (!db) return res.status(500).json({ error: 'DB not connected' });
     try {
       const product = req.body;
@@ -987,7 +1026,7 @@ console.log(`[Database] Initializing Firebase`);
     }
   });
 
-  app.put('/api/products/:id', async (req, res) => {
+  app.put('/api/products/:id', requireAdmin, async (req, res) => {
     if (!db) return res.status(500).json({ error: 'DB not connected' });
     try {
       const product = req.body;
@@ -1001,7 +1040,7 @@ console.log(`[Database] Initializing Firebase`);
     }
   });
 
-  app.delete('/api/products/:id', async (req, res) => {
+  app.delete('/api/products/:id', requireAdmin, async (req, res) => {
     if (!db) return res.status(500).json({ error: 'DB not connected' });
     try {
       await deleteDoc(doc(db, 'products', req.params.id));
@@ -1012,7 +1051,7 @@ console.log(`[Database] Initializing Firebase`);
     }
   });
 
-  app.get('/api/stats', async (req, res) => {
+  app.get('/api/stats', requireAdmin, async (req, res) => {
     if (!db) return res.json({ users: 0, sales: 0, stock: 0 });
     try {
       // Products sum for stock
@@ -1086,7 +1125,7 @@ console.log(`[Database] Initializing Firebase`);
   });
 
   // --- Topups Endpoints ---
-  app.get('/api/topups', async (req, res) => {
+  app.get('/api/topups', requireAdmin, async (req, res) => {
     if (!db) return res.json([]);
     try {
       const snapshot = await getDocs(query(collection(db, 'topups'), orderBy('date', 'desc'), limit(100)));
@@ -1123,7 +1162,7 @@ console.log(`[Database] Initializing Firebase`);
     }
   });
 
-  app.post('/api/categories', async (req, res) => {
+  app.post('/api/categories', requireAdmin, async (req, res) => {
     if (!db) return res.status(500).json({ error: 'DB not connected' });
     try {
       const data = req.body;
@@ -1136,7 +1175,7 @@ console.log(`[Database] Initializing Firebase`);
     }
   });
 
-  app.put('/api/categories/:id', async (req, res) => {
+  app.put('/api/categories/:id', requireAdmin, async (req, res) => {
     if (!db) return res.status(500).json({ error: 'DB not connected' });
     try {
       const data = req.body;
@@ -1150,7 +1189,7 @@ console.log(`[Database] Initializing Firebase`);
     }
   });
 
-  app.delete('/api/categories/:id', async (req, res) => {
+  app.delete('/api/categories/:id', requireAdmin, async (req, res) => {
     if (!db) return res.status(500).json({ error: 'DB not connected' });
     try {
       await deleteDoc(doc(db, 'categories', req.params.id));
@@ -1174,7 +1213,7 @@ console.log(`[Database] Initializing Firebase`);
     }
   });
 
-  app.post('/api/pages', async (req, res) => {
+  app.post('/api/pages', requireAdmin, async (req, res) => {
     if (!db) return res.status(500).json({ error: 'DB not connected' });
     try {
       const pageData = req.body;
@@ -1187,7 +1226,7 @@ console.log(`[Database] Initializing Firebase`);
     }
   });
 
-  app.put('/api/pages/:id', async (req, res) => {
+  app.put('/api/pages/:id', requireAdmin, async (req, res) => {
     if (!db) return res.status(500).json({ error: 'DB not connected' });
     try {
       const pageData = req.body;
@@ -1201,7 +1240,7 @@ console.log(`[Database] Initializing Firebase`);
     }
   });
 
-  app.delete('/api/pages/:id', async (req, res) => {
+  app.delete('/api/pages/:id', requireAdmin, async (req, res) => {
     if (!db) return res.status(500).json({ error: 'DB not connected' });
     try {
       await deleteDoc(doc(db, 'custom_pages', req.params.id));
@@ -1212,7 +1251,7 @@ console.log(`[Database] Initializing Firebase`);
     }
   });
 
-  app.get('/api/license_keys', async (req, res) => {
+  app.get('/api/license_keys', requireAdmin, async (req, res) => {
     try {
       const snapshot = await getDocs(query(collection(db, 'license_keys'), orderBy('created_at', 'desc')));
       const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -1223,7 +1262,7 @@ console.log(`[Database] Initializing Firebase`);
     }
   });
 
-  app.post('/api/license_keys', async (req, res) => {
+  app.post('/api/license_keys', requireAdmin, async (req, res) => {
     try {
       const { key, plan, status } = req.body;
       const newDoc = { key, plan, status, created_at: new Date().toISOString() };
@@ -1235,7 +1274,7 @@ console.log(`[Database] Initializing Firebase`);
     }
   });
 
-  app.delete('/api/license_keys/:id', async (req, res) => {
+  app.delete('/api/license_keys/:id', requireAdmin, async (req, res) => {
     try {
       await deleteDoc(doc(db, 'license_keys', req.params.id));
       res.json({ success: true });
@@ -1245,7 +1284,7 @@ console.log(`[Database] Initializing Firebase`);
     }
   });
 
-  app.patch('/api/license_keys/:id', async (req, res) => {
+  app.patch('/api/license_keys/:id', requireAdmin, async (req, res) => {
     try {
       const { status } = req.body;
       const docRef = doc(db, 'license_keys', req.params.id);
@@ -1257,7 +1296,7 @@ console.log(`[Database] Initializing Firebase`);
     }
   });
 
-  app.post('/api/license_keys/bulk', async (req, res) => {
+  app.post('/api/license_keys/bulk', requireAdmin, async (req, res) => {
     try {
       const { keys } = req.body; // Array of { key, type, status, created_at }
       const results = [];
@@ -1284,7 +1323,7 @@ console.log(`[Database] Initializing Firebase`);
     }
   });
 
-  app.get('/api/used_keys', async (req, res) => {
+  app.get('/api/used_keys', requireAdmin, async (req, res) => {
     try {
       const snapshot = await getDocs(query(collection(db, 'used_keys'), orderBy('used_at', 'desc'), limit(100)));
       const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -1307,7 +1346,7 @@ console.log(`[Database] Initializing Firebase`);
     }
   });
 
-  app.get('/api/blocked_ips', async (req, res) => {
+  app.get('/api/blocked_ips', requireAdmin, async (req, res) => {
     try {
       const snapshot = await getDocs(query(collection(db, 'blocked_ips'), orderBy('blocked_at', 'desc')));
       const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -1318,7 +1357,7 @@ console.log(`[Database] Initializing Firebase`);
     }
   });
 
-  app.post('/api/blocked_ips', async (req, res) => {
+  app.post('/api/blocked_ips', requireAdmin, async (req, res) => {
     try {
       const { ip, reason } = req.body;
       const newDoc = { ip, reason, blocked_at: new Date().toISOString() };
@@ -1332,7 +1371,7 @@ console.log(`[Database] Initializing Firebase`);
     }
   });
 
-  app.delete('/api/blocked_ips/:ip', async (req, res) => {
+  app.delete('/api/blocked_ips/:ip', requireAdmin, async (req, res) => {
     try {
       await deleteDoc(doc(db, 'blocked_ips', req.params.ip));
       res.json({ success: true });

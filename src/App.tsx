@@ -9,6 +9,21 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import Swal from 'sweetalert2';
 import axios from 'axios';
+import { auth } from './lib/firebase';
+
+axios.interceptors.request.use(async (config) => {
+  if (auth && auth.currentUser) {
+    try {
+      const token = await auth.currentUser.getIdToken();
+      config.headers['Authorization'] = `Bearer ${token}`;
+    } catch (err) {
+      console.error('Error fetching Firebase token:', err);
+    }
+  }
+  return config;
+}, (error) => {
+  return Promise.reject(error);
+});
 import jsQR from 'jsqr';
 import { auth } from './lib/firebase';
 import { onAuthStateChanged, signInAnonymously as firebaseSignInAnonymously, signOut as firebaseSignOut, sendEmailVerification } from 'firebase/auth';
