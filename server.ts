@@ -11,77 +11,58 @@ import { HttpsProxyAgent } from 'https-proxy-agent';
 
 import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
-import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, getDocs, getDoc, addDoc, updateDoc, deleteDoc, doc, query, orderBy, limit, setDoc } from 'firebase/firestore';
-import admin from 'firebase-admin';
+
+import { adminDb as admin } from './src/lib/admindb';
+
+
 
 dotenv.config({ override: true });
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const firebaseConfig = {
-  apiKey: "AIzaSyA-2RnxebSvtzkD8JG8_OCsH2-BAncV8dw",
-  authDomain: "apex-gen.firebaseapp.com",
-  projectId: "apex-gen",
-  storageBucket: "apex-gen.firebasestorage.app",
-  messagingSenderId: "219914284298",
-  appId: "1:219914284298:web:49637b2ca503e157421ef3",
-  measurementId: "G-85MRQPP2Z6"
-};
 
-const firebaseApp = initializeApp(firebaseConfig);
-const db = getFirestore(firebaseApp);
-
-admin.initializeApp({
-  projectId: "apex-gen"
-});
-
-console.log(`[Server] --- VERSION 1.0.5 REBOOT ---`);
-console.log(`[Database] Initializing Firebase`);
-
-
-  const app = express();
+console.log('[Server] --- Supabase VERSION REBOOT ---');
+const app = express();
   const PORT = 3000;
 
-  // Custom Authentication Middleware
-  const requireAuth = async (req: any, res: any, next: any) => {
+  const injectUser = async (req: any, res: any, next: any) => {
     const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ error: 'Unauthorized: Missing or invalid Authorization header' });
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.split('Bearer ')[1];
+      try {
+        req.user = await admin.auth().verifyIdToken(token);
+        if (req.user.email === 'abopboa.b@gmail.com') {
+          req.isAdmin = true;
+        } else {
+          const adminDoc = await admin.firestore().collection('admins').doc(req.user.uid).get();
+          req.isAdmin = !!adminDoc.exists;
+        }
+      } catch (error) {
+        console.error('Error verifying Firebase ID token in injectUser:', error);
+      }
     }
-    const token = authHeader.split('Bearer ')[1];
-    try {
-      const decodedToken = await admin.auth().verifyIdToken(token);
-      req.user = decodedToken;
-      next();
-    } catch (error) {
-      console.error('Error verifying Firebase ID token:', error);
-      return res.status(401).json({ error: 'Unauthorized: Invalid token' });
+    next();
+  };
+
+  const requireAuth = async (req: any, res: any, next: any) => {
+    if (!req.user) {
+      return res.status(401).json({ error: 'Unauthorized: Missing or invalid token' });
     }
+    next();
   };
 
   const requireAdmin = async (req: any, res: any, next: any) => {
-    await requireAuth(req, res, async () => {
-      try {
-        if (req.user.email === 'abopboa.b@gmail.com') return next();
-        const adminDoc = await getDoc(doc(db, 'admins', req.user.uid));
-        if (adminDoc.exists()) {
-          next();
-        } else {
-          res.status(403).json({ error: 'Forbidden: Admin access required' });
-        }
-      } catch (error) {
-        console.error('Error checking admin status:', error);
-        res.status(500).json({ error: 'Internal server error confirming admin' });
-      }
-    });
+    if (!req.user || !req.isAdmin) {
+      return res.status(403).json({ error: 'Forbidden: Admin access required' });
+    }
+    next();
   };
 
   // API health check immediately
   app.get('/api/health', (req, res) => {
     console.log(`[Health] Request from ${req.headers['x-forwarded-for'] || req.ip}`);
     res.json({ 
-      status: 'ok', 
+      status: 'ok_proof', 
       time: new Date().toISOString(),
       env: process.env.NODE_ENV || 'development'
     });
@@ -108,6 +89,7 @@ console.log(`[Database] Initializing Firebase`);
   }));
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ limit: '10mb', extended: true }));
+  app.use(injectUser);
 
   
 
@@ -196,11 +178,11 @@ console.log(`[Database] Initializing Firebase`);
 
           if (uid) {
             try {
-              const userRef = doc(db, 'users', uid);
-              const userDoc = await getDoc(userRef);
-              if (userDoc.exists()) {
+              const userRef = admin.firestore().collection('users').doc(uid);
+              const userDoc = await userRef.get();
+              if (userDoc.exists) {
                 const currentBalance = userDoc.data().balance || 0;
-                await updateDoc(userRef, { balance: currentBalance + amount });
+                await userRef.update({ balance: currentBalance + amount });
                 console.log(`[TrueWallet] Updated balance for user ${uid} (+฿${amount})`);
               }
             } catch (syncErr) {
@@ -283,11 +265,11 @@ console.log(`[Database] Initializing Firebase`);
 
         if (uid) {
           try {
-            const userRef = doc(db, 'users', uid);
-            const userDoc = await getDoc(userRef);
-            if (userDoc.exists()) {
+            const userRef = admin.firestore().collection('users').doc(uid);
+            const userDoc = await userRef.get();
+            if (userDoc.exists) {
               const currentBalance = userDoc.data().balance || 0;
-              await updateDoc(userRef, { balance: currentBalance + amount });
+              await userRef.update({ balance: currentBalance + amount });
               console.log(`[Slip] Updated balance for user ${uid} (+฿${amount})`);
             }
           } catch (syncErr) {
@@ -1001,264 +983,316 @@ console.log(`[Database] Initializing Firebase`);
 
   // --- Supabase Proxy Routes ---
   // --- Products Endpoints ---
-  app.get('/api/products', async (req, res) => {
-    if (!db) return res.json([]);
+  app.get('/api/products', async (req: any, res: any) => {
     try {
-      const snapshot = await getDocs(query(collection(db, 'products')));
-      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const snapshot = await admin.firestore().collection('products').get();
+      const data = snapshot.docs.map(doc => {
+        const item = { id: doc.id, ...doc.data() } as any;
+        if (!req.isAdmin) {
+          delete item.stockData;
+        }
+        return item;
+      });
       res.json(data);
-    } catch (err) {
-      console.error('Internal server error fetching products:', err);
-      res.status(500).json({ error: 'Internal server error' });
+    } catch (err: any) {
+      console.error('PROD ERR OBJ:', JSON.stringify(err, Object.getOwnPropertyNames(err)));
+      res.status(500).json({ error: String(err && err.message ? err.message : err) });
     }
   });
 
   app.post('/api/products', requireAdmin, async (req, res) => {
-    if (!db) return res.status(500).json({ error: 'DB not connected' });
+    if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
     try {
       const product = req.body;
       const { id, ...dataToSave } = product;
-      const docRef = await addDoc(collection(db, 'products'), dataToSave);
-      res.json({ id: docRef.id, ...dataToSave });
+      const docRef = await admin.firestore().collection('products').add(dataToSave);
+      res.json({ id: docRef.id, dbId: docRef.id, ...dataToSave });
     } catch (err) {
       console.error('Internal server error creating product:', err);
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({ error: String(err && err.message ? err.message : err) });
     }
   });
 
   app.put('/api/products/:id', requireAdmin, async (req, res) => {
-    if (!db) return res.status(500).json({ error: 'DB not connected' });
+    if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
     try {
       const product = req.body;
       const { id, ...dataToSave } = product;
-      const docRef = doc(db, 'products', req.params.id);
-      await updateDoc(docRef, dataToSave);
+      const docRef = admin.firestore().collection('products').doc(req.params.id);
+      await docRef.update(dataToSave);
       res.json({ id: req.params.id, ...dataToSave });
     } catch (err) {
       console.error('Internal server error updating product:', err);
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({ error: String(err && err.message ? err.message : err) });
     }
   });
 
   app.delete('/api/products/:id', requireAdmin, async (req, res) => {
-    if (!db) return res.status(500).json({ error: 'DB not connected' });
+    if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
     try {
-      await deleteDoc(doc(db, 'products', req.params.id));
+      await admin.firestore().collection('products').doc(req.params.id).delete();
       res.json({ success: true });
     } catch (err) {
       console.error('Internal server error deleting product:', err);
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({ error: String(err && err.message ? err.message : err) });
     }
   });
 
-  app.get('/api/stats', requireAdmin, async (req, res) => {
-    if (!db) return res.json({ users: 0, sales: 0, stock: 0 });
-    try {
-      // Products sum for stock
-      const productsSnap = await getDocs(query(collection(db, 'products')));
-      let totalStock = 0;
-      productsSnap.forEach(doc => {
-        const data = doc.data();
-        if (data.stock > 0 && data.stock < 999999) totalStock += data.stock;
-      });
+  app.get('/api/test_stats', async (req, res) => {
+    res.json({ ok: 1 });
+  });
 
-      // Purchases sum for sales
-      const purchasesSnap = await getDocs(query(collection(db, 'purchases')));
+  let cachedStats: any = null;
+  let lastStatsFetch = 0;
+
+  app.get('/api/stats', async (req, res) => {
+console.log('HIT STATS ENDPOINT');
+    try {
+      const now = Date.now();
+      if (cachedStats && now - lastStatsFetch < 600000) {
+        return res.json(cachedStats);
+      }
+
+      const adminDb = admin.firestore();
+      
+      let totalStock = 0;
+      try {
+        const productsSnap = await adminDb.collection('products').get();
+        productsSnap.forEach(doc => {
+          const data = doc.data();
+          if (data.stock > 0 && data.stock < 999999) totalStock += data.stock;
+        });
+      } catch (e) {
+      }
+
       let totalSales = 0;
       let totalPurchaseOrders = 0;
-      let uniqueBuyers = new Set();
-      purchasesSnap.forEach(doc => {
-        const data = doc.data();
-        totalSales += (data.price || 0);
-        totalPurchaseOrders++;
-        if (data.username) uniqueBuyers.add(data.username);
-      });
+      try {
+        const purchasesSnap = await adminDb.collection('purchases').get();
+        purchasesSnap.forEach(doc => {
+          totalSales += (doc.data().price || 0);
+          totalPurchaseOrders++;
+        });
+      } catch(e) {
+      }
 
-      // Topups sum for topup info if needed (admin)
-      const topupsSnap = await getDocs(query(collection(db, 'topups')));
       let totalTopupsAmount = 0;
-      topupsSnap.forEach(doc => {
-        const data = doc.data();
-        totalTopupsAmount += (data.amount || 0);
-      });
+      try {
+        const topupsSnap = await adminDb.collection('topups').get();
+        topupsSnap.forEach(doc => {
+          totalTopupsAmount += (doc.data().amount || 0);
+        });
+      } catch(e) {
+      }
 
-      // Users count from users collection
-      const usersSnap = await getDocs(query(collection(db, 'users')));
-      let totalUsersCount = usersSnap.size;
+      let totalUsersCount = 0;
+      try {
+        const usersSnap = await adminDb.collection('users').get();
+        totalUsersCount = usersSnap.size;
+      } catch(e) {
+      }
 
-      res.json({
+      cachedStats = {
         users: totalUsersCount + (siteSettings.stats_users_offset || 0),
         sales: totalSales + (siteSettings.stats_sales_offset || 0),
         stock: totalStock,
         totalOrders: totalPurchaseOrders,
         totalTopupsAmount
+      };
+      
+      if (totalUsersCount > 0 || totalPurchaseOrders > 0 || totalStock > 0 || totalTopupsAmount > 0) {
+         lastStatsFetch = now;
+      }
+      
+      res.json(cachedStats);
+    } catch (err: any) {
+      console.error('STATS ERROR:', err);
+      // Fallback
+      res.json(cachedStats || {
+        users: siteSettings.stats_users_offset || 0,
+        sales: siteSettings.stats_sales_offset || 0,
+        stock: 0,
+        totalOrders: 0,
+        totalTopupsAmount: 0
       });
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: 'Internal server error' });
     }
   });
 
   // --- Purchases Endpoints ---
-  app.get('/api/purchases', async (req, res) => {
-    if (!db) return res.json([]);
+  app.get('/api/purchases', async (req: any, res: any) => {
     try {
-      const snapshot = await getDocs(query(collection(db, 'purchases'), orderBy('date', 'desc'), limit(100)));
+      const adminDb = admin.firestore();
+      let q: FirebaseFirestore.Query = adminDb.collection('purchases');
+      if (req.isAdmin) {
+        q = q.orderBy('date', 'desc').limit(100);
+      } else if (req.user) {
+        q = q.where('userId', '==', req.user.uid).orderBy('date', 'desc').limit(100);
+      } else {
+        return res.json([]);
+      }
+      const snapshot = await q.get();
       const data = snapshot.docs.map(doc => ({ dbId: doc.id, ...doc.data() }));
       res.json(data);
-    } catch (err) {
-      console.error('Internal server error fetching purchases:', err);
-      res.status(500).json({ error: 'Internal server error' });
+    } catch (err: any) {
+      console.error('Internal server error fetching purchases:', err.message || err);
+      res.status(500).json({ error: String(err && err.message ? err.message : err) });
     }
   });
 
   app.post('/api/purchases', async (req, res) => {
-    if (!db) return res.status(500).json({ error: 'DB not connected' });
+    if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
     try {
       const data = req.body;
-      const docRef = await addDoc(collection(db, 'purchases'), data);
-      res.json({ dbId: docRef.id, ...data });
+      const docRef = await admin.firestore().collection('purchases').add(data);
+      res.json({ id: docRef.id, dbId: docRef.id, ...data });
     } catch (err) {
       console.error('Internal server error creating purchase:', err);
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({ error: String(err && err.message ? err.message : err) });
     }
   });
 
   // --- Topups Endpoints ---
-  app.get('/api/topups', requireAdmin, async (req, res) => {
-    if (!db) return res.json([]);
+  app.get('/api/topups', async (req: any, res: any) => {
     try {
-      const snapshot = await getDocs(query(collection(db, 'topups'), orderBy('date', 'desc'), limit(100)));
+      const adminDb = admin.firestore();
+      let q: FirebaseFirestore.Query = adminDb.collection('topups');
+      if (req.isAdmin) {
+        q = q.orderBy('date', 'desc').limit(100);
+      } else if (req.user) {
+        q = q.where('userId', '==', req.user.uid).orderBy('date', 'desc').limit(100);
+      } else {
+        return res.json([]);
+      }
+      const snapshot = await q.get();
       const data = snapshot.docs.map(doc => ({ dbId: doc.id, ...doc.data() }));
       res.json(data);
-    } catch (err) {
-      console.error('Internal server error fetching topups:', err);
-      res.status(500).json({ error: 'Internal server error' });
+    } catch (err: any) {
+      console.error('Internal server error fetching topups:', err.message || err);
+      res.status(500).json({ error: String(err && err.message ? err.message : err) });
     }
   });
 
   app.post('/api/topups', async (req, res) => {
-    if (!db) return res.status(500).json({ error: 'DB not connected' });
+    if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
     try {
       const data = req.body;
-      const docRef = await addDoc(collection(db, 'topups'), data);
-      res.json({ dbId: docRef.id, ...data });
+      const docRef = await admin.firestore().collection('topups').add(data);
+      res.json({ id: docRef.id, dbId: docRef.id, ...data });
     } catch (err) {
       console.error('Internal server error creating topup:', err);
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({ error: String(err && err.message ? err.message : err) });
     }
   });
 
   // --- Categories Endpoints ---
   app.get('/api/categories', async (req, res) => {
-    if (!db) return res.json([]);
     try {
-      const snapshot = await getDocs(query(collection(db, 'categories')));
+      const snapshot = await admin.firestore().collection('categories').get();
       const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       res.json(data);
-    } catch (err) {
-      console.error('Internal server error fetching categories:', err);
-      res.status(500).json({ error: 'Internal server error' });
+    } catch (err: any) {
+      console.error('Internal server error fetching categories:', err.message || err);
+      res.status(500).json({ error: String(err && err.message ? err.message : err) });
     }
   });
 
   app.post('/api/categories', requireAdmin, async (req, res) => {
-    if (!db) return res.status(500).json({ error: 'DB not connected' });
+    if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
     try {
       const data = req.body;
       const { id, ...dataToSave } = data;
-      const docRef = await addDoc(collection(db, 'categories'), dataToSave);
-      res.json({ id: docRef.id, ...dataToSave });
+      const docRef = await admin.firestore().collection('categories').add(dataToSave);
+      res.json({ id: docRef.id, dbId: docRef.id, ...dataToSave });
     } catch (err) {
       console.error('Internal server error creating category:', err);
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({ error: String(err && err.message ? err.message : err) });
     }
   });
 
   app.put('/api/categories/:id', requireAdmin, async (req, res) => {
-    if (!db) return res.status(500).json({ error: 'DB not connected' });
+    if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
     try {
       const data = req.body;
       const { id, ...dataToSave } = data;
-      const docRef = doc(db, 'categories', req.params.id);
-      await updateDoc(docRef, dataToSave);
+      const docRef = admin.firestore().collection('categories').doc(req.params.id);
+      await docRef.update(dataToSave);
       res.json({ id: req.params.id, ...dataToSave });
     } catch (err) {
       console.error('Internal server error updating category:', err);
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({ error: String(err && err.message ? err.message : err) });
     }
   });
 
   app.delete('/api/categories/:id', requireAdmin, async (req, res) => {
-    if (!db) return res.status(500).json({ error: 'DB not connected' });
+    if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
     try {
-      await deleteDoc(doc(db, 'categories', req.params.id));
+      await admin.firestore().collection('categories').doc(req.params.id).delete();
       res.json({ success: true });
     } catch (err) {
       console.error('Internal server error deleting category:', err);
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({ error: String(err && err.message ? err.message : err) });
     }
   });
 
   // --- Custom Pages Endpoints ---
   app.get('/api/pages', async (req, res) => {
-    if (!db) return res.json([]);
     try {
-      const snapshot = await getDocs(query(collection(db, 'custom_pages')));
+      const snapshot = await admin.firestore().collection('custom_pages').get();
       const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       res.json(data);
-    } catch (err) {
-      console.error('Internal server error fetching pages:', err);
-      res.status(500).json({ error: 'Internal server error' });
+    } catch (err: any) {
+      console.error('Internal server error fetching pages:', err.message || err);
+      res.status(500).json({ error: String(err && err.message ? err.message : err) });
     }
   });
 
   app.post('/api/pages', requireAdmin, async (req, res) => {
-    if (!db) return res.status(500).json({ error: 'DB not connected' });
+    if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
     try {
       const pageData = req.body;
       const { id, ...dataToSave } = pageData;
-      const docRef = await addDoc(collection(db, 'custom_pages'), { ...dataToSave, created_at: new Date().toISOString() });
-      res.json({ id: docRef.id, ...dataToSave });
+      const docRef = await admin.firestore().collection('custom_pages').add({ ...dataToSave, created_at: new Date().toISOString() });
+      res.json({ id: docRef.id, dbId: docRef.id, ...dataToSave });
     } catch (err) {
       console.error('Internal server error creating page:', err);
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({ error: String(err && err.message ? err.message : err) });
     }
   });
 
   app.put('/api/pages/:id', requireAdmin, async (req, res) => {
-    if (!db) return res.status(500).json({ error: 'DB not connected' });
+    if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
     try {
       const pageData = req.body;
       const { id, ...dataToSave } = pageData;
-      const docRef = doc(db, 'custom_pages', req.params.id);
-      await updateDoc(docRef, dataToSave);
+      const docRef = admin.firestore().collection('custom_pages').doc(req.params.id);
+      await docRef.update(dataToSave);
       res.json({ id: req.params.id, ...dataToSave });
     } catch (err) {
       console.error('Internal server error updating page:', err);
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({ error: String(err && err.message ? err.message : err) });
     }
   });
 
   app.delete('/api/pages/:id', requireAdmin, async (req, res) => {
-    if (!db) return res.status(500).json({ error: 'DB not connected' });
+    if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
     try {
-      await deleteDoc(doc(db, 'custom_pages', req.params.id));
+      await admin.firestore().collection('custom_pages').doc(req.params.id).delete();
       res.json({ success: true });
     } catch (err) {
       console.error('Internal server error deleting page:', err);
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({ error: String(err && err.message ? err.message : err) });
     }
   });
 
-  app.get('/api/license_keys', requireAdmin, async (req, res) => {
+  app.get('/api/license_keys', async (req: any, res: any) => {
+    if (!req.isAdmin) return res.json([]);
     try {
-      const snapshot = await getDocs(query(collection(db, 'license_keys'), orderBy('created_at', 'desc')));
+      const snapshot = await admin.firestore().collection('license_keys').orderBy('created_at', 'desc').get();
       const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       res.json(data);
-    } catch (err) {
-      console.error('Internal server error fetching license_keys:', err);
-      res.status(500).json({ error: 'Internal server error' });
+    } catch (err: any) {
+      console.error('Internal server error fetching license_keys:', err.message || err);
+      res.status(500).json({ error: String(err && err.message ? err.message : err) });
     }
   });
 
@@ -1266,33 +1300,33 @@ console.log(`[Database] Initializing Firebase`);
     try {
       const { key, plan, status } = req.body;
       const newDoc = { key, plan, status, created_at: new Date().toISOString() };
-      const docRef = await addDoc(collection(db, 'license_keys'), newDoc);
-      res.json({ id: docRef.id, ...newDoc });
+      const docRef = await admin.firestore().collection('license_keys').add(newDoc);
+      res.json({ id: docRef.id, dbId: docRef.id, ...newDoc });
     } catch (err) {
       console.error('Internal server error inserting license_key:', err);
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({ error: String(err && err.message ? err.message : err) });
     }
   });
 
   app.delete('/api/license_keys/:id', requireAdmin, async (req, res) => {
     try {
-      await deleteDoc(doc(db, 'license_keys', req.params.id));
+      await admin.firestore().collection('license_keys').doc(req.params.id).delete();
       res.json({ success: true });
     } catch (err) {
       console.error('Internal server error deleting license_key:', err);
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({ error: String(err && err.message ? err.message : err) });
     }
   });
 
   app.patch('/api/license_keys/:id', requireAdmin, async (req, res) => {
     try {
       const { status } = req.body;
-      const docRef = doc(db, 'license_keys', req.params.id);
-      await updateDoc(docRef, { status });
+      const docRef = admin.firestore().collection('license_keys').doc(req.params.id);
+      await docRef.update({ status });
       res.json({ id: req.params.id, status });
     } catch (err) {
       console.error('Internal server error updating license_key:', err);
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({ error: String(err && err.message ? err.message : err) });
     }
   });
 
@@ -1301,36 +1335,37 @@ console.log(`[Database] Initializing Firebase`);
       const { keys } = req.body; // Array of { key, type, status, created_at }
       const results = [];
       for (const k of keys) {
-         const docRef = await addDoc(collection(db, 'license_keys'), { ...k, created_at: new Date().toISOString() });
+         const docRef = await admin.firestore().collection('license_keys').add({ ...k, created_at: new Date().toISOString() });
          results.push({ id: docRef.id, ...k });
       }
       res.json(results);
     } catch (err) {
       console.error('Internal server error bulk inserting license_keys:', err);
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({ error: String(err && err.message ? err.message : err) });
     }
   });
 
   app.get('/api/validate_key/:key', async (req, res) => {
     try {
-      const snapshot = await getDocs(query(collection(db, 'license_keys')));
+      const snapshot = await admin.firestore().collection('license_keys').get();
       const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })).find((d: any) => d.key === req.params.key);
       if (!data) return res.status(404).json({ error: 'Key not found' });
       res.json(data);
     } catch (err) {
       console.error('Internal server error validating key:', err);
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({ error: String(err && err.message ? err.message : err) });
     }
   });
 
-  app.get('/api/used_keys', requireAdmin, async (req, res) => {
+  app.get('/api/used_keys', async (req: any, res: any) => {
+    if (!req.isAdmin) return res.json([]);
     try {
-      const snapshot = await getDocs(query(collection(db, 'used_keys'), orderBy('used_at', 'desc'), limit(100)));
+      const snapshot = await admin.firestore().collection('used_keys').orderBy('used_at', 'desc').limit(100).get();
       const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       res.json(data);
-    } catch (err) {
-      console.error('Internal server error fetching used_keys:', err);
-      res.status(500).json({ error: 'Internal server error' });
+    } catch (err: any) {
+      console.error('Internal server error fetching used_keys:', err.message || err);
+      res.status(500).json({ error: String(err && err.message ? err.message : err) });
     }
   });
 
@@ -1338,22 +1373,23 @@ console.log(`[Database] Initializing Firebase`);
     try {
       const { key, ip, details } = req.body;
       const newDoc = { key, ip, details, used_at: new Date().toISOString() };
-      const docRef = await addDoc(collection(db, 'used_keys'), newDoc);
-      res.json({ id: docRef.id, ...newDoc });
+      const docRef = await admin.firestore().collection('used_keys').add(newDoc);
+      res.json({ id: docRef.id, dbId: docRef.id, ...newDoc });
     } catch (err) {
       console.error('Internal server error inserting used_key:', err);
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({ error: String(err && err.message ? err.message : err) });
     }
   });
 
-  app.get('/api/blocked_ips', requireAdmin, async (req, res) => {
+  app.get('/api/blocked_ips', async (req: any, res: any) => {
+    if (!req.isAdmin) return res.json([]);
     try {
-      const snapshot = await getDocs(query(collection(db, 'blocked_ips'), orderBy('blocked_at', 'desc')));
+      const snapshot = await admin.firestore().collection('blocked_ips').orderBy('blocked_at', 'desc').get();
       const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       res.json(data);
-    } catch (err) {
-      console.error('Internal server error fetching blocked_ips:', err);
-      res.status(500).json({ error: 'Internal server error' });
+    } catch (err: any) {
+      console.error('Internal server error fetching blocked_ips:', err.message || err);
+      res.status(500).json({ error: String(err && err.message ? err.message : err) });
     }
   });
 
@@ -1362,89 +1398,104 @@ console.log(`[Database] Initializing Firebase`);
       const { ip, reason } = req.body;
       const newDoc = { ip, reason, blocked_at: new Date().toISOString() };
       // Note: simplistic upsert simulation using ip as doc ID
-      const docRef = doc(db, 'blocked_ips', ip);
-      await setDoc(docRef, newDoc);
+      const docRef = admin.firestore().collection('blocked_ips').doc(ip);
+      await docRef.set(newDoc);
       res.json({ id: ip, ...newDoc });
     } catch (err) {
       console.error('Internal server error upserting blocked_ip:', err);
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({ error: String(err && err.message ? err.message : err) });
     }
   });
 
   app.delete('/api/blocked_ips/:ip', requireAdmin, async (req, res) => {
     try {
-      await deleteDoc(doc(db, 'blocked_ips', req.params.ip));
+      await admin.firestore().collection('blocked_ips').doc(req.params.ip).delete();
       res.json({ success: true });
     } catch (err) {
       console.error('Internal server error deleting blocked_ip:', err);
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({ error: String(err && err.message ? err.message : err) });
     }
   });
 
   app.get('/api/check_ip/:ip', async (req, res) => {
     try {
-      const snapshot = await getDocs(query(collection(db, 'blocked_ips')));
+      const snapshot = await admin.firestore().collection('blocked_ips').get();
       const data = snapshot.docs.map(doc => doc.data()).find((d: any) => d.ip === req.params.ip);
       res.json({ blocked: !!data });
     } catch (err) {
       console.error('Internal server error checking IP:', err);
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({ error: String(err && err.message ? err.message : err) });
     }
   });
 
-  app.post('/api/admins', async (req, res) => {
+  app.post('/api/admins', requireAdmin, async (req: any, res: any) => {
     try {
       const { username, role } = req.body;
       const newDoc = { username, role, granted_at: new Date().toISOString() };
-      const docRef = doc(db, 'admins', username);
-      await setDoc(docRef, newDoc);
+      const docRef = admin.firestore().collection('admins').doc(username);
+      await docRef.set(newDoc);
       res.json({ id: username, ...newDoc });
     } catch (err) {
       console.error('Internal server error upserting admin:', err);
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({ error: String(err && err.message ? err.message : err) });
     }
   });
 
   // --- User Profiles Endpoints ---
-  app.get('/api/users/:uid', async (req, res) => {
-    if (!db) return res.status(500).json({ error: 'DB not connected' });
+  app.get('/api/users/:uid', requireAuth, async (req: any, res: any) => {
+    if (req.user.uid !== req.params.uid && !req.isAdmin) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+    if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
     try {
-      const docRef = doc(db, 'users', req.params.uid);
-      const snapshot = await getDoc(docRef);
-      if (snapshot.exists()) {
+      const docRef = admin.firestore().collection('users').doc(req.params.uid);
+      const snapshot = await docRef.get();
+      if (snapshot.exists) {
         res.json(snapshot.data());
       } else {
         res.status(404).json({ error: 'User not found' });
       }
     } catch (err) {
       console.error('Error fetching user:', err);
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({ error: String(err && err.message ? err.message : err) });
     }
   });
 
-  app.post('/api/users/:uid', async (req, res) => {
-    if (!db) return res.status(500).json({ error: 'DB not connected' });
+  app.post('/api/users/:uid', requireAuth, async (req: any, res: any) => {
+    if (req.user.uid !== req.params.uid && !req.isAdmin) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+    if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
     try {
       const { uid } = req.params;
       const data = req.body;
-      const docRef = doc(db, 'users', uid);
-      await setDoc(docRef, { ...data, updatedAt: new Date().toISOString() }, { merge: true });
+      
+      // Prevent privilege escalation and balance spoofing
+      if (!req.isAdmin) {
+        delete data.balance;
+        delete data.amount;
+        delete data.role;
+        delete data.isPremium;
+      }
+      
+      const docRef = admin.firestore().collection('users').doc(uid);
+      await docRef.set({ ...data, updatedAt: new Date().toISOString() }, { merge: true });
       res.json({ success: true });
     } catch (err) {
       console.error('Error saving user:', err);
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({ error: String(err && err.message ? err.message : err) });
     }
   });
 
-  app.get('/api/users', async (req, res) => {
-    if (!db) return res.json([]);
+  app.get('/api/users', async (req: any, res: any) => {
+    if (!req.isAdmin) return res.json([]);
     try {
-      const snapshot = await getDocs(query(collection(db, 'users')));
+      const snapshot = await admin.firestore().collection('users').get();
       const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       res.json(data);
-    } catch (err) {
-      console.error('Error fetching all users:', err);
-      res.status(500).json({ error: 'Internal server error' });
+    } catch (err: any) {
+      console.error('Error fetching all users:', err.message || err);
+      res.status(500).json({ error: String(err && err.message ? err.message : err) });
     }
   });
 

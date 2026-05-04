@@ -1,12 +1,16 @@
 import admin from 'firebase-admin';
-admin.initializeApp({ projectId: "apex-gen" });
-const db = admin.firestore();
+
+admin.initializeApp({
+  projectId: "apex-gen"
+});
+
 async function test() {
   try {
-    const snap = await db.collection("license_keys").limit(1).get();
-    console.log("Success! Docs:", snap.size);
-  } catch (e: any) {
-    console.error("Error:", e.message);
+    const snap = await admin.firestore().collection('products').get();
+    console.log("SUCCESS:", snap.size);
+  } catch(err) {
+    console.error("ADMIN DB ERROR:", err);
   }
 }
+
 test();

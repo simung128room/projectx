@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { User, Shield, Mail, ArrowRight, Lock, CheckCircle2, MonitorSmartphone, Eye, EyeOff, Zap } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import Swal from 'sweetalert2';
-import { auth } from '../lib/firebase';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+import { supabase as auth } from '../lib/supabase';
+
 import { Turnstile } from '@marsidev/react-turnstile';
 
 const rawEnvKey = (import.meta.env.VITE_TURNSTILE_SITE_KEY || '').trim();
@@ -88,7 +88,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
         const signupEmail = authEmail.trim() || generatedEmail;
         let data, error;
         try {
-           const creds = await createUserWithEmailAndPassword(auth, signupEmail, authPassword);
+           const creds = await auth.auth.signUp({ email: signupEmail, password: authPassword });
            data = { user: creds.user };
         } catch(e) {
            error = e;
@@ -96,7 +96,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
         
         if (error) {
            const errObj = error as Error;
-           throw new Error(`Firebase SignUp Error: ${errObj.message}`);
+           throw new Error(`Supabase SignUp Error: ${errObj.message}`);
         }
         
         Swal.fire({ icon: 'success', title: 'Account Created', text: 'Logging you in...', timer: 1500, showConfirmButton: false });
@@ -104,14 +104,14 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
       } else {
         let error;
         try {
-           await signInWithEmailAndPassword(auth, loginEmail, authPassword);
+           await auth.auth.signInWithPassword({ email: loginEmail, password: authPassword });
         } catch(e) {
            error = e;
         }
 
         if (error) {
            const errObj = error as Error;
-           throw new Error(`Firebase Login Error: ${errObj.message}`);
+           throw new Error(`Supabase Login Error: ${errObj.message}`);
         }
 
         Swal.fire({ icon: 'success', title: 'Login Successful', timer: 1500, showConfirmButton: false });

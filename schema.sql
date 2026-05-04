@@ -1,16 +1,58 @@
--- SQL Schema for Supabase
+-- Full SQL Schema for Supabase
 -- Run this in your Supabase SQL Editor
 
--- 1. Table for license keys
-CREATE TABLE IF NOT EXISTS public.license_keys (
+CREATE TABLE IF NOT EXISTS public.products (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-    key text UNIQUE NOT NULL,
-    plan text NOT NULL, -- e.g., 'Starter', 'Pro', 'Enterprise'
-    status text NOT NULL DEFAULT 'active', -- 'active', 'used', 'expired'
+    name text,
+    price numeric,
+    stock integer,
+    stockData text[],
+    description text,
+    image text,
+    category text,
     created_at timestamptz DEFAULT now()
 );
 
--- 2. Table for used keys history
+CREATE TABLE IF NOT EXISTS public.purchases (
+    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+    userId text,
+    username text,
+    productName text,
+    price numeric,
+    date timestamptz DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS public.topups (
+    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+    userId text,
+    username text,
+    amount numeric,
+    date timestamptz DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS public.categories (
+    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+    name text UNIQUE,
+    sort integer
+);
+
+CREATE TABLE IF NOT EXISTS public.custom_pages (
+    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+    title text,
+    content text,
+    slug text UNIQUE,
+    created_at timestamptz DEFAULT now()
+);
+
+-- Existing tables:
+CREATE TABLE IF NOT EXISTS public.license_keys (
+    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+    key text UNIQUE NOT NULL,
+    plan text NOT NULL,
+    status text NOT NULL DEFAULT 'active',
+    created_at timestamptz DEFAULT now()
+);
+
 CREATE TABLE IF NOT EXISTS public.used_keys (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     key text NOT NULL,
@@ -19,23 +61,24 @@ CREATE TABLE IF NOT EXISTS public.used_keys (
     used_at timestamptz DEFAULT now()
 );
 
--- 3. Table for blocked IPs
 CREATE TABLE IF NOT EXISTS public.blocked_ips (
     ip text PRIMARY KEY,
     reason text,
     blocked_at timestamptz DEFAULT now()
 );
 
--- 4. Table for admins
 CREATE TABLE IF NOT EXISTS public.admins (
-    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+    id text PRIMARY KEY,
     username text UNIQUE NOT NULL,
     role text NOT NULL DEFAULT 'admin',
     granted_at timestamptz DEFAULT now()
 );
 
--- Enable RLS (Optional, but recommended. For simple dev, you might keep it disabled)
--- ALTER TABLE public.license_keys ENABLE ROW LEVEL SECURITY;
--- ALTER TABLE public.used_keys ENABLE ROW LEVEL SECURITY;
--- ALTER TABLE public.blocked_ips ENABLE ROW LEVEL SECURITY;
--- ALTER TABLE public.admins ENABLE ROW LEVEL SECURITY;
+CREATE TABLE IF NOT EXISTS public.users (
+    id text PRIMARY KEY,
+    email text,
+    balance numeric DEFAULT 0,
+    role text DEFAULT 'user',
+    isPremium boolean DEFAULT false,
+    updatedAt timestamptz DEFAULT now()
+);

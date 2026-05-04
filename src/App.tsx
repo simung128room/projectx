@@ -9,15 +9,16 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import Swal from 'sweetalert2';
 import axios from 'axios';
-import { auth } from './lib/firebase';
+import { supabase as auth } from './lib/supabase'; // auth here refers to supabase
 
 axios.interceptors.request.use(async (config) => {
-  if (auth && auth.currentUser) {
+  const { data: { session } } = await auth.auth.getSession();
+  if (session?.access_token) {
     try {
-      const token = await auth.currentUser.getIdToken();
+      const token = session.access_token;
       config.headers['Authorization'] = `Bearer ${token}`;
     } catch (err) {
-      console.error('Error fetching Firebase token:', err);
+      console.error('Error fetching token:', err);
     }
   }
   return config;
@@ -25,9 +26,8 @@ axios.interceptors.request.use(async (config) => {
   return Promise.reject(error);
 });
 import jsQR from 'jsqr';
-import { auth } from './lib/firebase';
-import { onAuthStateChanged, signInAnonymously as firebaseSignInAnonymously, signOut as firebaseSignOut, sendEmailVerification } from 'firebase/auth';
-import { User as FirebaseUser } from 'firebase/auth';
+
+type SupabaseUser = any;
 import { Turnstile } from '@marsidev/react-turnstile';
 import { AccountResult, LogEntry, UserPlan } from './types';
 import { ProfileView } from './components/ProfileView';
@@ -97,12 +97,17 @@ function AppContent() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [adminUsername, setAdminUsername] = useState('');
   const [adminPassword, setAdminPassword] = useState('');
-  const [user, setUser] = useState<FirebaseUser | null>(null);
+  const [user, setUser] = useState<SupabaseUser | null>(null);
   const [userPlan, setUserPlan] = useState<UserPlan | null>(null);
   const [siteSettings, setSiteSettings] = useState({ 
     site_name: 'APEX STUDIO',
     truewallet_phone: '0951378403',
-    contact_line: '@apex_studio'
+    contact_line: '@apex_studio',
+    popup_enabled: false,
+    popup_img_url: '',
+    popup_link: '',
+    stats_users_offset: 1250,
+    stats_sales_offset: 0
   });
 
   // Home Store State (Moved up to prevent TDZ)
@@ -372,7 +377,9 @@ function AppContent() {
 
   // Firebase Auth Listener
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+    const { data: { subscription } } = auth.auth.onAuthStateChange(async (event, session) => {
+const currentUser: any = session?.user || null;
+if (currentUser) currentUser.uid = currentUser.id;
       setUser(currentUser);
       
       if (currentUser && !currentUser.isAnonymous && currentUser.email) {
@@ -416,7 +423,7 @@ function AppContent() {
         }
       }
     });
-    return () => unsubscribe();
+    return () => subscription?.unsubscribe();
   }, []);
 
   const fetchAllData = useCallback(async () => {
@@ -475,12 +482,12 @@ function AppContent() {
       if (Array.isArray(topupsData) && topupsData.length > 0) setTopupHistory(topupsData);
       if (Array.isArray(usersData)) setUsersList(usersData);
       
-      if (keysData && historyData && ipsData) {
+      if (!healthRes.error && !productsRes.error) {
         setIsDBReady(true);
         setDbErrorDetail(null);
       } else {
         setIsDBReady(false);
-        if (!healthData) {
+        if (healthRes.error) {
           let errorMsg: string = "Unknown Error";
           if (healthRes.error) {
             if (typeof healthRes.error === 'object') {
@@ -491,16 +498,7 @@ function AppContent() {
           }
           setDbErrorDetail(`Backend API ไม่ตอบสนอง (Offline): ${errorMsg}`);
         } else {
-          const errors = [];
-          if (keysRes.error) errors.push(`license_keys: ${keysRes.error}`);
-          if (historyRes.error) errors.push(`used_keys: ${historyRes.error}`);
-          if (ipsRes.error) errors.push(`blocked_ips: ${ipsRes.error}`);
-          
-          if (errors.length > 0) {
-            setDbErrorDetail("Firebase Error: " + errors.join(" | "));
-          } else {
-            setDbErrorDetail("เชื่อมต่อสำเร็จ แต่ยังไม่มีข้อมูลในตาราง (Tables empty)");
-          }
+          setDbErrorDetail(`Firebase Error: ${productsRes.error || "Products DB Sync failed"}`);
         }
       }
     } catch (err: any) {
@@ -691,7 +689,7 @@ function AppContent() {
 
         if (!user) {
           try {
-            await firebaseSignInAnonymously(auth); const error = null;
+            await auth.auth.signInAnonymously(); const error = null;
             if (error) console.error("Error signing in anonymously:", error);
           } catch (err) {
             console.error("Exception signing in anonymously:", err);
@@ -737,7 +735,7 @@ function AppContent() {
 
   const handleLogout = async () => {
     try {
-      await firebaseSignOut(auth);
+      await auth.auth.signOut();
     } catch(err) {
       console.error("Logout error:", err);
     }

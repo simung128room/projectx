@@ -1476,7 +1476,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       </div>
                       <div className="flex justify-between border-b border-zinc-200/60 pb-2">
                          <span className="text-zinc-500 font-bold">Database</span>
-                         <span className="text-emerald-600 font-bold">Connected (Firebase)</span>
+                         <span className="text-emerald-600 font-bold">Connected (Supabase)</span>
                       </div>
                       <div className="flex justify-between border-b border-zinc-200/60 pb-2">
                          <span className="text-zinc-500 font-bold">Build Mode</span>
