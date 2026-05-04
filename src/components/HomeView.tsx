@@ -125,12 +125,12 @@ export const HomeView: React.FC<HomeViewProps> = ({ products, categories, stats,
               <span className="text-zinc-600 font-bold mb-2">ผู้ใช้งาน</span>
               <div className="flex items-baseline gap-2">
                 <motion.span 
-                  key={realtimeStats.users}
+                  key={realtimeStats?.users || 0}
                   initial={{ opacity: 0.5 }}
                   animate={{ opacity: 1 }}
                   className="text-4xl sm:text-5xl font-black text-red-600 tracking-tight"
                 >
-                  {realtimeStats.users.toLocaleString()}
+                  {(realtimeStats?.users || 0).toLocaleString()}
                 </motion.span>
                 <span className="text-zinc-500 font-bold text-sm">คน</span>
               </div>
@@ -167,12 +167,12 @@ export const HomeView: React.FC<HomeViewProps> = ({ products, categories, stats,
               <span className="text-zinc-600 font-bold mb-2">ยอดขาย</span>
               <div className="flex items-baseline gap-2">
                 <motion.span 
-                  key={realtimeStats.sales}
+                  key={realtimeStats?.sales || 0}
                   initial={{ opacity: 0.5 }}
                   animate={{ opacity: 1 }}
                   className="text-4xl sm:text-5xl font-black text-red-600 tracking-tight"
                 >
-                  {realtimeStats.sales.toLocaleString()}
+                  {(realtimeStats?.sales || 0).toLocaleString()}
                 </motion.span>
                 <span className="text-zinc-500 font-bold text-sm">ครั้ง</span>
               </div>

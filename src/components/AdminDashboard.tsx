@@ -6,6 +6,7 @@ import axios from 'axios';
 import { AccountResult, Product, SiteStats } from '../types';
 import { useState, useRef, useEffect } from 'react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import { supabase } from '../lib/supabase';
 
 interface AdminDashboardProps {
   totalChecked: number;
@@ -659,7 +660,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               >
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {[
-                  { label: 'ผู้ใช้งานทั้งหมด', value: siteStats.users.toLocaleString(), icon: Users, color: 'text-zinc-900', bg: 'bg-zinc-100' },
+                  { label: 'ผู้ใช้งานทั้งหมด', value: (siteStats?.users || 0).toLocaleString(), icon: Users, color: 'text-zinc-900', bg: 'bg-zinc-100' },
                   { label: 'ยอดขายทั้งหมด (สินค้า)', value: totalOrders.toLocaleString(), icon: Package, color: 'text-red-500', bg: 'bg-red-50' },
                   { label: 'คำสั่งซื้อที่สำเร็จ', value: totalOrders.toLocaleString(), icon: ShoppingCart, color: 'text-emerald-500', bg: 'bg-emerald-50' },
                   { label: 'รายได้รวม (บาท)', value: totalRevenue.toLocaleString(), icon: Activity, color: 'text-red-600', bg: 'bg-red-50' },
@@ -844,9 +845,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <h3 className="font-bold text-zinc-900 flex items-center gap-2"><BarChart3 className="w-5 h-5 text-red-500" /> ตั้งค่าสถิติหน้าแรก</h3>
                   <button 
                     onClick={() => {
-                        let currentUsers = siteStats.users;
-                        let currentStock = siteStats.stock;
-                        let currentSales = siteStats.sales;
+                        let currentUsers = (siteStats?.users || 0);
+                        let currentStock = (siteStats?.stock || 0);
+                        let currentSales = (siteStats?.sales || 0);
                         Swal.fire({
                             title: 'แก้ไขสถิติ',
                             html: `
@@ -863,10 +864,32 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                 sales: parseInt((document.getElementById('swal-sales') as HTMLInputElement).value)
                               }
                             }
-                        }).then((result) => {
-                            if (result.isConfirmed && setSiteStats) {
-                                setSiteStats(result.value!);
-                                Swal.fire({ title: 'บันทึกสำเร็จ', icon: 'success', confirmButtonColor: '#16a34a' });
+                        }).then(async (result) => {
+                            if (result.isConfirmed) {
+                                try {
+                                  const { data: { session } } = await supabase.auth.getSession();
+                                  const idToken = session?.access_token || '';
+                                  await axios.post('/api/settings', {
+                                    stats_users_override: result.value?.users,
+                                    stats_stock_override: result.value?.stock,
+                                    stats_sales_override: result.value?.sales
+                                  }, {
+                                    headers: { Authorization: `Bearer ${idToken}` }
+                                  });
+                                  
+                                  if (setSiteStats) {
+                                    setSiteStats({
+                                      ...(siteStats || { users: 0, stock: 0, sales: 0, topups: 0 }),
+                                      users: result.value?.users || 0,
+                                      stock: result.value?.stock || 0,
+                                      sales: result.value?.sales || 0
+                                    });
+                                  }
+                                  
+                                  Swal.fire({ title: 'บันทึกสำเร็จ', text: 'รีเฟรชหน้าเว็บเพื่อดูผลลัพธ์', icon: 'success', confirmButtonColor: '#16a34a' });
+                                } catch (error) {
+                                  Swal.fire({ title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถบันทึกสถิติได้', icon: 'error', confirmButtonColor: '#dc2626' });
+                                }
                             }
                         });
                     }}
@@ -877,15 +900,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 </div>
                 <div className="grid grid-cols-3 gap-4">
                   <div className="bg-zinc-50 rounded-2xl p-4 border border-zinc-100 flex flex-col items-center justify-center">
-                    <span className="text-3xl font-black text-zinc-900">{siteStats.users.toLocaleString()}</span>
+                    <span className="text-3xl font-black text-zinc-900">{(siteStats?.users || 0).toLocaleString()}</span>
                     <span className="text-zinc-500 text-xs font-bold uppercase tracking-wider mt-1">ผู้ใช้งาน</span>
                   </div>
                   <div className="bg-zinc-50 rounded-2xl p-4 border border-zinc-100 flex flex-col items-center justify-center">
-                    <span className="text-3xl font-black text-zinc-900">{siteStats.stock.toLocaleString()}</span>
+                    <span className="text-3xl font-black text-zinc-900">{(siteStats?.stock || 0).toLocaleString()}</span>
                     <span className="text-zinc-500 text-xs font-bold uppercase tracking-wider mt-1">สต๊อกสินค้า</span>
                   </div>
                   <div className="bg-zinc-50 rounded-2xl p-4 border border-zinc-100 flex flex-col items-center justify-center">
-                    <span className="text-3xl font-black text-zinc-900">{siteStats.sales.toLocaleString()}</span>
+                    <span className="text-3xl font-black text-zinc-900">{(siteStats?.sales || 0).toLocaleString()}</span>
                     <span className="text-zinc-500 text-xs font-bold uppercase tracking-wider mt-1">ยอดขาย</span>
                   </div>
                 </div>

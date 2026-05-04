@@ -102,7 +102,7 @@ const app = express();
   // Remove duplicate health check below
   // app.get('/api/health', (req, res) => { ... })
   
-  // Site Settings State (Durable with Environment Variables)
+  // Site Settings State
   let siteSettings: any = {
     site_name: process.env.VITE_SITE_NAME || 'APEX STUDIO',
     truewallet_phone: process.env.TRUEWALLET_PHONE || '0951378403',
@@ -114,20 +114,41 @@ const app = express();
     popup_link: ''
   };
 
+  // Load from DB
+  try {
+    admin.firestore().collection('settings').doc('site').get().then(doc => {
+      if (doc.exists) {
+        siteSettings = { ...siteSettings, ...doc.data() };
+      }
+    });
+  } catch(e) {}
+
   app.get('/api/settings', (req, res) => {
     res.json(siteSettings);
   });
 
-  app.post('/api/settings', requireAdmin, (req, res) => {
-    const { truewallet_phone, site_name, contact_line, stats_users_offset, stats_sales_offset, popup_img_url, popup_enabled, popup_link } = req.body;
+  app.post('/api/settings', requireAdmin, async (req, res) => {
+    const { truewallet_phone, site_name, contact_line, stats_users_offset, stats_sales_offset, stats_users_override, stats_stock_override, stats_sales_override, popup_img_url, popup_enabled, popup_link } = req.body;
     if (truewallet_phone !== undefined) siteSettings.truewallet_phone = truewallet_phone;
     if (site_name !== undefined) siteSettings.site_name = site_name;
     if (contact_line !== undefined) siteSettings.contact_line = contact_line;
     if (stats_users_offset !== undefined) siteSettings.stats_users_offset = parseInt(stats_users_offset) || 0;
     if (stats_sales_offset !== undefined) siteSettings.stats_sales_offset = parseInt(stats_sales_offset) || 0;
+    if (stats_users_override !== undefined) siteSettings.stats_users_override = parseInt(stats_users_override);
+    if (stats_stock_override !== undefined) siteSettings.stats_stock_override = parseInt(stats_stock_override);
+    if (stats_sales_override !== undefined) siteSettings.stats_sales_override = parseInt(stats_sales_override);
     if (popup_img_url !== undefined) siteSettings.popup_img_url = popup_img_url;
     if (popup_enabled !== undefined) siteSettings.popup_enabled = popup_enabled === true || popup_enabled === 'true';
     if (popup_link !== undefined) siteSettings.popup_link = popup_link;
+    
+    // Clear cached stats so they refresh next time someone calls /api/stats
+    lastStatsFetch = 0;
+    
+    try {
+      await admin.firestore().collection('settings').doc('site').set(siteSettings, { merge: true });
+    } catch(e) {
+      console.error('Failed to save settings', e);
+    }
     
     console.log(`[Settings] Updated:`, siteSettings);
     return res.json({ success: true, settings: siteSettings });
@@ -1088,14 +1109,14 @@ console.log('HIT STATS ENDPOINT');
       let totalUsersCount = 0;
       try {
         const usersSnap = await adminDb.collection('users').get();
-        totalUsersCount = usersSnap.size;
+        totalUsersCount = usersSnap.docs.length;
       } catch(e) {
       }
 
       cachedStats = {
-        users: totalUsersCount + (siteSettings.stats_users_offset || 0),
-        sales: totalSales + (siteSettings.stats_sales_offset || 0),
-        stock: totalStock,
+        users: siteSettings.stats_users_override !== undefined && !isNaN(siteSettings.stats_users_override) ? siteSettings.stats_users_override : totalUsersCount + (siteSettings.stats_users_offset || 0),
+        sales: siteSettings.stats_sales_override !== undefined && !isNaN(siteSettings.stats_sales_override) ? siteSettings.stats_sales_override : totalSales + (siteSettings.stats_sales_offset || 0),
+        stock: siteSettings.stats_stock_override !== undefined && !isNaN(siteSettings.stats_stock_override) ? siteSettings.stats_stock_override : totalStock,
         totalOrders: totalPurchaseOrders,
         totalTopupsAmount
       };
