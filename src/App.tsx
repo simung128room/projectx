@@ -920,12 +920,27 @@ if (currentUser) currentUser.uid = currentUser.id;
         addLog(`[${index+1}] สำเร็จ: ${acc} [UID: ${newResult.uid} | CODM Level: ${newResult.level}]`, 'check-circle', 'text-green-400 font-bold');
       } else {
         setInvalidCount(prev => prev + 1);
-        addLog(`[${index+1}] ไม่ผ่าน: ${acc} (${result.error || 'Check failed'})`, 'x', 'text-red-400');
+        let errorMsg = result.error || 'Check failed';
+        if (typeof errorMsg === 'object') {
+          try {
+            errorMsg = JSON.stringify(errorMsg);
+          } catch(e) {
+            errorMsg = String(errorMsg);
+          }
+        }
+        addLog(`[${index+1}] ไม่ผ่าน: ${acc} (${errorMsg})`, 'x', 'text-red-400');
       }
     } catch (err: any) {
       setInvalidCount(prev => prev + 1);
       console.error(`Check failed for ${acc}:`, err);
-      const errMsg = err.response?.data?.error || err.message;
+      let errMsg = err.response?.data?.error || err.message;
+      if (typeof errMsg === 'object') {
+        try {
+          errMsg = JSON.stringify(errMsg);
+        } catch(e) {
+          errMsg = String(errMsg);
+        }
+      }
       addLog(`[${index+1}] ระบบขัดข้อง: ${acc} (${errMsg})`, 'x', 'text-red-500 font-bold');
     }
   };
