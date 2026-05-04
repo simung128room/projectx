@@ -973,6 +973,21 @@ const app = express();
         getGameConnections(activeClient)
       ]);
 
+      const rovGames = (gameConnections || []).filter((g: string) => g.toUpperCase().includes('ROV'));
+      const hasRov = rovGames.length > 0;
+      let rovCharacter = 'N/A';
+      if (hasRov) {
+        try {
+          const cleanName = rovGames[0].replace('[', '').replace(']', '');
+          const parts = cleanName.split('-');
+          if (parts.length > 2) rovCharacter = parts[2].trim();
+        } catch(e) {}
+      }
+      const phoneBound = !!(userData.mobile_no && userData.mobile_no !== 'N/A');
+      const emailVerified = !!userData.email_v;
+      const rovClean = hasRov && !emailVerified && !phoneBound;
+      const hasCodm = codmInfo != null && codmInfo.level !== 'Unknown';
+
       return res.json({
         success: true,
         data: {
@@ -981,13 +996,17 @@ const app = express();
           level: codmInfo?.level || 0, 
           rank: 'Success', 
           isClean,
-          phoneBound: !!(userData.mobile_no && userData.mobile_no !== 'N/A'),
-          emailVerified: !!userData.email_v,
+          phoneBound,
+          emailVerified,
           fbLinked: !!userData.is_fbconnect_enabled,
           region: userData.acc_country || 'TH',
           otherGames: gameConnections || [],
           codmNickname: codmInfo?.nickname || 'N/A',
-          idCardBound: !!(userData.idcard && userData.idcard !== 'N/A')
+          idCardBound: !!(userData.idcard && userData.idcard !== 'N/A'),
+          hasRov,
+          rovCharacter,
+          rovClean,
+          hasCodm
         }
       });
 

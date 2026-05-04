@@ -1106,6 +1106,13 @@ if (currentUser) currentUser.uid = currentUser.id;
     Swal.fire({ title: 'สำเร็จ', text: 'บันทึกไฟล์สำเร็จ', icon: 'success' });
   };
 
+  const exportRov = () => {
+    const data = validAccounts.filter(a => a.hasRov);
+    if (!data.length) return Swal.fire({ title: 'ข้อมูล', text: 'ไม่พบบัญชี ROV', icon: 'info' });
+    downloadFile(`ROV_Accounts_${new Date().toISOString().slice(0, 10)}.txt`, data.map(a => `${a.account}:${a.password} | Char: ${a.rovCharacter} | ${a.rovClean ? 'Clean' : 'Bound'}`).join('\n'));
+    Swal.fire({ title: 'สำเร็จ', text: 'บันทึกไฟล์สำเร็จ', icon: 'success' });
+  };
+
   const exportAllValid = () => {
     if (!validAccounts.length) return Swal.fire({ title: 'คำเตือน', text: 'ไม่มีข้อมูลบัญชีที่ผ่าน', icon: 'warning' });
     const text = validAccounts.map(a => 
@@ -1659,7 +1666,7 @@ if (currentUser) currentUser.uid = currentUser.id;
             </div>
 
             {/* Top Stats Row (Minimal Style) */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
               <div className="bg-white border border-zinc-200 rounded-3xl p-6 flex flex-col gap-4 shadow-sm hover:shadow-md hover:border-emerald-200 transition-all">
                 <div className="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600">
                   <Check className="w-6 h-6 text-emerald-500" />
@@ -1695,8 +1702,40 @@ if (currentUser) currentUser.uid = currentUser.id;
                   <Gamepad2 className="w-6 h-6 text-blue-500" />
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-xs text-zinc-500 font-bold uppercase tracking-widest mb-1">มีบัญชีเกม</span>
+                  <span className="text-xs text-zinc-500 font-bold uppercase tracking-widest mb-1">CODM</span>
                   <span className="text-3xl font-black text-zinc-900 leading-none">{validAccounts.filter(a => a.hasCodm).length}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+              <div className="bg-white border border-zinc-200 rounded-3xl p-6 flex flex-col gap-4 shadow-sm hover:shadow-md hover:border-amber-200 transition-all">
+                <div className="w-12 h-12 rounded-2xl bg-amber-50 flex items-center justify-center text-amber-600">
+                  <Gamepad2 className="w-6 h-6 text-amber-500" />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-xs text-zinc-500 font-bold uppercase tracking-widest mb-1">ROV</span>
+                  <span className="text-3xl font-black text-zinc-900 leading-none">{validAccounts.filter(a => a.hasRov).length}</span>
+                </div>
+              </div>
+
+              <div className="bg-white border border-zinc-200 rounded-3xl p-6 flex flex-col gap-4 shadow-sm hover:shadow-md hover:border-emerald-200 transition-all">
+                <div className="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600">
+                  <Shield className="w-6 h-6 text-emerald-500" />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-xs text-zinc-500 font-bold uppercase tracking-widest mb-1">ROV CLEAN</span>
+                  <span className="text-3xl font-black text-zinc-900 leading-none">{validAccounts.filter(a => a.hasRov && a.rovClean).length}</span>
+                </div>
+              </div>
+
+              <div className="bg-white border border-zinc-200 rounded-3xl p-6 flex flex-col gap-4 shadow-sm hover:shadow-md hover:border-red-200 transition-all">
+                <div className="w-12 h-12 rounded-2xl bg-red-50 flex items-center justify-center text-red-600">
+                  <X className="w-6 h-6 text-red-500" />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-xs text-zinc-500 font-bold uppercase tracking-widest mb-1">ROV NOT CLEAN</span>
+                  <span className="text-3xl font-black text-zinc-900 leading-none">{validAccounts.filter(a => a.hasRov && !a.rovClean).length}</span>
                 </div>
               </div>
             </div>
@@ -1794,10 +1833,13 @@ if (currentUser) currentUser.uid = currentUser.id;
                     <Download className="w-4 h-4" /> ส่งออกผลลัพธ์
                   </h3>
                   <div className="flex flex-col gap-3">
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-2 gap-3 pb-3">
                       <button onClick={exportClean} className="bg-emerald-50 hover:bg-emerald-100 text-emerald-600 border border-emerald-200 py-3 rounded-2xl font-bold text-xs transition-colors flex items-center justify-center gap-1.5"><Shield className="w-3.5 h-3.5" /> บันทึกปกติ</button>
                       <button onClick={exportBound} className="bg-amber-50 hover:bg-amber-100 text-amber-600 border border-amber-200 py-3 rounded-2xl font-bold text-xs transition-colors flex items-center justify-center gap-1.5"><Gamepad2 className="w-3.5 h-3.5" /> บันทึกมีเชื่อม</button>
                     </div>
+                    <button onClick={exportRov} className="bg-cyan-50 hover:bg-cyan-100 text-cyan-600 border border-cyan-200 py-3 rounded-2xl font-bold text-xs transition-colors w-full flex items-center justify-center gap-1.5 shadow-sm mb-3">
+                      <Gamepad2 className="w-4 h-4" /> บันทึก ROV (ทั้งหมด)
+                    </button>
                     <button onClick={exportAllValid} className="bg-red-600 hover:bg-red-700 text-white py-3 rounded-2xl font-bold text-xs transition-colors w-full flex items-center justify-center gap-1.5 shadow-sm">
                       <ListChecks className="w-4 h-4" /> บันทึกทั้งหมด (ALL VALID)
                     </button>
@@ -1968,6 +2010,12 @@ if (currentUser) currentUser.uid = currentUser.id;
                            )) : <span className="text-[9px] text-zinc-400 italic">ไม่พบประวัติเกมอื่น</span>}
                            {acc.hasCodm && (
                              <span className="px-2 py-0.5 bg-blue-50 text-blue-600 border border-blue-100 rounded-md text-[9px] font-bold uppercase flex items-center gap-1"><Gamepad2 className="w-2.5 h-2.5" /> CODM ACTIVE</span>
+                           )}
+                           {acc.hasRov && (
+                             <span className="px-2 py-0.5 bg-amber-50 text-amber-600 border border-amber-100 rounded-md text-[9px] font-bold uppercase flex items-center gap-1">
+                               <Gamepad2 className="w-2.5 h-2.5" /> ROV ACTIVE
+                               {acc.rovCharacter && acc.rovCharacter !== 'N/A' && ` - ${acc.rovCharacter}`}
+                             </span>
                            )}
                         </div>
                         <div className="text-[10px] text-zinc-400 font-mono bg-white border border-zinc-200 px-2 py-1 rounded-md">
