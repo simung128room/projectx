@@ -278,10 +278,24 @@ const app = express();
         }
         
         if (transRef) {
-          if (usedSlips.has(transRef)) {
-            return res.json({ success: false, error: 'สลิปนี้ถูกใช้งานไปแล้ว' });
+          // Check if used in DB
+          try {
+             const existingRef = await admin.firestore().collection('slips').doc(transRef).get();
+             if (existingRef.exists) {
+                return res.json({ success: false, error: 'สลิปนี้ถูกใช้งานไปแล้ว (ตรวจสอบจากระบบ)' });
+             }
+             await admin.firestore().collection('slips').doc(transRef).set({
+               uid,
+               amount,
+               used_at: new Date().toISOString()
+             });
+          } catch(e) {
+             // Fallback to local memory if DB fails
+             if (usedSlips.has(transRef)) {
+               return res.json({ success: false, error: 'สลิปนี้ถูกใช้งานไปแล้ว (local)' });
+             }
+             usedSlips.add(transRef);
           }
-          usedSlips.add(transRef);
         }
 
         if (uid) {
@@ -1143,7 +1157,7 @@ console.log('HIT STATS ENDPOINT');
   app.get('/api/purchases', async (req: any, res: any) => {
     try {
       const adminDb = admin.firestore();
-      let q: FirebaseFirestore.Query = adminDb.collection('purchases');
+      let q: any = adminDb.collection('purchases');
       if (req.isAdmin) {
         q = q.orderBy('date', 'desc').limit(100);
       } else if (req.user) {
@@ -1176,7 +1190,7 @@ console.log('HIT STATS ENDPOINT');
   app.get('/api/topups', async (req: any, res: any) => {
     try {
       const adminDb = admin.firestore();
-      let q: FirebaseFirestore.Query = adminDb.collection('topups');
+      let q: any = adminDb.collection('topups');
       if (req.isAdmin) {
         q = q.orderBy('date', 'desc').limit(100);
       } else if (req.user) {
@@ -1521,17 +1535,10 @@ console.log('HIT STATS ENDPOINT');
   });
 
   app.post('/api/log_error', (req, res) => {
-    console.error('CLIENT ERROR:', req.body);
-    if (!process.env.VERCEL) {
-      import('fs').then(fs => {
-        try {
-          const safeBody = typeof req.body === 'object' ? JSON.stringify(req.body) : String(req.body);
-          fs.appendFileSync('client_errors.log', safeBody + '\n');
-        } catch (err) {
-          console.error('Failed to log client error to file:', err);
-        }
-      }).catch(console.error);
-    }
+    try {
+      const safeBody = typeof req.body === 'object' ? JSON.stringify({ type: req.body.type, message: req.body.message }) : String(req.body).substring(0, 200);
+      console.error('CLIENT ERROR:', safeBody);
+    } catch(e) {}
     res.json({ received: true });
   });
 

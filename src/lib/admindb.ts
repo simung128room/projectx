@@ -62,7 +62,7 @@ class SupabaseQuery {
     return this;
   }
   async get() {
-    let q = supabaseAdmin.from(this.collection).select('*');
+    let q: any = supabaseAdmin.from(this.collection).select('*');
     for (const w of this._where) {
       if (w.op === '==') q = q.eq(w.field, w.value);
     }
