@@ -120,6 +120,8 @@ const app = express();
       if (doc.exists) {
         siteSettings = { ...siteSettings, ...doc.data() };
       }
+    }).catch(err => {
+      console.warn("Could not load initial site settings from DB (might not exist yet).", err.message || err);
     });
   } catch(e) {}
 

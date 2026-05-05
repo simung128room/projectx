@@ -1681,7 +1681,7 @@ if (currentUser) currentUser.uid = currentUser.id;
             </div>
 
             {/* Top Stats Row (Minimal Style) */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
               <div className="bg-white border border-zinc-200 rounded-3xl p-6 flex flex-col gap-4 shadow-sm hover:shadow-md hover:border-emerald-200 transition-all">
                 <div className="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600">
                   <Check className="w-6 h-6 text-emerald-500" />
@@ -1711,15 +1711,12 @@ if (currentUser) currentUser.uid = currentUser.id;
                   <span className="text-3xl font-black text-zinc-900 leading-none">{validAccounts.filter(a => a.isClean).length}</span>
                 </div>
               </div>
-              
-              <div className="bg-white border border-zinc-200 rounded-3xl p-6 flex flex-col gap-4 shadow-sm hover:shadow-md hover:border-blue-200 transition-all">
-                <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600">
-                  <Gamepad2 className="w-6 h-6 text-blue-500" />
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-xs text-zinc-500 font-bold uppercase tracking-widest mb-1">CODM</span>
-                  <span className="text-3xl font-black text-zinc-900 leading-none">{validAccounts.filter(a => a.hasCodm).length}</span>
-                </div>
+            </div>
+
+            <div className="flex mb-8">
+              <div className="bg-zinc-50 border border-zinc-200 rounded-xl px-4 py-2 flex items-center justify-center gap-2 shadow-sm">
+                <Gamepad2 className="w-4 h-4 text-zinc-400" />
+                <span className="text-xs text-zinc-500 font-bold uppercase tracking-widest">CODM: {validAccounts.filter(a => a.hasCodm).length}</span>
               </div>
             </div>
 
