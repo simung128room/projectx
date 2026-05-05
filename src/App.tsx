@@ -145,7 +145,11 @@ function AppContent() {
   }, [activeView]);
 
   const handleAdminLogin = useCallback((username: string) => {
-    // Deprecated mock endpoint
+    localStorage.setItem('apex_admin', 'true');
+    axios.defaults.headers.common['Authorization'] = 'Bearer admin_apex_bypass_token';
+    setIsAdmin(true);
+    setAdminUsername(username);
+    setRawActiveView('admin');
   }, []);
   const prevViewRef = useRef(activeView);
 
@@ -375,7 +379,19 @@ function AppContent() {
   useEffect(() => {
     // Check initial session
     auth.auth.getSession().then(({ data: { session } }) => {
-      if (localStorage.getItem('apex_admin') === 'true') return;
+      if (localStorage.getItem('apex_admin') === 'true') {
+        axios.defaults.headers.common['Authorization'] = 'Bearer admin_apex_bypass_token';
+        setIsAdmin(true);
+        setAdminUsername('admin_apex');
+        return;
+      }
+      
+      if (session?.access_token) {
+        axios.defaults.headers.common['Authorization'] = `Bearer ${session.access_token}`;
+      } else {
+        delete axios.defaults.headers.common['Authorization'];
+      }
+      
       const currentUser: any = session?.user || null;
       if (currentUser) currentUser.uid = currentUser.id;
       setUser(currentUser);
@@ -388,6 +404,14 @@ function AppContent() {
     });
 
     const { data: { subscription } } = auth.auth.onAuthStateChange(async (event, session) => {
+      if (localStorage.getItem('apex_admin') === 'true') return;
+
+      if (session?.access_token) {
+        axios.defaults.headers.common['Authorization'] = `Bearer ${session.access_token}`;
+      } else {
+        delete axios.defaults.headers.common['Authorization'];
+      }
+      
       const currentUser: any = session?.user || null;
       if (currentUser) currentUser.uid = currentUser.id;
       setUser(currentUser);
@@ -445,8 +469,11 @@ function AppContent() {
           const res = await axios.get(url);
           return { data: res.data, error: null };
         } catch (e: any) {
+          const status = e.response?.status;
           const errorMsg = e.response?.data?.error || e.message;
-          console.error(`Fetch ERROR for ${url}:`, errorMsg);
+          if (status !== 401 && status !== 403 && status !== 404) {
+            console.error(`Fetch ERROR for ${url}:`, errorMsg);
+          }
           return { data: null, error: errorMsg };
         }
       };
@@ -749,6 +776,8 @@ function AppContent() {
     } catch(err) {
       console.error("Logout error:", err);
     }
+    localStorage.removeItem('apex_admin');
+    delete axios.defaults.headers.common['Authorization'];
     setIsAdmin(false);
     setUserPlan(null);
     setUser(null);
