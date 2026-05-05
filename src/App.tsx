@@ -1569,6 +1569,7 @@ function AppContent() {
             categories={categories}
             stats={siteStats} 
             user={user} 
+            siteSettings={siteSettings}
             purchaseHistory={purchaseHistory} 
             setActiveView={setActiveView} 
             onProductClick={(id) => {

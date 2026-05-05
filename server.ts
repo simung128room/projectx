@@ -114,7 +114,8 @@ const app = express();
     stats_sales_offset: 0,
     popup_img_url: 'https://images.unsplash.com/photo-1607083206968-13611e3d76db?auto=format&fit=crop&q=80&w=1500&h=1500',
     popup_enabled: true,
-    popup_link: ''
+    popup_link: '',
+    banners: ["https://img1.pic.in.th/images/534FA0AA-6136-4D5D-8726-630F23B7D6C4.png"]
   };
 
   // Load from DB
@@ -134,7 +135,7 @@ const app = express();
 
   app.post('/api/settings', requireAdmin, async (req, res) => {
     console.log("=== POST /api/settings REACHED ===", req.body);
-    const { truewallet_phone, site_name, contact_line, stats_users_offset, stats_sales_offset, stats_users_override, stats_stock_override, stats_sales_override, popup_img_url, popup_enabled, popup_link } = req.body;
+    const { truewallet_phone, site_name, contact_line, stats_users_offset, stats_sales_offset, stats_users_override, stats_stock_override, stats_sales_override, popup_img_url, popup_enabled, popup_link, banners } = req.body;
     if (truewallet_phone !== undefined) siteSettings.truewallet_phone = truewallet_phone;
     if (site_name !== undefined) siteSettings.site_name = site_name;
     if (contact_line !== undefined) siteSettings.contact_line = contact_line;
@@ -146,6 +147,7 @@ const app = express();
     if (popup_img_url !== undefined) siteSettings.popup_img_url = popup_img_url;
     if (popup_enabled !== undefined) siteSettings.popup_enabled = popup_enabled === true || popup_enabled === 'true';
     if (popup_link !== undefined) siteSettings.popup_link = popup_link;
+    if (banners !== undefined && Array.isArray(banners)) siteSettings.banners = banners;
     
     // Clear cached stats so they refresh next time someone calls /api/stats
     lastStatsFetch = 0;
@@ -566,6 +568,16 @@ const app = express();
     legacyHeaders: false, // Disable the `X-RateLimit-*` headers
     message: { error: 'ขออภัย คุณส่งคำร้องขอเยอะเกินไป (Anti-Bot Protection) กรุณารอสักครู่' }
   });
+
+  const globalLimiter = rateLimit({
+    windowMs: 1 * 60 * 1000, // 1 minute
+    max: 60, // 60 requests per minute
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: 'Too many requests, please try again later.' }
+  });
+
+  app.use('/api/', globalLimiter);
 
   // Cache for Turnstile tokens (since they are single-use against Cloudflare, but we need them for a bulk loop)
   const turnstileCache = new Map<string, number>();

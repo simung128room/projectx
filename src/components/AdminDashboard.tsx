@@ -487,7 +487,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     stats_sales_offset: 0,
     popup_img_url: 'https://images.unsplash.com/photo-1607083206968-13611e3d76db?auto=format&fit=crop&q=80&w=1500&h=1500',
     popup_enabled: true,
-    popup_link: ''
+    popup_link: '',
+    banners: ["https://img1.pic.in.th/images/534FA0AA-6136-4D5D-8726-630F23B7D6C4.png"]
   });
 
   useEffect(() => {
@@ -1410,6 +1411,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                            onChange={(e) => setSiteSettings({ ...siteSettings, popup_link: e.target.value })}
                            className="w-full bg-white border border-zinc-200 rounded-2xl px-5 py-4 text-zinc-900 text-sm font-bold focus:outline-none focus:border-red-500 shadow-inner"
                            placeholder="https://facebook.com/..."
+                         />
+                      </div>
+
+                      <div className="space-y-4 col-span-1 md:col-span-2">
+                         <label className="block text-sm font-bold text-zinc-700">รูปภาพป้ายโฆษณาหน้าแรก (URL 1 บรรทัดต่อ 1 รูปภาพ)</label>
+                         <textarea 
+                           value={(siteSettings.banners || []).join('\n')}
+                           onChange={(e) => setSiteSettings({ ...siteSettings, banners: e.target.value.split('\n').map(url => url.trim()).filter(Boolean) })}
+                           className="w-full bg-white border border-zinc-200 rounded-2xl px-5 py-4 text-zinc-900 text-sm font-bold focus:outline-none focus:border-indigo-500 shadow-inner h-32 resize-none"
+                           placeholder="https://img.th/banner1.png\nhttps://img.th/banner2.png"
                          />
                       </div>
                     </div>

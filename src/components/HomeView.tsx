@@ -10,20 +10,23 @@ interface HomeViewProps {
   categories: Category[];
   stats: SiteStats;
   user?: any;
+  siteSettings?: any;
   purchaseHistory?: any[];
   setActiveView: (view: any) => void;
   onProductClick: (id: string) => void;
   onSelectCategory: (categoryId: string) => void;
 }
 
-const BANNERS = [
-  "https://img2.pic.in.th/86B05EC5-E611-42BD-A4E1-3E266EA3C2E8.png"
+const DEFAULT_BANNERS = [
+  "https://img1.pic.in.th/images/534FA0AA-6136-4D5D-8726-630F23B7D6C4.png"
 ];
 
-export const HomeView: React.FC<HomeViewProps> = ({ products, categories, stats, user, purchaseHistory, setActiveView, onProductClick, onSelectCategory }) => {
+export const HomeView: React.FC<HomeViewProps> = ({ products, categories, stats, user, siteSettings, purchaseHistory, setActiveView, onProductClick, onSelectCategory }) => {
   const [currentBanner, setCurrentBanner] = useState(0);
   const [realtimeStats, setRealtimeStats] = useState(stats);
   const [isProductLoading, setIsProductLoading] = useState(false);
+  
+  const bannersToUse = siteSettings?.banners && siteSettings.banners.length > 0 ? siteSettings.banners : DEFAULT_BANNERS;
 
   const handleProductSelect = (product: Product | null) => {
     if (product) {
@@ -47,10 +50,10 @@ export const HomeView: React.FC<HomeViewProps> = ({ products, categories, stats,
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentBanner((prev) => (prev + 1) % BANNERS.length);
+      setCurrentBanner((prev) => (prev + 1) % bannersToUse.length);
     }, 5000);
     return () => clearInterval(timer);
-  }, []);
+  }, [bannersToUse.length]);
 
   if (isProductLoading) {
     return (
@@ -79,7 +82,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ products, categories, stats,
           <AnimatePresence mode="wait">
             <motion.img
               key={currentBanner}
-              src={BANNERS[currentBanner] || undefined}
+              src={bannersToUse[currentBanner] || undefined}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
