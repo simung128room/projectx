@@ -10,7 +10,12 @@ if (!supabaseUrl || !supabaseKey) {
 export const supabaseAdmin = createClient(supabaseUrl, supabaseKey);
 
 class SupabaseDoc {
-  constructor(public collection: string, public id: string) {}
+  public collection: string;
+  public id: string;
+  constructor(collection: string, id: string) {
+    this.collection = collection;
+    this.id = id;
+  }
   async get() {
     const { data, error } = await supabaseAdmin.from(this.collection).select('*').eq('id', this.id).single();
     if (error && error.code !== 'PGRST116') throw error;
@@ -47,7 +52,10 @@ class SupabaseQuery {
   _orderBy: any[] = [];
   _limit?: number;
 
-  constructor(public collection: string) {}
+  public collection: string;
+  constructor(collection: string) {
+    this.collection = collection;
+  }
 
   where(field: string, op: string, value: any) {
     this._where.push({ field, op, value });

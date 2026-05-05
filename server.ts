@@ -12,7 +12,7 @@ import { HttpsProxyAgent } from 'https-proxy-agent';
 import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
 
-import { adminDb as admin } from './src/lib/admindb';
+import { adminDb as admin } from './src/lib/admindb.ts';
 
 
 
@@ -659,7 +659,7 @@ const app = express();
     let secChPlatform = isMac ? '"macOS"' : '"Windows"';
 
     // Webshare Proxy provided by user
-    const proxyUrl = `http://hfbbfxvi:dn64aepbgf6n@31.59.20.176:6754`;
+    const proxyUrl = ``;
     
     let agent;
     try {
