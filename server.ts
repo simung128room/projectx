@@ -12,7 +12,7 @@ import { HttpsProxyAgent } from 'https-proxy-agent';
 import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
 
-import { adminDb as admin } from './src/lib/admindb.ts';
+import { adminDb as admin } from './src/lib/admindb.js';
 
 
 
