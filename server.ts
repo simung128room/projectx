@@ -26,11 +26,6 @@ const app = express();
   const PORT = 3000;
 
   const injectUser = async (req: any, res: any, next: any) => {
-    if (req.headers['x-apex-admin'] === 'true') {
-      req.user = { uid: 'admin_apex', email: 'admin_apex@apex-studio.com' };
-      req.isAdmin = true;
-      return next();
-    }
     const authHeader = req.headers.authorization;
     if (authHeader && authHeader.startsWith('Bearer ')) {
       const token = authHeader.split('Bearer ')[1];
@@ -1346,8 +1341,7 @@ console.log('HIT STATS ENDPOINT');
     }
   });
 
-  app.get('/api/license_keys', async (req: any, res: any) => {
-    if (!req.isAdmin) return res.json([]);
+  app.get('/api/license_keys', requireAdmin, async (req: any, res: any) => {
     try {
       const snapshot = await admin.firestore().collection('license_keys').orderBy('created_at', 'desc').get();
       const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -1419,8 +1413,7 @@ console.log('HIT STATS ENDPOINT');
     }
   });
 
-  app.get('/api/used_keys', async (req: any, res: any) => {
-    if (!req.isAdmin) return res.json([]);
+  app.get('/api/used_keys', requireAdmin, async (req: any, res: any) => {
     try {
       const snapshot = await admin.firestore().collection('used_keys').orderBy('used_at', 'desc').limit(100).get();
       const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -1443,8 +1436,7 @@ console.log('HIT STATS ENDPOINT');
     }
   });
 
-  app.get('/api/blocked_ips', async (req: any, res: any) => {
-    if (!req.isAdmin) return res.json([]);
+  app.get('/api/blocked_ips', requireAdmin, async (req: any, res: any) => {
     try {
       const snapshot = await admin.firestore().collection('blocked_ips').orderBy('blocked_at', 'desc').get();
       const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -1549,8 +1541,7 @@ console.log('HIT STATS ENDPOINT');
     }
   });
 
-  app.get('/api/users', async (req: any, res: any) => {
-    if (!req.isAdmin) return res.json([]);
+  app.get('/api/users', requireAdmin, async (req: any, res: any) => {
     try {
       const snapshot = await admin.firestore().collection('users').get();
       const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));

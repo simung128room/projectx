@@ -12,9 +12,6 @@ import axios from 'axios';
 import { supabase as auth } from './lib/supabase'; // auth here refers to supabase
 
 axios.interceptors.request.use(async (config) => {
-  if (localStorage.getItem('apex_admin') === 'true') {
-    config.headers['x-apex-admin'] = 'true';
-  }
   const { data: { session } } = await auth.auth.getSession();
   if (session?.access_token) {
     try {
@@ -97,19 +94,11 @@ function ElapsedTimeDisplay({ running, startTime }: { running: boolean, startTim
 }
 
 function AppContent() {
-  const [isAdmin, setIsAdmin] = useState(() => localStorage.getItem('apex_admin') === 'true');
-  const [adminUsername, setAdminUsername] = useState(() => localStorage.getItem('apex_admin') === 'true' ? 'admin_apex' : '');
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [adminUsername, setAdminUsername] = useState('');
   const [adminPassword, setAdminPassword] = useState('');
-  const [user, setUser] = useState<SupabaseUser | null>(() => {
-    return localStorage.getItem('apex_admin') === 'true' 
-      ? ({ id: 'admin', email: 'admin_apex@apex-studio.com', user_metadata: { name: 'Admin Apex' } } as any)
-      : null;
-  });
-  const [userPlan, setUserPlan] = useState<UserPlan | null>(() => {
-    return localStorage.getItem('apex_admin') === 'true'
-      ? ({ username: 'Admin Apex', isPremium: true, premiumExpireDate: new Date(Date.now() + 86400000 * 365).toISOString(), balance: 9999999 } as any)
-      : null;
-  });
+  const [user, setUser] = useState<SupabaseUser | null>(null);
+  const [userPlan, setUserPlan] = useState<UserPlan | null>(null);
   const [siteSettings, setSiteSettings] = useState({ 
     site_name: 'APEX STUDIO',
     truewallet_phone: '0951378403',
@@ -156,12 +145,7 @@ function AppContent() {
   }, [activeView]);
 
   const handleAdminLogin = useCallback((username: string) => {
-    localStorage.setItem('apex_admin', 'true');
-    setIsAdmin(true);
-    setAdminUsername(username);
-    setUser({ id: 'admin', email: 'admin_apex@apex-studio.com', user_metadata: { name: 'Admin Apex' } } as any);
-    setUserPlan({ username: 'Admin Apex', isPremium: true, premiumExpireDate: new Date(Date.now() + 86400000 * 365).toISOString(), balance: 9999999 } as any);
-    setRawActiveView('home'); // Send admin to home or keep them wherever, but enable menus.
+    // Deprecated mock endpoint
   }, []);
   const prevViewRef = useRef(activeView);
 
@@ -404,7 +388,6 @@ function AppContent() {
     });
 
     const { data: { subscription } } = auth.auth.onAuthStateChange(async (event, session) => {
-      if (localStorage.getItem('apex_admin') === 'true') return;
       const currentUser: any = session?.user || null;
       if (currentUser) currentUser.uid = currentUser.id;
       setUser(currentUser);
@@ -766,7 +749,6 @@ function AppContent() {
     } catch(err) {
       console.error("Logout error:", err);
     }
-    localStorage.removeItem('apex_admin');
     setIsAdmin(false);
     setUserPlan(null);
     setUser(null);
