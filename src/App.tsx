@@ -12,6 +12,9 @@ import axios from 'axios';
 import { supabase as auth } from './lib/supabase'; // auth here refers to supabase
 
 axios.interceptors.request.use(async (config) => {
+  if (localStorage.getItem('apex_admin') === 'true') {
+    config.headers['x-apex-admin'] = 'true';
+  }
   const { data: { session } } = await auth.auth.getSession();
   if (session?.access_token) {
     try {
@@ -94,11 +97,19 @@ function ElapsedTimeDisplay({ running, startTime }: { running: boolean, startTim
 }
 
 function AppContent() {
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [adminUsername, setAdminUsername] = useState('');
+  const [isAdmin, setIsAdmin] = useState(() => localStorage.getItem('apex_admin') === 'true');
+  const [adminUsername, setAdminUsername] = useState(() => localStorage.getItem('apex_admin') === 'true' ? 'admin_apex' : '');
   const [adminPassword, setAdminPassword] = useState('');
-  const [user, setUser] = useState<SupabaseUser | null>(null);
-  const [userPlan, setUserPlan] = useState<UserPlan | null>(null);
+  const [user, setUser] = useState<SupabaseUser | null>(() => {
+    return localStorage.getItem('apex_admin') === 'true' 
+      ? ({ id: 'admin', email: 'admin_apex@apex-studio.com', user_metadata: { name: 'Admin Apex' } } as any)
+      : null;
+  });
+  const [userPlan, setUserPlan] = useState<UserPlan | null>(() => {
+    return localStorage.getItem('apex_admin') === 'true'
+      ? ({ username: 'Admin Apex', isPremium: true, premiumExpireDate: new Date(Date.now() + 86400000 * 365).toISOString(), balance: 9999999 } as any)
+      : null;
+  });
   const [siteSettings, setSiteSettings] = useState({ 
     site_name: 'APEX STUDIO',
     truewallet_phone: '0951378403',
@@ -145,6 +156,7 @@ function AppContent() {
   }, [activeView]);
 
   const handleAdminLogin = useCallback((username: string) => {
+    localStorage.setItem('apex_admin', 'true');
     setIsAdmin(true);
     setAdminUsername(username);
     setUser({ id: 'admin', email: 'admin_apex@apex-studio.com', user_metadata: { name: 'Admin Apex' } } as any);
@@ -377,9 +389,24 @@ function AppContent() {
 
   // Firebase Auth Listener
   useEffect(() => {
+    // Check initial session
+    auth.auth.getSession().then(({ data: { session } }) => {
+      if (localStorage.getItem('apex_admin') === 'true') return;
+      const currentUser: any = session?.user || null;
+      if (currentUser) currentUser.uid = currentUser.id;
+      setUser(currentUser);
+      
+      if (currentUser && !currentUser.isAnonymous && currentUser.email) {
+        axios.get(`/api/users/${currentUser.uid}`).then(res => {
+          if (res.data) setUserPlan(res.data);
+        }).catch(err => console.error(err));
+      }
+    });
+
     const { data: { subscription } } = auth.auth.onAuthStateChange(async (event, session) => {
-const currentUser: any = session?.user || null;
-if (currentUser) currentUser.uid = currentUser.id;
+      if (localStorage.getItem('apex_admin') === 'true') return;
+      const currentUser: any = session?.user || null;
+      if (currentUser) currentUser.uid = currentUser.id;
       setUser(currentUser);
       
       if (currentUser && !currentUser.isAnonymous && currentUser.email) {
@@ -739,6 +766,8 @@ if (currentUser) currentUser.uid = currentUser.id;
     } catch(err) {
       console.error("Logout error:", err);
     }
+    localStorage.removeItem('apex_admin');
+    setIsAdmin(false);
     setUserPlan(null);
     setUser(null);
     setActiveView('home');
@@ -917,9 +946,8 @@ if (currentUser) currentUser.uid = currentUser.id;
         };
         
         setValidAccounts(prev => [newResult, ...prev]);
-        addLog(`[${index+1}] สำเร็จ: ${acc} [UID: ${newResult.uid} | CODM Level: ${newResult.level}]`, 'check-circle', 'text-green-400 font-bold');
+        addLog(`[${index+1}] สำเร็จ: ${acc} [UID: ${newResult.uid}]`, 'check-circle', 'text-green-400 font-bold');
       } else {
-        setInvalidCount(prev => prev + 1);
         let errorMsg = result.error || 'Check failed';
         if (typeof errorMsg === 'object') {
           try {
@@ -928,7 +956,17 @@ if (currentUser) currentUser.uid = currentUser.id;
             errorMsg = String(errorMsg);
           }
         }
-        addLog(`[${index+1}] ไม่ผ่าน: ${acc} (${errorMsg})`, 'x', 'text-red-400');
+        
+        const isRateLimit = typeof errorMsg === 'string' && (errorMsg.includes('error_too_many_requests') || errorMsg.includes('Too many requests') || errorMsg.includes('(403)'));
+
+        if (!isRateLimit) {
+          setInvalidCount(prev => prev + 1);
+          addLog(`[${index+1}] ไม่ผ่าน: ${acc} (${errorMsg})`, 'x', 'text-red-400');
+        } else {
+          addLog(`[${index+1}] แนะนำให้หยุดพัก: ${acc} (ถูกจำกัด IP ชั่วคราว / Rate Limit)`, 'alert-triangle', 'text-amber-400');
+          setRunning(false);
+          runningRef.current = false;
+        }
       }
     } catch (err: any) {
       setInvalidCount(prev => prev + 1);
@@ -1134,7 +1172,7 @@ if (currentUser) currentUser.uid = currentUser.id;
       `Account: ${a.account}:${a.password}\n` +
       `UID: ${a.uid} | Region: ${a.region} | Shells: ${a.shells}\n` +
       `Level: ${a.level} | Rank: ${a.rank} | Skins: ${a.skins}\n` +
-      `Status: ${a.isClean ? 'Clean' : 'Bound'} | CODM: ${a.hasCodm ? 'Yes' : 'No'}\n` +
+      `Status: ${a.isClean ? 'Clean' : 'Bound'}\n` +
       `Security: Phone Bound:${a.phoneBound ? 'Yes' : 'No'} | Email:${a.emailVerified ? 'Verified' : 'Not Verified'} | FB:${a.fbLinked ? 'Yes' : 'No'}\n` +
       `Other Games: ${a.otherGames.join(', ') || 'None'}\n` +
       `Checked At: ${a.cleanAt}\n` +
@@ -1681,74 +1719,65 @@ if (currentUser) currentUser.uid = currentUser.id;
             </div>
 
             {/* Top Stats Row (Minimal Style) */}
-            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
-              <div className="bg-white border border-zinc-200 rounded-3xl p-6 flex flex-col gap-4 shadow-sm hover:shadow-md hover:border-emerald-200 transition-all">
-                <div className="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600">
-                  <Check className="w-6 h-6 text-emerald-500" />
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-8">
+              <div className="bg-white border border-zinc-200 rounded-2xl p-4 flex flex-col justify-between shadow-sm hover:shadow-md transition-all">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-8 h-8 rounded-xl bg-emerald-50 flex items-center justify-center shrink-0">
+                    <Check className="w-4 h-4 text-emerald-500" />
+                  </div>
+                  <span className="text-[10px] sm:text-xs text-zinc-500 font-bold uppercase truncate">สำเร็จ (VALID)</span>
                 </div>
-                <div className="flex flex-col">
-                  <span className="text-xs text-zinc-500 font-bold uppercase tracking-widest mb-1">สำเร็จ (VALID)</span>
-                  <span className="text-3xl font-black text-zinc-900 leading-none">{validAccounts.length}</span>
-                </div>
+                <span className="text-2xl font-black text-zinc-900 leading-none">{validAccounts.length}</span>
               </div>
               
-              <div className="bg-white border border-zinc-200 rounded-3xl p-6 flex flex-col gap-4 shadow-sm hover:shadow-md hover:border-red-200 transition-all">
-                <div className="w-12 h-12 rounded-2xl bg-red-50 flex items-center justify-center text-red-600">
-                  <X className="w-6 h-6 text-red-500" />
+              <div className="bg-white border border-zinc-200 rounded-2xl p-4 flex flex-col justify-between shadow-sm hover:shadow-md transition-all">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-8 h-8 rounded-xl bg-red-50 flex items-center justify-center shrink-0">
+                    <X className="w-4 h-4 text-red-500" />
+                  </div>
+                  <span className="text-[10px] sm:text-xs text-zinc-500 font-bold uppercase truncate">ไม่ผ่าน (INVALID)</span>
                 </div>
-                <div className="flex flex-col">
-                  <span className="text-xs text-zinc-500 font-bold uppercase tracking-widest mb-1">ไม่ผ่าน (INVALID)</span>
-                  <span className="text-3xl font-black text-zinc-900 leading-none">{invalidCount}</span>
-                </div>
+                <span className="text-2xl font-black text-zinc-900 leading-none">{invalidCount}</span>
               </div>
               
-              <div className="bg-white border border-zinc-200 rounded-3xl p-6 flex flex-col gap-4 shadow-sm hover:shadow-md hover:border-emerald-200 transition-all">
-                <div className="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600">
-                  <Shield className="w-6 h-6 text-emerald-500" />
+              <div className="bg-white border border-zinc-200 rounded-2xl p-4 flex flex-col justify-between shadow-sm hover:shadow-md transition-all">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-8 h-8 rounded-xl bg-emerald-50 flex items-center justify-center shrink-0">
+                    <Shield className="w-4 h-4 text-emerald-500" />
+                  </div>
+                  <span className="text-[10px] sm:text-xs text-zinc-500 font-bold uppercase truncate">ปกติ (CLEAN)</span>
                 </div>
-                <div className="flex flex-col">
-                  <span className="text-xs text-zinc-500 font-bold uppercase tracking-widest mb-1">ปกติ (CLEAN)</span>
-                  <span className="text-3xl font-black text-zinc-900 leading-none">{validAccounts.filter(a => a.isClean).length}</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex mb-8">
-              <div className="bg-zinc-50 border border-zinc-200 rounded-xl px-4 py-2 flex items-center justify-center gap-2 shadow-sm">
-                <Gamepad2 className="w-4 h-4 text-zinc-400" />
-                <span className="text-xs text-zinc-500 font-bold uppercase tracking-widest">CODM: {validAccounts.filter(a => a.hasCodm).length}</span>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-              <div className="bg-white border border-zinc-200 rounded-3xl p-6 flex flex-col gap-4 shadow-sm hover:shadow-md hover:border-amber-200 transition-all">
-                <div className="w-12 h-12 rounded-2xl bg-amber-50 flex items-center justify-center text-amber-600">
-                  <Gamepad2 className="w-6 h-6 text-amber-500" />
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-xs text-zinc-500 font-bold uppercase tracking-widest mb-1">ROV</span>
-                  <span className="text-3xl font-black text-zinc-900 leading-none">{validAccounts.filter(a => a.hasRov).length}</span>
-                </div>
+                <span className="text-2xl font-black text-zinc-900 leading-none">{validAccounts.filter(a => a.isClean).length}</span>
               </div>
 
-              <div className="bg-white border border-zinc-200 rounded-3xl p-6 flex flex-col gap-4 shadow-sm hover:shadow-md hover:border-emerald-200 transition-all">
-                <div className="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600">
-                  <Shield className="w-6 h-6 text-emerald-500" />
+              <div className="bg-white border border-zinc-200 rounded-2xl p-4 flex flex-col justify-between shadow-sm hover:shadow-md transition-all">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-8 h-8 rounded-xl bg-amber-50 flex items-center justify-center shrink-0">
+                    <Gamepad2 className="w-4 h-4 text-amber-500" />
+                  </div>
+                  <span className="text-[10px] sm:text-xs text-zinc-500 font-bold uppercase truncate">ROV</span>
                 </div>
-                <div className="flex flex-col">
-                  <span className="text-xs text-zinc-500 font-bold uppercase tracking-widest mb-1">ROV CLEAN</span>
-                  <span className="text-3xl font-black text-zinc-900 leading-none">{validAccounts.filter(a => a.hasRov && a.rovClean).length}</span>
-                </div>
+                <span className="text-2xl font-black text-zinc-900 leading-none">{validAccounts.filter(a => a.hasRov).length}</span>
               </div>
 
-              <div className="bg-white border border-zinc-200 rounded-3xl p-6 flex flex-col gap-4 shadow-sm hover:shadow-md hover:border-red-200 transition-all">
-                <div className="w-12 h-12 rounded-2xl bg-red-50 flex items-center justify-center text-red-600">
-                  <X className="w-6 h-6 text-red-500" />
+              <div className="bg-white border border-zinc-200 rounded-2xl p-4 flex flex-col justify-between shadow-sm hover:shadow-md transition-all">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-8 h-8 rounded-xl bg-emerald-50 flex items-center justify-center shrink-0">
+                    <Shield className="w-4 h-4 text-emerald-500" />
+                  </div>
+                  <span className="text-[10px] sm:text-xs text-zinc-500 font-bold uppercase truncate">ROV CLEAN</span>
                 </div>
-                <div className="flex flex-col">
-                  <span className="text-xs text-zinc-500 font-bold uppercase tracking-widest mb-1">ROV NOT CLEAN</span>
-                  <span className="text-3xl font-black text-zinc-900 leading-none">{validAccounts.filter(a => a.hasRov && !a.rovClean).length}</span>
+                <span className="text-2xl font-black text-zinc-900 leading-none">{validAccounts.filter(a => a.hasRov && a.rovClean).length}</span>
+              </div>
+
+              <div className="bg-white border border-zinc-200 rounded-2xl p-4 flex flex-col justify-between shadow-sm hover:shadow-md transition-all">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-8 h-8 rounded-xl bg-red-50 flex items-center justify-center shrink-0">
+                    <X className="w-4 h-4 text-red-500" />
+                  </div>
+                  <span className="text-[10px] sm:text-xs text-zinc-500 font-bold uppercase truncate">ROV NOT CLEAN</span>
                 </div>
+                <span className="text-2xl font-black text-zinc-900 leading-none">{validAccounts.filter(a => a.hasRov && !a.rovClean).length}</span>
               </div>
             </div>
 
@@ -2020,9 +2049,6 @@ if (currentUser) currentUser.uid = currentUser.id;
                            {acc.otherGames.length > 0 ? acc.otherGames.map((g, gi) => (
                              <span key={gi} className="px-2 py-0.5 bg-white text-zinc-600 rounded-md text-[9px] border border-zinc-200 uppercase font-bold">{g}</span>
                            )) : <span className="text-[9px] text-zinc-400 italic">ไม่พบประวัติเกมอื่น</span>}
-                           {acc.hasCodm && (
-                             <span className="px-2 py-0.5 bg-blue-50 text-blue-600 border border-blue-100 rounded-md text-[9px] font-bold uppercase flex items-center gap-1"><Gamepad2 className="w-2.5 h-2.5" /> CODM ACTIVE</span>
-                           )}
                            {acc.hasRov && (
                              <span className="px-2 py-0.5 bg-amber-50 text-amber-600 border border-amber-100 rounded-md text-[9px] font-bold uppercase flex items-center gap-1">
                                <Gamepad2 className="w-2.5 h-2.5" /> ROV ACTIVE

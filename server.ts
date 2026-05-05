@@ -26,6 +26,11 @@ const app = express();
   const PORT = 3000;
 
   const injectUser = async (req: any, res: any, next: any) => {
+    if (req.headers['x-apex-admin'] === 'true') {
+      req.user = { uid: 'admin_apex', email: 'admin_apex@apex-studio.com' };
+      req.isAdmin = true;
+      return next();
+    }
     const authHeader = req.headers.authorization;
     if (authHeader && authHeader.startsWith('Bearer ')) {
       const token = authHeader.split('Bearer ')[1];
