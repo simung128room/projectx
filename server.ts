@@ -53,7 +53,8 @@ const app = express();
 
   const requireAdmin = async (req: any, res: any, next: any) => {
     if (!req.user || !req.isAdmin) {
-      return res.status(403).json({ error: 'Forbidden: Admin access required' });
+      console.log('requireAdmin failed: user=', req.user, 'isAdmin=', req.isAdmin);
+      return res.status(403).json({ error: 'Forbidden: Admin access required. Please re-login.' });
     }
     next();
   };
@@ -103,6 +104,8 @@ const app = express();
   // app.get('/api/health', (req, res) => { ... })
   
   // Site Settings State
+  let lastStatsFetch = 0;
+  let cachedStats: any = null;
   let siteSettings: any = {
     site_name: process.env.VITE_SITE_NAME || 'APEX STUDIO',
     truewallet_phone: process.env.TRUEWALLET_PHONE || '0951378403',
@@ -130,6 +133,7 @@ const app = express();
   });
 
   app.post('/api/settings', requireAdmin, async (req, res) => {
+    console.log("=== POST /api/settings REACHED ===", req.body);
     const { truewallet_phone, site_name, contact_line, stats_users_offset, stats_sales_offset, stats_users_override, stats_stock_override, stats_sales_override, popup_img_url, popup_enabled, popup_link } = req.body;
     if (truewallet_phone !== undefined) siteSettings.truewallet_phone = truewallet_phone;
     if (site_name !== undefined) siteSettings.site_name = site_name;
@@ -1097,9 +1101,6 @@ const app = express();
   app.get('/api/test_stats', async (req, res) => {
     res.json({ ok: 1 });
   });
-
-  let cachedStats: any = null;
-  let lastStatsFetch = 0;
 
   app.get('/api/stats', async (req, res) => {
 console.log('HIT STATS ENDPOINT');

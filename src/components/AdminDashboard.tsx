@@ -888,7 +888,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                   
                                   Swal.fire({ title: 'บันทึกสำเร็จ', text: 'รีเฟรชหน้าเว็บเพื่อดูผลลัพธ์', icon: 'success', confirmButtonColor: '#16a34a' });
                                 } catch (error) {
-                                  Swal.fire({ title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถบันทึกสถิติได้', icon: 'error', confirmButtonColor: '#dc2626' });
+                                  Swal.fire({ title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถบันทึกสถิติได้: ' + (error.response?.data?.error || error.message), icon: 'error', confirmButtonColor: '#dc2626' });
                                 }
                             }
                         });
