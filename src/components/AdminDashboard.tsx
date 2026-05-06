@@ -1389,7 +1389,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       </div>
 
                       <div className="space-y-4 col-span-1 md:col-span-2">
-                        <label className="block text-sm font-bold text-zinc-700">รูปภาพประกาศ (URL หรืออัพโหลด)</label>
+                        <label className="block text-sm font-bold text-zinc-700">รูปภาพประกาศ (ขนาดที่แนะนำ 940 x 480 px)</label>
                         <div className="flex flex-col sm:flex-row gap-2">
                           <input 
                             type="text"
@@ -1398,6 +1398,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                             className="flex-1 w-full bg-white border border-zinc-200 rounded-2xl px-5 py-4 text-zinc-900 text-sm font-bold focus:outline-none focus:border-red-500 shadow-inner"
                             placeholder="https://images.unsplash.com/photo-..."
                           />
+                          <button
+                            type="button"
+                            onClick={() => setSiteSettings({ ...siteSettings, popup_img_url: 'https://placehold.co/940x480/red/white?text=Announcement' })}
+                            className="sm:w-auto w-full px-4 py-4 sm:py-0 bg-blue-50 border border-blue-200 text-blue-600 rounded-2xl font-bold hover:bg-blue-100 flex items-center justify-center whitespace-nowrap transition-all active:scale-95"
+                          >
+                            ปุ่มลัด
+                          </button>
                           <button
                             type="button"
                             onClick={() => {
