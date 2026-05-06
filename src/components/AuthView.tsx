@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { User, Shield, Mail, ArrowRight, Lock, CheckCircle2, MonitorSmartphone, Eye, EyeOff, Zap } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import Swal from 'sweetalert2';
@@ -355,7 +355,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
             </AnimatePresence>
 
             {TURNSTILE_SITE_KEY && (
-              <motion.div layout initial={{opacity: 0, y: 10}} animate={{opacity: 1, y: 0}} className="flex justify-center mt-4 mb-2 w-full overflow-hidden rounded-xl border border-zinc-200">
+              <motion.div initial={{opacity: 0, y: 10}} animate={{opacity: 1, y: 0}} className="flex justify-center mt-4 mb-2 w-full overflow-hidden rounded-xl border border-zinc-200">
                 <Turnstile
                   siteKey={TURNSTILE_SITE_KEY}
                   onSuccess={(token) => setTurnstileToken(token)}

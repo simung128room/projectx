@@ -29,11 +29,11 @@ app.set('trust proxy', 1);
   const injectUser = async (req: any, res: any, next: any) => {
     const authHeader = req.headers.authorization;
     if (authHeader && authHeader.startsWith('Bearer ')) {
-      const token = authHeader.split('Bearer ')[1];
+      const token = authHeader.split('Bearer ')[1]?.trim();
       if (token === 'admin_apex_bypass_token') {
         req.user = { uid: 'mock_admin_uid', email: 'admin_apex@apex-studio.com' };
         req.isAdmin = true;
-      } else {
+      } else if (token && token !== 'null') {
         try {
           req.user = await admin.auth().verifyIdToken(token);
           if (req.user.email === 'abopboa.b@gmail.com') {
@@ -42,8 +42,8 @@ app.set('trust proxy', 1);
             const adminDoc = await admin.firestore().collection('admins').doc(req.user.uid).get();
             req.isAdmin = !!adminDoc.exists;
           }
-        } catch (error) {
-          console.error('Error verifying Firebase ID token in injectUser:', error);
+        } catch (error: any) {
+          console.error('Error verifying Firebase ID token in injectUser:', error.message || error);
         }
       }
     }
@@ -1573,7 +1573,7 @@ console.log('HIT STATS ENDPOINT');
 
   app.post('/api/log_error', (req, res) => {
     try {
-      const safeBody = typeof req.body === 'object' ? JSON.stringify({ type: req.body.type, message: req.body.message }) : String(req.body).substring(0, 200);
+      const safeBody = typeof req.body === 'object' ? JSON.stringify({ type: req.body.type, message: req.body.message, stack: req.body.stack, componentStack: req.body.componentStack }) : String(req.body).substring(0, 200);
       console.error('CLIENT ERROR:', safeBody);
     } catch(e) {}
     res.json({ received: true });

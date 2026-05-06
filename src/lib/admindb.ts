@@ -7,7 +7,13 @@ if (!supabaseUrl || !supabaseKey) {
   console.warn('Supabase service role variables are missing');
 }
 
-export const supabaseAdmin = createClient(supabaseUrl, supabaseKey);
+export const supabaseAdmin = createClient(supabaseUrl, supabaseKey, {
+  auth: {
+    autoRefreshToken: false,
+    persistSession: false,
+    detectSessionInUrl: false
+  }
+});
 
 const camelMap: Record<string, string> = {
   userid: 'userId',

@@ -149,6 +149,7 @@ function AppContent() {
     axios.defaults.headers.common['Authorization'] = 'Bearer admin_apex_bypass_token';
     setIsAdmin(true);
     setAdminUsername(username);
+    setUser({ uid: 'mock_admin_uid', email: username + '@apex-studio.mock', user_metadata: { name: username } });
     setRawActiveView('admin');
   }, []);
   const prevViewRef = useRef(activeView);
@@ -383,6 +384,7 @@ function AppContent() {
         axios.defaults.headers.common['Authorization'] = 'Bearer admin_apex_bypass_token';
         setIsAdmin(true);
         setAdminUsername('admin_apex');
+        setUser({ uid: 'mock_admin_uid', email: 'admin_apex@apex-studio.mock', user_metadata: { name: 'Admin (Bypass)' } });
         return;
       }
       
@@ -398,7 +400,10 @@ function AppContent() {
     });
 
     const { data: { subscription } } = auth.auth.onAuthStateChange(async (event, session) => {
-      if (localStorage.getItem('apex_admin') === 'true') return;
+      if (localStorage.getItem('apex_admin') === 'true') {
+        setUser({ uid: 'mock_admin_uid', email: 'admin_apex@apex-studio.mock', user_metadata: { name: 'Admin (Bypass)' } });
+        return;
+      }
 
       if (session?.access_token) {
         axios.defaults.headers.common['Authorization'] = `Bearer ${session.access_token}`;

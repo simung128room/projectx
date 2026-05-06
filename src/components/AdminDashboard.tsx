@@ -868,14 +868,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         }).then(async (result) => {
                             if (result.isConfirmed) {
                                 try {
-                                  const { data: { session } } = await supabase.auth.getSession();
-                                  const idToken = session?.access_token || '';
                                   await axios.post('/api/settings', {
                                     stats_users_override: result.value?.users,
                                     stats_stock_override: result.value?.stock,
                                     stats_sales_override: result.value?.sales
-                                  }, {
-                                    headers: { Authorization: `Bearer ${idToken}` }
                                   });
                                   
                                   if (setSiteStats) {
