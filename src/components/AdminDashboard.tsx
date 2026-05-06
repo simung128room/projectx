@@ -1413,9 +1413,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                   // Add auth header if needed, but axios intercepts usually handle it
                                   const tempBtn = e.target; // preserve for scope if needed
                                   Swal.fire({ title: 'กำลังอัพโหลด...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-                                  const res = await axios.post('/api/upload', formData, {
-                                    headers: { 'Content-Type': 'multipart/form-data'}
-                                  });
+                                  const res = await axios.post('/api/upload', formData);
                                   if (res.data?.url) {
                                      setSiteSettings({ ...siteSettings, popup_img_url: res.data.url });
                                      Swal.fire({ icon: 'success', title: 'อัพโหลดสำเร็จ', timer: 1500, showConfirmButton: false });

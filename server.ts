@@ -110,7 +110,15 @@ app.set('trust proxy', 1);
   app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
   app.use(injectUser);
 
-  app.post('/api/upload', requireAdmin, upload.single('file'), (req: any, res: any) => {
+  app.post('/api/upload', requireAdmin, (req: any, res: any, next: any) => {
+    upload.single('file')(req, res, (err) => {
+      if (err) {
+        console.error('Multer error:', err);
+        return res.status(500).json({ error: 'Upload failed: ' + err.message });
+      }
+      next();
+    });
+  }, (req: any, res: any) => {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
     res.json({ url: `/uploads/${req.file.filename}` });
   });
