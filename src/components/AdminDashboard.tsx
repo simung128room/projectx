@@ -1389,14 +1389,48 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       </div>
 
                       <div className="space-y-4 col-span-1 md:col-span-2">
-                        <label className="block text-sm font-bold text-zinc-700">รูปภาพประกาศ (URL)</label>
-                        <input 
-                          type="text"
-                          value={siteSettings.popup_img_url}
-                          onChange={(e) => setSiteSettings({ ...siteSettings, popup_img_url: e.target.value })}
-                          className="w-full bg-white border border-zinc-200 rounded-2xl px-5 py-4 text-zinc-900 text-sm font-bold focus:outline-none focus:border-red-500 shadow-inner"
-                          placeholder="https://images.unsplash.com/photo-..."
-                        />
+                        <label className="block text-sm font-bold text-zinc-700">รูปภาพประกาศ (URL หรืออัพโหลด)</label>
+                        <div className="flex flex-col sm:flex-row gap-2">
+                          <input 
+                            type="text"
+                            value={siteSettings.popup_img_url}
+                            onChange={(e) => setSiteSettings({ ...siteSettings, popup_img_url: e.target.value })}
+                            className="flex-1 w-full bg-white border border-zinc-200 rounded-2xl px-5 py-4 text-zinc-900 text-sm font-bold focus:outline-none focus:border-red-500 shadow-inner"
+                            placeholder="https://images.unsplash.com/photo-..."
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const input = document.createElement('input');
+                              input.type = 'file';
+                              input.accept = 'image/*';
+                              input.onchange = async (e: any) => {
+                                const file = e.target.files?.[0];
+                                if (!file) return;
+                                try {
+                                  const formData = new FormData();
+                                  formData.append('file', file);
+                                  // Add auth header if needed, but axios intercepts usually handle it
+                                  const tempBtn = e.target; // preserve for scope if needed
+                                  Swal.fire({ title: 'กำลังอัพโหลด...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                                  const res = await axios.post('/api/upload', formData, {
+                                    headers: { 'Content-Type': 'multipart/form-data'}
+                                  });
+                                  if (res.data?.url) {
+                                     setSiteSettings({ ...siteSettings, popup_img_url: res.data.url });
+                                     Swal.fire({ icon: 'success', title: 'อัพโหลดสำเร็จ', timer: 1500, showConfirmButton: false });
+                                  }
+                                } catch (err: any) {
+                                  Swal.fire('Error', 'อัพโหลดล้มเหลว: ' + (err.response?.data?.error || err.message), 'error');
+                                }
+                              };
+                              input.click();
+                            }}
+                            className="sm:w-auto w-full px-6 py-4 sm:py-0 bg-red-50 border border-red-200 text-red-600 rounded-2xl font-bold hover:bg-red-100 flex items-center justify-center whitespace-nowrap gap-2 transition-all active:scale-95"
+                          >
+                            <Upload className="w-5 h-5"/> อัพโหลดภาพ
+                          </button>
+                        </div>
                       </div>
 
                       <div className="space-y-4 col-span-1 md:col-span-2">

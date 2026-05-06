@@ -11,14 +11,26 @@ import { HttpsProxyAgent } from 'https-proxy-agent';
 
 import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
+import multer from 'multer';
+import fs from 'fs';
 
 import { adminDb as admin } from './src/lib/admindb.js';
-
-
 
 dotenv.config({ override: true });
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const dir = path.join(__dirname, 'uploads');
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    cb(null, dir);
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + '-' + Math.round(Math.random() * 1E9) + path.extname(file.originalname));
+  }
+});
+const upload = multer({ storage });
 
 
 console.log('[Server] --- Supabase VERSION REBOOT ---');
@@ -95,7 +107,13 @@ app.set('trust proxy', 1);
   }));
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ limit: '10mb', extended: true }));
+  app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
   app.use(injectUser);
+
+  app.post('/api/upload', requireAdmin, upload.single('file'), (req: any, res: any) => {
+    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+    res.json({ url: `/uploads/${req.file.filename}` });
+  });
 
   
 
