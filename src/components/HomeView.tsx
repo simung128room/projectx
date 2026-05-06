@@ -262,7 +262,6 @@ export const HomeView: React.FC<HomeViewProps> = ({ products, categories, stats,
                 confirmButtonColor: '#dc2626'
               })
             } else {
-              window.location.hash = 'wallet';
               setActiveView('wallet');
             }
           }},
@@ -276,7 +275,6 @@ export const HomeView: React.FC<HomeViewProps> = ({ products, categories, stats,
                 confirmButtonColor: '#4f46e5'
               })
             } else {
-              window.location.hash = 'checker_logs';
               setActiveView('checker_logs');
             }
           }}

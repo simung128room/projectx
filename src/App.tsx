@@ -126,9 +126,38 @@ function AppContent() {
     if (activeView === view) return;
     setIsPageTransitioning(true);
     setTimeout(() => {
+      window.location.hash = view;
       setRawActiveView(view);
       setIsPageTransitioning(false);
     }, 600);
+  }, [activeView]);
+
+  // Handle URL hash routing
+  useEffect(() => {
+    const handleHashChange = () => {
+      let hash = window.location.hash.replace('#', '');
+      
+      // Routing aliases
+      if (hash === 'register') hash = 'signup';
+      if (hash === 'topup') hash = 'wallet';
+      if (hash === 'store') hash = 'categories';
+      
+      const validViews = ['home', 'categories', 'category_products', 'dashboard', 'admin', 'profile', 'logs', 'checker_logs', 'history', 'settings', 'ai_chat', 'free_stuff', 'premium_stuff', 'contact', 'login', 'signup', 'wallet', 'redeem', 'product_detail', 'custom_page'];
+      
+      if (hash && validViews.includes(hash)) {
+         if (hash !== activeView) {
+            setRawActiveView(hash as any);
+         }
+      } else if (!hash && activeView !== 'home') {
+        setRawActiveView('home');
+      }
+    };
+
+    // Initial check on mount
+    handleHashChange();
+
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
   }, [activeView]);
 
   const handleAdminLogin = useCallback((username: string) => {

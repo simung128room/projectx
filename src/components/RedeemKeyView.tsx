@@ -64,23 +64,25 @@ export const RedeemKeyView: React.FC<RedeemKeyViewProps> = ({ redeemKey, userEma
                 </p>
               </div>
 
-              <div className="space-y-3 mb-10 relative z-10">
+              <ul className="space-y-3 mb-10 relative z-10">
                 {[
-                  { icon: Zap, title: "ตรวจสอบได้ไม่จำกัด", desc: "ปลดล็อคขีดจำกัดจำนวนครั้งการใช้งาน", color: "text-red-600", bg: "bg-red-50", border: 'border-red-100' },
-                  { icon: Shield, title: "ลัดคิวตรวจสอบ (Bypass)", desc: "ประมวลผลเร็วกว่าผู้ใช้ทั่วไป 5 เท่า", color: "text-red-600", bg: "bg-red-50", border: 'border-red-100' },
-                  { icon: Activity, title: "ระบบตรวจจับระดับโปร", desc: "แม่นยำและแสดงผลข้อมูลเชิงลึกมากขึ้น", color: "text-red-600", bg: "bg-red-50", border: 'border-red-100' }
+                  "คีย์เป็นคีย์ถาวร",
+                  "ใช้งานได้ครั้งเดียวต่อบัญชี",
+                  "ได้ของเติมของโคตรดี",
+                  "ได้ของฟรีแบบไม่มีคูลดาวน์",
+                  "อัพของเรื่อยๆ",
+                  "เช็คไอดี rov ไม่มี limit",
+                  "เร็วกว่าผู้ใช้ปกติ 2 เท่า",
+                  "ราคาแค่ 69 บาท ชื้อเลย!!"
                 ].map((benefit, i) => (
-                  <div key={i} className="flex items-start gap-4 p-4 rounded-2xl bg-white border border-zinc-200">
-                    <div className={`p-2.5 rounded-xl ${benefit.bg} ${benefit.border} border shrink-0`}>
-                      <benefit.icon className={`w-5 h-5 ${benefit.color}`} />
+                  <li key={i} className="flex items-center gap-3 text-sm font-medium text-zinc-700">
+                    <div className="p-1 rounded bg-red-50 text-red-600 shrink-0">
+                      <Check className="w-4 h-4" />
                     </div>
-                    <div className="mt-0.5">
-                      <h4 className="text-sm font-bold text-zinc-900 leading-none mb-1.5">{benefit.title}</h4>
-                      <p className="text-[11px] text-zinc-500 leading-tight">{benefit.desc}</p>
-                    </div>
-                  </div>
+                    {benefit}
+                  </li>
                 ))}
-              </div>
+              </ul>
 
               <div className="pt-6 border-t border-zinc-200 relative z-10">
                 <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest mb-3 flex items-center gap-2">
@@ -105,8 +107,8 @@ export const RedeemKeyView: React.FC<RedeemKeyViewProps> = ({ redeemKey, userEma
                    <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-100 border border-zinc-200 text-[10px] font-bold uppercase tracking-widest text-zinc-600 mb-4">
                      <KeyIcon className="w-3 h-3" /> Activation Center
                    </div>
-                   <h3 className="text-2xl font-black text-zinc-900 mb-2">กรอกรหัสไลเซนส์</h3>
-                   <p className="text-zinc-500 text-sm">วางรหัสคีย์ 16 หลักของคุณในช่องด้านล่างเพื่อเปิดใช้งาน</p>
+                   <h3 className="text-2xl font-black text-zinc-900 mb-2">Redeem Code</h3>
+                   <p className="text-zinc-500 text-sm">วางคีย์ 16 หลัก บลาๆ</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
