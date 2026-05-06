@@ -9,6 +9,36 @@ if (!supabaseUrl || !supabaseKey) {
 
 export const supabaseAdmin = createClient(supabaseUrl, supabaseKey);
 
+const camelMap: Record<string, string> = {
+  userid: 'userId',
+  productname: 'productName',
+  ispremium: 'isPremium',
+  updatedat: 'updatedAt',
+  stockdata: 'stockData'
+};
+
+function toDB(data: any): any {
+  if (!data || typeof data !== 'object') return data;
+  const res: any = {};
+  for (const k in data) {
+    // Ignore frontend-only fields that do not exist in the database schema
+    if (k === 'premiumExpireDate' || k === 'fullName' || k === 'avatarUrl' || k === 'username') continue;
+    // Postgres columns without quotes are treated as lowercase.
+    res[k.toLowerCase()] = data[k];
+  }
+  return res;
+}
+
+function fromDB(data: any): any {
+  if (!data || typeof data !== 'object') return data;
+  const res: any = {};
+  for (const k in data) {
+    if (camelMap[k]) res[camelMap[k]] = data[k];
+    else res[k] = data[k];
+  }
+  return res;
+}
+
 class SupabaseDoc {
   public collection: string;
   public id: string;
@@ -20,10 +50,11 @@ class SupabaseDoc {
     const { data, error } = await supabaseAdmin.from(this.collection).select('*').eq('id', this.id).single();
     if (error && error.code !== 'PGRST116') throw error;
     if (!data) return { exists: false, data: () => null };
-    return { exists: true, data: () => data };
+    const mapped = fromDB(data);
+    return { exists: true, data: () => mapped };
   }
   async update(data: any) {
-    const { error } = await supabaseAdmin.from(this.collection).update(data).eq('id', this.id);
+    const { error } = await supabaseAdmin.from(this.collection).update(toDB(data)).eq('id', this.id);
     if (error) throw error;
   }
   async delete() {
@@ -34,14 +65,14 @@ class SupabaseDoc {
     if (options.merge) {
       const { data: existing, error: err } = await supabaseAdmin.from(this.collection).select('id').eq('id', this.id).single();
       if (existing) {
-        const { error } = await supabaseAdmin.from(this.collection).update(data).eq('id', this.id);
+        const { error } = await supabaseAdmin.from(this.collection).update(toDB(data)).eq('id', this.id);
         if (error) throw error;
       } else {
-        const { error } = await supabaseAdmin.from(this.collection).insert([{ id: this.id, ...data }]);
+        const { error } = await supabaseAdmin.from(this.collection).insert([toDB({ id: this.id, ...data })]);
         if (error) throw error;
       }
     } else {
-      const { error } = await supabaseAdmin.from(this.collection).upsert([{ id: this.id, ...data }]);
+      const { error } = await supabaseAdmin.from(this.collection).upsert([toDB({ id: this.id, ...data })]);
       if (error) throw error;
     }
   }
@@ -58,11 +89,11 @@ class SupabaseQuery {
   }
 
   where(field: string, op: string, value: any) {
-    this._where.push({ field, op, value });
+    this._where.push({ field: field.toLowerCase(), op, value });
     return this;
   }
   orderBy(field: string, dir: string = 'asc') {
-    this._orderBy.push({ field, dir });
+    this._orderBy.push({ field: field.toLowerCase(), dir });
     return this;
   }
   limit(n: number) {
@@ -73,6 +104,8 @@ class SupabaseQuery {
     let q: any = supabaseAdmin.from(this.collection).select('*');
     for (const w of this._where) {
       if (w.op === '==') q = q.eq(w.field, w.value);
+      else if (w.op === '>') q = q.gt(w.field, w.value);
+      else if (w.op === '<') q = q.lt(w.field, w.value);
     }
     for (const o of this._orderBy) {
       q = q.order(o.field, { ascending: o.dir === 'asc' });
@@ -83,12 +116,18 @@ class SupabaseQuery {
     const { data, error } = await q;
     if (error) throw error;
     return {
-      docs: (data || []).map((d: any) => ({
-        id: d.id || d.key || d.ip || d.username || 'unknown',
-        data: () => d
-      })),
+      docs: (data || []).map((d: any) => {
+        const mapped = fromDB(d);
+        return {
+          id: d.id || d.key || d.ip || d.username || 'unknown',
+          data: () => mapped
+        };
+      }),
       forEach: function(cb: Function) {
-        (data || []).forEach((d: any) => cb({ id: d.id || d.key || d.ip || d.username, data: () => d }));
+        (data || []).forEach((d: any) => {
+          const mapped = fromDB(d);
+          cb({ id: d.id || d.key || d.ip || d.username, data: () => mapped });
+        });
       }
     };
   }
@@ -99,7 +138,7 @@ class SupabaseCollection extends SupabaseQuery {
     return new SupabaseDoc(this.collection, id);
   }
   async add(data: any) {
-    const { data: inserted, error } = await supabaseAdmin.from(this.collection).insert([data]).select().single();
+    const { data: inserted, error } = await supabaseAdmin.from(this.collection).insert([toDB(data)]).select().single();
     if (error) throw error;
     return { id: inserted?.id };
   }

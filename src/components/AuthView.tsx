@@ -24,7 +24,6 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
   const [authLoading, setAuthLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
-  const [showTurnstileModal, setShowTurnstileModal] = useState(false);
 
   React.useEffect(() => {
     setAuthMode(initialMode);
@@ -52,7 +51,6 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
     e.preventDefault();
 
     if (TURNSTILE_SITE_KEY && !turnstileToken) {
-      setShowTurnstileModal(true);
       return;
     }
 
@@ -86,32 +84,28 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
 
       if (authMode === 'signup') {
         const signupEmail = authEmail.trim() || generatedEmail;
-        let data, error;
-        try {
-           const creds = await auth.auth.signUp({ email: signupEmail, password: authPassword });
-           data = { user: creds.user };
-        } catch(e) {
-           error = e;
-        }
+        
+        const { data, error } = await auth.auth.signUp({ email: signupEmail, password: authPassword });
         
         if (error) {
-           const errObj = error as Error;
-           throw new Error(`Supabase SignUp Error: ${errObj.message}`);
+           throw new Error(error.message);
+        }
+        
+        // Ensure user is signed in if session is not immediately available
+        if (data.user && !data.session) {
+           const signInResult = await auth.auth.signInWithPassword({ email: signupEmail, password: authPassword });
+           if (signInResult.error) {
+             throw new Error(signInResult.error.message);
+           }
         }
         
         Swal.fire({ icon: 'success', title: 'Account Created', text: 'Logging you in...', timer: 1500, showConfirmButton: false });
         setActiveView('home');
       } else {
-        let error;
-        try {
-           await auth.auth.signInWithPassword({ email: loginEmail, password: authPassword });
-        } catch(e) {
-           error = e;
-        }
+        const { data, error } = await auth.auth.signInWithPassword({ email: loginEmail, password: authPassword });
 
         if (error) {
-           const errObj = error as Error;
-           throw new Error(`Supabase Login Error: ${errObj.message}`);
+           throw new Error(error.message);
         }
 
         Swal.fire({ icon: 'success', title: 'Login Successful', timer: 1500, showConfirmButton: false });
@@ -145,7 +139,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
 
         <div className="relative z-10 w-full h-full flex flex-col justify-between">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6 }} className="flex items-center gap-3">
-              <img src="https://img2.pic.in.th/IMG_6076fed1c24256d4269f.png" alt="Logo" className="h-9 object-contain drop-shadow-lg" />
+              <img src="https://img1.pic.in.th/images/2A7FE731-964E-479C-8544-71ABDDACC75D.png" alt="Logo" className="h-9 object-contain drop-shadow-lg" />
               <div className="w-px h-5 bg-zinc-800 hidden sm:block"></div>
               <span className="font-bold text-sm tracking-[0.2em] uppercase text-zinc-400">Security Engine</span>
           </motion.div>
@@ -217,12 +211,18 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
             </div>
             <motion.div 
               key={authMode + "logo"}
-              initial={{opacity:0, scale:0.8, rotate:15}} 
-              animate={{opacity:1, scale:1, rotate:0}} 
-              transition={{type: "spring", bounce: 0.5, delay: 0.1}}
+              initial={{opacity:0, scale:0.5, rotate:-20, y: -20}} 
+              animate={{opacity:1, scale:1, rotate:0, y: 0}} 
+              transition={{type: "spring", stiffness: 200, damping: 15, delay: 0.1}}
               className="shrink-0 ml-4"
             >
-              <img src="https://img2.pic.in.th/IMG_6076fed1c24256d4269f.png" alt="Logo" className="h-14 sm:h-16 object-contain grayscale-[100%] contrast-125 opacity-70" />
+              <motion.img 
+                animate={{ y: [0, -6, 0] }}
+                transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+                src="https://img1.pic.in.th/images/2A7FE731-964E-479C-8544-71ABDDACC75D.png" 
+                alt="Logo" 
+                className="h-14 sm:h-16 object-contain opacity-80 drop-shadow-sm" 
+              />
             </motion.div>
           </div>
 
@@ -230,7 +230,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
           <form onSubmit={handleAuth} className="space-y-5">
             <AnimatePresence mode="popLayout">
               <motion.div layout key="username_field" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ duration: 0.2 }}>
-                <label className="block text-sm font-bold text-zinc-800 mb-2">ชื่อใช้งาน</label>
+                <label className="block text-sm font-bold text-zinc-800 mb-2">ชื่อผู้ใช้ / Username</label>
                 <div className="relative group">
                   <div className="relative flex items-center">
                     <input 
@@ -264,7 +264,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
               )}
 
               <motion.div layout key="password_field" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ duration: 0.2, delay: authMode === 'signup' ? 0.1 : 0.05 }}>
-                <label className="block text-sm font-bold text-zinc-800 mb-2 mt-1">รหัสผ่าน</label>
+                <label className="block text-sm font-bold text-zinc-800 mb-2 mt-1">รหัสผ่าน / Password</label>
                 <div className="relative group">
                   <div className="relative flex items-center">
                     <input 
@@ -354,10 +354,26 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
               )}
             </AnimatePresence>
 
+            {TURNSTILE_SITE_KEY && (
+              <motion.div layout initial={{opacity: 0, y: 10}} animate={{opacity: 1, y: 0}} className="flex justify-center mt-4 mb-2 w-full overflow-hidden rounded-xl border border-zinc-200">
+                <Turnstile
+                  siteKey={TURNSTILE_SITE_KEY}
+                  onSuccess={(token) => setTurnstileToken(token)}
+                  onExpire={() => setTurnstileToken(null)}
+                  onError={() => setTurnstileToken(null)}
+                  options={{
+                    theme: 'light',
+                    size: 'flexible',
+                  }}
+                  className="w-full"
+                />
+              </motion.div>
+            )}
+
             <motion.button 
               layout
               type="submit" 
-              disabled={authLoading}
+              disabled={authLoading || (!!TURNSTILE_SITE_KEY && !turnstileToken)}
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.98 }}
               className="w-full py-3.5 mt-8 rounded-xl text-base font-bold transition-all flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed bg-red-600 hover:bg-red-700 text-white overflow-hidden relative"
@@ -367,6 +383,10 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
                   <motion.div key="loading" initial={{opacity:0, y:10}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-10}} className="flex items-center gap-2">
                     <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
                     <span>กำลังประมวลผล...</span>
+                  </motion.div>
+                ) : (!!TURNSTILE_SITE_KEY && !turnstileToken) ? (
+                  <motion.div key="turnstile_wait" initial={{opacity:0, y:10}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-10}}>
+                    <span>กำลังตรวจสอบความปลอดภัย...</span>
                   </motion.div>
                 ) : (
                   <motion.span key={authMode + "btn"} initial={{opacity:0, y:10}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-10}}>
@@ -393,39 +413,6 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
 
         </div>
       </motion.div>
-
-      {showTurnstileModal && (
-        <div className="fixed inset-0 bg-zinc-950/60 flex items-center justify-center p-4 z-[70] backdrop-blur-xl">
-          <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white rounded-[2rem] p-8 max-w-sm w-full shadow-2xl relative overflow-hidden flex flex-col items-center border border-zinc-100 placeholder-glow">
-            <div className="absolute inset-0 bg-gradient-to-b from-red-50 to-white pointer-events-none opacity-50" />
-            <Shield className="w-10 h-10 text-red-500 mb-4 relative z-10" />
-            <h3 className="text-lg font-black text-zinc-900 uppercase tracking-widest mb-1 relative z-10">ระบบตรวจสอบความปลอดภัย</h3>
-            <p className="text-zinc-500 text-sm font-medium text-center mb-6 relative z-10">โปรดยืนยันว่าคุณไม่ใช่บอท เพื่อดำเนินการต่อ</p>
-            
-            <div className="bg-white border-2 border-zinc-100 rounded-2xl mb-4 flex items-center justify-center w-full h-[80px] overflow-hidden shadow-inner relative z-10">
-              <div className="h-[65px] w-full max-w-[300px] overflow-hidden flex items-start justify-center">
-                {TURNSTILE_SITE_KEY && (
-                  <Turnstile
-                    siteKey={TURNSTILE_SITE_KEY}
-                    onSuccess={(token) => {
-                      setTurnstileToken(token);
-                      setShowTurnstileModal(false);
-                      executeAuth(token);
-                    }}
-                  />
-                )}
-              </div>
-            </div>
-            <button 
-              type="button"
-              onClick={() => setShowTurnstileModal(false)}
-              className="text-xs font-black text-zinc-400 hover:text-zinc-800 transition-colors uppercase tracking-widest mt-2 px-6 py-2 rounded-full hover:bg-zinc-100 relative z-10"
-            >
-              ยกเลิก
-            </button>
-          </motion.div>
-        </div>
-      )}
     </div>
   );
 });

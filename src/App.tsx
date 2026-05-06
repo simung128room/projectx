@@ -395,12 +395,6 @@ function AppContent() {
       const currentUser: any = session?.user || null;
       if (currentUser) currentUser.uid = currentUser.id;
       setUser(currentUser);
-      
-      if (currentUser && !currentUser.isAnonymous && currentUser.email) {
-        axios.get(`/api/users/${currentUser.uid}`).then(res => {
-          if (res.data) setUserPlan(res.data);
-        }).catch(err => console.error(err));
-      }
     });
 
     const { data: { subscription } } = auth.auth.onAuthStateChange(async (event, session) => {
@@ -1227,15 +1221,24 @@ function AppContent() {
   );
 
   if (!isLoaded) return (
-    <div className="min-h-screen bg-white flex flex-col items-center justify-center gap-6 font-sans">
-      <div className="relative flex items-center justify-center">
-        <div className="w-20 h-20 border-4 border-zinc-100 rounded-full"></div>
-        <div className="absolute top-0 left-0 w-20 h-20 border-4 border-t-red-500 border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin"></div>
-        <img src="https://img2.pic.in.th/IMG_6076fed1c24256d4269f.png" alt="Logo" className="w-10 h-10 object-contain absolute opacity-70 grayscale brightness-0" />
-      </div>
-      <div className="flex flex-col items-center gap-2">
-        <div className="text-zinc-900 text-lg font-bold tracking-widest animate-pulse">กำลังโหลดข้อมูล...</div>
-        <div className="text-zinc-400 text-xs font-medium tracking-wider uppercase">APEX STUDIO</div>
+    <div className="min-h-screen bg-white flex flex-col items-center justify-center font-sans overflow-hidden">
+      <div className="flex items-center justify-center">
+        <motion.div
+           initial={{ x: -80, y: -40, opacity: 0, rotate: -45, scale: 0.5 }}
+           animate={{ x: 0, y: 0, opacity: 1, rotate: 0, scale: 1 }}
+           transition={{ duration: 0.7, type: 'spring', bounce: 0.5 }}
+           className="text-6xl sm:text-7xl font-black text-zinc-900 tracking-tighter mix-blend-multiply"
+        >
+          A
+        </motion.div>
+        <motion.div
+           initial={{ x: 80, y: 40, opacity: 0, rotate: 45, scale: 0.5 }}
+           animate={{ x: 0, y: 0, opacity: 1, rotate: 0, scale: 1 }}
+           transition={{ duration: 0.7, type: 'spring', bounce: 0.5, delay: 0.1 }}
+           className="text-6xl sm:text-7xl font-black text-red-600 tracking-tighter mix-blend-multiply"
+        >
+          X
+        </motion.div>
       </div>
     </div>
   );
@@ -1249,17 +1252,24 @@ function AppContent() {
       />
       {/* Page Transition Overlay */}
       {isPageTransitioning && (
-        <div className="fixed inset-0 z-[200] bg-zinc-50 flex items-center justify-center p-4">
-          <div className="flex flex-col items-center gap-6 animate-in fade-in duration-200">
-            <div className="relative flex items-center justify-center">
-              <div className="w-24 h-24 border-[3px] border-zinc-200 rounded-full"></div>
-              <div className="absolute top-0 left-0 w-24 h-24 border-[3px] border-t-zinc-800 border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin"></div>
-              <img src="https://img2.pic.in.th/IMG_6076fed1c24256d4269f.png" alt="Logo" className="w-12 h-12 object-contain absolute opacity-70 grayscale brightness-0" />
-            </div>
-            <div className="flex flex-col items-center">
-              <h2 className="text-xl font-black text-zinc-800 tracking-tight animate-pulse">กำลังโหลดข้อมูล...</h2>
-              <p className="text-zinc-500 text-sm font-medium mt-1">โปรดรอสักครู่</p>
-            </div>
+        <div className="fixed inset-0 z-[200] bg-zinc-50/90 backdrop-blur-sm flex items-center justify-center p-4 overflow-hidden animate-in fade-in duration-200">
+          <div className="flex items-center justify-center">
+            <motion.div
+               initial={{ x: -60, y: -30, opacity: 0, rotate: -45, scale: 0.8 }}
+               animate={{ x: 0, y: 0, opacity: 1, rotate: 0, scale: 1 }}
+               transition={{ duration: 0.5, type: 'spring', bounce: 0.5 }}
+               className="text-5xl sm:text-6xl font-black text-zinc-900 tracking-tighter mix-blend-multiply"
+            >
+              A
+            </motion.div>
+            <motion.div
+               initial={{ x: 60, y: 30, opacity: 0, rotate: 45, scale: 0.8 }}
+               animate={{ x: 0, y: 0, opacity: 1, rotate: 0, scale: 1 }}
+               transition={{ duration: 0.5, type: 'spring', bounce: 0.5, delay: 0.1 }}
+               className="text-5xl sm:text-6xl font-black text-red-600 tracking-tighter mix-blend-multiply"
+            >
+              X
+            </motion.div>
           </div>
         </div>
       )}
@@ -1268,9 +1278,9 @@ function AppContent() {
       <aside className="hidden lg:flex flex-col w-72 fixed h-screen top-0 left-0 bg-white border-r border-zinc-200 z-40 p-6 overflow-y-auto">
          <div className="mb-10 flex items-center justify-center">
             <img 
-              src="https://img2.pic.in.th/IMG_6076fed1c24256d4269f.png" 
+              src="https://img1.pic.in.th/images/2A7FE731-964E-479C-8544-71ABDDACC75D.png" 
               alt="APEX STUDIO TH" 
-              className="h-9 object-contain cursor-pointer active:scale-95 transition-transform select-none drop-shadow-sm brightness-0" 
+              className="h-9 object-contain cursor-pointer active:scale-95 transition-transform select-none drop-shadow-sm" 
               onClick={handleLogoClick}
             />
          </div>
@@ -1379,9 +1389,9 @@ function AppContent() {
         {/* Mobile Top Navbar */}
         <nav className="lg:hidden sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-zinc-200 h-[72px] flex items-center justify-between px-4 sm:px-6 overflow-hidden">
           <img 
-            src="https://img2.pic.in.th/IMG_6076fed1c24256d4269f.png" 
+            src="https://img1.pic.in.th/images/2A7FE731-964E-479C-8544-71ABDDACC75D.png" 
             alt="APEX STUDIO TH" 
-            className="h-8 sm:h-10 object-contain cursor-pointer brightness-0 shrink-0" 
+            className="h-8 sm:h-10 object-contain cursor-pointer shrink-0" 
             onClick={() => setActiveView('home')}
           />
           <div className="flex items-center gap-1 sm:gap-2 shrink-0">
@@ -1391,23 +1401,19 @@ function AppContent() {
             >
               <Search className="w-5 h-5" />
             </button>
-            <button 
-              onClick={() => user ? setActiveView('profile') : setActiveView('login')} 
-              className="w-10 h-10 rounded-xl bg-zinc-50 border border-zinc-200 flex items-center justify-center text-zinc-600 active:scale-95 transition-all overflow-hidden"
-            >
-              {user ? (
+            {user && (
+              <button 
+                onClick={() => setActiveView('profile')} 
+                className="w-10 h-10 rounded-xl bg-zinc-50 border border-zinc-200 flex items-center justify-center text-zinc-600 active:scale-95 transition-all overflow-hidden"
+              >
                 <img 
                   src={getAvatarUrl(encodeURIComponent(userPlan?.username || user?.email?.split('@')[0] || 'guest'))} 
                   alt="avatar" 
                   className="w-full h-full object-cover"
                   referrerPolicy="no-referrer"
                 />
-              ) : (
-                <div className="w-10 h-10 rounded-xl bg-zinc-100 border border-zinc-200 flex items-center justify-center text-zinc-400">
-                  <User className="w-5 h-5" />
-                </div>
-              )}
-            </button>
+              </button>
+            )}
             <button 
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
               className="w-10 h-10 rounded-xl bg-red-600 flex items-center justify-center text-white active:scale-95 transition-all shadow-sm"
@@ -1436,20 +1442,13 @@ function AppContent() {
                 className="lg:hidden fixed top-0 left-0 h-[100dvh] w-[280px] bg-white border-r border-zinc-200 shadow-2xl z-50 flex flex-col"
               >
                 <div className="p-4 border-b border-zinc-100 flex items-center justify-between min-h-[72px]">
-                  <img src="https://img2.pic.in.th/IMG_6076fed1c24256d4269f.png" alt="APEX STUDIO TH" className="h-8 object-contain brightness-0" />
+                  <img src="https://img1.pic.in.th/images/2A7FE731-964E-479C-8544-71ABDDACC75D.png" alt="APEX STUDIO TH" className="h-8 object-contain" />
                   <button onClick={() => setIsMobileMenuOpen(false)} className="w-8 h-8 flex items-center justify-center text-zinc-400 bg-zinc-50 rounded-xl hover:bg-zinc-100 hover:text-zinc-600 active:scale-95 transition-all">
                     <X className="w-5 h-5" />
                   </button>
                 </div>
                 
                 <div className="p-4 sm:p-6 flex flex-col gap-2 flex-1 overflow-y-auto pt-2 scrollbar-none">
-                  {!user && (
-                    <div className="grid grid-cols-2 gap-2 mb-4">
-                      <button onClick={() => { setActiveView('login'); setIsMobileMenuOpen(false); }} className="py-3 bg-red-600 text-white rounded-xl text-sm font-bold hover:bg-red-700 transition-colors shadow-m">เข้าสู่ระบบ</button>
-                      <button onClick={() => { setActiveView('signup'); setIsMobileMenuOpen(false); }} className="py-3 bg-white border border-zinc-200 text-zinc-900 rounded-xl text-sm font-bold hover:bg-zinc-50 transition-colors">สมัครสมาชิก</button>
-                    </div>
-                  )}
-
                   <div className="py-2">
                     <div className="flex items-center gap-3 mb-2 px-2">
                       <div className="flex-1 h-px bg-zinc-200"></div>
@@ -1528,7 +1527,7 @@ function AppContent() {
                   )}
                 </div>
 
-                {user && (
+                {user ? (
                   <div className="p-4 border-t border-zinc-100 space-y-3">
                     <div className="bg-zinc-50 border border-zinc-200 rounded-2xl p-3 flex items-center gap-3">
                       <div className="w-10 h-10 rounded-xl bg-red-600 flex items-center justify-center overflow-hidden shrink-0 shadow-md shadow-red-600/20">
@@ -1557,6 +1556,11 @@ function AppContent() {
                        <LogOut className="w-4 h-4" />
                        ออกจากระบบ
                     </button>
+                  </div>
+                ) : (
+                  <div className="p-4 border-t border-zinc-100 flex flex-col gap-2">
+                    <button onClick={() => { setActiveView('login'); setIsMobileMenuOpen(false); }} className="w-full py-3.5 bg-red-600 text-white rounded-2xl text-sm font-bold hover:bg-red-700 transition-colors shadow-m">เข้าสู่ระบบ</button>
+                    <button onClick={() => { setActiveView('signup'); setIsMobileMenuOpen(false); }} className="w-full py-3.5 bg-white border border-zinc-200 text-zinc-900 rounded-2xl text-sm font-bold hover:bg-zinc-50 transition-colors">สมัครสมาชิก</button>
                   </div>
                 )}
               </motion.div>
@@ -2085,7 +2089,7 @@ function AppContent() {
         {/* Footer */}
         <footer className="mt-auto pt-6 border-t border-zinc-100 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 pb-6 w-full text-[10px] text-zinc-400 font-medium">
           <div className="flex items-center gap-2">
-            <img src="https://img2.pic.in.th/IMG_6076fed1c24256d4269f.png" alt={siteSettings.site_name} className="h-4 object-contain brightness-0 hover:opacity-50 transition-opacity cursor-pointer" />
+            <img src="https://img1.pic.in.th/images/2A7FE731-964E-479C-8544-71ABDDACC75D.png" alt={siteSettings.site_name} className="h-4 object-contain hover:opacity-50 transition-opacity cursor-pointer" />
             <p>&copy; {new Date().getFullYear()} {siteSettings.site_name} TH. All rights reserved.</p>
           </div>
           <div className="flex items-center gap-3">

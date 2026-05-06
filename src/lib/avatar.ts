@@ -1,9 +1,9 @@
 export const ANIMATED_AVATARS = [
-  'https://img2.pic.in.th/IMG_6128bbad22e0dfcfc428.jpeg',
-  'https://img2.pic.in.th/IMG_612748e6014158159a61.jpeg',
-  'https://img1.pic.in.th/images/IMG_6126c13fd1426319d6c6.jpeg',
-  'https://img1.pic.in.th/images/IMG_6125.jpeg',
-  'https://img2.pic.in.th/IMG_61247d1002e7a803974c.jpeg'
+  'https://img1.pic.in.th/images/IMG_63218c044649cb4ee095.jpeg',
+  'https://img2.pic.in.th/IMG_6322.jpeg',
+  'https://img2.pic.in.th/IMG_6323.jpeg',
+  'https://img1.pic.in.th/images/IMG_6324.jpeg',
+  'https://img1.pic.in.th/images/IMG_6325.jpeg'
 ];
 
 export function getAvatarUrl(seed: string) {

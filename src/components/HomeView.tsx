@@ -57,17 +57,24 @@ export const HomeView: React.FC<HomeViewProps> = ({ products, categories, stats,
 
   if (isProductLoading) {
     return (
-      <div className="fixed inset-0 z-[200] bg-zinc-50 flex items-center justify-center p-4">
-        <div className="flex flex-col items-center gap-6 animate-in fade-in duration-200">
-          <div className="relative flex items-center justify-center">
-            <div className="w-24 h-24 border-[3px] border-zinc-200 rounded-full"></div>
-            <div className="absolute top-0 left-0 w-24 h-24 border-[3px] border-t-zinc-800 border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin"></div>
-            <img src="https://img2.pic.in.th/IMG_6076fed1c24256d4269f.png" alt="Logo" className="w-12 h-12 object-contain absolute opacity-70 grayscale brightness-0" />
-          </div>
-          <div className="flex flex-col items-center">
-            <h2 className="text-xl font-black text-zinc-800 tracking-tight animate-pulse">กำลังโหลดข้อมูล...</h2>
-            <p className="text-zinc-500 text-sm font-medium mt-1">โปรดรอสักครู่</p>
-          </div>
+      <div className="fixed inset-0 z-[200] bg-zinc-50/90 backdrop-blur-sm flex items-center justify-center p-4 overflow-hidden animate-in fade-in duration-200">
+        <div className="flex items-center justify-center">
+          <motion.div
+             initial={{ x: -60, y: -30, opacity: 0, rotate: -45, scale: 0.8 }}
+             animate={{ x: 0, y: 0, opacity: 1, rotate: 0, scale: 1 }}
+             transition={{ duration: 0.5, type: 'spring', bounce: 0.5 }}
+             className="text-5xl sm:text-6xl font-black text-zinc-900 tracking-tighter mix-blend-multiply"
+          >
+            A
+          </motion.div>
+          <motion.div
+             initial={{ x: 60, y: 30, opacity: 0, rotate: 45, scale: 0.8 }}
+             animate={{ x: 0, y: 0, opacity: 1, rotate: 0, scale: 1 }}
+             transition={{ duration: 0.5, type: 'spring', bounce: 0.5, delay: 0.1 }}
+             className="text-5xl sm:text-6xl font-black text-red-600 tracking-tighter mix-blend-multiply"
+          >
+            X
+          </motion.div>
         </div>
       </div>
     );
@@ -120,12 +127,12 @@ export const HomeView: React.FC<HomeViewProps> = ({ products, categories, stats,
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
           
           {/* Stat 1: Users */}
-          <div className="relative p-6 rounded-3xl border border-zinc-200 bg-white shadow-sm overflow-hidden flex flex-col justify-center">
-            <div className="absolute -right-4 -bottom-4 text-zinc-100/50 pointer-events-none">
-              <Users className="w-32 h-32" />
+          <div className="relative p-6 rounded-3xl border border-zinc-200 bg-white shadow-sm overflow-hidden flex flex-col justify-center text-left">
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-100/50 pointer-events-none">
+              <Users className="w-20 h-20" />
             </div>
             <div className="relative z-10 flex flex-col">
-              <span className="text-zinc-600 font-bold mb-2">ผู้ใช้งาน</span>
+              <span className="text-zinc-600 font-bold mb-1">ผู้ใช้งาน</span>
               <div className="flex items-baseline gap-2">
                 <motion.span 
                   key={realtimeStats?.users || 0}
@@ -141,12 +148,12 @@ export const HomeView: React.FC<HomeViewProps> = ({ products, categories, stats,
           </div>
 
           {/* Stat 2: Stock */}
-          <div className="relative p-6 rounded-3xl border border-zinc-200 bg-white shadow-sm overflow-hidden flex flex-col justify-center">
-            <div className="absolute -right-4 -bottom-4 text-zinc-100/50 pointer-events-none">
-              <Package className="w-32 h-32" />
+          <div className="relative p-6 rounded-3xl border border-zinc-200 bg-white shadow-sm overflow-hidden flex flex-col justify-center text-left">
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-100/50 pointer-events-none">
+              <Package className="w-20 h-20" />
             </div>
             <div className="relative z-10 flex flex-col">
-              <span className="text-zinc-600 font-bold mb-2">สต็อก</span>
+              <span className="text-zinc-600 font-bold mb-1">สต็อก</span>
               <div className="flex items-baseline gap-2">
                 <motion.span 
                   key={totalStock}
@@ -162,12 +169,12 @@ export const HomeView: React.FC<HomeViewProps> = ({ products, categories, stats,
           </div>
 
           {/* Stat 3: Sales (Transactions) */}
-          <div className="col-span-2 lg:col-span-1 relative p-6 rounded-3xl border border-zinc-200 bg-white shadow-sm overflow-hidden flex flex-col justify-center">
-            <div className="absolute -right-4 -bottom-4 text-zinc-100/50 pointer-events-none">
-              <History className="w-32 h-32" />
+          <div className="col-span-2 lg:col-span-1 relative p-6 rounded-3xl border border-zinc-200 bg-white shadow-sm overflow-hidden flex flex-col justify-center text-left">
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-100/50 pointer-events-none">
+              <History className="w-20 h-20" />
             </div>
             <div className="relative z-10 flex flex-col">
-              <span className="text-zinc-600 font-bold mb-2">ยอดขาย</span>
+              <span className="text-zinc-600 font-bold mb-1">ยอดขาย</span>
               <div className="flex items-baseline gap-2">
                 <motion.span 
                   key={realtimeStats?.sales || 0}
@@ -245,8 +252,8 @@ export const HomeView: React.FC<HomeViewProps> = ({ products, categories, stats,
       <AnimatedScroll delay={200}>
         <div className={`grid gap-4 ${user ? 'grid-cols-2 lg:grid-cols-4' : 'grid-cols-2 lg:grid-cols-4'}`}>
         {[
-          { icon: Package, label: 'สินค้าทั้งหมด', id: 'Store', color: 'blue', action: () => { setActiveView('categories'); window.scrollTo({ top: 0, behavior: 'smooth' }); } },
-          { icon: Wallet, label: 'เติมเงิน', id: 'Topup', color: 'zinc', action: () => {
+          { icon: Package, label: 'สินค้าทั้งหมด', id: 'Store', desc: 'หมวดหมู่สินค้า', color: 'blue', action: () => { setActiveView('categories'); window.scrollTo({ top: 0, behavior: 'smooth' }); } },
+          { icon: Wallet, label: 'เติมเงิน', id: 'Topup', desc: 'เพิ่มเครดิต', color: 'emerald', action: () => {
             if (!user) {
               Swal.fire({
                 icon: 'warning',
@@ -259,8 +266,8 @@ export const HomeView: React.FC<HomeViewProps> = ({ products, categories, stats,
               setActiveView('wallet');
             }
           }},
-          { icon: Key, label: 'เปิดใช้งานคีย์', id: 'Redeem', color: 'amber', action: () => setActiveView('redeem') },
-          { icon: History, label: 'ประวัติ', id: 'History', color: 'red', action: () => {
+          { icon: Key, label: 'เปิดใช้งานคีย์', id: 'Redeem', desc: 'ใช้โค้ด/คีย์', color: 'amber', action: () => setActiveView('redeem') },
+          { icon: History, label: 'ประวัติ', id: 'History', desc: 'รายการย้อนหลัง', color: 'red', action: () => {
             if (!user) {
               Swal.fire({
                 icon: 'warning',
@@ -275,23 +282,48 @@ export const HomeView: React.FC<HomeViewProps> = ({ products, categories, stats,
           }}
         ].map((item, i) => {
           const colorStyles = {
-            blue: "bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white",
-            emerald: "bg-emerald-50 text-emerald-600 group-hover:bg-emerald-500 group-hover:text-white",
-            zinc: "bg-zinc-100 text-zinc-600 group-hover:bg-red-600 group-hover:text-white",
-            red: "bg-red-50 text-red-600 group-hover:bg-red-500 group-hover:text-white"
+            blue: "bg-blue-50/50 border-blue-200/60 hover:border-blue-500 hover:shadow-[0_8px_30px_rgb(59,130,246,0.15)]",
+            emerald: "bg-emerald-50/50 border-emerald-200/60 hover:border-emerald-500 hover:shadow-[0_8px_30px_rgb(16,185,129,0.15)]",
+            amber: "bg-amber-50/50 border-amber-200/60 hover:border-amber-500 hover:shadow-[0_8px_30px_rgb(245,158,11,0.15)]",
+            red: "bg-red-50/50 border-red-200/60 hover:border-red-500 hover:shadow-[0_8px_30px_rgb(239,68,68,0.15)]"
           };
+          const iconStyles = {
+            blue: "bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/30",
+            emerald: "bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/30",
+            amber: "bg-gradient-to-br from-amber-500 to-amber-600 text-white shadow-lg shadow-amber-500/30",
+            red: "bg-gradient-to-br from-red-500 to-red-600 text-white shadow-lg shadow-red-500/30"
+          };
+          const textStyles = {
+            blue: "text-blue-900",
+            emerald: "text-emerald-900",
+            amber: "text-amber-900",
+            red: "text-red-900"
+          };
+          const bgIconStyles = {
+            blue: "text-blue-500",
+            emerald: "text-emerald-500",
+            amber: "text-amber-500",
+            red: "text-red-500"
+          };
+
           return (
             <button 
               key={i} 
               onClick={item.action}
-              className="group relative bg-white border border-zinc-200 p-6 rounded-[24px] flex flex-col items-center justify-center gap-4 hover:border-zinc-300 hover:shadow-md transition-all duration-300"
+              className={`group relative overflow-hidden bg-white border p-5 sm:p-6 rounded-3xl flex flex-col items-start justify-between min-h-[140px] transition-all duration-300 hover:-translate-y-1 ${colorStyles[item.color as keyof typeof colorStyles]}`}
             >
-              <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${colorStyles[item.color as keyof typeof colorStyles]} transition-all duration-300`}>
-                <item.icon className="w-7 h-7" />
+              {/* Background Icon */}
+              <div className={`absolute -right-6 -bottom-6 opacity-[0.07] pointer-events-none transition-transform duration-500 group-hover:scale-125 group-hover:-rotate-12 ${bgIconStyles[item.color as keyof typeof bgIconStyles]}`}>
+                <item.icon className="w-36 h-36" />
               </div>
-              <div className="flex flex-col items-center text-center">
-                <span className="font-bold text-zinc-900 text-lg group-hover:text-zinc-700 transition-colors">{item.label}</span>
-                <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest mt-1">{item.id}</span>
+              
+              <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3 ${iconStyles[item.color as keyof typeof iconStyles]}`}>
+                <item.icon className="w-6 h-6 sm:w-7 sm:h-7" />
+              </div>
+              
+              <div className="flex flex-col items-start text-left mt-6 relative z-10">
+                <span className={`font-bold text-base sm:text-lg leading-tight transition-colors ${textStyles[item.color as keyof typeof textStyles]}`}>{item.label}</span>
+                <span className="text-[11px] sm:text-xs text-zinc-500 font-bold mt-1 opacity-80">{item.desc}</span>
               </div>
             </button>
           );

@@ -1554,8 +1554,8 @@ console.log('HIT STATS ENDPOINT');
       const docRef = admin.firestore().collection('users').doc(uid);
       await docRef.set({ ...data, updatedAt: new Date().toISOString() }, { merge: true });
       res.json({ success: true });
-    } catch (err) {
-      console.error('Error saving user:', err);
+    } catch (err: any) {
+      console.error('Error saving user:', err.message || JSON.stringify(err));
       res.status(500).json({ error: String(err && err.message ? err.message : err) });
     }
   });
