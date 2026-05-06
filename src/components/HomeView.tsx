@@ -267,17 +267,17 @@ export const HomeView: React.FC<HomeViewProps> = ({ products, categories, stats,
             }
           }},
           { icon: Key, label: 'เปิดใช้งานคีย์', id: 'Redeem', desc: 'ใช้โค้ด/คีย์', color: 'amber', action: () => setActiveView('redeem') },
-          { icon: History, label: 'ประวัติ', id: 'History', desc: 'รายการย้อนหลัง', color: 'red', action: () => {
+          { icon: History, label: 'ประวัติเช็คไอดี', id: 'CheckerLogs', desc: 'รายการตรวจสอบ', color: 'indigo', action: () => {
             if (!user) {
               Swal.fire({
                 icon: 'warning',
                 title: 'กรุณาเข้าสู่ระบบ',
-                text: 'โปรดเข้าสู่ระบบก่อนดูประวัติการสั่งซื้อ',
-                confirmButtonColor: '#dc2626'
+                text: 'โปรดเข้าสู่ระบบก่อนดูประวัติเช็คไอดี',
+                confirmButtonColor: '#4f46e5'
               })
             } else {
-              window.location.hash = 'logs';
-              setActiveView('logs');
+              window.location.hash = 'checker_logs';
+              setActiveView('checker_logs');
             }
           }}
         ].map((item, i) => {

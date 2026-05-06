@@ -142,7 +142,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 <ChevronRight className="w-4 h-4 text-zinc-400 group-hover:text-red-500 transition-colors" />
               </button>
 
-              <button type="button" onClick={() => setActiveView('logs')} className="w-full flex items-center justify-between p-3 rounded-2xl bg-white border border-zinc-200 hover:border-indigo-200 hover:bg-zinc-50 transition-all group shadow-sm">
+              <button type="button" onClick={() => setActiveView('checker_logs')} className="w-full flex items-center justify-between p-3 rounded-2xl bg-white border border-zinc-200 hover:border-indigo-200 hover:bg-zinc-50 transition-all group shadow-sm">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-indigo-50 rounded-lg text-indigo-500">
                     <History className="w-4 h-4" />

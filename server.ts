@@ -33,7 +33,7 @@ app.set('trust proxy', 1);
       if (token === 'admin_apex_bypass_token') {
         req.user = { uid: 'mock_admin_uid', email: 'admin_apex@apex-studio.com' };
         req.isAdmin = true;
-      } else if (token && token !== 'null') {
+      } else if (token && token !== 'null' && token !== 'undefined') {
         try {
           req.user = await admin.auth().verifyIdToken(token);
           if (req.user.email === 'abopboa.b@gmail.com') {

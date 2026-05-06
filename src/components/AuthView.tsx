@@ -91,6 +91,10 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
            throw new Error(error.message);
         }
         
+        if (data.user && data.user.identities && data.user.identities.length === 0) {
+           throw new Error('User already registered');
+        }
+        
         // Ensure user is signed in if session is not immediately available
         if (data.user && !data.session) {
            const signInResult = await auth.auth.signInWithPassword({ email: signupEmail, password: authPassword });

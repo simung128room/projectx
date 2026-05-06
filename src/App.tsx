@@ -11,20 +11,6 @@ import Swal from 'sweetalert2';
 import axios from 'axios';
 import { supabase as auth } from './lib/supabase'; // auth here refers to supabase
 
-axios.interceptors.request.use(async (config) => {
-  const { data: { session } } = await auth.auth.getSession();
-  if (session?.access_token) {
-    try {
-      const token = session.access_token;
-      config.headers['Authorization'] = `Bearer ${token}`;
-    } catch (err) {
-      console.error('Error fetching token:', err);
-    }
-  }
-  return config;
-}, (error) => {
-  return Promise.reject(error);
-});
 import jsQR from 'jsqr';
 
 type SupabaseUser = any;
@@ -45,6 +31,7 @@ import { AIChatView } from './components/AIChatView';
 import { WalletView } from './components/WalletView';
 import { RedeemKeyView } from './components/RedeemKeyView';
 import { HistoryView } from './components/HistoryView';
+import { CheckerLogsView } from './components/CheckerLogsView';
 import { CategoryProductsView } from './components/CategoryProductsView';
 import { PopupBanner } from './components/PopupBanner';
 import { Product, SiteStats, Category } from './types';
@@ -1657,6 +1644,7 @@ function AppContent() {
 
         {activeView === 'ai_chat' && <AIChatView />}
         {activeView === 'logs' && <HistoryLogsView usedKeysHistory={usedKeysHistory} purchaseHistory={purchaseHistory} />}
+        {activeView === 'checker_logs' && <CheckerLogsView logs={logs} onBack={() => setActiveView('home')} />}
         {activeView === 'history' && <HistoryView purchaseHistory={purchaseHistory} topupHistory={topupHistory} usedKeysHistory={usedKeysHistory} />}
         {activeView === 'wallet' && <WalletView userPlan={userPlan} setUserPlan={setUserPlan} userId={user?.uid} onTopupSuccess={(entry) => {
            setTopupHistory(prev => [entry, ...prev]);
