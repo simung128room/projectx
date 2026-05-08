@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Copy, Database, LogOut, BarChart3, Key, History, ShieldAlert, Activity, Ban, ChevronRight, Settings, Plus, Trash2, Crown, X, Upload, FileText, LayoutDashboard, LineChart, Cpu, HardDrive, ShoppingCart, Package, Users, Wallet, Gift, Globe, Phone, AlertTriangle, Download, Check } from 'lucide-react';
+import { Copy, Database, LogOut, BarChart3, Key, History, ShieldAlert, Activity, Ban, ChevronRight, Settings, Plus, Trash2, Crown, X, Upload, FileText, LayoutDashboard, LineChart, Cpu, HardDrive, ShoppingCart, Package, Users, Wallet, Gift, Globe, Phone, AlertTriangle, Download, Check, Image } from 'lucide-react';
 import Swal from 'sweetalert2';
 import axios from 'axios';
 import { AccountResult, Product, SiteStats } from '../types';
@@ -492,7 +492,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   });
 
   useEffect(() => {
-    if (adminTab === 'settings') {
+    if (adminTab === 'settings' || adminTab === 'banners') {
       const fetchSettings = async () => {
         try {
           const res = await axios.get('/api/settings');
@@ -608,6 +608,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           <Separator label="————- เมนูหลัก —————" />
           <SidebarItem id="store" label="จัดการสินค้า" icon={Package} />
           <SidebarItem id="categories" label="จัดการหมวดหมู่" icon={LayoutDashboard} />
+          <SidebarItem id="banners" label="จัดการป้ายโฆษณา" icon={Image} />
           <SidebarItem id="users" label="จัดการผู้ใช้งาน" icon={Users} />
           <SidebarItem id="keys" label="License Keys" icon={Key} />
           
@@ -1372,7 +1373,39 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     </div>
                   </div>
 
-                  <div className="mt-8 border-t border-white/5 pt-8">
+                  <div className="p-6 border border-white/5 rounded-3xl mt-8">
+                    <h4 className="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-4">API Configuration</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-[11px]">
+                      <div className="flex items-center justify-between p-3 bg-[#0a0d12] rounded-xl border border-white/5">
+                        <span className="text-zinc-500 font-bold uppercase">Angpao API</span>
+                        <span className="text-emerald-600 font-black">ACTIVE</span>
+                      </div>
+                      <div className="flex items-center justify-between p-3 bg-[#0a0d12] rounded-xl border border-white/5">
+                        <span className="text-zinc-500 font-bold uppercase">Bank Slip API</span>
+                        <span className="text-emerald-600 font-black">ACTIVE</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {adminTab === 'banners' && (
+            <motion.div 
+              key="banners"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="space-y-6"
+            >
+              <div className="bg-[#0B0F14] border border-white/10 shadow-sm rounded-3xl overflow-hidden">
+                <div className="p-6 border-b border-white/5 bg-[#0a0d12]/50">
+                  <h3 className="font-bold text-white flex items-center gap-2"><Image className="w-5 h-5 text-zinc-500" /> จัดการป้ายโฆษณา & ป็อปอัพ</h3>
+                  <p className="text-zinc-500 text-xs mt-1">ตั้งค่ารูปภาพแบนเนอร์และป็อปอัพประกาศ</p>
+                </div>
+                <div className="p-6 space-y-8">
+                  <div className="p-6 bg-[#0a0d12] border border-white/10 rounded-3xl">
                     <div className="mb-6">
                       <h4 className="text-white font-bold flex items-center gap-2"><Globe className="w-5 h-5 text-zinc-500" /> Popup Banner Announcement</h4>
                       <p className="text-zinc-500 text-sm mt-1">ตั้งค่าป็อปอัพประกาศหน้าแรก แนะนำรูปขนาด 1500x1500px</p>
@@ -1392,27 +1425,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                               {siteSettings.popup_enabled && <Check className="w-3.5 h-3.5 text-white" />}
                             </div>
                           </div>
-                          <span className="text-sm font-bold text-zinc-700">เปิดใช้งานป็อปอัพประกาศ</span>
+                          <span className="text-sm font-bold text-white">เปิดใช้งานป็อปอัพประกาศ</span>
                         </label>
                       </div>
 
                       <div className="space-y-4 col-span-1 md:col-span-2">
-                        <label className="block text-sm font-bold text-zinc-700">รูปภาพประกาศ (ขนาดที่แนะนำ 940 x 480 px)</label>
+                        <label className="block text-sm font-bold text-zinc-400">รูปภาพประกาศ (ขนาดที่แนะนำ 940 x 480 px)</label>
                         <div className="flex flex-col sm:flex-row gap-2">
                           <input 
                             type="text"
                             value={siteSettings.popup_img_url}
                             onChange={(e) => setSiteSettings({ ...siteSettings, popup_img_url: e.target.value })}
-                            className="flex-1 w-full bg-[#0B0F14] border border-white/10 rounded-2xl px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-[#1a7fe6] shadow-inner"
+                            className="flex-1 w-full bg-[#0B0F14] border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-[#1E90FF] transition-all"
                             placeholder="https://images.unsplash.com/photo-..."
                           />
-                          <button
-                            type="button"
-                            onClick={() => setSiteSettings({ ...siteSettings, popup_img_url: 'https://placehold.co/940x480/red/white?text=Announcement' })}
-                            className="sm:w-auto w-full px-4 py-4 sm:py-0 bg-blue-50 border border-blue-200 text-blue-600 rounded-2xl font-bold hover:bg-blue-100 flex items-center justify-center whitespace-nowrap transition-all active:scale-95"
-                          >
-                            ปุ่มลัด
-                          </button>
                           <button
                             type="button"
                             onClick={() => {
@@ -1425,8 +1451,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                 try {
                                   const formData = new FormData();
                                   formData.append('file', file);
-                                  // Add auth header if needed, but axios intercepts usually handle it
-                                  const tempBtn = e.target; // preserve for scope if needed
                                   Swal.fire({ title: 'กำลังอัพโหลด...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
                                   const res = await axios.post('/api/upload', formData);
                                   if (res.data?.url) {
@@ -1439,30 +1463,39 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                               };
                               input.click();
                             }}
-                            className="sm:w-auto w-full px-6 py-4 sm:py-0 bg-[#1E90FF]/10 border border-[#1E90FF]/30 text-[#1E90FF] rounded-2xl font-bold hover:bg-[#1E90FF]/20 flex items-center justify-center whitespace-nowrap gap-2 transition-all active:scale-95"
+                            className="px-6 bg-[#1E90FF]/10 text-[#1E90FF] rounded-xl font-bold hover:bg-[#1E90FF]/20 flex items-center justify-center whitespace-nowrap gap-2 transition-all"
                           >
-                            <Upload className="w-5 h-5"/> อัพโหลดภาพ
+                            <Upload className="w-4 h-4"/> อัพโหลดภาพ
                           </button>
                         </div>
                       </div>
 
                       <div className="space-y-4 col-span-1 md:col-span-2">
-                         <label className="block text-sm font-bold text-zinc-700">ลิ้งค์ปลายทางเมื่อคลิกรูปภาพ (ปล่อยว่างได้)</label>
+                         <label className="block text-sm font-bold text-zinc-400">ลิ้งค์ปลายทางเมื่อคลิกรูปภาพป็อปอัพ (ปล่อยว่างได้)</label>
                          <input 
                            type="text"
                            value={siteSettings.popup_link}
                            onChange={(e) => setSiteSettings({ ...siteSettings, popup_link: e.target.value })}
-                           className="w-full bg-[#0B0F14] border border-white/10 rounded-2xl px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-[#1a7fe6] shadow-inner"
+                           className="w-full bg-[#0B0F14] border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-[#1E90FF] transition-all"
                            placeholder="https://facebook.com/..."
                          />
                       </div>
+                    </div>
+                  </div>
 
+                  <div className="p-6 bg-[#0a0d12] border border-white/10 rounded-3xl">
+                    <div className="mb-6">
+                      <h4 className="text-white font-bold flex items-center gap-2"><Image className="w-5 h-5 text-zinc-500" /> Banners Announcement</h4>
+                      <p className="text-zinc-500 text-sm mt-1">ป้ายสไลด์โฆษณาในหน้าแรกของเว็บไซต์</p>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                       <div className="space-y-4 col-span-1 md:col-span-2">
-                         <label className="block text-sm font-bold text-zinc-700">รูปภาพป้ายโฆษณาหน้าแรก (URL 1 บรรทัดต่อ 1 รูปภาพ)</label>
+                         <label className="block text-sm font-bold text-zinc-400">รูปภาพป้ายโฆษณาหน้าแรก (URL 1 บรรทัดต่อ 1 รูปภาพ)</label>
                          <textarea 
                            value={(siteSettings.banners || []).join('\n')}
                            onChange={(e) => setSiteSettings({ ...siteSettings, banners: e.target.value.split('\n') })}
-                           className="w-full bg-[#0B0F14] border border-white/10 rounded-2xl px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-indigo-500 shadow-inner h-32 resize-none"
+                           className="w-full bg-[#0B0F14] border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-[#1E90FF] transition-all h-32 resize-none leading-relaxed"
                            placeholder="https://img.th/banner1.png&#10;https://img.th/banner2.png"
                            onBlur={(e) => setSiteSettings({ ...siteSettings, banners: e.target.value.split('\n').map(url => url.trim()).filter(Boolean) })}
                          />
@@ -1470,18 +1503,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     </div>
                   </div>
 
-                  <div className="p-6 border border-white/5 rounded-3xl mt-8">
-                    <h4 className="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-4">API Configuration</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-[11px]">
-                      <div className="flex items-center justify-between p-3 bg-[#0a0d12] rounded-xl border border-white/5">
-                        <span className="text-zinc-500 font-bold uppercase">Angpao API</span>
-                        <span className="text-emerald-600 font-black">ACTIVE</span>
-                      </div>
-                      <div className="flex items-center justify-between p-3 bg-[#0a0d12] rounded-xl border border-white/5">
-                        <span className="text-zinc-500 font-bold uppercase">Bank Slip API</span>
-                        <span className="text-emerald-600 font-black">ACTIVE</span>
-                      </div>
-                    </div>
+                  <div className="flex items-end pt-4">
+                    <button 
+                      onClick={handleSaveSettings}
+                      className="w-full bg-[#1E90FF] text-white px-8 py-4 rounded-2xl text-sm font-black hover:bg-[#1E90FF]/80 transition-all flex items-center justify-center gap-3 shadow-lg shadow-[#1E90FF]/25"
+                    >
+                      <Image className="w-5 h-5" /> บันทึกการตั้งค่าป้ายโฆษณา
+                    </button>
                   </div>
                 </div>
               </div>
