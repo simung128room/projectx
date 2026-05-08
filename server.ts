@@ -13,6 +13,7 @@ import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
 import multer from 'multer';
 import fs from 'fs';
+import os from 'os';
 
 import { adminDb as admin, supabaseAdmin } from './src/lib/admindb.js';
 
@@ -1552,7 +1553,7 @@ console.log('HIT STATS ENDPOINT');
   });
 
   // --- Community Endpoints ---
-  const communityFile = path.join(__dirname, 'community_data.json');
+  const communityFile = path.resolve(os.tmpdir(), 'community_data.json');
   let communityData: { categories: any[], channels: any[], messages: any[], userRanks: Record<string, string> } = { categories: [], channels: [], messages: [], userRanks: {} };
   if (fs.existsSync(communityFile)) {
     try {
@@ -1560,7 +1561,13 @@ console.log('HIT STATS ENDPOINT');
       if (!communityData.userRanks) communityData.userRanks = {};
     } catch(e) {}
   }
-  const saveCommunity = () => fs.writeFileSync(communityFile, JSON.stringify(communityData));
+  const saveCommunity = () => {
+    try {
+      fs.writeFileSync(communityFile, JSON.stringify(communityData));
+    } catch(e) {
+      console.warn("Could not write communityData JSON to file system. Proceeding in-memory only.");
+    }
+  };
 
   // Initialize defaults
   if (communityData.categories.length === 0) {
