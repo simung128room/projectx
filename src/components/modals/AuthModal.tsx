@@ -59,29 +59,26 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
 
       if (authMode === 'signup') {
         const signupEmail = authEmail.trim() || defaultEmail;
-        let data, error;
-        try {
-           const creds = await auth.auth.signUp({ email: signupEmail, password: authPassword });
-           data = { user: creds.user };
-        } catch(e) {
-           error = e;
-        }
         
-        if (error) {
-           const errObj = error as Error;
-           throw new Error(`Supabase SignUp Error: ${errObj.message}`);
+        try {
+          const res = await axios.post('/api/signup', { email: signupEmail, password: authPassword });
+          if (res.data.error) {
+             throw new Error(res.data.error);
+          }
+        } catch (e: any) {
+          throw new Error(e.response?.data?.error || e.message);
         }
         
         Swal.fire({
           icon: 'success',
           title: 'สร้างบัญชีสำเร็จ!',
-          text: 'กำลังเข้าสู่ระบบ...',
+          text: 'กรุณาเข้าสู่ระบบอีกครั้ง...',
           timer: 1500,
           showConfirmButton: false,
           background: '#09090b',
           color: '#fff'
         });
-        onClose();
+        setAuthMode('login');
       } else {
         let error;
         try {
@@ -240,8 +237,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
       {showTurnstileModal && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-[80] backdrop-blur-sm animate-in zoom-in-95 duration-200">
           <div className="bg-[#050507] border border-white/10 rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-xl relative overflow-hidden flex flex-col items-center">
-            <div className="bg-[#0B0F14]/5 border border-white/10 rounded-2xl mb-2 flex items-center justify-center w-full h-[80px] overflow-hidden">
-              <div className="h-[65px] w-full max-w-[300px] overflow-hidden flex items-start justify-center">
+            <div className="mb-2 flex items-center justify-center w-full overflow-hidden" style={{ colorScheme: 'dark' }}>
+              <div className="flex items-start justify-center w-full">
                 {TURNSTILE_SITE_KEY ? (
                   <Turnstile
                     siteKey={TURNSTILE_SITE_KEY}
@@ -250,7 +247,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
                       setShowTurnstileModal(false);
                       executeAuth(token);
                     }}
-                    options={{ theme: 'dark' }}
+                    options={{ theme: 'dark', size: 'flexible' }}
+                    className="w-full"
                   />
                 ) : (
                   <div className="p-3 text-[#1a7fe6] rounded-xl text-center text-[10px] font-bold">

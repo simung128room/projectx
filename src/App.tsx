@@ -80,6 +80,38 @@ function ElapsedTimeDisplay({ running, startTime }: { running: boolean, startTim
   );
 }
 
+function ComboTextarea({ initialValue, onChangeDebounced, disabled }: { initialValue: string, onChangeDebounced: (val: string) => void, disabled: boolean }) {
+  const [val, setVal] = useState(initialValue);
+  const timerRef = useRef<any>(null);
+
+  useEffect(() => {
+    if (initialValue && initialValue !== val) {
+       setVal(initialValue);
+    }
+  }, [initialValue]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newVal = e.target.value;
+    setVal(newVal);
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => {
+      onChangeDebounced(newVal);
+    }, 400); // 400ms debounce
+  };
+
+  return (
+    <textarea
+      value={val}
+      onChange={handleChange}
+      rows={12}
+      disabled={disabled}
+      className={`w-full bg-[#0a0d12] border border-white/10 rounded-2xl p-5 text-sm font-mono text-white focus:border-[#1E90FF]/50 focus:ring-1 focus:ring-[#1E90FF]/30 outline-none resize-none transition-all scrollbar-thin scrollbar-thumb-zinc-300 placeholder:text-zinc-400 h-[280px] ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+      placeholder={"user:pass\nuser|pass"}
+      spellCheck="false"
+    />
+  );
+}
+
 function AppContent() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [adminUsername, setAdminUsername] = useState('');
@@ -116,7 +148,8 @@ function AppContent() {
   const [showKeyModal, setShowKeyModal] = useState(false);
 
   // Navigation State
-  const [activeView, setRawActiveView] = useState<'home' | 'categories' | 'category_products' | 'dashboard' | 'admin' | 'profile' | 'logs' | 'history' | 'settings' | 'ai_chat' | 'free_stuff' | 'premium_stuff' | 'contact' | 'login' | 'signup' | 'wallet' | 'redeem' | 'product_detail' | 'custom_page'>('home');
+  type ViewType = 'home' | 'categories' | 'category_products' | 'dashboard' | 'admin' | 'profile' | 'logs' | 'checker_logs' | 'history' | 'settings' | 'ai_chat' | 'free_stuff' | 'premium_stuff' | 'contact' | 'login' | 'signup' | 'wallet' | 'redeem' | 'product_detail' | 'custom_page';
+  const [activeView, setRawActiveView] = useState<ViewType>('home');
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>('all');
   const [isPageTransitioning, setIsPageTransitioning] = useState(false);
@@ -681,16 +714,19 @@ function AppContent() {
   }, [logs]);
 
   const addLog = (text: string, iconName: string, colorClass: string = 'text-gray-300') => {
-    setLogs(prev => [
-      ...prev,
-      {
-        id: Math.random().toString(36).substring(2, 9),
-        time: new Date().toLocaleTimeString('th-TH'),
-        text,
-        iconName,
-        colorClass,
-      }
-    ]);
+    setLogs(prev => {
+      const nextLogs = [
+        ...prev,
+        {
+          id: Math.random().toString(36).substring(2, 9),
+          time: new Date().toLocaleTimeString('th-TH'),
+          text,
+          iconName,
+          colorClass,
+        }
+      ];
+      return nextLogs.length > 200 ? nextLogs.slice(nextLogs.length - 200) : nextLogs;
+    });
   };
 
   const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -808,30 +844,7 @@ function AppContent() {
   };
 
   const resendVerification = async () => {
-    if (user && !user.emailVerified && user.email) {
-      try {
-        await sendEmailVerification(user); const error = null;
-        if (error) throw error;
-        
-        Swal.fire({
-          icon: 'success',
-          title: 'APEX STUDIO',
-          text: 'ส่งลิงก์ยืนยันอีเมลเรียบร้อยแล้ว กรุณาตรวจสอบในกล่องข้อความของคุณ',
-          background: '#ffffff',
-          color: '#18181b',
-          confirmButtonColor: '#ef4444'
-        });
-      } catch (err: any) {
-        Swal.fire({
-          icon: 'error',
-          title: 'APEX STUDIO',
-          text: err.message || 'เกิดข้อผิดพลาดในการส่งอีเมล',
-          background: '#ffffff',
-          color: '#18181b',
-          confirmButtonColor: '#ef4444'
-        });
-      }
-    }
+    // Disabled as requested
   };
 
   const addLicenseKey = async () => {
@@ -1680,7 +1693,7 @@ function AppContent() {
 
         {activeView === 'ai_chat' && <AIChatView />}
         {activeView === 'logs' && <HistoryLogsView usedKeysHistory={usedKeysHistory} purchaseHistory={purchaseHistory} />}
-        {activeView === 'checker_logs' && <CheckerLogsView logs={logs} onBack={() => setActiveView('home')} />}
+        {activeView as string === 'checker_logs' && <CheckerLogsView logs={logs} onBack={() => setActiveView('home')} />}
         {activeView === 'history' && <HistoryView purchaseHistory={purchaseHistory} topupHistory={topupHistory} usedKeysHistory={usedKeysHistory} />}
         {activeView === 'wallet' && <WalletView userPlan={userPlan} setUserPlan={setUserPlan} userId={user?.uid} onTopupSuccess={(entry) => {
            setTopupHistory(prev => [entry, ...prev]);
@@ -1885,13 +1898,10 @@ function AppContent() {
                   </div>
 
                   <div className="relative z-10 mb-6">
-                    <textarea
-                      value={combo}
-                      onChange={(e) => setCombo(e.target.value)}
-                      rows={12}
-                      className="w-full bg-[#0a0d12] border border-white/10 rounded-2xl p-5 text-sm font-mono text-white focus:border-[#1E90FF]/50 focus:ring-1 focus:ring-[#1E90FF]/30 outline-none resize-none transition-all scrollbar-thin scrollbar-thumb-zinc-300 placeholder:text-zinc-400 h-[280px]"
-                      placeholder="user:pass&#10;user|pass"
-                      spellCheck="false"
+                    <ComboTextarea
+                      initialValue={combo}
+                      onChangeDebounced={(val) => setCombo(val)}
+                      disabled={false} // Users explicitly requested to be able to type while checking
                     />
                   </div>
 
@@ -2231,10 +2241,11 @@ function AppContent() {
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-[70] backdrop-blur-sm font-sans animate-in zoom-in-95 duration-200">
           <div className="bg-[#0B0F14] border border-white/10 rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-xl relative overflow-hidden flex flex-col items-center">
             <div className="bg-[#0a0d12] border border-white/5 rounded-2xl mb-2 flex items-center justify-center w-full h-[80px] overflow-hidden">
-              <div className="h-[65px] w-full max-w-[300px] overflow-hidden flex items-start justify-center">
+              <div className="flex items-center justify-center w-full">
                 {TURNSTILE_SITE_KEY ? (
                   <Turnstile
                     siteKey={TURNSTILE_SITE_KEY}
+                    options={{ theme: 'dark', size: 'normal' }}
                     onSuccess={(token) => {
                       setPendingTurnstileToken(token);
                       setShowTurnstileModal(false);

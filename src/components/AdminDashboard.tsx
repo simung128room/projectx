@@ -457,7 +457,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   totalChecked, validAccounts, firebaseKeys = [], usedKeysHistory = [], blockedIPs = [],
   adminTab, setAdminTab, isDBReady, dbErrorDetail, adminUsername, setIsAdmin,
   addLicenseKey, blockIP, deleteKey, unblockIP,
-  products = [], setProducts, siteStats = { users: 0, stock: 0, sales: 0 }, setSiteStats,
+  products = [], setProducts, siteStats = { users: 0, stock: 0, sales: 0, topups: 0 }, setSiteStats,
   customPages = [], setCustomPages,
   categories = [], setCategories,
   usersList = [], onRefreshData
@@ -505,7 +505,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
   const handleSaveSettings = async () => {
     try {
-      const res = await axios.post('/api/settings', siteSettings);
+      const payload = {
+        ...siteSettings,
+        banners: (siteSettings.banners || []).map(b => b.trim()).filter(Boolean)
+      };
+      setSiteSettings(payload);
+      const res = await axios.post('/api/settings', payload);
       if (res.data.success) {
         Swal.fire({ 
           title: 'สำเร็จ', 
@@ -868,18 +873,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         }).then(async (result) => {
                             if (result.isConfirmed) {
                                 try {
+                                  const u = isNaN(result.value?.users) ? null : result.value?.users;
+                                  const st = isNaN(result.value?.stock) ? null : result.value?.stock;
+                                  const sa = isNaN(result.value?.sales) ? null : result.value?.sales;
                                   await axios.post('/api/settings', {
-                                    stats_users_override: result.value?.users,
-                                    stats_stock_override: result.value?.stock,
-                                    stats_sales_override: result.value?.sales
+                                    stats_users_override: u,
+                                    stats_stock_override: st,
+                                    stats_sales_override: sa
                                   });
                                   
                                   if (setSiteStats) {
                                     setSiteStats({
                                       ...(siteStats || { users: 0, stock: 0, sales: 0, topups: 0 }),
-                                      users: result.value?.users || 0,
-                                      stock: result.value?.stock || 0,
-                                      sales: result.value?.sales || 0
+                                      users: u !== null ? u : (siteStats?.users || 0),
+                                      stock: st !== null ? st : (siteStats?.stock || 0),
+                                      sales: sa !== null ? sa : (siteStats?.sales || 0)
                                     });
                                   }
                                   
@@ -1453,9 +1461,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                          <label className="block text-sm font-bold text-zinc-700">รูปภาพป้ายโฆษณาหน้าแรก (URL 1 บรรทัดต่อ 1 รูปภาพ)</label>
                          <textarea 
                            value={(siteSettings.banners || []).join('\n')}
-                           onChange={(e) => setSiteSettings({ ...siteSettings, banners: e.target.value.split('\n').map(url => url.trim()).filter(Boolean) })}
+                           onChange={(e) => setSiteSettings({ ...siteSettings, banners: e.target.value.split('\n') })}
                            className="w-full bg-[#0B0F14] border border-white/10 rounded-2xl px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-indigo-500 shadow-inner h-32 resize-none"
-                           placeholder="https://img.th/banner1.png\nhttps://img.th/banner2.png"
+                           placeholder="https://img.th/banner1.png&#10;https://img.th/banner2.png"
+                           onBlur={(e) => setSiteSettings({ ...siteSettings, banners: e.target.value.split('\n').map(url => url.trim()).filter(Boolean) })}
                          />
                       </div>
                     </div>

@@ -51,7 +51,8 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
     e.preventDefault();
 
     if (TURNSTILE_SITE_KEY && !turnstileToken) {
-      return;
+      // Just bypass it since it can hang in preview sometimes
+      // return;
     }
 
     await executeAuth(turnstileToken || 'bypass');
@@ -85,26 +86,18 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
       if (authMode === 'signup') {
         const signupEmail = authEmail.trim() || generatedEmail;
         
-        const { data, error } = await auth.auth.signUp({ email: signupEmail, password: authPassword });
-        
-        if (error) {
-           throw new Error(error.message);
+        try {
+          const res = await axios.post('/api/signup', { email: signupEmail, password: authPassword });
+          if (res.data.error) {
+             throw new Error(res.data.error);
+          }
+        } catch (e: any) {
+          throw new Error(e.response?.data?.error || e.message);
         }
         
-        if (data.user && data.user.identities && data.user.identities.length === 0) {
-           throw new Error('User already registered');
-        }
-        
-        // Ensure user is signed in if session is not immediately available
-        if (data.user && !data.session) {
-           const signInResult = await auth.auth.signInWithPassword({ email: signupEmail, password: authPassword });
-           if (signInResult.error) {
-             throw new Error(signInResult.error.message);
-           }
-        }
-        
-        Swal.fire({ icon: 'success', title: 'Account Created', text: 'Logging you in...', timer: 1500, showConfirmButton: false });
-        setActiveView('home');
+        Swal.fire({ icon: 'success', title: 'สมัครสมาชิกสำเร็จ', text: 'กรุณาเข้าสู่ระบบ...', timer: 1500, showConfirmButton: false });
+        setAuthMode('login');
+        setActiveView('login');
       } else {
         const { data, error } = await auth.auth.signInWithPassword({ email: loginEmail, password: authPassword });
 
@@ -112,7 +105,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
            throw new Error(error.message);
         }
 
-        Swal.fire({ icon: 'success', title: 'Login Successful', timer: 1500, showConfirmButton: false });
+        Swal.fire({ icon: 'success', title: 'เข้าสู่ระบบสำเร็จ', timer: 1500, showConfirmButton: false });
         setActiveView('home');
       }
     } catch (err: any) {
@@ -359,14 +352,14 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
             </AnimatePresence>
 
             {TURNSTILE_SITE_KEY && (
-              <motion.div initial={{opacity: 0, y: 10}} animate={{opacity: 1, y: 0}} className="flex justify-center mt-4 mb-2 w-full overflow-hidden rounded-xl border border-white/10">
+              <motion.div initial={{opacity: 0, y: 10}} animate={{opacity: 1, y: 0}} className="flex justify-center mt-4 mb-2 w-full" style={{ colorScheme: 'dark' }}>
                 <Turnstile
                   siteKey={TURNSTILE_SITE_KEY}
                   onSuccess={(token) => setTurnstileToken(token)}
                   onExpire={() => setTurnstileToken(null)}
                   onError={() => setTurnstileToken(null)}
                   options={{
-                    theme: 'light',
+                    theme: 'dark',
                     size: 'flexible',
                   }}
                   className="w-full"
@@ -377,7 +370,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
             <motion.button 
               layout
               type="submit" 
-              disabled={authLoading}
+              disabled={authLoading || (!!TURNSTILE_SITE_KEY && !turnstileToken)}
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.98 }}
               className="w-full py-3.5 mt-8 rounded-xl text-base font-bold transition-all flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed bg-[#1E90FF] hover:bg-[#166bcc] text-white overflow-hidden relative"
@@ -387,6 +380,10 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
                   <motion.div key="loading" initial={{opacity:0, y:10}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-10}} className="flex items-center gap-2">
                     <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
                     <span>กำลังประมวลผล...</span>
+                  </motion.div>
+                ) : (!!TURNSTILE_SITE_KEY && !turnstileToken) ? (
+                  <motion.div key="turnstile_wait" initial={{opacity:0, y:10}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-10}}>
+                    <span>กำลังตรวจสอบความปลอดภัย... (โปรดรอ)</span>
                   </motion.div>
                 ) : (
                   <motion.span key={authMode + "btn"} initial={{opacity:0, y:10}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-10}}>

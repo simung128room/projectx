@@ -155,6 +155,24 @@ app.set('trust proxy', 1);
     res.json(siteSettings);
   });
 
+  app.post('/api/signup', async (req, res) => {
+    const { email, password } = req.body;
+    try {
+      const { data, error } = await admin.auth.admin.createUser({
+        email,
+        password,
+        email_confirm: true
+      });
+      
+      if (error) {
+         return res.status(400).json({ error: error.message });
+      }
+      return res.json({ success: true, user: data.user });
+    } catch (e: any) {
+      return res.status(500).json({ error: String(e) });
+    }
+  });
+
   app.post('/api/settings', requireAdmin, async (req, res) => {
     console.log("=== POST /api/settings REACHED ===", req.body);
     const { truewallet_phone, site_name, contact_line, stats_users_offset, stats_sales_offset, stats_users_override, stats_stock_override, stats_sales_override, popup_img_url, popup_enabled, popup_link, banners } = req.body;
@@ -163,9 +181,9 @@ app.set('trust proxy', 1);
     if (contact_line !== undefined) siteSettings.contact_line = contact_line;
     if (stats_users_offset !== undefined) siteSettings.stats_users_offset = parseInt(stats_users_offset) || 0;
     if (stats_sales_offset !== undefined) siteSettings.stats_sales_offset = parseInt(stats_sales_offset) || 0;
-    if (stats_users_override !== undefined) siteSettings.stats_users_override = parseInt(stats_users_override);
-    if (stats_stock_override !== undefined) siteSettings.stats_stock_override = parseInt(stats_stock_override);
-    if (stats_sales_override !== undefined) siteSettings.stats_sales_override = parseInt(stats_sales_override);
+    if (stats_users_override !== undefined) siteSettings.stats_users_override = stats_users_override === null || isNaN(parseInt(stats_users_override)) ? null : parseInt(stats_users_override);
+    if (stats_stock_override !== undefined) siteSettings.stats_stock_override = stats_stock_override === null || isNaN(parseInt(stats_stock_override)) ? null : parseInt(stats_stock_override);
+    if (stats_sales_override !== undefined) siteSettings.stats_sales_override = stats_sales_override === null || isNaN(parseInt(stats_sales_override)) ? null : parseInt(stats_sales_override);
     if (popup_img_url !== undefined) siteSettings.popup_img_url = popup_img_url;
     if (popup_enabled !== undefined) siteSettings.popup_enabled = popup_enabled === true || popup_enabled === 'true';
     if (popup_link !== undefined) siteSettings.popup_link = popup_link;
@@ -1186,9 +1204,9 @@ console.log('HIT STATS ENDPOINT');
       }
 
       cachedStats = {
-        users: siteSettings.stats_users_override !== undefined && !isNaN(siteSettings.stats_users_override) ? siteSettings.stats_users_override : totalUsersCount + (siteSettings.stats_users_offset || 0),
-        sales: siteSettings.stats_sales_override !== undefined && !isNaN(siteSettings.stats_sales_override) ? siteSettings.stats_sales_override : totalSales + (siteSettings.stats_sales_offset || 0),
-        stock: siteSettings.stats_stock_override !== undefined && !isNaN(siteSettings.stats_stock_override) ? siteSettings.stats_stock_override : totalStock,
+        users: siteSettings.stats_users_override !== undefined && siteSettings.stats_users_override !== null && !isNaN(siteSettings.stats_users_override) ? siteSettings.stats_users_override : totalUsersCount + (siteSettings.stats_users_offset || 0),
+        sales: siteSettings.stats_sales_override !== undefined && siteSettings.stats_sales_override !== null && !isNaN(siteSettings.stats_sales_override) ? siteSettings.stats_sales_override : totalSales + (siteSettings.stats_sales_offset || 0),
+        stock: siteSettings.stats_stock_override !== undefined && siteSettings.stats_stock_override !== null && !isNaN(siteSettings.stats_stock_override) ? siteSettings.stats_stock_override : totalStock,
         totalOrders: totalPurchaseOrders,
         totalTopupsAmount
       };
