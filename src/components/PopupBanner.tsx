@@ -38,32 +38,36 @@ export const PopupBanner: React.FC<PopupBannerProps> = ({ enabled, imgUrl, linkU
     <img 
       src={imgUrl || "https://images.unsplash.com/photo-1607083206968-13611e3d76db?auto=format&fit=crop&q=80&w=1500&h=1500"} 
       alt="Announcement" 
-      className="w-full h-full object-cover"
+      className="w-full max-h-[70vh] object-contain"
     />
   );
 
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-8 bg-zinc-950/80 backdrop-blur-md">
+        <div 
+          onClick={(e) => {
+            if (e.target === e.currentTarget) handleClose();
+          }}
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-8 bg-zinc-950/80 backdrop-blur-md"
+        >
           <motion.div
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="relative w-full max-w-2xl bg-[#0B0F14] rounded-3xl shadow-2xl overflow-hidden flex flex-col"
+            className="relative w-full max-w-lg max-h-[90vh] bg-[#0B0F14] rounded-3xl shadow-2xl overflow-hidden flex flex-col"
           >
             <button
               onClick={handleClose}
-              className="absolute top-4 right-4 z-10 w-10 h-10 bg-black/30 hover:bg-black/50 backdrop-blur-md rounded-full flex items-center justify-center text-white transition-colors"
+              className="absolute top-4 right-4 z-10 w-10 h-10 bg-black/50 hover:bg-black/70 backdrop-blur-md rounded-full flex items-center justify-center text-white transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
             
-            {/* The 1500x1500 image aspect box */}
-            <div className="w-full aspect-square relative bg-[#121820] flex items-center justify-center">
+            <div className="w-full flex-1 overflow-auto bg-[#121820] flex items-center justify-center">
               {linkUrl ? (
-                <a href={linkUrl} target="_blank" rel="noopener noreferrer" className="w-full h-full block">
+                <a href={linkUrl} target="_blank" rel="noopener noreferrer" className="w-full h-full flex items-center justify-center">
                   <ImageContent />
                 </a>
               ) : (
@@ -71,7 +75,7 @@ export const PopupBanner: React.FC<PopupBannerProps> = ({ enabled, imgUrl, linkU
               )}
             </div>
 
-            <div className="p-4 sm:px-6 bg-[#0B0F14] flex items-center justify-between border-t border-white/5">
+            <div className="p-4 sm:px-6 bg-[#0B0F14] flex-shrink-0 flex flex-wrap items-center justify-between border-t border-white/5 gap-4">
               <label className="flex items-center gap-3 cursor-pointer group">
                 <div className="relative flex items-center justify-center">
                   <input 
@@ -86,7 +90,7 @@ export const PopupBanner: React.FC<PopupBannerProps> = ({ enabled, imgUrl, linkU
                 </div>
                 <span className="text-zinc-400 text-sm font-semibold select-none group-hover:text-white transition-colors">ไม่แสดงอีกใน 24 ชั่วโมง</span>
               </label>
-              <button onClick={handleClose} className="px-5 py-2.5 bg-[#121820] hover:bg-zinc-200 text-white text-sm font-bold rounded-xl transition-colors">
+              <button onClick={handleClose} className="px-5 py-2.5 bg-[#121820] hover:bg-white hover:text-black text-white text-sm font-bold rounded-xl transition-colors">
                 ปิดหน้าต่าง
               </button>
             </div>

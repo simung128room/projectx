@@ -142,11 +142,12 @@ app.set('trust proxy', 1);
 
   // Load from DB
   try {
-    admin.firestore().collection('settings').doc('site').get().then(doc => {
+    const docName = process.env.NODE_ENV === 'production' ? 'site' : 'site_dev';
+    admin.firestore().collection('settings').doc(docName).get().then((doc: any) => {
       if (doc.exists) {
         siteSettings = { ...siteSettings, ...doc.data() };
       }
-    }).catch(err => {
+    }).catch((err: any) => {
       console.warn("Could not load initial site settings from DB (might not exist yet).", err.message || err);
     });
   } catch(e) {}
@@ -193,7 +194,8 @@ app.set('trust proxy', 1);
     lastStatsFetch = 0;
     
     try {
-      await admin.firestore().collection('settings').doc('site').set(siteSettings, { merge: true });
+      const docName = process.env.NODE_ENV === 'production' ? 'site' : 'site_dev';
+      await admin.firestore().collection('settings').doc(docName).set(siteSettings, { merge: true });
     } catch(e) {
       console.error('Failed to save settings', e);
     }
