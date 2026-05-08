@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { User, Shield, Mail, ArrowRight, Lock, CheckCircle2, MonitorSmartphone, Eye, EyeOff, Zap } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import Swal from 'sweetalert2';
+import axios from 'axios';
 import { supabase as auth } from '../lib/supabase';
 
 import { Turnstile } from '@marsidev/react-turnstile';
@@ -105,8 +106,9 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
            throw new Error(error.message);
         }
 
-        Swal.fire({ icon: 'success', title: 'เข้าสู่ระบบสำเร็จ', timer: 1500, showConfirmButton: false });
-        setActiveView('home');
+        Swal.fire({ icon: 'success', title: 'เข้าสู่ระบบสำเร็จ', timer: 1500, showConfirmButton: false }).then(() => {
+           window.location.href = '/';
+        });
       }
     } catch (err: any) {
       let msg = err?.message || 'An error occurred';

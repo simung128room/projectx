@@ -14,7 +14,7 @@ import rateLimit from 'express-rate-limit';
 import multer from 'multer';
 import fs from 'fs';
 
-import { adminDb as admin } from './src/lib/admindb.js';
+import { adminDb as admin, supabaseAdmin } from './src/lib/admindb.js';
 
 dotenv.config({ override: true });
 
@@ -132,8 +132,8 @@ app.set('trust proxy', 1);
     site_name: process.env.VITE_SITE_NAME || 'APEX STUDIO',
     truewallet_phone: process.env.TRUEWALLET_PHONE || '0951378403',
     contact_line: process.env.CONTACT_LINE || '@apex_studio',
-    stats_users_offset: 1250,
-    stats_sales_offset: 0,
+    stats_users_offset: 892,
+    stats_sales_offset: 4432,
     popup_img_url: 'https://images.unsplash.com/photo-1607083206968-13611e3d76db?auto=format&fit=crop&q=80&w=1500&h=1500',
     popup_enabled: true,
     popup_link: '',
@@ -159,7 +159,7 @@ app.set('trust proxy', 1);
   app.post('/api/signup', async (req, res) => {
     const { email, password } = req.body;
     try {
-      const { data, error } = await admin.auth.admin.createUser({
+      const { data, error } = await supabaseAdmin.auth.admin.createUser({
         email,
         password,
         email_confirm: true

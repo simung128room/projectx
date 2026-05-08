@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { User, Shield, X, Mail } from 'lucide-react';
 import Swal from 'sweetalert2';
+import axios from 'axios';
 import { supabase as auth } from '../../lib/supabase';
 
 import { Turnstile } from '@marsidev/react-turnstile';
