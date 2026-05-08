@@ -1,7 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { Gift, Plus, Trash2, Calendar, FileText, Image as ImageIcon, Download, Check, X } from 'lucide-react';
 import Swal from 'sweetalert2';
-import { ContentItem } from './ContentFeedView';
+export interface ContentItem {
+  id: string;
+  type: 'free' | 'premium';
+  title: string;
+  keyword?: string;
+  body?: string;
+  attachments?: any[];
+  links?: string[];
+  unlockAt?: string;
+  createdAt?: string;
+}
 
 export const AdminToolsManagement = () => {
   const [items, setItems] = useState<ContentItem[]>([]);

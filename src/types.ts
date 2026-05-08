@@ -34,6 +34,7 @@ export interface UserPlan {
   fullName?: string;
   balance?: number;
   role?: string;
+  rank?: 'user' | 'basic' | 'premium';
   isPremium: boolean;
   premiumExpireDate: string | null;
   registeredAt?: string;

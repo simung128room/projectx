@@ -485,7 +485,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     contact_line: '@apex_studio',
     stats_users_offset: 892,
     stats_sales_offset: 4432,
-    popup_img_url: 'https://images.unsplash.com/photo-1607083206968-13611e3d76db?auto=format&fit=crop&q=80&w=1500&h=1500',
+    popup_img_url: 'https://img2.pic.in.th/Red-Black-White-Anime-Podcast-Discord-Logocc6d3bfe807340af.png',
     popup_enabled: true,
     popup_link: '',
     banners: ["https://img2.pic.in.th/24B843A8-C705-48F6-84FB-50AAA5EFAAA6.png"]

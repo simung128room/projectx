@@ -22,11 +22,11 @@ import { KeyModal } from './components/modals/KeyModal';
 import { AuthView } from './components/AuthView';
 import { AdminDashboard } from './components/AdminDashboard';
 import { ReceiptModal } from './components/modals/ReceiptModal';
+import { CommunityView } from './components/CommunityView';
 import { HomeView } from './components/HomeView';
 import { ProductDetailView } from './components/ProductDetailView';
 import { PageView } from './components/PageView';
 import { HistoryLogsView } from './components/HistoryLogsView';
-import { ContentFeedView } from './components/ContentFeedView';
 import { AIChatView } from './components/AIChatView';
 import { WalletView } from './components/WalletView';
 import { RedeemKeyView } from './components/RedeemKeyView';
@@ -148,7 +148,7 @@ function AppContent() {
   const [showKeyModal, setShowKeyModal] = useState(false);
 
   // Navigation State
-  type ViewType = 'home' | 'categories' | 'category_products' | 'dashboard' | 'admin' | 'profile' | 'logs' | 'checker_logs' | 'history' | 'settings' | 'ai_chat' | 'free_stuff' | 'premium_stuff' | 'contact' | 'login' | 'signup' | 'wallet' | 'redeem' | 'product_detail' | 'custom_page';
+  type ViewType = 'home' | 'categories' | 'category_products' | 'dashboard' | 'admin' | 'profile' | 'logs' | 'checker_logs' | 'history' | 'settings' | 'ai_chat' | 'contact' | 'login' | 'signup' | 'wallet' | 'redeem' | 'product_detail' | 'custom_page' | 'community';
   const [activeView, setRawActiveView] = useState<ViewType>('home');
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>('all');
@@ -175,7 +175,7 @@ function AppContent() {
       if (hash === 'topup') hash = 'wallet';
       if (hash === 'store') hash = 'categories';
       
-      const validViews = ['home', 'categories', 'category_products', 'dashboard', 'admin', 'profile', 'logs', 'checker_logs', 'history', 'settings', 'ai_chat', 'free_stuff', 'premium_stuff', 'contact', 'login', 'signup', 'wallet', 'redeem', 'product_detail', 'custom_page'];
+      const validViews = ['home', 'categories', 'category_products', 'dashboard', 'admin', 'profile', 'logs', 'checker_logs', 'history', 'settings', 'ai_chat', 'contact', 'login', 'signup', 'wallet', 'redeem', 'product_detail', 'custom_page', 'community'];
       
       if (hash && validViews.includes(hash)) {
          if (hash !== activeView) {
@@ -744,64 +744,29 @@ function AppContent() {
         color: '#fff'
       });
 
-      const keyResponse = await axios.get(`/api/validate_key/${keyInput.trim()}`);
-      const keyData = keyResponse.data;
+      const res = await axios.post('/api/redeem', { key: keyInput.trim() });
+      const { rank, type } = res.data;
+      
+      const newPlan = { ...userPlan, username: usernameInput, isPremium: true, rank: rank as any };
+      setUserPlan(newPlan as any);
 
-      if (keyData && keyData.status === 'active') {
-        // 1. Mark key as used in backend
-        await axios.patch(`/api/license_keys/${keyData.id}`, { status: 'used' });
-
-        // 2. Add to history in backend
-        await axios.post(`/api/used_keys`, {
-          key: keyInput,
-          ip: clientIp || 'Unknown',
-          details: `Redeemed ${keyData.type} plan`
-        });
-
-        // 3. Update User Plan locally
-        let days = 1;
-        if (keyData.type === 'Week') days = 7;
-        if (keyData.type === 'Month') days = 30;
-        if (keyData.type === '3Month') days = 90;
-        if (keyData.type === 'Year') days = 365;
-        if (keyData.type === 'Lifetime') days = 9999;
-        
-        const expireDate = new Date();
-        expireDate.setDate(expireDate.getDate() + days);
-        const newPlan = { ...userPlan, username: usernameInput, isPremium: true, premiumExpireDate: expireDate.toISOString() };
-        setUserPlan(newPlan);
-        
-        if (user) {
-          await syncUserPlan(newPlan, user.uid);
-        }
-
-        if (!user) {
-          try {
-            await auth.auth.signInAnonymously(); const error = null;
-            if (error) console.error("Error signing in anonymously:", error);
-          } catch (err) {
-            console.error("Exception signing in anonymously:", err);
-          }
-        }
-
-        Swal.fire({
-          icon: 'success',
-          title: 'ยินดีด้วย!',
-          text: `คุณได้รับสิทธิ์ระดับ ${keyData.type} เรียบร้อยแล้ว`,
-          background: '#09090b',
-          color: '#fff'
-        });
-      } else {
+      Swal.fire({
+        icon: 'success',
+        title: 'ยินดีด้วย!',
+        text: `คุณได้รับสิทธิ์ระดับ Premium เรียบร้อยแล้ว`,
+        background: '#09090b',
+        color: '#fff'
+      });
+    } catch (err: any) {
+      if (err.response && err.response.status === 400 && err.response.data.error === 'Key not found or used') {
         Swal.fire({
           icon: 'error',
-          title: 'กุญแจถูกใช้งานแล้ว',
-          text: 'รหัสที่คุณกรอกถูกใช้งานไปก่อนหน้านี้แล้ว',
+          title: 'ไม่พบกุญแจนี้',
+          text: 'รหัสที่คุณกรอกอาจจะผิด หรือถูกใช้งานไปแล้ว',
           background: '#09090b',
           color: '#fff'
         });
-      }
-    } catch (err: any) {
-      if (err.response && err.response.status === 404) {
+      } else if (err.response && err.response.status === 404) {
         Swal.fire({
           icon: 'error',
           title: 'ไม่พบกุญแจนี้',
@@ -1375,11 +1340,8 @@ function AppContent() {
                 <button onClick={() => setActiveView('ai_chat')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'ai_chat' ? 'bg-[#1E90FF] text-white shadow-md shadow-[#1E90FF]/20' : 'text-zinc-500 hover:bg-[#0a0d12] hover:text-white'}`}>
                    <Server className="w-5 h-5" /> คุยกับไอเอ๋อ (AI)
                 </button>
-                <button onClick={() => setActiveView('free_stuff')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'free_stuff' ? 'bg-[#1E90FF] text-white shadow-md shadow-[#1E90FF]/20' : 'text-zinc-500 hover:bg-[#0a0d12] hover:text-white'}`}>
-                   <Gift className="w-5 h-5" /> แจกของฟรี
-                </button>
-                <button onClick={() => setActiveView('premium_stuff')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'premium_stuff' ? 'bg-amber-100 text-amber-800' : 'text-amber-600 hover:bg-amber-500/10 hover:text-amber-800'}`}>
-                   <Crown className="w-5 h-5" /> ของเติมของโคตรดี!!
+                <button onClick={() => setActiveView('community')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'community' ? 'bg-[#1E90FF] text-white shadow-md shadow-[#1E90FF]/20' : 'text-zinc-500 hover:bg-[#0a0d12] hover:text-white'}`}>
+                   <Gamepad2 className="w-5 h-5" /> คอมมูนิตี้ (คล้าย Discord)
                 </button>
               </>
             )}
@@ -1552,11 +1514,8 @@ function AppContent() {
                       <button onClick={() => { setActiveView('dashboard'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border ${activeView === 'dashboard' ? 'bg-[#1E90FF]/10 text-[#1E90FF] border-[#1E90FF]/30 shadow-md shadow-[#1E90FF]/10' : 'bg-transparent text-zinc-500 border-transparent hover:bg-[#0a0d12] hover:text-white'}`}>
                          <Gamepad2 className="w-[18px] h-[18px]" /> ตรวจสอบไอดี
                       </button>
-                      <button onClick={() => { setActiveView('free_stuff'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border ${activeView === 'free_stuff' ? 'bg-[#1E90FF]/10 text-[#1E90FF] border-[#1E90FF]/30 shadow-md shadow-[#1E90FF]/10' : 'bg-transparent text-zinc-500 border-transparent hover:bg-[#0a0d12] hover:text-white'}`}>
-                         <Gift className="w-[18px] h-[18px]" /> แจกของฟรี
-                      </button>
-                      <button onClick={() => { setActiveView('premium_stuff'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border ${activeView === 'premium_stuff' ? 'bg-amber-500/10 text-amber-500 border-amber-500/30 shadow-md shadow-amber-500/10' : 'bg-transparent text-amber-600/70 border-transparent hover:bg-amber-500/5 hover:text-amber-500'}`}>
-                         <Crown className="w-[18px] h-[18px]" /> ของเติมของโคตรดี!!
+                      <button onClick={() => { setActiveView('community'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border ${activeView === 'community' ? 'bg-[#1E90FF]/10 text-[#1E90FF] border-[#1E90FF]/30 shadow-md shadow-[#1E90FF]/10' : 'bg-transparent text-zinc-500 border-transparent hover:bg-[#0a0d12] hover:text-white'}`}>
+                         <Gamepad2 className="w-[18px] h-[18px]" /> คอมมูนิตี้
                       </button>
                       {isAdmin && (
                         <button onClick={() => { setActiveView('admin'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border ${activeView === 'admin' ? 'bg-purple-500/10 text-purple-500 border-purple-500/30 shadow-md shadow-purple-500/10' : 'bg-transparent text-purple-500/70 border-transparent hover:bg-purple-500/5 hover:text-purple-500'}`}>
@@ -1699,8 +1658,7 @@ function AppContent() {
            setTopupHistory(prev => [entry, ...prev]);
            setSiteStats(prev => ({...prev, topups: (prev.topups || 0) + (entry.amount || entry.money || 0)}));
         }} />}
-        {activeView === 'free_stuff' && <ContentFeedView type="free" isAdmin={isAdmin} isPremiumUser={userPlan?.isPremium || false} />}
-        {activeView === 'premium_stuff' && <ContentFeedView type="premium" isAdmin={isAdmin} isPremiumUser={userPlan?.isPremium || false} />}
+        {activeView === 'community' && <CommunityView user={user} isAdmin={isAdmin} userRank={userPlan?.rank || 'user'} />}
 
         {activeView === 'admin' && isAdmin && (
           <AdminDashboard

@@ -134,7 +134,7 @@ app.set('trust proxy', 1);
     contact_line: process.env.CONTACT_LINE || '@apex_studio',
     stats_users_offset: 892,
     stats_sales_offset: 4432,
-    popup_img_url: 'https://images.unsplash.com/photo-1607083206968-13611e3d76db?auto=format&fit=crop&q=80&w=1500&h=1500',
+    popup_img_url: 'https://img2.pic.in.th/Red-Black-White-Anime-Podcast-Discord-Logocc6d3bfe807340af.png',
     popup_enabled: true,
     popup_link: '',
     banners: ["https://img2.pic.in.th/24B843A8-C705-48F6-84FB-50AAA5EFAAA6.png"]
@@ -1551,6 +1551,151 @@ console.log('HIT STATS ENDPOINT');
     }
   });
 
+  // --- Community Endpoints ---
+  const communityFile = path.join(__dirname, 'community_data.json');
+  let communityData: { categories: any[], channels: any[], messages: any[], userRanks: Record<string, string> } = { categories: [], channels: [], messages: [], userRanks: {} };
+  if (fs.existsSync(communityFile)) {
+    try {
+      communityData = JSON.parse(fs.readFileSync(communityFile, 'utf-8'));
+      if (!communityData.userRanks) communityData.userRanks = {};
+    } catch(e) {}
+  }
+  const saveCommunity = () => fs.writeFileSync(communityFile, JSON.stringify(communityData));
+
+  // Initialize defaults
+  if (communityData.categories.length === 0) {
+     const catId = 'cat-' + Date.now();
+     communityData.categories.push({ id: catId, name: 'INFORMATION', order: 0 });
+     communityData.channels.push({ id: 'ch-claim', categoryId: catId, name: 'รับยศ-basic', type: 'role_claim', order: 0 });
+     communityData.channels.push({ id: 'ch-gen', categoryId: catId, name: 'ประกาศทั่วไป', type: 'text', order: 1 });
+     saveCommunity();
+  }
+
+  app.get('/api/community/categories', (req, res) => {
+    res.json(communityData.categories);
+  });
+
+  app.get('/api/community/channels', (req, res) => {
+    res.json(communityData.channels);
+  });
+
+  app.get('/api/community/messages/:channelId', (req, res) => {
+    const msgs = communityData.messages.filter((m: any) => m.channelId === req.params.channelId);
+    res.json(msgs.slice(-50));
+  });
+
+  app.post('/api/community/channels', requireAuth, requireAdmin, (req: any, res: any) => {
+    const id = 'ch-' + Date.now();
+    communityData.channels.push({
+      id,
+      name: req.body.name,
+      categoryId: req.body.categoryId || communityData.categories[0]?.id,
+      type: req.body.type || 'text',
+      order: req.body.order || 0
+    });
+    saveCommunity();
+    res.json({ id });
+  });
+
+  app.post('/api/community/categories', requireAuth, requireAdmin, (req: any, res: any) => {
+    const id = 'cat-' + Date.now();
+    communityData.categories.push({
+      id,
+      name: req.body.name,
+      order: req.body.order || 0
+    });
+    saveCommunity();
+    res.json({ id });
+  });
+
+  app.post('/api/community/messages/:channelId', requireAuth, requireAdmin, (req: any, res: any) => {
+    try {
+      const msg = {
+        id: 'msg-' + Date.now(),
+        channelId: req.params.channelId,
+        content: req.body.content || '',
+        fileUrl: req.body.fileUrl || '',
+        sender: 'Admin',
+        senderId: req.user.uid,
+        timestamp: new Date().toISOString()
+      };
+      communityData.messages.push(msg);
+      saveCommunity();
+      res.json(msg);
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  app.post('/api/community/claim_basic_rank', requireAuth, async (req: any, res: any) => {
+    try {
+      const uid = req.user.uid;
+      const userDoc = await admin.firestore().collection('users').doc(uid).get();
+      if (!userDoc.exists) return res.status(404).json({error: 'User not found'});
+      
+      const userData = userDoc.data();
+      const currentRank = communityData.userRanks?.[uid] || userData?.rank;
+
+      if (currentRank === 'premium') {
+        return res.status(400).json({error: 'You already have Premium rank!'});
+      }
+      
+      communityData.userRanks = communityData.userRanks || {};
+      communityData.userRanks[uid] = 'basic';
+      saveCommunity();
+
+      res.json({ success: true, rank: 'basic' });
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  app.post('/api/redeem', requireAuth, async (req: any, res: any) => {
+    try {
+      const { key } = req.body;
+      const uid = req.user.uid;
+      
+      const snapshot = await admin.firestore().collection('license_keys').where('key', '==', key).where('status', '==', 'active').get();
+      if (!snapshot.docs || snapshot.docs.length === 0) {
+        return res.status(400).json({ error: 'Key not found or used' });
+      }
+      const keyDoc = snapshot.docs[0];
+      const keyData = keyDoc.data();
+      
+      await keyDoc.ref.update({ status: 'used' });
+      await admin.firestore().collection('used_keys').add({
+        key: key,
+        ip: req.ip,
+        details: `Redeemed rank ${keyData.type}`,
+        used_at: new Date().toISOString()
+      });
+      
+      let days = 1;
+      if (keyData.type === 'Week') days = 7;
+      if (keyData.type === 'Month') days = 30;
+      if (keyData.type === '3Month') days = 90;
+      if (keyData.type === 'Year') days = 365;
+      if (keyData.type === 'Lifetime') days = 9999;
+      
+      const expireDate = new Date();
+      expireDate.setDate(expireDate.getDate() + days);
+      
+      communityData.userRanks = communityData.userRanks || {};
+      communityData.userRanks[uid] = 'premium';
+      saveCommunity();
+
+      await admin.firestore().collection('users').doc(uid).set({
+        isPremium: true,
+        rank: 'premium',
+        premiumExpireDate: expireDate.toISOString()
+      }, { merge: true });
+      
+      res.json({ success: true, rank: 'premium', type: keyData.type });
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
   // --- User Profiles Endpoints ---
   app.get('/api/users/:uid', requireAuth, async (req: any, res: any) => {
     if (req.user.uid !== req.params.uid && !req.isAdmin) {
@@ -1561,7 +1706,9 @@ console.log('HIT STATS ENDPOINT');
       const docRef = admin.firestore().collection('users').doc(req.params.uid);
       const snapshot = await docRef.get();
       if (snapshot.exists) {
-        res.json(snapshot.data());
+        const data = snapshot.data();
+        data.rank = communityData.userRanks?.[req.params.uid] || data.rank || 'user';
+        res.json(data);
       } else {
         res.status(404).json({ error: 'User not found' });
       }

@@ -28,7 +28,7 @@ function toDB(data: any): any {
   const res: any = {};
   for (const k in data) {
     // Ignore frontend-only fields that do not exist in the database schema
-    if (k === 'premiumExpireDate' || k === 'fullName' || k === 'avatarUrl' || k === 'username') continue;
+    if (k === 'premiumExpireDate' || k === 'fullName' || k === 'avatarUrl' || k === 'username' || k === 'rank') continue;
     // Postgres columns without quotes are treated as lowercase.
     res[k.toLowerCase()] = data[k];
   }
