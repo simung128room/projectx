@@ -1379,9 +1379,14 @@ console.log('HIT STATS ENDPOINT');
       const userRef = admin.firestore().collection('users').doc(userId);
       const productRef = admin.firestore().collection('products').doc(productId);
 
+      console.log('buy request for user', userId, 'product', productId);
+
       const [userDoc, productDoc] = await Promise.all([userRef.get(), productRef.get()]);
 
-      if (!userDoc.exists) return res.status(404).json({ error: 'User not found' });
+      if (!userDoc.exists) {
+         console.log('User not found in db:', userId);
+         return res.status(404).json({ error: 'User not found' });
+      }
       if (!productDoc.exists) return res.status(404).json({ error: 'Product not found' });
 
       const userData = userDoc.data();
@@ -1423,7 +1428,7 @@ console.log('HIT STATS ENDPOINT');
       // Perform updates (these are separate calls since we don't have atomic transactions exposed here, but guarded by locks)
       await Promise.all([
         userRef.update({ balance: newBalance }),
-        productRef.update({ stock: currentStockData.length, stockData: currentStockData }),
+        productRef.update({ stock: currentStockData.length, stockData: currentStockData, soldCount: (productData.soldCount || 0) + quantity }),
         admin.firestore().collection('purchases').add(newHistoryItem)
       ]);
 
@@ -1431,12 +1436,12 @@ console.log('HIT STATS ENDPOINT');
         success: true,
         purchase: newHistoryItem,
         updatedUser: { ...userData, balance: newBalance },
-        updatedProduct: { id: productId, ...productData, stock: currentStockData.length },
+        updatedProduct: { id: productId, ...productData, stock: currentStockData.length, soldCount: (productData.soldCount || 0) + quantity },
       });
 
     } catch (err: any) {
       console.error('Error during purchase:', err);
-      res.status(500).json({ error: 'Internal server error during purchase' });
+      res.status(500).json({ error: 'Internal server error during purchase', details: String(err && err.message ? err.message : err), code: err.code });
     } finally {
       releaseLock!();
       delete purchaseLocks[lockKey];

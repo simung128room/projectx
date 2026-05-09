@@ -515,7 +515,7 @@ function AppContent() {
       if (Array.isArray(pagesData)) setCustomPages(pagesData);
       else if (pagesData && pagesData.data && Array.isArray(pagesData.data)) setCustomPages(pagesData.data);
       if (Array.isArray(categoriesData)) setCategories(categoriesData);
-      if (statsData) setSiteStats({ users: statsData.users, stock: statsData.stock, sales: statsData.sales, topups: statsData.totalTopupsAmount });
+      if (statsData) setSiteStats({ users: statsData.users, stock: statsData.stock, sales: statsData.sales, topups: statsData.totalTopupsAmount, totalOrders: statsData.totalOrders });
       if (Array.isArray(purchasesData) && purchasesData.length > 0) setPurchaseHistory(purchasesData);
       if (Array.isArray(topupsData) && topupsData.length > 0) setTopupHistory(topupsData);
       if (Array.isArray(usersData)) setUsersList(usersData);

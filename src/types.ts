@@ -67,6 +67,7 @@ export interface SiteStats {
   stock: number;
   sales: number;
   topups: number;
+  totalOrders?: number;
 }
 
 export interface ContentItem {

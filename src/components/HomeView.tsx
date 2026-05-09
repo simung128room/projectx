@@ -177,12 +177,12 @@ export const HomeView: React.FC<HomeViewProps> = ({ products, categories, stats,
               <span className="text-zinc-500 font-bold mb-1 text-sm tracking-wide">ยอดขาย</span>
               <div className="flex items-baseline gap-2">
                 <motion.span 
-                  key={realtimeStats?.sales || 0}
+                  key={realtimeStats?.totalOrders || realtimeStats?.sales || 0}
                   initial={{ opacity: 0.5, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="text-4xl sm:text-5xl font-black text-white tracking-tight"
                 >
-                  {(realtimeStats?.sales || 0).toLocaleString()}
+                  {(realtimeStats?.totalOrders !== undefined ? realtimeStats.totalOrders : (realtimeStats?.sales || 0)).toLocaleString()}
                 </motion.span>
                 <span className="text-[#1E90FF] font-bold text-sm">ครั้ง</span>
               </div>
@@ -212,7 +212,16 @@ export const HomeView: React.FC<HomeViewProps> = ({ products, categories, stats,
                 const dummyProduct = isDummy ? products[i % (products.length || 1)] : null;
                 const matchedProduct = !isDummy ? products.find(p => p.name === purchase.productName) : null;
                 
-                const minsAgo = Math.floor(Math.random() * 5) + i * 2 + 1; 
+                let minsAgo = Math.floor(Math.random() * 5) + i * 2 + 1; 
+                if (!isDummy && purchase.date) {
+                  const diffMinutes = Math.floor((Date.now() - new Date(purchase.date).getTime()) / 60000);
+                  if (diffMinutes >= 0) minsAgo = diffMinutes;
+                }
+                let timeStr = `${minsAgo} นาทีที่แล้ว`;
+                if (!isDummy && purchase.date && minsAgo >= 60) {
+                   if (minsAgo < 1440) timeStr = `${Math.floor(minsAgo / 60)} ชั่วโมงที่แล้ว`;
+                   else timeStr = `${Math.floor(minsAgo / 1440)} วันที่แล้ว`;
+                }
 
                 return (
                   <div 
@@ -237,7 +246,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ products, categories, stats,
                         <span className="text-sm font-black text-[#1E90FF]">
                           ฿{!isDummy ? (matchedProduct?.price || purchase.price || 0) : (dummyProduct?.price || 50)}
                         </span>
-                        <span className="text-[10px] text-zinc-500 font-semibold">{!isDummy ? purchase.amount || 1 : 1} ชิ้น • {minsAgo} นาทีที่แล้ว</span>
+                        <span className="text-[10px] text-zinc-500 font-semibold">{!isDummy ? purchase.amount || 1 : 1} ชิ้น • {timeStr}</span>
                       </div>
                     </div>
                   </div>

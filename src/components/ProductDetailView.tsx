@@ -96,7 +96,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
             </div>
             <div className="bg-[#0a0d12] border border-white/5 rounded-2xl p-4">
                <div className="text-zinc-500 text-xs font-bold mb-1 flex items-center gap-1"><ShoppingCart className="w-3.5 h-3.5"/> สั่งซื้อไปแล้ว</div>
-               <div className="text-xl font-black text-white">{product.soldCount !== undefined ? product.soldCount : Math.floor(Math.random() * 50) + 10} ครั้ง</div>
+               <div className="text-xl font-black text-white">{product.soldCount || 0} ครั้ง</div>
             </div>
           </div>
 
