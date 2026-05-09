@@ -232,6 +232,20 @@ app.set('trust proxy', 1);
       if (error) {
          return res.status(400).json({ error: error.message });
       }
+      
+      try {
+        await admin.firestore().collection('users').doc(data.user.id).set({
+          email,
+          username: email.split('@')[0],
+          balance: 0,
+          role: 'user',
+          status: 'active',
+          updatedAt: new Date().toISOString()
+        }, { merge: true });
+      } catch (err) {
+        console.error('Failed to create user doc:', err);
+      }
+
       return res.json({ success: true, user: data.user });
     } catch (e: any) {
       return res.status(500).json({ error: String(e) });
@@ -2000,6 +2014,25 @@ console.log('HIT STATS ENDPOINT');
 
   app.get('/api/users', requireAdmin, async (req: any, res: any) => {
     try {
+      const { data: authUsers, error } = await supabaseAdmin.auth.admin.listUsers();
+      if (!error && authUsers && authUsers.users) {
+         for (const authUser of authUsers.users) {
+            const docRef = admin.firestore().collection('users').doc(authUser.id);
+            const snap = await docRef.get();
+            if (!snap.exists) {
+                await docRef.set({
+                    email: authUser.email,
+                    username: authUser.email ? authUser.email.split('@')[0] : 'unknown',
+                    balance: 0,
+                    role: 'user',
+                    status: 'active',
+                    createdAt: authUser.created_at || new Date().toISOString(),
+                    updatedAt: authUser.created_at || new Date().toISOString()
+                }, { merge: true });
+            }
+         }
+      }
+
       const snapshot = await admin.firestore().collection('users').get();
       const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       res.json(data);
