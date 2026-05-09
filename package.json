@@ -14,6 +14,7 @@
   "dependencies": {
     "@google/genai": "^1.29.0",
     "@marsidev/react-turnstile": "^1.5.2",
+    "@opecgame/twapi": "^1.2.1",
     "@supabase/supabase-js": "^2.104.1",
     "@tailwindcss/vite": "^4.1.14",
     "@types/multer": "^2.1.0",
@@ -22,6 +23,8 @@
     "axios-cookiejar-support": "^6.0.5",
     "cors": "^2.8.6",
     "crypto-js": "^4.2.0",
+    "debug": "^4.4.3",
+    "discord.js": "^14.26.4",
     "dotenv": "^17.2.3",
     "eruda": "^3.4.3",
     "express": "^4.22.1",
@@ -29,6 +32,7 @@
     "firebase": "^12.12.1",
     "firebase-admin": "^13.8.0",
     "https-proxy-agent": "^9.0.0",
+    "jimp": "^1.6.1",
     "jsqr": "^1.4.0",
     "lucide-react": "^0.546.0",
     "motion": "^12.23.24",
@@ -39,9 +43,11 @@
     "react-router-dom": "^7.14.2",
     "recharts": "^3.8.1",
     "sweetalert2": "^11.26.24",
+    "telegram": "^2.26.22",
     "tough-cookie": "^6.0.1",
     "tsx": "^4.21.0",
-    "vite": "^6.2.0"
+    "vite": "^6.2.0",
+    "ws": "^8.20.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",

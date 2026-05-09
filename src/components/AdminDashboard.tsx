@@ -450,6 +450,7 @@ import { AdminUserManagement } from './AdminUserManagement';
 import { AdminPagesManagement } from './AdminPagesManagement';
 import { AdminCategoriesManagement } from './AdminCategoriesManagement';
 import { AdminToolsManagement } from './AdminToolsManagement';
+import { AdminBotManagement } from './AdminBotManagement';
 import { Menu } from 'lucide-react';
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({
@@ -614,6 +615,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           <SidebarItem id="keys" label="License Keys" icon={Key} />
           
           <Separator label="————- เครื่องมือ —————" />
+          <SidebarItem id="bot" label="บอทดักซองใหม่ (Dek123)" icon={Terminal} />
           <SidebarItem id="pages" label="จัดการหน้าเพจ" icon={FileText} />
           <SidebarItem id="tools" label="แจกรางวัล (Tools)" icon={Gift} />
           <SidebarItem id="ips" label="Access Control" icon={ShieldAlert} />
@@ -1269,6 +1271,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               exit={{ opacity: 0, x: -20 }}
             >
               <AdminToolsManagement />
+            </motion.div>
+          )}
+
+          {adminTab === 'bot' && (
+            <motion.div 
+              key="bot"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+            >
+              <AdminBotManagement />
             </motion.div>
           )}
 

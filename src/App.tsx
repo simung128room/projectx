@@ -1294,9 +1294,11 @@ function AppContent() {
                 <button onClick={() => setActiveView('ai_chat')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'ai_chat' ? 'bg-[#1E90FF] text-white shadow-md shadow-[#1E90FF]/20' : 'text-zinc-500 hover:bg-[#0a0d12] hover:text-white'}`}>
                    <Server className="w-5 h-5" /> คุยกับไอเอ๋อ (AI)
                 </button>
-                <a href="https://github.com/simung128room/Dek123" target="_blank" rel="noopener noreferrer" className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all text-zinc-500 hover:bg-[#0a0d12] hover:text-white`}>
-                   <Bot className="w-5 h-5" /> บอทดักซองใหม่
-                </a>
+                {isAdmin && (
+                  <button onClick={() => { setActiveView('admin'); setAdminTab('bot'); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all text-zinc-500 hover:bg-[#0a0d12] hover:text-white`}>
+                     <Bot className="w-5 h-5" /> ตั้งค่าบอทดักซอง
+                  </button>
+                )}
               </>
             )}
          </div>
@@ -1468,9 +1470,11 @@ function AppContent() {
                       <button onClick={() => { setActiveView('dashboard'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border ${activeView === 'dashboard' ? 'bg-[#1E90FF]/10 text-[#1E90FF] border-[#1E90FF]/30 shadow-md shadow-[#1E90FF]/10' : 'bg-transparent text-zinc-500 border-transparent hover:bg-[#0a0d12] hover:text-white'}`}>
                          <Gamepad2 className="w-[18px] h-[18px]" /> ตรวจสอบไอดี
                       </button>
-                      <a href="https://github.com/simung128room/Dek123" target="_blank" rel="noopener noreferrer" className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border bg-transparent text-zinc-500 border-transparent hover:bg-[#0a0d12] hover:text-white`}>
-                         <Bot className="w-[18px] h-[18px]" /> บอทดักซองใหม่
-                      </a>
+                      {isAdmin && (
+                        <button onClick={() => { setActiveView('admin'); setAdminTab('bot'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border bg-transparent text-zinc-500 border-transparent hover:bg-[#0a0d12] hover:text-white`}>
+                           <Bot className="w-[18px] h-[18px]" /> ตั้งค่าบอทดักซอง
+                        </button>
+                      )}
                       {isAdmin && (
                         <button onClick={() => { setActiveView('admin'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border ${activeView === 'admin' ? 'bg-purple-500/10 text-purple-500 border-purple-500/30 shadow-md shadow-purple-500/10' : 'bg-transparent text-purple-500/70 border-transparent hover:bg-purple-500/5 hover:text-purple-500'}`}>
                           <ShieldAlert className="w-[18px] h-[18px]"/> จัดการหลังบ้าน

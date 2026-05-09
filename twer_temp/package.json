@@ -1,0 +1,26 @@
+{
+  "name": "truemoney-telegram-catcher",
+  "version": "3.0.0",
+  "description": "ระบบดักซอง TrueMoney จาก Telegram + Owner Account",
+  "main": "index.js",
+  "scripts": {
+    "start": "node --expose-gc index.js",
+    "test": "node -c index.js && node -c database.js"
+  },
+  "keywords": ["truemoney", "telegram", "catcher", "discord", "qr-code"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^14.14.1",
+    "axios": "^1.6.0",
+    "@opecgame/twapi": "^1.2.1",
+    "telegram": "^2.25.19",
+    "jimp": "^0.22.12",
+    "jsqr": "^1.4.0",
+    "debug": "^4.3.4",
+    "ws": "^8.16.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
