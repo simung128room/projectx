@@ -4,7 +4,7 @@ import {
   Gamepad2, ListChecks, Play, Square, Check, X, Shield, Terminal, CheckCircle2, 
   Home, ShoppingCart, CreditCard, Phone, Upload, Key, Crown, LogOut, User, Gift, Lock,
   FileImage, Database, Globe, BarChart3, Settings, Activity, FileText, 
-  AlertTriangle, Download, ChevronRight, Trash2, ShieldAlert, Plus, Ban, History, Search, Copy, Menu, Server, Package, Wallet, MessageSquare
+  AlertTriangle, Download, ChevronRight, Trash2, ShieldAlert, Plus, Ban, History, Search, Copy, Menu, Server, Package, Wallet, MessageSquare, Bot
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import Swal from 'sweetalert2';
@@ -568,19 +568,21 @@ function AppContent() {
         const res = await axios.get('/api/health');
         const ip = res.data.clientIp || 'Unknown';
         setClientIp(ip);
-        if (res.data.blocked) {
-          setIsIPBlocked(true);
-        }
         
-        // Load local storage data for this IP
-        const savedCombo = localStorage.getItem(`checker_combo_${ip}`);
-        const savedValid = localStorage.getItem(`checker_valid_${ip}`);
-        const savedInvalid = localStorage.getItem(`checker_invalid_${ip}`);
-        const savedTotal = localStorage.getItem(`checker_total_${ip}`);
-        const savedLogs = localStorage.getItem(`checker_logs_${ip}`);
-        const savedUserPlan = localStorage.getItem(`checker_userplan_${ip}`);
-        const savedDailyUsage = localStorage.getItem(`checker_usage_${ip}`);
-        const savedLastDate = localStorage.getItem(`checker_lastdate_${ip}`);
+        // Disable IP Blocking for VPN Support
+        // if (res.data.blocked) {
+        //   setIsIPBlocked(true);
+        // }
+        
+        // Load local storage data using a static key, independent of IP so VPN works
+        const savedCombo = localStorage.getItem(`checker_combo_main`);
+        const savedValid = localStorage.getItem(`checker_valid_main`);
+        const savedInvalid = localStorage.getItem(`checker_invalid_main`);
+        const savedTotal = localStorage.getItem(`checker_total_main`);
+        const savedLogs = localStorage.getItem(`checker_logs_main`);
+        const savedUserPlan = localStorage.getItem(`checker_userplan_main`);
+        const savedDailyUsage = localStorage.getItem(`checker_usage_main`);
+        const savedLastDate = localStorage.getItem(`checker_lastdate_main`);
 
         const todayDate = new Date().toISOString().slice(0, 10);
         if (savedLastDate === todayDate) {
@@ -632,25 +634,25 @@ function AppContent() {
     }
   }, [running]);
 
-  // Save Data by IP (Logs and temporary stuff only)
+  // Save Data locally (independent of IP for VPN compatibility)
   useEffect(() => {
     if (!isLoaded || !clientIp) return;
-    localStorage.setItem(`checker_combo_${clientIp}`, combo);
+    localStorage.setItem(`checker_combo_main`, combo);
   }, [combo, isLoaded, clientIp]);
 
   useEffect(() => {
     if (!isLoaded || !clientIp) return;
-    localStorage.setItem(`checker_logs_${clientIp}`, JSON.stringify(logs.slice(-100))); // Keep last 100
+    localStorage.setItem(`checker_logs_main`, JSON.stringify(logs.slice(-100))); // Keep last 100
   }, [logs, isLoaded, clientIp]);
 
   useEffect(() => {
     if (!isLoaded || !clientIp) return;
-    localStorage.setItem(`checker_usage_${clientIp}`, dailyUsage.toString());
+    localStorage.setItem(`checker_usage_main`, dailyUsage.toString());
   }, [dailyUsage, isLoaded, clientIp]);
 
   useEffect(() => {
     if (!isLoaded || !clientIp) return;
-    localStorage.setItem(`checker_lastdate_${clientIp}`, lastUsageDate);
+    localStorage.setItem(`checker_lastdate_main`, lastUsageDate);
   }, [lastUsageDate, isLoaded, clientIp]);
 
   // No superficial security - focus on data integrity instead
@@ -1292,6 +1294,9 @@ function AppContent() {
                 <button onClick={() => setActiveView('ai_chat')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'ai_chat' ? 'bg-[#1E90FF] text-white shadow-md shadow-[#1E90FF]/20' : 'text-zinc-500 hover:bg-[#0a0d12] hover:text-white'}`}>
                    <Server className="w-5 h-5" /> คุยกับไอเอ๋อ (AI)
                 </button>
+                <a href="https://github.com/simung128room/Dek123" target="_blank" rel="noopener noreferrer" className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all text-zinc-500 hover:bg-[#0a0d12] hover:text-white`}>
+                   <Bot className="w-5 h-5" /> บอทดักซองใหม่
+                </a>
               </>
             )}
          </div>
@@ -1463,6 +1468,9 @@ function AppContent() {
                       <button onClick={() => { setActiveView('dashboard'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border ${activeView === 'dashboard' ? 'bg-[#1E90FF]/10 text-[#1E90FF] border-[#1E90FF]/30 shadow-md shadow-[#1E90FF]/10' : 'bg-transparent text-zinc-500 border-transparent hover:bg-[#0a0d12] hover:text-white'}`}>
                          <Gamepad2 className="w-[18px] h-[18px]" /> ตรวจสอบไอดี
                       </button>
+                      <a href="https://github.com/simung128room/Dek123" target="_blank" rel="noopener noreferrer" className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border bg-transparent text-zinc-500 border-transparent hover:bg-[#0a0d12] hover:text-white`}>
+                         <Bot className="w-[18px] h-[18px]" /> บอทดักซองใหม่
+                      </a>
                       {isAdmin && (
                         <button onClick={() => { setActiveView('admin'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border ${activeView === 'admin' ? 'bg-purple-500/10 text-purple-500 border-purple-500/30 shadow-md shadow-purple-500/10' : 'bg-transparent text-purple-500/70 border-transparent hover:bg-purple-500/5 hover:text-purple-500'}`}>
                           <ShieldAlert className="w-[18px] h-[18px]"/> จัดการหลังบ้าน
