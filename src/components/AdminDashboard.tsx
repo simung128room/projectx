@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Copy, Database, LogOut, BarChart3, Key, History, ShieldAlert, Activity, Ban, ChevronRight, Settings, Plus, Trash2, Crown, X, Upload, FileText, LayoutDashboard, LineChart, Cpu, HardDrive, ShoppingCart, Package, Users, Wallet, Gift, Globe, Phone, AlertTriangle, Download, Check, Image } from 'lucide-react';
+import { Copy, Database, LogOut, BarChart3, Key, History, ShieldAlert, Activity, Ban, ChevronRight, Settings, Plus, Trash2, Crown, X, Upload, FileText, LayoutDashboard, LineChart, Cpu, HardDrive, ShoppingCart, Package, Users, Wallet, Gift, Globe, Phone, AlertTriangle, Download, Check, Image, MessageSquare } from 'lucide-react';
 import Swal from 'sweetalert2';
 import axios from 'axios';
 import { AccountResult, Product, SiteStats } from '../types';
@@ -48,7 +48,6 @@ const ProductManagerModal = ({
   isEdit: boolean 
 }) => {
   const [formData, setFormData] = useState<Partial<Product>>(product || {
-    id: Math.random().toString(36).substr(2, 9),
     name: '',
     description: '',
     price: 0,
@@ -488,7 +487,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     popup_img_url: 'https://img2.pic.in.th/Red-Black-White-Anime-Podcast-Discord-Logocc6d3bfe807340af.png',
     popup_enabled: true,
     popup_link: '',
-    banners: ["https://img2.pic.in.th/24B843A8-C705-48F6-84FB-50AAA5EFAAA6.png"]
+    banners: ["https://img2.pic.in.th/24B843A8-C705-48F6-84FB-50AAA5EFAAA6.png"],
+    proxies: [] as string[]
   });
 
   useEffect(() => {
@@ -507,7 +507,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     try {
       const payload = {
         ...siteSettings,
-        banners: (siteSettings.banners || []).map(b => b.trim()).filter(Boolean)
+        banners: (siteSettings.banners || []).map(b => typeof b === 'string' ? b.trim() : '').filter(Boolean),
+        proxies: (siteSettings.proxies || []).map(p => typeof p === 'string' ? p.trim() : '').filter(Boolean)
       };
       setSiteSettings(payload);
       const res = await axios.post('/api/settings', payload);
@@ -965,10 +966,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           </td>
                           <td className="px-4 py-4 font-bold">
                             <div className="flex flex-col">
-                              {p.originalPrice && p.originalPrice > p.price && (
+                              {p.originalPrice && p.price && p.originalPrice > p.price && (
                                 <span className="text-[10px] text-zinc-400 line-through">฿{p.originalPrice.toLocaleString()}</span>
                               )}
-                              <span className="text-emerald-600">฿{p.price.toLocaleString()}</span>
+                              <span className="text-emerald-600">฿{(p.price || 0).toLocaleString()}</span>
                             </div>
                           </td>
                           <td className="px-4 py-4">
@@ -1479,6 +1480,25 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                            className="w-full bg-[#0B0F14] border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-[#1E90FF] transition-all"
                            placeholder="https://facebook.com/..."
                          />
+                      </div>
+                    </div>
+
+                    <div className="p-6 bg-[#0a0d12] border border-white/10 rounded-3xl mt-6">
+                      <div className="mb-6">
+                        <h4 className="text-white font-bold flex items-center gap-2"><Globe className="w-5 h-5 text-indigo-500" /> Proxy Settings</h4>
+                        <p className="text-zinc-500 text-xs mt-1">ตั้งค่า Proxy สำหรับระบบเช็คไอดี (หากปล่อยว่าง ระบบจะดึง Free Proxy อัตโนมัติ)</p>
+                      </div>
+                      
+                      <div className="space-y-4">
+                         <label className="block text-sm font-bold text-zinc-400">Custom Proxy URLs (1 บรรทัดต่อ 1 Proxy - ปล่อยว่างเพื่อใช้ Free Proxy)</label>
+                         <textarea 
+                           value={(siteSettings.proxies || []).join('\n')}
+                           onChange={(e) => setSiteSettings({ ...siteSettings, proxies: e.target.value.split('\n') })}
+                           className="w-full bg-[#0B0F14] border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-indigo-500 transition-all h-32 resize-none leading-relaxed"
+                           placeholder="http://user:pass@127.0.0.1:8080&#10;http://user:pass@127.0.0.2:8080"
+                           onBlur={(e) => setSiteSettings({ ...siteSettings, proxies: e.target.value.split('\n').map(url => typeof url === 'string' ? url.trim() : '').filter(Boolean) })}
+                         />
+                         <p className="text-xs text-zinc-500 mt-2">รูปแบบ: http://[user]:[password]@[ip]:[port] หรือ http://[ip]:[port]</p>
                       </div>
                     </div>
                   </div>

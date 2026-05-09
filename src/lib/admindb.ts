@@ -144,9 +144,14 @@ class SupabaseCollection extends SupabaseQuery {
     return new SupabaseDoc(this.collection, id);
   }
   async add(data: any) {
-    const { data: inserted, error } = await supabaseAdmin.from(this.collection).insert([toDB(data)]).select().single();
+    const payload = toDB({ ...data });
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (payload.id && !uuidRegex.test(payload.id)) {
+      delete payload.id;
+    }
+    const { data: inserted, error } = await supabaseAdmin.from(this.collection).insert([payload]).select().single();
     if (error) throw error;
-    return { id: inserted?.id };
+    return { id: inserted?.id || data.id };
   }
 }
 

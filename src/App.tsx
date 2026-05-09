@@ -4,7 +4,7 @@ import {
   Gamepad2, ListChecks, Play, Square, Check, X, Shield, Terminal, CheckCircle2, 
   Home, ShoppingCart, CreditCard, Phone, Upload, Key, Crown, LogOut, User, Gift, Lock,
   FileImage, Database, Globe, BarChart3, Settings, Activity, FileText, 
-  AlertTriangle, Download, ChevronRight, Trash2, ShieldAlert, Plus, Ban, History, Search, Copy, Menu, Server, Package, Wallet
+  AlertTriangle, Download, ChevronRight, Trash2, ShieldAlert, Plus, Ban, History, Search, Copy, Menu, Server, Package, Wallet, MessageSquare
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import Swal from 'sweetalert2';
@@ -22,7 +22,6 @@ import { KeyModal } from './components/modals/KeyModal';
 import { AuthView } from './components/AuthView';
 import { AdminDashboard } from './components/AdminDashboard';
 import { ReceiptModal } from './components/modals/ReceiptModal';
-import { CommunityView } from './components/CommunityView';
 import { HomeView } from './components/HomeView';
 import { ProductDetailView } from './components/ProductDetailView';
 import { PageView } from './components/PageView';
@@ -148,7 +147,7 @@ function AppContent() {
   const [showKeyModal, setShowKeyModal] = useState(false);
 
   // Navigation State
-  type ViewType = 'home' | 'categories' | 'category_products' | 'dashboard' | 'admin' | 'profile' | 'logs' | 'checker_logs' | 'history' | 'settings' | 'ai_chat' | 'contact' | 'login' | 'signup' | 'wallet' | 'redeem' | 'product_detail' | 'custom_page' | 'community';
+  type ViewType = 'home' | 'categories' | 'category_products' | 'dashboard' | 'admin' | 'profile' | 'logs' | 'checker_logs' | 'history' | 'settings' | 'ai_chat' | 'contact' | 'login' | 'signup' | 'wallet' | 'redeem' | 'product_detail' | 'custom_page';
   const [activeView, setRawActiveView] = useState<ViewType>('home');
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>('all');
@@ -175,7 +174,7 @@ function AppContent() {
       if (hash === 'topup') hash = 'wallet';
       if (hash === 'store') hash = 'categories';
       
-      const validViews = ['home', 'categories', 'category_products', 'dashboard', 'admin', 'profile', 'logs', 'checker_logs', 'history', 'settings', 'ai_chat', 'contact', 'login', 'signup', 'wallet', 'redeem', 'product_detail', 'custom_page', 'community'];
+      const validViews = ['home', 'categories', 'category_products', 'dashboard', 'admin', 'profile', 'logs', 'checker_logs', 'history', 'settings', 'ai_chat', 'contact', 'login', 'signup', 'wallet', 'redeem', 'product_detail', 'custom_page'];
       
       if (hash && validViews.includes(hash)) {
          if (hash !== activeView) {
@@ -193,14 +192,6 @@ function AppContent() {
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, [activeView]);
 
-  const handleAdminLogin = useCallback((username: string) => {
-    localStorage.setItem('apex_admin', 'true');
-    axios.defaults.headers.common['Authorization'] = 'Bearer admin_apex_bypass_token';
-    setIsAdmin(true);
-    setAdminUsername(username);
-    setUser({ uid: 'mock_admin_uid', email: username + '@apex-studio.mock', user_metadata: { name: username } });
-    setRawActiveView('admin');
-  }, []);
   const prevViewRef = useRef(activeView);
 
   useEffect(() => {
@@ -429,13 +420,6 @@ function AppContent() {
   useEffect(() => {
     // Check initial session
     auth.auth.getSession().then(({ data: { session } }) => {
-      if (localStorage.getItem('apex_admin') === 'true') {
-        axios.defaults.headers.common['Authorization'] = 'Bearer admin_apex_bypass_token';
-        setIsAdmin(true);
-        setAdminUsername('admin_apex');
-        setUser({ uid: 'mock_admin_uid', email: 'admin_apex@apex-studio.mock', user_metadata: { name: 'Admin (Bypass)' } });
-        return;
-      }
       
       if (session?.access_token) {
         axios.defaults.headers.common['Authorization'] = `Bearer ${session.access_token}`;
@@ -446,13 +430,12 @@ function AppContent() {
       const currentUser: any = session?.user || null;
       if (currentUser) currentUser.uid = currentUser.id;
       setUser(currentUser);
+      if (currentUser && currentUser.email === 'abopboa.b@gmail.com') {
+        setIsAdmin(true);
+      }
     });
 
     const { data: { subscription } } = auth.auth.onAuthStateChange(async (event, session) => {
-      if (localStorage.getItem('apex_admin') === 'true') {
-        setUser({ uid: 'mock_admin_uid', email: 'admin_apex@apex-studio.mock', user_metadata: { name: 'Admin (Bypass)' } });
-        return;
-      }
 
       if (session?.access_token) {
         axios.defaults.headers.common['Authorization'] = `Bearer ${session.access_token}`;
@@ -463,6 +446,11 @@ function AppContent() {
       const currentUser: any = session?.user || null;
       if (currentUser) currentUser.uid = currentUser.id;
       setUser(currentUser);
+      if (currentUser && currentUser.email === 'abopboa.b@gmail.com') {
+        setIsAdmin(true);
+      } else {
+        setIsAdmin(false);
+      }
       
       if (currentUser && !currentUser.isAnonymous && currentUser.email) {
         try {
@@ -1340,9 +1328,6 @@ function AppContent() {
                 <button onClick={() => setActiveView('ai_chat')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'ai_chat' ? 'bg-[#1E90FF] text-white shadow-md shadow-[#1E90FF]/20' : 'text-zinc-500 hover:bg-[#0a0d12] hover:text-white'}`}>
                    <Server className="w-5 h-5" /> คุยกับไอเอ๋อ (AI)
                 </button>
-                <button onClick={() => setActiveView('community')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'community' ? 'bg-[#1E90FF] text-white shadow-md shadow-[#1E90FF]/20' : 'text-zinc-500 hover:bg-[#0a0d12] hover:text-white'}`}>
-                   <Gamepad2 className="w-5 h-5" /> คอมมูนิตี้ (คล้าย Discord)
-                </button>
               </>
             )}
          </div>
@@ -1514,9 +1499,6 @@ function AppContent() {
                       <button onClick={() => { setActiveView('dashboard'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border ${activeView === 'dashboard' ? 'bg-[#1E90FF]/10 text-[#1E90FF] border-[#1E90FF]/30 shadow-md shadow-[#1E90FF]/10' : 'bg-transparent text-zinc-500 border-transparent hover:bg-[#0a0d12] hover:text-white'}`}>
                          <Gamepad2 className="w-[18px] h-[18px]" /> ตรวจสอบไอดี
                       </button>
-                      <button onClick={() => { setActiveView('community'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border ${activeView === 'community' ? 'bg-[#1E90FF]/10 text-[#1E90FF] border-[#1E90FF]/30 shadow-md shadow-[#1E90FF]/10' : 'bg-transparent text-zinc-500 border-transparent hover:bg-[#0a0d12] hover:text-white'}`}>
-                         <Gamepad2 className="w-[18px] h-[18px]" /> คอมมูนิตี้
-                      </button>
                       {isAdmin && (
                         <button onClick={() => { setActiveView('admin'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border ${activeView === 'admin' ? 'bg-purple-500/10 text-purple-500 border-purple-500/30 shadow-md shadow-purple-500/10' : 'bg-transparent text-purple-500/70 border-transparent hover:bg-purple-500/5 hover:text-purple-500'}`}>
                           <ShieldAlert className="w-[18px] h-[18px]"/> จัดการหลังบ้าน
@@ -1636,7 +1618,7 @@ function AppContent() {
           />
         )}
 
-        {activeView === 'login' && <AuthView initialMode="login" setActiveView={setActiveView} onAdminLogin={handleAdminLogin} />}
+        {activeView === 'login' && <AuthView initialMode="login" setActiveView={setActiveView} />}
         {activeView === 'signup' && <AuthView initialMode="signup" setActiveView={setActiveView} />}
 
         {activeView === 'profile' && (
@@ -1658,7 +1640,6 @@ function AppContent() {
            setTopupHistory(prev => [entry, ...prev]);
            setSiteStats(prev => ({...prev, topups: (prev.topups || 0) + (entry.amount || entry.money || 0)}));
         }} />}
-        {activeView === 'community' && <CommunityView user={user} isAdmin={isAdmin} userRank={userPlan?.rank || 'user'} />}
 
         {activeView === 'admin' && isAdmin && (
           <AdminDashboard

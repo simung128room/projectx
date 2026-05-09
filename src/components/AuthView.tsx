@@ -13,10 +13,9 @@ const TURNSTILE_SITE_KEY = rawEnvKey.length > 5 ? rawEnvKey : '0x4AAAAAADDurF1TE
 interface AuthViewProps {
   initialMode: 'login' | 'signup';
   setActiveView: (view: any) => void;
-  onAdminLogin?: (username: string) => void;
 }
 
-export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setActiveView, onAdminLogin }) => {
+export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setActiveView }) => {
   const [authMode, setAuthMode] = useState<'login' | 'signup'>(initialMode);
   const [authUsername, setAuthUsername] = useState('');
   const [authEmail, setAuthEmail] = useState('');
@@ -62,22 +61,6 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
   const executeAuth = async (currentToken: string | null = turnstileToken) => {
     setAuthLoading(true);
     try {
-      if (authMode === 'login' && authUsername === 'admin_apex' && authPassword === '123456!?/asqi') {
-        if (onAdminLogin) {
-          onAdminLogin('admin_apex');
-          Swal.fire({
-            icon: 'success',
-            title: 'Welcome Admin',
-            text: 'System access granted',
-            showConfirmButton: false,
-            timer: 1500,
-            background: '#09090b',
-            color: '#fff'
-          });
-          return;
-        }
-      }
-
       let loginEmail = authUsername;
       if (authMode === 'login' && !authUsername.includes('@')) {
         loginEmail = `${authUsername.toLowerCase().trim()}@apex-studio.com`;
@@ -107,7 +90,8 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
         }
 
         Swal.fire({ icon: 'success', title: 'เข้าสู่ระบบสำเร็จ', timer: 1500, showConfirmButton: false }).then(() => {
-           window.location.href = '/';
+           setActiveView('home');
+           window.location.hash = 'home';
         });
       }
     } catch (err: any) {
@@ -229,7 +213,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
           <form onSubmit={handleAuth} className="space-y-5">
             <AnimatePresence mode="popLayout">
               <motion.div layout key="username_field" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ duration: 0.2 }}>
-                <label className="block text-sm font-bold text-zinc-200 mb-2">ชื่อผู้ใช้ / Username</label>
+                <label className="block text-sm font-bold text-zinc-200 mb-2">ชื่อผู้ใช้</label>
                 <div className="relative group">
                   <div className="relative flex items-center">
                     <input 
@@ -237,7 +221,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
                       value={authUsername}
                       onChange={(e) => setAuthUsername(e.target.value)}
                       className="w-full bg-[#0a0d12] border-2 border-white/10 rounded-xl py-3.5 px-4 outline-none focus:border-[#1a7fe6] focus:bg-[#0B0F14] transition-all font-sans text-sm text-white placeholder:text-zinc-400 font-medium hover:border-white/20"
-                      placeholder="Username"
+                      placeholder="ชื่อผู้ใช้"
                       required
                     />
                   </div>
@@ -246,7 +230,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
 
               {authMode === 'signup' && (
                 <motion.div layout key="email_field" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ duration: 0.2, delay: 0.05 }}>
-                  <label className="block text-sm font-bold text-zinc-200 mb-2 mt-1">อีเมล / email</label>
+                  <label className="block text-sm font-bold text-zinc-200 mb-2 mt-1">อีเมล</label>
                   <div className="relative group">
                     <div className="relative flex items-center">
                       <input 
@@ -254,7 +238,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
                         value={authEmail}
                         onChange={(e) => setAuthEmail(e.target.value)}
                         className="w-full bg-[#0a0d12] border-2 border-white/10 rounded-xl py-3.5 px-4 outline-none focus:border-[#1a7fe6] focus:bg-[#0B0F14] transition-all font-sans text-sm text-white placeholder:text-zinc-400 font-medium hover:border-white/20"
-                        placeholder="john@example.com"
+                        placeholder="อีเมล"
                         required
                       />
                     </div>
@@ -263,7 +247,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
               )}
 
               <motion.div layout key="password_field" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ duration: 0.2, delay: authMode === 'signup' ? 0.1 : 0.05 }}>
-                <label className="block text-sm font-bold text-zinc-200 mb-2 mt-1">รหัสผ่าน / Password</label>
+                <label className="block text-sm font-bold text-zinc-200 mb-2 mt-1">รหัสผ่าน</label>
                 <div className="relative group">
                   <div className="relative flex items-center">
                     <input 
@@ -271,7 +255,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
                       value={authPassword}
                       onChange={(e) => setAuthPassword(e.target.value)}
                       className="w-full bg-[#0a0d12] border-2 border-white/10 rounded-xl py-3.5 pl-4 pr-12 outline-none focus:border-[#1a7fe6] focus:bg-[#0B0F14] transition-all font-sans text-sm text-white placeholder:text-zinc-400 font-medium hover:border-white/20"
-                      placeholder="••••••••"
+                      placeholder="รหัสผ่าน"
                       required
                       minLength={6}
                     />

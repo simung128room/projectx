@@ -453,10 +453,10 @@ export const HomeView: React.FC<HomeViewProps> = ({ products, categories, stats,
                 <div className="p-3.5 flex flex-col flex-1">
                   <h3 className="font-bold text-white text-sm line-clamp-1 mb-1">{product.name}</h3>
                   <div className="flex items-center gap-2 mb-0.5">
-                    {product.originalPrice && product.originalPrice > product.price && (
+                    {product.originalPrice && product.price && product.originalPrice > product.price && (
                       <span className="text-[10px] text-zinc-400 line-through">฿{product.originalPrice.toLocaleString()}</span>
                     )}
-                    <div className="text-[#1E90FF] font-bold text-sm">฿{product.price.toLocaleString()}</div>
+                    <div className="text-[#1E90FF] font-bold text-sm">฿{(product.price || 0).toLocaleString()}</div>
                   </div>
                   
                   {product.stock <= 0 ? (

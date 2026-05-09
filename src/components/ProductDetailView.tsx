@@ -79,8 +79,8 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
           <h1 className="text-3xl md:text-4xl font-black text-white leading-tight mb-4">{product.name}</h1>
           
           <div className="flex items-end gap-3 mb-8">
-            <span className="text-4xl md:text-5xl font-black text-[#1E90FF] tracking-tight">฿{product.price.toLocaleString()}</span>
-            {product.originalPrice && product.originalPrice > product.price && (
+            <span className="text-4xl md:text-5xl font-black text-[#1E90FF] tracking-tight">฿{(product.price || 0).toLocaleString()}</span>
+            {product.originalPrice && product.price && product.originalPrice > product.price && (
               <span className="text-xl md:text-2xl font-bold text-zinc-400 line-through mb-1">
                 ฿{product.originalPrice.toLocaleString()}
               </span>

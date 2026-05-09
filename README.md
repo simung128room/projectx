@@ -1,20 +1,37 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Discord Clone (Community System)
 
-# Run and deploy your AI Studio app
+ระบบจัดการคอมมูนิตี้แบบดิสคอร์ด (Discord Clone) ที่มาครบทุกฟังก์ชันทั้ง Categories, Channels, Roles และ Permission พื้นฐาน
 
-This contains everything you need to run your app locally.
+## ฟีเจอร์ที่รองรับ (Features)
 
-View your app in AI Studio: https://ai.studio/apps/5e026f09-c92d-4d98-adf6-8eacfa7b2960
+1. **ระบบหมวดหมู่ (Category Management)**
+   - สร้าง แก้ไข และลบหมวดหมู่
+   - ลบหมวดหมู่พร้อมลบช่องภายในแบบ Cascade ทันที
 
-## Run Locally
+2. **ระบบจัดการช่อง (Channel Management)**
+   - สร้าง แก้ไข เปลี่ยนไอคอน และลบช่อง
+   - ไอคอนหลากหลายให้เลือก (หน้าบอร์ด, เสียง, แชท, เกม, โล่ระบบ, ดาวประกาศ ฯลฯ)
+   - การจัดการสิทธิ์การมองเห็นระดับช่อง (ตั้งค่ายศ \`allowedRanks\`) ทำให้รองรับ Private Channel ได้อย่างแท้จริง
 
-**Prerequisites:**  Node.js
+3. **ระบบบทบาท/ยศ (Role Management & Permission)**
+   - สิทธิ์พื้นฐาน \`user\` (เฉพาะหน้ายืนยันตัวตน), \`basic\` และ \`premium\`
+   - แต่ละหมวดหมู่/ช่อง สามารถล็อกได้เลยว่าให้ใครเข้าได้บ้าง ทำให้แอดมินจำกัดสิทธิ์ได้ตามใจ
 
+## การส่งไฟล์และรูปภาพ
+- รองรับการลากวางไฟล์ หรืออัปโหลดรูป
+- ระบบอัปโหลดปลอดภัย จำกัดขนาด 10MB พร้อมแสดงรูปแนบในแชทสวยงาม
+- สามารถโหลดไฟล์ได้หากไม่ใช่ภาพ (เช่น PDF/DOC)
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+## Tech Stack
+- Frontend: React 18, Vite, Tailwind CSS, Framer Motion
+- UI Icons: Lucide React
+- Notifications: SweetAlert2
+- Backend: Express (TypeScript)
+- Authentication: ระบบจำลอง Token / Admin Session พื้นฐาน
+
+## วิธีพัฒนาต่อยอด (Development)
+1. ติดตั้งแพ็กเกจ: \`npm install\`
+2. รันเซิร์ฟเวอร์แบบ Development: \`npm run dev\`
+3. เพื่อนำขึ้นโปรดักชัน รัน \`npm run build\` และ \`npm run start\`
+
+เซิร์ฟเวอร์จะรันที่พอร์ต \`3000\` โดยมี Express Serve ทำการดูแลไฟล์ Static ด้วยเมื่อเป็น Production

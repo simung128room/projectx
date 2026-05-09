@@ -15,6 +15,33 @@ import multer from 'multer';
 import fs from 'fs';
 import os from 'os';
 
+// Automatic Free Proxy fetcher
+let freeProxies: string[] = [];
+let lastFreeProxyFetch = 0;
+
+async function fetchFreeProxies() {
+  const now = Date.now();
+  // Fetch every 15 minutes to avoid rate limits
+  if (now - lastFreeProxyFetch < 15 * 60 * 1000 && freeProxies.length > 0) return;
+  lastFreeProxyFetch = now;
+  try {
+    const res = await axios.get('https://api.proxyscrape.com/v2/?request=displayproxies&protocol=http&timeout=10000&country=all&ssl=yes&anonymity=all', { timeout: 10000 });
+    if (typeof res.data === 'string') {
+      const proxies = res.data.split('\n').map(p => p.trim()).filter(p => p.length > 5);
+      if (proxies.length > 0) {
+        freeProxies = proxies.map(p => `http://${p}`);
+        console.log(`[Proxy] Fetched ${freeProxies.length} free proxies automatically.`);
+      }
+    }
+  } catch (err: any) {
+    console.error('[Proxy] Failed to fetch free proxies:', err.message);
+  }
+}
+
+// Initial fetch
+fetchFreeProxies();
+setInterval(fetchFreeProxies, 15 * 60 * 1000);
+
 import { adminDb as admin, supabaseAdmin } from './src/lib/admindb.js';
 
 dotenv.config({ override: true });
@@ -33,10 +60,7 @@ app.set('trust proxy', 1);
     const authHeader = req.headers.authorization;
     if (authHeader && authHeader.startsWith('Bearer ')) {
       const token = authHeader.split('Bearer ')[1]?.trim();
-      if (token === 'admin_apex_bypass_token') {
-        req.user = { uid: 'mock_admin_uid', email: 'admin_apex@apex-studio.com' };
-        req.isAdmin = true;
-      } else if (token && token !== 'null' && token !== 'undefined') {
+      if (token && token !== 'null' && token !== 'undefined') {
         try {
           req.user = await admin.auth().verifyIdToken(token);
           if (req.user.email === 'abopboa.b@gmail.com') {
@@ -115,6 +139,21 @@ app.set('trust proxy', 1);
     res.json({ url: `data:${mimeType};base64,${base64Data}` });
   });
 
+  app.post('/api/community/upload', requireAuth, (req: any, res: any, next: any) => {
+    upload.single('file')(req, res, (err) => {
+      if (err) {
+        console.error('Multer error:', err);
+        return res.status(500).json({ error: 'Upload failed: ' + err.message });
+      }
+      next();
+    });
+  }, (req: any, res: any) => {
+    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+    const base64Data = req.file.buffer.toString('base64');
+    const mimeType = req.file.mimetype;
+    res.json({ url: `data:${mimeType};base64,${base64Data}` });
+  });
+
   
 
   // Logging middleware for debugging
@@ -177,7 +216,7 @@ app.set('trust proxy', 1);
 
   app.post('/api/settings', requireAdmin, async (req, res) => {
     console.log("=== POST /api/settings REACHED ===", req.body);
-    const { truewallet_phone, site_name, contact_line, stats_users_offset, stats_sales_offset, stats_users_override, stats_stock_override, stats_sales_override, popup_img_url, popup_enabled, popup_link, banners } = req.body;
+    const { truewallet_phone, site_name, contact_line, stats_users_offset, stats_sales_offset, stats_users_override, stats_stock_override, stats_sales_override, popup_img_url, popup_enabled, popup_link, banners, proxies } = req.body;
     if (truewallet_phone !== undefined) siteSettings.truewallet_phone = truewallet_phone;
     if (site_name !== undefined) siteSettings.site_name = site_name;
     if (contact_line !== undefined) siteSettings.contact_line = contact_line;
@@ -190,6 +229,7 @@ app.set('trust proxy', 1);
     if (popup_enabled !== undefined) siteSettings.popup_enabled = popup_enabled === true || popup_enabled === 'true';
     if (popup_link !== undefined) siteSettings.popup_link = popup_link;
     if (banners !== undefined && Array.isArray(banners)) siteSettings.banners = banners;
+    if (proxies !== undefined && Array.isArray(proxies)) siteSettings.proxies = proxies;
     
     // Clear cached stats so they refresh next time someone calls /api/stats
     lastStatsFetch = 0;
@@ -711,7 +751,17 @@ app.set('trust proxy', 1);
     let secChPlatform = isMac ? '"macOS"' : '"Windows"';
 
     // Webshare Proxy provided by user
-    const proxyUrl = ``;
+    // Wait for proxies if empty (in case it's starting)
+    if (freeProxies.length === 0) {
+      await fetchFreeProxies();
+    }
+
+    let proxyUrl = '';
+    if (siteSettings.proxies && Array.isArray(siteSettings.proxies) && siteSettings.proxies.length > 0) {
+      proxyUrl = siteSettings.proxies[Math.floor(Math.random() * siteSettings.proxies.length)];
+    } else if (freeProxies.length > 0) {
+      proxyUrl = freeProxies[Math.floor(Math.random() * freeProxies.length)];
+    }
     
     let agent;
     try {
@@ -1121,11 +1171,13 @@ app.set('trust proxy', 1);
     if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
     try {
       const product = req.body;
-      const { id, ...dataToSave } = product;
+      const { id, ...dataToSaveRaw } = product;
+      // Deep strip undefined values to please Firestore
+      const dataToSave = JSON.parse(JSON.stringify(dataToSaveRaw));
       const docRef = await admin.firestore().collection('products').add(dataToSave);
       res.json({ id: docRef.id, dbId: docRef.id, ...dataToSave });
-    } catch (err) {
-      console.error('Internal server error creating product:', err);
+    } catch (err: any) {
+      console.error('Internal server error creating product:', JSON.stringify(err, Object.getOwnPropertyNames(err)));
       res.status(500).json({ error: String(err && err.message ? err.message : err) });
     }
   });
@@ -1134,7 +1186,8 @@ app.set('trust proxy', 1);
     if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
     try {
       const product = req.body;
-      const { id, ...dataToSave } = product;
+      const { id, ...dataToSaveRaw } = product;
+      const dataToSave = JSON.parse(JSON.stringify(dataToSaveRaw));
       const docRef = admin.firestore().collection('products').doc(req.params.id);
       await docRef.update(dataToSave);
       res.json({ id: req.params.id, ...dataToSave });
@@ -1578,84 +1631,7 @@ console.log('HIT STATS ENDPOINT');
      saveCommunity();
   }
 
-  app.get('/api/community/categories', (req, res) => {
-    res.json(communityData.categories);
-  });
-
-  app.get('/api/community/channels', (req, res) => {
-    res.json(communityData.channels);
-  });
-
-  app.get('/api/community/messages/:channelId', (req, res) => {
-    const msgs = communityData.messages.filter((m: any) => m.channelId === req.params.channelId);
-    res.json(msgs.slice(-50));
-  });
-
-  app.post('/api/community/channels', requireAuth, requireAdmin, (req: any, res: any) => {
-    const id = 'ch-' + Date.now();
-    communityData.channels.push({
-      id,
-      name: req.body.name,
-      categoryId: req.body.categoryId || communityData.categories[0]?.id,
-      type: req.body.type || 'text',
-      order: req.body.order || 0
-    });
-    saveCommunity();
-    res.json({ id });
-  });
-
-  app.post('/api/community/categories', requireAuth, requireAdmin, (req: any, res: any) => {
-    const id = 'cat-' + Date.now();
-    communityData.categories.push({
-      id,
-      name: req.body.name,
-      order: req.body.order || 0
-    });
-    saveCommunity();
-    res.json({ id });
-  });
-
-  app.post('/api/community/messages/:channelId', requireAuth, requireAdmin, (req: any, res: any) => {
-    try {
-      const msg = {
-        id: 'msg-' + Date.now(),
-        channelId: req.params.channelId,
-        content: req.body.content || '',
-        fileUrl: req.body.fileUrl || '',
-        sender: 'Admin',
-        senderId: req.user.uid,
-        timestamp: new Date().toISOString()
-      };
-      communityData.messages.push(msg);
-      saveCommunity();
-      res.json(msg);
-    } catch (e: any) {
-      res.status(500).json({ error: e.message });
-    }
-  });
-
-  app.post('/api/community/claim_basic_rank', requireAuth, async (req: any, res: any) => {
-    try {
-      const uid = req.user.uid;
-      const userDoc = await admin.firestore().collection('users').doc(uid).get();
-      if (!userDoc.exists) return res.status(404).json({error: 'User not found'});
-      
-      const userData = userDoc.data();
-      const currentRank = communityData.userRanks?.[uid] || userData?.rank;
-
-      if (currentRank === 'premium') {
-        return res.status(400).json({error: 'You already have Premium rank!'});
-      }
-      
-      communityData.userRanks = communityData.userRanks || {};
-      communityData.userRanks[uid] = 'basic';
-      saveCommunity();
-
-      res.json({ success: true, rank: 'basic' });
-    } catch (e: any) {
-      res.status(500).json({ error: e.message });
-    }
-  });
+  // Community endpoints removed
 
   app.post('/api/redeem', requireAuth, async (req: any, res: any) => {
     try {

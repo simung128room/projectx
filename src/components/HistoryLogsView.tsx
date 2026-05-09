@@ -216,7 +216,7 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({ usedKeysHistor
       displayId = item.id.substring(0,8).toUpperCase();
     } else {
       title = item.productName;
-      amountNode = <span className="font-black text-rose-600 text-base md:text-lg">-{item.price.toLocaleString()} ฿</span>;
+      amountNode = <span className="font-black text-rose-600 text-base md:text-lg">-{(item.price || 0).toLocaleString()} ฿</span>;
     }
 
     return (
