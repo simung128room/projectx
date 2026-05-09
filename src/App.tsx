@@ -479,33 +479,44 @@ function AppContent() {
         }
       };
 
-      const [healthRes, keysRes, historyRes, ipsRes, settingsRes, productsRes, pagesRes, categoriesRes, statsRes, purchasesRes, topupsRes, usersRes] = await Promise.all([
+      // Public data
+      const publicEndpoints = [
         fetchWithCatch('/api/health'),
-        fetchWithCatch('/api/license_keys'),
-        fetchWithCatch('/api/used_keys'),
-        fetchWithCatch('/api/blocked_ips'),
         fetchWithCatch('/api/settings'),
         fetchWithCatch('/api/products'),
         fetchWithCatch('/api/pages'),
         fetchWithCatch('/api/categories'),
-        fetchWithCatch('/api/stats'),
+        fetchWithCatch('/api/stats')
+      ];
+
+      // Admin data
+      const adminEndpoints = isAdmin ? [
+        fetchWithCatch('/api/license_keys'),
+        fetchWithCatch('/api/used_keys'),
+        fetchWithCatch('/api/blocked_ips'),
         fetchWithCatch('/api/purchases'),
         fetchWithCatch('/api/topups'),
         fetchWithCatch('/api/users')
-      ]);
+      ] : [];
 
-      const healthData = healthRes.data;
-      const keysData = keysRes.data;
-      const historyData = historyRes.data;
-      const ipsData = ipsRes.data;
-      const settingsData = settingsRes.data;
-      const productsData = productsRes.data;
-      const pagesData = pagesRes.data;
-      const categoriesData = categoriesRes.data;
-      const statsData = statsRes.data;
-      const purchasesData = purchasesRes.data;
-      const topupsData = topupsRes.data;
-      const usersData = usersRes.data;
+      const [
+        healthRes, settingsRes, productsRes, pagesRes, categoriesRes, statsRes,
+        keysRes, historyRes, ipsRes, purchasesRes, topupsRes, usersRes
+      ] = await Promise.all([...publicEndpoints, ...adminEndpoints]);
+
+      const healthData = healthRes?.data;
+      const settingsData = settingsRes?.data;
+      const productsData = productsRes?.data;
+      const pagesData = pagesRes?.data;
+      const categoriesData = categoriesRes?.data;
+      const statsData = statsRes?.data;
+      
+      const keysData = keysRes?.data;
+      const historyData = historyRes?.data;
+      const ipsData = ipsRes?.data;
+      const purchasesData = purchasesRes?.data;
+      const topupsData = topupsRes?.data;
+      const usersData = usersRes?.data;
 
       if (keysData) setFirebaseKeys(keysData);
       if (historyData) setUsedKeysHistory(historyData);
@@ -520,12 +531,13 @@ function AppContent() {
       if (Array.isArray(topupsData) && topupsData.length > 0) setTopupHistory(topupsData);
       if (Array.isArray(usersData)) setUsersList(usersData);
       
-      if (!healthRes.error && !productsRes.error) {
+      // We only consider DB un-ready if health fails.
+      if (!healthRes?.error) {
         setIsDBReady(true);
         setDbErrorDetail(null);
       } else {
         setIsDBReady(false);
-        if (healthRes.error) {
+        if (healthRes?.error) {
           let errorMsg: string = "Unknown Error";
           if (healthRes.error) {
             if (typeof healthRes.error === 'object') {
@@ -535,14 +547,12 @@ function AppContent() {
             }
           }
           setDbErrorDetail(`Backend API ไม่ตอบสนอง (Offline): ${errorMsg}`);
-        } else {
-          setDbErrorDetail(`Firebase Error: ${productsRes.error || "Products DB Sync failed"}`);
         }
       }
     } catch (err: any) {
       console.error("Critical fetch error:", err);
     }
-  }, []);
+  }, [isAdmin]);
 
   // Backend API Listeners
   useEffect(() => {
@@ -551,30 +561,18 @@ function AppContent() {
     return () => clearInterval(timer);
   }, [fetchAllData]);
 
-  // Check if current IP is blocked (from backend)
+  // App Init & check IP
   useEffect(() => {
-    if (!clientIp) return;
-    const checkIP = async () => {
+    const initApp = async () => {
       try {
-        const res = await axios.get(`/api/check_ip/${clientIp}`);
+        const res = await axios.get('/api/health');
+        const ip = res.data.clientIp || 'Unknown';
+        setClientIp(ip);
         if (res.data.blocked) {
           setIsIPBlocked(true);
         }
-      } catch (err) {
-        console.error("Error checking IP status:", err);
-      }
-    };
-    checkIP();
-  }, [clientIp]);
-
-  // Load Data by IP
-  useEffect(() => {
-    fetch('https://api.ipify.org?format=json')
-      .then(res => res.json())
-      .then(data => {
-        const ip = data.ip;
-        setClientIp(ip);
         
+        // Load local storage data for this IP
         const savedCombo = localStorage.getItem(`checker_combo_${ip}`);
         const savedValid = localStorage.getItem(`checker_valid_${ip}`);
         const savedInvalid = localStorage.getItem(`checker_invalid_${ip}`);
@@ -612,12 +610,13 @@ function AppContent() {
           }]);
         }
         setIsLoaded(true);
-      })
-      .catch((err) => {
+      } catch (err) {
         setClientIp('offline_local');
         console.error("IP Check Failed", err);
         setIsLoaded(true);
-      });
+      }
+    };
+    initApp();
   }, []);
 
   // Sync combo to ref for high-speed access
@@ -2051,46 +2050,36 @@ function AppContent() {
               <Shield className="w-6 h-6 shrink-0 text-[#1a7fe6]" /> นโยบายความเป็นส่วนตัว (Privacy Policy)
             </h2>
             <div className="overflow-y-auto pr-2 sm:pr-4 space-y-6 text-sm leading-relaxed text-zinc-400 scrollbar-thin scrollbar-thumb-zinc-300 flex-1">
-              <p><strong>อัปเดตล่าสุด:</strong> 25 เมษายน 2569</p>
+              <p><strong>อัปเดตล่าสุด:</strong> {new Date().toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
               
               <div>
                 <h3 className="font-bold text-white text-base mb-2">1. ข้อมูลที่เราเก็บรวบรวม</h3>
                 <ul className="list-disc pl-5 space-y-1">
-                  <li>ไม่มีข้อมูล Combo (อีเมล:รหัสผ่าน) ถูกส่งไปยังเซิร์ฟเวอร์ใด ๆ</li>
-                  <li>การตรวจสอบทั้งหมดทำงานแบบ Client-Side (ในเบราว์เซอร์ของคุณเท่านั้น)</li>
-                  <li>ไม่มี Cookie, Local Storage, หรือ Session Storage ที่เก็บข้อมูลสำคัญ</li>
-                  <li>ข้อมูลทั้งหมดจะหายไปเมื่อคุณปิดหรือรีเฟรชหน้าเว็บ</li>
+                  <li><strong>ข้อมูล IP Address:</strong> เรามีการบันทึกที่อยู่ IP ของผู้ใช้งาน เพื่อวัตถุประสงค์ด้านความปลอดภัย การป้องกันสแปม การโจมตีระบบ (DDoS) และการแบนผู้ใช้อัตโนมัติ (IP Blocking)</li>
+                  <li><strong>ข้อมูลสถิติและการใช้งาน:</strong> เราอาจเก็บข้อมูลพฤติกรรมการใช้งานในภาพรวม (Analytics) เพื่อนำมาวิเคราะห์และปรับปรุงประสิทธิภาพระบบให้ดียิ่งขึ้น</li>
+                  <li><strong>ข้อมูล Combo (อีเมล/รหัสผ่าน):</strong> ระบบ <strong>ไม่มีการบันทึกหรือบันทึกข้อมูลรหัสผ่าน Combo ตัวเต็มลงในฐานข้อมูลของเราเพื่อประโยชน์อื่นใด</strong> ข้อมูลในส่วนนี้จะถูกใช้เพื่อประมวลผลการจำลองในเบราว์เซอร์ของคุณ หรือประมวลผลชั่วคราวและลบทิ้งทันที</li>
                 </ul>
               </div>
 
               <div>
-                <h3 className="font-bold text-white text-base mb-2">2. การใช้งานข้อมูล</h3>
-                <p>ข้อมูลที่คุณวางในช่อง Combo จะถูกใช้เพื่อการจำลองการตรวจสอบบัญชี <strong>ภายในเบราว์เซอร์ของคุณเท่านั้น</strong> และจะไม่ถูกเก็บหรือส่งต่อไปยังบุคคลที่สาม</p>
+                <h3 className="font-bold text-white text-base mb-2">2. คุกกี้ (Cookies) และ Local Storage</h3>
+                <p>เรามีการใช้งาน Local Storage ในบราวเซอร์ของท่านเพื่อประโยชน์ในการจดจำการตั้งค่าระบบ, จดจำประวัติการตรวจสอบชั่วคราว ข้อมูลในส่วนนี้จะถูกเก็บอยู่ในเครื่องคอมพิวเตอร์ หรืออุปกรณ์ของคุณเอง และไม่มีการดึงข้อมูลกลับมายังเซิร์ฟเวอร์ส่วนกลาง</p>
               </div>
 
               <div>
-                <h3 className="font-bold text-white text-base mb-2">3. การรักษาความปลอดภัย</h3>
-                <ul className="list-disc pl-5 space-y-1">
-                  <li>ใช้มาตรการ Anti-DevTools เพื่อป้องกันการดึงข้อมูล</li>
-                  <li>ปิดการใช้งาน Right-Click และ Keyboard Shortcuts ที่อาจเปิดเผยโค้ด</li>
-                  <li>ไม่มีการเชื่อมต่ออินเทอร์เน็ตเมื่อทำการตรวจสอบ (ยกเว้นโหลดไลบรารี)</li>
-                </ul>
+                <h3 className="font-bold text-white text-base mb-2">3. การเปิดเผยข้อมูลแก่บุคคลที่สาม</h3>
+                <p>เราเคารพความเป็นส่วนตัวของคุณ <strong>เราจะไม่ขาย, แลกเปลี่ยน, หรือเปิดเผยข้อมูลเครดิต คีย์ หรือที่อยู่ IP ของคุณให้แก่บุคคลที่สาม</strong> โดยเด็ดขาด ยกเว้นในกรณีที่มีคำสั่งศาล หรือต้องดำเนินการเพื่อปฏิบัติตามกฎหมาย</p>
               </div>
 
               <div>
-                <h3 className="font-bold text-white text-base mb-2">4. สิทธิของผู้ใช้</h3>
-                <p className="mb-1">คุณมีสิทธิ์ที่จะ:</p>
-                <ul className="list-disc pl-5 space-y-1">
-                  <li>หยุดการตรวจสอบได้ตลอดเวลา</li>
-                  <li>ลบข้อมูลทั้งหมดโดยการรีเฟรชหน้าเว็บ</li>
-                  <li>ไม่ให้ข้อมูล Combo หากไม่ต้องการ</li>
-                </ul>
+                <h3 className="font-bold text-white text-base mb-2">4. ยอมรับสถานะความปลอดภัย (Anti DevTools)</h3>
+                <p className="mb-2">ระบบมีการปรับใช้การบล็อคเครื่องมือสำหรับนักพัฒนาและการหน่วงแบบฟอร์มบางชนิด ในการใช้งานเว็บไซต์ ถือว่าคุณยอมรับเงื่อนไขนี้</p>
               </div>
 
               <div>
                 <h3 className="font-bold text-white text-base mb-2">5. ข้อจำกัดความรับผิดชอบ</h3>
-                <p className="text-[#1a7fe6] mb-2 font-medium">เครื่องมือนี้เป็นเครื่องมือจำลอง (Simulation Tool) เพื่อการศึกษาเท่านั้น ไม่มีส่วนเกี่ยวข้องกับเครือข่ายเซิร์ฟเวอร์ใด ๆ อย่างเป็นทางการ</p>
-                <p>ผู้พัฒนาไม่รับผิดชอบต่อความเสียหายใด ๆ ที่เกิดจากการใช้งาน</p>
+                <p className="text-[#1a7fe6] mb-2 font-medium">เว็บไซต์เป็นเพียงเครื่องมือช่วยเหลือ เครื่องมือจำลองเพื่อการตรวจสอบ (Simulation) ไม่มีความเชื่อมโยงโดยตรงกับเซิร์ฟเวอร์ลิขสิทธิ์ใดๆ</p>
+                <p>ผู้พัฒนาไม่รับผิดชอบต่อความสูญเสีย ด้านตัวเงิน ข้อมูล หรือตัวบัญชีจากการใช้งานเว็บไซต์ ซึ่งคุณต้องเป็นผู้นำไปใช้บนความเสี่ยงของคุณเอง</p>
               </div>
             </div>
             <div className="pt-6 mt-6 border-t border-white/5 text-right">
@@ -2107,25 +2096,47 @@ function AppContent() {
 
       {showTerms && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50 backdrop-blur-sm font-sans animate-in fade-in duration-200">
-          <div className="bg-[#0B0F14] border border-white/10 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-xl">
+          <div className="bg-[#0B0F14] border border-white/10 rounded-3xl p-6 sm:p-8 max-w-2xl w-full max-h-[90vh] flex flex-col shadow-xl">
             <h2 className="text-xl sm:text-2xl font-bold mb-6 flex items-center gap-2 text-white">
-              <ListChecks className="w-6 h-6 shrink-0 text-[#1a7fe6]" /> ข้อกำหนดการใช้งาน
+              <ListChecks className="w-6 h-6 shrink-0 text-[#1a7fe6]" /> ข้อกำหนดการใช้งาน (Terms of Use)
             </h2>
-            <div className="space-y-4 text-sm text-zinc-400">
-              <p>1. เครื่องมือนี้ใช้เพื่อการศึกษา อย่างปลอดภัย และตรวจสอบสถานะบัญชีของตนเองที่ได้รับอนุญาตเท่านั้น</p>
-              <p>2. ห้ามนำไปใช้ในทางที่ผิดกฎหมายหรือละเมิดสิทธิของผู้อื่น</p>
-              <p>3. ผู้ใช้ต้องรับผิดชอบต่อผลจากการใช้งานเครื่องมือนี้ด้วยตนเอง</p>
-              <p>4. ผู้พัฒนาไม่รับประกันความถูกต้อง 100% ของผลการตรวจสอบ (เป็นการจำลอง)</p>
-              <div className="bg-[#1E90FF]/10 border border-white/10 p-4 rounded-2xl mt-6">
-                <p className="text-[#1E90FF] font-bold">5. การใช้งานอาจขัดกับข้อกำหนดการให้บริการของแพลตฟอร์มปลายทาง</p>
+            <div className="overflow-y-auto pr-2 sm:pr-4 space-y-6 text-sm leading-relaxed text-zinc-400 scrollbar-thin scrollbar-thumb-zinc-300 flex-1">
+              <div>
+                <h3 className="font-bold text-white text-base mb-2">1. วัตถุประสงค์การใช้งานและตกลง</h3>
+                <p>เครื่องมือนี้จัดทำขึ้นเพื่อช่วยประหยัดเวลาในการตรวจสอบ บัญชี รหัส หรือคีย์ต่างๆ <strong>ผู้ใช้จะต้องเป็นเจ้าของข้อมูลหรือได้รับอนุญาตในการตรวจสอบข้อมูลเหล่านี้เท่านั้น</strong> การนำเครื่องมือไปใช้งานในเชิงละเมิดสิทธิผู้อื่นถือเป็นความรับผิดชอบของคุณแต่เพียงผู้เดียว</p>
+              </div>
+
+              <div>
+                <h3 className="font-bold text-white text-base mb-2">2. ข้อห้ามและการละเมิดขั้นร้ายแรง</h3>
+                <p className="mb-1">ในระหว่างการใช้งานเว็บไซต์ คุณตกลงที่จะละเว้นการกระทำดังนี้:</p>
+                <ul className="list-disc pl-5 space-y-1">
+                  <li><strong>ห้ามดัดแปลง หรือเจาะระบบ:</strong> ห้ามทำการทำวิศวกรรมย้อนกลับ (Reverse Engineering), ซับเน็ตสแกนเนอร์, หรือพยายามเรียก API ของระบบโดยตรงโดยไม่ผ่านหนาเว็บไซต์</li>
+                  <li><strong>ห้ามทำ DDoS/Bot Abuse:</strong> ห้ามใช้สคริปต์อัตโนมัติ หุ่นยนต์เพื่อกระหน่ำยิง Request ซึ่งอาจส่งผลเสียต่อการให้บริการส่วนรวม</li>
+                  <li><strong>ห้ามนำไปประกอบธุรกิจทุจริต:</strong> ไม่คัดลอกบัญชีที่ไม่ใช่ของตนไปค้าขายอย่างละเมิดกฎหมาย</li>
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="font-bold text-white text-base mb-2">3. สิทธิ์การระงับการเข้าถึง (Ban/IP Block)</h3>
+                <p>ทีมงานขอสงวนสิทธิ์ในการระงับบัญชีผู้ใช้ บล็อก IP Address หรือเพิกถอนสิทธิ์การใช้งาน (Ban) ในทันที โดยไม่ต้องแจ้งให้ทราบล่วงหน้าและไม่ชดเชยค่าเสียหายใดๆ หากเราตรวจพบพฤติการณ์ละเมิดด้านความปลอดภัย หรือมีปริมาณ Request มากเกินกว่าที่ระบบรองรับ (Rate Limit)</p>
+              </div>
+
+              <div>
+                <h3 className="font-bold text-white text-base mb-2">4. การยกเว้นความรับผิดชอบ</h3>
+                <p>เราไม่รับประกัน 100% ว่าผลลัพธ์ข้อมูลที่ตรวจสอบแล้วจะถูกต้องแม่นยำเสมอไป และเว็บไซต์ไม่มีความเกี่ยวข้องใดๆ หากบัญชีเป้าหมายของคุณถูกแบนจากแพลตฟอร์มต้นทาง <strong>(การใช้งานอาจขัดต่อ ToS ของผู้ให้บริการปลายทาง)</strong></p>
+              </div>
+
+              <div>
+                <h3 className="font-bold text-white text-base mb-2">5. การปรับปรุงและการเปลี่ยนแปลงข้อตกลง</h3>
+                <p>เราอาจพิจารณาปรับปรุงข้อกำหนดส่วนนี้โดยไม่จำเป็นต้องแจ้งให้คุณทราบล่วงหน้า ในกรณีที่มีการคืนเงิน หรือปรับเปลี่ยนเครดิตในเว็บไซต์ จะถูกตัดสินโดยดุลพินิจสูงสุดของทีมงาน</p>
               </div>
             </div>
-            <div className="pt-6 mt-6 border-t border-white/5 text-right">
+            <div className="pt-6 mt-6 border-t border-white/5 text-right w-full">
               <button 
                 onClick={() => setShowTerms(false)} 
                 className="bg-[#1E90FF] hover:bg-[#166bcc] text-white font-bold py-3 px-8 rounded-2xl transition-colors w-full sm:w-auto"
               >
-                ยอมรับข้อกำหนด
+                ข้าพเจ้ายอมรับข้อกำหนด
               </button>
             </div>
           </div>

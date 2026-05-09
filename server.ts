@@ -102,12 +102,23 @@ app.set('trust proxy', 1);
   };
 
   // API health check immediately
-  app.get('/api/health', (req, res) => {
-    console.log(`[Health] Request from ${req.headers['x-forwarded-for'] || req.ip}`);
+  app.get('/api/health', async (req, res) => {
+    const clientIp = (req.headers['x-forwarded-for'] as string)?.split(',')[0] || req.ip || 'Unknown';
+    console.log(`[Health] Request from ${clientIp}`);
+    
+    // Check if blocked
+    let isBlocked = false;
+    try {
+      const snapshot = await admin.firestore().collection('blocked_ips').where('ip', '==', clientIp).get();
+      if (!snapshot.empty) isBlocked = true;
+    } catch(e) {}
+    
     res.json({ 
       status: 'ok', 
       time: new Date().toISOString(),
-      env: process.env.NODE_ENV || 'development'
+      env: process.env.NODE_ENV || 'development',
+      clientIp: clientIp,
+      blocked: isBlocked
     });
   });
 
@@ -1358,6 +1369,45 @@ console.log('HIT STATS ENDPOINT');
   // Mutex for purchase locking
   const purchaseLocks: Record<string, Promise<any>> = {};
 
+  app.post('/api/discord-redeem', async (req: any, res: any) => {
+    const { key, secret } = req.body;
+    // ตั้งค่ารหัสลับให้ตรงกันระหว่างเว็บกับบอท
+    if (secret !== 'MY_SECRET_DISCORD_TOKEN_1234') {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    try {
+      // ค้นหา key ในประวัติการสั่งซื้อ (สมมติว่าเป็นคีย์แถวแรกจาก secretData)
+      const purchasesRef = admin.firestore().collection('purchases');
+      const snapshot = await purchasesRef.get();
+      
+      let foundDoc = null;
+      for (const doc of snapshot.docs) {
+        const data = doc.data();
+        if (data.secretData && data.secretData.includes(key)) {
+          foundDoc = { id: doc.id, ...data };
+          break;
+        }
+      }
+
+      if (!foundDoc) {
+        return res.status(404).json({ error: 'ไม่พบคีย์นี้ในระบบ หรือคีย์ไม่ถูกต้อง' });
+      }
+
+      if (foundDoc.discordClaimed) {
+        return res.status(400).json({ error: 'คีย์นี้ถูกใช้งานเพื่อรับยศไปแล้ว' });
+      }
+
+      // Mark as claimed
+      await purchasesRef.doc(foundDoc.id).update({ discordClaimed: true });
+
+      res.json({ success: true, message: 'รับยศสำเร็จ!' });
+    } catch (e: any) {
+      console.error(e);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
   app.post('/api/buy', requireAuth, async (req: any, res: any) => {
     const { productId, quantity } = req.body;
     if (!productId || typeof quantity !== 'number' || quantity < 1) {
@@ -1781,42 +1831,90 @@ console.log('HIT STATS ENDPOINT');
     try {
       const uid = req.user.uid;
       
+      let keyData: any = null;
+      let keyDocRef: any = null;
+      let isProductKey = false;
+
+      // 1. ลองหาคีย์ใน license_keys (ระบบคีย์ระดับ Premium/VIP แบบเก่า)
       const snapshot = await admin.firestore().collection('license_keys').where('key', '==', key).where('status', '==', 'active').get();
       if (!snapshot.docs || snapshot.docs.length === 0) {
-        return res.status(400).json({ error: 'Key not found or used' });
+        
+        // 2. ถ้าไม่เจอ ลองหาในประวัติการสั่งซื้อ (เผื่อเป็นคีย์แรนด้อม/คีย์สินค้าที่ซื้อไป)
+        const purchasesRef = admin.firestore().collection('purchases');
+        const purchasesSnapshot = await purchasesRef.get();
+        let foundDoc = null;
+        for (const doc of purchasesSnapshot.docs) {
+          const data = doc.data();
+          if (data.secretData && data.secretData.includes(key) && !data.webClaimed) {
+             foundDoc = { id: doc.id, ...data };
+             keyDocRef = purchasesRef.doc(doc.id);
+             break;
+          }
+        }
+
+        if (!foundDoc) {
+           return res.status(400).json({ error: 'ไม่พบคีย์ในระบบ หรือคีย์นี้ถูกใช้งานไปแล้ว' });
+        }
+
+        isProductKey = true;
+        keyData = foundDoc;
+
+      } else {
+        keyDocRef = snapshot.docs[0].ref;
+        keyData = snapshot.docs[0].data();
       }
-      const keyDoc = snapshot.docs[0];
-      const keyData = keyDoc.data();
       
-      await keyDoc.ref.update({ status: 'used' });
-      await admin.firestore().collection('used_keys').add({
-        key: key,
-        ip: req.ip,
-        details: `Redeemed rank ${keyData.type}`,
-        used_at: new Date().toISOString()
-      });
-      
-      let days = 1;
-      if (keyData.type === 'Week') days = 7;
-      if (keyData.type === 'Month') days = 30;
-      if (keyData.type === '3Month') days = 90;
-      if (keyData.type === 'Year') days = 365;
-      if (keyData.type === 'Lifetime') days = 9999;
-      
-      const expireDate = new Date();
-      expireDate.setDate(expireDate.getDate() + days);
+      let rankToGive = 'premium';
+      let expireDate = new Date();
+
+      if (isProductKey) {
+        // อัปเดตคีย์สั่งซื้อว่าถูกใช้รับยศในเว็บแล้ว
+        await keyDocRef.update({ webClaimed: true });
+        
+        // ให้ยศเป็นชื่อของสินค้า (หรือถ้าอยากให้เป็น premium ก็ใส่ premium)
+        rankToGive = keyData.productName?.replace(/ \(.+\)/g, '') || 'VIP';
+        
+        // เพิ่มลงในประวัติ (optional)
+        await admin.firestore().collection('used_keys').add({
+          key: key,
+          ip: req.ip,
+          details: `Redeemed product rank ${rankToGive}`,
+          used_at: new Date().toISOString()
+        });
+
+        // คีย์สินค้ารับยศได้ ให้เป็นตลอดชีพ
+        expireDate.setDate(expireDate.getDate() + 9999);
+
+      } else {
+        // ระบบคีย์จาก license_keys เดิม
+        await keyDocRef.update({ status: 'used' });
+        await admin.firestore().collection('used_keys').add({
+          key: key,
+          ip: req.ip,
+          details: `Redeemed rank ${keyData.type}`,
+          used_at: new Date().toISOString()
+        });
+        
+        let days = 1;
+        if (keyData.type === 'Week') days = 7;
+        if (keyData.type === 'Month') days = 30;
+        if (keyData.type === '3Month') days = 90;
+        if (keyData.type === 'Year') days = 365;
+        if (keyData.type === 'Lifetime') days = 9999;
+        expireDate.setDate(expireDate.getDate() + days);
+      }
       
       communityData.userRanks = communityData.userRanks || {};
-      communityData.userRanks[uid] = 'premium';
+      communityData.userRanks[uid] = rankToGive;
       saveCommunity();
 
       await admin.firestore().collection('users').doc(uid).set({
         isPremium: true,
-        rank: 'premium',
+        rank: rankToGive,
         premiumExpireDate: expireDate.toISOString()
       }, { merge: true });
       
-      res.json({ success: true, rank: 'premium', type: keyData.type });
+      res.json({ success: true, rank: rankToGive, type: isProductKey ? 'Product Rank' : keyData.type });
     } catch (e: any) {
       res.status(500).json({ error: e.message });
     } finally {
