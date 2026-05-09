@@ -91,7 +91,6 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
             image: 'https://img1.pic.in.th/images/IMG_6162.png'
           };
           if (onTopupSuccess) onTopupSuccess(historyEntry);
-          axios.post('/api/topups', historyEntry).catch(()=>{});
         } catch(e) {}
 
         Swal.fire({
@@ -180,7 +179,6 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
               image: 'https://img2.pic.in.th/IMG_6166.png'
             };
             if (onTopupSuccess) onTopupSuccess(historyEntry);
-            axios.post('/api/topups', historyEntry).catch(()=>{});
           } catch(e) {}
           
           Swal.fire({

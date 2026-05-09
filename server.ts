@@ -306,6 +306,19 @@ app.set('trust proxy', 1);
                 const currentBalance = userDoc.data().balance || 0;
                 await userRef.update({ balance: currentBalance + amount });
                 console.log(`[TrueWallet] Updated balance for user ${uid} (+฿${amount})`);
+                
+                // Add to topups history
+                await admin.firestore().collection('topups').add({
+                  id: Math.random().toString(36).substring(7),
+                  userId: userDoc.data().username || 'Unknown',
+                  uid: uid,
+                  amount: amount,
+                  date: new Date().toISOString(),
+                  type: 'truewallet',
+                  money: amount,
+                  title: 'เติมเงินสำเร็จ',
+                  image: 'https://img1.pic.in.th/images/IMG_6162.png'
+                });
               }
             } catch (syncErr) {
               console.error(`[TrueWallet] Balance sync error:`, syncErr);
@@ -407,6 +420,19 @@ app.set('trust proxy', 1);
               const currentBalance = userDoc.data().balance || 0;
               await userRef.update({ balance: currentBalance + amount });
               console.log(`[Slip] Updated balance for user ${uid} (+฿${amount})`);
+              
+              // Add to topups history
+              await admin.firestore().collection('topups').add({
+                id: Math.random().toString(36).substring(7),
+                userId: userDoc.data().username || 'Unknown',
+                uid: uid,
+                amount: amount,
+                date: new Date().toISOString(),
+                type: 'slip',
+                money: amount,
+                title: 'เติมเงินสำเร็จ',
+                image: 'https://img2.pic.in.th/IMG_6166.png'
+              });
             }
           } catch (syncErr) {
             console.error(`[Slip] Balance sync error:`, syncErr);
@@ -1317,6 +1343,7 @@ console.log('HIT STATS ENDPOINT');
   });
 
   app.post('/api/purchases', async (req, res) => {
+    // Legacy endpoint, we can leave it to avoid breaking changes, or just require admin.
     if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
     try {
       const data = req.body;
@@ -1325,6 +1352,94 @@ console.log('HIT STATS ENDPOINT');
     } catch (err) {
       console.error('Internal server error creating purchase:', err);
       res.status(500).json({ error: String(err && err.message ? err.message : err) });
+    }
+  });
+
+  // Mutex for purchase locking
+  const purchaseLocks: Record<string, Promise<any>> = {};
+
+  app.post('/api/buy', requireAuth, async (req: any, res: any) => {
+    const { productId, quantity } = req.body;
+    if (!productId || typeof quantity !== 'number' || quantity < 1) {
+      return res.status(400).json({ error: 'Invalid product or quantity' });
+    }
+
+    const userId = req.user.uid;
+    const lockKey = userId + '_' + productId;
+    
+    // Acquire lock
+    while (purchaseLocks[lockKey]) {
+      await purchaseLocks[lockKey];
+    }
+    
+    let releaseLock: () => void;
+    purchaseLocks[lockKey] = new Promise(resolve => { releaseLock = resolve as any; });
+
+    try {
+      const userRef = admin.firestore().collection('users').doc(userId);
+      const productRef = admin.firestore().collection('products').doc(productId);
+
+      const [userDoc, productDoc] = await Promise.all([userRef.get(), productRef.get()]);
+
+      if (!userDoc.exists) return res.status(404).json({ error: 'User not found' });
+      if (!productDoc.exists) return res.status(404).json({ error: 'Product not found' });
+
+      const userData = userDoc.data();
+      const productData = productDoc.data();
+
+      const totalCost = productData.price * quantity;
+
+      if ((userData.balance || 0) < totalCost) {
+        return res.status(400).json({ error: 'ยอดเงินไม่เพียงพอ' });
+      }
+
+      const availableStock = productData.stockData ? productData.stockData.length : 0;
+      if (availableStock < quantity) {
+        return res.status(400).json({ error: 'สินค้าในสต๊อกไม่เพียงพอ' });
+      }
+
+      // Claim items
+      const currentStockData = [...productData.stockData];
+      const claimedItems: string[] = [];
+      for (let i = 0; i < quantity; i++) {
+        claimedItems.push(currentStockData.shift() as string);
+      }
+
+      const newBalance = (userData.balance || 0) - totalCost;
+
+      const newHistoryItem = {
+        id: Math.random().toString(36).substring(7),
+        userId: userId,
+        username: userData.username || req.user.email?.split('@')[0] || 'Unknown',
+        productId: productId,
+        productName: `${productData.name} (x${quantity})`,
+        price: totalCost,
+        secretData: claimedItems.join('\n'),
+        date: new Date().toISOString(),
+        billNumber: 'B-' + Math.floor(Math.random()*1000000).toString().padStart(6, '0'),
+        is_special: false
+      };
+
+      // Perform updates (these are separate calls since we don't have atomic transactions exposed here, but guarded by locks)
+      await Promise.all([
+        userRef.update({ balance: newBalance }),
+        productRef.update({ stock: currentStockData.length, stockData: currentStockData }),
+        admin.firestore().collection('purchases').add(newHistoryItem)
+      ]);
+
+      res.json({
+        success: true,
+        purchase: newHistoryItem,
+        updatedUser: { ...userData, balance: newBalance },
+        updatedProduct: { id: productId, ...productData, stock: currentStockData.length },
+      });
+
+    } catch (err: any) {
+      console.error('Error during purchase:', err);
+      res.status(500).json({ error: 'Internal server error during purchase' });
+    } finally {
+      releaseLock!();
+      delete purchaseLocks[lockKey];
     }
   });
 
@@ -1349,7 +1464,7 @@ console.log('HIT STATS ENDPOINT');
     }
   });
 
-  app.post('/api/topups', async (req, res) => {
+  app.post('/api/topups', requireAdmin, async (req, res) => {
     if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
     try {
       const data = req.body;
@@ -1643,9 +1758,22 @@ console.log('HIT STATS ENDPOINT');
 
   // Community endpoints removed
 
+  // Mutex for key redemption
+  const redeemLocks: Record<string, Promise<any>> = {};
+
   app.post('/api/redeem', requireAuth, async (req: any, res: any) => {
+    const { key } = req.body;
+    if (!key) return res.status(400).json({ error: 'Key is required' });
+
+    // Acquire lock for this key
+    while (redeemLocks[key]) {
+      await redeemLocks[key];
+    }
+    
+    let releaseLock: () => void;
+    redeemLocks[key] = new Promise(resolve => { releaseLock = resolve as any; });
+
     try {
-      const { key } = req.body;
       const uid = req.user.uid;
       
       const snapshot = await admin.firestore().collection('license_keys').where('key', '==', key).where('status', '==', 'active').get();
@@ -1686,6 +1814,9 @@ console.log('HIT STATS ENDPOINT');
       res.json({ success: true, rank: 'premium', type: keyData.type });
     } catch (e: any) {
       res.status(500).json({ error: e.message });
+    } finally {
+      releaseLock!();
+      delete redeemLocks[key];
     }
   });
 

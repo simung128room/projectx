@@ -20,17 +20,28 @@ const camelMap: Record<string, string> = {
   productname: 'productName',
   ispremium: 'isPremium',
   updatedat: 'updatedAt',
-  stockdata: 'stockData'
+  stockdata: 'stockData',
+  image: 'imageUrl'
+};
+
+const forwardMap: Record<string, string> = {
+  imageUrl: 'image'
 };
 
 function toDB(data: any): any {
   if (!data || typeof data !== 'object') return data;
   const res: any = {};
   for (const k in data) {
-    // Ignore frontend-only fields that do not exist in the database schema
-    if (k === 'premiumExpireDate' || k === 'fullName' || k === 'avatarUrl' || k === 'username' || k === 'rank') continue;
-    // Postgres columns without quotes are treated as lowercase.
-    res[k.toLowerCase()] = data[k];
+    // Ignore frontend-only or missing schema fields
+    if (k === 'premiumExpireDate' || k === 'fullName' || k === 'avatarUrl' || k === 'username' || k === 'rank' || k === 'originalPrice' || k === 'soldCount' || k === 'isPopular') continue;
+    
+    // Convert known keys
+    if (forwardMap[k]) {
+      res[forwardMap[k]] = data[k];
+    } else {
+      // Postgres columns without quotes are treated as lowercase.
+      res[k.toLowerCase()] = data[k];
+    }
   }
   return res;
 }

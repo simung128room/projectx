@@ -304,97 +304,57 @@ function AppContent() {
       return;
     }
 
-    // Compute stock data and secrets BEFORE state update
-    let currentStockData = product.stockData ? [...product.stockData] : [];
-    let aggregatedSecrets: string[] = [];
-    
-    for (let i = 0; i < quantity; i++) {
-      let secretData = `APEX-${Math.random().toString(36).substring(2, 10).toUpperCase()}`;
-      if (currentStockData.length > 0) {
-        secretData = currentStockData.shift() as string;
+    try {
+      const res = await axios.post('/api/buy', { productId: product.id, quantity });
+      const { purchase: newHistoryItem, updatedUser, updatedProduct } = res.data;
+
+      // Update state with result from server
+      setProducts(prevProducts => prevProducts.map(p => p.id === product.id ? updatedProduct : p));
+      setUserPlan(updatedUser);
+      setPurchaseHistory(prev => [newHistoryItem, ...prev]);
+      
+      // Update site stats for admin
+      setSiteStats(prev => ({...prev, sales: prev.sales + totalPrice, stock: Math.max(0, prev.stock - quantity)}));
+
+      // Create and auto download TXT file of purchased items, if quantity > 1
+      if (quantity > 1) {
+        const blob = new Blob([newHistoryItem.secretData], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `apex_order_${product.id}_x${quantity}_${new Date().toISOString().slice(0, 10)}.txt`;
+        link.click();
+        URL.revokeObjectURL(url);
       }
-      aggregatedSecrets.push(secretData);
-    }
 
-    const newHistoryItem = {
-      id: Math.random().toString(36).substring(7),
-      username: userPlan?.username || user?.email?.split('@')[0] || 'Unknown',
-      productId: product.id,
-      productName: `${product.name} (x${quantity})`,
-      price: totalPrice,
-      secretData: aggregatedSecrets.join('\n'),
-      date: new Date().toISOString(),
-      billNumber: 'B-' + Math.floor(Math.random()*1000000).toString().padStart(6, '0'),
-      is_special: false
-    };
-
-    const updatedProductData = { 
-      ...product, 
-      stock: product.stock > 0 ? product.stock - quantity : 0, 
-      stockData: currentStockData 
-    };
-
-    setProducts(prevProducts => prevProducts.map(p => p.id === product.id ? updatedProductData : p));
-
-    // Async sync with backend
-    if (updatedProductData) {
-      try {
-         await axios.put(`/api/products/${(updatedProductData as Product).id}`, updatedProductData);
-      } catch (err) {
-         console.warn("Failed to sync purchase with backend products DB:", err);
+      // Show success and redirect
+      if (quantity === 1) {
+        setPurchasedItemReceipt({
+          ...newHistoryItem,
+          title: 'สั่งซื้อสำเร็จ',
+          icon: ShoppingCart,
+          bg: 'bg-emerald-500',
+          color: 'text-white'
+        });
+      } else {
+        Swal.fire({
+          icon: 'success',
+          title: 'สั่งซื้อสำเร็จ!',
+          text: 'ระบบได้ดาวน์โหลดไฟล์คีย์/ข้อมูลสินค้าให้ท่านอัตโนมัติ (และสามารถตรวจสอบย้อนหลังได้ที่ประวัติการสั่งซื้อ)',
+          confirmButtonColor: '#16a34a',
+          confirmButtonText: 'ตกลง'
+        }).then(() => {
+          setActiveView('history');
+        });
       }
-    }
 
-    // Deduct balance
-    const newBalance = Math.max(0, (userPlan.balance || 0) - totalPrice);
-    const updatedPlan = { ...userPlan, balance: newBalance };
-    setUserPlan(updatedPlan);
-    
-    // Server-side balance sync if user logged in
-    if (user) {
-      await syncUserPlan(updatedPlan, user.uid);
-    }
-    
-    // Add to history
-    setPurchaseHistory(prev => [newHistoryItem, ...prev]);
-
-    // Async sync with purchases backend
-    axios.post('/api/purchases', newHistoryItem).catch(err => {
-      console.warn("Failed to sync purchase record:", err);
-    });
-
-    // Create and auto download TXT file of purchased items, if quantity > 1
-    if (quantity > 1) {
-      const blob = new Blob([aggregatedSecrets.join('\n')], { type: 'text/plain;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `apex_order_${product.id}_x${quantity}_${new Date().toISOString().slice(0, 10)}.txt`;
-      link.click();
-      URL.revokeObjectURL(url);
-    }
-
-    // Update site stats for admin
-    setSiteStats(prev => ({...prev, sales: prev.sales + totalPrice, stock: Math.max(0, prev.stock - quantity)}));
-
-    // Show success and redirect
-    if (quantity === 1) {
-      setPurchasedItemReceipt({
-        ...newHistoryItem,
-        title: 'สั่งซื้อสำเร็จ',
-        icon: ShoppingCart,
-        bg: 'bg-emerald-500',
-        color: 'text-white'
-      });
-    } else {
+    } catch (err: any) {
+      console.error("Purchase error:", err);
       Swal.fire({
-        icon: 'success',
-        title: 'สั่งซื้อสำเร็จ!',
-        text: 'ระบบได้ดาวน์โหลดไฟล์คีย์/ข้อมูลสินค้าให้ท่านอัตโนมัติ (และสามารถตรวจสอบย้อนหลังได้ที่ประวัติการสั่งซื้อ)',
-        confirmButtonColor: '#16a34a',
-        confirmButtonText: 'ตกลง'
-      }).then(() => {
-        setActiveView('history');
+        icon: 'error',
+        title: 'เกิดข้อผิดพลาด',
+        text: err.response?.data?.error || 'ไม่สามารถทำรายการได้ในขณะนี้ กรุณาลองใหม่',
+        confirmButtonColor: '#dc2626'
       });
     }
   };
