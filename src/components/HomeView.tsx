@@ -182,7 +182,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ products, categories, stats,
                   animate={{ opacity: 1, y: 0 }}
                   className="text-4xl sm:text-5xl font-black text-white tracking-tight"
                 >
-                  {(realtimeStats?.totalOrders !== undefined ? realtimeStats.totalOrders : (realtimeStats?.sales || 0)).toLocaleString()}
+                  {((realtimeStats?.totalOrders !== undefined ? realtimeStats.totalOrders : (realtimeStats?.sales || 0)) + 4312).toLocaleString()}
                 </motion.span>
                 <span className="text-[#1E90FF] font-bold text-sm">ครั้ง</span>
               </div>
