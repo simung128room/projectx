@@ -122,11 +122,11 @@ function AppContent() {
   const [siteSettings, setSiteSettings] = useState({ 
     site_name: 'APEX STUDIO',
     truewallet_phone: '',
-    contact_line: '',
+    contact_line: 'https://www.facebook.com/share/18emwBsqUf/?mibextid=wwXIfr',
     popup_enabled: false,
     popup_img_url: '',
     popup_link: '',
-    stats_users_offset: 1250,
+    stats_users_offset: 1278,
     stats_sales_offset: 0
   });
 

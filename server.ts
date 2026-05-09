@@ -2069,8 +2069,8 @@ console.log('HIT STATS ENDPOINT');
 
   // --- Telegram Gift Catcher Service ---
   const { TelegramClient } = await import('telegram');
-  const { StringSession } = await import('telegram/sessions');
-  const { NewMessage } = await import('telegram/events');
+  const { StringSession } = await import('telegram/sessions/index.js');
+  const { NewMessage } = await import('telegram/events/index.js');
   const { default: twApi } = await import('@opecgame/twapi');
 
   let tgDailyCount = 0;

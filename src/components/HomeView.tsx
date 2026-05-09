@@ -135,12 +135,12 @@ export const HomeView: React.FC<HomeViewProps> = ({ products, categories, stats,
               <span className="text-zinc-500 font-bold mb-1 text-sm tracking-wide">ผู้ใช้งาน</span>
               <div className="flex items-baseline gap-2">
                 <motion.span 
-                  key={realtimeStats?.users || 0}
+                  key={(realtimeStats?.users || 0) + (siteSettings?.stats_users_offset || 0)}
                   initial={{ opacity: 0.5, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="text-4xl sm:text-5xl font-black text-white tracking-tight"
                 >
-                  {(realtimeStats?.users || 0).toLocaleString()}
+                  {((realtimeStats?.users || 0) + (siteSettings?.stats_users_offset || 0)).toLocaleString()}
                 </motion.span>
                 <span className="text-[#1E90FF] font-bold text-sm">คน</span>
               </div>
@@ -177,12 +177,12 @@ export const HomeView: React.FC<HomeViewProps> = ({ products, categories, stats,
               <span className="text-zinc-500 font-bold mb-1 text-sm tracking-wide">ยอดขาย</span>
               <div className="flex items-baseline gap-2">
                 <motion.span 
-                  key={realtimeStats?.totalOrders || realtimeStats?.sales || 0}
+                  key={(realtimeStats?.totalOrders || realtimeStats?.sales || 0) + (siteSettings?.stats_sales_offset || 0)}
                   initial={{ opacity: 0.5, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="text-4xl sm:text-5xl font-black text-white tracking-tight"
                 >
-                  {((realtimeStats?.totalOrders !== undefined ? realtimeStats.totalOrders : (realtimeStats?.sales || 0)) + 4312).toLocaleString()}
+                  {((realtimeStats?.totalOrders !== undefined ? realtimeStats.totalOrders : (realtimeStats?.sales || 0)) + (siteSettings?.stats_sales_offset || 0)).toLocaleString()}
                 </motion.span>
                 <span className="text-[#1E90FF] font-bold text-sm">ครั้ง</span>
               </div>

@@ -482,8 +482,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [siteSettings, setSiteSettings] = useState({ 
     site_name: 'APEX STUDIO',
     truewallet_phone: '',
-    contact_line: '',
-    stats_users_offset: 892,
+    contact_line: 'https://www.facebook.com/share/18emwBsqUf/?mibextid=wwXIfr',
+    stats_users_offset: 1278,
     stats_sales_offset: 4432,
     popup_img_url: 'https://img2.pic.in.th/Red-Black-White-Anime-Podcast-Discord-Logocc6d3bfe807340af.png',
     popup_enabled: true,
@@ -1327,14 +1327,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       </div>
                       <div className="space-y-4">
                         <label className="block text-sm font-bold text-zinc-700 flex items-center gap-2">
-                           <Plus className="w-4 h-4 text-blue-500" /> ติดต่อเรา (LINE ID)
+                           <Users className="w-4 h-4 text-blue-500" /> ลิงก์ Facebook Page
                         </label>
                         <input 
                           type="text"
                           value={siteSettings.contact_line}
                           onChange={(e) => setSiteSettings({ ...siteSettings, contact_line: e.target.value })}
                           className="w-full bg-[#0B0F14] border border-white/10 rounded-2xl px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-blue-500 shadow-inner"
-                          placeholder="@line_id"
+                          placeholder="https://www.facebook.com/share/..."
                         />
                       </div>
 
