@@ -1,13 +1,13 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.VITE_SUPABASE_URL || 'https://xuszhqyahucrhupppzil.supabase.co';
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_FXKIpF5jTGVJ_3NcfXgLUw_q93Fg-_P';
+const supabaseUrl = process.env.VITE_SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseKey) {
   console.warn('Supabase service role variables are missing');
 }
 
-export const supabaseAdmin = createClient(supabaseUrl, supabaseKey, {
+export const supabaseAdmin = createClient(supabaseUrl || '', supabaseKey || '', {
   auth: {
     autoRefreshToken: false,
     persistSession: false,
@@ -31,16 +31,55 @@ const forwardMap: Record<string, string> = {
 function toDB(data: any): any {
   if (!data || typeof data !== 'object') return data;
   const res: any = {};
-  for (const k in data) {
+  
+  // Copy data to avoid mutating the original
+  const _data = { ...data };
+
+  // Encode purchases metadata into productname
+  if (_data.productName && typeof _data.productName === 'string' && (_data.secretData !== undefined || _data.billNumber !== undefined || _data.is_special !== undefined || _data.productId !== undefined)) {
+      if (!_data.productName.startsWith('{"n":')) {
+          _data.productName = JSON.stringify({
+              n: _data.productName,
+              s: _data.secretData,
+              b: _data.billNumber,
+              i: _data.is_special,
+              p: _data.productId
+          });
+      }
+      delete _data.secretData;
+      delete _data.billNumber;
+      delete _data.is_special;
+      delete _data.productId;
+  }
+
+  // Encode topups metadata into username
+  if (_data.amount !== undefined && (_data.method !== undefined || _data.uid !== undefined) && !_data.productName) {
+      const usernameBase = _data.username || _data.userId || 'Unknown';
+      if (typeof usernameBase === 'string' && !usernameBase.startsWith('{"u":')) {
+          _data.username = JSON.stringify({
+              u: usernameBase,
+              uid: _data.uid,
+              m: _data.method
+          });
+      }
+      delete _data.method;
+      delete _data.uid;
+      // also ensure we don't accidentally pass them
+  }
+
+  for (const k in _data) {
     // Ignore frontend-only or missing schema fields
-    if (k === 'premiumExpireDate' || k === 'fullName' || k === 'avatarUrl' || k === 'username' || k === 'rank' || k === 'originalPrice' || k === 'soldCount' || k === 'isPopular') continue;
+    if (k === 'premiumExpireDate' || k === 'fullName' || k === 'avatarUrl' || k === 'rank' || k === 'originalPrice' || k === 'soldCount' || k === 'isPopular') continue;
+    
+    // Explicitly ignore missing schema fields so postgres doesn't crash
+    if (k === 'method' || k === 'uid' || k === 'secretData' || k === 'billNumber' || k === 'is_special' || k === 'productId') continue;
     
     // Convert known keys
     if (forwardMap[k]) {
-      res[forwardMap[k]] = data[k];
+      res[forwardMap[k]] = _data[k];
     } else {
       // Postgres columns without quotes are treated as lowercase.
-      res[k.toLowerCase()] = data[k];
+      res[k.toLowerCase()] = _data[k];
     }
   }
   return res;
@@ -53,6 +92,29 @@ function fromDB(data: any): any {
     if (camelMap[k]) res[camelMap[k]] = data[k];
     else res[k] = data[k];
   }
+
+  // Decode purchases metadata from productName
+  if (res.productName && typeof res.productName === 'string' && res.productName.startsWith('{"n":')) {
+      try {
+          const meta = JSON.parse(res.productName);
+          res.productName = meta.n;
+          if (meta.s !== undefined) res.secretData = meta.s;
+          if (meta.b !== undefined) res.billNumber = meta.b;
+          if (meta.i !== undefined) res.is_special = meta.i;
+          if (meta.p !== undefined) res.productId = meta.p;
+      } catch (e) {}
+  }
+
+  // Decode topups metadata from username
+  if (res.username && typeof res.username === 'string' && res.username.startsWith('{"u":')) {
+      try {
+          const meta = JSON.parse(res.username);
+          res.username = meta.u;
+          if (meta.uid !== undefined) res.uid = meta.uid;
+          if (meta.m !== undefined) res.method = meta.m;
+      } catch (e) {}
+  }
+
   return res;
 }
 

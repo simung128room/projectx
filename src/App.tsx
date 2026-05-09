@@ -119,8 +119,8 @@ function AppContent() {
   const [userPlan, setUserPlan] = useState<UserPlan | null>(null);
   const [siteSettings, setSiteSettings] = useState({ 
     site_name: 'APEX STUDIO',
-    truewallet_phone: '0951378403',
-    contact_line: '@apex_studio',
+    truewallet_phone: '',
+    contact_line: '',
     popup_enabled: false,
     popup_img_url: '',
     popup_link: '',

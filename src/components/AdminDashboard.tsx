@@ -480,8 +480,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
   const [siteSettings, setSiteSettings] = useState({ 
     site_name: 'APEX STUDIO',
-    truewallet_phone: '0951378403',
-    contact_line: '@apex_studio',
+    truewallet_phone: '',
+    contact_line: '',
     stats_users_offset: 892,
     stats_sales_offset: 4432,
     popup_img_url: 'https://img2.pic.in.th/Red-Black-White-Anime-Podcast-Discord-Logocc6d3bfe807340af.png',

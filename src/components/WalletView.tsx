@@ -333,7 +333,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
 
 
           <div className="space-y-6">
-            <div className="bg-[#0B0F14] border-2 border-zinc-900 rounded-3xl p-6 text-center space-y-4 shadow-xl shadow-zinc-100">
+            <div className="bg-[#0B0F14] border-2 border-white/5 rounded-3xl p-6 text-center space-y-4 shadow-xl">
                 <div className="flex bg-[#1E90FF] text-white rounded-full px-6 py-2 gap-3 items-center w-fit mx-auto shadow-sm">
                   <span className="font-black text-sm tracking-wide">ธนาคารกสิกรไทย</span>
                 </div>
@@ -347,7 +347,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
                           navigator.clipboard.writeText('1963870325');
                           Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'คัดลอกเลขบัญชีแล้ว', showConfirmButton: false, timer: 1500 });
                         }}
-                        className="p-3 bg-[#1E90FF] text-white rounded-2xl shadow-lg hover:bg-black transition-all active:scale-95"
+                        className="p-3 bg-[#1E90FF] text-white rounded-2xl shadow-lg hover:bg-[#1a7fe6] transition-all active:scale-95"
                       >
                         <Copy className="w-5 h-5" />
                       </button>
@@ -365,7 +365,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
             </div>
 
             <div className="pt-4 flex flex-col items-center w-full">
-              <label className="flex flex-col items-center justify-center w-full py-10 bg-[#FAFAFA] hover:bg-[#121820] transition-all border-2 border-dashed border-[#1a7fe6] rounded-[2rem] cursor-pointer group active:scale-[0.98] shadow-sm relative z-10">
+              <label className="flex flex-col items-center justify-center w-full py-10 bg-[#0a0d12] hover:bg-[#121820] transition-all border-2 border-dashed border-white/20 hover:border-[#1E90FF] rounded-[2rem] cursor-pointer group active:scale-[0.98] relative z-10">
                   <input type="file" className="hidden" accept="image/png, image/jpeg" onChange={handleSlipUpload} />
                   <div className="w-28 h-28 mb-4 group-hover:scale-110 transition-transform">
                      <img src="https://img1.pic.in.th/images/IMG_6164.png" alt="KBank" className="w-full h-full object-contain" />

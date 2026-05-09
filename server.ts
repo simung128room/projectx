@@ -180,8 +180,8 @@ app.set('trust proxy', 1);
   let cachedStats: any = null;
   let siteSettings: any = {
     site_name: process.env.VITE_SITE_NAME || 'APEX STUDIO',
-    truewallet_phone: process.env.TRUEWALLET_PHONE || '0951378403',
-    contact_line: process.env.CONTACT_LINE || '@apex_studio',
+    truewallet_phone: process.env.TRUEWALLET_PHONE || '',
+    contact_line: process.env.CONTACT_LINE || '',
     stats_users_offset: 892,
     stats_sales_offset: 4432,
     popup_img_url: 'https://img2.pic.in.th/Red-Black-White-Anime-Podcast-Discord-Logocc6d3bfe807340af.png',
