@@ -108,7 +108,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
       let msg = err?.message || 'เกิดข้อผิดพลาด';
 
       if (msg.includes('already registered')) msg = 'ชื่อผู้ใช้นี้ถูกใช้งานแล้ว (โปรดใช้ชื่ออื่น)';
-      if (msg.includes('Invalid login credentials')) msg = 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง';
+      if (msg.includes('Invalid login credentials')) msg = 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง (หากเคยใช้ระบบทดสอบเก่า กรุณาสมัครสมาชิกใหม่)';
       if (msg.includes('invalid email format')) msg = 'รูปแบบชื่อผู้ใช้ไม่ถูกต้อง';
       if (msg.includes('Email not confirmed')) msg = 'กรุณาปิดการตั้งค่า "Confirm Email" ในเมนู Authentication -> Providers ของ Supabase Dashboard (เพราะระบบใช้ Username ไม่ใช่อีเมลจริง)';
       if (msg.includes('Load failed') || msg.includes('Failed to fetch')) msg = 'การเชื่อมต่อเครือข่ายล้มเหลว (ตรวจสอบอินเทอร์เน็ต)';

@@ -66,11 +66,16 @@ app.set('trust proxy', 1);
           if (req.user.email === 'abopboa.b@gmail.com') {
             req.isAdmin = true;
           } else {
-            const adminDoc = await admin.firestore().collection('admins').doc(req.user.uid).get();
-            req.isAdmin = !!adminDoc.exists;
+            const userDoc = await admin.firestore().collection('users').doc(req.user.uid).get();
+            if (userDoc.exists) {
+              const userData = typeof userDoc.data === 'function' ? userDoc.data() : null;
+              req.isAdmin = userData && typeof userData.role === 'string' && userData.role.toLowerCase() === 'admin';
+            } else {
+              req.isAdmin = false;
+            }
           }
         } catch (error: any) {
-          console.error('Error verifying Firebase ID token in injectUser:', error.message || error);
+          console.error('Error verifying ID token in injectUser:', error.message || error);
         }
       }
     }

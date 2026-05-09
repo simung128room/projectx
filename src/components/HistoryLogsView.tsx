@@ -209,7 +209,7 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({ usedKeysHistor
 
     if (type === 'topup') {
       title = `เติมเงินเข้าระบบ (${item.type || 'ผ่านระบบ'})`;
-      amountNode = <span className="font-black text-blue-600 text-base md:text-lg">+{item.amount.toLocaleString()} ฿</span>;
+      amountNode = <span className="font-black text-blue-600 text-base md:text-lg">+{(item.amount || 0).toLocaleString()} ฿</span>;
     } else if (type === 'key_use') {
       title = "ใช้งานคีย์ (Redeem)";
       amountNode = <span className="font-black text-emerald-600 text-base md:text-lg">-</span>;

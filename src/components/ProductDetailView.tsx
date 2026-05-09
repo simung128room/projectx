@@ -82,7 +82,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
             <span className="text-4xl md:text-5xl font-black text-[#1E90FF] tracking-tight">฿{(product.price || 0).toLocaleString()}</span>
             {product.originalPrice && product.price && product.originalPrice > product.price && (
               <span className="text-xl md:text-2xl font-bold text-zinc-400 line-through mb-1">
-                ฿{product.originalPrice.toLocaleString()}
+                ฿{(product.originalPrice || 0).toLocaleString()}
               </span>
             )}
           </div>

@@ -458,6 +458,9 @@ function AppContent() {
           const res = await axios.get(`/api/users/${currentUser.uid}`);
           if (res.data) {
             setUserPlan(res.data);
+            if (res.data.role === 'Admin' || res.data.role === 'admin') {
+              setIsAdmin(true);
+            }
           } else {
             // First time user registration on backend
             const initialPlan = {
@@ -466,9 +469,10 @@ function AppContent() {
               premiumExpireDate: null,
               balance: 0,
               email: currentUser.email,
-              role: currentUser.email === 'admin_apex@apex-studio.com' ? 'Admin' : 'Member'
+              role: currentUser.email === 'abopboa.b@gmail.com' || currentUser.email === 'admin_apex@apex-studio.com' || currentUser.email === 'admin@apex-studio.com' ? 'Admin' : 'Member'
             };
             setUserPlan(initialPlan);
+            if (initialPlan.role === 'Admin') setIsAdmin(true);
             await axios.post(`/api/users/${currentUser.uid}`, initialPlan);
           }
         } catch (err: any) {
@@ -479,9 +483,10 @@ function AppContent() {
               premiumExpireDate: null,
               balance: 0,
               email: currentUser.email,
-              role: currentUser.email === 'admin_apex@apex-studio.com' ? 'Admin' : 'Member'
+              role: currentUser.email === 'abopboa.b@gmail.com' || currentUser.email === 'admin_apex@apex-studio.com' || currentUser.email === 'admin@apex-studio.com' ? 'Admin' : 'Member'
             };
             setUserPlan(initialPlan);
+            if (initialPlan.role === 'Admin') setIsAdmin(true);
             try {
               await axios.post(`/api/users/${currentUser.uid}`, initialPlan);
             } catch (postErr) {

@@ -170,7 +170,7 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
                          <span className="px-2 py-1 rounded-full text-[10px] uppercase font-bold bg-emerald-500/10 text-emerald-600 flex items-center gap-1 w-max"><CheckCircle className="w-3 h-3"/> ปกติ</span>
                       )}
                     </td>
-                    <td className="px-4 py-4 font-bold font-mono text-emerald-600 text-right">{u.balance.toLocaleString()}</td>
+                    <td className="px-4 py-4 font-bold font-mono text-emerald-600 text-right">{(u.balance || 0).toLocaleString()}</td>
                     <td className="px-4 py-4 text-right">
                        <button onClick={() => setSelectedUser(u)} className="px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1 ml-auto shadow-sm active:scale-95">
                           <Eye className="w-3 h-3" /> ดูข้อมูล
@@ -253,7 +253,7 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
                       <div className="flex items-end justify-between mb-6">
                         <div>
                            <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-1">ยอดเงินคงเหลือ</p>
-                           <p className="text-3xl font-black font-mono text-emerald-500">฿{selectedUser.balance.toLocaleString()}</p>
+                           <p className="text-3xl font-black font-mono text-emerald-500">฿{(selectedUser.balance || 0).toLocaleString()}</p>
                         </div>
                       </div>
                       <div className="flex gap-2">
