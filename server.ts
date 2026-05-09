@@ -9,6 +9,7 @@ import https from 'node:https';
 import tls from 'node:tls';
 import { HttpsProxyAgent } from 'https-proxy-agent';
 import { spawn, ChildProcess } from 'child_process';
+import WebSocket from 'ws';
 
 import dotenv from 'dotenv';
 
@@ -2238,6 +2239,225 @@ console.log('HIT STATS ENDPOINT');
           tgSessions.delete(telegramPhone);
       }
       res.json({ success: true });
+  });
+
+  // --- Discord Gift Catcher Service ---
+  const discordSessions = new Map<string, {
+      ws: WebSocket,
+      status: 'idle' | 'connected' | 'error',
+      truemoneyPhone: string,
+      logs: string[]
+  }>();
+
+  function pushDiscordLog(token: string, msg: string) {
+      const sess = discordSessions.get(token);
+      if (sess) {
+          sess.logs.push(`[${new Date().toLocaleTimeString()}] ${msg}`);
+          if (sess.logs.length > 50) sess.logs.shift();
+      }
+  }
+
+  app.post('/api/discord/catcher/request', async (req, res) => {
+      const { discordToken, truemoneyPhone, isPremium } = req.body;
+      if (!discordToken || !truemoneyPhone) return res.status(400).json({ error: 'Missing token or phone number' });
+
+      // Daily Limit logic (shared with telegram or separate if prefered, using tgDailyCount for simplicity if not premium)
+      const today = new Date().toISOString().slice(0, 10);
+      if (tgLastResetDate !== today) {
+          tgLastResetDate = today;
+          tgDailyCount = 0;
+      }
+
+      if (!isPremium) {
+          if (tgDailyCount >= 100) {
+              return res.status(400).json({ error: 'โควต้าผู้ใช้งานฟรีเต็มแล้วสำหรับวันนี้ (100 คน) กรุณากลับมาใหม่พรุ่งนี้ หรืออัปเกรด VIP' });
+          }
+          tgDailyCount++;
+      }
+
+      try {
+          let sess = discordSessions.get(discordToken);
+          if (sess && sess.status === 'connected') {
+             return res.json({ status: 'connected' });
+          }
+
+          const ws = new WebSocket('wss://gateway.discord.gg/?encoding=json&v=9&compress=json');
+          
+          sess = { 
+              ws, 
+              status: 'idle', 
+              truemoneyPhone,
+              logs: ['เริ่มเชื่อมต่อเข้าสู่ระบบ Discord (WebSocket)...']
+          };
+          discordSessions.set(discordToken, sess);
+
+          let hbInterval: NodeJS.Timeout | null = null;
+
+          ws.on('open', () => {
+              sess!.status = 'connected';
+              pushDiscordLog(discordToken, 'เชื่อมต่อ Gateway สำเร็จ กำลังรอรับข้อความซอง...');
+              // Identify Payload
+              ws.send(JSON.stringify({
+                  "op": 2,
+                  "d": {
+                      "token": discordToken,
+                      "capabilities": 253,
+                      "properties": {
+                          "os": "Windows",
+                          "browser": "Chrome",
+                          "device": "",
+                          "system_locale": "en-US",
+                          "browser_user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.113 Safari/537.36",
+                          "browser_version": "96.0.4664.113",
+                          "os_version": "10",
+                          "referrer": "",
+                          "referring_domain": "",
+                          "referrer_current": "",
+                          "referring_domain_current": "",
+                          "release_channel": "stable",
+                          "client_build_number": 109190,
+                          "client_event_source": null
+                      },
+                      "compress": false
+                  }
+              }));
+          });
+
+          ws.on('message', async (data: any) => {
+              const payload = JSON.parse(data);
+              if (payload.t === 'MESSAGE_CREATE') {
+                  const message = payload.d.content;
+                  if (message) {
+                      const voucherRegex = /https?:\/\/gift\.truemoney\.com\/campaign\/?(?:voucher_detail\/)?\?v=([A-Za-z0-9]+)/gi;
+                      const matches = message.match(voucherRegex);
+                      
+                      if (matches && matches.length > 0) {
+                          pushDiscordLog(discordToken, `🎯 เจอซอง! เริ่มการรับเครดิตเข้าเบอร์ ${truemoneyPhone}`);
+                          for (const vurl of matches) {
+                              try {
+                                  const result = await twApi(vurl, truemoneyPhone);
+                                  if (result?.status?.code === 'SUCCESS') {
+                                      pushDiscordLog(discordToken, `✅ รับซองสำเร็จ! +${result.data.my_ticket.amount_baht} บาท`);
+                                  } else {
+                                      // @ts-ignore
+                                      pushDiscordLog(discordToken, `❌ ${result?.status?.message || 'ไม่สามารถรับได้'}`);
+                                  }
+                              } catch(e) {
+                                  pushDiscordLog(discordToken, `❌ ข้อผิดพลาดในการรับซอง`);
+                              }
+                          }
+                      }
+                  }
+              }
+
+              if (payload.op === 10) {
+                  const heartbeatInterval = payload.d.heartbeat_interval;
+                  hbInterval = setInterval(() => {
+                      if (ws.readyState === WebSocket.OPEN) {
+                           ws.send(JSON.stringify({ op: 1, d: null }));
+                      }
+                  }, heartbeatInterval);
+              }
+          });
+
+          ws.on('close', () => {
+              if (hbInterval) clearInterval(hbInterval);
+              const curSess = discordSessions.get(discordToken);
+              if (curSess) {
+                 curSess.status = 'error';
+                 pushDiscordLog(discordToken, '❌ ตัดการเชื่อมต่อจาก Discord Gateway แล้ว');
+              }
+          });
+
+          ws.on('error', (err: any) => {
+              const curSess = discordSessions.get(discordToken);
+              if (curSess) {
+                  curSess.status = 'error';
+                  pushDiscordLog(discordToken, `❌ ข้อผิดพลาด WebSocket: ${err.message}`);
+              }
+          });
+
+          // Delay slightly to return initial state
+          setTimeout(() => {
+             res.json({ success: true, status: discordSessions.get(discordToken)?.status || 'idle' });
+          }, 1500);
+          
+      } catch (err: any) {
+          res.status(500).json({ error: String(err) });
+      }
+  });
+
+  app.get('/api/discord/catcher/status', async (req, res) => {
+      const token = req.query.token as string;
+      const sess = discordSessions.get(token);
+      if (!sess) return res.json({ status: 'none', logs: [] });
+      res.json({ status: sess.status, logs: sess.logs });
+  });
+
+  app.post('/api/discord/catcher/stop', async (req, res) => {
+      const { discordToken } = req.body;
+      const sess = discordSessions.get(discordToken);
+      if (sess) {
+          try { sess.ws.close(); } catch (e) {}
+          discordSessions.delete(discordToken);
+      }
+      res.json({ success: true });
+  });
+
+  // Discord HypeSquad Tool API
+  app.post('/api/discord/hypesquad', async (req, res) => {
+    try {
+      const { token, house_id } = req.body;
+      if (!token) return res.status(400).json({ error: 'Token is required' });
+      if (![1, 2, 3].includes(house_id)) return res.status(400).json({ error: 'Invalid house_id' });
+
+      const response = await axios.post('https://discord.com/api/v9/hypesquad/online', 
+        { house_id },
+        { 
+          headers: { 
+            'Authorization': token,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      if (response.status === 204 || response.status === 200) {
+        res.json({ success: true, message: 'รับตราสำเร็จ' });
+      } else {
+        res.status(response.status).json({ error: 'เกิดข้อผิดพลาดในการรับตรา', details: response.data });
+      }
+    } catch (error: any) {
+      console.error("Discord hypesquad error:", error.response?.data || error.message);
+      res.status(error.response?.status || 500).json({ 
+        error: error.response?.data?.message || "ไม่สามารถเชื่อมต่อกับ Discord ได้ ลองตรวจสอบ Token อีกครั้งหรือบัญชีอาจจะติด Flag" 
+      });
+    }
+  });
+
+  app.delete('/api/discord/hypesquad', async (req, res) => {
+    try {
+      const { token } = req.body;
+      if (!token) return res.status(400).json({ error: 'Token is required' });
+
+      // In Axios, DELETE with body might require { data: ... } or pass token in headers
+      const response = await axios.delete('https://discord.com/api/v9/hypesquad/online', {
+        headers: { 
+          'Authorization': token,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.status === 204 || response.status === 200) {
+        res.json({ success: true, message: 'ลบตราสำเร็จ' });
+      } else {
+        res.status(response.status).json({ error: 'เกิดข้อผิดพลาดในการลบตรา', details: response.data });
+      }
+    } catch (error: any) {
+      console.error("Discord hypesquad remove error:", error.response?.data || error.message);
+      res.status(error.response?.status || 500).json({ 
+        error: error.response?.data?.message || "ไม่สามารถเชื่อมต่อกับ Discord ได้ ลองตรวจสอบ Token อีกครั้ง" 
+      });
+    }
   });
 
 if (!process.env.VERCEL) {
