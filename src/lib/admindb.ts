@@ -202,6 +202,7 @@ class SupabaseQuery {
           data: () => mapped
         };
       }),
+      empty: data ? data.length === 0 : true,
       forEach: function(cb: Function) {
         (data || []).forEach((d: any) => {
           const mapped = fromDB(d);

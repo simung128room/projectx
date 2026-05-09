@@ -9,7 +9,6 @@ import https from 'node:https';
 import tls from 'node:tls';
 import { HttpsProxyAgent } from 'https-proxy-agent';
 import { spawn, ChildProcess } from 'child_process';
-import path from 'path';
 
 import dotenv from 'dotenv';
 
@@ -2064,6 +2063,181 @@ console.log('HIT STATS ENDPOINT');
     } catch (e) {
         res.status(500).json({ error: String(e) });
     }
+  });
+
+
+  // --- Telegram Gift Catcher Service ---
+  const { TelegramClient } = await import('telegram');
+  const { StringSession } = await import('telegram/sessions');
+  const { NewMessage } = await import('telegram/events');
+  const { default: twApi } = await import('@opecgame/twapi');
+
+  let tgDailyCount = 0;
+  let tgLastResetDate = new Date().toISOString().slice(0, 10);
+
+  const tgSessions = new Map<string, {
+      client: any,
+      status: 'idle' | 'pending_otp' | 'pending_password' | 'connected' | 'error',
+      truemoneyPhone: string,
+      resolveOtp?: (code: string) => void,
+      resolvePassword?: (pwd: string) => void,
+      logs: string[]
+  }>();
+
+  function pushTgLog(phone: string, msg: string) {
+      const sess = tgSessions.get(phone);
+      if (sess) {
+          sess.logs.push(`[${new Date().toLocaleTimeString()}] ${msg}`);
+          if (sess.logs.length > 50) sess.logs.shift();
+      }
+  }
+
+  function createResolver() {
+      let rs: any;
+      const p = new Promise(resolve => rs = resolve);
+      return { promise: p, resolve: rs };
+  }
+
+  app.post('/api/telegram/catcher/request', async (req, res) => {
+      const { telegramPhone, truemoneyPhone, isPremium } = req.body;
+      if (!telegramPhone || !truemoneyPhone) return res.status(400).json({ error: 'Missing phone numbers' });
+
+      // Daily Limit logic (100 users) -> Note: If premium, bypass.
+      const today = new Date().toISOString().slice(0, 10);
+      if (tgLastResetDate !== today) {
+          tgLastResetDate = today;
+          tgDailyCount = 0;
+      }
+
+      if (!isPremium) {
+          if (tgDailyCount >= 100) {
+              return res.status(400).json({ error: 'โควต้าผู้ใช้งานฟรีเต็มแล้วสำหรับวันนี้ (100 คน) กรุณากลับมาใหม่พรุ่งนี้ หรืออัปเกรด VIP' });
+          }
+          tgDailyCount++;
+      }
+
+      try {
+          let sess = tgSessions.get(telegramPhone);
+          if (sess && sess.status === 'connected') {
+             // Already running?
+             return res.json({ status: 'connected' });
+          }
+
+          const client = new TelegramClient(new StringSession(''), 2040, 'b18441a1ff607e10a989891a5462e627', { connectionRetries: 3 });
+          
+          sess = { 
+              client, 
+              status: 'idle', 
+              truemoneyPhone,
+              logs: ['เริ่มเชื่อมต่อเข้าสู่ระบบ Telegram...']
+          };
+          tgSessions.set(telegramPhone, sess);
+
+          // Asynchronous start
+          client.start({
+              phoneNumber: telegramPhone,
+              phoneCode: async () => {
+                  const sessData = tgSessions.get(telegramPhone)!;
+                  sessData.status = 'pending_otp';
+                  sessData.logs.push('รอรหัส OTP จาก Telegram ของคุณ...');
+                  const { promise, resolve } = createResolver();
+                  sessData.resolveOtp = resolve;
+                  return await promise as string;
+              },
+              password: async () => {
+                   const sessData = tgSessions.get(telegramPhone)!;
+                   sessData.status = 'pending_password';
+                   sessData.logs.push('ต้องการรหัส 2FA Password...');
+                   const { promise, resolve } = createResolver();
+                   sessData.resolvePassword = resolve;
+                   return await promise as string;
+              },
+              onError: (err: any) => {
+                  const sessData = tgSessions.get(telegramPhone);
+                  if (sessData) {
+                      sessData.status = 'error';
+                      sessData.logs.push(`ข้อผิดพลาด: ${err.message}`);
+                  }
+              }
+          }).then(() => {
+              const sessData = tgSessions.get(telegramPhone)!;
+              sessData.status = 'connected';
+              sessData.logs.push('เชื่อมต่อบัญชีสำเร็จ! บอทกำลังดักซองในพื้นหลัง (คุณสามารถปิดหน้านี้ได้)');
+              
+              // Handle New Message
+              client.addEventHandler(async (event: any) => {
+                  const message = event.message;
+                  if (!message) return;
+                  if (message.message) {
+                      const voucherRegex = /https?:\/\/gift\.truemoney\.com\/campaign\/?(?:voucher_detail\/)?\?v=([A-Za-z0-9]+)/gi;
+                      const matches = message.message.match(voucherRegex);
+                      if (matches && matches.length > 0) {
+                          pushTgLog(telegramPhone, `🎯 เจอซอง! เริ่มการรับเครดิตเข้าเบอร์ ${truemoneyPhone}`);
+                          for (const vurl of matches) {
+                              try {
+                                  const result = await twApi(vurl, truemoneyPhone);
+                                  if (result?.status?.code === 'SUCCESS') {
+                                      pushTgLog(telegramPhone, `✅ รับซองสำเร็จ! +${result.data.my_ticket.amount_baht} บาท`);
+                                  } else {
+                                      pushTgLog(telegramPhone, `❌ ${result?.status?.message || 'ไม่สามารถรับได้'}`);
+                                  }
+                              } catch(e) {
+                                  pushTgLog(telegramPhone, `❌ ข้อผิดพลาดในการรับซอง`);
+                              }
+                          }
+                      }
+                  }
+              }, new NewMessage({}));
+              
+          }).catch((e: any) => {
+              const sessData = tgSessions.get(telegramPhone);
+              if (sessData) {
+                  sessData.status = 'error';
+                  sessData.logs.push(`ข้อผิดพลาดการเชื่อมต่อ: ${e.message}`);
+              }
+          });
+
+          // Delay slightly to allow state to become pending_otp
+          setTimeout(() => {
+             res.json({ success: true, status: tgSessions.get(telegramPhone)?.status || 'idle' });
+          }, 1500);
+          
+      } catch (err: any) {
+          res.status(500).json({ error: String(err) });
+      }
+  });
+
+  app.post('/api/telegram/catcher/submit', async (req, res) => {
+      const { telegramPhone, type, value } = req.body;
+      const sess = tgSessions.get(telegramPhone);
+      if (!sess) return res.status(400).json({ error: 'ไม่พบเซสชั่น' });
+
+      if (type === 'otp' && sess.resolveOtp) {
+          sess.resolveOtp(value);
+          sess.status = 'idle';
+      } else if (type === 'password' && sess.resolvePassword) {
+          sess.resolvePassword(value);
+          sess.status = 'idle';
+      }
+      
+      res.json({ success: true });
+  });
+
+  app.get('/api/telegram/catcher/status', async (req, res) => {
+      const phone = req.query.phone as string;
+      const sess = tgSessions.get(phone);
+      if (!sess) return res.json({ status: 'none', logs: [] });
+      res.json({ status: sess.status, logs: sess.logs });
+  });
+
+  app.post('/api/telegram/catcher/stop', async (req, res) => {
+      const { telegramPhone } = req.body;
+      const sess = tgSessions.get(telegramPhone);
+      if (sess) {
+          try { await sess.client.disconnect(); } catch (e) {}
+          tgSessions.delete(telegramPhone);
+      }
+      res.json({ success: true });
   });
 
 if (!process.env.VERCEL) {

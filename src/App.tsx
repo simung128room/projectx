@@ -26,7 +26,7 @@ import { HomeView } from './components/HomeView';
 import { ProductDetailView } from './components/ProductDetailView';
 import { PageView } from './components/PageView';
 import { HistoryLogsView } from './components/HistoryLogsView';
-import { AIChatView } from './components/AIChatView';
+import { TelegramCatcherTool } from './components/TelegramCatcherTool';
 import { WalletView } from './components/WalletView';
 import { RedeemKeyView } from './components/RedeemKeyView';
 import { HistoryView } from './components/HistoryView';
@@ -147,7 +147,7 @@ function AppContent() {
   const [showKeyModal, setShowKeyModal] = useState(false);
 
   // Navigation State
-  type ViewType = 'home' | 'categories' | 'category_products' | 'dashboard' | 'admin' | 'profile' | 'logs' | 'checker_logs' | 'history' | 'settings' | 'ai_chat' | 'contact' | 'login' | 'signup' | 'wallet' | 'redeem' | 'product_detail' | 'custom_page';
+  type ViewType = 'home' | 'categories' | 'category_products' | 'dashboard' | 'telegram_catcher' | 'admin' | 'profile' | 'logs' | 'checker_logs' | 'history' | 'settings' | 'contact' | 'login' | 'signup' | 'wallet' | 'redeem' | 'product_detail' | 'custom_page';
   const [activeView, setRawActiveView] = useState<ViewType>('home');
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>('all');
@@ -174,7 +174,7 @@ function AppContent() {
       if (hash === 'topup') hash = 'wallet';
       if (hash === 'store') hash = 'categories';
       
-      const validViews = ['home', 'categories', 'category_products', 'dashboard', 'admin', 'profile', 'logs', 'checker_logs', 'history', 'settings', 'ai_chat', 'contact', 'login', 'signup', 'wallet', 'redeem', 'product_detail', 'custom_page'];
+      const validViews = ['home', 'categories', 'category_products', 'dashboard', 'telegram_catcher', 'admin', 'profile', 'logs', 'checker_logs', 'history', 'settings', 'contact', 'login', 'signup', 'wallet', 'redeem', 'product_detail', 'custom_page'];
       
       if (hash && validViews.includes(hash)) {
          if (hash !== activeView) {
@@ -968,21 +968,21 @@ function AppContent() {
       return;
     }
 
-    const MAX_DAILY = 1000;
+    const MAX_DAILY = 100;
     const isPremium = userPlan?.isPremium;
     let linesToCheck = lines;
 
     if (!isPremium) {
       const remaining = MAX_DAILY - dailyUsage;
       if (remaining <= 0) {
-        Swal.fire({ title: 'โควต้าเต็ม', text: 'คุณใช้งานครบ 1000 บรรทัดสำหรับวันนี้แล้ว โปรดอัปเกรด VIP เพื่อใช้งานไม่จำกัด', icon: 'error' });
+        Swal.fire({ title: 'โควต้าเต็ม', text: 'คุณใช้งานครบ 100 บรรทัดสำหรับวันนี้แล้ว โปรดอัปเกรด VIP สำหรับการตรวจแบบไม่มีจำกัด', icon: 'error' });
         return;
       }
       if (lines.length > remaining) {
         linesToCheck = lines.slice(0, remaining);
         Swal.fire({ 
-          title: 'จำกัดจำนวน (ผู้ใช้ฟรี)', 
-          text: `คุณตรวจสอบได้อีก ${remaining} บรรทัดในวันนี้ ระบบจะทำการตรวจสอบเพียง ${remaining} บรรทัดแรก`, 
+          title: 'จำกัดจำนวน (ผู้ใช้ปกติ)', 
+          text: `คุณตรวจสอบได้อีก ${remaining} บรรทัดในวันนี้ ระบบจะทำการตรวจสอบเพียง ${remaining} บรรทัดแรกตามโควต้า`, 
           icon: 'warning'
         });
       }
@@ -1259,7 +1259,7 @@ function AppContent() {
               <Phone className="w-5 h-5"/> ติดต่อปัญหา
             </button>
 
-            {(user && customPages && customPages.length > 0) && (
+            {(customPages && customPages.length > 0) && (
               <>
                 <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mt-6 mb-3 pl-3">หน้าอื่นๆ</div>
                 {customPages.map(page => (
@@ -1280,6 +1280,13 @@ function AppContent() {
             {user && (
               <>
                 <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-3 mt-10 pl-3">เครื่องมืออื่นๆ</div>
+                <button onClick={() => setActiveView('telegram_catcher')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'telegram_catcher' ? 'bg-[#1E90FF] text-white shadow-md shadow-[#1E90FF]/20' : 'text-zinc-500 hover:bg-[#0a0d12] hover:text-white'}`}>
+                    <Bot className="w-5 h-5" /> บอทดักซอง Telegram
+                </button>
+                <button onClick={() => setActiveView('dashboard')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'dashboard' ? 'bg-[#1E90FF] text-white shadow-md shadow-[#1E90FF]/20' : 'text-zinc-500 hover:bg-[#0a0d12] hover:text-white'}`}>
+                    <Gamepad2 className="w-5 h-5" /> ตรวจสอบไอดี
+                </button>
+
                 {isAdmin && (
                   <button onClick={() => setActiveView('admin')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'admin' ? 'bg-indigo-50 text-indigo-700' : 'text-indigo-600 hover:bg-indigo-50 hover:text-indigo-700'}`}>
                     <ShieldAlert className="w-5 h-5"/> จัดการหลังบ้าน
@@ -1287,12 +1294,6 @@ function AppContent() {
                 )}
                 <button onClick={() => setActiveView('redeem')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'redeem' ? 'bg-[#1E90FF] text-white shadow-md shadow-[#1E90FF]/20' : 'text-zinc-500 hover:bg-[#0a0d12] hover:text-white'}`}>
                   <Key className="w-5 h-5"/> เปิดใช้งานคีย์
-                </button>
-                <button onClick={() => setActiveView('dashboard')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'dashboard' ? 'bg-[#1E90FF] text-white shadow-md shadow-[#1E90FF]/20' : 'text-zinc-500 hover:bg-[#0a0d12] hover:text-white'}`}>
-                   <Gamepad2 className="w-5 h-5" /> ตรวจสอบไอดี
-                </button>
-                <button onClick={() => setActiveView('ai_chat')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'ai_chat' ? 'bg-[#1E90FF] text-white shadow-md shadow-[#1E90FF]/20' : 'text-zinc-500 hover:bg-[#0a0d12] hover:text-white'}`}>
-                   <Server className="w-5 h-5" /> คุยกับไอเอ๋อ (AI)
                 </button>
                 {isAdmin && (
                   <button onClick={() => { setActiveView('admin'); setAdminTab('bot'); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all text-zinc-500 hover:bg-[#0a0d12] hover:text-white`}>
@@ -1458,29 +1459,37 @@ function AppContent() {
                   )}
                 
                   {user && (
-                    <div className="py-3 border-t border-white/5">
-                      <div className="flex items-center gap-3 mb-2 px-2">
-                        <div className="flex-1 h-px bg-white/5"></div>
-                        <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest text-center shrink-0">เครื่องมือ</p>
-                        <div className="flex-1 h-px bg-white/5"></div>
+                    <>
+                      <div className="py-3 border-t border-white/5">
+                        <div className="flex items-center gap-3 mb-2 px-2">
+                          <div className="flex-1 h-px bg-white/5"></div>
+                          <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest text-center shrink-0">เครื่องมือ</p>
+                          <div className="flex-1 h-px bg-white/5"></div>
+                        </div>
+                        <button onClick={() => { setActiveView('telegram_catcher'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border ${activeView === 'telegram_catcher' ? 'bg-[#1E90FF]/10 text-[#1E90FF] border-[#1E90FF]/30 shadow-md shadow-[#1E90FF]/10' : 'bg-transparent text-zinc-500 border-transparent hover:bg-[#0a0d12] hover:text-white'}`}>
+                           <Bot className="w-[18px] h-[18px]" /> บอทดักซอง Telegram
+                        </button>
+                        <button onClick={() => { setActiveView('dashboard'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border ${activeView === 'dashboard' ? 'bg-[#1E90FF]/10 text-[#1E90FF] border-[#1E90FF]/30 shadow-md shadow-[#1E90FF]/10' : 'bg-transparent text-zinc-500 border-transparent hover:bg-[#0a0d12] hover:text-white'}`}>
+                           <Gamepad2 className="w-[18px] h-[18px]" /> ตรวจสอบไอดี
+                        </button>
                       </div>
-                      <button onClick={() => { setActiveView('redeem'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border ${activeView === 'redeem' ? 'bg-[#1E90FF]/10 text-[#1E90FF] border-[#1E90FF]/30 shadow-md shadow-[#1E90FF]/10' : 'bg-transparent text-zinc-500 border-transparent hover:bg-[#0a0d12] hover:text-white'}`}>
-                        <Key className="w-[18px] h-[18px]"/> เปิดใช้งานคีย์
-                      </button>
-                      <button onClick={() => { setActiveView('dashboard'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border ${activeView === 'dashboard' ? 'bg-[#1E90FF]/10 text-[#1E90FF] border-[#1E90FF]/30 shadow-md shadow-[#1E90FF]/10' : 'bg-transparent text-zinc-500 border-transparent hover:bg-[#0a0d12] hover:text-white'}`}>
-                         <Gamepad2 className="w-[18px] h-[18px]" /> ตรวจสอบไอดี
-                      </button>
-                      {isAdmin && (
-                        <button onClick={() => { setActiveView('admin'); setAdminTab('bot'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border bg-transparent text-zinc-500 border-transparent hover:bg-[#0a0d12] hover:text-white`}>
+                    
+                      <div className="py-3 border-t border-white/5">
+                        <button onClick={() => { setActiveView('redeem'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border ${activeView === 'redeem' ? 'bg-[#1E90FF]/10 text-[#1E90FF] border-[#1E90FF]/30 shadow-md shadow-[#1E90FF]/10' : 'bg-transparent text-zinc-500 border-transparent hover:bg-[#0a0d12] hover:text-white'}`}>
+                          <Key className="w-[18px] h-[18px]"/> เปิดใช้งานคีย์
+                        </button>
+                        {isAdmin && (
+                          <button onClick={() => { setActiveView('admin'); setAdminTab('bot'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border bg-transparent text-zinc-500 border-transparent hover:bg-[#0a0d12] hover:text-white`}>
                            <Bot className="w-[18px] h-[18px]" /> ตั้งค่าบอทดักซอง
-                        </button>
-                      )}
-                      {isAdmin && (
-                        <button onClick={() => { setActiveView('admin'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border ${activeView === 'admin' ? 'bg-purple-500/10 text-purple-500 border-purple-500/30 shadow-md shadow-purple-500/10' : 'bg-transparent text-purple-500/70 border-transparent hover:bg-purple-500/5 hover:text-purple-500'}`}>
-                          <ShieldAlert className="w-[18px] h-[18px]"/> จัดการหลังบ้าน
-                        </button>
-                      )}
-                    </div>
+                          </button>
+                        )}
+                        {isAdmin && (
+                          <button onClick={() => { setActiveView('admin'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border ${activeView === 'admin' ? 'bg-purple-500/10 text-purple-500 border-purple-500/30 shadow-md shadow-purple-500/10' : 'bg-transparent text-purple-500/70 border-transparent hover:bg-purple-500/5 hover:text-purple-500'}`}>
+                            <ShieldAlert className="w-[18px] h-[18px]"/> จัดการหลังบ้าน
+                          </button>
+                        )}
+                      </div>
+                    </>
                   )}
                 </div>
 
@@ -1608,7 +1617,7 @@ function AppContent() {
           />
         )}
 
-        {activeView === 'ai_chat' && <AIChatView />}
+        {activeView === 'telegram_catcher' && <TelegramCatcherTool userPlan={userPlan} />}
         {activeView === 'logs' && <HistoryLogsView usedKeysHistory={usedKeysHistory} purchaseHistory={purchaseHistory} />}
         {activeView as string === 'checker_logs' && <CheckerLogsView logs={logs} onBack={() => setActiveView('home')} />}
         {activeView === 'history' && <HistoryView purchaseHistory={purchaseHistory} topupHistory={topupHistory} usedKeysHistory={usedKeysHistory} />}
