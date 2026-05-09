@@ -291,7 +291,25 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
                            </div>
                         </button>
                         
-                        <button onClick={() => Swal.fire({title: 'เปลี่ยนรหัสผ่าน', input: 'password', inputPlaceholder: 'New Password...', showCancelButton: true, confirmButtonText: 'อัปเดต', confirmButtonColor: '#dc2626'})} className="w-full flex items-center justify-between p-3.5 bg-[#0B0F14] border border-white/10 hover:border-white/20 rounded-xl transition-all group">
+                        <button onClick={async () => {
+                          const { value: password } = await Swal.fire({
+                            title: 'เปลี่ยนรหัสผ่าน', 
+                            input: 'password', 
+                            inputPlaceholder: 'New Password...', 
+                            showCancelButton: true, 
+                            confirmButtonText: 'อัปเดต', 
+                            confirmButtonColor: '#dc2626'
+                          });
+                          if (password) {
+                            try {
+                              Swal.showLoading();
+                              await axios.post(`/api/users/${selectedUser.id || selectedUser.uid}/password`, { password });
+                              Swal.fire({ icon: 'success', title: 'เปลี่ยนรหัสผ่านแล้ว', showConfirmButton: false, timer: 1500 });
+                            } catch (err: any) {
+                              Swal.fire('Error', err.response?.data?.error || 'ไม่สามารถเปลี่ยนรหัสผ่านได้', 'error');
+                            }
+                          }
+                        }} className="w-full flex items-center justify-between p-3.5 bg-[#0B0F14] border border-white/10 hover:border-white/20 rounded-xl transition-all group">
                            <div className="flex items-center gap-3">
                              <div className="p-2 bg-[#0a0d12] rounded-lg group-hover:bg-[#121820] transition-colors"><RefreshCw className="w-4 h-4 text-zinc-400" /></div>
                              <div className="flex flex-col items-start leading-tight">
@@ -309,6 +327,35 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
                              <div className="flex flex-col items-start leading-tight">
                                 <span className={`text-sm font-bold ${selectedUser.status === 'banned' ? 'text-emerald-700' : 'text-[#166bcc]'}`}>{selectedUser.status === 'banned' ? 'ปลดแบนผู้ใช้นี้' : 'ระงับ/แบนผู้ใช้นี้'}</span>
                                 <span className={`text-[10px] font-medium mt-0.5 ${selectedUser.status === 'banned' ? 'text-emerald-600/70' : 'text-[#1E90FF]/70'}`}>{selectedUser.status === 'banned' ? 'ผู้ใช้จะสามารถล็อกอินได้' : 'ป้องกันการเข้าสู่ระบบ'}</span>
+                             </div>
+                           </div>
+                        </button>
+
+                        <button onClick={async () => {
+                          const result = await Swal.fire({
+                            title: 'ยืนยันการลบผู้ใช้?',
+                            text: 'การลบจะไม่สามารถย้อนกลับได้',
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonText: 'ลบข้อมูลถาวร',
+                            confirmButtonColor: '#dc2626'
+                          });
+                          if (result.isConfirmed) {
+                            try {
+                              Swal.showLoading();
+                              await axios.delete(`/api/users/${selectedUser.id || selectedUser.uid}`);
+                              Swal.fire({ icon: 'success', title: 'ลบผู้ใช้แล้ว', showConfirmButton: false, timer: 1500 });
+                              setSelectedUser(null);
+                              onRefresh();
+                            } catch (err: any) {
+                              Swal.fire('Error', err.response?.data?.error || 'ไม่สามารถลบข้อมูลได้', 'error');
+                            }
+                          }
+                        }} className="w-full flex items-center justify-between p-3.5 bg-red-500/5 hover:bg-red-500/10 border border-red-500/10 hover:border-red-500/30 rounded-xl transition-all group mt-6">
+                           <div className="flex items-center gap-3">
+                             <div className="flex flex-col items-start leading-tight px-2 py-1">
+                                <span className="text-sm font-bold text-red-500 group-hover:text-red-400 transition-colors">ลบข้อมูลผู้ใช้นี้ถาวร</span>
+                                <span className="text-[10px] text-red-500/60 font-medium mt-0.5">Delete account & data</span>
                              </div>
                            </div>
                         </button>

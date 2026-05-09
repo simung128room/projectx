@@ -238,6 +238,16 @@ const auth = {
     const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
     if (error || !user) throw error || new Error('User not found');
     return { ...user, uid: user.id };
+  },
+  updateUser: async (uid: string, props: any) => {
+    const { data, error } = await supabaseAdmin.auth.admin.updateUserById(uid, props);
+    if (error) throw error;
+    return data;
+  },
+  deleteUser: async (uid: string) => {
+    const { data, error } = await supabaseAdmin.auth.admin.deleteUser(uid);
+    if (error) throw error;
+    return data;
   }
 };
 

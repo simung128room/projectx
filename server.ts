@@ -1963,6 +1963,7 @@ console.log('HIT STATS ENDPOINT');
         delete data.amount;
         delete data.role;
         delete data.isPremium;
+        delete data.status;
       }
       
       const docRef = admin.firestore().collection('users').doc(uid);
@@ -1970,6 +1971,29 @@ console.log('HIT STATS ENDPOINT');
       res.json({ success: true });
     } catch (err: any) {
       console.error('Error saving user:', err.message || JSON.stringify(err));
+      res.status(500).json({ error: String(err && err.message ? err.message : err) });
+    }
+  });
+
+  app.post('/api/users/:uid/password', requireAdmin, async (req: any, res: any) => {
+    try {
+      const { uid } = req.params;
+      const { password } = req.body;
+      if (!password) return res.status(400).json({ error: 'Missing password' });
+      await admin.auth().updateUser(uid, { password });
+      res.json({ success: true });
+    } catch (err: any) {
+      res.status(500).json({ error: String(err && err.message ? err.message : err) });
+    }
+  });
+
+  app.delete('/api/users/:uid', requireAdmin, async (req: any, res: any) => {
+    try {
+      const { uid } = req.params;
+      await admin.auth().deleteUser(uid).catch(() => {});
+      await admin.firestore().collection('users').doc(uid).delete();
+      res.json({ success: true });
+    } catch (err: any) {
       res.status(500).json({ error: String(err && err.message ? err.message : err) });
     }
   });
