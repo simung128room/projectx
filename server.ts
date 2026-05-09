@@ -1980,7 +1980,7 @@ console.log('HIT STATS ENDPOINT');
       const { uid } = req.params;
       const { password } = req.body;
       if (!password) return res.status(400).json({ error: 'Missing password' });
-      await admin.auth().updateUser(uid, { password });
+      await supabaseAdmin.auth.admin.updateUserById(uid, { password });
       res.json({ success: true });
     } catch (err: any) {
       res.status(500).json({ error: String(err && err.message ? err.message : err) });
@@ -1990,7 +1990,7 @@ console.log('HIT STATS ENDPOINT');
   app.delete('/api/users/:uid', requireAdmin, async (req: any, res: any) => {
     try {
       const { uid } = req.params;
-      await admin.auth().deleteUser(uid).catch(() => {});
+      await supabaseAdmin.auth.admin.deleteUser(uid).catch(() => {});
       await admin.firestore().collection('users').doc(uid).delete();
       res.json({ success: true });
     } catch (err: any) {

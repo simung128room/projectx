@@ -52,17 +52,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
   const executeAuth = async (currentToken: string | null = turnstileToken) => {
     setAuthLoading(true);
     try {
-      const defaultEmail = `${authUsername.toLowerCase().trim()}@apex-studio.com`;
-      let loginEmail = authUsername;
-      if (authMode === 'login' && !authUsername.includes('@')) {
-         loginEmail = defaultEmail;
-      }
+      const generatedEmail = `${authUsername.toLowerCase().replace(/\s+/g, '')}@apex-studio.com`;
 
       if (authMode === 'signup') {
-        const signupEmail = authEmail.trim() || defaultEmail;
-        
         try {
-          const res = await axios.post('/api/signup', { email: signupEmail, password: authPassword });
+          const res = await axios.post('/api/signup', { email: generatedEmail, password: authPassword });
           if (res.data.error) {
              throw new Error(res.data.error);
           }
@@ -83,7 +77,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
       } else {
         let error;
         try {
-           await auth.auth.signInWithPassword({ email: loginEmail, password: authPassword });
+           await auth.auth.signInWithPassword({ email: generatedEmail, password: authPassword });
         } catch(e) {
            error = e;
         }
@@ -176,22 +170,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
                 />
               </div>
             </div>
-
-            {authMode === 'signup' && (
-              <div className="space-y-2">
-                <div className="relative">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
-                  <input 
-                    type="email" 
-                    value={authEmail}
-                    onChange={(e) => setAuthEmail(e.target.value)}
-                    className="w-full bg-zinc-900/50 border border-white/5 rounded-2xl py-3.5 pl-12 pr-4 outline-none focus:border-cyan-500/50 transition-all font-sans text-sm"
-                    placeholder="อีเมล / Email"
-                    required
-                  />
-                </div>
-              </div>
-            )}
 
             <div className="space-y-2">
               <div className="relative">

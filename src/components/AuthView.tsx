@@ -61,17 +61,11 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
   const executeAuth = async (currentToken: string | null = turnstileToken) => {
     setAuthLoading(true);
     try {
-      let loginEmail = authUsername;
-      if (authMode === 'login' && !authUsername.includes('@')) {
-        loginEmail = `${authUsername.toLowerCase().trim()}@apex-studio.com`;
-      }
-      const generatedEmail = `${authUsername.toLowerCase().trim()}@apex-studio.com`;
+      const generatedEmail = `${authUsername.toLowerCase().replace(/\s+/g, '')}@apex-studio.com`;
 
       if (authMode === 'signup') {
-        const signupEmail = authEmail.trim() || generatedEmail;
-        
         try {
-          const res = await axios.post('/api/signup', { email: signupEmail, password: authPassword });
+          const res = await axios.post('/api/signup', { email: generatedEmail, password: authPassword });
           if (res.data.error) {
              throw new Error(res.data.error);
           }
@@ -83,7 +77,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
         setAuthMode('login');
         setActiveView('login');
       } else {
-        const { data, error } = await auth.auth.signInWithPassword({ email: loginEmail, password: authPassword });
+        const { data, error } = await auth.auth.signInWithPassword({ email: generatedEmail, password: authPassword });
 
         if (error) {
            throw new Error(error.message);
@@ -227,24 +221,6 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
                   </div>
                 </div>
               </motion.div>
-
-              {authMode === 'signup' && (
-                <motion.div layout key="email_field" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ duration: 0.2, delay: 0.05 }}>
-                  <label className="block text-sm font-bold text-zinc-200 mb-2 mt-1">อีเมล</label>
-                  <div className="relative group">
-                    <div className="relative flex items-center">
-                      <input 
-                        type="email" 
-                        value={authEmail}
-                        onChange={(e) => setAuthEmail(e.target.value)}
-                        className="w-full bg-[#0a0d12] border-2 border-white/10 rounded-xl py-3.5 px-4 outline-none focus:border-[#1a7fe6] focus:bg-[#0B0F14] transition-all font-sans text-sm text-white placeholder:text-zinc-400 font-medium hover:border-white/20"
-                        placeholder="อีเมล"
-                        required
-                      />
-                    </div>
-                  </div>
-                </motion.div>
-              )}
 
               <motion.div layout key="password_field" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ duration: 0.2, delay: authMode === 'signup' ? 0.1 : 0.05 }}>
                 <label className="block text-sm font-bold text-zinc-200 mb-2 mt-1">รหัสผ่าน</label>
