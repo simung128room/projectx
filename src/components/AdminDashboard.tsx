@@ -148,7 +148,7 @@ const ProductManagerModal = ({
           </button>
           <button 
             onClick={() => {
-              if(!formData.name || !formData.price) return Swal.fire({title: 'แจ้งเตือน', text: 'กรุณากรอกชื่อและราคา', icon: 'warning'});
+              if(!formData.name || formData.price === undefined || formData.price === null) return Swal.fire({title: 'แจ้งเตือน', text: 'กรุณากรอกชื่อและราคา', icon: 'warning'});
               onSave(formData as Product);
             }}
             className="flex-1 px-4 py-3 bg-emerald-500 hover:bg-emerald-400 text-black rounded-xl text-sm font-bold transition-colors"
@@ -1633,8 +1633,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   setProducts([...products, res.data]);
                   setIsAddingProduct(false);
                   Swal.fire({ title: 'เพิ่มสินค้าสำเร็จ', icon: 'success', background: '#09090b', color: '#fff' });
-                } catch (err) {
-                  Swal.fire('Error', 'ไม่สามารถเพิ่มสินค้าได้', 'error');
+                } catch (err: any) {
+                  const errMsg = err?.response?.data?.error || err.message || 'Unknown error';
+                  console.error('Error adding product:', err);
+                  Swal.fire('Error', `ไม่สามารถเพิ่มสินค้าได้: ${errMsg}`, 'error');
                 }
               }
             }}
@@ -1653,8 +1655,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   setProducts(products.map(prod => prod.id === p.id ? res.data : prod));
                   setEditingProduct(undefined);
                   Swal.fire({ title: 'แก้ไขสินค้าสำเร็จ', icon: 'success', background: '#09090b', color: '#fff' });
-                } catch (err) {
-                  Swal.fire('Error', 'ไม่สามารถแก้ไขสินค้าได้', 'error');
+                } catch (err: any) {
+                  const errMsg = err?.response?.data?.error || err.message || 'Unknown error';
+                  console.error('Error updating product:', err);
+                  Swal.fire('Error', `ไม่สามารถแก้ไขสินค้าได้: ${errMsg}`, 'error');
                 }
               }
             }}

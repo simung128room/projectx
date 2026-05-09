@@ -62,16 +62,21 @@ app.set('trust proxy', 1);
       const token = authHeader.split('Bearer ')[1]?.trim();
       if (token && token !== 'null' && token !== 'undefined') {
         try {
-          req.user = await admin.auth().verifyIdToken(token);
-          if (req.user.email === 'abopboa.b@gmail.com') {
-            req.isAdmin = true;
-          } else {
-            const userDoc = await admin.firestore().collection('users').doc(req.user.uid).get();
-            if (userDoc.exists) {
-              const userData = typeof userDoc.data === 'function' ? userDoc.data() : null;
-              req.isAdmin = userData && typeof userData.role === 'string' && userData.role.toLowerCase() === 'admin';
+          const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
+          if (error) throw error;
+          if (user) {
+            req.user = user;
+            req.user.uid = user.id; // Map Supabase user.id to Firebase user.uid
+            if (req.user.email === 'abopboa.b@gmail.com') {
+              req.isAdmin = true;
             } else {
-              req.isAdmin = false;
+              const userDoc = await admin.firestore().collection('users').doc(req.user.uid).get();
+              if (userDoc.exists) {
+                const userData = typeof userDoc.data === 'function' ? userDoc.data() : null;
+                req.isAdmin = userData && typeof userData.role === 'string' && userData.role.toLowerCase() === 'admin';
+              } else {
+                req.isAdmin = false;
+              }
             }
           }
         } catch (error: any) {
