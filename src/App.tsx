@@ -163,38 +163,39 @@ function AppContent() {
     if (activeView === view) return;
     setIsPageTransitioning(true);
     setTimeout(() => {
-      window.location.hash = view;
+      window.history.pushState(null, '', '/' + view);
       setRawActiveView(view);
       setIsPageTransitioning(false);
     }, 600);
   }, [activeView]);
 
-  // Handle URL hash routing
+  // Handle URL pathname routing
   useEffect(() => {
-    const handleHashChange = () => {
-      let hash = window.location.hash.replace('#', '');
+    const handlePopState = () => {
+      let path = window.location.pathname.replace('/', '');
+      if (path === '') path = 'home';
       
       // Routing aliases
-      if (hash === 'register') hash = 'signup';
-      if (hash === 'topup') hash = 'wallet';
-      if (hash === 'store') hash = 'categories';
+      if (path === 'register') path = 'signup';
+      if (path === 'topup') path = 'wallet';
+      if (path === 'store') path = 'categories';
       
       const validViews = ['home', 'categories', 'category_products', 'dashboard', 'super_ai', 'telegram_catcher', 'discord_catcher', 'discord_on', 'discord_badge', 'remove_bg', 'admin', 'profile', 'logs', 'checker_logs', 'history', 'settings', 'contact', 'login', 'signup', 'wallet', 'redeem', 'product_detail', 'custom_page'];
       
-      if (hash && validViews.includes(hash)) {
-         if (hash !== activeView) {
-            setRawActiveView(hash as any);
+      if (path && validViews.includes(path)) {
+         if (path !== activeView) {
+            setRawActiveView(path as any);
          }
-      } else if (!hash && activeView !== 'home') {
+      } else if (path === 'home' && activeView !== 'home') {
         setRawActiveView('home');
       }
     };
 
     // Initial check on mount
-    handleHashChange();
+    handlePopState();
 
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
   }, [activeView]);
 
   const prevViewRef = useRef(activeView);
