@@ -54,35 +54,12 @@ export const RedeemKeyView: React.FC<RedeemKeyViewProps> = ({ redeemKey, userEma
               
               <div className="mb-10 relative z-10">
                 <div className="w-16 h-16 bg-[#1E90FF] rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-[#1E90FF]/20">
-                  <Crown className="w-8 h-8 text-white" />
+                  <KeyIcon className="w-8 h-8 text-white" />
                 </div>
                 <h2 className="text-3xl font-black text-white tracking-tight mb-3">
                   อัพเกรดเป็น <span className="text-[#1E90FF]">Premium</span>
                 </h2>
-                <p className="text-zinc-500 text-sm leading-relaxed max-w-[280px]">
-                  ปลดล็อคประสิทธิภาพสูงสุดของเครื่องมือตรวจสอบ พร้อมสิทธิพิเศษสำหรับผู้ใช้ระดับพรีเมียมโดยเฉพาะ
-                </p>
               </div>
-
-              <ul className="space-y-3 mb-10 relative z-10">
-                {[
-                  "คีย์เป็นคีย์ถาวร",
-                  "ใช้งานได้ครั้งเดียวต่อบัญชี",
-                  "ได้ของเติมของโคตรดี",
-                  "ได้ของฟรีแบบไม่มีคูลดาวน์",
-                  "อัพของเรื่อยๆ",
-                  "เช็คไอดี rov ไม่มี limit",
-                  "เร็วกว่าผู้ใช้ปกติ 2 เท่า",
-                  "ราคาแค่ 69 บาท ชื้อเลย!!"
-                ].map((benefit, i) => (
-                  <li key={i} className="flex items-center gap-3 text-sm font-medium text-zinc-700">
-                    <div className="p-1 rounded bg-[#1E90FF]/10 text-[#1E90FF] shrink-0">
-                      <Check className="w-4 h-4" />
-                    </div>
-                    {benefit}
-                  </li>
-                ))}
-              </ul>
 
               <div className="pt-6 border-t border-white/10 relative z-10">
                 <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest mb-3 flex items-center gap-2">

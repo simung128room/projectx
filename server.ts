@@ -1877,8 +1877,8 @@ console.log('HIT STATS ENDPOINT');
         keyData = foundDoc;
 
       } else {
-        keyDocRef = snapshot.docs[0].ref;
         keyData = snapshot.docs[0].data();
+        keyDocRef = admin.firestore().collection('license_keys').doc(snapshot.docs[0].id);
       }
       
       let rankToGive = 'premium';
@@ -2298,7 +2298,7 @@ console.log('HIT STATS ENDPOINT');
       res.json({ success: true });
   });
 
-  app.post('/api/redeem', async (req, res) => {
+  app.post('/api/truemoney/redeem', async (req, res) => {
     try {
       const { url, phone } = req.body;
       if (!url || !phone) return res.status(400).json({ error: 'Missing parameters' });
