@@ -77,8 +77,10 @@ CREATE TABLE IF NOT EXISTS public.admins (
 CREATE TABLE IF NOT EXISTS public.users (
     id text PRIMARY KEY,
     email text,
+    username text,
     balance numeric DEFAULT 0,
     role text DEFAULT 'user',
     isPremium boolean DEFAULT false,
+    created_at timestamptz DEFAULT now(),
     updatedAt timestamptz DEFAULT now()
 );

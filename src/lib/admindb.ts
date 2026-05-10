@@ -20,15 +20,26 @@ const camelMap: Record<string, string> = {
   productname: 'productName',
   ispremium: 'isPremium',
   updatedat: 'updatedAt',
+  created_at: 'createdAt',
+  createdat: 'createdAt',
   stockdata: 'stockData',
-  image: 'imageUrl'
+  image: 'imageUrl',
+  username: 'username'
 };
 
 const forwardMap: Record<string, string> = {
-  imageUrl: 'image'
+  imageUrl: 'image',
+  createdAt: 'created_at',
+  updatedAt: 'updatedat',
+  isPremium: 'ispremium',
+  productName: 'productname',
+  userId: 'userid',
+  username: 'username'
 };
 
-function toDB(data: any): any {
+const missingColumns = new Set<string>();
+
+function toDB(data: any, collection?: string): any {
   if (!data || typeof data !== 'object') return data;
   const res: any = {};
   
@@ -64,23 +75,21 @@ function toDB(data: any): any {
       }
       delete _data.method;
       delete _data.uid;
-      // also ensure we don't accidentally pass them
   }
 
   for (const k in _data) {
+    let target = k;
+    if (forwardMap[k]) target = forwardMap[k];
+    else target = k.toLowerCase();
+
+    // Skip known missing columns for this collection
+    if (collection && missingColumns.has(`${collection}.${target}`)) continue;
+
     // Ignore frontend-only or missing schema fields
     if (k === 'premiumExpireDate' || k === 'fullName' || k === 'avatarUrl' || k === 'rank' || k === 'originalPrice' || k === 'soldCount' || k === 'isPopular') continue;
-    
-    // Explicitly ignore missing schema fields so postgres doesn't crash
     if (k === 'method' || k === 'uid' || k === 'secretData' || k === 'billNumber' || k === 'is_special' || k === 'productId') continue;
     
-    // Convert known keys
-    if (forwardMap[k]) {
-      res[forwardMap[k]] = _data[k];
-    } else {
-      // Postgres columns without quotes are treated as lowercase.
-      res[k.toLowerCase()] = _data[k];
-    }
+    res[target] = _data[k];
   }
   return res;
 }
@@ -126,33 +135,73 @@ class SupabaseDoc {
     this.id = id;
   }
   async get() {
-    const { data, error } = await supabaseAdmin.from(this.collection).select('*').eq('id', this.id).single();
-    if (error && error.code !== 'PGRST116') throw error;
-    if (!data) return { exists: false, data: () => null };
-    const mapped = fromDB(data);
-    return { exists: true, data: () => mapped };
+    try {
+      const { data, error } = await supabaseAdmin.from(this.collection).select('*').eq('id', this.id).single();
+      if (error && error.code !== 'PGRST116') throw error;
+      if (!data) return { exists: false, data: () => null };
+      const mapped = fromDB(data);
+      return { exists: true, data: () => mapped };
+    } catch (err: any) {
+      if (err.message && err.message.includes("Could not find the") && err.message.includes("column")) {
+        console.warn(`Column error in fetch from ${this.collection}: ${err.message}. This usually means schema is out of sync.`);
+      }
+      throw err;
+    }
   }
   async update(data: any) {
-    const { error } = await supabaseAdmin.from(this.collection).update(toDB(data)).eq('id', this.id);
-    if (error) throw error;
+    try {
+      const { error } = await supabaseAdmin.from(this.collection).update(toDB(data, this.collection)).eq('id', this.id);
+      if (error) throw error;
+    } catch (err: any) {
+      if (err.message && err.message.includes("Could not find the") && err.message.includes("column")) {
+        const match = err.message.match(/column '(.+)'/);
+        const col = match ? match[1] : null;
+        if (col) {
+          console.warn(`Column ${col} missing in ${this.collection}, adding to blacklist and retrying...`);
+          missingColumns.add(`${this.collection}.${col}`);
+          const { error: retryError } = await supabaseAdmin.from(this.collection).update(toDB(data, this.collection)).eq('id', this.id);
+          if (retryError) throw retryError;
+          return;
+        }
+      }
+      throw err;
+    }
   }
   async delete() {
     const { error } = await supabaseAdmin.from(this.collection).delete().eq('id', this.id);
     if (error) throw error;
   }
   async set(data: any, options: any = {}) {
-    if (options.merge) {
-      const { data: existing, error: err } = await supabaseAdmin.from(this.collection).select('id').eq('id', this.id).single();
-      if (existing) {
-        const { error } = await supabaseAdmin.from(this.collection).update(toDB(data)).eq('id', this.id);
-        if (error) throw error;
+    const performSet = async (payload: any) => {
+      if (options.merge) {
+        const { data: existing, error: err } = await supabaseAdmin.from(this.collection).select('id').eq('id', this.id).single();
+        if (existing) {
+          const { error } = await supabaseAdmin.from(this.collection).update(toDB(payload, this.collection)).eq('id', this.id);
+          if (error) throw error;
+        } else {
+          const { error } = await supabaseAdmin.from(this.collection).insert([toDB({ id: this.id, ...payload }, this.collection)]);
+          if (error) throw error;
+        }
       } else {
-        const { error } = await supabaseAdmin.from(this.collection).insert([toDB({ id: this.id, ...data })]);
+        const { error } = await supabaseAdmin.from(this.collection).upsert([toDB({ id: this.id, ...payload }, this.collection)]);
         if (error) throw error;
       }
-    } else {
-      const { error } = await supabaseAdmin.from(this.collection).upsert([toDB({ id: this.id, ...data })]);
-      if (error) throw error;
+    };
+
+    try {
+      await performSet(data);
+    } catch (err: any) {
+      if (err.message && err.message.includes("Could not find the") && err.message.includes("column")) {
+        const match = err.message.match(/column '(.+)'/);
+        const col = match ? match[1] : null;
+        if (col) {
+          console.warn(`Column ${col} missing in ${this.collection}, adding to blacklist and retrying...`);
+          missingColumns.add(`${this.collection}.${col}`);
+          await performSet(data);
+          return;
+        }
+      }
+      throw err;
     }
   }
 }
@@ -168,11 +217,19 @@ class SupabaseQuery {
   }
 
   where(field: string, op: string, value: any) {
-    this._where.push({ field: field.toLowerCase(), op, value });
+    let target = field;
+    if (forwardMap[field]) target = forwardMap[field];
+    else target = field.toLowerCase();
+    
+    this._where.push({ field: target, op, value });
     return this;
   }
   orderBy(field: string, dir: string = 'asc') {
-    this._orderBy.push({ field: field.toLowerCase(), dir });
+    let target = field;
+    if (forwardMap[field]) target = forwardMap[field];
+    else target = field.toLowerCase();
+
+    this._orderBy.push({ field: target, dir });
     return this;
   }
   limit(n: number) {
@@ -180,36 +237,75 @@ class SupabaseQuery {
     return this;
   }
   async get() {
-    let q: any = supabaseAdmin.from(this.collection).select('*');
-    for (const w of this._where) {
-      if (w.op === '==') q = q.eq(w.field, w.value);
-      else if (w.op === '>') q = q.gt(w.field, w.value);
-      else if (w.op === '<') q = q.lt(w.field, w.value);
-    }
-    for (const o of this._orderBy) {
-      q = q.order(o.field, { ascending: o.dir === 'asc' });
-    }
-    if (this._limit) {
-      q = q.limit(this._limit);
-    }
-    const { data, error } = await q;
-    if (error) throw error;
-    return {
-      docs: (data || []).map((d: any) => {
-        const mapped = fromDB(d);
-        return {
-          id: d.id || d.key || d.ip || d.username || 'unknown',
-          data: () => mapped
-        };
-      }),
-      empty: data ? data.length === 0 : true,
-      forEach: function(cb: Function) {
-        (data || []).forEach((d: any) => {
-          const mapped = fromDB(d);
-          cb({ id: d.id || d.key || d.ip || d.username, data: () => mapped });
-        });
+    const executeQuery = async (where: any[], orderBy: any[]) => {
+      let q: any = supabaseAdmin.from(this.collection).select('*');
+      for (const w of where) {
+        if (w.op === '==') q = q.eq(w.field, w.value);
+        else if (w.op === '>') q = q.gt(w.field, w.value);
+        else if (w.op === '<') q = q.lt(w.field, w.value);
       }
+      for (const o of orderBy) {
+        q = q.order(o.field, { ascending: o.dir === 'asc' });
+      }
+      if (this._limit) {
+        q = q.limit(this._limit);
+      }
+      return await q;
     };
+
+    try {
+      const { data, error } = await executeQuery(this._where, this._orderBy);
+      if (error) throw error;
+      return {
+        docs: (data || []).map((d: any) => {
+          const mapped = fromDB(d);
+          return {
+            id: d.id || d.key || d.ip || d.username || 'unknown',
+            data: () => mapped
+          };
+        }),
+        empty: data ? data.length === 0 : true,
+        forEach: function(cb: Function) {
+          (data || []).forEach((d: any) => {
+            const mapped = fromDB(d);
+            cb({ id: d.id || d.key || d.ip || d.username, data: () => mapped });
+          });
+        }
+      };
+    } catch (err: any) {
+      if (err.message && err.message.includes("Could not find the") && err.message.includes("column")) {
+        const match = err.message.match(/column '(.+)'/);
+        const col = match ? match[1] : null;
+        if (col) {
+          console.warn(`Column ${col} missing in ${this.collection} during fetch, adding to blacklist and retrying...`);
+          missingColumns.add(`${this.collection}.${col}`);
+          
+          const newWhere = this._where.filter(w => w.field !== col);
+          const newOrderBy = this._orderBy.filter(o => o.field !== col);
+          
+          const { data: retryData, error: retryError } = await executeQuery(newWhere, newOrderBy);
+          if (retryError) throw retryError;
+          
+          return {
+            docs: (retryData || []).map((d: any) => {
+              const mapped = fromDB(d);
+              return {
+                id: d.id || d.key || d.ip || d.username || 'unknown',
+                data: () => mapped
+              };
+            }),
+            empty: retryData ? retryData.length === 0 : true,
+            forEach: function(cb: Function) {
+              (retryData || []).forEach((d: any) => {
+                const mapped = fromDB(d);
+                cb({ id: d.id || d.key || d.ip || d.username, data: () => mapped });
+              });
+            }
+          };
+        }
+      }
+      throw err;
+    }
   }
 }
 
@@ -218,14 +314,30 @@ class SupabaseCollection extends SupabaseQuery {
     return new SupabaseDoc(this.collection, id);
   }
   async add(data: any) {
-    const payload = toDB({ ...data });
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    if (payload.id && !uuidRegex.test(payload.id)) {
-      delete payload.id;
+    const performAdd = async (payload: any) => {
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      if (payload.id && !uuidRegex.test(payload.id)) {
+        delete payload.id;
+      }
+      const { data: inserted, error } = await supabaseAdmin.from(this.collection).insert([payload]).select().single();
+      if (error) throw error;
+      return { id: inserted?.id || data.id };
+    };
+
+    try {
+      return await performAdd(toDB({ ...data }, this.collection));
+    } catch (err: any) {
+      if (err.message && err.message.includes("Could not find the") && err.message.includes("column")) {
+        const match = err.message.match(/column '(.+)'/);
+        const col = match ? match[1] : null;
+        if (col) {
+          console.warn(`Column ${col} missing in ${this.collection}, adding to blacklist and retrying...`);
+          missingColumns.add(`${this.collection}.${col}`);
+          return await performAdd(toDB({ ...data }, this.collection));
+        }
+      }
+      throw err;
     }
-    const { data: inserted, error } = await supabaseAdmin.from(this.collection).insert([payload]).select().single();
-    if (error) throw error;
-    return { id: inserted?.id || data.id };
   }
 }
 

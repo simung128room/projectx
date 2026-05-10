@@ -29,6 +29,7 @@ import { HistoryLogsView } from './components/HistoryLogsView';
 import { TelegramCatcherTool } from './components/TelegramCatcherTool';
 import { DiscordCatcherTool } from './components/DiscordCatcherTool';
 import { DiscordBadgeTool } from './components/DiscordBadgeTool';
+import { DiscordTokenOnTool } from './components/DiscordTokenOnTool';
 import { WalletView } from './components/WalletView';
 import { RedeemKeyView } from './components/RedeemKeyView';
 import { HistoryView } from './components/HistoryView';
@@ -149,7 +150,7 @@ function AppContent() {
   const [showKeyModal, setShowKeyModal] = useState(false);
 
   // Navigation State
-  type ViewType = 'home' | 'categories' | 'category_products' | 'dashboard' | 'telegram_catcher' | 'discord_catcher' | 'discord_badge' | 'admin' | 'profile' | 'logs' | 'checker_logs' | 'history' | 'settings' | 'contact' | 'login' | 'signup' | 'wallet' | 'redeem' | 'product_detail' | 'custom_page';
+  type ViewType = 'home' | 'categories' | 'category_products' | 'dashboard' | 'telegram_catcher' | 'discord_catcher' | 'discord_on' | 'discord_badge' | 'admin' | 'profile' | 'logs' | 'checker_logs' | 'history' | 'settings' | 'contact' | 'login' | 'signup' | 'wallet' | 'redeem' | 'product_detail' | 'custom_page';
   const [activeView, setRawActiveView] = useState<ViewType>('home');
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>('all');
@@ -176,7 +177,7 @@ function AppContent() {
       if (hash === 'topup') hash = 'wallet';
       if (hash === 'store') hash = 'categories';
       
-      const validViews = ['home', 'categories', 'category_products', 'dashboard', 'telegram_catcher', 'discord_catcher', 'discord_badge', 'admin', 'profile', 'logs', 'checker_logs', 'history', 'settings', 'contact', 'login', 'signup', 'wallet', 'redeem', 'product_detail', 'custom_page'];
+      const validViews = ['home', 'categories', 'category_products', 'dashboard', 'telegram_catcher', 'discord_catcher', 'discord_on', 'discord_badge', 'admin', 'profile', 'logs', 'checker_logs', 'history', 'settings', 'contact', 'login', 'signup', 'wallet', 'redeem', 'product_detail', 'custom_page'];
       
       if (hash && validViews.includes(hash)) {
          if (hash !== activeView) {
@@ -392,7 +393,7 @@ function AppContent() {
       const currentUser: any = session?.user || null;
       if (currentUser) currentUser.uid = currentUser.id;
       setUser(currentUser);
-      if (currentUser && currentUser.email === 'abopboa.b@gmail.com') {
+      if (currentUser && (currentUser.email === 'abopboa.b@gmail.com' || currentUser.email === 'admin_apex@apex-studio.com' || currentUser.email === 'admin@apex-studio.com')) {
         setIsAdmin(true);
       }
     });
@@ -408,7 +409,7 @@ function AppContent() {
       const currentUser: any = session?.user || null;
       if (currentUser) currentUser.uid = currentUser.id;
       setUser(currentUser);
-      if (currentUser && currentUser.email === 'abopboa.b@gmail.com') {
+      if (currentUser && (currentUser.email === 'abopboa.b@gmail.com' || currentUser.email === 'admin_apex@apex-studio.com' || currentUser.email === 'admin@apex-studio.com')) {
         setIsAdmin(true);
       } else {
         setIsAdmin(false);
@@ -866,7 +867,7 @@ function AppContent() {
       try {
         await axios.delete(`/api/license_keys/${keyId}`);
         Swal.fire('ลบแล้ว', 'คีย์ถูกลบออกจากระบบแล้ว', 'success');
-        setFirebaseKeys(prev => prev.filter(k => k.id !== keyId));
+        setLicenseKeys(prev => prev.filter(k => k.id !== keyId));
       } catch (err) {
         handleDbError(err, OperationType.DELETE, 'license_keys/' + keyId);
         Swal.fire('ข้อผิดพลาด', 'ลบไม่สำเร็จ: ' + (err as Error).message, 'error');
@@ -1288,6 +1289,9 @@ function AppContent() {
                 <button onClick={() => setActiveView('discord_catcher')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'discord_catcher' ? 'bg-[#5865F2] text-white shadow-md shadow-[#5865F2]/20' : 'text-zinc-500 hover:bg-[#0a0d12] hover:text-white'}`}>
                     <Bot className="w-5 h-5" /> บอทดักซอง Discord
                 </button>
+                <button onClick={() => setActiveView('discord_on')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'discord_on' ? 'bg-[#5865F2] text-white shadow-md shadow-[#5865F2]/20' : 'text-zinc-500 hover:bg-[#0a0d12] hover:text-white'}`}>
+                    <Globe className="w-5 h-5" /> รันโทเค่นออน
+                </button>
                 <button onClick={() => setActiveView('dashboard')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'dashboard' ? 'bg-[#1E90FF] text-white shadow-md shadow-[#1E90FF]/20' : 'text-zinc-500 hover:bg-[#0a0d12] hover:text-white'}`}>
                     <Gamepad2 className="w-5 h-5" /> ตรวจสอบไอดี
                 </button>
@@ -1483,6 +1487,9 @@ function AppContent() {
                         <button onClick={() => { setActiveView('discord_catcher'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border ${activeView === 'discord_catcher' ? 'bg-[#5865F2]/10 text-[#5865F2] border-[#5865F2]/30 shadow-md shadow-[#5865F2]/10' : 'bg-transparent text-zinc-500 border-transparent hover:bg-[#0a0d12] hover:text-white'}`}>
                            <Bot className="w-[18px] h-[18px]" /> บอทดักซอง Discord
                         </button>
+                        <button onClick={() => { setActiveView('discord_on'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border ${activeView === 'discord_on' ? 'bg-[#5865F2]/10 text-[#5865F2] border-[#5865F2]/30 shadow-md shadow-[#5865F2]/10' : 'bg-transparent text-zinc-500 border-transparent hover:bg-[#0a0d12] hover:text-white'}`}>
+                           <Globe className="w-[18px] h-[18px]" /> รันโทเค่นออน
+                        </button>
                         <button onClick={() => { setActiveView('dashboard'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border ${activeView === 'dashboard' ? 'bg-[#1E90FF]/10 text-[#1E90FF] border-[#1E90FF]/30 shadow-md shadow-[#1E90FF]/10' : 'bg-transparent text-zinc-500 border-transparent hover:bg-[#0a0d12] hover:text-white'}`}>
                            <Gamepad2 className="w-[18px] h-[18px]" /> ตรวจสอบไอดี
                         </button>
@@ -1639,6 +1646,7 @@ function AppContent() {
 
         {activeView === 'telegram_catcher' && <TelegramCatcherTool userPlan={userPlan} />}
         {activeView === 'discord_catcher' && <DiscordCatcherTool userPlan={userPlan} />}
+        {activeView === 'discord_on' && <DiscordTokenOnTool userPlan={userPlan} />}
         {activeView === 'discord_badge' && <DiscordBadgeTool />}
         {activeView === 'logs' && <HistoryLogsView usedKeysHistory={usedKeysHistory} purchaseHistory={purchaseHistory} />}
         {activeView as string === 'checker_logs' && <CheckerLogsView logs={logs} onBack={() => setActiveView('home')} />}

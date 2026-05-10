@@ -1,4 +1,7 @@
 import express from 'express';
+import dotenv from 'dotenv';
+dotenv.config({ override: true });
+
 import path from 'path';
 import cors from 'cors';
 import axios from 'axios';
@@ -10,8 +13,6 @@ import tls from 'node:tls';
 import { HttpsProxyAgent } from 'https-proxy-agent';
 import { spawn, ChildProcess } from 'child_process';
 import WebSocket from 'ws';
-
-import dotenv from 'dotenv';
 
 import rateLimit from 'express-rate-limit';
 import multer from 'multer';
@@ -47,8 +48,6 @@ setInterval(fetchFreeProxies, 15 * 60 * 1000);
 
 import { adminDb as admin, supabaseAdmin } from './src/lib/admindb.js';
 
-dotenv.config({ override: true });
-
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } }); // 5MB limit
@@ -70,7 +69,7 @@ app.set('trust proxy', 1);
           if (user) {
             req.user = user;
             req.user.uid = user.id; // Map Supabase user.id to Firebase user.uid
-            if (req.user.email === 'abopboa.b@gmail.com') {
+            if (req.user.email === 'abopboa.b@gmail.com' || req.user.email === 'admin_apex@apex-studio.com' || req.user.email === 'admin@apex-studio.com') {
               req.isAdmin = true;
             } else {
               const userDoc = await admin.firestore().collection('users').doc(req.user.uid).get();
@@ -242,8 +241,9 @@ app.set('trust proxy', 1);
           status: 'active',
           updatedAt: new Date().toISOString()
         }, { merge: true });
-      } catch (err) {
-        console.error('Failed to create user doc:', err);
+      } catch (err: any) {
+        console.error('Failed to create user doc:', err.message || err);
+        if (err.details) console.error('Error Details:', err.details);
       }
 
       return res.json({ success: true, user: data.user });
@@ -2294,6 +2294,139 @@ console.log('HIT STATS ENDPOINT');
       if (sess) {
           try { await sess.client.disconnect(); } catch (e) {}
           tgSessions.delete(telegramPhone);
+      }
+      res.json({ success: true });
+  });
+
+  // --- Discord Token On Service ---
+  const discordTokenOnSessions = new Map<string, {
+      ws: WebSocket,
+      status: 'idle' | 'connected' | 'error',
+      logs: string[]
+  }>();
+
+  function pushDiscordOnLog(token: string, msg: string) {
+      const sess = discordTokenOnSessions.get(token);
+      if (sess) {
+          sess.logs.push(`[${new Date().toLocaleTimeString()}] ${msg}`);
+          if (sess.logs.length > 50) sess.logs.shift();
+      }
+  }
+
+  app.post('/api/discord/token-on/start', async (req, res) => {
+      const { discordToken, isPremium } = req.body;
+      if (!discordToken) return res.status(400).json({ error: 'Missing token' });
+
+      try {
+          let sess = discordTokenOnSessions.get(discordToken);
+          if (sess && sess.status === 'connected') {
+             return res.json({ status: 'connected' });
+          }
+
+          const ws = new WebSocket('wss://gateway.discord.gg/?encoding=json&v=9&compress=json');
+          
+          sess = { 
+              ws, 
+              status: 'idle', 
+              logs: ['🎯 เริ่มระบบ Token On (24/7)...']
+          };
+          discordTokenOnSessions.set(discordToken, sess);
+
+          let hbInterval: NodeJS.Timeout | null = null;
+
+          ws.on('open', () => {
+              sess!.status = 'connected';
+              pushDiscordOnLog(discordToken, '✅ เชื่อมต่อ Discord Gateway สำเร็จ! ไอดีของคุณออนไลน์แล้ว');
+              // Identify Payload
+              ws.send(JSON.stringify({
+                  "op": 2,
+                  "d": {
+                      "token": discordToken,
+                      "capabilities": 253,
+                      "properties": {
+                          "os": "Windows",
+                          "browser": "Chrome",
+                          "device": "",
+                          "system_locale": "en-US",
+                          "browser_user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.113 Safari/537.36",
+                          "browser_version": "96.0.4664.113",
+                          "os_version": "10",
+                          "referrer": "",
+                          "referring_domain": "",
+                          "referrer_current": "",
+                          "referring_domain_current": "",
+                          "release_channel": "stable",
+                          "client_build_number": 109190,
+                          "client_event_source": null
+                      },
+                      "presence": {
+                          "status": "online",
+                          "since": 0,
+                          "activities": [],
+                          "afk": false
+                      },
+                      "compress": false
+                  }
+              }));
+          });
+
+          ws.on('message', async (data: any) => {
+              const payload = JSON.parse(data);
+              
+              if (payload.op === 10) {
+                  const heartbeatInterval = payload.d.heartbeat_interval;
+                  hbInterval = setInterval(() => {
+                      if (ws.readyState === WebSocket.OPEN) {
+                           ws.send(JSON.stringify({ op: 1, d: null }));
+                      }
+                  }, heartbeatInterval);
+              }
+              
+              if (payload.t === 'READY') {
+                  pushDiscordOnLog(discordToken, `✅ ยืนยันตัวตนสำเร็จ: ${payload.d.user.username}#${payload.d.user.discriminator}`);
+              }
+          });
+
+          ws.on('close', () => {
+              if (hbInterval) clearInterval(hbInterval);
+              const curSess = discordTokenOnSessions.get(discordToken);
+              if (curSess) {
+                 curSess.status = 'error';
+                 pushDiscordOnLog(discordToken, '❌ ตัดการเชื่อมต่อจาก Discord Gateway แล้ว');
+              }
+          });
+
+          ws.on('error', (err: any) => {
+              const curSess = discordTokenOnSessions.get(discordToken);
+              if (curSess) {
+                  curSess.status = 'error';
+                  pushDiscordOnLog(discordToken, `❌ ข้อผิดพลาด WebSocket: ${err.message}`);
+              }
+          });
+
+          // Delay slightly to return initial state
+          setTimeout(() => {
+             res.json({ success: true, status: discordTokenOnSessions.get(discordToken)?.status || 'idle' });
+          }, 1500);
+          
+      } catch (err: any) {
+          res.status(500).json({ error: String(err) });
+      }
+  });
+
+  app.get('/api/discord/token-on/status', async (req, res) => {
+      const token = req.query.token as string;
+      const sess = discordTokenOnSessions.get(token);
+      if (!sess) return res.json({ status: 'none', logs: [] });
+      res.json({ status: sess.status, logs: sess.logs });
+  });
+
+  app.post('/api/discord/token-on/stop', async (req, res) => {
+      const { discordToken } = req.body;
+      const sess = discordTokenOnSessions.get(discordToken);
+      if (sess) {
+          try { sess.ws.close(); } catch (e) {}
+          discordTokenOnSessions.delete(discordToken);
       }
       res.json({ success: true });
   });
