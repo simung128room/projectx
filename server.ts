@@ -58,30 +58,68 @@ const app = express();
 app.set('trust proxy', 1);
   const PORT = 3000;
 
+const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp: number } | Promise<{ user: any, isAdmin: boolean, timestamp: number }>>();
+
   const injectUser = async (req: any, res: any, next: any) => {
     const authHeader = req.headers.authorization;
     if (authHeader && authHeader.startsWith('Bearer ')) {
       const token = authHeader.split('Bearer ')[1]?.trim();
       if (token && token !== 'null' && token !== 'undefined') {
-        try {
+        const now = Date.now();
+        const cached = userTokenCache.get(token);
+        
+        if (cached) {
+          if (cached instanceof Promise) {
+            try {
+              const result = await cached;
+              req.user = result.user;
+              req.isAdmin = result.isAdmin;
+              return next();
+            } catch (e) {
+              // fall through and try again
+            }
+          } else if (now - cached.timestamp < 60000) {
+            req.user = cached.user;
+            req.isAdmin = cached.isAdmin;
+            return next();
+          }
+        }
+
+        const resolveAuth = async () => {
+          let userObj = null;
+          let isAdminObj = false;
           const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
           if (error) throw error;
           if (user) {
-            req.user = user;
-            req.user.uid = user.id; // Map Supabase user.id to Firebase user.uid
-            if (req.user.email === 'abopboa.b@gmail.com' || req.user.email === 'admin_apex@apex-studio.com' || req.user.email === 'admin@apex-studio.com') {
-              req.isAdmin = true;
+            userObj = user;
+            (userObj as any).uid = user.id; // Map Supabase user.id to Firebase user.uid
+            if (user.email === 'abopboa.b@gmail.com' || user.email === 'admin_apex@apex-studio.com' || user.email === 'admin@apex-studio.com') {
+              isAdminObj = true;
             } else {
-              const userDoc = await admin.firestore().collection('users').doc(req.user.uid).get();
+              const userDoc = await admin.firestore().collection('users').doc(user.id).get();
               if (userDoc.exists) {
                 const userData = typeof userDoc.data === 'function' ? userDoc.data() : null;
-                req.isAdmin = userData && typeof userData.role === 'string' && userData.role.toLowerCase() === 'admin';
+                isAdminObj = userData && typeof userData.role === 'string' && userData.role.toLowerCase() === 'admin';
               } else {
-                req.isAdmin = false;
+                isAdminObj = false;
               }
             }
           }
+          return { user: userObj, isAdmin: isAdminObj, timestamp: Date.now() };
+        };
+
+        const authPromise = resolveAuth();
+        userTokenCache.set(token, authPromise);
+
+        try {
+          const result = await authPromise;
+          userTokenCache.set(token, result);
+          if (result.user) {
+            req.user = result.user;
+            req.isAdmin = result.isAdmin;
+          }
         } catch (error: any) {
+          userTokenCache.delete(token);
           console.error('Error verifying ID token in injectUser:', error.message || error);
         }
       }
@@ -1456,16 +1494,17 @@ console.log('HIT STATS ENDPOINT');
       }
       if (!productDoc.exists) return res.status(404).json({ error: 'Product not found' });
 
-      const userData = userDoc.data();
-      const productData = productDoc.data();
+      const userData = userDoc.data() || {};
+      const productData = productDoc.data() || {};
 
-      const totalCost = productData.price * quantity;
+      const price = Number(productData.price) || 0;
+      const totalCost = price * quantity;
 
-      if ((userData.balance || 0) < totalCost) {
+      if ((Number(userData.balance) || 0) < totalCost) {
         return res.status(400).json({ error: 'ยอดเงินไม่เพียงพอ' });
       }
 
-      const availableStock = productData.stockData ? productData.stockData.length : 0;
+      const availableStock = Array.isArray(productData.stockData) ? productData.stockData.length : 0;
       if (availableStock < quantity) {
         return res.status(400).json({ error: 'สินค้าในสต๊อกไม่เพียงพอ' });
       }
@@ -1477,14 +1516,14 @@ console.log('HIT STATS ENDPOINT');
         claimedItems.push(currentStockData.shift() as string);
       }
 
-      const newBalance = (userData.balance || 0) - totalCost;
+      const newBalance = (Number(userData.balance) || 0) - totalCost;
 
       const newHistoryItem = {
         id: Math.random().toString(36).substring(7),
         userId: userId,
-        username: userData.username || req.user.email?.split('@')[0] || 'Unknown',
+        username: userData.username || (req.user && req.user.email ? req.user.email.split('@')[0] : 'Unknown'),
         productId: productId,
-        productName: `${productData.name} (x${quantity})`,
+        productName: `${productData.name || 'Unknown Product'} (x${quantity})`,
         price: totalCost,
         secretData: claimedItems.join('\n'),
         date: new Date().toISOString(),
@@ -1495,8 +1534,24 @@ console.log('HIT STATS ENDPOINT');
       // Perform updates (these are separate calls since we don't have atomic transactions exposed here, but guarded by locks)
       await Promise.all([
         userRef.update({ balance: newBalance }),
-        productRef.update({ stock: currentStockData.length, stockData: currentStockData, soldCount: (productData.soldCount || 0) + quantity }),
-        admin.firestore().collection('purchases').add(newHistoryItem)
+        productRef.update({ 
+          stock: currentStockData.length, 
+          stockData: currentStockData.filter(v => v !== undefined), 
+          soldCount: (Number(productData.soldCount) || 0) + quantity 
+        }),
+        admin.firestore().collection('purchases').add({
+          // Make absolutely sure it does not contain undefined
+          id: newHistoryItem.id || 'N/A',
+          userId: newHistoryItem.userId || 'N/A',
+          username: newHistoryItem.username || 'Unknown',
+          productId: newHistoryItem.productId || 'N/A',
+          productName: newHistoryItem.productName || 'Unknown Product',
+          price: newHistoryItem.price || 0,
+          secretData: newHistoryItem.secretData || '',
+          date: newHistoryItem.date || new Date().toISOString(),
+          billNumber: newHistoryItem.billNumber || 'B-000000',
+          is_special: false
+        })
       ]);
 
       res.json({
