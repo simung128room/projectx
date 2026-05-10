@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { Terminal, Send, ShieldCheck, Zap, Bot, Power, Smartphone, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Terminal, Send, ShieldCheck, Zap, Bot, Power, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 import Swal from 'sweetalert2';
 
 interface Props {
@@ -14,33 +14,21 @@ export const DiscordCatcherTool: React.FC<Props> = ({ userPlan }) => {
   const [logs, setLogs] = useState<string[]>([]);
   const isPremium = userPlan?.isPremium || false;
   const logsEndRef = useRef<HTMLDivElement>(null);
-
-  const fetchStatus = async () => {
-      if (!discordToken) return;
-      try {
-          const res = await axios.get(`/api/discord/catcher/status?token=${encodeURIComponent(discordToken)}`);
-          if (res.data.status !== 'none') {
-             setStatus(res.data.status);
-             setLogs(res.data.logs);
-          } else {
-             if (status !== 'none') {
-                 setStatus('none');
-                 setLogs([]);
-             }
-          }
-      } catch (err) {}
-  };
-
-  useEffect(() => {
-     if (discordToken && status !== 'none') {
-         const interval = setInterval(fetchStatus, 2000);
-         return () => clearInterval(interval);
-     }
-  }, [discordToken, status]);
+  
+  const wsRef = useRef<WebSocket | null>(null);
+  const hbIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
      logsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [logs]);
+
+  const addLog = (msg: string) => {
+    setLogs(prev => {
+        const newLogs = [...prev, `[${new Date().toLocaleTimeString()}] ${msg}`];
+        if (newLogs.length > 50) newLogs.shift();
+        return newLogs;
+    });
+  };
 
   const handleStart = async () => {
        if (!discordToken || !truemoneyPhone) {
@@ -67,24 +55,96 @@ export const DiscordCatcherTool: React.FC<Props> = ({ userPlan }) => {
        
        try {
            setStatus('idle');
-           setLogs(['กำลังส่งคำขอเข้าสู่ระบบ...']);
-           const res = await axios.post('/api/discord/catcher/request', {
-               discordToken: discordToken.trim(),
-               truemoneyPhone: truemoneyPhone.trim(),
-               isPremium
-           });
+           setLogs([]);
+           addLog('กำลังเชื่อมต่อเซิร์ฟเวอร์ Discord (ทำงานบนเบราว์เซอร์)...');
            
-           if (res.data.status) {
-               setStatus(res.data.status);
-               fetchStatus();
-           }
+           if (wsRef.current) wsRef.current.close();
+           const ws = new WebSocket('wss://gateway.discord.gg/?encoding=json&v=9&compress=zlib-stream');
+           // zlib-stream might be binary, we need plain json.
+           const wsPlain = new WebSocket('wss://gateway.discord.gg/?encoding=json&v=9');
+           wsRef.current = wsPlain;
+           
+           addLog('เปิด WebSocket สำเร็จ กำลังรอ Hello payload...');
+
+           wsPlain.onopen = () => {
+                setStatus('connected');
+                addLog('เชื่อมต่อ Discord สำเร็จ! บอทกำลังดักซองในพื้นหลัง โหมด 24/7 (ห้ามปิดหน้านี้)');
+           };
+
+           wsPlain.onmessage = async (event) => {
+               try {
+                   const payload = JSON.parse(event.data);
+                   const { t, event: eventName, op, d } = payload;
+                   
+                   if (op === 10) {
+                       const { heartbeat_interval } = d;
+                       if (hbIntervalRef.current) clearInterval(hbIntervalRef.current);
+                       hbIntervalRef.current = setInterval(() => {
+                           wsPlain.send(JSON.stringify({ op: 1, d: null }));
+                       }, heartbeat_interval);
+
+                       wsPlain.send(JSON.stringify({
+                           op: 2,
+                           d: {
+                               token: discordToken,
+                               intents: 513 << 12, // Message intents
+                               properties: {
+                                   $os: 'windows',
+                                   $browser: 'chrome',
+                                   $device: 'pc'
+                               }
+                           }
+                       }));
+                       addLog('ส่งข้อมูล Authentication สำเร็จ');
+                   }
+
+                   if (t === 'MESSAGE_CREATE') {
+                       const content = d.content;
+                       if (!content) return;
+                       const voucherRegex = /https?:\/\/gift\.truemoney\.com\/campaign\/?(?:voucher_detail\/)?\?v=([A-Za-z0-9]+)/gi;
+                       const matches = content.match(voucherRegex);
+                       if (matches && matches.length > 0) {
+                           addLog(`🎯 เจอซองใน Discord! เริ่มการรับเครดิตเข้าเบอร์ ${truemoneyPhone}`);
+                           for (const vurl of matches) {
+                               try {
+                                   const res = await axios.post('/api/redeem', { url: vurl, phone: truemoneyPhone });
+                                   const result = res.data;
+                                   if (result?.status?.code === 'SUCCESS') {
+                                       addLog(`✅ รับซองสำเร็จ! +${result.data.my_ticket?.amount_baht || result.data.amount_baht || 0} บาท`);
+                                   } else {
+                                       addLog(`❌ ${result?.status?.message || 'ไม่สามารถรับได้'}`);
+                                   }
+                               } catch(e: any) {
+                                   addLog(`❌ ข้อผิดพลาดในการรับซอง: ` + (e.response?.data?.error || e.message));
+                               }
+                           }
+                       }
+                   }
+               } catch(ex) {
+                   // ignore json parse errors
+               }
+           };
+
+           wsPlain.onclose = () => {
+               if (hbIntervalRef.current) clearInterval(hbIntervalRef.current);
+               if (status !== 'none') {
+                   setStatus('error');
+                   addLog('❌ การเชื่อมต่อถูกตัดขาด กรุณาตรวจสอบ Token อีกครั้ง');
+               }
+           };
+
+           wsPlain.onerror = () => {
+               setStatus('error');
+               addLog('❌ เกิดข้อผิดพลาดในการเชื่อมต่อ WebSocket');
+           };
+           
        } catch (err: any) {
            setStatus('error');
-           setLogs([err.response?.data?.error || String(err)]);
+           addLog(String(err));
            Swal.fire({
                icon: 'error',
                title: 'เกิดข้อผิดพลาด',
-               text: err.response?.data?.error || String(err),
+               text: String(err),
                background: '#0B0F14',
                color: '#fff'
            });
@@ -93,14 +153,24 @@ export const DiscordCatcherTool: React.FC<Props> = ({ userPlan }) => {
 
   const handleStop = async () => {
        try {
-           await axios.post('/api/discord/catcher/stop', { discordToken });
+           if (wsRef.current) wsRef.current.close();
+           if (hbIntervalRef.current) clearInterval(hbIntervalRef.current);
            setStatus('none');
            setLogs([]);
+           Swal.fire({ title: 'หยุดสำเร็จ', icon: 'success', toast: true, position: 'top-end', showConfirmButton: false, timer: 1500 });
        } catch(e) {}
   };
 
   return (
     <div className="max-w-5xl mx-auto space-y-6 pb-20 mt-4 md:mt-8 animate-in fade-in duration-500">
+        <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-4 mb-6 flex items-start gap-3 animate-in fade-in slide-in-from-top-4">
+            <ShieldCheck className="w-6 h-6 text-emerald-500 shrink-0 mt-0.5" />
+            <div>
+                <h4 className="text-emerald-500 font-bold text-sm">ปลอดภัย 100% (Client-Side Connection)</h4>
+                <p className="text-emerald-500/80 text-xs mt-1">ระบบดักซองและ Token ของคุณจะทำงานบนเบราว์เซอร์เท่านั้น (Browser-based WebSocket) Token จะไม่ถูกส่งไปเก็บไว้ที่เซิร์ฟเวอร์ของเรา ทำให้บัญชี Discord ของคุณปลอดภัย</p>
+            </div>
+        </div>
+        
         <div className="flex flex-col md:flex-row gap-6 items-start justify-between border-b border-white/5 pb-8">
             <div className="flex-1">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#5865F2]/10 text-[#5865F2] text-xs font-bold mb-4">

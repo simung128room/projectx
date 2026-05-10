@@ -2298,6 +2298,17 @@ console.log('HIT STATS ENDPOINT');
       res.json({ success: true });
   });
 
+  app.post('/api/redeem', async (req, res) => {
+    try {
+      const { url, phone } = req.body;
+      if (!url || !phone) return res.status(400).json({ error: 'Missing parameters' });
+      const result = await twApi(url, phone);
+      res.json(result);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message || String(err) });
+    }
+  });
+
   // --- Discord Token On Service ---
   const discordTokenOnSessions = new Map<string, {
       ws: WebSocket,
