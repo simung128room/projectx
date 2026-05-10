@@ -1507,9 +1507,15 @@ console.log('HIT STATS ENDPOINT');
 
       if (!userDoc.exists) {
          console.log('User not found in db:', userId);
+         releaseLock!();
+         delete purchaseLocks[lockKey];
          return res.status(404).json({ error: 'User not found' });
       }
-      if (!productDoc.exists) return res.status(404).json({ error: 'Product not found' });
+      if (!productDoc.exists) {
+        releaseLock!();
+        delete purchaseLocks[lockKey];
+        return res.status(404).json({ error: 'Product not found' });
+      }
 
       const userData = userDoc.data() || {};
       const productData = productDoc.data() || {};
@@ -1518,11 +1524,15 @@ console.log('HIT STATS ENDPOINT');
       const totalCost = price * quantity;
 
       if ((Number(userData.balance) || 0) < totalCost) {
+        releaseLock!();
+        delete purchaseLocks[lockKey];
         return res.status(400).json({ error: 'ยอดเงินไม่เพียงพอ' });
       }
 
       const availableStock = Array.isArray(productData.stockData) ? productData.stockData.length : 0;
       if (availableStock < quantity) {
+        releaseLock!();
+        delete purchaseLocks[lockKey];
         return res.status(400).json({ error: 'สินค้าในสต๊อกไม่เพียงพอ' });
       }
 
@@ -1568,18 +1578,28 @@ console.log('HIT STATS ENDPOINT');
         is_special: false
       }));
 
-      // Perform updates (these are separate calls since we don't have atomic transactions exposed here, but guarded by locks)
-      await Promise.all([
-        userRef.update(userUpdatePayload),
-        productRef.update(productUpdatePayload),
-        admin.firestore().collection('purchases').add(historyPayload)
-      ]);
-
+      // Fire off response IMMEDIATELY so user gets 0.1s response times
       res.json({
         success: true,
         purchase: newHistoryItem,
         updatedUser: { ...userData, balance: newBalance },
         updatedProduct: { id: productId, ...productData, stock: currentStockData.length, soldCount: (productData.soldCount || 0) + quantity },
+      });
+
+      // Perform updates in background and then release lock
+      Promise.all([
+        userRef.update(userUpdatePayload),
+        productRef.update(productUpdatePayload),
+        admin.firestore().collection('purchases').add(historyPayload)
+      ]).then(() => {
+        releaseLock!();
+        delete purchaseLocks[lockKey];
+      }).catch((bgErr) => {
+        const fs = require('fs');
+        try { fs.writeFileSync('purchase_bg_error.log', JSON.stringify({ message: bgErr.message, stack: bgErr.stack })); } catch(e){}
+        console.error('------- BACKGROUND BUY ERROR -------', bgErr);
+        releaseLock!();
+        delete purchaseLocks[lockKey];
       });
 
     } catch (err: any) {
@@ -1589,10 +1609,14 @@ console.log('HIT STATS ENDPOINT');
       console.error(err);
       if (err.details) console.error('Details:', err.details);
       console.error('------- END BUY ERROR -------');
-      res.status(500).json({ error: 'Internal server error during purchase', details: String(err && err.message ? err.message : err), code: err.code });
-    } finally {
+      
       releaseLock!();
       delete purchaseLocks[lockKey];
+      
+      // If we haven't sent headers yet, send an error
+      if (!res.headersSent) {
+        res.status(500).json({ error: 'Internal server error during purchase', details: String(err && err.message ? err.message : err), code: err.code });
+      }
     }
   });
 
@@ -1632,8 +1656,7 @@ console.log('HIT STATS ENDPOINT');
   // --- Categories Endpoints ---
   app.get('/api/categories', async (req, res) => {
     try {
-      const snapshot = await admin.firestore().collection('categories').get();
-      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const data = await getCachedCollection('categories', 60000);
       res.json(data);
     } catch (err: any) {
       console.error('Internal server error fetching categories:', err.message || err);
@@ -1647,6 +1670,7 @@ console.log('HIT STATS ENDPOINT');
       const data = req.body;
       const { id, ...dataToSave } = data;
       const docRef = await admin.firestore().collection('categories').add(dataToSave);
+      invalidateCache('categories');
       res.json({ id: docRef.id, dbId: docRef.id, ...dataToSave });
     } catch (err) {
       console.error('Internal server error creating category:', err);
@@ -1661,6 +1685,7 @@ console.log('HIT STATS ENDPOINT');
       const { id, ...dataToSave } = data;
       const docRef = admin.firestore().collection('categories').doc(req.params.id);
       await docRef.update(dataToSave);
+      invalidateCache('categories');
       res.json({ id: req.params.id, ...dataToSave });
     } catch (err) {
       console.error('Internal server error updating category:', err);
@@ -1672,6 +1697,7 @@ console.log('HIT STATS ENDPOINT');
     if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
     try {
       await admin.firestore().collection('categories').doc(req.params.id).delete();
+      invalidateCache('categories');
       res.json({ success: true });
     } catch (err) {
       console.error('Internal server error deleting category:', err);
@@ -1682,8 +1708,7 @@ console.log('HIT STATS ENDPOINT');
   // --- Custom Pages Endpoints ---
   app.get('/api/pages', async (req, res) => {
     try {
-      const snapshot = await admin.firestore().collection('custom_pages').get();
-      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const data = await getCachedCollection('custom_pages', 60000);
       res.json(data);
     } catch (err: any) {
       console.error('Internal server error fetching pages:', err.message || err);
@@ -1697,6 +1722,7 @@ console.log('HIT STATS ENDPOINT');
       const pageData = req.body;
       const { id, ...dataToSave } = pageData;
       const docRef = await admin.firestore().collection('custom_pages').add({ ...dataToSave, created_at: new Date().toISOString() });
+      invalidateCache('custom_pages');
       res.json({ id: docRef.id, dbId: docRef.id, ...dataToSave });
     } catch (err) {
       console.error('Internal server error creating page:', err);
@@ -1711,6 +1737,7 @@ console.log('HIT STATS ENDPOINT');
       const { id, ...dataToSave } = pageData;
       const docRef = admin.firestore().collection('custom_pages').doc(req.params.id);
       await docRef.update(dataToSave);
+      invalidateCache('custom_pages');
       res.json({ id: req.params.id, ...dataToSave });
     } catch (err) {
       console.error('Internal server error updating page:', err);
@@ -1722,6 +1749,7 @@ console.log('HIT STATS ENDPOINT');
     if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
     try {
       await admin.firestore().collection('custom_pages').doc(req.params.id).delete();
+      invalidateCache('custom_pages');
       res.json({ success: true });
     } catch (err) {
       console.error('Internal server error deleting page:', err);
