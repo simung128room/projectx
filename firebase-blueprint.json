@@ -2,130 +2,204 @@
   "entities": {
     "User": {
       "title": "User",
-      "description": "User profile with balances",
+      "description": "User profile with balance and status",
       "type": "object",
       "properties": {
-        "uid": { "type": "string" },
+        "id": { "type": "string" },
         "email": { "type": "string" },
-        "amount": { "type": "number", "description": "Wallet balance" },
-        "isPremium": { "type": "boolean" },
-        "role": { "type": "string", "enum": ["user", "admin"] },
-        "created_at": { "type": "string" }
-      }
-    },
-    "Product": {
-      "title": "Product",
-      "description": "Store items",
-      "type": "object",
-      "properties": {
-        "name": { "type": "string" },
-        "description": { "type": "string" },
-        "price": { "type": "number" },
-        "stock": { "type": "number" },
-        "category_id": { "type": "string" }
-      }
-    },
-    "Category": {
-      "title": "Category",
-      "description": "Product categories",
-      "type": "object",
-      "properties": {
-        "name": { "type": "string" }
-      }
-    },
-    "Purchase": {
-      "title": "Purchase",
-      "description": "Order history",
-      "type": "object",
-      "properties": {
-        "userId": { "type": "string" },
-        "productId": { "type": "string" },
-        "quantity": { "type": "number" },
-        "totalPrice": { "type": "number" },
-        "date": { "type": "string" }
-      }
-    },
-    "Topup": {
-      "title": "Topup",
-      "description": "Topup history",
-      "type": "object",
-      "properties": {
-        "userId": { "type": "string" },
-        "amount": { "type": "number" },
-        "date": { "type": "string" }
-      }
-    },
-    "CustomPage": {
-      "title": "CustomPage",
-      "description": "Admin configurable pages",
-      "type": "object",
-      "properties": {
-        "title": { "type": "string" },
-        "content": { "type": "string" }
-      }
-    },
-    "LicenseKey": {
-      "title": "LicenseKey",
-      "description": "Stock for products",
-      "type": "object",
-      "properties": {
-        "product_id": { "type": "string" },
-        "key": { "type": "string" },
-        "is_used": { "type": "boolean" }
-      }
-    },
-    "BlockedIP": {
-      "title": "BlockedIP",
-      "type": "object",
-      "properties": {
-        "ip": { "type": "string" },
-        "reason": { "type": "string" }
+        "username": { "type": "string" },
+        "balance": { "type": "number" },
+        "role": { "type": "string" },
+        "is_premium": { "type": "boolean" },
+        "status": { "type": "string" },
+        "created_at": { "type": "string" },
+        "updated_at": { "type": "string" }
       }
     },
     "Admin": {
       "title": "Admin",
+      "description": "Admin privileges and roles",
       "type": "object",
       "properties": {
-        "username": { "type": "string" }
+        "id": { "type": "string" },
+        "username": { "type": "string" },
+        "role": { "type": "string" },
+        "granted_at": { "type": "string" }
+      }
+    },
+    "Product": {
+      "title": "Product",
+      "description": "Store items including virtual goods",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "format": "uuid" },
+        "name": { "type": "string" },
+        "slug": { "type": "string" },
+        "price": { "type": "number" },
+        "stock": { "type": "integer" },
+        "stock_data": { "type": "array", "items": { "type": "string" } },
+        "description": { "type": "string" },
+        "image": { "type": "string" },
+        "category": { "type": "string" },
+        "active": { "type": "boolean" },
+        "created_at": { "type": "string" }
+      }
+    },
+    "Category": {
+      "title": "Category",
+      "description": "Organizes products",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "format": "uuid" },
+        "name": { "type": "string" },
+        "sort": { "type": "integer" }
+      }
+    },
+    "Cart": {
+        "title": "Cart",
+        "type": "object",
+        "properties": {
+            "id": { "type": "string", "format": "uuid" },
+            "user_id": { "type": "string" },
+            "created_at": { "type": "string" }
+        }
+    },
+    "Order": {
+        "title": "Order",
+        "type": "object",
+        "properties": {
+            "id": { "type": "string", "format": "uuid" },
+            "user_id": { "type": "string" },
+            "total": { "type": "number" },
+            "status": { "type": "string" },
+            "payment_status": { "type": "string" },
+            "created_at": { "type": "string" }
+        }
+    },
+    "Payment": {
+        "title": "Payment",
+        "type": "object",
+        "properties": {
+            "id": { "type": "string", "format": "uuid" },
+            "order_id": { "type": "string", "format": "uuid" },
+            "user_id": { "type": "string" },
+            "amount": { "type": "number" },
+            "method": { "type": "string" },
+            "status": { "type": "string" },
+            "transaction_id": { "type": "string" },
+            "created_at": { "type": "string" }
+        }
+    },
+    "Topup": {
+      "title": "Topup",
+      "description": "Manual or automated balance deposit",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "format": "uuid" },
+        "user_id": { "type": "string" },
+        "username": { "type": "string" },
+        "amount": { "type": "number" },
+        "status": { "type": "string" },
+        "created_at": { "type": "string" }
+      }
+    },
+    "Purchase": {
+      "title": "Purchase",
+      "description": "Completed item delivery log",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "format": "uuid" },
+        "user_id": { "type": "string" },
+        "username": { "type": "string" },
+        "product_name": { "type": "string" },
+        "price": { "type": "number" },
+        "created_at": { "type": "string" }
+      }
+    },
+    "LicenseKey": {
+      "title": "LicenseKey",
+      "description": "Keys delivered on purchase",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "format": "uuid" },
+        "key": { "type": "string" },
+        "plan": { "type": "string" },
+        "status": { "type": "string" },
+        "product_id": { "type": "string", "format": "uuid" },
+        "created_at": { "type": "string" }
+      }
+    },
+    "CustomPage": {
+      "title": "CustomPage",
+      "description": "Rich text dynamic pages",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "format": "uuid" },
+        "title": { "type": "string" },
+        "content": { "type": "string" },
+        "slug": { "type": "string" },
+        "created_at": { "type": "string" }
+      }
+    },
+    "BlockedIP": {
+      "title": "BlockedIP",
+      "description": "Anti-fraud IP blocking",
+      "type": "object",
+      "properties": {
+        "ip": { "type": "string" },
+        "reason": { "type": "string" },
+        "blocked_at": { "type": "string" }
       }
     }
   },
   "firestore": {
     "/users/{userId}": {
       "schema": { "$ref": "#/entities/User" },
-      "description": "User profiles"
-    },
-    "/products/{productId}": {
-      "schema": { "$ref": "#/entities/Product" },
-      "description": "All products"
-    },
-    "/categories/{categoryId}": {
-      "schema": { "$ref": "#/entities/Category" },
-      "description": "Categories for products"
-    },
-    "/purchases/{purchaseId}": {
-      "schema": { "$ref": "#/entities/Purchase" },
-      "description": "Purchases made by users"
-    },
-    "/topups/{topupId}": {
-      "schema": { "$ref": "#/entities/Topup" },
-      "description": "User balance topups"
-    },
-    "/custom_pages/{pageId}": {
-      "schema": { "$ref": "#/entities/CustomPage" },
-      "description": "Dynamic pages"
-    },
-    "/license_keys/{keyId}": {
-      "schema": { "$ref": "#/entities/LicenseKey" },
-      "description": "Product license keys (virtual stock)"
-    },
-    "/blocked_ips/{ip}": {
-      "schema": { "$ref": "#/entities/BlockedIP" },
-      "description": "Blocked IPs"
+      "description": "Public and private user profiles"
     },
     "/admins/{adminId}": {
       "schema": { "$ref": "#/entities/Admin" },
-      "description": "Admin users list"
+      "description": "Administrative authority list"
+    },
+    "/products/{productId}": {
+      "schema": { "$ref": "#/entities/Product" },
+      "description": "E-commerce product catalog"
+    },
+    "/categories/{categoryId}": {
+      "schema": { "$ref": "#/entities/Category" },
+      "description": "Grouped product categories"
+    },
+    "/carts/{cartId}": {
+        "schema": { "$ref": "#/entities/Cart" },
+        "description": "Shopping carts"
+    },
+    "/orders/{orderId}": {
+        "schema": { "$ref": "#/entities/Order" },
+        "description": "Sales orders"
+    },
+    "/payments/{paymentId}": {
+        "schema": { "$ref": "#/entities/Payment" },
+        "description": "Financial transaction logs"
+    },
+    "/topups/{topupId}": {
+      "schema": { "$ref": "#/entities/Topup" },
+      "description": "Credit deposit records"
+    },
+    "/purchases/{purchaseId}": {
+      "schema": { "$ref": "#/entities/Purchase" },
+      "description": "Delivery confirmation records"
+    },
+    "/license_keys/{keyId}": {
+      "schema": { "$ref": "#/entities/LicenseKey" },
+      "description": "Deliverable virtual keys"
+    },
+    "/custom_pages/{pageId}": {
+      "schema": { "$ref": "#/entities/CustomPage" },
+      "description": "CMS dynamic pages"
+    },
+    "/blocked_ips/{ip}": {
+      "schema": { "$ref": "#/entities/BlockedIP" },
+      "description": "Fraud prevention list"
     }
   }
 }

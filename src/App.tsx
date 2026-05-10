@@ -39,6 +39,7 @@ import { PopupBanner } from './components/PopupBanner';
 import { Product, SiteStats, Category } from './types';
 import { getAvatarUrl } from './lib/avatar';
 import { ContactView } from './components/ContactView';
+import { SuperAITool } from './components/SuperAITool';
 
 
 var TextPaint = `▒▄▀▄▒█▀▄▒██▀░▀▄▀
@@ -150,7 +151,7 @@ function AppContent() {
   const [showKeyModal, setShowKeyModal] = useState(false);
 
   // Navigation State
-  type ViewType = 'home' | 'categories' | 'category_products' | 'dashboard' | 'telegram_catcher' | 'discord_catcher' | 'discord_on' | 'discord_badge' | 'admin' | 'profile' | 'logs' | 'checker_logs' | 'history' | 'settings' | 'contact' | 'login' | 'signup' | 'wallet' | 'redeem' | 'product_detail' | 'custom_page';
+  type ViewType = 'home' | 'categories' | 'category_products' | 'dashboard' | 'super_ai' | 'telegram_catcher' | 'discord_catcher' | 'discord_on' | 'discord_badge' | 'admin' | 'profile' | 'logs' | 'checker_logs' | 'history' | 'settings' | 'contact' | 'login' | 'signup' | 'wallet' | 'redeem' | 'product_detail' | 'custom_page';
   const [activeView, setRawActiveView] = useState<ViewType>('home');
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>('all');
@@ -177,7 +178,7 @@ function AppContent() {
       if (hash === 'topup') hash = 'wallet';
       if (hash === 'store') hash = 'categories';
       
-      const validViews = ['home', 'categories', 'category_products', 'dashboard', 'telegram_catcher', 'discord_catcher', 'discord_on', 'discord_badge', 'admin', 'profile', 'logs', 'checker_logs', 'history', 'settings', 'contact', 'login', 'signup', 'wallet', 'redeem', 'product_detail', 'custom_page'];
+      const validViews = ['home', 'categories', 'category_products', 'dashboard', 'super_ai', 'telegram_catcher', 'discord_catcher', 'discord_on', 'discord_badge', 'admin', 'profile', 'logs', 'checker_logs', 'history', 'settings', 'contact', 'login', 'signup', 'wallet', 'redeem', 'product_detail', 'custom_page'];
       
       if (hash && validViews.includes(hash)) {
          if (hash !== activeView) {
@@ -1283,6 +1284,9 @@ function AppContent() {
             {user && (
               <>
                 <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-3 mt-10 pl-3">เครื่องมืออื่นๆ</div>
+                <button onClick={() => setActiveView('super_ai')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'super_ai' ? 'bg-fuchsia-600 text-white shadow-md shadow-fuchsia-500/20' : 'text-zinc-500 hover:bg-[#0a0d12] hover:text-white'}`}>
+                    <Bot className="w-5 h-5 text-fuchsia-500" /> SUPER AI
+                </button>
                 <button onClick={() => setActiveView('telegram_catcher')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'telegram_catcher' ? 'bg-[#1E90FF] text-white shadow-md shadow-[#1E90FF]/20' : 'text-zinc-500 hover:bg-[#0a0d12] hover:text-white'}`}>
                     <Bot className="w-5 h-5" /> บอทดักซอง Telegram
                 </button>
@@ -1481,6 +1485,9 @@ function AppContent() {
                           <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest text-center shrink-0">เครื่องมือ</p>
                           <div className="flex-1 h-px bg-white/5"></div>
                         </div>
+                        <button onClick={() => { setActiveView('super_ai'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border ${activeView === 'super_ai' ? 'bg-fuchsia-600/10 text-fuchsia-500 border-fuchsia-500/30 shadow-md shadow-fuchsia-500/10' : 'bg-transparent text-zinc-500 border-transparent hover:bg-[#0a0d12] hover:text-white'}`}>
+                           <Bot className="w-[18px] h-[18px]" /> SUPER AI
+                        </button>
                         <button onClick={() => { setActiveView('telegram_catcher'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border ${activeView === 'telegram_catcher' ? 'bg-[#1E90FF]/10 text-[#1E90FF] border-[#1E90FF]/30 shadow-md shadow-[#1E90FF]/10' : 'bg-transparent text-zinc-500 border-transparent hover:bg-[#0a0d12] hover:text-white'}`}>
                            <Bot className="w-[18px] h-[18px]" /> บอทดักซอง Telegram
                         </button>
@@ -1648,6 +1655,7 @@ function AppContent() {
         {activeView === 'discord_catcher' && <DiscordCatcherTool userPlan={userPlan} />}
         {activeView === 'discord_on' && <DiscordTokenOnTool userPlan={userPlan} />}
         {activeView === 'discord_badge' && <DiscordBadgeTool />}
+        {activeView === 'super_ai' && <SuperAITool />}
         {activeView === 'logs' && <HistoryLogsView usedKeysHistory={usedKeysHistory} purchaseHistory={purchaseHistory} />}
         {activeView as string === 'checker_logs' && <CheckerLogsView logs={logs} onBack={() => setActiveView('home')} />}
         {activeView === 'history' && <HistoryView purchaseHistory={purchaseHistory} topupHistory={topupHistory} usedKeysHistory={usedKeysHistory} />}
