@@ -28,7 +28,8 @@ export const SuperAITool: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const apiKey = process.env.GEMINI_API_KEY || (import.meta as any).env?.VITE_GEMINI_API_KEY;
+      let apiKey = (import.meta as any).env?.VITE_GEMINI_API_KEY;
+      try { if (!apiKey && typeof process !== 'undefined') apiKey = process.env.GEMINI_API_KEY; } catch(e) {}
       if (!apiKey) {
          throw new Error("ไม่มี GEMINI API KEY ในระบบ กรุณาใช้ API Key ของท่าน");
       }
