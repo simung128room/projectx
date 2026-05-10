@@ -1,20 +1,91 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Package, Plus, Trash2, Edit, Save, X, Image as ImageIcon } from 'lucide-react';
+import { Package, Plus, Trash2, Edit, Save, X, Image as ImageIcon, ShoppingCart, Check, Loader2 } from 'lucide-react';
 import Swal from 'sweetalert2';
-import { Category } from '../types';
+import { Category, Product } from '../types';
 
 interface AdminCategoriesManagementProps {
   categories: Category[];
   setCategories: (categories: Category[]) => void;
+  products?: Product[];
+  setProducts?: (products: Product[]) => void;
 }
 
-export const AdminCategoriesManagement: React.FC<AdminCategoriesManagementProps> = ({ categories, setCategories }) => {
+export const AdminCategoriesManagement: React.FC<AdminCategoriesManagementProps> = ({ categories, setCategories, products = [], setProducts }) => {
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [isAdding, setIsAdding] = useState(false);
   const [formData, setFormData] = useState<Partial<Category>>({
     name: '', title: '', subtitle: '', bannerUrl: ''
   });
+
+  const [managingProductsForCategory, setManagingProductsForCategory] = useState<Category | null>(null);
+  const [selectedProductIds, setSelectedProductIds] = useState<Set<string>>(new Set());
+  const [isUpdatingProducts, setIsUpdatingProducts] = useState(false);
+
+  useEffect(() => {
+    if (managingProductsForCategory) {
+      const initialIds = products.filter(p => p.category === managingProductsForCategory.id || p.category === managingProductsForCategory.name || p.category === managingProductsForCategory.title).map(p => p.id);
+      setSelectedProductIds(new Set(initialIds));
+    }
+  }, [managingProductsForCategory, products]);
+
+  const toggleProductSelection = (productId: string) => {
+    setSelectedProductIds(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(productId)) {
+        newSet.delete(productId);
+      } else {
+        newSet.add(productId);
+      }
+      return newSet;
+    });
+  };
+
+  const saveCategoryProducts = async () => {
+    if (!managingProductsForCategory || !setProducts) return;
+    
+    setIsUpdatingProducts(true);
+    try {
+      const oldProductIdList = products.filter(p => p.category === managingProductsForCategory.id || p.category === managingProductsForCategory.name || p.category === managingProductsForCategory.title).map(p => p.id);
+      const oldProductIds = new Set(oldProductIdList);
+      
+      const idsToAddCategory = Array.from(selectedProductIds).filter(id => !oldProductIds.has(id));
+      const idsToRemoveCategory = oldProductIdList.filter(id => !selectedProductIds.has(id));
+      
+      const updatedProducts = [...products];
+
+      // Execute updates concurrently in small batches to preserve performance
+      const updatePromises = [];
+
+      for (const id of idsToAddCategory) {
+          updatePromises.push(
+            axios.put(`/api/products/${id}`, { category: managingProductsForCategory.id }).then(() => {
+              const pIndex = updatedProducts.findIndex(p => p.id === id);
+              if(pIndex > -1) updatedProducts[pIndex] = { ...updatedProducts[pIndex], category: managingProductsForCategory.id };
+            })
+          );
+      }
+      for (const id of idsToRemoveCategory) {
+          updatePromises.push(
+            axios.put(`/api/products/${id}`, { category: '' }).then(() => {
+              const pIndex = updatedProducts.findIndex(p => p.id === id);
+              if(pIndex > -1) updatedProducts[pIndex] = { ...updatedProducts[pIndex], category: '' };
+            })
+          );
+      }
+      
+      await Promise.all(updatePromises);
+      
+      setProducts(updatedProducts);
+      Swal.fire('สำเร็จ', 'อัปเดตสินค้าในหมวดหมู่เรียบร้อย', 'success');
+      setManagingProductsForCategory(null);
+    } catch (err) {
+      console.error(err);
+      Swal.fire('ข้อผิดพลาด', 'ไม่สามารถอัปเดตข้อมูลสินค้าได้', 'error');
+    } finally {
+      setIsUpdatingProducts(false);
+    }
+  };
 
   const saveCategory = async () => {
     if (!formData.name || !formData.title) {
@@ -231,6 +302,10 @@ export const AdminCategoriesManagement: React.FC<AdminCategoriesManagementProps>
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center justify-end gap-2 opacity-100 md:opacity-50 md:group-hover:opacity-100 transition-opacity">
+                      <button onClick={() => setManagingProductsForCategory(c)} className="p-2 border border-purple-500/30 bg-purple-500/10 text-purple-400 hover:bg-purple-500 hover:text-white rounded-xl transition-colors shadow-sm flex items-center gap-2 px-3" title="เพิ่ม/จัดการสินค้าในหมวดหมู่นี้">
+                        <ShoppingCart className="w-4 h-4" />
+                        <span className="text-xs font-bold hidden sm:inline">จัดการสินค้า</span>
+                      </button>
                       <button onClick={() => { setEditingCategory(c); setFormData(c); setIsAdding(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="p-2 border border-blue-200 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white rounded-xl transition-colors shadow-sm" title="แก้ไข">
                         <Edit className="w-4 h-4" />
                       </button>
@@ -256,6 +331,85 @@ export const AdminCategoriesManagement: React.FC<AdminCategoriesManagementProps>
           </table>
         </div>
       </div>
+
+      {managingProductsForCategory && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-zinc-950 border border-zinc-800 rounded-3xl p-6 sm:p-8 max-w-2xl w-full shadow-2xl relative max-h-[90vh] flex flex-col">
+            <button 
+              onClick={() => setManagingProductsForCategory(null)}
+              className="absolute top-4 right-4 p-2 text-zinc-500 hover:text-white bg-zinc-900 border border-zinc-800 rounded-full hover:bg-zinc-800 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <h2 className="text-xl font-bold text-white mb-2 flex items-center gap-2 shrink-0">
+              <ShoppingCart className="w-5 h-5 text-purple-400" />
+              จัดการสินค้าในหมวดหมู่
+            </h2>
+            <p className="text-sm font-medium text-zinc-500 mb-6 shrink-0">
+              เลือกสินค้าที่คุณต้องการให้แสดงในหมวดหมู่ <span className="text-purple-400 font-bold">{managingProductsForCategory.title}</span>
+            </p>
+
+            <div className="flex-1 overflow-y-auto mb-6 pr-2 space-y-2">
+              {products.length === 0 ? (
+                <div className="text-center py-12 text-zinc-500">
+                  <Package className="w-12 h-12 mb-3 opacity-20 mx-auto" />
+                  <p className="font-bold">ยังไม่มีสินค้าในระบบ</p>
+                  <p className="text-sm mt-1">กรุณาเพิ่มสินค้าก่อนจัดการหมวดหมู่</p>
+                </div>
+              ) : (
+                products.map((p) => {
+                  const isChecked = selectedProductIds.has(p.id);
+                  return (
+                    <div 
+                      key={p.id} 
+                      onClick={() => toggleProductSelection(p.id)}
+                      className={`flex items-center gap-4 p-3 rounded-2xl border cursor-pointer transition-colors ${
+                        isChecked ? 'bg-purple-500/10 border-purple-500/30' : 'bg-zinc-900/50 border-white/5 hover:bg-zinc-900 hover:border-white/10'
+                      }`}
+                    >
+                      <div className={`w-6 h-6 rounded-md flex items-center justify-center shrink-0 border ${
+                        isChecked ? 'bg-purple-600 border-purple-500 text-white' : 'bg-zinc-950 border-zinc-800'
+                      }`}>
+                        {isChecked && <Check className="w-4 h-4" />}
+                      </div>
+                      <div className="w-12 h-12 bg-zinc-800 rounded-xl overflow-hidden shrink-0">
+                         {p.imageUrl ? (
+                            <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover" />
+                         ) : (
+                            <div className="w-full h-full flex items-center justify-center text-zinc-600">
+                              <ImageIcon className="w-5 h-5" />
+                            </div>
+                         )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-bold text-white text-sm truncate">{p.name}</p>
+                        <p className="text-xs text-zinc-500 truncate">฿{p.price}</p>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+
+            <div className="flex gap-3 justify-end pt-4 border-t border-zinc-800 shrink-0">
+              <button 
+                onClick={() => setManagingProductsForCategory(null)} 
+                className="px-6 py-3 rounded-xl font-bold bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white transition-colors"
+              >
+                ยกเลิก
+              </button>
+              <button 
+                onClick={saveCategoryProducts} 
+                disabled={isUpdatingProducts}
+                className="px-6 py-3 rounded-xl font-bold bg-purple-600 text-white hover:bg-purple-500 flex items-center gap-2 transition-colors disabled:opacity-50"
+              >
+                {isUpdatingProducts ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
+                บันทึกสินค้า
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

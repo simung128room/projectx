@@ -19,10 +19,10 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
   onBack, 
   onProductClick 
 }) => {
-  const categoryInfo = categories.find(c => c.name === category || c.title === category);
+  const categoryInfo = categories.find(c => c.name === category || c.title === category || c.id === category);
   const filteredProducts = category === 'all' 
     ? products 
-    : products.filter(p => p.category === category || p.category === categoryInfo?.title);
+    : products.filter(p => p.category === category || p.category === categoryInfo?.title || p.category === categoryInfo?.name || p.category === categoryInfo?.id);
 
   return (
     <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 pt-24 font-sans text-white">

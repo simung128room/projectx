@@ -1264,7 +1264,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
             >
-              <AdminCategoriesManagement categories={categories} setCategories={setCategories} />
+              <AdminCategoriesManagement 
+                categories={categories} 
+                setCategories={setCategories} 
+                products={products}
+                setProducts={setProducts}
+              />
             </motion.div>
           )}
 
