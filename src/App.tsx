@@ -4,7 +4,7 @@ import {
   Gamepad2, ListChecks, Play, Square, Check, X, Shield, Terminal, CheckCircle2, 
   Home, ShoppingCart, CreditCard, Phone, Upload, Key, Crown, LogOut, User, Gift, Lock,
   FileImage, Database, Globe, BarChart3, Settings, Activity, FileText, 
-  AlertTriangle, Download, ChevronRight, Trash2, ShieldAlert, Plus, Ban, History, Search, Copy, Menu, Server, Package, Wallet, MessageSquare, Bot
+  AlertTriangle, Download, ChevronRight, Trash2, ShieldAlert, Plus, Ban, History, Search, Copy, Menu, Server, Package, Wallet, MessageSquare, Bot, Image as ImageIcon
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import Swal from 'sweetalert2';
@@ -40,6 +40,7 @@ import { Product, SiteStats, Category } from './types';
 import { getAvatarUrl } from './lib/avatar';
 import { ContactView } from './components/ContactView';
 import { SuperAITool } from './components/SuperAITool';
+import { RemoveBgTool } from './components/RemoveBgTool';
 
 
 var TextPaint = `▒▄▀▄▒█▀▄▒██▀░▀▄▀
@@ -151,7 +152,7 @@ function AppContent() {
   const [showKeyModal, setShowKeyModal] = useState(false);
 
   // Navigation State
-  type ViewType = 'home' | 'categories' | 'category_products' | 'dashboard' | 'super_ai' | 'telegram_catcher' | 'discord_catcher' | 'discord_on' | 'discord_badge' | 'admin' | 'profile' | 'logs' | 'checker_logs' | 'history' | 'settings' | 'contact' | 'login' | 'signup' | 'wallet' | 'redeem' | 'product_detail' | 'custom_page';
+  type ViewType = 'home' | 'categories' | 'category_products' | 'dashboard' | 'super_ai' | 'telegram_catcher' | 'discord_catcher' | 'discord_on' | 'discord_badge' | 'remove_bg' | 'admin' | 'profile' | 'logs' | 'checker_logs' | 'history' | 'settings' | 'contact' | 'login' | 'signup' | 'wallet' | 'redeem' | 'product_detail' | 'custom_page';
   const [activeView, setRawActiveView] = useState<ViewType>('home');
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>('all');
@@ -178,7 +179,7 @@ function AppContent() {
       if (hash === 'topup') hash = 'wallet';
       if (hash === 'store') hash = 'categories';
       
-      const validViews = ['home', 'categories', 'category_products', 'dashboard', 'super_ai', 'telegram_catcher', 'discord_catcher', 'discord_on', 'discord_badge', 'admin', 'profile', 'logs', 'checker_logs', 'history', 'settings', 'contact', 'login', 'signup', 'wallet', 'redeem', 'product_detail', 'custom_page'];
+      const validViews = ['home', 'categories', 'category_products', 'dashboard', 'super_ai', 'telegram_catcher', 'discord_catcher', 'discord_on', 'discord_badge', 'remove_bg', 'admin', 'profile', 'logs', 'checker_logs', 'history', 'settings', 'contact', 'login', 'signup', 'wallet', 'redeem', 'product_detail', 'custom_page'];
       
       if (hash && validViews.includes(hash)) {
          if (hash !== activeView) {
@@ -1287,6 +1288,9 @@ function AppContent() {
                 <button onClick={() => setActiveView('super_ai')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'super_ai' ? 'bg-fuchsia-600 text-white shadow-md shadow-fuchsia-500/20' : 'text-zinc-500 hover:bg-[#0a0d12] hover:text-white'}`}>
                     <Bot className="w-5 h-5 text-fuchsia-500" /> SUPER AI
                 </button>
+                <button onClick={() => setActiveView('remove_bg')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'remove_bg' ? 'bg-fuchsia-600 text-white shadow-md shadow-fuchsia-500/20' : 'text-zinc-500 hover:bg-[#0a0d12] hover:text-white'}`}>
+                    <ImageIcon className="w-5 h-5 text-fuchsia-500" /> ลบพื้นหลังรูปภาพ
+                </button>
                 <button onClick={() => setActiveView('telegram_catcher')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'telegram_catcher' ? 'bg-[#1E90FF] text-white shadow-md shadow-[#1E90FF]/20' : 'text-zinc-500 hover:bg-[#0a0d12] hover:text-white'}`}>
                     <Bot className="w-5 h-5" /> บอทดักซอง Telegram
                 </button>
@@ -1488,6 +1492,9 @@ function AppContent() {
                         <button onClick={() => { setActiveView('super_ai'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border ${activeView === 'super_ai' ? 'bg-fuchsia-600/10 text-fuchsia-500 border-fuchsia-500/30 shadow-md shadow-fuchsia-500/10' : 'bg-transparent text-zinc-500 border-transparent hover:bg-[#0a0d12] hover:text-white'}`}>
                            <Bot className="w-[18px] h-[18px]" /> SUPER AI
                         </button>
+                        <button onClick={() => { setActiveView('remove_bg'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border ${activeView === 'remove_bg' ? 'bg-fuchsia-600/10 text-fuchsia-500 border-fuchsia-500/30 shadow-md shadow-fuchsia-500/10' : 'bg-transparent text-zinc-500 border-transparent hover:bg-[#0a0d12] hover:text-white'}`}>
+                           <ImageIcon className="w-[18px] h-[18px]" /> ลบพื้นหลังรูปภาพ
+                        </button>
                         <button onClick={() => { setActiveView('telegram_catcher'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border ${activeView === 'telegram_catcher' ? 'bg-[#1E90FF]/10 text-[#1E90FF] border-[#1E90FF]/30 shadow-md shadow-[#1E90FF]/10' : 'bg-transparent text-zinc-500 border-transparent hover:bg-[#0a0d12] hover:text-white'}`}>
                            <Bot className="w-[18px] h-[18px]" /> บอทดักซอง Telegram
                         </button>
@@ -1656,6 +1663,7 @@ function AppContent() {
         {activeView === 'discord_on' && <DiscordTokenOnTool userPlan={userPlan} />}
         {activeView === 'discord_badge' && <DiscordBadgeTool />}
         {activeView === 'super_ai' && <SuperAITool />}
+        {activeView === 'remove_bg' && <RemoveBgTool />}
         {activeView === 'logs' && <HistoryLogsView usedKeysHistory={usedKeysHistory} purchaseHistory={purchaseHistory} />}
         {activeView as string === 'checker_logs' && <CheckerLogsView logs={logs} onBack={() => setActiveView('home')} />}
         {activeView === 'history' && <HistoryView purchaseHistory={purchaseHistory} topupHistory={topupHistory} usedKeysHistory={usedKeysHistory} />}
