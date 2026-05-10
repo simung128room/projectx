@@ -40,12 +40,14 @@ const ProductManagerModal = ({
   product, 
   onSave, 
   onClose,
-  isEdit
+  isEdit,
+  categories = []
 }: { 
   product?: Product, 
   onSave: (p: Product) => void, 
   onClose: () => void,
-  isEdit: boolean 
+  isEdit: boolean,
+  categories?: any[]
 }) => {
   const [formData, setFormData] = useState<Partial<Product>>(product || {
     name: '',
@@ -54,7 +56,7 @@ const ProductManagerModal = ({
     originalPrice: 0,
     imageUrl: '',
     stock: 0,
-    category: ''
+    category: categories.length > 0 ? categories[0].id : ''
   });
 
   return (
@@ -118,13 +120,16 @@ const ProductManagerModal = ({
             </div>
             <div>
               <label className="block text-xs font-bold text-zinc-500 mb-1">หมวดหมู่</label>
-              <input 
-                type="text" 
+              <select 
                 value={formData.category} 
                 onChange={e => setFormData({...formData, category: e.target.value})}
                 className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500 text-sm"
-                placeholder="Account"
-              />
+              >
+                <option value="">เลือกหมวดหมู่</option>
+                {categories.map((cat: any) => (
+                  <option key={cat.id} value={cat.id}>{cat.name}</option>
+                ))}
+              </select>
             </div>
           </div>
           <div>
@@ -1638,6 +1643,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         {isAddingProduct && (
           <ProductManagerModal 
             isEdit={false}
+            categories={categories}
             onClose={() => setIsAddingProduct(false)}
             onSave={async (p) => {
               if (setProducts) {
@@ -1660,6 +1666,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           <ProductManagerModal 
             product={editingProduct}
             isEdit={true}
+            categories={categories}
             onClose={() => setEditingProduct(undefined)}
             onSave={async (p) => {
               if (setProducts) {
