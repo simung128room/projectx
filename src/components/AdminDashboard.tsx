@@ -11,7 +11,7 @@ import { supabase } from '../lib/supabase';
 interface AdminDashboardProps {
   totalChecked: number;
   validAccounts: AccountResult[];
-  firebaseKeys: any[];
+  licenseKeys: any[];
   usedKeysHistory: any[];
   blockedIPs: any[];
   adminTab: string;
@@ -454,7 +454,7 @@ import { AdminBotManagement } from './AdminBotManagement';
 import { Menu } from 'lucide-react';
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({
-  totalChecked, validAccounts, firebaseKeys = [], usedKeysHistory = [], blockedIPs = [],
+  totalChecked, validAccounts, licenseKeys = [], usedKeysHistory = [], blockedIPs = [],
   adminTab, setAdminTab, isDBReady, dbErrorDetail, adminUsername, setIsAdmin,
   addLicenseKey, blockIP, deleteKey, unblockIP,
   products = [], setProducts, siteStats = { users: 0, stock: 0, sales: 0, topups: 0 }, setSiteStats,
@@ -546,9 +546,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const salesWeek = purchaseHistory.filter(x => new Date(x.timestamp) >= startOfWeek).reduce((acc, curr) => acc + (curr.price || 0), 0);
   const salesMonth = purchaseHistory.filter(x => new Date(x.timestamp) >= startOfMonth).reduce((acc, curr) => acc + (curr.price || 0), 0);
 
-  const totalKeys = firebaseKeys.length;
-  const usedKeys = firebaseKeys.filter(k => k.status === 'used').length + usedKeysHistory.length;
-  const remainingKeys = firebaseKeys.filter(k => k.status === 'active').length;
+  const totalKeys = licenseKeys.length;
+  const usedKeys = licenseKeys.filter(k => k.status === 'used').length + usedKeysHistory.length;
+  const remainingKeys = licenseKeys.filter(k => k.status === 'active').length;
   const usersWhoBought = new Set(purchaseHistory.map(x => x.userId || 'guest')).size;
 
   const SidebarItem = ({ id, label, icon: Icon }: any) => (
@@ -1072,8 +1072,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 </div>
                 <div className="flex items-center gap-2">
                   <button onClick={() => {
-                    const activeKeys = firebaseKeys.filter(k => k.status === 'active').map(k => k.key).join('\n');
-                    const usedKeysStr = firebaseKeys.filter(k => k.status === 'used').map(k => k.key).join('\n');
+                    const activeKeys = licenseKeys.filter(k => k.status === 'active').map(k => k.key).join('\n');
+                    const usedKeysStr = licenseKeys.filter(k => k.status === 'used').map(k => k.key).join('\n');
                     const historyKeysStr = usedKeysHistory.map(k => k.key).join('\n');
                     const text = `=== ACTIVE (ยังไม่ได้ใช้) ===\n${activeKeys || 'ไม่มี'}\n\n=== USED (ใช้แล้ว) ===\n${usedKeysStr || historyKeysStr ? `${usedKeysStr}${usedKeysStr && historyKeysStr ? '\n' : ''}${historyKeysStr}` : 'ไม่มี'}`;
                     const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
@@ -1103,7 +1103,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     </tr>
                   </thead>
                   <tbody className="text-xs">
-                    {firebaseKeys.length > 0 ? firebaseKeys.map((key, i) => (
+                    {licenseKeys.length > 0 ? licenseKeys.map((key, i) => (
                       <tr key={i} className="border-b border-white/5 hover:bg-[#0a0d12]/50 transition-colors">
                         <td className="p-4">
                           <div className="flex items-center gap-3">

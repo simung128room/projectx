@@ -140,7 +140,7 @@ function AppContent() {
   const [selectedPage, setSelectedPage] = useState<any>(null);
 
   const [threads, setThreads] = useState(5);
-  const [firebaseKeys, setFirebaseKeys] = useState<any[]>([]);
+  const [licenseKeys, setLicenseKeys] = useState<any[]>([]);
   const [usedKeysHistory, setUsedKeysHistory] = useState<any[]>([]);
   const [blockedIPs, setBlockedIPs] = useState<any[]>([]);
   const [adminTab, setAdminTab] = useState<string>('overview');
@@ -520,7 +520,7 @@ function AppContent() {
       const topupsData = topupsRes?.data;
       const usersData = usersRes?.data;
 
-      if (keysData) setFirebaseKeys(keysData);
+      if (keysData) setLicenseKeys(keysData);
       if (historyData) setUsedKeysHistory(historyData);
       if (ipsData) setBlockedIPs(ipsData);
       if (settingsData) setSiteSettings(settingsData);
@@ -1652,7 +1652,7 @@ function AppContent() {
           <AdminDashboard
             totalChecked={totalChecked}
             validAccounts={validAccounts}
-            firebaseKeys={firebaseKeys}
+            licenseKeys={licenseKeys}
             usedKeysHistory={usedKeysHistory}
             blockedIPs={blockedIPs}
             adminTab={adminTab}

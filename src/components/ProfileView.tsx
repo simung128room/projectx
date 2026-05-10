@@ -2,7 +2,7 @@ import React from 'react';
 import { User, Wallet, Shield, Mail, Calendar, CreditCard, ChevronRight, LogOut, Package, History, Key, Copy } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { UserPlan } from '../types';
-import { User as SupabaseUser } from 'firebase/auth';
+import { User as SupabaseUser } from '@supabase/supabase-js';
 import { getAvatarUrl } from '../lib/avatar';
 
 interface ProfileViewProps {
