@@ -16,152 +16,85 @@ export const TelegramCatcherTool: React.FC<Props> = ({ userPlan }) => {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const logEndRef = useRef<HTMLDivElement>(null);
-  
-  const clientRef = useRef<any>(null);
-  const resolveOtpRef = useRef<any>(null);
-  const resolvePasswordRef = useRef<any>(null);
 
   useEffect(() => {
     if (logEndRef.current) logEndRef.current.scrollIntoView({ behavior: 'smooth' });
   }, [logs]);
 
-  const addLog = (msg: string) => {
-    setLogs(prev => {
-        const newLogs = [...prev, `[${new Date().toLocaleTimeString()}] ${msg}`];
-        if (newLogs.length > 50) newLogs.shift();
-        return newLogs;
-    });
-  };
+  useEffect(() => {
+    if (!telegramPhone || status === 'none' || status === 'error') return;
+    const interval = setInterval(async () => {
+       try {
+           const res = await axios.get(`/api/telegram/catcher/status?phone=${encodeURIComponent(telegramPhone)}`);
+           if (res.data.status !== 'none' && res.data.status !== status) {
+               setStatus(res.data.status);
+           }
+           if (res.data.logs) {
+               setLogs(res.data.logs);
+           }
+       } catch (e) {}
+    }, 2000);
+    return () => clearInterval(interval);
+  }, [telegramPhone, status]);
 
   const handleStart = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!telegramPhone || !truemoneyPhone) return Swal.fire('แจ้งเตือน', 'กรุณากรอกเบอร์โทรให้ครบถ้วน', 'warning');
     
-    // @ts-ignore
-    if (!window.telegram || !window.telegram.TelegramClient) {
-        return Swal.fire('แจ้งเตือน', 'ระบบกำลังโหลด Telegram Library โปรดรอสักครู่และลองอีกครั้ง', 'warning');
-    }
-
     setIsLoading(true);
     setStatus('idle');
     setLogs([]);
-    addLog('เริ่มเชื่อมต่อเข้าสู่ระบบ Telegram (ทำงานบนเบราว์เซอร์ของคุณปลอดภัย 100%)...');
 
     try {
-        // @ts-ignore
-        const { TelegramClient, sessions: { StringSession } } = window.telegram;
-        const stringSession = new StringSession('');
-        const client = new TelegramClient(stringSession, 2040, 'b18441a1ff607e10a989891a5462e627', {
-            connectionRetries: 3,
-            useWSS: true
+        const res = await axios.post('/api/telegram/catcher/request', {
+            telegramPhone,
+            truemoneyPhone,
+            isPremium: userPlan?.isPremium || false
         });
-        
-        clientRef.current = client;
-
-        client.start({
-            phoneNumber: telegramPhone,
-            phoneCode: async () => {
-                setStatus('pending_otp');
-                addLog('รอรหัส OTP จาก Telegram ของคุณ...');
-                return new Promise((resolve) => {
-                    resolveOtpRef.current = resolve;
-                    setIsLoading(false);
-                });
-            },
-            password: async () => {
-                setStatus('pending_password');
-                addLog('ต้องการรหัส 2FA Password...');
-                return new Promise((resolve) => {
-                    resolvePasswordRef.current = resolve;
-                    setIsLoading(false);
-                });
-            },
-            onError: (err: any) => {
-                addLog(`ข้อผิดพลาด: ${err.message}`);
-                if (!clientRef.current?.session?.serverAddress) {
-                    setStatus('error');
-                    setIsLoading(false);
-                }
-            }
-        }).then(async () => {
-            setStatus('connected');
-            setIsLoading(false);
-            addLog('เชื่อมต่อบัญชีสำเร็จ! โปรดเปิดหน้านี้ทิ้งไว้ บอทกำลังดักซองในพื้นหลัง');
-            
-            // @ts-ignore
-            client.addEventHandler(async (event: any) => {
-                const message = event.message;
-                if (!message || !message.message) return;
-                
-                const voucherRegex = /https?:\/\/gift\.truemoney\.com\/campaign\/?(?:voucher_detail\/)?\?v=([A-Za-z0-9]+)/gi;
-                const matches = message.message.match(voucherRegex);
-                
-                if (matches && matches.length > 0) {
-                    addLog(`🎯 เจอซอง! เริ่มการรับเครดิตเข้าเบอร์ ${truemoneyPhone}`);
-                    for (const vurl of matches) {
-                        try {
-                            const res = await axios.post('/api/redeem', { url: vurl, phone: truemoneyPhone });
-                            const result = res.data;
-                            if (result?.status?.code === 'SUCCESS') {
-                                addLog(`✅ รับซองสำเร็จ! +${result.data.my_ticket?.amount_baht || result.data.amount_baht || 0} บาท`);
-                            } else {
-                                addLog(`❌ ${result?.status?.message || 'ไม่สามารถรับได้'}`);
-                            }
-                        } catch(e: any) {
-                            addLog(`❌ ข้อผิดพลาดในการรับซอง: ` + (e.response?.data?.error || e.message));
-                        }
-                    }
-                }
-            });
-            
-        }).catch((err: any) => {
-            addLog(`ข้อผิดพลาดการเชื่อมต่อ: ${err.message}`);
-            setStatus('error');
-            setIsLoading(false);
-        });
-        
+        setStatus(res.data.status || 'idle');
     } catch(err: any) {
-        Swal.fire('เกิดข้อผิดพลาด', String(err), 'error');
+        Swal.fire('เกิดข้อผิดพลาด', err.response?.data?.error || String(err), 'error');
         setStatus('error');
+    } finally {
         setIsLoading(false);
     }
   };
 
   const submitOtp = async () => {
-    if (!otpCode || !resolveOtpRef.current) return;
+    if (!otpCode) return;
     setIsLoading(true);
     try {
-        resolveOtpRef.current(otpCode);
+        await axios.post('/api/telegram/catcher/submit', { telegramPhone, type: 'otp', value: otpCode });
         setOtpCode('');
         setStatus('idle');
     } catch(e: any) {
-        Swal.fire('ข้อผิดพลาด', String(e), 'error');
+        Swal.fire('ข้อผิดพลาด', e.response?.data?.error || String(e), 'error');
+    } finally {
         setIsLoading(false);
     }
   };
 
   const submitPassword = async () => {
-    if (!password || !resolvePasswordRef.current) return;
+    if (!password) return;
     setIsLoading(true);
     try {
-        resolvePasswordRef.current(password);
+        await axios.post('/api/telegram/catcher/submit', { telegramPhone, type: 'password', value: password });
         setPassword('');
         setStatus('idle');
     } catch(e: any) {
-        Swal.fire('ข้อผิดพลาด', String(e), 'error');
+        Swal.fire('ข้อผิดพลาด', e.response?.data?.error || String(e), 'error');
+    } finally {
         setIsLoading(false);
     }
   };
 
   const handleStop = async () => {
      try {
-         if (clientRef.current) {
-             await clientRef.current.disconnect();
-         }
+         await axios.post('/api/telegram/catcher/stop', { telegramPhone });
          setStatus('none');
          setLogs([]);
          Swal.fire({ title: 'หยุดสำเร็จ', icon: 'success', toast: true, position: 'top-end', showConfirmButton: false, timer: 1500 });
-     } catch (e) {}
+     } catch(e) {}
   };
 
   return (
@@ -169,8 +102,8 @@ export const TelegramCatcherTool: React.FC<Props> = ({ userPlan }) => {
         <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-4 mb-6 flex items-start gap-3 animate-in fade-in slide-in-from-top-4">
             <ShieldCheck className="w-6 h-6 text-emerald-500 shrink-0 mt-0.5" />
             <div>
-                <h4 className="text-emerald-500 font-bold text-sm">ปลอดภัย 100% (Client-Side Connection)</h4>
-                <p className="text-emerald-500/80 text-xs mt-1">ระบบดักซองทำงานและเชื่อมต่อบนเบราว์เซอร์ของคุณโดยตรง (Browser-based) ข้อมูลเซสชั่นและรหัสผ่านจะไม่ถูกส่งไปยังเซิร์ฟเวอร์ของเรา ทำให้มั่นใจได้ว่าข้อมูลของคุณปลอดภัยและเป็นส่วนตัวสูงสุด</p>
+                <h4 className="text-emerald-500 font-bold text-sm">ปลอดภัย 100% (Secure Server Request)</h4>
+                <p className="text-emerald-500/80 text-xs mt-1">ระบบดักซองทำงานผ่าน Server โดยตรงและจะถูกเข้ารหัสระดับสูงทางเราไม่มีการจัดเก็บข้อมูลรหัสผ่านใดๆของคุณไว้ในฐานข้อมูล ระบบจะดักจับเฉพาะซองอั่งเปา TrueMoney ตามที่กำหนดเท่านั้น ปิดหน้าเว็บแอปจะหยุดทำงานทันที</p>
             </div>
         </div>
 
