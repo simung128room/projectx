@@ -1252,17 +1252,34 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
 
   // --- Supabase Proxy Routes ---
   // --- Products Endpoints ---
+
+  const firestoreCache: Record<string, { data: any, timestamp: number }> = {};
+  const getCachedCollection = async (collectionName: string, ttl: number = 20000) => {
+    const now = Date.now();
+    if (firestoreCache[collectionName] && now - firestoreCache[collectionName].timestamp < ttl) {
+      return firestoreCache[collectionName].data;
+    }
+    const snapshot = await admin.firestore().collection(collectionName).get();
+    const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    firestoreCache[collectionName] = { data, timestamp: now };
+    return data;
+  };
+  
+  const invalidateCache = (collectionName: string) => {
+    delete firestoreCache[collectionName];
+  };
+
   app.get('/api/products', async (req: any, res: any) => {
     try {
-      const snapshot = await admin.firestore().collection('products').get();
-      const data = snapshot.docs.map(doc => {
-        const item = { id: doc.id, ...doc.data() } as any;
+      const data = await getCachedCollection('products');
+      const processedData = data.map((item: any) => {
         if (!req.isAdmin) {
-          delete item.stockData;
+          const { stockData, ...publicItem } = item;
+          return publicItem;
         }
         return item;
       });
-      res.json(data);
+      res.json(processedData);
     } catch (err: any) {
       console.error('PROD ERR OBJ:', JSON.stringify(err, Object.getOwnPropertyNames(err)));
       res.status(500).json({ error: String(err && err.message ? err.message : err) });
@@ -1531,27 +1548,31 @@ console.log('HIT STATS ENDPOINT');
         is_special: false
       };
 
+      // Sanitize payload to strip any undefined values that Firestore will reject
+      const userUpdatePayload = JSON.parse(JSON.stringify({ balance: newBalance }));
+      const productUpdatePayload = JSON.parse(JSON.stringify({ 
+        stock: currentStockData.length, 
+        stockData: currentStockData.filter(v => v !== undefined && v !== null), 
+        soldCount: (Number(productData.soldCount) || 0) + quantity 
+      }));
+      const historyPayload = JSON.parse(JSON.stringify({
+        id: newHistoryItem.id || 'N/A',
+        userId: newHistoryItem.userId || 'N/A',
+        username: newHistoryItem.username || 'Unknown',
+        productId: newHistoryItem.productId || 'N/A',
+        productName: newHistoryItem.productName || 'Unknown Product',
+        price: newHistoryItem.price || 0,
+        secretData: newHistoryItem.secretData || '',
+        date: newHistoryItem.date || new Date().toISOString(),
+        billNumber: newHistoryItem.billNumber || 'B-000000',
+        is_special: false
+      }));
+
       // Perform updates (these are separate calls since we don't have atomic transactions exposed here, but guarded by locks)
       await Promise.all([
-        userRef.update({ balance: newBalance }),
-        productRef.update({ 
-          stock: currentStockData.length, 
-          stockData: currentStockData.filter(v => v !== undefined), 
-          soldCount: (Number(productData.soldCount) || 0) + quantity 
-        }),
-        admin.firestore().collection('purchases').add({
-          // Make absolutely sure it does not contain undefined
-          id: newHistoryItem.id || 'N/A',
-          userId: newHistoryItem.userId || 'N/A',
-          username: newHistoryItem.username || 'Unknown',
-          productId: newHistoryItem.productId || 'N/A',
-          productName: newHistoryItem.productName || 'Unknown Product',
-          price: newHistoryItem.price || 0,
-          secretData: newHistoryItem.secretData || '',
-          date: newHistoryItem.date || new Date().toISOString(),
-          billNumber: newHistoryItem.billNumber || 'B-000000',
-          is_special: false
-        })
+        userRef.update(userUpdatePayload),
+        productRef.update(productUpdatePayload),
+        admin.firestore().collection('purchases').add(historyPayload)
       ]);
 
       res.json({
@@ -1562,7 +1583,12 @@ console.log('HIT STATS ENDPOINT');
       });
 
     } catch (err: any) {
-      console.error('Error during purchase:', err);
+      const fs = require('fs');
+      try { fs.writeFileSync('purchase_error.log', JSON.stringify({ message: err.message, stack: err.stack, details: err.details, code: err.code })); } catch(e){}
+      console.error('------- BUY ERROR TRACE -------');
+      console.error(err);
+      if (err.details) console.error('Details:', err.details);
+      console.error('------- END BUY ERROR -------');
       res.status(500).json({ error: 'Internal server error during purchase', details: String(err && err.message ? err.message : err), code: err.code });
     } finally {
       releaseLock!();
