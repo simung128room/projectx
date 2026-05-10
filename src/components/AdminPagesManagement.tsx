@@ -157,7 +157,7 @@ export const AdminPagesManagement: React.FC<AdminPagesManagementProps> = ({ cust
                     <FileText className="w-5 h-5" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-white">{page.title}</h4>
+                    <h4 className="font-bold text-white">{page.title.replace(/^#+\s*/, '')}</h4>
                     <p className="text-xs text-zinc-500">Slug: /{page.slug}</p>
                   </div>
                 </div>

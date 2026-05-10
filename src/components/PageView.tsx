@@ -27,7 +27,7 @@ export const PageView: React.FC<PageViewProps> = ({ page, onBack }) => {
       >
         <h1 className="text-3xl md:text-4xl font-black text-white mb-8 border-b border-white/5 pb-6 flex items-center gap-3">
            <FileText className="w-8 h-8 text-[#1a7fe6] hidden sm:block" />
-           {page.title}
+           {page.title.replace(/^#+\s*/, '')}
         </h1>
         
         <div className="prose prose-zinc max-w-none prose-headings:font-black prose-a:text-[#1E90FF] hover:prose-a:text-[#166bcc]">

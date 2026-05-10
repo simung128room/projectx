@@ -50,7 +50,7 @@ import { adminDb as admin, supabaseAdmin } from './src/lib/admindb.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } }); // 5MB limit
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 20 * 1024 * 1024 } }); // 20MB limit
 
 
 console.log('[Server] --- Supabase VERSION REBOOT ---');
@@ -143,8 +143,8 @@ app.set('trust proxy', 1);
     },
     credentials: true
   }));
-  app.use(express.json({ limit: '10mb' }));
-  app.use(express.urlencoded({ limit: '10mb', extended: true }));
+  app.use(express.json({ limit: '50mb' }));
+  app.use(express.urlencoded({ limit: '50mb', extended: true }));
   app.use(injectUser);
 
   app.post('/api/upload', requireAdmin, (req: any, res: any, next: any) => {

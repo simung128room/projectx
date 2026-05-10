@@ -1275,7 +1275,7 @@ function AppContent() {
                     }} 
                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'custom_page' && selectedPage?.id === page.id ? 'bg-[#1E90FF] text-white shadow-md shadow-[#1E90FF]/20' : 'text-zinc-500 hover:bg-[#0a0d12] hover:text-white'}`}
                   >
-                    <FileText className="w-5 h-5"/> {page.title}
+                    <FileText className="w-5 h-5"/> {page.title.replace(/^#+\s*/, '')}
                   </button>
                 ))}
               </>
@@ -1471,7 +1471,7 @@ function AppContent() {
                           }} 
                           className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border ${activeView === 'custom_page' && selectedPage?.id === page.id ? 'bg-[#1E90FF]/10 text-[#1E90FF] border-[#1E90FF]/30 shadow-md shadow-[#1E90FF]/10' : 'bg-transparent text-zinc-500 border-transparent hover:bg-[#0a0d12] hover:text-white'}`}
                         >
-                          <FileText className="w-[18px] h-[18px]"/> {page.title}
+                          <FileText className="w-[18px] h-[18px]"/> {page.title.replace(/^#+\s*/, '')}
                         </button>
                       ))}
                     </div>

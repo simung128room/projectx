@@ -17,6 +17,7 @@ export const supabaseAdmin = createClient(supabaseUrl || '', supabaseKey || '', 
 
 const camelMap: Record<string, string> = {
   userid: 'userId',
+  product_name: 'productName',
   productname: 'productName',
   is_premium: 'isPremium',
   ispremium: 'isPremium',
@@ -24,6 +25,7 @@ const camelMap: Record<string, string> = {
   updatedat: 'updatedAt',
   created_at: 'createdAt',
   createdat: 'createdAt',
+  stock_data: 'stockData',
   stockdata: 'stockData',
   image: 'imageUrl',
   username: 'username'
@@ -34,8 +36,9 @@ const forwardMap: Record<string, string> = {
   createdAt: 'created_at',
   updatedAt: 'updated_at',
   isPremium: 'is_premium',
-  productName: 'productname',
-  userId: 'userid',
+  productName: 'product_name',
+  stockData: 'stock_data',
+  userId: 'user_id',
   username: 'username'
 };
 
@@ -77,6 +80,21 @@ function toDB(data: any, collection?: string): any {
       }
       delete _data.method;
       delete _data.uid;
+  }
+
+  // Encode category metadata directly into name
+  if (_data.name !== undefined && (_data.title !== undefined || _data.subtitle !== undefined || _data.bannerUrl !== undefined)) {
+      if (typeof _data.name === 'string' && !_data.name.startsWith('{"n":')) {
+          _data.name = JSON.stringify({
+              n: _data.name,
+              t: _data.title,
+              s: _data.subtitle,
+              b: _data.bannerUrl
+          });
+      }
+      delete _data.title;
+      delete _data.subtitle;
+      delete _data.bannerUrl;
   }
 
   for (const k in _data) {
@@ -123,6 +141,17 @@ function fromDB(data: any): any {
           res.username = meta.u;
           if (meta.uid !== undefined) res.uid = meta.uid;
           if (meta.m !== undefined) res.method = meta.m;
+      } catch (e) {}
+  }
+
+  // Decode category metadata from name
+  if (res.name && typeof res.name === 'string' && res.name.startsWith('{"n":')) {
+      try {
+          const meta = JSON.parse(res.name);
+          res.name = meta.n;
+          if (meta.t !== undefined) res.title = meta.t;
+          if (meta.s !== undefined) res.subtitle = meta.s;
+          if (meta.b !== undefined) res.bannerUrl = meta.b;
       } catch (e) {}
   }
 
