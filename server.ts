@@ -1568,6 +1568,7 @@ console.log('HIT STATS ENDPOINT');
       // Sanitize payload to strip any undefined values that Firestore will reject
       const userUpdatePayload = JSON.parse(JSON.stringify({ balance: newBalance }));
       const productUpdatePayload = JSON.parse(JSON.stringify({ 
+        ...productData,
         stock: currentStockData.length, 
         stockData: currentStockData.filter(v => v !== undefined && v !== null), 
         soldCount: (Number(productData.soldCount) || 0) + quantity 
