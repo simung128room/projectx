@@ -19,7 +19,7 @@ export const DiscordBadgeTool: React.FC = () => {
         if (!token) {
             Swal.fire({
                 icon: 'warning',
-                title: 'กรุณากรอก User Token',
+                title: 'Missing User Token',
                 background: '#0B0F14',
                 color: '#fff'
             });
@@ -28,7 +28,7 @@ export const DiscordBadgeTool: React.FC = () => {
         if (!houseId) {
             Swal.fire({
                 icon: 'warning',
-                title: 'กรุณาเลือกตรา (House)',
+                title: 'Please Select a House',
                 background: '#0B0F14',
                 color: '#fff'
             });
@@ -41,8 +41,8 @@ export const DiscordBadgeTool: React.FC = () => {
             if (res.data.success) {
                 Swal.fire({
                    icon: 'success',
-                   title: 'รับตราสำเร็จ!',
-                   text: 'ยินดีด้วย คุณได้รับตรา HypeSquad แล้ว',
+                   title: 'Badge Acquired!',
+                   text: 'Congratulations! You received the HypeSquad badge.',
                    background: '#0B0F14',
                    color: '#fff'
                 });
@@ -50,8 +50,8 @@ export const DiscordBadgeTool: React.FC = () => {
         } catch (error: any) {
             Swal.fire({
                 icon: 'error',
-                title: 'เกิดข้อผิดพลาด',
-                text: error.response?.data?.error || "ไม่สามารถดำเนินการได้ โปรดตรวจสอบ Token ของคุณ",
+                title: 'Error Occurred',
+                text: error.response?.data?.error || "Unable to process. Please check your Token.",
                 background: '#0B0F14',
                 color: '#fff'
             });
@@ -64,7 +64,7 @@ export const DiscordBadgeTool: React.FC = () => {
         if (!token) {
             Swal.fire({
                 icon: 'warning',
-                title: 'กรุณากรอก User Token',
+                title: 'Missing User Token',
                 background: '#0B0F14',
                 color: '#fff'
             });
@@ -72,14 +72,14 @@ export const DiscordBadgeTool: React.FC = () => {
         }
 
         const confirm = await Swal.fire({
-            title: 'ยืนยันการลบตรา?',
-            text: "คุณต้องการนำตรา HypeSquad ออกจากบัญชีหรือไม่?",
+            title: 'Confirm Badge Removal',
+            text: "Do you want to remove the HypeSquad badge from your account?",
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#ED4245',
             cancelButtonColor: '#2b2d31',
-            confirmButtonText: 'ลบตรา',
-            cancelButtonText: 'ยกเลิก',
+            confirmButtonText: 'Remove Badge',
+            cancelButtonText: 'Cancel',
             background: '#0B0F14',
             color: '#fff'
         });
@@ -92,7 +92,7 @@ export const DiscordBadgeTool: React.FC = () => {
                 if (res.data.success) {
                     Swal.fire({
                        icon: 'success',
-                       title: 'ลบตราสำเร็จ!',
+                       title: 'Badge Removed!',
                        background: '#0B0F14',
                        color: '#fff'
                     });
@@ -119,10 +119,10 @@ export const DiscordBadgeTool: React.FC = () => {
                      <Star className="w-4 h-4" /> DISCORD TOOL
                   </div>
                   <h2 className="text-4xl md:text-5xl font-black text-white flex items-center gap-4 tracking-tight drop-shadow-lg">
-                     รับตรา <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-[#5865F2]">HypeSquad</span> ฟรี
+                     Get <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-[#5865F2]">HypeSquad</span> Badge
                   </h2>
                   <p className="text-zinc-400 mt-4 text-base leading-relaxed max-w-2xl font-medium">
-                     เลือกตราที่คุณต้องการรับและรับตรา HypeSquad ไประดับประดับโปรไฟล์คุณได้ง่ายๆ ฟรี 100% ไม่มีค่าใช้จ่าย!
+                     Select the House you want. Receive a free HypeSquad badge for your profile easily with no cost!
                   </p>
                 </div>
             </div>
@@ -130,9 +130,9 @@ export const DiscordBadgeTool: React.FC = () => {
             <div className="bg-orange-500/10 border border-orange-500/20 rounded-2xl p-4 flex gap-4 text-orange-400 text-sm">
                 <Info className="w-6 h-6 shrink-0" />
                 <div>
-                   <p className="font-bold mb-1">คำเตือนด้านความปลอดภัย!</p>
+                   <p className="font-bold mb-1">Security Warning!</p>
                    <p className="opacity-90 leading-relaxed">
-                       ระบบของเราไม่มีการบันทึก User Token ของคุณแต่อย่างใด คุณสามารถเปลี่ยนรหัสผ่านเพื่อรีเซต Token ได้เสมอ และควรใช้กับบัญชีรองเพื่อความปลอดภัย
+                       Our system doesn't store your User Token in the database. You can always invalidate your token by changing your password. Use an alt account for maximum safety.
                    </p>
                 </div>
             </div>
@@ -142,7 +142,7 @@ export const DiscordBadgeTool: React.FC = () => {
                 
                 <div className="space-y-8 relative z-10">
                     <div>
-                        <label className="text-[11px] font-black text-zinc-500 uppercase tracking-widest pl-4 mb-2 block">1. เลือกตราที่ต้องการ (House)</label>
+                        <label className="text-[11px] font-black text-zinc-500 uppercase tracking-widest pl-4 mb-2 block">1. Select House</label>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             {houses.map((house) => (
                                 <button
@@ -168,7 +168,7 @@ export const DiscordBadgeTool: React.FC = () => {
                     </div>
 
                     <div>
-                        <label className="text-[11px] font-black text-zinc-500 uppercase tracking-widest pl-4 mb-2 block text-[#5865F2]">2. กรอก User Token</label>
+                        <label className="text-[11px] font-black text-zinc-500 uppercase tracking-widest pl-4 mb-2 block text-[#5865F2]">2. Enter User Token</label>
                         <input 
                             type="text" 
                             value={token}
@@ -186,7 +186,7 @@ export const DiscordBadgeTool: React.FC = () => {
                         >
                             <div className="absolute inset-0 bg-gradient-to-r from-[#5865F2] to-indigo-600 transition-transform duration-300 group-hover:scale-[1.02]"></div>
                             <div className="relative w-full flex items-center justify-center gap-2 py-4 text-white font-bold text-sm shadow-[0_0_20px_rgba(88,101,242,0.3)] group-hover:shadow-[0_0_25px_rgba(88,101,242,0.4)] transition-all">
-                                {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Shield className="w-5 h-5" /> ยืนยันรับตรา HypeSquad</>}
+                                {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Shield className="w-5 h-5" /> Claim HypeSquad Badge</>}
                             </div>
                         </button>
                         
@@ -195,7 +195,7 @@ export const DiscordBadgeTool: React.FC = () => {
                             disabled={isLoading}
                             className="sm:w-auto w-full flex items-center justify-center gap-2 bg-red-500/10 hover:bg-red-500 hover:text-white text-red-400 border border-red-500/20 py-4 px-8 rounded-2xl font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><ShieldBan className="w-5 h-5" /> ลบตราทิ้ง</>}
+                            {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><ShieldBan className="w-5 h-5" /> Remove Badge</>}
                         </button>
                     </div>
                 </div>

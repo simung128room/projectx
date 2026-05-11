@@ -31,8 +31,8 @@ export const DiscordCatcherTool: React.FC<Props> = ({ userPlan }) => {
        if (!discordToken || !truemoneyPhone) {
            Swal.fire({
                icon: 'warning',
-               title: 'ข้อมูลไม่ครบ',
-               text: 'กรุณากรอก Discord Token และเบอร์ทรูมันนี่',
+               title: 'Missing Details',
+               text: 'Please enter your Discord Token and TrueMoney Phone Number',
                background: '#0B0F14',
                color: '#fff'
            });
@@ -42,8 +42,8 @@ export const DiscordCatcherTool: React.FC<Props> = ({ userPlan }) => {
        if (!truemoneyPhone.match(/^[0-9]{10}$/)) {
            Swal.fire({
                icon: 'warning',
-               title: 'เบอร์ทรูมันนี่ไม่ถูกต้อง',
-               text: 'กรุณากรอกเบอร์โทรศัพท์ 10 หลัก (เช่น 0812345678)',
+               title: 'Invalid TrueMoney Phone',
+               text: 'Please enter a valid 10-digit phone number (e.g. 0812345678)',
                background: '#0B0F14',
                color: '#fff'
            });
@@ -54,8 +54,8 @@ export const DiscordCatcherTool: React.FC<Props> = ({ userPlan }) => {
        setStatus('idle');
        
        Swal.fire({
-           title: 'กำลังเชื่อมต่อ...',
-           text: 'กรุณารอสักครู่ ระบบกำลังสื่อสารกับเซิร์ฟเวอร์',
+           title: 'Connecting...',
+           text: 'Please wait while we communicate with the server',
            allowOutsideClick: false,
            background: '#0B0F14',
            color: '#fff',
@@ -71,8 +71,8 @@ export const DiscordCatcherTool: React.FC<Props> = ({ userPlan }) => {
            setStatus(res.data.status || 'idle');
            Swal.fire({
                icon: 'success',
-               title: 'เชื่อมต่อสำเร็จ',
-               text: 'ระบบได้เริ่มดักซอง Discord แล้ว หากเจอซองจะถูกเติมเงินเข้าเบอร์อัตโนมัติ',
+               title: 'Connected successfully',
+               text: 'System has started catching Discord gifts. When found, it will automatically topup to your phone.',
                background: '#0B0F14',
                color: '#fff'
            });
@@ -80,7 +80,7 @@ export const DiscordCatcherTool: React.FC<Props> = ({ userPlan }) => {
            setStatus('error');
            Swal.fire({
                icon: 'error',
-               title: 'เกิดข้อผิดพลาด',
+               title: 'Error Occurred',
                text: err.response?.data?.error || String(err),
                background: '#0B0F14',
                color: '#fff'
@@ -94,7 +94,7 @@ export const DiscordCatcherTool: React.FC<Props> = ({ userPlan }) => {
        try {
            await axios.post('/api/discord/catcher/stop', { discordToken });
            setStatus('none');
-           Swal.fire({ title: 'หยุดสำเร็จ', icon: 'success', toast: true, position: 'top-end', showConfirmButton: false, timer: 1500, background: '#0B0F14', color: '#fff' });
+           Swal.fire({ title: 'Stopped Successfully', icon: 'success', toast: true, position: 'top-end', showConfirmButton: false, timer: 1500, background: '#0B0F14', color: '#fff' });
        } catch(e) {}
   };
 
@@ -111,11 +111,11 @@ export const DiscordCatcherTool: React.FC<Props> = ({ userPlan }) => {
                  DISCORD CATCHER
               </div>
               <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight">
-                 ระบบดักซอง Discord
+                 Discord Gift Catcher
               </h2>
               <p className="text-zinc-400 mt-3 text-sm leading-relaxed max-w-2xl">
-                 ระบบจะทำการดักจับซองทรูมันนี่ในเซิร์ฟเวอร์และแชท Discord ของคุณอัตโนมัติตลอด 24 ชั่วโมง
-                 เมื่อพบซอง ระบบจะเติมเงินเข้าเบอร์มือถือของคุณทันทีด้วยความเร็วสูงสุด
+                 Automatically catch TrueMoney gifts in your Discord servers and chats 24/7.
+                 When a gift is found, the system instantly redeems the credits to your mobile number at top speed.
               </p>
             </div>
             
@@ -124,11 +124,11 @@ export const DiscordCatcherTool: React.FC<Props> = ({ userPlan }) => {
                    {isPremium ? <Zap className="w-6 h-6" /> : <Bot className="w-6 h-6" />}
                </div>
                <div>
-                   <p className="text-[10px] uppercase tracking-widest text-zinc-500 font-bold mb-1">โควต้าการใช้งานวันนี้</p>
+                   <p className="text-[10px] uppercase tracking-widest text-zinc-500 font-bold mb-1">Daily Usage Quota</p>
                    {isPremium ? (
-                      <p className="text-lg font-black text-white flex items-center gap-2">ไม่จำกัด <span className="text-[9px] bg-amber-400 text-black px-1.5 py-0.5 rounded uppercase font-bold">VIP</span></p>
+                      <p className="text-lg font-black text-white flex items-center gap-2">Unlimited <span className="text-[9px] bg-amber-400 text-black px-1.5 py-0.5 rounded uppercase font-bold">VIP</span></p>
                    ) : (
-                      <p className="text-lg font-black text-white">100 <span className="text-xs font-medium text-zinc-500">ซอง</span></p>
+                      <p className="text-lg font-black text-white">100 <span className="text-xs font-medium text-zinc-500">gifts</span></p>
                    )}
                </div>
             </div>
@@ -139,8 +139,8 @@ export const DiscordCatcherTool: React.FC<Props> = ({ userPlan }) => {
                {status === 'none' && (
                    <>
                        <div className="mb-4 text-center">
-                          <h3 className="text-white font-bold text-lg">ตั้งค่าบอท</h3>
-                          <p className="text-xs text-zinc-500 mt-1">ระบุข้อมูลบัญชีเพื่อเข้าสู่ระบบ</p>
+                          <h3 className="text-white font-bold text-lg">Bot Setup</h3>
+                          <p className="text-xs text-zinc-500 mt-1">Enter your account details to connect</p>
                        </div>
 
                        <div className="space-y-3">
@@ -157,7 +157,7 @@ export const DiscordCatcherTool: React.FC<Props> = ({ userPlan }) => {
                            </div>
 
                            <div>
-                               <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">เบอร์ TrueMoney (ดึงเงินเข้า)</label>
+                               <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">TrueMoney Phone (Receiver)</label>
                                <input 
                                    type="text" 
                                    value={truemoneyPhone}
@@ -175,7 +175,7 @@ export const DiscordCatcherTool: React.FC<Props> = ({ userPlan }) => {
                                disabled={isLoading}
                                className="w-full bg-[#5865F2] hover:bg-[#5865F2]/90 text-white rounded-xl py-3.5 text-sm font-bold transition-all shadow-[0_0_15px_rgba(88,101,242,0.2)] disabled:opacity-50 flex items-center justify-center gap-2"
                            >
-                               {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Power className="w-4 h-4" /> เริ่มทำงาน</>}
+                               {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Power className="w-4 h-4" /> Start Bot</>}
                            </button>
                        </div>
                    </>
@@ -188,24 +188,24 @@ export const DiscordCatcherTool: React.FC<Props> = ({ userPlan }) => {
                               <div className="w-16 h-16 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center mx-auto mb-4">
                                  <CheckCircle2 className="w-8 h-8 text-green-400" />
                               </div>
-                              <h3 className="text-lg font-bold text-white mb-1">ทำงานสมบูรณ์</h3>
-                              <p className="text-green-400/80 text-xs font-medium">เชื่อมต่อระบบ Discord สำเร็จ</p>
+                              <h3 className="text-lg font-bold text-white mb-1">Working Perfectly</h3>
+                              <p className="text-green-400/80 text-xs font-medium">Successfully Connected to Discord</p>
                            </div>
                        ) : status === 'error' ? (
                            <div>
                               <div className="w-16 h-16 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto mb-4">
                                  <AlertCircle className="w-8 h-8 text-red-500" />
                               </div>
-                              <h3 className="text-lg font-bold text-white mb-1">เกิดข้อผิดพลาด</h3>
-                              <p className="text-red-400/80 text-xs font-medium">ระบบขัดข้อง โปรดตรวจสอบ Token</p>
+                              <h3 className="text-lg font-bold text-white mb-1">Error Occurred</h3>
+                              <p className="text-red-400/80 text-xs font-medium">System fault, please check Token</p>
                            </div>
                        ) : (
                            <div>
                               <div className="w-16 h-16 rounded-full bg-[#5865F2]/10 border border-[#5865F2]/20 flex items-center justify-center mx-auto mb-4">
                                  <Loader2 className="w-8 h-8 text-[#5865F2] animate-spin" />
                               </div>
-                              <h3 className="text-lg font-bold text-white mb-1">กำลังดำเนินการ</h3>
-                              <p className="text-[#5865F2]/80 text-xs font-medium">รอการตอบสนองจากเซิร์ฟเวอร์...</p>
+                              <h3 className="text-lg font-bold text-white mb-1">In Progress</h3>
+                              <p className="text-[#5865F2]/80 text-xs font-medium">Waiting for server response...</p>
                            </div>
                        )}
 
@@ -215,13 +215,13 @@ export const DiscordCatcherTool: React.FC<Props> = ({ userPlan }) => {
                              <span className="text-zinc-300 font-mono">{discordToken ? discordToken.substring(0,6) + '...' + discordToken.substring(discordToken.length-4) : ''}</span>
                           </div>
                           <div className="flex justify-between items-center text-xs">
-                             <span className="text-zinc-500">รับเงินเข้า</span>
+                             <span className="text-zinc-500">Receiver</span>
                              <span className="text-orange-400 font-mono">{truemoneyPhone}</span>
                           </div>
                        </div>
 
                        <button onClick={handleStop} className="w-full flex items-center justify-center gap-2 bg-red-500/10 hover:bg-red-500 hover:text-white text-red-500 border border-red-500/20 py-3.5 rounded-xl text-sm font-bold transition-all">
-                          <Power className="w-4 h-4" /> ปิดระบบ (Stop)
+                          <Power className="w-4 h-4" /> Stop System
                        </button>
                    </div>
                )}
@@ -233,10 +233,10 @@ export const DiscordCatcherTool: React.FC<Props> = ({ userPlan }) => {
                <ShieldCheck className="w-6 h-6 text-emerald-400" />
             </div>
             <div>
-                <h4 className="text-emerald-400 font-bold text-sm mb-1.5 leading-none">ปลอดภัย 100% (Secure Server Request)</h4>
+                <h4 className="text-emerald-400 font-bold text-sm mb-1.5 leading-none">100% Secure (Server Request)</h4>
                 <p className="text-emerald-500/80 text-xs leading-relaxed max-w-xl text-pretty space-y-1 block">
-                    ระบบดักซองทำงานผ่าน Server โดยตรงและจะถูกเข้ารหัสระดับสูงทางเราไม่มีการจัดเก็บข้อมูลรหัสผ่านใดๆของคุณไว้ในฐานข้อมูล 
-                    ระบบจะดักจับเฉพาะซองอั่งเปา TrueMoney ตามที่กำหนดเท่านั้น ปิดหน้าเว็บแอปจะหยุดทำงานทันที
+                    The gift catcher works directly through our backend with high-level encryption. We do not store any passwords or tokens in our database.
+                    It only hooks to TrueMoney voucher domains. Closing the app might interrupt background services depending on browser rules.
                 </p>
             </div>
         </div>

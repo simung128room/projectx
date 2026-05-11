@@ -1214,11 +1214,22 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
           region: userData.acc_country || 'TH',
           otherGames: gameConnections || [],
           codmNickname: codmInfo?.nickname || 'N/A',
+          codmUid: codmInfo?.uid || 'N/A',
           idCardBound: !!(userData.idcard && userData.idcard !== 'N/A'),
           hasRov,
           rovCharacter,
           rovClean,
-          hasCodm
+          hasCodm,
+          avatarUrl: userData.avatar || 'N/A',
+          mobileNumber: userData.mobile_no || 'N/A',
+          emailAddress: userData.email || 'N/A',
+          fbUsername: userData.fb_account || 'N/A',
+          twoFaEnabled: !!userData.two_step_verify_enable,
+          authenticatorEnabled: !!userData.authenticator_enable,
+          lastLoginDate: resData.login_history?.[0]?.timestamp ? new Date(resData.login_history[0].timestamp * 1000).toLocaleString('th-TH') : 'N/A',
+          lastLoginIp: resData.login_history?.[0]?.ip || 'N/A',
+          lastLoginCountry: resData.login_history?.[0]?.country || 'N/A',
+          lastLoginSource: resData.login_history?.[0]?.source || 'Unknown'
         }
       });
 

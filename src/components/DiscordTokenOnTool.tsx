@@ -45,8 +45,8 @@ export const DiscordTokenOnTool: React.FC<Props> = ({ userPlan }) => {
     if (!discordToken) {
       Swal.fire({
         icon: 'warning',
-        title: 'กรุณากรอกข้อมูล',
-        text: 'กรุณากรอก Discord Token',
+        title: 'Missing Information',
+        text: 'Please enter your Discord Token',
         background: '#0B0F14',
         color: '#fff'
       });
@@ -55,7 +55,7 @@ export const DiscordTokenOnTool: React.FC<Props> = ({ userPlan }) => {
 
     try {
       setStatus('idle');
-      setLogs(['กำลังเริ่มรันโทเค่น...']);
+      setLogs(['Starting token process...']);
       const res = await axios.post('/api/discord/token-on/start', {
         discordToken: discordToken.trim(),
         isPremium
@@ -70,7 +70,7 @@ export const DiscordTokenOnTool: React.FC<Props> = ({ userPlan }) => {
       setLogs([err.response?.data?.error || String(err)]);
       Swal.fire({
         icon: 'error',
-        title: 'เกิดข้อผิดพลาด',
+        title: 'Error Occurred',
         text: err.response?.data?.error || String(err),
         background: '#0B0F14',
         color: '#fff'
@@ -95,11 +95,11 @@ export const DiscordTokenOnTool: React.FC<Props> = ({ userPlan }) => {
             DISCORD TOKEN ON
           </div>
           <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight">
-            ระบบรันโทเค่นออน
+            Discord Token Online
           </h2>
           <p className="text-zinc-400 mt-3 text-base leading-relaxed max-w-2xl">
-            รันไอดี Discord ของคุณให้ออนไลน์ตลอด 24 ชั่วโมง 
-            พร้อมระบบจำลองการทำงานของ Client เพื่อความปลอดภัยสูงสุด
+            Keep your Discord account online 24/7 
+            with client simulation for maximum security.
           </p>
         </div>
 
@@ -108,7 +108,7 @@ export const DiscordTokenOnTool: React.FC<Props> = ({ userPlan }) => {
             {isPremium ? <Zap className="w-7 h-7" /> : <Bot className="w-7 h-7" />}
           </div>
           <div>
-            <p className="text-[10px] uppercase tracking-widest text-zinc-500 font-black mb-1">สถานะผู้ใช้</p>
+            <p className="text-[10px] uppercase tracking-widest text-zinc-500 font-black mb-1">User Status</p>
             {isPremium ? (
               <p className="text-xl font-black text-white flex items-center gap-2 tracking-tight">
                 PREMIUM <span className="text-[9px] bg-amber-400 text-black px-2 py-0.5 rounded-lg uppercase font-black">VIP</span>
@@ -127,8 +127,8 @@ export const DiscordTokenOnTool: React.FC<Props> = ({ userPlan }) => {
               {status === 'none' && (
                 <>
                   <div className="mb-2">
-                    <h3 className="text-white font-black text-xl tracking-tight">ตั้งค่าโทเค่น</h3>
-                    <p className="text-sm text-zinc-500 mt-1 font-medium">ระบุ User Token เพื่อเริ่มทำงาน</p>
+                    <h3 className="text-white font-black text-xl tracking-tight">Token Setup</h3>
+                    <p className="text-sm text-zinc-500 mt-1 font-medium">Provide your User Token to start</p>
                   </div>
 
                   <div className="space-y-4">
@@ -150,7 +150,7 @@ export const DiscordTokenOnTool: React.FC<Props> = ({ userPlan }) => {
                       onClick={handleStart} 
                       className="w-full bg-[#5865F2] hover:bg-indigo-600 text-white rounded-2xl py-4 text-base font-black transition-all shadow-[0_10px_20px_rgba(88,101,242,0.2)] flex items-center justify-center gap-3 active:scale-95"
                     >
-                      <Power className="w-5 h-5" /> เริ่มรันโทเค่น
+                      <Power className="w-5 h-5" /> Start Token
                     </button>
                   </div>
                 </>
@@ -163,7 +163,7 @@ export const DiscordTokenOnTool: React.FC<Props> = ({ userPlan }) => {
                       <div className="w-20 h-20 rounded-full bg-emerald-500/10 border-2 border-emerald-500/20 flex items-center justify-center mx-auto mb-6 shadow-[0_0_30px_rgba(16,185,129,0.1)]">
                         <CheckCircle2 className="w-10 h-10 text-emerald-400" />
                       </div>
-                      <h3 className="text-2xl font-black text-white mb-2 tracking-tight">โทเค่นออนไลน์แล้ว</h3>
+                      <h3 className="text-2xl font-black text-white mb-2 tracking-tight">Token is Online</h3>
                       <p className="text-emerald-400/80 text-sm font-bold uppercase tracking-widest">Active & Connected</p>
                     </div>
                   ) : status === 'error' ? (
@@ -171,7 +171,7 @@ export const DiscordTokenOnTool: React.FC<Props> = ({ userPlan }) => {
                       <div className="w-20 h-20 rounded-full bg-red-500/10 border-2 border-red-500/20 flex items-center justify-center mx-auto mb-6 shadow-[0_0_30px_rgba(239,68,68,0.1)]">
                         <AlertCircle className="w-10 h-10 text-red-500" />
                       </div>
-                      <h3 className="text-2xl font-black text-white mb-2 tracking-tight">เกิดข้อผิดพลาด</h3>
+                      <h3 className="text-2xl font-black text-white mb-2 tracking-tight">Error Occurred</h3>
                       <p className="text-red-400/80 text-sm font-bold uppercase tracking-widest">Connection Failed</p>
                     </div>
                   ) : (
@@ -179,7 +179,7 @@ export const DiscordTokenOnTool: React.FC<Props> = ({ userPlan }) => {
                       <div className="w-20 h-20 rounded-full bg-[#5865F2]/10 border-2 border-[#5865F2]/20 flex items-center justify-center mx-auto mb-6">
                         <Loader2 className="w-10 h-10 text-[#5865F2] animate-spin" />
                       </div>
-                      <h3 className="text-2xl font-black text-white mb-2 tracking-tight">กำลังตรวจสอบ</h3>
+                      <h3 className="text-2xl font-black text-white mb-2 tracking-tight">Authorizing</h3>
                       <p className="text-[#5865F2]/80 text-sm font-bold uppercase tracking-widest">Authorizing...</p>
                     </div>
                   )}
@@ -204,7 +204,7 @@ export const DiscordTokenOnTool: React.FC<Props> = ({ userPlan }) => {
                     onClick={handleStop} 
                     className="w-full flex items-center justify-center gap-3 bg-red-500/10 hover:bg-red-500 hover:text-white text-red-500 border border-red-500/20 py-4 rounded-2xl text-base font-black transition-all mt-auto active:scale-95"
                   >
-                    <Power className="w-5 h-5" /> ปิดระบบ (Stop)
+                    <Power className="w-5 h-5" /> Stop System
                   </button>
                 </div>
               )}

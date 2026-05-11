@@ -18,7 +18,18 @@ export interface AccountResult {
   region: string;
   otherGames: string[];
   codmNickname?: string;
+  codmUid?: string;
   idCardBound?: boolean;
+  avatarUrl?: string;
+  mobileNumber?: string;
+  emailAddress?: string;
+  fbUsername?: string;
+  twoFaEnabled?: boolean;
+  authenticatorEnabled?: boolean;
+  lastLoginDate?: string;
+  lastLoginIp?: string;
+  lastLoginCountry?: string;
+  lastLoginSource?: string;
 }
 
 export interface LogEntry {

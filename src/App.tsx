@@ -38,9 +38,7 @@ import { PopupBanner } from './components/PopupBanner';
 import { Product, SiteStats, Category } from './types';
 import { getAvatarUrl } from './lib/avatar';
 import { ContactView } from './components/ContactView';
-import { SuperAITool } from './components/SuperAITool';
-import { RemoveBgTool } from './components/RemoveBgTool';
-
+import { TelegramCatcherTool } from './components/TelegramCatcherTool';
 
 var TextPaint = `▒▄▀▄▒█▀▄▒██▀░▀▄▀
 2
@@ -151,7 +149,7 @@ function AppContent() {
   const [showKeyModal, setShowKeyModal] = useState(false);
 
   // Navigation State
-  type ViewType = 'home' | 'categories' | 'category_products' | 'dashboard' | 'super_ai' | 'discord_catcher' | 'discord_on' | 'discord_badge' | 'remove_bg' | 'admin' | 'profile' | 'logs' | 'checker_logs' | 'history' | 'settings' | 'contact' | 'login' | 'signup' | 'wallet' | 'redeem' | 'product_detail' | 'custom_page';
+  type ViewType = 'home' | 'categories' | 'category_products' | 'dashboard' | 'telegram_catcher' | 'discord_catcher' | 'discord_on' | 'discord_badge' | 'admin' | 'profile' | 'logs' | 'checker_logs' | 'history' | 'settings' | 'contact' | 'login' | 'signup' | 'wallet' | 'redeem' | 'product_detail' | 'custom_page';
   const [activeView, setRawActiveView] = useState<ViewType>('home');
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>('all');
@@ -179,7 +177,7 @@ function AppContent() {
       if (path === 'topup') path = 'wallet';
       if (path === 'store') path = 'categories';
       
-      const validViews = ['home', 'categories', 'category_products', 'dashboard', 'super_ai', 'discord_catcher', 'discord_on', 'discord_badge', 'remove_bg', 'admin', 'profile', 'logs', 'checker_logs', 'history', 'settings', 'contact', 'login', 'signup', 'wallet', 'redeem', 'product_detail', 'custom_page'];
+      const validViews = ['home', 'categories', 'category_products', 'dashboard', 'telegram_catcher', 'discord_catcher', 'discord_on', 'discord_badge', 'admin', 'profile', 'logs', 'checker_logs', 'history', 'settings', 'contact', 'login', 'signup', 'wallet', 'redeem', 'product_detail', 'custom_page'];
       
       if (path && validViews.includes(path)) {
          if (path !== activeView) {
@@ -1125,15 +1123,32 @@ function AppContent() {
   const exportAllValid = () => {
     if (!validAccounts.length) return Swal.fire({ title: 'คำเตือน', text: 'ไม่มีข้อมูลบัญชีที่ผ่าน', icon: 'warning' });
     const text = validAccounts.map(a => 
-      `Account: ${a.account}:${a.password}\n` +
-      `UID: ${a.uid} | Region: ${a.region} | Shells: ${a.shells}\n` +
-      `Level: ${a.level} | Rank: ${a.rank} | Skins: ${a.skins}\n` +
-      `Status: ${a.isClean ? 'Clean' : 'Bound'}\n` +
-      `Security: Phone Bound:${a.phoneBound ? 'Yes' : 'No'} | Email:${a.emailVerified ? 'Verified' : 'Not Verified'} | FB:${a.fbLinked ? 'Yes' : 'No'}\n` +
-      `Other Games: ${a.otherGames.join(', ') || 'None'}\n` +
-      `Checked At: ${a.cleanAt}\n` +
-      `------------------------------------------`
-    ).join('\n');
+      `[✔] Login Successful\n\n` +
+      `[ACCOUNT INFO]\n` +
+      `• Username: ${a.account}:${a.password}\n` +
+      `• Last Login: ${a.lastLoginDate || 'N/A'}\n` +
+      `• Location: ${a.lastLoginSource || 'Unknown'} (${a.lastLoginCountry || 'Unknown'})\n` +
+      `• IP Address: ${a.lastLoginIp || 'N/A'}\n` +
+      `• Login Country: ${a.lastLoginCountry || 'N/A'}\n` +
+      `• User Country: ${a.region}\n\n` +
+      `[ACCOUNT DETAILS]\n` +
+      `• Garena Shells: ${a.shells}\n` +
+      `• Avatar URL: ${a.avatarUrl && a.avatarUrl !== 'N/A' ? a.avatarUrl : 'No Avatar'}\n` +
+      `• Mobile No: ${a.mobileNumber || 'N/A'}\n` +
+      `• Email: ${a.emailAddress || 'N/A'} (${a.emailVerified ? 'Verified' : 'Not Verified'})\n` +
+      `• Facebook Username: ${a.fbUsername || 'N/A'}\n\n` +
+      `[GAME INFO]\n` +
+      `${a.otherGames.join('\n') || 'No game connections found'}\n` +
+      (a.codmNickname && a.codmNickname !== 'N/A' ? `CODM: ${a.codmNickname} 🎮\nCODM Level: ${a.level}\nCODM UID: ${a.codmUid || a.uid}\n` : '') +
+      `\n[SECURITY STATUS]\n` +
+      `• Mobile Bound: ${a.phoneBound ? 'Yes' : 'No'}\n` +
+      `• Email Verified: ${a.emailVerified ? 'Verified' : 'Not Verified'}\n` +
+      `• Facebook Linked: ${a.fbLinked ? 'Yes' : 'No'}\n` +
+      `• Authenticator: ${a.authenticatorEnabled ? 'Enabled' : 'Disabled'}\n` +
+      `• 2FA Enabled: ${a.twoFaEnabled ? 'Enabled' : 'Disabled'}\n` +
+      `• Account Status: ${a.isClean ? 'Clean' : 'Bound'}\n\n` +
+      `---------------------[ NEXT ]---------------------`
+    ).join('\n\n');
     downloadFile(`All_Valid_Detailed_${new Date().toISOString().slice(0, 10)}.txt`, text);
     Swal.fire({ title: 'สำเร็จ', text: 'บันทึกไฟล์รายละเอียดสำเร็จ', icon: 'success' });
   };
@@ -1281,31 +1296,28 @@ function AppContent() {
                   onClick={() => setIsDesktopToolsOpen(!isDesktopToolsOpen)}
                   className="w-full flex items-center justify-between px-4 py-3 mt-4 rounded-2xl text-[11px] font-bold text-zinc-400 uppercase tracking-widest hover:bg-[#0a0d12] hover:text-white transition-all group"
                 >
-                  <span className="pl-1">เครื่องมืออื่นๆ</span>
+                  <span className="pl-1">Tools</span>
                   <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isDesktopToolsOpen ? 'rotate-180' : ''}`} />
                 </button>
                 <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isDesktopToolsOpen ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0'}`}>
                   <div className="flex flex-col gap-1 mt-1 pl-2 border-l border-white/5 ml-4">
-                    <button onClick={() => setActiveView('super_ai')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'super_ai' ? 'bg-fuchsia-600/10 text-fuchsia-500 shadow-md shadow-fuchsia-500/10' : 'text-zinc-500 hover:bg-[#0a0d12] hover:text-white'}`}>
-                        <Bot className="w-5 h-5" /> SUPER AI
-                    </button>
-                    <button onClick={() => setActiveView('remove_bg')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'remove_bg' ? 'bg-fuchsia-600/10 text-fuchsia-500 shadow-md shadow-fuchsia-500/10' : 'text-zinc-500 hover:bg-[#0a0d12] hover:text-white'}`}>
-                        <ImageIcon className="w-5 h-5" /> ลบพื้นหลัง
+                    <button onClick={() => setActiveView('telegram_catcher')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'telegram_catcher' ? 'bg-[#2AABEE]/10 text-[#2AABEE] shadow-md shadow-[#2AABEE]/10' : 'text-zinc-500 hover:bg-[#0a0d12] hover:text-white'}`}>
+                        <Bot className="w-5 h-5" /> Telegram Catcher
                     </button>
                     <button onClick={() => setActiveView('discord_catcher')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'discord_catcher' ? 'bg-[#5865F2]/10 text-[#5865F2] shadow-md shadow-[#5865F2]/10' : 'text-zinc-500 hover:bg-[#0a0d12] hover:text-white'}`}>
-                        <Bot className="w-5 h-5" /> ดักซอง Discord
+                        <Bot className="w-5 h-5" /> Discord Catcher
                     </button>
                     <button onClick={() => setActiveView('discord_on')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'discord_on' ? 'bg-[#5865F2]/10 text-[#5865F2] shadow-md shadow-[#5865F2]/10' : 'text-zinc-500 hover:bg-[#0a0d12] hover:text-white'}`}>
-                        <Globe className="w-5 h-5" /> รันโทเค่นออน
+                        <Globe className="w-5 h-5" /> Discord Token Checker
                     </button>
                     <button onClick={() => setActiveView('dashboard')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'dashboard' ? 'bg-[#1E90FF]/10 text-[#1E90FF] shadow-md shadow-[#1E90FF]/10' : 'text-zinc-500 hover:bg-[#0a0d12] hover:text-white'}`}>
-                        <Gamepad2 className="w-5 h-5" /> ตรวจสอบไอดี
+                        <Gamepad2 className="w-5 h-5" /> Garena Checker
                     </button>
                     <button onClick={() => setActiveView('discord_badge')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'discord_badge' ? 'bg-[#5865F2]/10 text-[#5865F2] shadow-md shadow-[#5865F2]/10' : 'text-zinc-500 hover:bg-[#0a0d12] hover:text-white'}`}>
                         <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z" />
                         </svg>
-                        รับตรา Discord
+                        Discord Badge Checker
                     </button>
                   </div>
                 </div>
@@ -1488,31 +1500,28 @@ function AppContent() {
                           onClick={() => setIsMobileToolsOpen(!isMobileToolsOpen)}
                           className="w-full flex items-center justify-between px-4 py-2 rounded-2xl text-[10px] font-black text-zinc-500 uppercase tracking-widest hover:text-white transition-all group"
                         >
-                          <span className="pl-1">เครื่องมืออื่นๆ</span>
+                          <span className="pl-1">Tools</span>
                           <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isMobileToolsOpen ? 'rotate-180' : ''}`} />
                         </button>
                         <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isMobileToolsOpen ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0'}`}>
                           <div className="flex flex-col gap-1 mt-2 pl-2 border-l border-white/5 mx-4">
-                            <button onClick={() => { setActiveView('super_ai'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border ${activeView === 'super_ai' ? 'bg-fuchsia-600/10 text-fuchsia-500 border-fuchsia-500/30 shadow-md shadow-fuchsia-500/10' : 'bg-transparent text-zinc-500 border-transparent hover:bg-[#0a0d12] hover:text-white'}`}>
-                               <Bot className="w-[18px] h-[18px]" /> SUPER AI
-                            </button>
-                            <button onClick={() => { setActiveView('remove_bg'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border ${activeView === 'remove_bg' ? 'bg-fuchsia-600/10 text-fuchsia-500 border-fuchsia-500/30 shadow-md shadow-fuchsia-500/10' : 'bg-transparent text-zinc-500 border-transparent hover:bg-[#0a0d12] hover:text-white'}`}>
-                               <ImageIcon className="w-[18px] h-[18px]" /> ลบพื้นหลัง
+                            <button onClick={() => { setActiveView('telegram_catcher'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border ${activeView === 'telegram_catcher' ? 'bg-[#2AABEE]/10 text-[#2AABEE] border-[#2AABEE]/30 shadow-md shadow-[#2AABEE]/10' : 'bg-transparent text-zinc-500 border-transparent hover:bg-[#0a0d12] hover:text-white'}`}>
+                               <Bot className="w-[18px] h-[18px]" /> Telegram Catcher
                             </button>
                             <button onClick={() => { setActiveView('discord_catcher'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border ${activeView === 'discord_catcher' ? 'bg-[#5865F2]/10 text-[#5865F2] border-[#5865F2]/30 shadow-md shadow-[#5865F2]/10' : 'bg-transparent text-zinc-500 border-transparent hover:bg-[#0a0d12] hover:text-white'}`}>
-                               <Bot className="w-[18px] h-[18px]" /> ดักซอง Discord
+                               <Bot className="w-[18px] h-[18px]" /> Discord Catcher
                             </button>
                             <button onClick={() => { setActiveView('discord_on'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border ${activeView === 'discord_on' ? 'bg-[#5865F2]/10 text-[#5865F2] border-[#5865F2]/30 shadow-md shadow-[#5865F2]/10' : 'bg-transparent text-zinc-500 border-transparent hover:bg-[#0a0d12] hover:text-white'}`}>
-                               <Globe className="w-[18px] h-[18px]" /> รันโทเค่นออน
+                               <Globe className="w-[18px] h-[18px]" /> Discord Token Checker
                             </button>
                             <button onClick={() => { setActiveView('dashboard'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border ${activeView === 'dashboard' ? 'bg-[#1E90FF]/10 text-[#1E90FF] border-[#1E90FF]/30 shadow-md shadow-[#1E90FF]/10' : 'bg-transparent text-zinc-500 border-transparent hover:bg-[#0a0d12] hover:text-white'}`}>
-                               <Gamepad2 className="w-[18px] h-[18px]" /> ตรวจสอบไอดี
+                               <Gamepad2 className="w-[18px] h-[18px]" /> Garena Checker
                             </button>
                             <button onClick={() => { setActiveView('discord_badge'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border ${activeView === 'discord_badge' ? 'bg-[#5865F2]/10 text-[#5865F2] border-[#5865F2]/30 shadow-md shadow-[#5865F2]/10' : 'bg-transparent text-zinc-500 border-transparent hover:bg-[#0a0d12] hover:text-white'}`}>
                                 <svg className="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z" />
                                 </svg>
-                               รับตรา Discord
+                                Discord Badge Checker
                             </button>
                           </div>
                         </div>
@@ -1661,11 +1670,10 @@ function AppContent() {
           />
         )}
 
+        {activeView === 'telegram_catcher' && <TelegramCatcherTool userPlan={userPlan} />}
         {activeView === 'discord_catcher' && <DiscordCatcherTool userPlan={userPlan} />}
         {activeView === 'discord_on' && <DiscordTokenOnTool userPlan={userPlan} />}
         {activeView === 'discord_badge' && <DiscordBadgeTool />}
-        {activeView === 'super_ai' && <SuperAITool />}
-        {activeView === 'remove_bg' && <RemoveBgTool />}
         {activeView === 'logs' && <HistoryLogsView usedKeysHistory={usedKeysHistory} purchaseHistory={purchaseHistory} />}
         {activeView as string === 'checker_logs' && <CheckerLogsView logs={logs} onBack={() => setActiveView('home')} />}
         {activeView === 'history' && <HistoryView purchaseHistory={purchaseHistory} topupHistory={topupHistory} usedKeysHistory={usedKeysHistory} />}
@@ -2000,7 +2008,10 @@ function AppContent() {
                             <Check className="w-6 h-6 text-emerald-500" />
                           </div>
                           <div>
-                            <div className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest bg-[#0B0F14] inline-block px-2 py-0.5 rounded-md border border-white/5 mb-1">UID: {acc.uid} | {acc.region}</div>
+                            <div className="flex flex-wrap items-center gap-1 mb-1">
+                               <div className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest bg-[#0B0F14] px-2 py-0.5 rounded-md border border-white/5">UID: {acc.uid} | {acc.region}</div>
+                               {acc.codmUid && acc.codmNickname !== 'N/A' && <div className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest bg-[#0B0F14] px-2 py-0.5 rounded-md border border-white/5">CODM UID: {acc.codmUid}</div>}
+                            </div>
                             <div className="text-white font-bold font-mono text-base sm:text-lg">
                                {acc.account} {acc.codmNickname && acc.codmNickname !== 'N/A' && <span className="text-blue-500 ml-2">({acc.codmNickname})</span>}
                              </div>
