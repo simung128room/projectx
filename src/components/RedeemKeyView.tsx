@@ -127,13 +127,6 @@ export const RedeemKeyView: React.FC<RedeemKeyViewProps> = ({ redeemKey, userEma
                   </button>
                 </form>
 
-                <div className="mt-8 flex items-start gap-3 bg-blue-50/50 p-4 rounded-xl border border-blue-100">
-                  <AlertCircle className="w-4 h-4 text-blue-500 mt-0.5 shrink-0" />
-                  <p className="text-xs text-blue-800 leading-relaxed font-medium">
-                    คีย์ 1 รหัส สามารถใช้เปิดใช้งานบัญชีได้ 1 ครั้งเท่านั้น หากพบปัญหาการใช้งาน กรุณาติดต่อทีมงานผ่านดิสคอร์ด
-                  </p>
-                </div>
-
               </div>
             </div>
           </div>
