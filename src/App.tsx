@@ -26,7 +26,6 @@ import { HomeView } from './components/HomeView';
 import { ProductDetailView } from './components/ProductDetailView';
 import { PageView } from './components/PageView';
 import { HistoryLogsView } from './components/HistoryLogsView';
-import { TelegramCatcherTool } from './components/TelegramCatcherTool';
 import { DiscordCatcherTool } from './components/DiscordCatcherTool';
 import { DiscordBadgeTool } from './components/DiscordBadgeTool';
 import { DiscordTokenOnTool } from './components/DiscordTokenOnTool';
@@ -152,7 +151,7 @@ function AppContent() {
   const [showKeyModal, setShowKeyModal] = useState(false);
 
   // Navigation State
-  type ViewType = 'home' | 'categories' | 'category_products' | 'dashboard' | 'super_ai' | 'telegram_catcher' | 'discord_catcher' | 'discord_on' | 'discord_badge' | 'remove_bg' | 'admin' | 'profile' | 'logs' | 'checker_logs' | 'history' | 'settings' | 'contact' | 'login' | 'signup' | 'wallet' | 'redeem' | 'product_detail' | 'custom_page';
+  type ViewType = 'home' | 'categories' | 'category_products' | 'dashboard' | 'super_ai' | 'discord_catcher' | 'discord_on' | 'discord_badge' | 'remove_bg' | 'admin' | 'profile' | 'logs' | 'checker_logs' | 'history' | 'settings' | 'contact' | 'login' | 'signup' | 'wallet' | 'redeem' | 'product_detail' | 'custom_page';
   const [activeView, setRawActiveView] = useState<ViewType>('home');
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>('all');
@@ -180,7 +179,7 @@ function AppContent() {
       if (path === 'topup') path = 'wallet';
       if (path === 'store') path = 'categories';
       
-      const validViews = ['home', 'categories', 'category_products', 'dashboard', 'super_ai', 'telegram_catcher', 'discord_catcher', 'discord_on', 'discord_badge', 'remove_bg', 'admin', 'profile', 'logs', 'checker_logs', 'history', 'settings', 'contact', 'login', 'signup', 'wallet', 'redeem', 'product_detail', 'custom_page'];
+      const validViews = ['home', 'categories', 'category_products', 'dashboard', 'super_ai', 'discord_catcher', 'discord_on', 'discord_badge', 'remove_bg', 'admin', 'profile', 'logs', 'checker_logs', 'history', 'settings', 'contact', 'login', 'signup', 'wallet', 'redeem', 'product_detail', 'custom_page'];
       
       if (path && validViews.includes(path)) {
          if (path !== activeView) {
@@ -1293,9 +1292,6 @@ function AppContent() {
                     <button onClick={() => setActiveView('remove_bg')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'remove_bg' ? 'bg-fuchsia-600/10 text-fuchsia-500 shadow-md shadow-fuchsia-500/10' : 'text-zinc-500 hover:bg-[#0a0d12] hover:text-white'}`}>
                         <ImageIcon className="w-5 h-5" /> ลบพื้นหลัง
                     </button>
-                    <button onClick={() => setActiveView('telegram_catcher')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'telegram_catcher' ? 'bg-[#1E90FF]/10 text-[#1E90FF] shadow-md shadow-[#1E90FF]/10' : 'text-zinc-500 hover:bg-[#0a0d12] hover:text-white'}`}>
-                        <Bot className="w-5 h-5" /> ดักซอง Telegram
-                    </button>
                     <button onClick={() => setActiveView('discord_catcher')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'discord_catcher' ? 'bg-[#5865F2]/10 text-[#5865F2] shadow-md shadow-[#5865F2]/10' : 'text-zinc-500 hover:bg-[#0a0d12] hover:text-white'}`}>
                         <Bot className="w-5 h-5" /> ดักซอง Discord
                     </button>
@@ -1503,9 +1499,6 @@ function AppContent() {
                             <button onClick={() => { setActiveView('remove_bg'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border ${activeView === 'remove_bg' ? 'bg-fuchsia-600/10 text-fuchsia-500 border-fuchsia-500/30 shadow-md shadow-fuchsia-500/10' : 'bg-transparent text-zinc-500 border-transparent hover:bg-[#0a0d12] hover:text-white'}`}>
                                <ImageIcon className="w-[18px] h-[18px]" /> ลบพื้นหลัง
                             </button>
-                            <button onClick={() => { setActiveView('telegram_catcher'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border ${activeView === 'telegram_catcher' ? 'bg-[#1E90FF]/10 text-[#1E90FF] border-[#1E90FF]/30 shadow-md shadow-[#1E90FF]/10' : 'bg-transparent text-zinc-500 border-transparent hover:bg-[#0a0d12] hover:text-white'}`}>
-                               <Bot className="w-[18px] h-[18px]" /> ดักซอง Telegram
-                            </button>
                             <button onClick={() => { setActiveView('discord_catcher'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border ${activeView === 'discord_catcher' ? 'bg-[#5865F2]/10 text-[#5865F2] border-[#5865F2]/30 shadow-md shadow-[#5865F2]/10' : 'bg-transparent text-zinc-500 border-transparent hover:bg-[#0a0d12] hover:text-white'}`}>
                                <Bot className="w-[18px] h-[18px]" /> ดักซอง Discord
                             </button>
@@ -1668,7 +1661,6 @@ function AppContent() {
           />
         )}
 
-        {activeView === 'telegram_catcher' && <TelegramCatcherTool userPlan={userPlan} />}
         {activeView === 'discord_catcher' && <DiscordCatcherTool userPlan={userPlan} />}
         {activeView === 'discord_on' && <DiscordTokenOnTool userPlan={userPlan} />}
         {activeView === 'discord_badge' && <DiscordBadgeTool />}

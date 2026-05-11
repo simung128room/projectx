@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Terminal, Send, ShieldCheck, Zap, Bot, Power, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Zap, Bot, Power, Loader2, CheckCircle2, AlertCircle, ShieldCheck } from 'lucide-react';
 import Swal from 'sweetalert2';
 
 interface Props {
@@ -11,14 +11,8 @@ export const DiscordCatcherTool: React.FC<Props> = ({ userPlan }) => {
   const [discordToken, setDiscordToken] = useState('');
   const [truemoneyPhone, setTruemoneyPhone] = useState('');
   const [status, setStatus] = useState<'none' | 'idle' | 'connected' | 'error'>('none');
-  const [logs, setLogs] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const isPremium = userPlan?.isPremium || false;
-  const logsEndRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-     logsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [logs]);
 
   useEffect(() => {
     if (!discordToken || status === 'none' || status === 'error') return;
@@ -27,9 +21,6 @@ export const DiscordCatcherTool: React.FC<Props> = ({ userPlan }) => {
            const res = await axios.get(`/api/discord/catcher/status?token=${encodeURIComponent(discordToken)}`);
            if (res.data.status !== 'none' && res.data.status !== status) {
                setStatus(res.data.status);
-           }
-           if (res.data.logs) {
-               setLogs(res.data.logs);
            }
        } catch (e) {}
     }, 2000);
@@ -61,7 +52,15 @@ export const DiscordCatcherTool: React.FC<Props> = ({ userPlan }) => {
        
        setIsLoading(true);
        setStatus('idle');
-       setLogs([]);
+       
+       Swal.fire({
+           title: 'กำลังเชื่อมต่อ...',
+           text: 'กรุณารอสักครู่ ระบบกำลังสื่อสารกับเซิร์ฟเวอร์',
+           allowOutsideClick: false,
+           background: '#0B0F14',
+           color: '#fff',
+           didOpen: () => Swal.showLoading()
+       });
 
        try {
            const res = await axios.post('/api/discord/catcher/request', {
@@ -70,9 +69,15 @@ export const DiscordCatcherTool: React.FC<Props> = ({ userPlan }) => {
                isPremium
            });
            setStatus(res.data.status || 'idle');
+           Swal.fire({
+               icon: 'success',
+               title: 'เชื่อมต่อสำเร็จ',
+               text: 'ระบบได้เริ่มดักซอง Discord แล้ว หากเจอซองจะถูกเติมเงินเข้าเบอร์อัตโนมัติ',
+               background: '#0B0F14',
+               color: '#fff'
+           });
        } catch (err: any) {
            setStatus('error');
-           setLogs([String(err.response?.data?.error || err)]);
            Swal.fire({
                icon: 'error',
                title: 'เกิดข้อผิดพลาด',
@@ -89,20 +94,12 @@ export const DiscordCatcherTool: React.FC<Props> = ({ userPlan }) => {
        try {
            await axios.post('/api/discord/catcher/stop', { discordToken });
            setStatus('none');
-           setLogs([]);
-           Swal.fire({ title: 'หยุดสำเร็จ', icon: 'success', toast: true, position: 'top-end', showConfirmButton: false, timer: 1500 });
+           Swal.fire({ title: 'หยุดสำเร็จ', icon: 'success', toast: true, position: 'top-end', showConfirmButton: false, timer: 1500, background: '#0B0F14', color: '#fff' });
        } catch(e) {}
   };
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6 pb-20 mt-4 md:mt-8 animate-in fade-in duration-500">
-        <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-4 mb-6 flex items-start gap-3 animate-in fade-in slide-in-from-top-4">
-            <ShieldCheck className="w-6 h-6 text-emerald-500 shrink-0 mt-0.5" />
-            <div>
-                <h4 className="text-emerald-500 font-bold text-sm">ปลอดภัย 100% (Secure Server Request)</h4>
-                <p className="text-emerald-500/80 text-xs mt-1">ระบบดักซองทำงานผ่าน Server โดยตรงและจะถูกเข้ารหัสระดับสูงทางเราไม่มีการจัดเก็บข้อมูล Token ของคุณไว้ในฐานข้อมูล ปิดหน้าเว็บแอปจะทำงานต่อได้ตลอด 24 ชั่วโมง</p>
-            </div>
-        </div>
+    <div className="max-w-3xl mx-auto space-y-6 pb-20 mt-4 md:mt-8 animate-in fade-in duration-500">
         
         <div className="flex flex-col md:flex-row gap-6 items-start justify-between border-b border-white/5 pb-8">
             <div className="flex-1">
@@ -137,190 +134,112 @@ export const DiscordCatcherTool: React.FC<Props> = ({ userPlan }) => {
             </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-           <div className="lg:col-span-4 flex flex-col space-y-4">
-               <div className="bg-[#0A0D12] border border-white/5 rounded-3xl p-6 relative overflow-hidden flex-1 flex flex-col">
-                   <div className="space-y-4 relative z-10 flex flex-col h-full">
-                       {status === 'none' && (
-                           <>
-                               <div className="mb-4">
-                                  <h3 className="text-white font-bold text-lg">ตั้งค่าบอท</h3>
-                                  <p className="text-xs text-zinc-500 mt-1">ระบุข้อมูลบัญชีเพื่อเข้าสู่ระบบ</p>
-                               </div>
+        <div className="bg-[#0A0D12] border border-white/5 rounded-3xl p-6 relative overflow-hidden flex-col flex items-center justify-center min-h-[350px]">
+           <div className="space-y-4 relative z-10 flex flex-col w-full max-w-md">
+               {status === 'none' && (
+                   <>
+                       <div className="mb-4 text-center">
+                          <h3 className="text-white font-bold text-lg">ตั้งค่าบอท</h3>
+                          <p className="text-xs text-zinc-500 mt-1">ระบุข้อมูลบัญชีเพื่อเข้าสู่ระบบ</p>
+                       </div>
 
-                               <div className="space-y-3">
-                                   <div>
-                                       <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-1.5 gap-2">Discord Token</label>
-                                       <input 
-                                           type="password" 
-                                           value={discordToken}
-                                           onChange={(e) => setDiscordToken(e.target.value)}
-                                           disabled={status !== 'none' || isLoading}
-                                           placeholder="MTA...." 
-                                           className="w-full bg-[#05070A] border border-white/5 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl px-4 py-3 text-white text-base md:text-sm placeholder-zinc-700 outline-none focus:border-[#5865F2]/40 focus:ring-2 focus:ring-[#5865F2]/10 transition-all font-mono"
-                                       />
-                                   </div>
+                       <div className="space-y-3">
+                           <div>
+                               <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">Discord Token</label>
+                               <input 
+                                   type="password" 
+                                   value={discordToken}
+                                   onChange={(e) => setDiscordToken(e.target.value)}
+                                   disabled={status !== 'none' || isLoading}
+                                   placeholder="MTA...." 
+                                   className="w-full bg-[#05070A] border border-white/5 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl px-4 py-3 text-white text-base md:text-sm placeholder-zinc-700 outline-none focus:border-[#5865F2]/40 focus:ring-2 focus:ring-[#5865F2]/10 transition-all font-mono"
+                               />
+                           </div>
 
-                                   <div>
-                                       <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-1.5 gap-2">เบอร์ TrueMoney (ดึงเงินเข้า)</label>
-                                       <input 
-                                           type="text" 
-                                           value={truemoneyPhone}
-                                           onChange={(e) => setTruemoneyPhone(e.target.value)}
-                                           disabled={status !== 'none' || isLoading}
-                                           placeholder="08X-XXX-XXXX" 
-                                           className="w-full bg-[#05070A] border border-white/5 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl px-4 py-3 text-white text-base md:text-sm placeholder-zinc-700 outline-none focus:border-orange-400/40 focus:ring-2 focus:ring-orange-400/10 transition-all font-mono"
-                                       />
-                                   </div>
-                               </div>
+                           <div>
+                               <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">เบอร์ TrueMoney (ดึงเงินเข้า)</label>
+                               <input 
+                                   type="text" 
+                                   value={truemoneyPhone}
+                                   onChange={(e) => setTruemoneyPhone(e.target.value)}
+                                   disabled={status !== 'none' || isLoading}
+                                   placeholder="08X-XXX-XXXX" 
+                                   className="w-full bg-[#05070A] border border-white/5 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl px-4 py-3 text-white text-base md:text-sm placeholder-zinc-700 outline-none focus:border-orange-400/40 focus:ring-2 focus:ring-orange-400/10 transition-all font-mono"
+                               />
+                           </div>
+                       </div>
 
-                               <div className="pt-4 mt-auto">
-                                   <button 
-                                       onClick={handleStart} 
-                                       disabled={isLoading}
-                                       className="w-full bg-[#5865F2] hover:bg-[#5865F2]/90 text-white rounded-xl py-3.5 text-sm font-bold transition-all shadow-[0_0_15px_rgba(88,101,242,0.2)] disabled:opacity-50 flex items-center justify-center gap-2"
-                                   >
-                                       {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Power className="w-4 h-4" /> เริ่มทำงาน</>}
-                                   </button>
-                               </div>
-                           </>
-                       )}
+                       <div className="pt-4 mt-auto">
+                           <button 
+                               onClick={handleStart} 
+                               disabled={isLoading}
+                               className="w-full bg-[#5865F2] hover:bg-[#5865F2]/90 text-white rounded-xl py-3.5 text-sm font-bold transition-all shadow-[0_0_15px_rgba(88,101,242,0.2)] disabled:opacity-50 flex items-center justify-center gap-2"
+                           >
+                               {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Power className="w-4 h-4" /> เริ่มทำงาน</>}
+                           </button>
+                       </div>
+                   </>
+               )}
 
-                       {status !== 'none' && (
-                           <div className="space-y-6 relative z-10 flex flex-col h-full justify-center text-center">
-                               {status === 'connected' ? (
-                                   <div>
-                                      <div className="w-16 h-16 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center mx-auto mb-4">
-                                         <CheckCircle2 className="w-8 h-8 text-green-400" />
-                                      </div>
-                                      <h3 className="text-lg font-bold text-white mb-1">ทำงานสมบูรณ์</h3>
-                                      <p className="text-green-400/80 text-xs font-medium">เชื่อมต่อระบบ Discord สำเร็จ</p>
-                                   </div>
-                               ) : status === 'error' ? (
-                                   <div>
-                                      <div className="w-16 h-16 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto mb-4">
-                                         <AlertCircle className="w-8 h-8 text-red-500" />
-                                      </div>
-                                      <h3 className="text-lg font-bold text-white mb-1">เกิดข้อผิดพลาด</h3>
-                                      <p className="text-red-400/80 text-xs font-medium">ระบบขัดข้อง โปรดลองใหม่</p>
-                                   </div>
-                               ) : (
-                                   <div>
-                                      <div className="w-16 h-16 rounded-full bg-[#5865F2]/10 border border-[#5865F2]/20 flex items-center justify-center mx-auto mb-4">
-                                         <Loader2 className="w-8 h-8 text-[#5865F2] animate-spin" />
-                                      </div>
-                                      <h3 className="text-lg font-bold text-white mb-1">กำลังดำเนินการ</h3>
-                                      <p className="text-[#5865F2]/80 text-xs font-medium">ตรวจสอบการเชื่อมต่อ...</p>
-                                   </div>
-                               )}
-
-                               <div className="bg-[#05070A] border border-white/5 rounded-xl p-4 text-left">
-                                  <div className="flex justify-between items-center text-xs mb-2">
-                                     <span className="text-zinc-500">Token</span>
-                                     <span className="text-zinc-300 font-mono">{discordToken ? discordToken.substring(0,6) + '...' + discordToken.substring(discordToken.length-4) : ''}</span>
-                                  </div>
-                                  <div className="flex justify-between items-center text-xs">
-                                     <span className="text-zinc-500">รับเงินเข้า</span>
-                                     <span className="text-orange-400 font-mono">{truemoneyPhone}</span>
-                                  </div>
-                               </div>
-
-                               <button onClick={handleStop} className="w-full flex items-center justify-center gap-2 bg-red-500/10 hover:bg-red-500 hover:text-white text-red-500 border border-red-500/20 py-3.5 rounded-xl text-sm font-bold transition-all mt-auto">
-                                  <Power className="w-4 h-4" /> ปิดระบบ (Stop)
-                               </button>
+               {status !== 'none' && (
+                   <div className="space-y-6 relative z-10 flex flex-col h-full justify-center text-center">
+                       {status === 'connected' ? (
+                           <div>
+                              <div className="w-16 h-16 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center mx-auto mb-4">
+                                 <CheckCircle2 className="w-8 h-8 text-green-400" />
+                              </div>
+                              <h3 className="text-lg font-bold text-white mb-1">ทำงานสมบูรณ์</h3>
+                              <p className="text-green-400/80 text-xs font-medium">เชื่อมต่อระบบ Discord สำเร็จ</p>
+                           </div>
+                       ) : status === 'error' ? (
+                           <div>
+                              <div className="w-16 h-16 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto mb-4">
+                                 <AlertCircle className="w-8 h-8 text-red-500" />
+                              </div>
+                              <h3 className="text-lg font-bold text-white mb-1">เกิดข้อผิดพลาด</h3>
+                              <p className="text-red-400/80 text-xs font-medium">ระบบขัดข้อง โปรดตรวจสอบ Token</p>
+                           </div>
+                       ) : (
+                           <div>
+                              <div className="w-16 h-16 rounded-full bg-[#5865F2]/10 border border-[#5865F2]/20 flex items-center justify-center mx-auto mb-4">
+                                 <Loader2 className="w-8 h-8 text-[#5865F2] animate-spin" />
+                              </div>
+                              <h3 className="text-lg font-bold text-white mb-1">กำลังดำเนินการ</h3>
+                              <p className="text-[#5865F2]/80 text-xs font-medium">รอการตอบสนองจากเซิร์ฟเวอร์...</p>
                            </div>
                        )}
-                   </div>
-               </div>
-           </div>
 
-           <div className="lg:col-span-8 flex flex-col">
-               <div className="bg-[#0A0D12] border border-white/5 rounded-3xl h-[500px] flex flex-col overflow-hidden">
-                   <div className="px-5 py-4 border-b border-white/5 flex items-center justify-between bg-black/20">
-                       <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                           <Terminal className="w-4 h-4 text-zinc-400" /> System Logs
-                       </h3>
-                       <div className="flex items-center gap-2">
-                           {status === 'connected' ? (
-                               <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-green-500/10 border border-green-500/20 text-[9px] font-bold text-green-400 uppercase tracking-wider">
-                                   <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span> ONLINE
-                               </div>
-                           ) : (
-                               <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-zinc-800 border border-white/5 text-[9px] font-bold text-zinc-500 uppercase tracking-wider">
-                                   <span className="w-1.5 h-1.5 rounded-full bg-zinc-600"></span> OFFLINE
-                               </div>
-                           )}
+                       <div className="bg-[#05070A] border border-white/5 rounded-xl p-4 text-left">
+                          <div className="flex justify-between items-center text-xs mb-2">
+                             <span className="text-zinc-500">Token</span>
+                             <span className="text-zinc-300 font-mono">{discordToken ? discordToken.substring(0,6) + '...' + discordToken.substring(discordToken.length-4) : ''}</span>
+                          </div>
+                          <div className="flex justify-between items-center text-xs">
+                             <span className="text-zinc-500">รับเงินเข้า</span>
+                             <span className="text-orange-400 font-mono">{truemoneyPhone}</span>
+                          </div>
                        </div>
+
+                       <button onClick={handleStop} className="w-full flex items-center justify-center gap-2 bg-red-500/10 hover:bg-red-500 hover:text-white text-red-500 border border-red-500/20 py-3.5 rounded-xl text-sm font-bold transition-all">
+                          <Power className="w-4 h-4" /> ปิดระบบ (Stop)
+                       </button>
                    </div>
-
-                   <div className="flex-1 overflow-y-auto p-5 font-mono text-[11px] sm:text-xs leading-relaxed space-y-2.5 custom-scrollbar bg-[#05070A] relative">
-                      {(status === 'idle' || status === 'error') && logs.length > 0 && (
-                          <div className="absolute inset-0 bg-[#0A0D12]/90 backdrop-blur-sm z-20 flex flex-col items-center justify-center text-center p-6">
-                              {status === 'idle' ? (
-                                  <>
-                                     <Loader2 className="w-8 h-8 text-[#5865F2] animate-spin mb-3" />
-                                     <p className="text-white font-bold text-sm mb-1">กำลังดำเนินการ...</p>
-                                     <p className="text-[#5865F2]/80 text-xs">{logs[logs.length - 1] || 'กำลังดำเนินการ...'}</p>
-                                  </>
-                              ) : (
-                                  <>
-                                     <AlertCircle className="w-10 h-10 text-red-500 mb-3" />
-                                     <p className="text-white font-bold text-sm mb-1">เกิดข้อผิดพลาด!</p>
-                                     <p className="text-red-400 text-xs mb-4 max-w-[250px]">{logs[logs.length - 1]}</p>
-                                     <button onClick={handleStop} className="px-5 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-xs text-white font-bold transition-colors">
-                                         ลองใหม่อีกครั้ง
-                                     </button>
-                                  </>
-                              )}
-                          </div>
-                      )}
-
-                      {logs.length === 0 ? (
-                          <div className="h-full flex flex-col items-center justify-center text-zinc-600">
-                             <Terminal className="w-8 h-8 opacity-50 mb-2 text-zinc-800" />
-                             <p>ยังไม่มีบันทึกระบบปฏิบัติการ (Logs)</p>
-                          </div>
-                      ) : (
-                          logs.map((log, i) => {
-                             let colorClass = "text-zinc-400";
-                             let icon = <span className="text-zinc-700 shrink-0 select-none opacity-50 text-[10px] leading-5 mr-2">{'>'}</span>;
-                             if (log.includes('✅')) { colorClass = "text-green-400"; icon = <CheckCircle2 className="w-3.5 h-3.5 text-green-500 inline mr-2 shrink-0" />; }
-                             else if (log.includes('❌') || log.includes('ข้อผิดพลาด')) { colorClass = "text-red-400"; icon = <AlertCircle className="w-3.5 h-3.5 text-red-500 inline mr-2 shrink-0" />; }
-                             else if (log.includes('🎯')) { colorClass = "text-yellow-400 font-bold"; icon = <Zap className="w-3.5 h-3.5 text-yellow-400 inline mr-2 shrink-0" />; }
-                             
-                             return (
-                               <div key={i} className={`flex items-start break-all ${colorClass}`}>
-                                   {icon}
-                                   <span className="leading-5">
-                                      {log.replace(/\[.*?\] /, '')}
-                                      {log.match(/\[(.*?)\]/) && (
-                                         <span className="text-[10px] text-zinc-600 opacity-50 ml-2 whitespace-nowrap">
-                                            {log.match(/\[(.*?)\]/)?.[1] || ''}
-                                         </span>
-                                      )}
-                                   </span>
-                               </div>
-                             );
-                          })
-                      )}
-                      <div ref={logsEndRef} />
-                  </div>
-               </div>
+               )}
            </div>
         </div>
-        
-        <style dangerouslySetInnerHTML={{__html: `
-          .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
-          }
-          .custom-scrollbar::-webkit-scrollbar-track {
-            background: transparent;
-          }
-          .custom-scrollbar::-webkit-scrollbar-thumb {
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-          }
-        `}} />
+
+        <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-5 mt-8 flex flex-col md:flex-row md:items-center gap-4 animate-in fade-in slide-in-from-bottom-4">
+            <div className="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0">
+               <ShieldCheck className="w-6 h-6 text-emerald-400" />
+            </div>
+            <div>
+                <h4 className="text-emerald-400 font-bold text-sm mb-1.5 leading-none">ปลอดภัย 100% (Secure Server Request)</h4>
+                <p className="text-emerald-500/80 text-xs leading-relaxed max-w-xl text-pretty space-y-1 block">
+                    ระบบดักซองทำงานผ่าน Server โดยตรงและจะถูกเข้ารหัสระดับสูงทางเราไม่มีการจัดเก็บข้อมูลรหัสผ่านใดๆของคุณไว้ในฐานข้อมูล 
+                    ระบบจะดักจับเฉพาะซองอั่งเปา TrueMoney ตามที่กำหนดเท่านั้น ปิดหน้าเว็บแอปจะหยุดทำงานทันที
+                </p>
+            </div>
+        </div>
     </div>
   );
 };
