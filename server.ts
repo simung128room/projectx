@@ -146,12 +146,8 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
     const clientIp = (req.headers['x-forwarded-for'] as string)?.split(',')[0] || req.ip || 'Unknown';
     console.log(`[Health] Request from ${clientIp}`);
     
-    // Check if blocked
+    // Check if blocked bypassed for performance
     let isBlocked = false;
-    try {
-      const snapshot = await admin.firestore().collection('blocked_ips').where('ip', '==', clientIp).get();
-      if (!snapshot.empty) isBlocked = true;
-    } catch(e) {}
     
     res.json({ 
       status: 'ok', 

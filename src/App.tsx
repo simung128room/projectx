@@ -566,65 +566,60 @@ function AppContent() {
   // Backend API Listeners
   useEffect(() => {
     fetchAllData();
-    const timer = setInterval(fetchAllData, 5000);
+    const timer = setInterval(fetchAllData, 60000);
     return () => clearInterval(timer);
   }, [fetchAllData]);
 
   // App Init & check IP
   useEffect(() => {
     const initApp = async () => {
+      // Load local storage data using a static key, independent of IP so VPN works
+      const savedLogs = localStorage.getItem(`checker_logs_main`);
+      const savedUserPlan = localStorage.getItem(`checker_userplan_main`);
+      const savedDailyUsage = localStorage.getItem(`checker_usage_main`);
+      const savedLastDate = localStorage.getItem(`checker_lastdate_main`);
+
+      // Clear any legacy unsafe sensitive data
+      localStorage.removeItem(`checker_combo_main`);
+      localStorage.removeItem(`checker_valid_main`);
+      localStorage.removeItem(`checker_invalid_main`);
+      localStorage.removeItem(`checker_total_main`);
+      
+      const todayDate = new Date().toISOString().slice(0, 10);
+      if (savedLastDate === todayDate) {
+        setDailyUsage(Number(savedDailyUsage) || 0);
+      } else {
+        setDailyUsage(0);
+      }
+      setLastUsageDate(todayDate);
+
+      if (savedUserPlan) setUserPlan(JSON.parse(savedUserPlan));
+      
+      // Removed loading combo and valid accounts from local storage to prevent XSS leakage
+      // Combo data must be loaded server side or kept entirely in memory
+      
+      if (savedLogs && JSON.parse(savedLogs).length > 0) {
+        setLogs(JSON.parse(savedLogs));
+      } else {
+        console.log("Welcome to APEX STUDIO System");
+        setLogs([{
+          id: Math.random().toString(36).substring(2, 9),
+          time: new Date().toLocaleTimeString('th-TH'),
+          text: 'System Ready - Backend connected.',
+          iconName: 'check',
+          colorClass: 'text-green-500'
+        }]);
+      }
+      
+      setIsLoaded(true); // Load instantly from local storage
+
       try {
         const res = await axios.get('/api/health');
         const ip = res.data.clientIp || 'Unknown';
         setClientIp(ip);
-        
-        // Disable IP Blocking for VPN Support
-        // if (res.data.blocked) {
-        //   setIsIPBlocked(true);
-        // }
-        
-        // Load local storage data using a static key, independent of IP so VPN works
-        const savedCombo = localStorage.getItem(`checker_combo_main`);
-        const savedValid = localStorage.getItem(`checker_valid_main`);
-        const savedInvalid = localStorage.getItem(`checker_invalid_main`);
-        const savedTotal = localStorage.getItem(`checker_total_main`);
-        const savedLogs = localStorage.getItem(`checker_logs_main`);
-        const savedUserPlan = localStorage.getItem(`checker_userplan_main`);
-        const savedDailyUsage = localStorage.getItem(`checker_usage_main`);
-        const savedLastDate = localStorage.getItem(`checker_lastdate_main`);
-
-        const todayDate = new Date().toISOString().slice(0, 10);
-        if (savedLastDate === todayDate) {
-          setDailyUsage(Number(savedDailyUsage) || 0);
-        } else {
-          setDailyUsage(0);
-        }
-        setLastUsageDate(todayDate);
-
-        if (savedUserPlan) setUserPlan(JSON.parse(savedUserPlan));
-
-        if (savedCombo) setCombo(savedCombo);
-        if (savedValid) setValidAccounts(JSON.parse(savedValid));
-        if (savedInvalid) setInvalidCount(Number(savedInvalid));
-        if (savedTotal) setTotalChecked(Number(savedTotal));
-        
-        if (savedLogs && JSON.parse(savedLogs).length > 0) {
-          setLogs(JSON.parse(savedLogs));
-        } else {
-          console.log("Welcome to APEX STUDIO System");
-          setLogs([{
-            id: Math.random().toString(36).substring(2, 9),
-            time: new Date().toLocaleTimeString('th-TH'),
-            text: 'System Ready - Backend connected.',
-            iconName: 'check',
-            colorClass: 'text-green-500'
-          }]);
-        }
-        setIsLoaded(true);
       } catch (err) {
         setClientIp('offline_local');
         console.error("IP Check Failed", err);
-        setIsLoaded(true);
       }
     };
     initApp();
@@ -644,11 +639,6 @@ function AppContent() {
   }, [running]);
 
   // Save Data locally (independent of IP for VPN compatibility)
-  useEffect(() => {
-    if (!isLoaded || !clientIp) return;
-    localStorage.setItem(`checker_combo_main`, combo);
-  }, [combo, isLoaded, clientIp]);
-
   useEffect(() => {
     if (!isLoaded || !clientIp) return;
     localStorage.setItem(`checker_logs_main`, JSON.stringify(logs.slice(-100))); // Keep last 100
