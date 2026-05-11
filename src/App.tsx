@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, Suspense, lazy } from 'react';
 import { 
   Gamepad2, ListChecks, Play, Square, Check, X, Shield, Terminal, CheckCircle2, 
   Home, ShoppingCart, CreditCard, Phone, Upload, Key, Crown, LogOut, User, Gift, Lock,
@@ -16,29 +16,30 @@ import jsQR from 'jsqr';
 type SupabaseUser = any;
 import { Turnstile } from '@marsidev/react-turnstile';
 import { AccountResult, LogEntry, UserPlan } from './types';
-import { ProfileView } from './components/ProfileView';
-import { CategoriesView } from './components/CategoriesView';
 import { KeyModal } from './components/modals/KeyModal';
-import { AuthView } from './components/AuthView';
-import { AdminDashboard } from './components/AdminDashboard';
 import { ReceiptModal } from './components/modals/ReceiptModal';
-import { HomeView } from './components/HomeView';
-import { ProductDetailView } from './components/ProductDetailView';
-import { PageView } from './components/PageView';
-import { HistoryLogsView } from './components/HistoryLogsView';
-import { DiscordCatcherTool } from './components/DiscordCatcherTool';
-import { DiscordBadgeTool } from './components/DiscordBadgeTool';
-import { DiscordTokenOnTool } from './components/DiscordTokenOnTool';
-import { WalletView } from './components/WalletView';
-import { RedeemKeyView } from './components/RedeemKeyView';
-import { HistoryView } from './components/HistoryView';
-import { CheckerLogsView } from './components/CheckerLogsView';
-import { CategoryProductsView } from './components/CategoryProductsView';
 import { PopupBanner } from './components/PopupBanner';
 import { Product, SiteStats, Category } from './types';
 import { getAvatarUrl } from './lib/avatar';
-import { ContactView } from './components/ContactView';
-import { TelegramCatcherTool } from './components/TelegramCatcherTool';
+
+const ProfileView = lazy(() => import('./components/ProfileView').then(module => ({ default: module.ProfileView })));
+const CategoriesView = lazy(() => import('./components/CategoriesView').then(module => ({ default: module.CategoriesView })));
+const AuthView = lazy(() => import('./components/AuthView').then(module => ({ default: module.AuthView })));
+const AdminDashboard = lazy(() => import('./components/AdminDashboard').then(module => ({ default: module.AdminDashboard })));
+const HomeView = lazy(() => import('./components/HomeView').then(module => ({ default: module.HomeView })));
+const ProductDetailView = lazy(() => import('./components/ProductDetailView').then(module => ({ default: module.ProductDetailView })));
+const PageView = lazy(() => import('./components/PageView').then(module => ({ default: module.PageView })));
+const HistoryLogsView = lazy(() => import('./components/HistoryLogsView').then(module => ({ default: module.HistoryLogsView })));
+const DiscordCatcherTool = lazy(() => import('./components/DiscordCatcherTool').then(module => ({ default: module.DiscordCatcherTool })));
+const DiscordBadgeTool = lazy(() => import('./components/DiscordBadgeTool').then(module => ({ default: module.DiscordBadgeTool })));
+const DiscordTokenOnTool = lazy(() => import('./components/DiscordTokenOnTool').then(module => ({ default: module.DiscordTokenOnTool })));
+const WalletView = lazy(() => import('./components/WalletView').then(module => ({ default: module.WalletView })));
+const RedeemKeyView = lazy(() => import('./components/RedeemKeyView').then(module => ({ default: module.RedeemKeyView })));
+const HistoryView = lazy(() => import('./components/HistoryView').then(module => ({ default: module.HistoryView })));
+const CheckerLogsView = lazy(() => import('./components/CheckerLogsView').then(module => ({ default: module.CheckerLogsView })));
+const CategoryProductsView = lazy(() => import('./components/CategoryProductsView').then(module => ({ default: module.CategoryProductsView })));
+const ContactView = lazy(() => import('./components/ContactView').then(module => ({ default: module.ContactView })));
+const TelegramCatcherTool = lazy(() => import('./components/TelegramCatcherTool').then(module => ({ default: module.TelegramCatcherTool })));
 
 var TextPaint = `▒▄▀▄▒█▀▄▒██▀░▀▄▀
 2
@@ -1591,6 +1592,7 @@ function AppContent() {
       {/* Verification Banner Removed */}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-10 pb-24 w-full flex-1 flex flex-col">
+        <Suspense fallback={<div className="flex items-center justify-center p-10"><div className="w-8 h-8 border-4 border-[#1E90FF] border-t-transparent flex-shrink-0 animate-spin rounded-full"></div></div>}>
         {activeView === 'categories' && (
           <CategoriesView 
             categories={categories}
@@ -2107,6 +2109,7 @@ function AppContent() {
         </div>
           </>
         )}
+        </Suspense>
 
         {/* Footer */}
         <footer className="mt-auto pt-6 border-t border-white/5 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 pb-6 w-full text-[10px] text-zinc-400 font-medium">
