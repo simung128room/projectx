@@ -158,7 +158,7 @@ export const TelegramCatcherTool: React.FC<Props> = ({ userPlan }) => {
                                     value={telegramPhone} 
                                     onChange={(e) => setTelegramPhone(e.target.value)} 
                                     placeholder="+66..." 
-                                    className="w-full bg-[#05070A] border border-white/5 rounded-xl px-4 py-3 text-white text-sm placeholder-zinc-700 outline-none focus:border-[#1E90FF]/40 focus:ring-2 focus:ring-[#1E90FF]/10 transition-all font-mono"
+                                    className="w-full bg-[#05070A] border border-white/5 rounded-xl px-4 py-3 text-white text-base md:text-sm placeholder-zinc-700 outline-none focus:border-[#1E90FF]/40 focus:ring-2 focus:ring-[#1E90FF]/10 transition-all font-mono"
                                  />
                               </div>
                               <div>
@@ -168,7 +168,7 @@ export const TelegramCatcherTool: React.FC<Props> = ({ userPlan }) => {
                                     value={truemoneyPhone} 
                                     onChange={(e) => setTruemoneyPhone(e.target.value)} 
                                     placeholder="08X-XXX-XXXX" 
-                                    className="w-full bg-[#05070A] border border-white/5 rounded-xl px-4 py-3 text-white text-sm placeholder-zinc-700 outline-none focus:border-orange-400/40 focus:ring-2 focus:ring-orange-400/10 transition-all font-mono"
+                                    className="w-full bg-[#05070A] border border-white/5 rounded-xl px-4 py-3 text-white text-base md:text-sm placeholder-zinc-700 outline-none focus:border-orange-400/40 focus:ring-2 focus:ring-orange-400/10 transition-all font-mono"
                                  />
                               </div>
                           </div>
@@ -276,7 +276,7 @@ export const TelegramCatcherTool: React.FC<Props> = ({ userPlan }) => {
                                   <>
                                      <Loader2 className="w-8 h-8 text-[#1E90FF] animate-spin mb-3" />
                                      <p className="text-white font-bold text-sm mb-1">กำลังเชื่อมต่อ...</p>
-                                     <p className="text-[#1E90FF]/80 text-xs">{logs[logs.length - 1]}</p>
+                                     <p className="text-[#1E90FF]/80 text-xs">{logs[logs.length - 1] || 'กำลังตรวจสอบข้อมูล...'}</p>
                                   </>
                               ) : (
                                   <>

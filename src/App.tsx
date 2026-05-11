@@ -334,25 +334,26 @@ function AppContent() {
       }
 
       // Show success and redirect
-      if (quantity === 1) {
-        setPurchasedItemReceipt({
-          ...newHistoryItem,
-          title: 'สั่งซื้อสำเร็จ',
-          icon: ShoppingCart,
-          bg: 'bg-emerald-500',
-          color: 'text-white'
-        });
-      } else {
-        Swal.fire({
-          icon: 'success',
-          title: 'สั่งซื้อสำเร็จ!',
-          text: 'ระบบได้ดาวน์โหลดไฟล์คีย์/ข้อมูลสินค้าให้ท่านอัตโนมัติ (และสามารถตรวจสอบย้อนหลังได้ที่ประวัติการสั่งซื้อ)',
-          confirmButtonColor: '#16a34a',
-          confirmButtonText: 'ตกลง'
-        }).then(() => {
-          setActiveView('history');
-        });
-      }
+      Swal.fire({
+        icon: 'success',
+        title: 'สั่งซื้อสำเร็จ!',
+        text: quantity === 1 
+          ? `คุณได้สั่งซื้อ ${product.name} สำเร็จแล้ว` 
+          : 'ระบบได้ดาวน์โหลดไฟล์คีย์/ข้อมูลสินค้าให้ท่านอัตโนมัติ (และสามารถตรวจสอบย้อนหลังได้ที่ประวัติการสั่งซื้อ)',
+        confirmButtonColor: '#16a34a',
+        confirmButtonText: 'ตกลง'
+      }).then(() => {
+        setActiveView('history');
+        if (quantity === 1) {
+          setPurchasedItemReceipt({
+            ...newHistoryItem,
+            title: 'สั่งซื้อสำเร็จ',
+            icon: ShoppingCart,
+            bg: 'bg-emerald-500',
+            color: 'text-white'
+          });
+        }
+      });
 
     } catch (err: any) {
       console.error("Purchase error:", err);
@@ -1417,7 +1418,7 @@ function AppContent() {
                 animate={{ x: 0 }}
                 exit={{ x: '100%' }}
                 transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                className="lg:hidden fixed top-0 right-0 h-[100dvh] w-[300px] bg-[#0B0F14]/95 backdrop-blur-xl border-l border-white/5 shadow-2xl z-[110] flex flex-col"
+                className="lg:hidden fixed top-0 bottom-0 right-0 h-full w-[300px] bg-[#0B0F14]/95 backdrop-blur-xl border-l border-white/5 shadow-2xl z-[110] flex flex-col"
               >
                 <div className="p-5 border-b border-white/5 flex items-center justify-between min-h-[72px] bg-[#0a0d12]/50">
                   <div className="flex items-center gap-3">
@@ -1431,7 +1432,7 @@ function AppContent() {
                   </button>
                 </div>
                 
-                <div className="p-5 flex flex-col gap-2 flex-1 overflow-y-auto scrollbar-none">
+                <div className="p-5 flex flex-col gap-2 flex-1 overflow-y-auto custom-scrollbar pb-24">
                   <div className="py-2">
                     <div className="flex items-center gap-3 mb-2 px-2">
                       <div className="flex-1 h-px bg-white/5"></div>
