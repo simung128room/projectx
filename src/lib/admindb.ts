@@ -82,19 +82,23 @@ function toDB(data: any, collection?: string): any {
       delete _data.uid;
   }
 
-  // Encode category metadata directly into name
-  if (_data.name !== undefined && (_data.title !== undefined || _data.subtitle !== undefined || _data.bannerUrl !== undefined)) {
+  // Encode category or product metadata directly into name
+  if (_data.name !== undefined && (_data.title !== undefined || _data.subtitle !== undefined || _data.bannerUrl !== undefined || _data.stockData !== undefined || _data.soldCount !== undefined)) {
       if (typeof _data.name === 'string' && !_data.name.startsWith('{"n":')) {
           _data.name = JSON.stringify({
               n: _data.name,
               t: _data.title,
               s: _data.subtitle,
-              b: _data.bannerUrl
+              b: _data.bannerUrl,
+              sd: _data.stockData,
+              sc: _data.soldCount
           });
       }
       delete _data.title;
       delete _data.subtitle;
       delete _data.bannerUrl;
+      delete _data.stockData;
+      delete _data.soldCount;
   }
 
   for (const k in _data) {
@@ -106,7 +110,7 @@ function toDB(data: any, collection?: string): any {
     if (collection && missingColumns.has(`${collection}.${target}`)) continue;
 
     // Ignore frontend-only or missing schema fields
-    if (k === 'premiumExpireDate' || k === 'fullName' || k === 'avatarUrl' || k === 'rank' || k === 'originalPrice' || k === 'soldCount' || k === 'isPopular') continue;
+    if (k === 'premiumExpireDate' || k === 'fullName' || k === 'avatarUrl' || k === 'rank' || k === 'originalPrice' || k === 'isPopular') continue;
     if (k === 'method' || k === 'uid' || k === 'secretData' || k === 'billNumber' || k === 'is_special' || k === 'productId') continue;
     
     res[target] = _data[k];
@@ -144,7 +148,7 @@ function fromDB(data: any): any {
       } catch (e) {}
   }
 
-  // Decode category metadata from name
+  // Decode category or product metadata from name
   if (res.name && typeof res.name === 'string' && res.name.startsWith('{"n":')) {
       try {
           const meta = JSON.parse(res.name);
@@ -152,6 +156,8 @@ function fromDB(data: any): any {
           if (meta.t !== undefined) res.title = meta.t;
           if (meta.s !== undefined) res.subtitle = meta.s;
           if (meta.b !== undefined) res.bannerUrl = meta.b;
+          if (meta.sd !== undefined) res.stockData = meta.sd;
+          if (meta.sc !== undefined) res.soldCount = meta.sc;
       } catch (e) {}
   }
 

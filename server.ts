@@ -229,6 +229,7 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
   // Site Settings State
   let lastStatsFetch = 0;
   let cachedStats: any = null;
+  const invalidateStatsCache = () => { lastStatsFetch = 0; cachedStats = null; };
   let siteSettings: any = {
     site_name: process.env.VITE_SITE_NAME || 'APEX STUDIO',
     truewallet_phone: process.env.TRUEWALLET_PHONE || '',
@@ -1294,6 +1295,8 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
       // Deep strip undefined values to please Firestore
       const dataToSave = JSON.parse(JSON.stringify(dataToSaveRaw));
       const docRef = await admin.firestore().collection('products').add(dataToSave);
+      invalidateCache('products');
+      invalidateStatsCache();
       res.json({ id: docRef.id, dbId: docRef.id, ...dataToSave });
     } catch (err: any) {
       console.error('Internal server error creating product:', JSON.stringify(err, Object.getOwnPropertyNames(err)));
@@ -1309,6 +1312,8 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
       const dataToSave = JSON.parse(JSON.stringify(dataToSaveRaw));
       const docRef = admin.firestore().collection('products').doc(req.params.id);
       await docRef.update(dataToSave);
+      invalidateCache('products');
+      invalidateStatsCache();
       res.json({ id: req.params.id, ...dataToSave });
     } catch (err) {
       console.error('Internal server error updating product:', err);
@@ -1320,6 +1325,8 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
     if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
     try {
       await admin.firestore().collection('products').doc(req.params.id).delete();
+      invalidateCache('products');
+      invalidateStatsCache();
       res.json({ success: true });
     } catch (err) {
       console.error('Internal server error deleting product:', err);
@@ -1592,6 +1599,9 @@ console.log('HIT STATS ENDPOINT');
         productRef.update(productUpdatePayload),
         admin.firestore().collection('purchases').add(historyPayload)
       ]).then(() => {
+        invalidateCache('products');
+        invalidateCache('purchases');
+        invalidateStatsCache();
         releaseLock!();
         delete purchaseLocks[lockKey];
       }).catch((bgErr) => {
