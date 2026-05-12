@@ -1699,9 +1699,9 @@ function AppContent() {
         {activeView === 'discord_badge' && <DiscordBadgeTool />}
         {activeView === 'logs' && <HistoryLogsView usedKeysHistory={usedKeysHistory} purchaseHistory={purchaseHistory} />}
         {activeView as string === 'checker_logs' && <CheckerLogsView logs={logs} onBack={() => setActiveView('home')} />}
-        {activeView === 'log_categories' && <LogCategoriesView userPlan={userPlan} onNavigateAction={(action) => setActiveView(action as void | any)} filterType="all" />}
-        {activeView === 'vip_logs' && <LogCategoriesView userPlan={userPlan} onNavigateAction={(action) => setActiveView(action as void | any)} filterType="vip" />}
-        {activeView === 'free_logs' && <LogCategoriesView userPlan={userPlan} onNavigateAction={(action) => setActiveView(action as void | any)} filterType="free" />}
+        {activeView === 'log_categories' && <LogCategoriesView userPlan={userPlan} isAdmin={isAdmin} onNavigateAction={(action) => setActiveView(action as void | any)} filterType="all" />}
+        {activeView === 'vip_logs' && <LogCategoriesView userPlan={userPlan} isAdmin={isAdmin} onNavigateAction={(action) => setActiveView(action as void | any)} filterType="vip" />}
+        {activeView === 'free_logs' && <LogCategoriesView userPlan={userPlan} isAdmin={isAdmin} onNavigateAction={(action) => setActiveView(action as void | any)} filterType="free" />}
         {activeView === 'history' && <HistoryView purchaseHistory={purchaseHistory} topupHistory={topupHistory} usedKeysHistory={usedKeysHistory} />}
         {activeView === 'wallet' && <WalletView userPlan={userPlan} setUserPlan={setUserPlan} userId={user?.uid} onTopupSuccess={(entry) => {
            setTopupHistory(prev => [entry, ...prev]);

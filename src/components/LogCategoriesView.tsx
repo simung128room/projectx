@@ -3,20 +3,22 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Folder, Lock, Search, Download, FileText, Image as ImageIcon, ChevronRight, Gift } from 'lucide-react';
 import Swal from 'sweetalert2';
 import axios from 'axios';
-import { LogCategory, ContentItem } from './AdminToolsManagement';
+import { LogCategory, ContentItem, AdminToolsManagement } from './AdminToolsManagement';
 
 interface LogCategoriesViewProps {
   userPlan: any;
   onNavigateAction: (action: string) => void;
   filterType?: 'all' | 'vip' | 'free';
+  isAdmin?: boolean;
 }
 
-export const LogCategoriesView: React.FC<LogCategoriesViewProps> = ({ userPlan, filterType = 'all' }) => {
+export const LogCategoriesView: React.FC<LogCategoriesViewProps> = ({ userPlan, filterType = 'all', isAdmin = false }) => {
   const [categories, setCategories] = useState<LogCategory[]>([]);
   const [items, setItems] = useState<ContentItem[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<LogCategory | null>(null);
   const [search, setSearch] = useState('');
   const [isVip, setIsVip] = useState(false);
+  const [showAdmin, setShowAdmin] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -97,9 +99,18 @@ export const LogCategoriesView: React.FC<LogCategoriesViewProps> = ({ userPlan, 
             </h1>
             <p className="text-sm font-medium text-zinc-500 mt-2">ดาวน์โหลดไฟล์และเอกสารฟรี & พรีเมียม</p>
          </div>
+         {isAdmin && (
+           <button onClick={() => setShowAdmin(!showAdmin)} className="flex bg-[#1a7fe6] text-white px-4 py-2 rounded-xl text-sm font-bold shadow-lg shadow-[#1a7fe6]/20 self-start md:self-auto hover:-translate-y-1 transition-all">
+              {showAdmin ? 'ปิดจัดการเนื้อหา' : 'เพิ่มเนื้อหา (แอดมิน)'}
+           </button>
+         )}
        </div>
 
-       {selectedCategory ? (
+       {showAdmin ? (
+         <div className="bg-black/20 border border-white/5 rounded-3xl p-4 sm:p-6 mb-8">
+           <AdminToolsManagement />
+         </div>
+       ) : selectedCategory ? (
          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
             <div className="flex items-center gap-4 mb-6">
                <button onClick={() => setSelectedCategory(null)} className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-white font-bold text-sm">

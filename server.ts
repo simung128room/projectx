@@ -1801,12 +1801,14 @@ console.log('HIT STATS ENDPOINT');
       if (authHeader && authHeader.startsWith('Bearer ')) {
         const token = authHeader.substring(7);
         try {
-          const userMeta = await auth.verifyIdToken(token);
-          const userDoc = await admin.firestore().collection('users').doc(userMeta.uid).get();
-          if (userDoc.exists) {
-             const u = userDoc.data();
-             if (u.isPremium === true) isVip = true;
-             if (u.role === 'admin' || u.role === 'Admin') isVip = true;
+          const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
+          if (user) {
+            const userDoc = await admin.firestore().collection('users').doc(user.id).get();
+            if (userDoc.exists) {
+               const u = userDoc.data();
+               if (u.isPremium === true) isVip = true;
+               if (u.role === 'admin' || u.role === 'Admin') isVip = true;
+            }
           }
         } catch(e) {}
       }
