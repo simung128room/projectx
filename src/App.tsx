@@ -40,6 +40,7 @@ const CheckerLogsView = lazy(() => import('./components/CheckerLogsView').then(m
 const CategoryProductsView = lazy(() => import('./components/CategoryProductsView').then(module => ({ default: module.CategoryProductsView })));
 const ContactView = lazy(() => import('./components/ContactView').then(module => ({ default: module.ContactView })));
 const TelegramCatcherTool = lazy(() => import('./components/TelegramCatcherTool').then(module => ({ default: module.TelegramCatcherTool })));
+const LogCategoriesView = lazy(() => import('./components/LogCategoriesView').then(module => ({ default: module.LogCategoriesView })));
 
 var TextPaint = `▒▄▀▄▒█▀▄▒██▀░▀▄▀
 2
@@ -150,7 +151,7 @@ function AppContent() {
   const [showKeyModal, setShowKeyModal] = useState(false);
 
   // Navigation State
-  type ViewType = 'home' | 'categories' | 'category_products' | 'dashboard' | 'telegram_catcher' | 'discord_catcher' | 'discord_on' | 'discord_badge' | 'admin' | 'profile' | 'logs' | 'checker_logs' | 'history' | 'settings' | 'contact' | 'login' | 'signup' | 'wallet' | 'redeem' | 'product_detail' | 'custom_page';
+  type ViewType = 'home' | 'categories' | 'category_products' | 'dashboard' | 'telegram_catcher' | 'discord_catcher' | 'discord_on' | 'discord_badge' | 'admin' | 'profile' | 'logs' | 'checker_logs' | 'history' | 'settings' | 'contact' | 'login' | 'signup' | 'wallet' | 'redeem' | 'product_detail' | 'custom_page' | 'log_categories';
   const [activeView, setRawActiveView] = useState<ViewType>('home');
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>('all');
@@ -468,6 +469,8 @@ function AppContent() {
     return () => subscription?.unsubscribe();
   }, []);
 
+  const [logCategories, setLogCategories] = useState<any[]>([]);
+
   const fetchAllData = useCallback(async () => {
     try {
       console.log("Fetching all data from backend...");
@@ -493,7 +496,8 @@ function AppContent() {
         fetchWithCatch('/api/products'),
         fetchWithCatch('/api/pages'),
         fetchWithCatch('/api/categories'),
-        fetchWithCatch('/api/stats')
+        fetchWithCatch('/api/stats'),
+        fetchWithCatch('/api/logs-system')
       ];
 
       // Admin data
@@ -507,7 +511,7 @@ function AppContent() {
       ] : [];
 
       const [
-        healthRes, settingsRes, productsRes, pagesRes, categoriesRes, statsRes,
+        healthRes, settingsRes, productsRes, pagesRes, categoriesRes, statsRes, logsSysRes,
         keysRes, historyRes, ipsRes, purchasesRes, topupsRes, usersRes
       ] = await Promise.all([...publicEndpoints, ...adminEndpoints]);
 
@@ -517,6 +521,7 @@ function AppContent() {
       const pagesData = pagesRes?.data;
       const categoriesData = categoriesRes?.data;
       const statsData = statsRes?.data;
+      const logsSysData = logsSysRes?.data;
       
       const keysData = keysRes?.data;
       const historyData = historyRes?.data;
@@ -537,6 +542,10 @@ function AppContent() {
       if (Array.isArray(purchasesData) && purchasesData.length > 0) setPurchaseHistory(purchasesData);
       if (Array.isArray(topupsData) && topupsData.length > 0) setTopupHistory(topupsData);
       if (Array.isArray(usersData)) setUsersList(usersData);
+      if (logsSysData && Array.isArray(logsSysData.categories)) {
+          setLogCategories(logsSysData.categories.filter((c: any) => c.isVisible));
+      }
+
       
       // We only consider DB un-ready if health fails.
       if (!healthRes?.error) {
@@ -1259,6 +1268,9 @@ function AppContent() {
             <button onClick={() => { setActiveView('categories'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'categories' ? 'bg-[#1E90FF] text-white shadow-md shadow-[#1E90FF]/20' : 'text-zinc-500 hover:bg-[#0a0d12] hover:text-white'}`}>
               <ShoppingCart className="w-5 h-5"/> สินค้าทั้งหมด
             </button>
+            <button onClick={() => { setActiveView('log_categories'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'log_categories' ? 'bg-[#1E90FF] text-white shadow-md shadow-[#1E90FF]/20' : 'text-zinc-500 hover:bg-[#0a0d12] hover:text-white'}`}>
+              <Gift className="w-5 h-5"/> ศูนย์รวมไฟล์ / เครื่องมือ
+            </button>
             {user && (
               <>
                 <button onClick={() => setActiveView('wallet')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'wallet' ? 'bg-[#1E90FF] text-white shadow-md shadow-[#1E90FF]/20' : 'text-zinc-500 hover:bg-[#0a0d12] hover:text-white'}`}>
@@ -1455,6 +1467,9 @@ function AppContent() {
                     </button>
                     <button onClick={() => { setActiveView('categories'); setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border ${activeView === 'categories' ? 'bg-[#1E90FF]/10 text-[#1E90FF] border-[#1E90FF]/30 shadow-md shadow-[#1E90FF]/10' : 'bg-transparent text-zinc-500 border-transparent hover:bg-[#0a0d12] hover:text-white'}`}>
                       <ShoppingCart className="w-[18px] h-[18px]"/> สินค้าทั้งหมด
+                    </button>
+                    <button onClick={() => { setActiveView('log_categories'); setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border ${activeView === 'log_categories' ? 'bg-[#1E90FF]/10 text-[#1E90FF] border-[#1E90FF]/30 shadow-md shadow-[#1E90FF]/10' : 'bg-transparent text-zinc-500 border-transparent hover:bg-[#0a0d12] hover:text-white'}`}>
+                      <Gift className="w-[18px] h-[18px]"/> ศูนย์รวมไฟล์ / เครื่องมือ
                     </button>
                     {user && (
                       <>
@@ -1678,6 +1693,7 @@ function AppContent() {
         {activeView === 'discord_badge' && <DiscordBadgeTool />}
         {activeView === 'logs' && <HistoryLogsView usedKeysHistory={usedKeysHistory} purchaseHistory={purchaseHistory} />}
         {activeView as string === 'checker_logs' && <CheckerLogsView logs={logs} onBack={() => setActiveView('home')} />}
+        {activeView === 'log_categories' && <LogCategoriesView userPlan={userPlan} onNavigateAction={(action) => setActiveView(action as ViewType)} />}
         {activeView === 'history' && <HistoryView purchaseHistory={purchaseHistory} topupHistory={topupHistory} usedKeysHistory={usedKeysHistory} />}
         {activeView === 'wallet' && <WalletView userPlan={userPlan} setUserPlan={setUserPlan} userId={user?.uid} onTopupSuccess={(entry) => {
            setTopupHistory(prev => [entry, ...prev]);

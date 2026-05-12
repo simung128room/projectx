@@ -1772,8 +1772,62 @@ console.log('HIT STATS ENDPOINT');
       await admin.firestore().collection('custom_pages').doc(req.params.id).delete();
       invalidateCache('custom_pages');
       res.json({ success: true });
-    } catch (err) {
+    } catch (err: any) {
       console.error('Internal server error deleting page:', err);
+      res.status(500).json({ error: String(err && err.message ? err.message : err) });
+    }
+  });
+
+  // --- Log Categories System Endpoints (Stored as JSON in settings for dynamic schema) ---
+  app.get('/api/logs-system', async (req, res) => {
+    try {
+      const doc = await admin.firestore().collection('settings').doc('log_system_data').get();
+      const dbData = doc.exists ? doc.data().data : { categories: [], items: [] };
+      let payload = dbData;
+      if (!payload || !payload.categories) payload = { categories: [], items: [] };
+      
+      // Auto-filter based on user VIP status
+      let isVip = false;
+      const authHeader = req.headers.authorization;
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        const token = authHeader.substring(7);
+        try {
+          const userMeta = await auth.verifyIdToken(token);
+          const userDoc = await admin.firestore().collection('users').doc(userMeta.uid).get();
+          if (userDoc.exists) {
+             const u = userDoc.data();
+             if (u.isPremium === true) isVip = true;
+             if (u.role === 'admin' || u.role === 'Admin') isVip = true;
+          }
+        } catch(e) {}
+      }
+
+      // Hide content if user is not VIP and item type is premium or belongs to a premium category maybe?
+      if (!isVip) {
+         if (Array.isArray(payload.items)) {
+             payload.items = payload.items.map((item: any) => {
+                 if (item.type === 'premium') {
+                    return { ...item, attachments: [] }; // strip files
+                 }
+                 return item;
+             });
+         }
+      }
+
+      res.json({ ...payload, isVip });
+    } catch (err: any) {
+      res.status(500).json({ error: String(err && err.message ? err.message : err) });
+    }
+  });
+
+  app.post('/api/logs-system', requireAdmin, async (req, res) => {
+    if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
+    try {
+      const data = req.body;
+      await admin.firestore().collection('settings').doc('log_system_data').set({ data }, { merge: false });
+      res.json({ success: true });
+    } catch (err: any) {
+      console.error('Internal server error saving log system data:', err);
       res.status(500).json({ error: String(err && err.message ? err.message : err) });
     }
   });
