@@ -475,96 +475,72 @@ function AppContent() {
     try {
       console.log("Fetching all data from backend...");
       
-      const fetchWithCatch = async (url: string) => {
+      const fireAndSet = async (url: string, setter: (data: any) => void) => {
         try {
           const res = await axios.get(url);
-          return { data: res.data, error: null };
+          if (res.data) setter(res.data);
+          return { error: null };
         } catch (e: any) {
           const status = e.response?.status;
           const errorMsg = e.response?.data?.error || e.message;
           if (status !== 401 && status !== 403 && status !== 404) {
             console.error(`Fetch ERROR for ${url}:`, errorMsg);
           }
-          return { data: null, error: errorMsg };
+          return { error: errorMsg };
         }
       };
 
-      // Public data
-      const publicEndpoints = [
-        fetchWithCatch('/api/health'),
-        fetchWithCatch('/api/settings'),
-        fetchWithCatch('/api/products'),
-        fetchWithCatch('/api/pages'),
-        fetchWithCatch('/api/categories'),
-        fetchWithCatch('/api/stats'),
-        fetchWithCatch('/api/logs-system')
-      ];
-
-      // Admin data
-      const adminEndpoints = isAdmin ? [
-        fetchWithCatch('/api/license_keys'),
-        fetchWithCatch('/api/used_keys'),
-        fetchWithCatch('/api/blocked_ips'),
-        fetchWithCatch('/api/purchases'),
-        fetchWithCatch('/api/topups'),
-        fetchWithCatch('/api/users')
-      ] : [];
-
-      const [
-        healthRes, settingsRes, productsRes, pagesRes, categoriesRes, statsRes, logsSysRes,
-        keysRes, historyRes, ipsRes, purchasesRes, topupsRes, usersRes
-      ] = await Promise.all([...publicEndpoints, ...adminEndpoints]);
-
-      const healthData = healthRes?.data;
-      const settingsData = settingsRes?.data;
-      const productsData = productsRes?.data;
-      const pagesData = pagesRes?.data;
-      const categoriesData = categoriesRes?.data;
-      const statsData = statsRes?.data;
-      const logsSysData = logsSysRes?.data;
+      // Critical Initial Data Fast Path
+      fireAndSet('/api/stats', (data) => {
+        setSiteStats({ users: data.users, stock: data.stock, sales: data.sales, topups: data.totalTopupsAmount, totalOrders: data.totalOrders });
+      });
+      fireAndSet('/api/products', (data) => {
+        if (Array.isArray(data)) setProducts(data.length > 0 ? data : defaultProducts);
+      });
+      fireAndSet('/api/categories', (data) => {
+        if (Array.isArray(data)) setCategories(data);
+      });
       
-      const keysData = keysRes?.data;
-      const historyData = historyRes?.data;
-      const ipsData = ipsRes?.data;
-      const purchasesData = purchasesRes?.data;
-      const topupsData = topupsRes?.data;
-      const usersData = usersRes?.data;
-
-      if (keysData) setLicenseKeys(keysData);
-      if (historyData) setUsedKeysHistory(historyData);
-      if (ipsData) setBlockedIPs(ipsData);
-      if (settingsData) setSiteSettings(settingsData);
-      if (Array.isArray(productsData)) setProducts(productsData.length > 0 ? productsData : defaultProducts);
-      if (Array.isArray(pagesData)) setCustomPages(pagesData);
-      else if (pagesData && pagesData.data && Array.isArray(pagesData.data)) setCustomPages(pagesData.data);
-      if (Array.isArray(categoriesData)) setCategories(categoriesData);
-      if (statsData) setSiteStats({ users: statsData.users, stock: statsData.stock, sales: statsData.sales, topups: statsData.totalTopupsAmount, totalOrders: statsData.totalOrders });
-      if (Array.isArray(purchasesData) && purchasesData.length > 0) setPurchaseHistory(purchasesData);
-      if (Array.isArray(topupsData) && topupsData.length > 0) setTopupHistory(topupsData);
-      if (Array.isArray(usersData)) setUsersList(usersData);
-      if (logsSysData && Array.isArray(logsSysData.categories)) {
-          setLogCategories(logsSysData.categories.filter((c: any) => c.isVisible));
-      }
-
-      
-      // We only consider DB un-ready if health fails.
-      if (!healthRes?.error) {
-        setIsDBReady(true);
-        setDbErrorDetail(null);
-      } else {
-        setIsDBReady(false);
-        if (healthRes?.error) {
-          let errorMsg: string = "Unknown Error";
-          if (healthRes.error) {
-            if (typeof healthRes.error === 'object') {
-              errorMsg = (healthRes.error as any).message || JSON.stringify(healthRes.error);
-            } else {
-              errorMsg = String(healthRes.error);
-            }
-          }
-          setDbErrorDetail(`Backend API ไม่ตอบสนอง (Offline): ${errorMsg}`);
+      // Secondary Data
+      fireAndSet('/api/settings', (data) => setSiteSettings(data));
+      fireAndSet('/api/pages', (data) => {
+        if (Array.isArray(data)) setCustomPages(data);
+        else if (data && data.data && Array.isArray(data.data)) setCustomPages(data.data);
+      });
+      fireAndSet('/api/logs-system', (data) => {
+        if (data && Array.isArray(data.categories)) {
+          setLogCategories(data.categories.filter((c: any) => c.isVisible));
         }
+      });
+      
+      // Admin endpoints Check
+      if (isAdmin) {
+         fireAndSet('/api/license_keys', setLicenseKeys);
+         fireAndSet('/api/used_keys', setUsedKeysHistory);
+         fireAndSet('/api/blocked_ips', setBlockedIPs);
+         fireAndSet('/api/purchases', (data) => {
+           if (Array.isArray(data) && data.length > 0) setPurchaseHistory(data);
+         });
+         fireAndSet('/api/topups', (data) => {
+           if (Array.isArray(data) && data.length > 0) setTopupHistory(data);
+         });
+         fireAndSet('/api/users', (data) => {
+           if (Array.isArray(data)) setUsersList(data);
+         });
       }
+
+      // Health check for DB readiness
+      axios.get('/api/health')
+        .then(() => {
+          setIsDBReady(true);
+          setDbErrorDetail(null);
+        })
+        .catch((e) => {
+          setIsDBReady(false);
+          let errorMsg = e.response?.data?.error || e.message || "Unknown Error";
+          setDbErrorDetail(`Backend API ไม่ตอบสนอง (Offline): ${errorMsg}`);
+        });
+
     } catch (err: any) {
       console.error("Critical fetch error:", err);
     }
