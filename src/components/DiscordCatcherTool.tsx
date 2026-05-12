@@ -1,245 +1,240 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Send, LogOut, CheckCircle2, AlertCircle, Bot, Loader2, Phone, Wallet, Lock, KeyRound, ShieldCheck } from 'lucide-react';
 import axios from 'axios';
-import { Zap, Bot, Power, Loader2, CheckCircle2, AlertCircle, ShieldCheck } from 'lucide-react';
 import Swal from 'sweetalert2';
 
-interface Props {
-  userPlan?: { isPremium: boolean; type?: string };
+interface DiscordCatcherToolProps {
+  userPlan: any;
 }
 
-export const DiscordCatcherTool: React.FC<Props> = ({ userPlan }) => {
+export const DiscordCatcherTool: React.FC<DiscordCatcherToolProps> = ({ userPlan }) => {
   const [discordToken, setDiscordToken] = useState('');
   const [truemoneyPhone, setTruemoneyPhone] = useState('');
-  const [status, setStatus] = useState<'none' | 'idle' | 'connected' | 'error'>('none');
+  const [status, setStatus] = useState<string>('none');
+  const [logs, setLogs] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  
+  const logsEndRef = useRef<HTMLDivElement>(null);
+  
   const isPremium = userPlan?.isPremium || false;
 
   useEffect(() => {
-    if (!discordToken || status === 'none' || status === 'error') return;
-    const interval = setInterval(async () => {
-       try {
-           const res = await axios.get(`/api/discord/catcher/status?token=${encodeURIComponent(discordToken)}`);
-           if (res.data.status !== 'none' && res.data.status !== status) {
-               setStatus(res.data.status);
-           }
-       } catch (e) {}
-    }, 2000);
+    let interval: NodeJS.Timeout;
+    if (status !== 'none' && discordToken) {
+      interval = setInterval(fetchStatus, 3000);
+    }
     return () => clearInterval(interval);
-  }, [discordToken, status]);
+  }, [status, discordToken]);
 
-  const handleStart = async () => {
-       if (!discordToken || !truemoneyPhone) {
-           Swal.fire({
-               icon: 'warning',
-               title: 'Missing Details',
-               text: 'Please enter your Discord Token and TrueMoney Phone Number',
-               background: '#0B0F14',
-               color: '#fff'
-           });
-           return;
-       }
+  useEffect(() => {
+    logsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [logs]);
 
-       if (!truemoneyPhone.match(/^[0-9]{10}$/)) {
-           Swal.fire({
-               icon: 'warning',
-               title: 'Invalid TrueMoney Phone',
-               text: 'Please enter a valid 10-digit phone number (e.g. 0812345678)',
-               background: '#0B0F14',
-               color: '#fff'
-           });
-           return;
-       }
-       
-       setIsLoading(true);
-       setStatus('idle');
-       
-       Swal.fire({
-           title: 'Connecting...',
-           text: 'Please wait while we communicate with the server',
-           allowOutsideClick: false,
-           background: '#0B0F14',
-           color: '#fff',
-           didOpen: () => Swal.showLoading()
-       });
-
-       try {
-           const res = await axios.post('/api/discord/catcher/request', {
-               discordToken,
-               truemoneyPhone,
-               isPremium
-           });
-           setStatus(res.data.status || 'idle');
-           Swal.fire({
-               icon: 'success',
-               title: 'Connected successfully',
-               text: 'System has started catching Discord gifts. When found, it will automatically topup to your phone.',
-               background: '#0B0F14',
-               color: '#fff'
-           });
-       } catch (err: any) {
-           setStatus('error');
-           Swal.fire({
-               icon: 'error',
-               title: 'Error Occurred',
-               text: err.response?.data?.error || String(err),
-               background: '#0B0F14',
-               color: '#fff'
-           });
-       } finally {
-           setIsLoading(false);
-       }
+  const fetchStatus = async () => {
+    try {
+      const res = await axios.get(`/api/discord/catcher/status?token=${encodeURIComponent(discordToken)}`);
+      if (res.data) {
+        setStatus(res.data.status);
+        setLogs(res.data.logs);
+      }
+    } catch (e) {
+      console.error(e);
+    }
   };
 
-  const handleStop = async () => {
-       try {
-           await axios.post('/api/discord/catcher/stop', { discordToken });
-           setStatus('none');
-           Swal.fire({ title: 'Stopped Successfully', icon: 'success', toast: true, position: 'top-end', showConfirmButton: false, timer: 1500, background: '#0B0F14', color: '#fff' });
-       } catch(e) {}
+  const handleStart = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!discordToken || !truemoneyPhone) {
+      Swal.fire({
+          icon: 'warning',
+          title: 'Missing Details',
+          text: 'Please enter your Discord Token and TrueMoney Phone Number',
+          background: '#0B0F14',
+          color: '#fff'
+      });
+      return;
+    }
+
+    if (!truemoneyPhone.match(/^[0-9]{10}$/)) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Invalid TrueMoney Phone',
+            text: 'Please enter a valid 10-digit phone number (e.g. 0812345678)',
+            background: '#0B0F14',
+            color: '#fff'
+        });
+        return;
+    }
+    
+    setIsLoading(true);
+    setStatus('idle');
+    try {
+      const res = await axios.post('/api/discord/catcher/request', {
+        discordToken,
+        truemoneyPhone,
+        isPremium
+      });
+      
+      if (res.data.error) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error Occurred',
+            text: res.data.error,
+            background: '#0B0F14',
+            color: '#fff'
+        });
+        setStatus('error');
+      } else {
+        setStatus(res.data.status);
+      }
+    } catch (error: any) {
+      Swal.fire({
+            icon: 'error',
+            title: 'Error Occurred',
+            text: error.response?.data?.error || error.message,
+            background: '#0B0F14',
+            color: '#fff'
+        });
+    } finally {
+      setIsLoading(false);
+      fetchStatus();
+    }
+  };
+
+  const stopCatcher = async () => {
+    try {
+      await axios.post('/api/discord/catcher/stop', { discordToken });
+      setStatus('none');
+      setLogs([]);
+      Swal.fire({ title: 'Stopped Successfully', icon: 'success', toast: true, position: 'top-end', showConfirmButton: false, timer: 1500, background: '#0B0F14', color: '#fff' });
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6 pb-20 mt-4 md:mt-8 animate-in fade-in duration-500">
+    <div className="max-w-4xl mx-auto pb-10">
+      <div className="bg-[#1c242d] border border-white/10 rounded-[2rem] overflow-hidden shadow-2xl flex flex-col md:flex-row">
         
-        <div className="flex flex-col md:flex-row gap-6 items-start justify-between border-b border-white/5 pb-8">
-            <div className="flex-1">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#5865F2]/10 text-[#5865F2] text-xs font-bold mb-4">
-                 <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#5865F2] opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-[#5865F2]"></span>
-                 </span>
-                 DISCORD CATCHER
+        {/* Sidebar Settings Area */}
+        <div className="w-full md:w-1/3 border-b md:border-b-0 md:border-r border-white/5 p-6 flex flex-col gap-6">
+          <div className="flex items-center gap-3">
+             <div className="w-10 h-10 rounded-full bg-[#5865F2] flex items-center justify-center text-white">
+                <Bot className="w-5 h-5" />
+             </div>
+             <div>
+               <h2 className="text-white font-bold text-lg leading-tight">Discord Setup</h2>
+               <p className="text-[#5865F2] text-xs font-medium">TrueMoney Catcher</p>
+             </div>
+          </div>
+          
+          <form onSubmit={handleStart} className="flex flex-col gap-4 mt-2">
+            <div>
+              <label className="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-1.5 block">Discord Token</label>
+              <div className="relative">
+                <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+                <input 
+                  type="password" 
+                  value={discordToken}
+                  onChange={e => setDiscordToken(e.target.value)}
+                  placeholder="MTA...."
+                  className="w-full bg-[#0e1621] border border-white/5 rounded-xl py-3 pl-10 pr-4 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-[#5865F2]/50 transition-colors font-mono"
+                  disabled={status !== 'none' && status !== 'error'}
+                />
               </div>
-              <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight">
-                 Discord Gift Catcher
-              </h2>
-              <p className="text-zinc-400 mt-3 text-sm leading-relaxed max-w-2xl">
-                 Automatically catch TrueMoney gifts in your Discord servers and chats 24/7.
-                 When a gift is found, the system instantly redeems the credits to your mobile number at top speed.
-              </p>
+            </div>
+
+            <div>
+              <label className="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-1.5 block">TrueMoney Phone</label>
+              <div className="relative">
+                <Wallet className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+                <input 
+                  type="text" 
+                  value={truemoneyPhone}
+                  onChange={e => setTruemoneyPhone(e.target.value)}
+                  placeholder="08X-XXX-XXXX"
+                  className="w-full bg-[#0e1621] border border-white/5 rounded-xl py-3 pl-10 pr-4 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-[#5865F2]/50 transition-colors font-mono"
+                  disabled={status !== 'none' && status !== 'error'}
+                />
+              </div>
             </div>
             
-            <div className="bg-[#05070A] border border-white/5 px-5 py-4 rounded-2xl shrink-0 flex items-center gap-4">
-               <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${isPremium ? 'bg-amber-400/10 text-amber-400' : 'bg-white/5 text-zinc-400'}`}>
-                   {isPremium ? <Zap className="w-6 h-6" /> : <Bot className="w-6 h-6" />}
-               </div>
-               <div>
-                   <p className="text-[10px] uppercase tracking-widest text-zinc-500 font-bold mb-1">Daily Usage Quota</p>
-                   {isPremium ? (
-                      <p className="text-lg font-black text-white flex items-center gap-2">Unlimited <span className="text-[9px] bg-amber-400 text-black px-1.5 py-0.5 rounded uppercase font-bold">VIP</span></p>
-                   ) : (
-                      <p className="text-lg font-black text-white">100 <span className="text-xs font-medium text-zinc-500">gifts</span></p>
-                   )}
-               </div>
-            </div>
+            {(status === 'none' || status === 'error') && (
+              <button 
+                type="submit"
+                disabled={isLoading}
+                className="w-full bg-[#5865F2] hover:bg-[#4752C4] text-white font-bold rounded-xl py-3 text-sm transition-all shadow-lg shadow-[#5865F2]/20 flex items-center justify-center gap-2 mt-2 disabled:opacity-50"
+              >
+                {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Bot className="w-5 h-5" /> Connect Bot</>}
+              </button>
+            )}
+            
+            {(status !== 'none' && status !== 'error') && (
+              <button 
+                type="button"
+                onClick={stopCatcher}
+                className="w-full bg-red-500/10 hover:bg-red-500/20 text-red-500 font-bold rounded-xl py-3 text-sm transition-all border border-red-500/30 flex items-center justify-center gap-2 mt-2"
+              >
+                <LogOut className="w-4 h-4" /> Disconnect
+              </button>
+            )}
+          </form>
         </div>
 
-        <div className="bg-[#0A0D12] border border-white/5 rounded-3xl p-6 relative overflow-hidden flex-col flex items-center justify-center min-h-[350px]">
-           <div className="space-y-4 relative z-10 flex flex-col w-full max-w-md">
-               {status === 'none' && (
-                   <>
-                       <div className="mb-4 text-center">
-                          <h3 className="text-white font-bold text-lg">Bot Setup</h3>
-                          <p className="text-xs text-zinc-500 mt-1">Enter your account details to connect</p>
-                       </div>
-
-                       <div className="space-y-3">
-                           <div>
-                               <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">Discord Token</label>
-                               <input 
-                                   type="password" 
-                                   value={discordToken}
-                                   onChange={(e) => setDiscordToken(e.target.value)}
-                                   disabled={status !== 'none' || isLoading}
-                                   placeholder="MTA...." 
-                                   className="w-full bg-[#05070A] border border-white/5 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl px-4 py-3 text-white text-base md:text-sm placeholder-zinc-700 outline-none focus:border-[#5865F2]/40 focus:ring-2 focus:ring-[#5865F2]/10 transition-all font-mono"
-                               />
-                           </div>
-
-                           <div>
-                               <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">TrueMoney Phone (Receiver)</label>
-                               <input 
-                                   type="text" 
-                                   value={truemoneyPhone}
-                                   onChange={(e) => setTruemoneyPhone(e.target.value)}
-                                   disabled={status !== 'none' || isLoading}
-                                   placeholder="08X-XXX-XXXX" 
-                                   className="w-full bg-[#05070A] border border-white/5 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl px-4 py-3 text-white text-base md:text-sm placeholder-zinc-700 outline-none focus:border-orange-400/40 focus:ring-2 focus:ring-orange-400/10 transition-all font-mono"
-                               />
-                           </div>
-                       </div>
-
-                       <div className="pt-4 mt-auto">
-                           <button 
-                               onClick={handleStart} 
-                               disabled={isLoading}
-                               className="w-full bg-[#5865F2] hover:bg-[#5865F2]/90 text-white rounded-xl py-3.5 text-sm font-bold transition-all shadow-[0_0_15px_rgba(88,101,242,0.2)] disabled:opacity-50 flex items-center justify-center gap-2"
-                           >
-                               {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Power className="w-4 h-4" /> Start Bot</>}
-                           </button>
-                       </div>
-                   </>
-               )}
-
-               {status !== 'none' && (
-                   <div className="space-y-6 relative z-10 flex flex-col h-full justify-center text-center">
-                       {status === 'connected' ? (
-                           <div>
-                              <div className="w-16 h-16 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center mx-auto mb-4">
-                                 <CheckCircle2 className="w-8 h-8 text-green-400" />
-                              </div>
-                              <h3 className="text-lg font-bold text-white mb-1">Working Perfectly</h3>
-                              <p className="text-green-400/80 text-xs font-medium">Successfully Connected to Discord</p>
-                           </div>
-                       ) : status === 'error' ? (
-                           <div>
-                              <div className="w-16 h-16 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto mb-4">
-                                 <AlertCircle className="w-8 h-8 text-red-500" />
-                              </div>
-                              <h3 className="text-lg font-bold text-white mb-1">Error Occurred</h3>
-                              <p className="text-red-400/80 text-xs font-medium">System fault, please check Token</p>
-                           </div>
-                       ) : (
-                           <div>
-                              <div className="w-16 h-16 rounded-full bg-[#5865F2]/10 border border-[#5865F2]/20 flex items-center justify-center mx-auto mb-4">
-                                 <Loader2 className="w-8 h-8 text-[#5865F2] animate-spin" />
-                              </div>
-                              <h3 className="text-lg font-bold text-white mb-1">In Progress</h3>
-                              <p className="text-[#5865F2]/80 text-xs font-medium">Waiting for server response...</p>
-                           </div>
-                       )}
-
-                       <div className="bg-[#05070A] border border-white/5 rounded-xl p-4 text-left">
-                          <div className="flex justify-between items-center text-xs mb-2">
-                             <span className="text-zinc-500">Token</span>
-                             <span className="text-zinc-300 font-mono">{discordToken ? discordToken.substring(0,6) + '...' + discordToken.substring(discordToken.length-4) : ''}</span>
-                          </div>
-                          <div className="flex justify-between items-center text-xs">
-                             <span className="text-zinc-500">Receiver</span>
-                             <span className="text-orange-400 font-mono">{truemoneyPhone}</span>
-                          </div>
-                       </div>
-
-                       <button onClick={handleStop} className="w-full flex items-center justify-center gap-2 bg-red-500/10 hover:bg-red-500 hover:text-white text-red-500 border border-red-500/20 py-3.5 rounded-xl text-sm font-bold transition-all">
-                          <Power className="w-4 h-4" /> Stop System
-                       </button>
-                   </div>
-               )}
-           </div>
-        </div>
-
-        <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-5 mt-8 flex flex-col md:flex-row md:items-center gap-4 animate-in fade-in slide-in-from-bottom-4">
-            <div className="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0">
-               <ShieldCheck className="w-6 h-6 text-emerald-400" />
+        {/* Discord Chat Area */}
+        <div className="w-full md:w-2/3 bg-[#0e1621] flex flex-col h-[600px] relative">
+          
+          <div className="bg-[#1c242d] px-6 py-4 flex items-center border-b border-white/5 z-10">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#5865F2] to-[#4752C4] flex items-center justify-center mr-4">
+              <Bot className="w-6 h-6 text-white" />
             </div>
             <div>
-                <h4 className="text-emerald-400 font-bold text-sm mb-1.5 leading-none">100% Secure (Server Request)</h4>
-                <p className="text-emerald-500/80 text-xs leading-relaxed max-w-xl text-pretty space-y-1 block">
-                    The gift catcher works directly through our backend with high-level encryption. We do not store any passwords or tokens in our database.
-                    It only hooks to TrueMoney voucher domains. Closing the app might interrupt background services depending on browser rules.
-                </p>
+              <div className="text-white font-bold text-sm">TrueMoney Catcher Bot</div>
+              <div className="text-[#5865F2] text-xs mt-0.5">
+                {status === 'connected' ? 'online' : status === 'none' ? 'waiting for connection...' : 'connecting...'}
+              </div>
             </div>
+          </div>
+
+          <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-3 z-10 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+            {logs.length === 0 ? (
+              <div className="mt-auto mb-auto text-center">
+                <div className="w-16 h-16 bg-[#1c242d] rounded-full flex items-center justify-center mx-auto mb-4 border border-white/5">
+                  <Bot className="w-8 h-8 text-zinc-500" />
+                </div>
+                <div className="bg-white/5 text-zinc-400 text-xs px-4 py-1.5 rounded-full inline-block font-medium">
+                  Add token and phone number to start
+                </div>
+              </div>
+            ) : (
+              logs.map((log, i) => {
+                const isSuccess = log.includes('✅') || log.includes('เชื่อมต่อ') || log.includes('สำเร็จ');
+                const isError = log.includes('❌') || log.includes('ข้อผิดพลาด') || log.includes('Error');
+                const isAction = log.includes('🎯');
+                
+                return (
+                  <div key={i} className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm ${
+                    log.includes('เริ่ม') || isSuccess || isAction
+                      ? 'bg-[#5865F2]/20 text-[#C1C8FF] self-start ml-2 shadow-sm rounded-bl-sm border border-[#5865F2]/30'
+                      : isError 
+                        ? 'bg-red-500/20 text-red-100 border border-red-500/30 self-start ml-2 rounded-bl-sm'
+                        : 'bg-[#182533] text-white self-end mr-2 shadow-sm rounded-br-sm'
+                  }`}>
+                    <div className="flex flex-col">
+                      <span className="leading-relaxed">{log}</span>
+                      <span className="text-[10px] text-white/40 self-end mt-1 font-mono">
+                        {new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+            <div ref={logsEndRef} />
+          </div>
         </div>
+        
+      </div>
     </div>
   );
 };
