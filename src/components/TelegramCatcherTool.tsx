@@ -23,7 +23,7 @@ export const TelegramCatcherTool: React.FC<TelegramCatcherToolProps> = ({ userPl
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (status !== 'none' && telegramPhone) {
-      interval = setInterval(fetchStatus, 3000);
+      interval = setInterval(fetchStatus, 1500);
     }
     return () => clearInterval(interval);
   }, [status, telegramPhone]);
@@ -46,27 +46,48 @@ export const TelegramCatcherTool: React.FC<TelegramCatcherToolProps> = ({ userPl
 
   const handleStart = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!telegramPhone || !truemoneyPhone) {
-      Swal.fire('Error', 'Please enter both phone numbers', 'error');
+    const tgPhone = telegramPhone.replace(/\s+/g, '');
+    const tmPhone = truemoneyPhone.replace(/\s+/g, '');
+    
+    if (!tgPhone || !tmPhone) {
+      Swal.fire({
+          icon: 'warning',
+          title: 'Missing Details',
+          text: 'Please enter both phone numbers',
+          background: '#0B0F14',
+          color: '#fff'
+      });
       return;
     }
     
     setIsLoading(true);
     try {
       const res = await axios.post('/api/telegram/catcher/request', {
-        telegramPhone,
-        truemoneyPhone,
+        telegramPhone: tgPhone,
+        truemoneyPhone: tmPhone,
         isPremium
       });
       
       if (res.data.error) {
-        Swal.fire('Error', res.data.error, 'error');
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: res.data.error,
+          background: '#0B0F14',
+          color: '#fff'
+        });
         setStatus('error');
       } else {
         setStatus(res.data.status);
       }
     } catch (error: any) {
-      Swal.fire('Error', error.response?.data?.error || error.message, 'error');
+      Swal.fire({
+        icon: 'error',
+        title: 'Error Occurred',
+        text: error.response?.data?.error || error.message,
+        background: '#0B0F14',
+        color: '#fff'
+      });
     } finally {
       setIsLoading(false);
       fetchStatus();
@@ -78,14 +99,20 @@ export const TelegramCatcherTool: React.FC<TelegramCatcherToolProps> = ({ userPl
     setIsLoading(true);
     try {
       await axios.post('/api/telegram/catcher/submit', {
-        telegramPhone,
+        telegramPhone: telegramPhone.replace(/\s+/g, ''),
         type,
         value
       });
       if (type === 'otp') setOtp('');
       else setPassword('');
     } catch (error: any) {
-      Swal.fire('Error', error.response?.data?.error || error.message, 'error');
+      Swal.fire({
+        icon: 'error',
+        title: 'Error Occurred',
+        text: error.response?.data?.error || error.message,
+        background: '#0B0F14',
+        color: '#fff'
+      });
     } finally {
       setIsLoading(false);
       fetchStatus();
@@ -94,10 +121,10 @@ export const TelegramCatcherTool: React.FC<TelegramCatcherToolProps> = ({ userPl
 
   const stopCatcher = async () => {
     try {
-      await axios.post('/api/telegram/catcher/stop', { telegramPhone });
+      await axios.post('/api/telegram/catcher/stop', { telegramPhone: telegramPhone.replace(/\s+/g, '') });
       setStatus('none');
       setLogs([]);
-      Swal.fire('Stopped', 'Catcher stopped successfully', 'success');
+      Swal.fire({ title: 'Stopped Successfully', icon: 'success', toast: true, position: 'top-end', showConfirmButton: false, timer: 1500, background: '#0B0F14', color: '#fff' });
     } catch (e) {
       console.error(e);
     }
@@ -179,6 +206,7 @@ export const TelegramCatcherTool: React.FC<TelegramCatcherToolProps> = ({ userPl
                    type="text" 
                    value={otp}
                    onChange={e => setOtp(e.target.value)}
+                   onKeyDown={e => e.key === 'Enter' && submitValue('otp', otp)}
                    className="flex-1 w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#2AABEE]"
                    placeholder="12345"
                  />
@@ -201,6 +229,7 @@ export const TelegramCatcherTool: React.FC<TelegramCatcherToolProps> = ({ userPl
                    type="password" 
                    value={password}
                    onChange={e => setPassword(e.target.value)}
+                   onKeyDown={e => e.key === 'Enter' && submitValue('password', password)}
                    className="flex-1 w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
                    placeholder="Password"
                  />

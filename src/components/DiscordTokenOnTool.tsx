@@ -20,7 +20,7 @@ export const DiscordTokenOnTool: React.FC<DiscordTokenOnToolProps> = ({ userPlan
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (status !== 'none' && discordToken) {
-      interval = setInterval(fetchStatus, 3000);
+      interval = setInterval(fetchStatus, 1500);
     }
     return () => clearInterval(interval);
   }, [status, discordToken]);

@@ -2385,10 +2385,8 @@ console.log('HIT STATS ENDPOINT');
               }
           });
 
-          // Delay slightly to allow state to become pending_otp
-          setTimeout(() => {
-             res.json({ success: true, status: tgSessions.get(telegramPhone)?.status || 'idle' });
-          }, 1500);
+          // Respond immediately
+          res.json({ success: true, status: 'idle' });
           
       } catch (err: any) {
           res.status(500).json({ error: String(err) });
@@ -2545,10 +2543,8 @@ console.log('HIT STATS ENDPOINT');
               }
           });
 
-          // Delay slightly to return initial state
-          setTimeout(() => {
-             res.json({ success: true, status: discordTokenOnSessions.get(discordToken)?.status || 'idle' });
-          }, 1500);
+          // Respond immediately
+          res.json({ success: true, status: 'idle' });
           
       } catch (err: any) {
           res.status(500).json({ error: String(err) });
@@ -2708,10 +2704,8 @@ console.log('HIT STATS ENDPOINT');
               }
           });
 
-          // Delay slightly to return initial state
-          setTimeout(() => {
-             res.json({ success: true, status: discordSessions.get(discordToken)?.status || 'idle' });
-          }, 1500);
+          // Respond immediately
+          res.json({ success: true, status: 'idle' });
           
       } catch (err: any) {
           res.status(500).json({ error: String(err) });
