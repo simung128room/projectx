@@ -194,6 +194,9 @@ class SupabaseDoc {
       if (err.message && err.message.includes("Could not find the") && err.message.includes("column")) {
         console.warn(`Column error in fetch from ${this.collection}: ${err.message}. This usually means schema is out of sync.`);
       }
+      if (err.message && err.message.includes("Could not find the table")) {
+        return { exists: false, data: () => null };
+      }
       throw err;
     }
   }
@@ -332,6 +335,10 @@ class SupabaseQuery {
             currentOrderBy = currentOrderBy.filter(o => o.field !== col);
             continue;
           }
+        }
+        if (err.message && err.message.includes("Could not find the table")) {
+          console.warn(`Table ${this.collection} missing, returning empty result.`);
+          return { docs: [], empty: true, forEach: (cb: any) => {} };
         }
         throw err;
       }

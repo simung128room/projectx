@@ -1779,11 +1779,20 @@ console.log('HIT STATS ENDPOINT');
   });
 
   // --- Log Categories System Endpoints (Stored as JSON in settings for dynamic schema) ---
+  let memoryLogSystemData = { categories: [], items: [] };
+
   app.get('/api/logs-system', async (req, res) => {
     try {
-      const doc = await admin.firestore().collection('settings').doc('log_system_data').get();
-      const dbData = doc.exists ? doc.data().data : { categories: [], items: [] };
-      let payload = dbData;
+      let dbData;
+      try {
+        const doc = await admin.firestore().collection('settings').doc('log_system_data').get();
+        if (doc.exists) {
+           const d = doc.data();
+           dbData = d?.data; 
+        }
+      } catch (e) {}
+
+      let payload = dbData || memoryLogSystemData;
       if (!payload || !payload.categories) payload = { categories: [], items: [] };
       
       // Auto-filter based on user VIP status
@@ -1821,10 +1830,16 @@ console.log('HIT STATS ENDPOINT');
   });
 
   app.post('/api/logs-system', requireAdmin, async (req, res) => {
-    if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
     try {
       const data = req.body;
-      await admin.firestore().collection('settings').doc('log_system_data').set({ data }, { merge: false });
+      memoryLogSystemData = data;
+      try {
+        if (admin.firestore()) {
+          await admin.firestore().collection('settings').doc('log_system_data').set({ data }, { merge: false });
+        }
+      } catch (e: any) {
+        console.warn('Failed to save log system data to DB, keeping in memory:', e.message);
+      }
       res.json({ success: true });
     } catch (err: any) {
       console.error('Internal server error saving log system data:', err);

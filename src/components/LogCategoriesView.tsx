@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { Folder, Lock, Search, Download, FileText, Image as ImageIcon, ChevronRight, Gift } from 'lucide-react';
 import Swal from 'sweetalert2';
 import axios from 'axios';
@@ -8,9 +8,10 @@ import { LogCategory, ContentItem } from './AdminToolsManagement';
 interface LogCategoriesViewProps {
   userPlan: any;
   onNavigateAction: (action: string) => void;
+  filterType?: 'all' | 'vip' | 'free';
 }
 
-export const LogCategoriesView: React.FC<LogCategoriesViewProps> = ({ userPlan }) => {
+export const LogCategoriesView: React.FC<LogCategoriesViewProps> = ({ userPlan, filterType = 'all' }) => {
   const [categories, setCategories] = useState<LogCategory[]>([]);
   const [items, setItems] = useState<ContentItem[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<LogCategory | null>(null);
@@ -73,16 +74,26 @@ export const LogCategoriesView: React.FC<LogCategoriesViewProps> = ({ userPlan }
     });
   };
 
+  useEffect(() => {
+    setSelectedCategory(null);
+  }, [filterType]);
+
   const currentItems = selectedCategory 
     ? items.filter(i => i.categoryId === selectedCategory.id && i.title.toLowerCase().includes(search.toLowerCase()))
     : [];
+
+  const filteredCategories = categories.filter(c => {
+    if (filterType === 'vip') return c.isVip;
+    if (filterType === 'free') return !c.isVip;
+    return true;
+  });
 
   return (
     <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 pt-24">
        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
          <div>
             <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight flex items-center gap-3">
-              <Gift className="w-8 h-8 text-[#1a7fe6]" /> ทรัพยากร / เครื่องมือ
+              <Gift className="w-8 h-8 text-[#1a7fe6]" /> {filterType === 'vip' ? 'VIP PH LOG' : filterType === 'free' ? 'FREE FH LOG' : 'ทรัพยากร / เครื่องมือ'}
             </h1>
             <p className="text-sm font-medium text-zinc-500 mt-2">ดาวน์โหลดไฟล์และเอกสารฟรี & พรีเมียม</p>
          </div>
@@ -126,7 +137,7 @@ export const LogCategoriesView: React.FC<LogCategoriesViewProps> = ({ userPlan }
        ) : (
          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
            <AnimatePresence>
-             {categories.sort((a,b)=>a.order-b.order).map((c, i) => {
+             {filteredCategories.sort((a,b)=>a.order-b.order).map((c, i) => {
                const catItemsCount = items.filter(it => it.categoryId === c.id).length;
                return (
                  <motion.div
