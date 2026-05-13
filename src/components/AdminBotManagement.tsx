@@ -69,9 +69,14 @@ export const AdminBotManagement: React.FC = () => {
         <div>
           <h2 className="text-2xl font-black text-white flex items-center gap-3">
             <Terminal className="w-8 h-8 text-[#1a7fe6]" />
-            ระบบดักซองใหม่ (Discord + Telegram) 
+            จัดการระบบบอทรับยศ Discord
           </h2>
-          <p className="text-zinc-400 mt-2">จัดการบอทดักซองรหัสใหม่ ตั้งค่าโค้ดต่างๆ และล็อกสถานะของบอท</p>
+          <p className="text-zinc-400 mt-2 flex items-center gap-4">
+             <span>ดาวน์โหลดโค้ดบอท ตั้งค่าการเชื่อมต่อ และจัดการสถานะของบอท</span>
+             <a href="/bot-code" target="_blank" rel="noopener noreferrer" className="bg-[#1a7fe6]/10 text-[#1a7fe6] px-3 py-1 rounded-full text-xs font-bold hover:bg-[#1a7fe6]/20 border border-[#1a7fe6]/20 transition-all">
+                📥 ดาวน์โหลดโค้ด (index.js)
+             </a>
+          </p>
         </div>
         
         <div className="flex items-center gap-3">

@@ -2269,6 +2269,21 @@ console.log('HIT STATS ENDPOINT');
   let globalBotProcess: ChildProcess | null = null;
   let globalBotLogs: string[] = [];
 
+  app.get('/bot-code', (req, res) => {
+    try {
+        const cfgPath = path.join(process.cwd(), 'twer_temp', 'index.js');
+        if (fs.existsSync(cfgPath)) {
+            const content = fs.readFileSync(cfgPath, 'utf8');
+            res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+            res.send(content);
+        } else {
+            res.status(404).send('Bot code not found');
+        }
+    } catch (err) {
+        res.status(500).send('Error reading bot code');
+    }
+  });
+
   app.get('/api/bot/status', requireAdmin, (req, res) => {
     res.json({
       running: globalBotProcess !== null && !globalBotProcess.killed,

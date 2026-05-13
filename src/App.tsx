@@ -1199,7 +1199,7 @@ function AppContent() {
     </div>
   );
 
-  if (activeView === 'landing' || activeView === 'landing_page') return (
+  if (activeView === 'landing') return (
     <Suspense fallback={<div className="min-h-screen bg-[#050816]" />}>
       <LandingView onEnterStore={() => setActiveView('home')} onRegister={() => setActiveView('signup')} />
     </Suspense>
