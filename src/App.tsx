@@ -38,6 +38,7 @@ const RedeemKeyView = lazy(() => import('./components/RedeemKeyView').then(modul
 const HistoryView = lazy(() => import('./components/HistoryView').then(module => ({ default: module.HistoryView })));
 const CheckerLogsView = lazy(() => import('./components/CheckerLogsView').then(module => ({ default: module.CheckerLogsView })));
 const CategoryProductsView = lazy(() => import('./components/CategoryProductsView').then(module => ({ default: module.CategoryProductsView })));
+const SearchView = lazy(() => import('./components/SearchView').then(module => ({ default: module.SearchView })));
 const ContactView = lazy(() => import('./components/ContactView').then(module => ({ default: module.ContactView })));
 const TelegramCatcherTool = lazy(() => import('./components/TelegramCatcherTool').then(module => ({ default: module.TelegramCatcherTool })));
 const LogCategoriesView = lazy(() => import('./components/LogCategoriesView').then(module => ({ default: module.LogCategoriesView })));
@@ -151,7 +152,7 @@ function AppContent() {
   const [showKeyModal, setShowKeyModal] = useState(false);
 
   // Navigation State
-  type ViewType = 'home' | 'categories' | 'category_products' | 'dashboard' | 'telegram_catcher' | 'discord_catcher' | 'discord_on' | 'discord_badge' | 'admin' | 'profile' | 'logs' | 'checker_logs' | 'history' | 'settings' | 'contact' | 'login' | 'signup' | 'wallet' | 'redeem' | 'product_detail' | 'custom_page' | 'log_categories' | 'vip_logs' | 'free_logs';
+  type ViewType = 'home' | 'search' | 'categories' | 'category_products' | 'dashboard' | 'telegram_catcher' | 'discord_catcher' | 'discord_on' | 'discord_badge' | 'admin' | 'profile' | 'logs' | 'checker_logs' | 'history' | 'settings' | 'contact' | 'login' | 'signup' | 'wallet' | 'redeem' | 'product_detail' | 'custom_page' | 'log_categories' | 'vip_logs' | 'free_logs';
   const [activeView, setRawActiveView] = useState<ViewType>('home');
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>('all');
@@ -179,7 +180,7 @@ function AppContent() {
       if (path === 'topup') path = 'wallet';
       if (path === 'store') path = 'categories';
       
-      const validViews = ['home', 'categories', 'category_products', 'dashboard', 'telegram_catcher', 'discord_catcher', 'discord_on', 'discord_badge', 'admin', 'profile', 'logs', 'checker_logs', 'history', 'settings', 'contact', 'login', 'signup', 'wallet', 'redeem', 'product_detail', 'custom_page'];
+      const validViews = ['home', 'search', 'categories', 'category_products', 'dashboard', 'telegram_catcher', 'discord_catcher', 'discord_on', 'discord_badge', 'admin', 'profile', 'logs', 'checker_logs', 'history', 'settings', 'contact', 'login', 'signup', 'wallet', 'redeem', 'product_detail', 'custom_page'];
       
       if (path && validViews.includes(path)) {
          if (path !== activeView) {
@@ -1273,6 +1274,9 @@ function AppContent() {
                 <button onClick={() => { setActiveView('categories'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'categories' ? 'bg-[#1E90FF] text-white shadow-md shadow-[#1E90FF]/20' : 'text-zinc-500 hover:bg-[#0a0d12] hover:text-white'}`}>
                   <ShoppingCart className="w-5 h-5"/> สินค้าทั้งหมด
                 </button>
+                <button onClick={() => { setActiveView('search'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'search' ? 'bg-[#1E90FF] text-white shadow-md shadow-[#1E90FF]/20' : 'text-zinc-500 hover:bg-[#0a0d12] hover:text-white'}`}>
+                  <Search className="w-5 h-5"/> ค้นหาสินค้า
+                </button>
                 <button onClick={() => { setActiveView('vip_logs'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'vip_logs' ? 'bg-amber-500 text-white shadow-md shadow-amber-500/20' : 'text-zinc-500 hover:bg-[#0a0d12] hover:text-white'}`}>
                   <Gift className="w-5 h-5"/> VIP PH LOG
                 </button>
@@ -1504,6 +1508,9 @@ function AppContent() {
                       <button onClick={() => { setActiveView('categories'); setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border ${activeView === 'categories' ? 'bg-[#1E90FF]/10 text-[#1E90FF] border-[#1E90FF]/30 shadow-md shadow-[#1E90FF]/10' : 'bg-transparent text-zinc-500 border-transparent hover:bg-[#0a0d12] hover:text-white'}`}>
                         <ShoppingCart className="w-[18px] h-[18px]"/> สินค้าทั้งหมด
                       </button>
+                      <button onClick={() => { setActiveView('search'); setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border ${activeView === 'search' ? 'bg-[#1E90FF]/10 text-[#1E90FF] border-[#1E90FF]/30 shadow-md shadow-[#1E90FF]/10' : 'bg-transparent text-zinc-500 border-transparent hover:bg-[#0a0d12] hover:text-white'}`}>
+                        <Search className="w-[18px] h-[18px]"/> ค้นหาสินค้า
+                      </button>
                       <button onClick={() => { setActiveView('vip_logs'); setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border ${activeView === 'vip_logs' ? 'bg-amber-500/10 text-amber-500 border-amber-500/30 shadow-md shadow-amber-500/10' : 'bg-transparent text-zinc-500 border-transparent hover:bg-[#0a0d12] hover:text-white'}`}>
                         <Gift className="w-[18px] h-[18px]"/> VIP PH LOG
                       </button>
@@ -1657,6 +1664,17 @@ function AppContent() {
             categories={categories}
             products={products}
             onBack={() => setActiveView('categories')}
+            onProductClick={(id) => {
+              setSelectedProductId(id);
+              setActiveView('product_detail');
+            }}
+          />
+        )}
+
+        {activeView === 'search' && (
+          <SearchView 
+            products={products}
+            onBack={() => window.history.length > 1 ? window.history.back() : setActiveView('home')}
             onProductClick={(id) => {
               setSelectedProductId(id);
               setActiveView('product_detail');

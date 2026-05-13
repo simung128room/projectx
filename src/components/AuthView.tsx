@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Eye, EyeOff, Zap, Lock, Mail, User } from 'lucide-react';
+import { Eye, EyeOff, Zap, Lock, Mail, User, UserPlus, LogIn } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import Swal from 'sweetalert2';
 import axios from 'axios';
@@ -93,13 +93,22 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/3 h-[1px] bg-gradient-to-r from-transparent via-[#1E90FF]/40 to-transparent"></div>
 
         {/* Header */}
-        <div className="flex flex-col items-center mb-8">
-          <h2 className="text-2xl font-semibold text-white tracking-tight">
-            {authMode === 'login' ? 'เข้าสู่ระบบ' : 'สร้างบัญชีผู้ใช้ใหม่'}
-          </h2>
-          <p className="text-zinc-500 text-sm mt-1.5">
-            {authMode === 'login' ? 'ยินดีต้อนรับกลับสู่ APEX STUDIO' : 'ลงทะเบียนเพื่อเริ่มต้นใช้งาน'}
-          </p>
+        <div className="flex justify-between items-start mb-8">
+          <div>
+            <h2 className="text-2xl sm:text-[28px] font-bold text-white tracking-tight leading-tight">
+              {authMode === 'login' ? 'เข้าสู่ระบบ' : 'สร้างบัญชีผู้ใช้ใหม่'}
+            </h2>
+            <p className="text-zinc-500 text-[13px] sm:text-sm mt-1.5">
+              {authMode === 'login' ? 'ยินดีต้อนรับกลับสู่ APEX STUDIO' : 'ลงทะเบียนเพื่อเริ่มต้นใช้งาน'}
+            </p>
+          </div>
+          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-[#1E90FF]/10 flex items-center justify-center shrink-0 ml-4 border border-[#1E90FF]/20 text-[#1E90FF] shadow-lg shadow-[#1E90FF]/5">
+            {authMode === 'login' ? (
+              <LogIn className="w-6 h-6 sm:w-7 sm:h-7" />
+            ) : (
+              <UserPlus className="w-6 h-6 sm:w-7 sm:h-7" />
+            )}
+          </div>
         </div>
 
         <form onSubmit={handleAuth} className="space-y-4">
@@ -167,14 +176,13 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
 
           {TURNSTILE_SITE_KEY && (
             <motion.div layout className="pt-2 mt-2 flex justify-center w-full">
-              <div className="w-full flex justify-center bg-white rounded-xl overflow-hidden py-1">
+              <div className="flex justify-center w-full overflow-hidden">
                 <Turnstile
                   siteKey={TURNSTILE_SITE_KEY}
                   onSuccess={(token) => setTurnstileToken(token)}
                   onExpire={() => setTurnstileToken(null)}
                   onError={() => setTurnstileToken(null)}
-                  options={{ theme: 'light', size: 'flexible' }}
-                  className="w-full mx-auto flex justify-center"
+                  options={{ theme: 'light', size: 'normal' }}
                 />
               </div>
             </motion.div>
