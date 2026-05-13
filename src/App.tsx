@@ -39,7 +39,6 @@ const HistoryView = lazy(() => import('./components/HistoryView').then(module =>
 const CheckerLogsView = lazy(() => import('./components/CheckerLogsView').then(module => ({ default: module.CheckerLogsView })));
 const CategoryProductsView = lazy(() => import('./components/CategoryProductsView').then(module => ({ default: module.CategoryProductsView })));
 const SearchView = lazy(() => import('./components/SearchView').then(module => ({ default: module.SearchView })));
-const LandingView = lazy(() => import('./components/LandingView').then(module => ({ default: module.LandingView })));
 const ContactView = lazy(() => import('./components/ContactView').then(module => ({ default: module.ContactView })));
 const TelegramCatcherTool = lazy(() => import('./components/TelegramCatcherTool').then(module => ({ default: module.TelegramCatcherTool })));
 const LogCategoriesView = lazy(() => import('./components/LogCategoriesView').then(module => ({ default: module.LogCategoriesView })));
@@ -153,8 +152,8 @@ function AppContent() {
   const [showKeyModal, setShowKeyModal] = useState(false);
 
   // Navigation State
-  type ViewType = 'landing' | 'home' | 'search' | 'categories' | 'category_products' | 'dashboard' | 'telegram_catcher' | 'discord_catcher' | 'discord_on' | 'discord_badge' | 'admin' | 'profile' | 'logs' | 'checker_logs' | 'history' | 'settings' | 'contact' | 'login' | 'signup' | 'wallet' | 'redeem' | 'product_detail' | 'custom_page' | 'log_categories' | 'vip_logs' | 'free_logs';
-  const [activeView, setRawActiveView] = useState<ViewType>('landing');
+  type ViewType = 'home' | 'search' | 'categories' | 'category_products' | 'dashboard' | 'telegram_catcher' | 'discord_catcher' | 'discord_on' | 'discord_badge' | 'admin' | 'profile' | 'logs' | 'checker_logs' | 'history' | 'settings' | 'contact' | 'login' | 'signup' | 'wallet' | 'redeem' | 'product_detail' | 'custom_page' | 'log_categories' | 'vip_logs' | 'free_logs';
+  const [activeView, setRawActiveView] = useState<ViewType>('home');
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>('all');
   const [isPageTransitioning, setIsPageTransitioning] = useState(false);
@@ -1197,12 +1196,6 @@ function AppContent() {
         </div>
       </motion.div>
     </div>
-  );
-
-  if (activeView === 'landing') return (
-    <Suspense fallback={<div className="min-h-screen bg-[#050816]" />}>
-      <LandingView onEnterStore={() => setActiveView('home')} onRegister={() => setActiveView('signup')} />
-    </Suspense>
   );
 
   return (
