@@ -166,15 +166,17 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
           </AnimatePresence>
 
           {TURNSTILE_SITE_KEY && (
-            <motion.div layout className="pt-4 mt-2">
-              <Turnstile
-                siteKey={TURNSTILE_SITE_KEY}
-                onSuccess={(token) => setTurnstileToken(token)}
-                onExpire={() => setTurnstileToken(null)}
-                onError={() => setTurnstileToken(null)}
-                options={{ theme: 'light', size: 'compact' }}
-                className="w-full overflow-hidden rounded-xl mx-auto flex justify-center"
-              />
+            <motion.div layout className="pt-2 mt-2 flex justify-center w-full">
+              <div className="w-full flex justify-center bg-white rounded-xl overflow-hidden py-1">
+                <Turnstile
+                  siteKey={TURNSTILE_SITE_KEY}
+                  onSuccess={(token) => setTurnstileToken(token)}
+                  onExpire={() => setTurnstileToken(null)}
+                  onError={() => setTurnstileToken(null)}
+                  options={{ theme: 'light', size: 'flexible' }}
+                  className="w-full mx-auto flex justify-center"
+                />
+              </div>
             </motion.div>
           )}
 
