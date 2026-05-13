@@ -1,7 +1,7 @@
 import Swal from 'sweetalert2';
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ShoppingCart, Package, Wallet, Phone, History, ChevronRight, Bell, Users, TrendingUp, Star, ArrowLeft, Key } from 'lucide-react';
+import { ShoppingCart, Package, Wallet, Phone, History, ChevronRight, Bell, Users, TrendingUp, Star, ArrowLeft, Key, LogIn, UserPlus } from 'lucide-react';
 import { Product, SiteStats, Category } from '../types';
 import { AnimatedScroll } from './AnimatedScroll';
 
@@ -20,6 +20,31 @@ interface HomeViewProps {
 const DEFAULT_BANNERS = [
   "https://img2.pic.in.th/24B843A8-C705-48F6-84FB-50AAA5EFAAA6.png"
 ];
+
+const NumberTicker = ({ value }: { value: number }) => {
+  const [displayValue, setDisplayValue] = useState(1);
+
+  useEffect(() => {
+    if (value <= 1) {
+      setDisplayValue(value);
+      return;
+    }
+    let startTimestamp: number;
+    const duration = 2500;
+    const step = (timestamp: number) => {
+      if (!startTimestamp) startTimestamp = timestamp;
+      const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+      const easeProgress = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+      setDisplayValue(Math.floor(1 + easeProgress * (value - 1)));
+      if (progress < 1) {
+        window.requestAnimationFrame(step);
+      }
+    };
+    window.requestAnimationFrame(step);
+  }, [value]);
+
+  return <>{displayValue.toLocaleString()}</>;
+};
 
 export const HomeView: React.FC<HomeViewProps> = ({ products, categories, stats, user, siteSettings, purchaseHistory, setActiveView, onProductClick, onSelectCategory }) => {
   const [currentBanner, setCurrentBanner] = useState(0);
@@ -135,12 +160,9 @@ export const HomeView: React.FC<HomeViewProps> = ({ products, categories, stats,
               <span className="text-zinc-500 font-bold mb-1 text-sm tracking-wide">ผู้ใช้งาน</span>
               <div className="flex items-baseline gap-2">
                 <motion.span 
-                  key={(realtimeStats?.users || 0) + (siteSettings?.stats_users_offset || 0)}
-                  initial={{ opacity: 0.5, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
                   className="text-4xl sm:text-5xl font-black text-white tracking-tight"
                 >
-                  {((realtimeStats?.users || 0) + (siteSettings?.stats_users_offset || 0)).toLocaleString()}
+                  <NumberTicker value={(realtimeStats?.users || 0) + (siteSettings?.stats_users_offset || 0)} />
                 </motion.span>
                 <span className="text-[#1E90FF] font-bold text-sm">คน</span>
               </div>
@@ -156,12 +178,9 @@ export const HomeView: React.FC<HomeViewProps> = ({ products, categories, stats,
               <span className="text-zinc-500 font-bold mb-1 text-sm tracking-wide">สต็อก</span>
               <div className="flex items-baseline gap-2">
                 <motion.span 
-                  key={totalStock}
-                  initial={{ opacity: 0.5, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
                   className="text-4xl sm:text-5xl font-black text-white tracking-tight"
                 >
-                  {totalStock.toLocaleString()}
+                  <NumberTicker value={totalStock} />
                 </motion.span>
                 <span className="text-[#1E90FF] font-bold text-sm">ชิ้น</span>
               </div>
@@ -177,12 +196,9 @@ export const HomeView: React.FC<HomeViewProps> = ({ products, categories, stats,
               <span className="text-zinc-500 font-bold mb-1 text-sm tracking-wide">ยอดขาย</span>
               <div className="flex items-baseline gap-2">
                 <motion.span 
-                  key={(realtimeStats?.totalOrders || realtimeStats?.sales || 0) + (siteSettings?.stats_sales_offset || 0)}
-                  initial={{ opacity: 0.5, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
                   className="text-4xl sm:text-5xl font-black text-white tracking-tight"
                 >
-                  {((realtimeStats?.totalOrders !== undefined ? realtimeStats.totalOrders : (realtimeStats?.sales || 0)) + (siteSettings?.stats_sales_offset || 0)).toLocaleString()}
+                  <NumberTicker value={((realtimeStats?.totalOrders !== undefined ? realtimeStats.totalOrders : (realtimeStats?.sales || 0)) + (siteSettings?.stats_sales_offset || 0))} />
                 </motion.span>
                 <span className="text-[#1E90FF] font-bold text-sm">ครั้ง</span>
               </div>
