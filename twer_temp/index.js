@@ -447,7 +447,12 @@ client.once('ready', async () => {
         new SlashCommandBuilder().setName('setup_gift').setDescription('[แอดมิน] ⚙️ ตั้งค่าระบบดักซอง Telegram')
             .addChannelOption(option => option.setName('channel').setDescription('📢 เลือกช่องที่จะส่งเมนูดักซอง').setRequired(true).addChannelTypes(ChannelType.GuildText)),
         new SlashCommandBuilder().setName('manage_users').setDescription('[แอดมิน] 👥 จัดการผู้ใช้งานระบบ'),
-        new SlashCommandBuilder().setName('system_info').setDescription('[แอดมิน] 📊 ดูข้อมูลระบบ')
+        new SlashCommandBuilder().setName('system_info').setDescription('[แอดมิน] 📊 ดูข้อมูลระบบ'),
+        new SlashCommandBuilder().setName('setup').setDescription('[แอดมิน] 🔑 ตั้งค่าระบบรับยศ')
+            .addStringOption(option => option.setName('title').setDescription('ข้อความหลัก').setRequired(true))
+            .addStringOption(option => option.setName('description').setDescription('ข้อความย่อย').setRequired(true))
+            .addStringOption(option => option.setName('image').setDescription('ลิ้งรูปภาพ').setRequired(true))
+            .addRoleOption(option => option.setName('role').setDescription('ยศที่จะได้').setRequired(true))
     ];
 
     const rest = new REST({ version: '10' }).setToken(config.token);
@@ -539,6 +544,34 @@ client.on('interactionCreate', async interaction => {
             ephemeral: true 
         });
     }
+
+    if (interaction.commandName === 'setup') {
+        if (!config.adminIds.includes(interaction.user.id)) {
+            return interaction.reply({ embeds: [new EmbedBuilder().setTitle('❌ คุณไม่มีสิทธิ์ใช้คำสั่งนี้').setColor(FAILED)], ephemeral: true });
+        }
+        
+        const title = interaction.options.getString('title');
+        const description = interaction.options.getString('description');
+        const image = interaction.options.getString('image');
+        const role = interaction.options.getRole('role');
+
+        const embed = new EmbedBuilder()
+            .setTitle(title)
+            .setDescription(description)
+            .setImage(image)
+            .setColor(0x1E90FF)
+            .setFooter({ text: 'ระบบเติมคีย์อัตโนมัติ' });
+
+        const row = new ActionRowBuilder().addComponents(
+            new ButtonBuilder()
+                .setCustomId(`redeem_btn_role_${role.id}`)
+                .setLabel('🔑 กรอกคีย์รับยศ')
+                .setStyle(ButtonStyle.Success)
+        );
+
+        await interaction.channel.send({ embeds: [embed], components: [row] });
+        await interaction.reply({ content: '✅ สร้างเมนูเรียบร้อยแล้ว!', ephemeral: true });
+    }
 });
 
 client.on('interactionCreate', async interaction => {
@@ -549,6 +582,20 @@ client.on('interactionCreate', async interaction => {
             if (customId === 'gift_menu') {
                 await interaction.deferReply({ ephemeral: true });
                 await interaction.editReply({ embeds: [UI.menuEmbed()], components: UI.menuButtons() });
+            }
+
+            if (customId.startsWith('redeem_btn_role_')) {
+                const roleId = customId.replace('redeem_btn_role_', '');
+                const modal = new ModalBuilder().setCustomId(`modal_redeem_${roleId}`).setTitle('เข้าสู่ระบบกรอกคีย์');
+                const keyInput = new TextInputBuilder()
+                    .setCustomId('key_input')
+                    .setLabel('คีย์ที่ต้องการกรอก')
+                    .setStyle(TextInputStyle.Short)
+                    .setPlaceholder('ตัวอย่าง: XXXX-YYYY-ZZZZ')
+                    .setRequired(true);
+                    
+                modal.addComponents(new ActionRowBuilder().addComponents(keyInput));
+                await interaction.showModal(modal);
             }
 
             if (customId === 'check_status') {
@@ -699,6 +746,42 @@ client.on('interactionCreate', async interaction => {
 
         if (interaction.isModalSubmit()) {
             const { customId, user } = interaction;
+
+            if (customId.startsWith('modal_redeem_')) {
+                const roleId = customId.replace('modal_redeem_', '');
+                const key = interaction.fields.getTextInputValue('key_input').trim();
+                
+                await interaction.deferReply({ ephemeral: true });
+                
+                try {
+                    const res = await axios.post('http://127.0.0.1:3000/api/discord-redeem', {
+                        key: key,
+                        discord_id: user.id,
+                        secret: 'MY_SECRET_DISCORD_TOKEN_1234'
+                    });
+                    
+                    if (res.data.success) {
+                        try {
+                            const member = await interaction.guild.members.fetch(user.id);
+                            const role = interaction.guild.roles.cache.get(roleId);
+                            if (role) {
+                                await member.roles.add(role);
+                                await interaction.editReply({ embeds: [new EmbedBuilder().setTitle('✅ ยืนยันคีย์สำเร็จ').setDescription(`คีย์ถูกต้อง! คุณได้รับยศ <@&${roleId}> เรียบร้อยแล้ว`).setColor(SUCCESS)] });
+                            } else {
+                                await interaction.editReply({ content: 'ไม่พบยศที่กำหนด กรุณาติดต่อแอดมิน'});
+                            }
+                        } catch (roleError) {
+                            console.error(roleError);
+                            await interaction.editReply({ embeds: [new EmbedBuilder().setTitle('⚠️ เกิดข้อผิดพลาด').setDescription('คีย์ถูกต้อง แต่บอทไม่สามารถให้ยศได้ กรุณาติดต่อแอดมิน (อาจจะบอทยศต่ำกว่า)').setColor(WARNING)] });
+                        }
+                    } else {
+                        await interaction.editReply({ embeds: [new EmbedBuilder().setTitle('❌ ข้อผิดพลาด').setDescription(res.data.error || 'คีย์ไม่ถูกต้องหรือถูกใช้ไปแล้ว').setColor(FAILED)] });
+                    }
+                } catch (e) {
+                    const errMsg = e.response?.data?.error || 'คีย์ไม่ถูกต้องหรือถูกใช้ไปแล้ว';
+                     await interaction.editReply({ embeds: [new EmbedBuilder().setTitle('❌ ข้อผิดพลาด').setDescription(errMsg).setColor(FAILED)] });
+                }
+            }
 
             if (customId === 'telegram_modal') {
                 const apiId = interaction.fields.getTextInputValue('api_id_input').trim();

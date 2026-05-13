@@ -1466,7 +1466,21 @@ console.log('HIT STATS ENDPOINT');
     }
 
     try {
-      // ค้นหา key ในประวัติการสั่งซื้อ (สมมติว่าเป็นคีย์แถวแรกจาก secretData)
+      // 1. ลองหา key ใน license_keys
+      const licenseSnapshot = await admin.firestore().collection('license_keys').where('key', '==', key).where('status', '==', 'active').get();
+      if (!licenseSnapshot.empty) {
+        const docRef = licenseSnapshot.docs[0].ref;
+        await docRef.update({ status: 'used' });
+        // บันทึกประวัติ
+        await admin.firestore().collection('used_keys_history').add({
+            key,
+            used_by_discord: true,
+            used_at: new Date().toISOString()
+        });
+        return res.json({ success: true, message: 'รับยศสำเร็จ!' });
+      }
+
+      // 2. ถ้าไม่เจอ ลองหาในประวัติการสั่งซื้อ (purchases)
       const purchasesRef = admin.firestore().collection('purchases');
       const snapshot = await purchasesRef.get();
       
