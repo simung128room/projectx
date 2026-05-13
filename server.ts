@@ -1458,6 +1458,20 @@ console.log('HIT STATS ENDPOINT');
   // Mutex for purchase locking
   const purchaseLocks: Record<string, Promise<any>> = {};
 
+  app.post('/api/discord-rekey', async (req: any, res: any) => {
+    const { key, secret, plan } = req.body;
+    if (secret !== 'MY_SECRET_DISCORD_TOKEN_1234') {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+    try {
+      const newDoc = { key, plan: plan || 'premium', status: 'active', created_at: new Date().toISOString() };
+      await admin.firestore().collection('license_keys').add(newDoc);
+      res.json({ success: true, message: `เพิ่มคีย์ ${key} สำเร็จ!`, plan: newDoc.plan });
+    } catch (error) {
+      res.status(500).json({ error: 'Internal server error while adding key' });
+    }
+  });
+
   app.post('/api/discord-redeem', async (req: any, res: any) => {
     const { key, secret } = req.body;
     // ตั้งค่ารหัสลับให้ตรงกันระหว่างเว็บกับบอท
