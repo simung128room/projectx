@@ -1495,15 +1495,12 @@ console.log('HIT STATS ENDPOINT');
     if (secret !== 'MY_SECRET_DISCORD_TOKEN_1234') {
       return res.status(401).json({ error: 'Unauthorized' });
     }
-    if (!key) return res.status(400).json({ error: 'Key is required' });
-    
     try {
-      const newDoc = { key: key.trim(), plan: plan || 'premium', status: 'active', created_at: new Date().toISOString() };
+      const newDoc = { key, plan: plan || 'premium', status: 'active', created_at: new Date().toISOString() };
       await admin.firestore().collection('license_keys').add(newDoc);
       res.json({ success: true, message: `เพิ่มคีย์ ${key} สำเร็จ!`, plan: newDoc.plan });
-    } catch (error: any) {
-      console.error('discord-rekey Error:', error);
-      res.status(500).json({ error: `Internal server error: ${error.message}` });
+    } catch (error) {
+      res.status(500).json({ error: 'Internal server error while adding key' });
     }
   });
 
@@ -1513,26 +1510,21 @@ console.log('HIT STATS ENDPOINT');
     if (secret !== 'MY_SECRET_DISCORD_TOKEN_1234') {
       return res.status(401).json({ error: 'Unauthorized' });
     }
-    if (!key) return res.status(400).json({ error: 'Key is required' });
+    
+    if (!key) {
+      return res.status(400).json({ error: 'กรุณาระบุคีย์' });
+    }
 
     try {
-      const cleanKey = key.trim();
-      // 1. ลองหา key ใน license_keys (no composite index require)
-      const licenseSnapshot = await admin.firestore().collection('license_keys').where('key', '==', cleanKey).get();
-      
-      let licenseDoc = null;
-      for (const doc of licenseSnapshot.docs) {
-        if (doc.data().status === 'active') {
-          licenseDoc = doc;
-          break;
-        }
-      }
-
-      if (licenseDoc) {
-        await licenseDoc.ref.update({ status: 'used' });
+      // 1. ลองหา key ใน license_keys
+      const licenseSnapshot = await admin.firestore().collection('license_keys').where('key', '==', key).where('status', '==', 'active').get();
+      if (!licenseSnapshot.empty) {
+        const docId = licenseSnapshot.docs[0].id;
+        const docRef = admin.firestore().collection('license_keys').doc(docId);
+        await docRef.update({ status: 'used' });
         // บันทึกประวัติ
         await admin.firestore().collection('used_keys_history').add({
-            key: cleanKey,
+            key,
             used_by_discord: true,
             used_at: new Date().toISOString()
         });
@@ -1546,14 +1538,14 @@ console.log('HIT STATS ENDPOINT');
       let foundDoc = null;
       for (const doc of snapshot.docs) {
         const data = doc.data();
-        if (data && data.secretData && typeof data.secretData.includes === 'function' && data.secretData.includes(cleanKey)) {
+        if (data.secretData && data.secretData.includes(key)) {
           foundDoc = { id: doc.id, ...data };
           break;
         }
       }
 
       if (!foundDoc) {
-        return res.status(404).json({ error: 'ไม่พบคีย์นี้ในระบบ หรืออาจถูกใช้ไปแล้ว' });
+        return res.status(404).json({ error: 'ไม่พบคีย์นี้ในระบบ หรือคีย์ไม่ถูกต้อง' });
       }
 
       if (foundDoc.discordClaimed) {
@@ -1565,8 +1557,8 @@ console.log('HIT STATS ENDPOINT');
 
       res.json({ success: true, message: 'รับยศสำเร็จ!' });
     } catch (e: any) {
-      console.error('discord-redeem Error:', e);
-      res.status(500).json({ error: `Internal server error: ${e.message}` });
+      console.error(e);
+      res.status(500).json({ error: 'Internal server error' });
     }
   });
 
