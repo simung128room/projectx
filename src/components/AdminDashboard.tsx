@@ -35,6 +35,7 @@ interface AdminDashboardProps {
   addLicenseKey: () => void;
   blockIP: () => void;
   deleteKey: (id: string) => void;
+  bulkDeleteKeys: () => void;
   unblockIP: (ip: string) => void;
 }
 
@@ -462,7 +463,7 @@ import { Menu } from 'lucide-react';
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   totalChecked, validAccounts, licenseKeys = [], usedKeysHistory = [], blockedIPs = [],
   adminTab, setAdminTab, isDBReady, dbErrorDetail, adminUsername, setIsAdmin,
-  addLicenseKey, blockIP, deleteKey, unblockIP,
+  addLicenseKey, blockIP, deleteKey, unblockIP, bulkDeleteKeys,
   products = [], setProducts, siteStats = { users: 0, stock: 0, sales: 0, topups: 0 }, setSiteStats,
   customPages = [], setCustomPages,
   categories = [], setCategories,
@@ -1092,6 +1093,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     URL.revokeObjectURL(url);
                   }} className="bg-zinc-800 hover:bg-zinc-900 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-sm">
                     <Download className="w-4 h-4" /> บันทึกเป็น TXT
+                  </button>
+                  <button onClick={bulkDeleteKeys} className="bg-red-500 hover:bg-red-600 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-sm">
+                    <Trash2 className="w-4 h-4" /> ลบคีย์หลายรายการ
                   </button>
                   <button onClick={addLicenseKey} className="bg-[#1E90FF] hover:bg-[#166bcc] text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-sm">
                     <Plus className="w-4 h-4" /> สร้างคีย์เพิ่ม

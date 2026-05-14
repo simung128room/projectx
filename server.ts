@@ -1950,6 +1950,22 @@ console.log('HIT STATS ENDPOINT');
     }
   });
 
+  app.post('/api/license_keys/bulk_delete', requireAdmin, async (req, res) => {
+    try {
+      const { ids } = req.body;
+      if (!Array.isArray(ids)) return res.status(400).json({ error: 'ids must be an array' });
+      const batch = admin.firestore().batch();
+      for (const id of ids) {
+        batch.delete(admin.firestore().collection('license_keys').doc(id));
+      }
+      await batch.commit();
+      res.json({ success: true, deletedCount: ids.length });
+    } catch (err) {
+      console.error('Internal server error bulk deleting license_keys:', err);
+      res.status(500).json({ error: String(err && err.message ? err.message : err) });
+    }
+  });
+
   app.patch('/api/license_keys/:id', requireAdmin, async (req, res) => {
     try {
       const { status } = req.body;

@@ -855,6 +855,80 @@ function AppContent() {
     }
   };
 
+  const bulkDeleteKeys = async () => {
+    const totalActive = licenseKeys.filter(k => k.status === 'active').length;
+    const totalUsed = licenseKeys.filter(k => k.status === 'used').length;
+    const totalAll = licenseKeys.length;
+
+    const result = await Swal.fire({
+      title: 'ลบคีย์หลายรายการ',
+      html: `
+        <div class="text-left text-sm space-y-2 mb-4">
+          <div><span class="text-zinc-500">คีย์ทั้งหมด:</span> <span class="font-bold text-[#1E90FF]">${totalAll}</span> รายการ</div>
+          <div><span class="text-zinc-500">ยังไม่ได้ใช้:</span> <span class="font-bold text-emerald-500">${totalActive}</span> รายการ</div>
+          <div><span class="text-zinc-500">ใช้แล้ว:</span> <span class="font-bold text-amber-500">${totalUsed}</span> รายการ</div>
+        </div>
+        <select id="bulk-delete-type" class="swal2-select" style="width: 100%; font-size: 14px; margin-bottom: 10px;">
+          <option value="used">ลบเฉพาะคีย์ที่ใช้แล้ว (Used)</option>
+          <option value="active">ลบเฉพาะคีย์ที่ยังไม่ได้ใช้ (Active)</option>
+          <option value="all">ลบคีย์ทั้งหมด (All)</option>
+        </select>
+        <input id="bulk-delete-count" type="number" min="1" class="swal2-input" placeholder="จำนวนที่ต้องการลบ (เว้นว่างเพื่อลบทั้งหมดตามประเภท)" style="width: 100%; font-size: 14px; margin: 0; box-sizing: border-box;">
+      `,
+      showCancelButton: true,
+      confirmButtonText: 'ถัดไป',
+      cancelButtonText: 'ยกเลิก',
+      preConfirm: () => {
+        const type = (document.getElementById('bulk-delete-type') as HTMLSelectElement).value;
+        const countStr = (document.getElementById('bulk-delete-count') as HTMLInputElement).value;
+        const count = countStr ? parseInt(countStr) : null;
+        return { type, count };
+      }
+    });
+
+    if (result.isConfirmed) {
+      const { type, count } = result.value;
+      let keysToDelete = licenseKeys;
+      if (type === 'active') keysToDelete = keysToDelete.filter(k => k.status === 'active');
+      if (type === 'used') keysToDelete = keysToDelete.filter(k => k.status === 'used');
+
+      if (keysToDelete.length === 0) {
+        return Swal.fire('ข้อมูล', 'ไม่มีคีย์ในระบบที่ตรงกับเงื่อนไข', 'info');
+      }
+
+      if (count && count > 0 && count < keysToDelete.length) {
+        keysToDelete = keysToDelete.slice(0, count);
+      }
+
+      const confirm2 = await Swal.fire({
+        title: 'ยืนยันขั้นสุดท้าย',
+        text: `คุณต้องการลบคีย์จำนวน ${keysToDelete.length} รายการใช่หรือไม่?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        confirmButtonText: 'ยืนยันการลบ',
+        cancelButtonText: 'ยกเลิก'
+      });
+
+      if (confirm2.isConfirmed) {
+        Swal.fire({
+          title: 'กำลังลบ...',
+          allowOutsideClick: false,
+          didOpen: () => { Swal.showLoading(); }
+        });
+        try {
+          const ids = keysToDelete.map(k => k.id);
+          const res = await axios.post('/api/license_keys/bulk_delete', { ids });
+          const deletedCount = res.data.deletedCount;
+          setLicenseKeys(prev => prev.filter(k => !ids.includes(k.id)));
+          Swal.fire('ลบแล้ว', `ลบคีย์สำเร็จจำนวน ${deletedCount} รายการ`, 'success');
+        } catch (err: any) {
+          Swal.fire('ข้อผิดพลาด', 'ลบไม่สำเร็จ: ' + err.message, 'error');
+        }
+      }
+    }
+  };
+
   const unblockIP = async (ip: string) => {
     try {
       await axios.delete(`/api/blocked_ips/${ip}`);
@@ -1344,9 +1418,7 @@ function AppContent() {
                     <ShieldAlert className="w-5 h-5"/> จัดการหลังบ้าน
                   </button>
                 )}
-                <button onClick={() => setActiveView('redeem')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${!isAdmin ? 'mt-2' : ''} ${activeView === 'redeem' ? 'bg-[#1E90FF] text-white shadow-md shadow-[#1E90FF]/20' : 'text-zinc-500 hover:bg-[#0a0d12] hover:text-white'}`}>
-                  <Key className="w-5 h-5"/> เปิดใช้งานคีย์
-                </button>
+
                 {isAdmin && (
                   <button onClick={() => { setActiveView('admin'); setAdminTab('bot'); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all text-zinc-500 hover:bg-[#0a0d12] hover:text-white`}>
                      <Bot className="w-5 h-5" /> ตั้งค่าบอทดักซอง
@@ -1573,11 +1645,7 @@ function AppContent() {
                           </div>
                         </div>
                       </div>
-                    
                       <div className="py-3 border-t border-white/5">
-                        <button onClick={() => { setActiveView('redeem'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border ${activeView === 'redeem' ? 'bg-[#1E90FF]/10 text-[#1E90FF] border-[#1E90FF]/30 shadow-md shadow-[#1E90FF]/10' : 'bg-transparent text-zinc-500 border-transparent hover:bg-[#0a0d12] hover:text-white'}`}>
-                          <Key className="w-[18px] h-[18px]"/> เปิดใช้งานคีย์
-                        </button>
                         {isAdmin && (
                           <button onClick={() => { setActiveView('admin'); setAdminTab('bot'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border bg-transparent text-zinc-500 border-transparent hover:bg-[#0a0d12] hover:text-white`}>
                            <Bot className="w-[18px] h-[18px]" /> ตั้งค่าบอทดักซอง
@@ -1755,6 +1823,7 @@ function AppContent() {
             addLicenseKey={addLicenseKey}
             blockIP={blockIP}
             deleteKey={deleteKey}
+            bulkDeleteKeys={bulkDeleteKeys}
             unblockIP={unblockIP}
             products={products}
             setProducts={setProducts}
@@ -1769,24 +1838,7 @@ function AppContent() {
           />
         )}
 
-        {activeView === 'redeem' && (
-          <RedeemKeyView 
-            redeemKey={redeemKey} 
-            userEmail={user?.email || 'Guest'}
-            isLoggedIn={!!user}
-            onLoginClick={() => setActiveView('login')}
-            onBack={() => setActiveView('home')} 
-            onGoToStore={() => {
-              setActiveView('home');
-              setTimeout(() => {
-                const element = document.getElementById('products');
-                if (element) {
-                  element.scrollIntoView({ behavior: 'smooth' });
-                }
-              }, 100);
-            }}
-          />
-        )}
+
 
         {activeView === 'dashboard' && (
           <>
