@@ -1523,7 +1523,7 @@ console.log('HIT STATS ENDPOINT');
         const docRef = admin.firestore().collection('license_keys').doc(docId);
         await docRef.update({ status: 'used' });
         // บันทึกประวัติ
-        await admin.firestore().collection('used_keys_history').add({
+        await admin.firestore().collection('used_keys').add({
             key,
             used_by_discord: true,
             used_at: new Date().toISOString()
@@ -1556,7 +1556,7 @@ console.log('HIT STATS ENDPOINT');
       }
 
       // Mark as claimed
-      await purchasesRef.doc(foundDoc.id).update({ discordClaimed: true });
+      await purchasesRef.doc(foundDoc.id).update({ ...foundDoc, discordClaimed: true });
 
       res.json({ success: true, message: 'รับยศสำเร็จ!' });
     } catch (e: any) {
@@ -2214,7 +2214,7 @@ console.log('HIT STATS ENDPOINT');
 
       if (isProductKey) {
         // อัปเดตคีย์สั่งซื้อว่าถูกใช้รับยศในเว็บแล้ว
-        await keyDocRef.update({ webClaimed: true });
+        await keyDocRef.update({ ...keyData, webClaimed: true });
         
         // ให้ยศเป็นชื่อของสินค้า (หรือถ้าอยากให้เป็น premium ก็ใส่ premium)
         rankToGive = keyData.productName?.replace(/ \(.+\)/g, '') || 'VIP';

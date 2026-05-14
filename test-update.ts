@@ -2,7 +2,7 @@ import { adminDb as admin } from './src/lib/admindb.js';
 
 async function testUpdate() {
   try {
-    const keyDocRef = admin.firestore().collection('license_keys').doc('dummy-id');
+    const keyDocRef = admin.firestore().collection('license_keys').doc('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11');
     console.log("Updating license_key status...");
     await keyDocRef.update({ status: 'used' });
     console.log("Success update license_keys");
@@ -11,17 +11,17 @@ async function testUpdate() {
   }
 
   try {
-    const pDocRef = admin.firestore().collection('purchases').doc('dummy-id');
+    const pDocRef = admin.firestore().collection('purchases').doc('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11');
     console.log("Updating purchases webClaimed...");
-    await pDocRef.update({ webClaimed: true });
+    await pDocRef.update({ productName: 'TestProduct', webClaimed: true });
     console.log("Success update purchases");
   } catch (e: any) {
     console.error("purchases update error:", e.message);
   }
 
   try {
-    console.log("Adding to used_keys...");
-    await admin.firestore().collection('used_keys').add({
+    console.log("Adding to used_keys_history...");
+    await admin.firestore().collection('used_keys_history').add({
         key: 'TEST',
         ip: '127.0.0.1',
         details: 'Redeemed rank undefined',

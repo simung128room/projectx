@@ -34,9 +34,9 @@ const camelMap: Record<string, string> = {
 const forwardMap: Record<string, string> = {
   imageUrl: 'image',
   createdAt: 'created_at',
-  updatedAt: 'updated_at',
-  isPremium: 'is_premium',
-  productName: 'product_name',
+  updatedAt: 'updatedat',
+  isPremium: 'ispremium',
+  productName: 'productname',
   stockData: 'stock_data',
   userId: 'user_id',
   username: 'username'
@@ -52,20 +52,35 @@ function toDB(data: any, collection?: string): any {
   const _data = { ...data };
 
   // Encode purchases metadata into productname
-  if (_data.productName && typeof _data.productName === 'string' && (_data.secretData !== undefined || _data.billNumber !== undefined || _data.is_special !== undefined || _data.productId !== undefined)) {
+  if (_data.productName && typeof _data.productName === 'string' && (_data.secretData !== undefined || _data.billNumber !== undefined || _data.is_special !== undefined || _data.productId !== undefined || _data.discordClaimed !== undefined || _data.webClaimed !== undefined)) {
       if (!_data.productName.startsWith('{"n":')) {
           _data.productName = JSON.stringify({
               n: _data.productName,
               s: _data.secretData,
               b: _data.billNumber,
               i: _data.is_special,
-              p: _data.productId
+              p: _data.productId,
+              d: _data.discordClaimed,
+              w: _data.webClaimed
           });
+      } else {
+          try {
+             let meta = JSON.parse(_data.productName);
+             if (_data.discordClaimed !== undefined) meta.d = _data.discordClaimed;
+             if (_data.webClaimed !== undefined) meta.w = _data.webClaimed;
+             if (_data.secretData !== undefined) meta.s = _data.secretData;
+             if (_data.billNumber !== undefined) meta.b = _data.billNumber;
+             if (_data.is_special !== undefined) meta.i = _data.is_special;
+             if (_data.productId !== undefined) meta.p = _data.productId;
+             _data.productName = JSON.stringify(meta);
+          } catch(e) {}
       }
       delete _data.secretData;
       delete _data.billNumber;
       delete _data.is_special;
       delete _data.productId;
+      delete _data.discordClaimed;
+      delete _data.webClaimed;
   }
 
   // Encode topups metadata into username
@@ -135,6 +150,8 @@ function fromDB(data: any): any {
           if (meta.b !== undefined) res.billNumber = meta.b;
           if (meta.i !== undefined) res.is_special = meta.i;
           if (meta.p !== undefined) res.productId = meta.p;
+          if (meta.d !== undefined) res.discordClaimed = meta.d;
+          if (meta.w !== undefined) res.webClaimed = meta.w;
       } catch (e) {}
   }
 
