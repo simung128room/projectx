@@ -1538,9 +1538,12 @@ console.log('HIT STATS ENDPOINT');
       let foundDoc = null;
       for (const doc of snapshot.docs) {
         const data = doc.data();
-        if (data.secretData && data.secretData.includes(key)) {
-          foundDoc = { id: doc.id, ...data };
-          break;
+        if (data.secretData) {
+          const keysInPurchase = data.secretData.split('\n').map((k: string) => k.trim());
+          if (keysInPurchase.includes(key.trim())) {
+            foundDoc = { id: doc.id, ...data };
+            break;
+          }
         }
       }
 
@@ -2184,10 +2187,13 @@ console.log('HIT STATS ENDPOINT');
         let foundDoc = null;
         for (const doc of purchasesSnapshot.docs) {
           const data = doc.data();
-          if (data.secretData && data.secretData.includes(key) && !data.webClaimed) {
-             foundDoc = { id: doc.id, ...data };
-             keyDocRef = purchasesRef.doc(doc.id);
-             break;
+          if (data.secretData && !data.webClaimed) {
+             const keysInPurchase = data.secretData.split('\n').map((k: string) => k.trim());
+             if (keysInPurchase.includes(key.trim())) {
+               foundDoc = { id: doc.id, ...data };
+               keyDocRef = purchasesRef.doc(doc.id);
+               break;
+             }
           }
         }
 
