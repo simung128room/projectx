@@ -7,6 +7,8 @@ import { AccountResult, Product, SiteStats } from '../types';
 import { useState, useRef, useEffect } from 'react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { supabase } from '../lib/supabase';
+import { AdminApiKeys } from './AdminApiKeys';
+import { AdminBotManagement } from './AdminBotManagement';
 
 interface AdminDashboardProps {
   totalChecked: number;
@@ -455,7 +457,6 @@ import { AdminUserManagement } from './AdminUserManagement';
 import { AdminPagesManagement } from './AdminPagesManagement';
 import { AdminCategoriesManagement } from './AdminCategoriesManagement';
 import { AdminToolsManagement } from './AdminToolsManagement';
-import { AdminBotManagement } from './AdminBotManagement';
 import { Menu } from 'lucide-react';
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({
@@ -624,6 +625,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           <SidebarItem id="pages" label="จัดการหน้าเพจ" icon={FileText} />
           <SidebarItem id="tools" label="แจกรางวัล (Tools)" icon={Gift} />
           <SidebarItem id="ips" label="Access Control" icon={ShieldAlert} />
+          <SidebarItem id="api_keys" label="API Keys" icon={Key} />
           <SidebarItem id="history" label="ประวัติการใช้งาน" icon={History} />
           
           <Separator label="————- ตั้งค่า —————" />
@@ -1292,6 +1294,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               exit={{ opacity: 0, x: -20 }}
             >
               <AdminBotManagement />
+            </motion.div>
+          )}
+
+          {adminTab === 'api_keys' && (
+            <motion.div 
+              key="api_keys"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+            >
+              <AdminApiKeys />
             </motion.div>
           )}
 

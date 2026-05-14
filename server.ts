@@ -773,63 +773,95 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
     const account = req.body.account?.toString().trim();
     const password = req.body.password?.toString().trim();
     const turnstileToken = req.body.turnstileToken; // Optional turnstile token
+    const apiKey = req.headers['x-api-key']?.toString().trim() || req.body.apiKey?.toString().trim();
 
     if (!account || !password) return res.status(400).json({ error: 'Missing credentials' });
 
-    // Verify Turnstile Token
-    if (!turnstileToken) {
-       return res.status(403).json({ error: 'Missing Captcha token. Please refresh the page and verify you are human.' });
+    let isApiKeyValid = false;
+    if (apiKey) {
+      if (!admin.firestore()) {
+        return res.status(500).json({ error: 'Database connection error' });
+      }
+      try {
+        const apiKeyDoc = await admin.firestore().collection('api_keys').doc(apiKey).get();
+        if (apiKeyDoc.exists) {
+          const data = apiKeyDoc.data();
+          if (data?.status === 'active') {
+            if (data?.expires_at && new Date(data.expires_at) < new Date()) {
+               await admin.firestore().collection('api_keys').doc(apiKey).update({ status: 'expired' }).catch(() => {});
+               return res.status(401).json({ error: 'API Key has expired' });
+            }
+            isApiKeyValid = true;
+            // Fire and forget updating last_used
+            admin.firestore().collection('api_keys').doc(apiKey).update({ last_used: new Date().toISOString() }).catch(() => {});
+          } else {
+             return res.status(401).json({ error: 'API Key is disabled or expired' });
+          }
+        } else {
+          return res.status(401).json({ error: 'Invalid API Key' });
+        }
+      } catch (err) {
+        console.error('Error verifying API Key:', err);
+        return res.status(500).json({ error: 'Error verifying API Key' });
+      }
     }
 
-    // Since a batch check loop uses the same token, we cache verified tokens for 5 minutes
-    const now = Date.now();
-    const cachedTime = turnstileCache.get(turnstileToken);
-    
-    if (cachedTime && (now - cachedTime < 5 * 60 * 1000)) {
-       // Token is already verified and within 5 minute window
-       // console.log("Used cached Turnstile token bypass");
-    } else {
-       const secretKey = process.env.TURNSTILE_SECRET_KEY || '';
-       
-       if (!secretKey) {
-           turnstileCache.set(turnstileToken, now);
-       } else {
-           try {
-             const params = new URLSearchParams();
-             params.append('secret', secretKey);
-             params.append('response', turnstileToken);
+    if (!isApiKeyValid) {
+      // Verify Turnstile Token
+      if (!turnstileToken) {
+         return res.status(403).json({ error: 'Missing Captcha token. Please refresh the page and verify you are human. (Or provide valid API Key)' });
+      }
 
-         const turnstileResponse = await axios.post(
-           'https://challenges.cloudflare.com/turnstile/v0/siteverify',
-           params,
-           {
-             headers: {
-               'Content-Type': 'application/x-www-form-urlencoded'
-             }
-           }
-         );
-
-         if (!turnstileResponse.data.success) {
-           console.error('Turnstile verification failed:', turnstileResponse.data);
-           return res.status(403).json({ error: 'Turnstile verification failed. Please refresh the page and try again.' });
-         }
-
-         // Cache the successfully verified token
-         turnstileCache.set(turnstileToken, now);
+      // Since a batch check loop uses the same token, we cache verified tokens for 5 minutes
+      const now = Date.now();
+      const cachedTime = turnstileCache.get(turnstileToken);
+      
+      if (cachedTime && (now - cachedTime < 5 * 60 * 1000)) {
+         // Token is already verified and within 5 minute window
+         // console.log("Used cached Turnstile token bypass");
+      } else {
+         const secretKey = process.env.TURNSTILE_SECRET_KEY || '';
          
-         // Clean up old entries from cache every once in a while
-         if (turnstileCache.size > 1000) {
-           for (const [key, time] of turnstileCache.entries()) {
-             if (now - time > 5 * 60 * 1000) {
-               turnstileCache.delete(key);
+         if (!secretKey) {
+             turnstileCache.set(turnstileToken, now);
+         } else {
+             try {
+               const params = new URLSearchParams();
+               params.append('secret', secretKey);
+               params.append('response', turnstileToken);
+  
+           const turnstileResponse = await axios.post(
+             'https://challenges.cloudflare.com/turnstile/v0/siteverify',
+             params,
+             {
+               headers: {
+                 'Content-Type': 'application/x-www-form-urlencoded'
+               }
+             }
+           );
+  
+           if (!turnstileResponse.data.success) {
+             console.error('Turnstile verification failed:', turnstileResponse.data);
+             return res.status(403).json({ error: 'Turnstile verification failed. Please refresh the page and try again.' });
+           }
+  
+           // Cache the successfully verified token
+           turnstileCache.set(turnstileToken, now);
+           
+           // Clean up old entries from cache every once in a while
+           if (turnstileCache.size > 1000) {
+             for (const [key, time] of turnstileCache.entries()) {
+               if (now - time > 5 * 60 * 1000) {
+                 turnstileCache.delete(key);
+               }
              }
            }
+         } catch (error) {
+           console.error('Error verifying Turnstile token:', error);
+           return res.status(500).json({ error: 'Internal server error during captcha verification.' });
          }
-       } catch (error) {
-         console.error('Error verifying Turnstile token:', error);
-         return res.status(500).json({ error: 'Internal server error during captcha verification.' });
-       }
-       }
+         }
+      }
     }
 
     const jar = new CookieJar();
@@ -1463,12 +1495,15 @@ console.log('HIT STATS ENDPOINT');
     if (secret !== 'MY_SECRET_DISCORD_TOKEN_1234') {
       return res.status(401).json({ error: 'Unauthorized' });
     }
+    if (!key) return res.status(400).json({ error: 'Key is required' });
+    
     try {
-      const newDoc = { key, plan: plan || 'premium', status: 'active', created_at: new Date().toISOString() };
+      const newDoc = { key: key.trim(), plan: plan || 'premium', status: 'active', created_at: new Date().toISOString() };
       await admin.firestore().collection('license_keys').add(newDoc);
       res.json({ success: true, message: `เพิ่มคีย์ ${key} สำเร็จ!`, plan: newDoc.plan });
-    } catch (error) {
-      res.status(500).json({ error: 'Internal server error while adding key' });
+    } catch (error: any) {
+      console.error('discord-rekey Error:', error);
+      res.status(500).json({ error: `Internal server error: ${error.message}` });
     }
   });
 
@@ -1478,16 +1513,26 @@ console.log('HIT STATS ENDPOINT');
     if (secret !== 'MY_SECRET_DISCORD_TOKEN_1234') {
       return res.status(401).json({ error: 'Unauthorized' });
     }
+    if (!key) return res.status(400).json({ error: 'Key is required' });
 
     try {
-      // 1. ลองหา key ใน license_keys
-      const licenseSnapshot = await admin.firestore().collection('license_keys').where('key', '==', key).where('status', '==', 'active').get();
-      if (!licenseSnapshot.empty) {
-        const docRef = licenseSnapshot.docs[0].ref;
-        await docRef.update({ status: 'used' });
+      const cleanKey = key.trim();
+      // 1. ลองหา key ใน license_keys (no composite index require)
+      const licenseSnapshot = await admin.firestore().collection('license_keys').where('key', '==', cleanKey).get();
+      
+      let licenseDoc = null;
+      for (const doc of licenseSnapshot.docs) {
+        if (doc.data().status === 'active') {
+          licenseDoc = doc;
+          break;
+        }
+      }
+
+      if (licenseDoc) {
+        await licenseDoc.ref.update({ status: 'used' });
         // บันทึกประวัติ
         await admin.firestore().collection('used_keys_history').add({
-            key,
+            key: cleanKey,
             used_by_discord: true,
             used_at: new Date().toISOString()
         });
@@ -1501,14 +1546,14 @@ console.log('HIT STATS ENDPOINT');
       let foundDoc = null;
       for (const doc of snapshot.docs) {
         const data = doc.data();
-        if (data.secretData && data.secretData.includes(key)) {
+        if (data && data.secretData && typeof data.secretData.includes === 'function' && data.secretData.includes(cleanKey)) {
           foundDoc = { id: doc.id, ...data };
           break;
         }
       }
 
       if (!foundDoc) {
-        return res.status(404).json({ error: 'ไม่พบคีย์นี้ในระบบ หรือคีย์ไม่ถูกต้อง' });
+        return res.status(404).json({ error: 'ไม่พบคีย์นี้ในระบบ หรืออาจถูกใช้ไปแล้ว' });
       }
 
       if (foundDoc.discordClaimed) {
@@ -1520,8 +1565,8 @@ console.log('HIT STATS ENDPOINT');
 
       res.json({ success: true, message: 'รับยศสำเร็จ!' });
     } catch (e: any) {
-      console.error(e);
-      res.status(500).json({ error: 'Internal server error' });
+      console.error('discord-redeem Error:', e);
+      res.status(500).json({ error: `Internal server error: ${e.message}` });
     }
   });
 
@@ -2014,6 +2059,62 @@ console.log('HIT STATS ENDPOINT');
       res.json({ blocked: !!data });
     } catch (err) {
       console.error('Internal server error checking IP:', err);
+      res.status(500).json({ error: String(err && err.message ? err.message : err) });
+    }
+  });
+
+  // --- API Keys Endpoints ---
+  app.get('/api/api_keys', requireAdmin, async (req: any, res: any) => {
+    try {
+      const snapshot = await admin.firestore().collection('api_keys').orderBy('created_at', 'desc').get();
+      const keys = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      res.json(keys);
+    } catch (err: any) {
+      console.error('API Keys fetch error:', err);
+      res.status(500).json({ error: String(err && err.message ? err.message : err) });
+    }
+  });
+
+  app.post('/api/api_keys', requireAdmin, async (req: any, res: any) => {
+    try {
+      const { name, is_lifetime, expire_days } = req.body;
+      const keyString = 'apx_' + crypto.randomBytes(16).toString('hex');
+      const now = new Date();
+      let expires_at = null;
+      if (!is_lifetime && expire_days) {
+         now.setDate(now.getDate() + parseInt(expire_days));
+         expires_at = now.toISOString();
+      }
+      const newKey = {
+         key: keyString,
+         name: name || 'Unnamed Key',
+         status: 'active',
+         created_at: new Date().toISOString(),
+         expires_at,
+         last_used: null
+      };
+      await admin.firestore().collection('api_keys').doc(keyString).set(newKey);
+      res.json(newKey);
+    } catch (err: any) {
+       res.status(500).json({ error: String(err && err.message ? err.message : err) });
+    }
+  });
+
+  app.delete('/api/api_keys/:key', requireAdmin, async (req: any, res: any) => {
+    try {
+      await admin.firestore().collection('api_keys').doc(req.params.key).delete();
+      res.json({ success: true });
+    } catch (err: any) {
+      res.status(500).json({ error: String(err && err.message ? err.message : err) });
+    }
+  });
+
+  app.patch('/api/api_keys/:key', requireAdmin, async (req: any, res: any) => {
+    try {
+      const { status } = req.body;
+      await admin.firestore().collection('api_keys').doc(req.params.key).update({ status });
+      res.json({ success: true, status });
+    } catch (err: any) {
       res.status(500).json({ error: String(err && err.message ? err.message : err) });
     }
   });
