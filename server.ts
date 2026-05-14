@@ -1954,11 +1954,7 @@ console.log('HIT STATS ENDPOINT');
     try {
       const { ids } = req.body;
       if (!Array.isArray(ids)) return res.status(400).json({ error: 'ids must be an array' });
-      const batch = admin.firestore().batch();
-      for (const id of ids) {
-        batch.delete(admin.firestore().collection('license_keys').doc(id));
-      }
-      await batch.commit();
+      await Promise.all(ids.map(id => admin.firestore().collection('license_keys').doc(id).delete()));
       res.json({ success: true, deletedCount: ids.length });
     } catch (err) {
       console.error('Internal server error bulk deleting license_keys:', err);
