@@ -102,12 +102,21 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
               {authMode === 'login' ? 'ยินดีต้อนรับกลับสู่ APEX STUDIO' : 'ลงทะเบียนเพื่อเริ่มต้นใช้งาน'}
             </p>
           </div>
-          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-[#1E90FF]/10 flex items-center justify-center shrink-0 ml-4 border border-[#1E90FF]/20 text-[#1E90FF] shadow-lg shadow-[#1E90FF]/5">
-            {authMode === 'login' ? (
-              <LogIn className="w-6 h-6 sm:w-7 sm:h-7" />
-            ) : (
-              <UserPlus className="w-6 h-6 sm:w-7 sm:h-7" />
-            )}
+          <div className="w-14 h-14 sm:w-16 sm:h-16 shrink-0 ml-4 flex items-center justify-center">
+            <motion.img 
+              src="https://i.postimg.cc/6qnW8nqX/IMG-6366.png" 
+              alt="APEX STUDIO" 
+              className="w-full h-full object-contain drop-shadow-md" 
+              animate={{ 
+                y: [0, -8, 0],
+                rotate: [0, 8, -8, 0]
+              }}
+              transition={{ 
+                duration: 2.5, 
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            />
           </div>
         </div>
 
@@ -116,14 +125,14 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
             <motion.div layout key="username" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
               <label className="block text-sm font-medium text-zinc-400 mb-1.5 px-1">ชื่อผู้ใช้ / Username</label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <User className="w-5 h-5 text-zinc-500" />
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                  <User className="w-4 h-4 text-zinc-500" />
                 </div>
                 <input 
                   type="text" 
                   value={authUsername}
                   onChange={(e) => setAuthUsername(e.target.value)}
-                  className="w-full bg-[#12161E] border border-white/5 rounded-xl py-3 pl-11 pr-4 outline-none focus:border-[#1A56DB]/50 focus:bg-[#151A23] transition-colors text-white placeholder:text-zinc-600 font-sans"
+                  className="w-full bg-[#12161E] border border-white/5 rounded-xl py-2 pl-10 pr-4 outline-none focus:border-[#1A56DB]/50 focus:bg-[#151A23] transition-colors text-white text-sm placeholder:text-zinc-600 font-sans"
                   placeholder="Username"
                   required
                 />
@@ -133,14 +142,14 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
             <motion.div layout key="password" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
               <label className="block text-sm font-medium text-zinc-400 mb-1.5 px-1">รหัสผ่าน / Password</label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Lock className="w-5 h-5 text-zinc-500" />
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                  <Lock className="w-4 h-4 text-zinc-500" />
                 </div>
                 <input 
                   type={showPassword ? "text" : "password"}
                   value={authPassword}
                   onChange={(e) => setAuthPassword(e.target.value)}
-                  className="w-full bg-[#12161E] border border-white/5 rounded-xl py-3 pl-11 pr-11 outline-none focus:border-[#1A56DB]/50 focus:bg-[#151A23] transition-colors text-white placeholder:text-zinc-600 font-sans"
+                  className="w-full bg-[#12161E] border border-white/5 rounded-xl py-2 pl-10 pr-10 outline-none focus:border-[#1A56DB]/50 focus:bg-[#151A23] transition-colors text-white text-sm placeholder:text-zinc-600 font-sans"
                   placeholder="••••••••"
                   required
                   minLength={6}
@@ -159,12 +168,12 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
               <motion.div layout key="confirm_password" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
                 <label className="block text-sm font-medium text-zinc-400 mb-1.5 px-1 mt-4">ยืนยันรหัสผ่าน / confirm password</label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <Lock className="w-5 h-5 text-zinc-500" />
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                    <Lock className="w-4 h-4 text-zinc-500" />
                   </div>
                   <input 
                     type={showPassword ? "text" : "password"}
-                    className="w-full bg-[#12161E] border border-white/5 rounded-xl py-3 pl-11 pr-11 outline-none focus:border-[#1A56DB]/50 focus:bg-[#151A23] transition-colors text-white placeholder:text-zinc-600 font-sans"
+                    className="w-full bg-[#12161E] border border-white/5 rounded-xl py-2 pl-10 pr-10 outline-none focus:border-[#1A56DB]/50 focus:bg-[#151A23] transition-colors text-white text-sm placeholder:text-zinc-600 font-sans"
                     placeholder="••••••••"
                     required
                     minLength={6}
@@ -175,15 +184,17 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
           </AnimatePresence>
 
           {TURNSTILE_SITE_KEY && (
-            <motion.div layout className="pt-2 mt-2 flex justify-center w-full">
-              <div className="flex justify-center w-full overflow-hidden">
-                <Turnstile
-                  siteKey={TURNSTILE_SITE_KEY}
-                  onSuccess={(token) => setTurnstileToken(token)}
-                  onExpire={() => setTurnstileToken(null)}
-                  onError={() => setTurnstileToken(null)}
-                  options={{ theme: 'light', size: 'normal' }}
-                />
+            <motion.div layout className="pt-2 mt-2 w-full">
+              <div className="w-full h-[58px] relative overflow-hidden rounded-xl border border-white/5 bg-[#0B0F14]">
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[110%] scale-[0.92] flex justify-center">
+                  <Turnstile
+                    siteKey={TURNSTILE_SITE_KEY}
+                    onSuccess={(token) => setTurnstileToken(token)}
+                    onExpire={() => setTurnstileToken(null)}
+                    onError={() => setTurnstileToken(null)}
+                    options={{ theme: 'dark', size: 'flexible' }}
+                  />
+                </div>
               </div>
             </motion.div>
           )}
@@ -192,7 +203,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
             <button 
               type="submit" 
               disabled={authLoading || (!!TURNSTILE_SITE_KEY && !turnstileToken)}
-              className="w-full py-3.5 rounded-xl text-[15px] font-semibold transition-all flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed bg-[#1E90FF] hover:bg-[#1A56DB] text-white active:scale-[0.98]"
+              className="w-full py-2.5 rounded-xl text-sm font-semibold transition-all flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed bg-[#1E90FF] hover:bg-[#1A56DB] text-white active:scale-[0.98]"
             >
               {authLoading ? (
                 <div className="flex items-center gap-2">

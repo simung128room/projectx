@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import React, { useState, useRef, useEffect, useCallback, Suspense, lazy } from 'react';
 import { 
-  Gamepad2, ListChecks, Play, Square, Check, X, Shield, Terminal, CheckCircle2, 
+  Loader, Gamepad2, ListChecks, Play, Square, Check, X, Shield, Terminal, CheckCircle2, 
   Home, ShoppingCart, CreditCard, Phone, Upload, Key, Crown, LogOut, User, Gift, Lock,
   FileImage, Database, Globe, BarChart3, Settings, Activity, FileText, 
   AlertTriangle, Download, ChevronRight, ChevronDown, Trash2, ShieldAlert, Plus, Ban, History, Search, Copy, Menu, Server, Package, Wallet, MessageSquare, Bot, Image as ImageIcon, LogIn, UserPlus, ArrowUpRight
@@ -1255,25 +1255,13 @@ function AppContent() {
         transition={{ duration: 0.8, ease: "easeOut" }}
         className="flex flex-col items-center justify-center"
       >
-        <img 
-          src="https://i.postimg.cc/6qnW8nqX/IMG-6366.png" 
-          alt="APEX LOGO" 
-          className="h-16 object-contain mb-8 animate-pulse" 
-        />
-        <div className="w-48 h-1 bg-white/5 rounded-full overflow-hidden">
-          <motion.div 
-            initial={{ width: 0 }}
-            animate={{ width: '100%' }}
-            transition={{ duration: 1.5, ease: "easeInOut", repeat: Infinity }}
-            className="h-full bg-[#1E90FF]"
-          />
-        </div>
+        <Loader className="w-16 h-16 text-[#1E90FF] animate-spin" strokeWidth={2} />
       </motion.div>
     </div>
   );
 
   return (
-    <div className="min-h-screen w-full overflow-x-hidden bg-[#0a0d12] text-white font-sans selection:bg-[#1E90FF]/30 flex relative">
+    <div className="min-h-screen w-full bg-[#0a0d12] text-white font-sans selection:bg-[#1E90FF]/30 flex flex-col relative">
       <PopupBanner 
         enabled={siteSettings?.popup_enabled ?? false} 
         imgUrl={siteSettings?.popup_img_url ?? ''} 
@@ -1282,27 +1270,18 @@ function AppContent() {
       {/* Page Transition Overlay */}
       {isPageTransitioning && (
         <div className="fixed inset-0 z-[200] bg-[#0a0d12]/95 backdrop-blur-md flex flex-col items-center justify-center p-4 overflow-hidden animate-in fade-in duration-200">
-          <motion.img 
+          <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.3 }}
-            src="https://i.postimg.cc/6qnW8nqX/IMG-6366.png" 
-            alt="APEX LOGO" 
-            className="h-12 object-contain mb-6" 
-          />
-          <div className="w-32 h-1 bg-white/5 rounded-full overflow-hidden">
-            <motion.div 
-              initial={{ width: 0 }}
-              animate={{ width: '100%' }}
-              transition={{ duration: 0.7, ease: "easeInOut" }}
-              className="h-full bg-[#1E90FF]"
-            />
-          </div>
+          >
+            <Loader className="w-12 h-12 text-[#1E90FF] animate-spin" strokeWidth={2} />
+          </motion.div>
         </div>
       )}
 
-      {/* Desktop Sidebar (Minimal) */}
-      <aside className="hidden lg:flex flex-col w-72 fixed h-screen top-0 left-0 bg-[#0B0F14] border-r border-white/10 z-40 p-6 overflow-y-auto">
+      {/* Desktop Sidebar (Minimal) - HIDDEN for top menu layout */}
+      <aside className="hidden">
          <div className="mb-10 flex items-center justify-center">
             <img 
               src="https://i.postimg.cc/6qnW8nqX/IMG-6366.png" 
@@ -1347,9 +1326,6 @@ function AppContent() {
                 </button>
                 <button onClick={() => { setActiveView('categories'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'categories' ? 'bg-[#1E90FF] text-white shadow-md shadow-[#1E90FF]/20' : 'text-zinc-500 hover:bg-[#0a0d12] hover:text-white'}`}>
                   <ShoppingCart className="w-5 h-5"/> สินค้าทั้งหมด
-                </button>
-                <button onClick={() => { setActiveView('search'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'search' ? 'bg-[#1E90FF] text-white shadow-md shadow-[#1E90FF]/20' : 'text-zinc-500 hover:bg-[#0a0d12] hover:text-white'}`}>
-                  <Search className="w-5 h-5"/> ค้นหาสินค้า
                 </button>
                 <button onClick={() => setActiveView('wallet')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === 'wallet' ? 'bg-[#1E90FF] text-white shadow-md shadow-[#1E90FF]/20' : 'text-zinc-500 hover:bg-[#0a0d12] hover:text-white'}`}>
                   <Wallet className="w-5 h-5"/> เติมเงิน
@@ -1419,11 +1395,7 @@ function AppContent() {
                   </button>
                 )}
 
-                {isAdmin && (
-                  <button onClick={() => { setActiveView('admin'); setAdminTab('bot'); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all text-zinc-500 hover:bg-[#0a0d12] hover:text-white`}>
-                     <Bot className="w-5 h-5" /> ตั้งค่าบอทดักซอง
-                  </button>
-                )}
+
               </>
             )}
          </div>
@@ -1462,26 +1434,57 @@ function AppContent() {
       </aside>
 
       {/* Main Content Area */}
-      <div className="flex-1 lg:ml-72 flex flex-col min-h-screen min-w-0 overflow-x-hidden relative">
-        {/* Mobile Top Navbar */}
-        <nav className="lg:hidden sticky top-0 z-40 bg-[#0B0F14]/90 backdrop-blur-md border-b border-white/10 h-[72px] flex items-center justify-between px-4 sm:px-6 overflow-hidden">
-          <img 
-            src="https://i.postimg.cc/6qnW8nqX/IMG-6366.png" 
-            alt="APEX STUDIO TH" 
-            className="h-8 sm:h-10 object-contain cursor-pointer shrink-0" 
-            onClick={() => setActiveView('home')}
-          />
-          <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+      <div className="flex-1 flex flex-col min-h-screen min-w-0 relative">
+        {/* Global Top Navbar */}
+        <nav className="sticky top-0 z-[60] bg-[#0B0F14]/90 backdrop-blur-md border-b border-white/10 h-[72px] w-full flex justify-center">
+          <div className="flex items-center justify-between px-6 sm:px-8 w-full max-w-6xl lg:px-8 relative">
+            <div className="flex items-center gap-6">
+              <img 
+                src="https://i.postimg.cc/6qnW8nqX/IMG-6366.png" 
+                alt="APEX STUDIO TH" 
+                className="h-8 object-contain cursor-pointer shrink-0" 
+                onClick={() => setActiveView('home')}
+              />
+            </div>
+            {/* Desktop Navigation Links */}
+            <div className="hidden lg:flex items-center justify-center gap-1 absolute left-1/2 -translate-x-1/2 w-auto px-2">
+               <button onClick={() => setActiveView('home')} className={`px-2.5 py-1.5 text-sm font-bold rounded-xl transition-all ${activeView === 'home' ? 'text-[#1E90FF] bg-[#1E90FF]/10' : 'text-zinc-400 hover:text-white hover:bg-white/5'}`}>หน้าแรก</button>
+               <button onClick={() => { setActiveView('categories'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className={`px-2.5 py-1.5 text-sm font-bold rounded-xl transition-all ${activeView === 'categories' ? 'text-[#1E90FF] bg-[#1E90FF]/10' : 'text-zinc-400 hover:text-white hover:bg-white/5'}`}>สินค้าทั้งหมด</button>
+               <button onClick={() => !user ? setActiveView('login') : setActiveView('wallet')} className={`px-2.5 py-1.5 text-sm font-bold rounded-xl transition-all ${activeView === 'wallet' ? 'text-[#1E90FF] bg-[#1E90FF]/10' : 'text-zinc-400 hover:text-white hover:bg-white/5'}`}>เติมเงิน</button>
+               {user && (
+                 <button onClick={() => setActiveView('history')} className={`px-2.5 py-1.5 text-sm font-bold rounded-xl transition-all ${activeView === 'history' ? 'text-[#1E90FF] bg-[#1E90FF]/10' : 'text-zinc-400 hover:text-white hover:bg-white/5'}`}>ประวัติการใช้งาน</button>
+               )}
+               <button onClick={() => { setActiveView('contact'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className={`px-2.5 py-1.5 text-sm font-bold rounded-xl transition-all ${activeView === 'contact' ? 'text-[#1E90FF] bg-[#1E90FF]/10' : 'text-zinc-400 hover:text-white hover:bg-white/5'}`}>ช่องทางการติดต่อ</button>
+            </div>
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            {/* Desktop User info & Auth */}
+            <div className="hidden lg:flex items-center gap-3 mr-2">
+              {!user ? (
+                 <>
+                  <button onClick={() => setActiveView('login')} className="px-4 py-2 hover:bg-white/5 text-zinc-300 rounded-xl text-sm font-bold transition-all">เข้าสู่ระบบ</button>
+                  <button onClick={() => setActiveView('signup')} className="px-4 py-2 bg-[#1E90FF] hover:bg-[#166bcc] text-white rounded-xl text-sm font-bold transition-all shadow-md shadow-[#1E90FF]/20">สมัครสมาชิก</button>
+                 </>
+              ) : (
+                 <div className="flex items-center gap-3 bg-[#0a0d12] border border-white/5 px-3 py-1.5 rounded-full">
+                    <div className="flex flex-col items-end">
+                      <span className="text-xs font-bold text-white leading-tight">{user.isAnonymous ? 'ผู้ใช้งานทั่วไป' : user.email}</span>
+                      <span className="text-[10px] text-[#1E90FF] font-sans font-bold leading-tight">฿ {userPlan?.balance?.toLocaleString(undefined, {minimumFractionDigits: 2}) || '0.00'}</span>
+                    </div>
+                    {userPlan?.isPremium && <Crown className="w-4 h-4 text-amber-500 ml-1" />}
+                 </div>
+              )}
+            </div>
+
             <button 
               onClick={() => setActiveView('search')} 
-              className="w-10 h-10 rounded-xl bg-[#0a0d12] border border-white/10 flex items-center justify-center text-zinc-400 active:scale-95 transition-all"
+              className="w-10 h-10 rounded-xl bg-[#0a0d12] border border-white/10 flex items-center justify-center text-zinc-400 hover:text-white active:scale-95 transition-all"
             >
               <Search className="w-5 h-5" />
             </button>
             {user && (
               <button 
                 onClick={() => setActiveView('profile')} 
-                className="w-10 h-10 rounded-xl bg-[#0a0d12] border border-white/10 flex items-center justify-center text-zinc-400 active:scale-95 transition-all overflow-hidden"
+                className="w-10 h-10 rounded-xl bg-[#0a0d12] border border-white/10 hidden lg:flex items-center justify-center text-zinc-400 hover:text-white active:scale-95 transition-all overflow-hidden"
               >
                 <img 
                   src={getAvatarUrl(encodeURIComponent(userPlan?.username || user?.email?.split('@')[0] || 'guest'))} 
@@ -1491,13 +1494,36 @@ function AppContent() {
                 />
               </button>
             )}
-            <button 
+            <motion.button 
+              whileTap={{ scale: 0.9 }}
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
-              className="w-11 h-11 rounded-2xl bg-[#0B0F14] border border-white/10 flex items-center justify-center text-white hover:border-[#1E90FF]/50 hover:text-[#1E90FF] active:scale-95 transition-all shadow-lg relative group overflow-hidden"
+              className="w-10 h-10 rounded-xl bg-[#0a0d12] border border-white/10 flex items-center justify-center text-zinc-400 hover:text-white active:scale-95 transition-all relative overflow-hidden"
             >
-              <div className="absolute inset-0 bg-[#1E90FF]/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-              {isMobileMenuOpen ? <X className="w-5 h-5 relative z-10" /> : <Menu className="w-5 h-5 relative z-10" />}
-            </button>
+              <AnimatePresence mode="popLayout">
+                {isMobileMenuOpen ? (
+                  <motion.div
+                    key="close"
+                    initial={{ opacity: 0, rotate: -90 }}
+                    animate={{ opacity: 1, rotate: 0 }}
+                    exit={{ opacity: 0, rotate: 90 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <X className="w-5 h-5 relative z-10" />
+                  </motion.div>
+                ) : (
+                   <motion.div
+                    key="menu"
+                    initial={{ opacity: 0, rotate: 90 }}
+                    animate={{ opacity: 1, rotate: 0 }}
+                    exit={{ opacity: 0, rotate: -90 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                   <Menu className="w-5 h-5 relative z-10" />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.button>
+          </div>
           </div>
         </nav>
 
@@ -1510,32 +1536,43 @@ function AppContent() {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="lg:hidden fixed inset-0 bg-black/60 backdrop-blur-md z-[100]"
+                className="fixed top-[72px] left-0 right-0 bottom-0 bg-black/60 backdrop-blur-md z-[50]"
               />
               <motion.div 
-                initial={{ x: '100%' }}
-                animate={{ x: 0 }}
-                exit={{ x: '100%' }}
+                initial={{ y: '-100%' }}
+                animate={{ y: 0 }}
+                exit={{ y: '-100%' }}
                 transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                className="lg:hidden fixed top-0 bottom-0 right-0 h-full w-[300px] bg-[#0B0F14]/95 backdrop-blur-xl border-l border-white/5 shadow-2xl z-[110] flex flex-col"
+                className="fixed top-[72px] left-0 right-0 w-full bg-[#0B0F14]/95 backdrop-blur-xl border-b border-white/5 shadow-2xl z-[50] flex flex-col rounded-b-[2rem] max-h-[calc(100vh-72px)]"
               >
-                <div className="p-5 border-b border-white/5 flex items-center justify-between min-h-[72px] bg-[#0a0d12]/50">
-                  <div className="flex items-center gap-3">
-                    <img 
-                      src="https://i.postimg.cc/6qnW8nqX/IMG-6366.png" 
-                      alt="APEX STUDIO TH" 
-                      className="h-11 object-contain cursor-pointer shrink-0 drop-shadow-sm" 
-                      onClick={() => { setActiveView('home'); setIsMobileMenuOpen(false); }}
-                    />
+                <div className="p-5 flex flex-col gap-2 flex-1 overflow-y-auto custom-scrollbar pb-10">
+                  <div className="py-2">
+                    <div className="flex items-center gap-3 mb-2 px-2">
+                      <div className="flex-1 h-px bg-white/5"></div>
+                      <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest text-center shrink-0">เมนูหลัก</p>
+                      <div className="flex-1 h-px bg-white/5"></div>
+                    </div>
+                    <button onClick={() => { setActiveView('home'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border ${activeView === 'home' ? 'bg-[#1E90FF]/10 text-[#1E90FF] border-[#1E90FF]/30 shadow-md shadow-[#1E90FF]/10' : 'bg-transparent text-zinc-500 border-transparent hover:bg-[#0a0d12] hover:text-white'}`}>
+                      <Home className="w-[18px] h-[18px]"/> หน้าแรก
+                    </button>
+                    <button onClick={() => { setActiveView('categories'); setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border ${activeView === 'categories' ? 'bg-[#1E90FF]/10 text-[#1E90FF] border-[#1E90FF]/30 shadow-md shadow-[#1E90FF]/10' : 'bg-transparent text-zinc-500 border-transparent hover:bg-[#0a0d12] hover:text-white'}`}>
+                      <ShoppingCart className="w-[18px] h-[18px]"/> สินค้าทั้งหมด
+                    </button>
+                    <button onClick={() => { !user ? setActiveView('login') : setActiveView('wallet'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border ${activeView === 'wallet' ? 'bg-[#1E90FF]/10 text-[#1E90FF] border-[#1E90FF]/30 shadow-md shadow-[#1E90FF]/10' : 'bg-transparent text-zinc-500 border-transparent hover:bg-[#0a0d12] hover:text-white'}`}>
+                      <Wallet className="w-[18px] h-[18px]"/> เติมเงิน
+                    </button>
+                    {user && (
+                      <button onClick={() => { setActiveView('history'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border ${activeView === 'history' ? 'bg-[#1E90FF]/10 text-[#1E90FF] border-[#1E90FF]/30 shadow-md shadow-[#1E90FF]/10' : 'bg-transparent text-zinc-500 border-transparent hover:bg-[#0a0d12] hover:text-white'}`}>
+                        <History className="w-[18px] h-[18px]"/> ประวัติการใช้งาน
+                      </button>
+                    )}
+                    <button onClick={() => { setActiveView('contact'); setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border ${activeView === 'contact' ? 'bg-[#1E90FF]/10 text-[#1E90FF] border-[#1E90FF]/30 shadow-md shadow-[#1E90FF]/10' : 'bg-transparent text-zinc-500 border-transparent hover:bg-[#0a0d12] hover:text-white'}`}>
+                      <Phone className="w-[18px] h-[18px]"/> ช่องทางการติดต่อ
+                    </button>
                   </div>
-                  <button onClick={() => setIsMobileMenuOpen(false)} className="w-10 h-10 flex items-center justify-center text-zinc-400 bg-white/5 border border-white/5 rounded-xl hover:bg-white/10 hover:text-white active:scale-95 transition-all">
-                    <X className="w-5 h-5" />
-                  </button>
-                </div>
-                
-                <div className="p-5 flex flex-col gap-2 flex-1 overflow-y-auto custom-scrollbar pb-24">
+
                   {!user && (
-                    <div className="mb-6 flex flex-col font-sans px-2">
+                    <div className="mt-4 mb-2 flex flex-col font-sans px-2">
                       {/* Main Button: Login */}
                       <button 
                         onClick={() => { setActiveView('login'); setIsMobileMenuOpen(false); }}
@@ -1557,34 +1594,6 @@ function AppContent() {
                       >
                         <UserPlus className="w-5 h-5" />
                         สมัครสมาชิก
-                      </button>
-                    </div>
-                  )}
-
-                  {user && (
-                    <div className="py-2">
-                      <div className="flex items-center gap-3 mb-2 px-2">
-                        <div className="flex-1 h-px bg-white/5"></div>
-                        <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest text-center shrink-0">เมนูหลัก</p>
-                        <div className="flex-1 h-px bg-white/5"></div>
-                      </div>
-                      <button onClick={() => { setActiveView('home'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border ${activeView === 'home' ? 'bg-[#1E90FF]/10 text-[#1E90FF] border-[#1E90FF]/30 shadow-md shadow-[#1E90FF]/10' : 'bg-transparent text-zinc-500 border-transparent hover:bg-[#0a0d12] hover:text-white'}`}>
-                        <Home className="w-[18px] h-[18px]"/> หน้าแรก
-                      </button>
-                      <button onClick={() => { setActiveView('categories'); setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border ${activeView === 'categories' ? 'bg-[#1E90FF]/10 text-[#1E90FF] border-[#1E90FF]/30 shadow-md shadow-[#1E90FF]/10' : 'bg-transparent text-zinc-500 border-transparent hover:bg-[#0a0d12] hover:text-white'}`}>
-                        <ShoppingCart className="w-[18px] h-[18px]"/> สินค้าทั้งหมด
-                      </button>
-                      <button onClick={() => { setActiveView('search'); setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border ${activeView === 'search' ? 'bg-[#1E90FF]/10 text-[#1E90FF] border-[#1E90FF]/30 shadow-md shadow-[#1E90FF]/10' : 'bg-transparent text-zinc-500 border-transparent hover:bg-[#0a0d12] hover:text-white'}`}>
-                        <Search className="w-[18px] h-[18px]"/> ค้นหาสินค้า
-                      </button>
-                      <button onClick={() => { setActiveView('wallet'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border ${activeView === 'wallet' ? 'bg-[#1E90FF]/10 text-[#1E90FF] border-[#1E90FF]/30 shadow-md shadow-[#1E90FF]/10' : 'bg-transparent text-zinc-500 border-transparent hover:bg-[#0a0d12] hover:text-white'}`}>
-                        <Wallet className="w-[18px] h-[18px]"/> เติมเงิน
-                      </button>
-                      <button onClick={() => { setActiveView('history'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border ${activeView === 'history' ? 'bg-[#1E90FF]/10 text-[#1E90FF] border-[#1E90FF]/30 shadow-md shadow-[#1E90FF]/10' : 'bg-transparent text-zinc-500 border-transparent hover:bg-[#0a0d12] hover:text-white'}`}>
-                        <History className="w-[18px] h-[18px]"/> ประวัติการสั่งซื้อ
-                      </button>
-                      <button onClick={() => { setActiveView('contact'); setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border ${activeView === 'contact' ? 'bg-[#1E90FF]/10 text-[#1E90FF] border-[#1E90FF]/30 shadow-md shadow-[#1E90FF]/10' : 'bg-transparent text-zinc-500 border-transparent hover:bg-[#0a0d12] hover:text-white'}`}>
-                        <Phone className="w-[18px] h-[18px]"/> ติดต่อปัญหา
                       </button>
                     </div>
                   )}
@@ -1646,11 +1655,6 @@ function AppContent() {
                         </div>
                       </div>
                       <div className="py-3 border-t border-white/5">
-                        {isAdmin && (
-                          <button onClick={() => { setActiveView('admin'); setAdminTab('bot'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border bg-transparent text-zinc-500 border-transparent hover:bg-[#0a0d12] hover:text-white`}>
-                           <Bot className="w-[18px] h-[18px]" /> ตั้งค่าบอทดักซอง
-                          </button>
-                        )}
                         {isAdmin && (
                           <button onClick={() => { setActiveView('admin'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all border ${activeView === 'admin' ? 'bg-purple-500/10 text-purple-500 border-purple-500/30 shadow-md shadow-purple-500/10' : 'bg-transparent text-purple-500/70 border-transparent hover:bg-purple-500/5 hover:text-purple-500'}`}>
                             <ShieldAlert className="w-[18px] h-[18px]"/> จัดการหลังบ้าน
@@ -2345,12 +2349,12 @@ function AppContent() {
       {showTurnstileModal && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-[70] backdrop-blur-sm font-sans animate-in zoom-in-95 duration-200">
           <div className="bg-[#0B0F14] border border-white/10 rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-xl relative overflow-hidden flex flex-col items-center">
-            <div className="bg-[#0a0d12] border border-white/5 rounded-2xl mb-2 flex items-center justify-center w-full h-[80px] overflow-hidden">
-              <div className="flex items-center justify-center w-full">
+            <div className="bg-[#0a0d12] border border-white/5 rounded-2xl mb-2 relative overflow-hidden w-full h-[58px]">
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[110%] scale-[0.92] flex justify-center">
                 {TURNSTILE_SITE_KEY ? (
                   <Turnstile
                     siteKey={TURNSTILE_SITE_KEY}
-                    options={{ theme: 'dark', size: 'normal' }}
+                    options={{ theme: 'dark', size: 'flexible' }}
                     onSuccess={(token) => {
                       setPendingTurnstileToken(token);
                       setShowTurnstileModal(false);
@@ -2358,8 +2362,8 @@ function AppContent() {
                     }}
                   />
                 ) : (
-                  <div className="p-3 bg-[#1E90FF]/20 text-[#1E90FF] rounded-xl text-center text-[10px] font-bold">
-                    ยังไม่ได้ตั้งค่า VITE_TURNSTILE_SITE_KEY<br/>Bypass Mode Active
+                  <div className="p-3 bg-[#1E90FF]/20 text-[#1E90FF] rounded-xl text-center text-[10px] font-bold w-full mx-8">
+                    ยังไม่ได้ตั้งค่า VITE_TURNSTILE_SITE_KEY (Bypass Mode Active)
                   </div>
                 )}
               </div>

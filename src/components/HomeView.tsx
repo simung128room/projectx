@@ -1,7 +1,7 @@
 import Swal from 'sweetalert2';
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ShoppingCart, Package, Wallet, Phone, History, ChevronRight, Bell, Users, TrendingUp, Star, ArrowLeft, Key, LogIn, UserPlus } from 'lucide-react';
+import { ShoppingCart, Package, Wallet, Phone, History, ChevronRight, Bell, Users, Activity, Star, ArrowLeft, Key, LogIn, UserPlus, TrendingUp, Globe, Layers, BarChart3, User, Box, CreditCard } from 'lucide-react';
 import { Product, SiteStats, Category } from '../types';
 import { AnimatedScroll } from './AnimatedScroll';
 
@@ -127,20 +127,20 @@ export const HomeView: React.FC<HomeViewProps> = ({ products, categories, stats,
 
       {/* Admin Announcement */}
       <AnimatedScroll delay={100}>
-        <div className="bg-[#1E90FF]/10 border border-white/10 rounded-2xl p-4 flex items-start sm:items-center gap-4 shadow-sm relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-[#1a7fe6]/10 rounded-full blur-[40px] pointer-events-none"></div>
-          <div className="w-12 h-12 bg-[#0B0F14] rounded-xl flex items-center justify-center shrink-0 shadow-sm border border-white/10 relative z-10">
-            <Bell className="w-6 h-6 text-[#1a7fe6] animate-bounce" />
+        <div className="border border-white/10 bg-[#0A0D12] rounded-xl py-2.5 px-4 flex items-center gap-2 relative overflow-hidden">
+          <div className="flex items-center gap-2 shrink-0 z-10">
+            <Bell className="w-4 h-4 text-cyan-500" />
+            <span className="font-bold text-white text-sm">ประกาศ</span>
+            <span className="text-white/30 text-sm mx-1">|</span>
           </div>
           <div className="flex-1 relative z-10 overflow-hidden min-w-0">
-            <h3 className="font-bold text-[#166bcc] text-sm mb-1 uppercase tracking-wider font-sans truncate">ประกาศจากผู้ดูแลระบบ</h3>
-            <div className="whitespace-nowrap overflow-hidden">
+            <div className="whitespace-nowrap overflow-hidden flex items-center">
               <motion.div
                 animate={{ x: ["100%", "-100%"] }}
                 transition={{ repeat: Infinity, duration: 12, ease: "linear" }}
                 className="inline-block"
               >
-                <p className="text-white text-sm font-medium">ยินดีต้อนรับเข้าเว็บ APEX STUDIO ระบบอัตโนมัติตลอด 24 ชม. | สมัครสมาชิกวันนี้รับโปรโมชั่นพิเศษมากมาย</p>
+                <p className="text-zinc-300 text-sm font-medium">ยินดีต้อนรับเข้าเว็บ APEX STUDIO ระบบอัตโนมัติตลอด 24 ชม. | สมัครสมาชิกวันนี้รับโปรโมชั่นพิเศษมากมาย</p>
               </motion.div>
             </div>
           </div>
@@ -152,55 +152,55 @@ export const HomeView: React.FC<HomeViewProps> = ({ products, categories, stats,
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
           
           {/* Stat 1: Users */}
-          <div className="group relative p-6 rounded-3xl border border-white/5 bg-[#0a0d12] shadow-xl overflow-hidden flex flex-col justify-center text-left hover:border-[#1E90FF]/30 transition-all duration-300">
-            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-white/5 pointer-events-none transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-6">
+          <div className="group relative p-6 rounded-3xl border border-white/5 bg-[#0a0d12] shadow-[0_0_15px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col justify-center text-left transition-all duration-300 hover:border-cyan-500/50 hover:shadow-[0_0_25px_rgba(6,182,212,0.15)]">
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-white/5 pointer-events-none transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-6 group-hover:text-cyan-500/10">
               <Users className="w-24 h-24" />
             </div>
             <div className="relative z-10 flex flex-col">
               <span className="text-zinc-500 font-bold mb-1 text-sm tracking-wide">ผู้ใช้งาน</span>
               <div className="flex items-baseline gap-2">
                 <motion.span 
-                  className="text-4xl sm:text-5xl font-black text-white tracking-tight"
+                  className="text-4xl sm:text-5xl font-black text-white tracking-tight drop-shadow-[0_2px_10px_rgba(255,255,255,0.1)] group-hover:drop-shadow-[0_0_8px_rgba(6,182,212,0.4)] transition-all duration-300"
                 >
                   <NumberTicker value={(realtimeStats?.users || 0) + (siteSettings?.stats_users_offset || 0)} />
                 </motion.span>
-                <span className="text-[#1E90FF] font-bold text-sm">คน</span>
+                <span className="text-cyan-500 font-bold text-sm drop-shadow-[0_0_5px_rgba(6,182,212,0.3)]">คน</span>
               </div>
             </div>
           </div>
 
           {/* Stat 2: Stock */}
-          <div className="group relative p-6 rounded-3xl border border-white/5 bg-[#0a0d12] shadow-xl overflow-hidden flex flex-col justify-center text-left hover:border-[#1E90FF]/30 transition-all duration-300">
-            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-white/5 pointer-events-none transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-6">
-              <Package className="w-24 h-24" />
+          <div className="group relative p-6 rounded-3xl border border-white/5 bg-[#0a0d12] shadow-[0_0_15px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col justify-center text-left transition-all duration-300 hover:border-cyan-500/50 hover:shadow-[0_0_25px_rgba(6,182,212,0.15)]">
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-white/5 pointer-events-none transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-6 group-hover:text-cyan-500/10">
+              <Layers className="w-24 h-24" />
             </div>
             <div className="relative z-10 flex flex-col">
               <span className="text-zinc-500 font-bold mb-1 text-sm tracking-wide">สต็อก</span>
               <div className="flex items-baseline gap-2">
                 <motion.span 
-                  className="text-4xl sm:text-5xl font-black text-white tracking-tight"
+                  className="text-4xl sm:text-5xl font-black text-white tracking-tight drop-shadow-[0_2px_10px_rgba(255,255,255,0.1)] group-hover:drop-shadow-[0_0_8px_rgba(6,182,212,0.4)] transition-all duration-300"
                 >
                   <NumberTicker value={totalStock} />
                 </motion.span>
-                <span className="text-[#1E90FF] font-bold text-sm">ชิ้น</span>
+                <span className="text-cyan-500 font-bold text-sm drop-shadow-[0_0_5px_rgba(6,182,212,0.3)]">ชิ้น</span>
               </div>
             </div>
           </div>
 
           {/* Stat 3: Sales (Transactions) */}
-          <div className="col-span-2 lg:col-span-1 group relative p-6 rounded-3xl border border-white/5 bg-[#0a0d12] shadow-xl overflow-hidden flex flex-col justify-center text-left hover:border-[#1E90FF]/30 transition-all duration-300">
-            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-white/5 pointer-events-none transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-6">
-              <History className="w-24 h-24" />
+          <div className="col-span-2 lg:col-span-1 group relative p-6 rounded-3xl border border-white/5 bg-[#0a0d12] shadow-[0_0_15px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col justify-center text-left transition-all duration-300 hover:border-cyan-500/50 hover:shadow-[0_0_25px_rgba(6,182,212,0.15)]">
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-white/5 pointer-events-none transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-6 group-hover:text-cyan-500/10">
+              <ShoppingCart className="w-24 h-24" />
             </div>
             <div className="relative z-10 flex flex-col">
               <span className="text-zinc-500 font-bold mb-1 text-sm tracking-wide">ยอดขาย</span>
               <div className="flex items-baseline gap-2">
                 <motion.span 
-                  className="text-4xl sm:text-5xl font-black text-white tracking-tight"
+                  className="text-4xl sm:text-5xl font-black text-white tracking-tight drop-shadow-[0_2px_10px_rgba(255,255,255,0.1)] group-hover:drop-shadow-[0_0_8px_rgba(6,182,212,0.4)] transition-all duration-300"
                 >
                   <NumberTicker value={((realtimeStats?.totalOrders !== undefined ? realtimeStats.totalOrders : (realtimeStats?.sales || 0)) + (siteSettings?.stats_sales_offset || 0))} />
                 </motion.span>
-                <span className="text-[#1E90FF] font-bold text-sm">ครั้ง</span>
+                <span className="text-cyan-500 font-bold text-sm drop-shadow-[0_0_5px_rgba(6,182,212,0.3)]">ครั้ง</span>
               </div>
             </div>
           </div>
