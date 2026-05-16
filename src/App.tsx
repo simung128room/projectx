@@ -302,6 +302,30 @@ function AppContent() {
 
   const [isMusicExpanded, setIsMusicExpanded] = useState(false);
 
+  const formatSpotifyEmbedUrl = (url: string, autoplay: boolean) => {
+    if (!url) return '';
+    let embedUrl = url;
+    
+    // Convert regular link to embed link
+    if (url.includes('spotify.com') && !url.includes('spotify.com/embed')) {
+      const segments = url.split('spotify.com/')[1]?.split('?')[0];
+      if (segments) {
+        embedUrl = `https://open.spotify.com/embed/${segments}`;
+      }
+    }
+    
+    // Ensure it starts with https
+    if (embedUrl.startsWith('open.spotify.com')) {
+      embedUrl = 'https://' + embedUrl;
+    }
+    
+    // Add autoplay parameter
+    if (autoplay) {
+      embedUrl += embedUrl.includes('?') ? '&autoplay=1' : '?autoplay=1';
+    }
+    return embedUrl;
+  };
+
   // Home Store State (Moved up to prevent TDZ)
   const defaultProducts: Product[] = [];
 
@@ -3637,10 +3661,7 @@ function AppContent() {
              <div className={`transition-all duration-500 transform origin-bottom-right ${isMusicExpanded || siteSettings.spotify_autoplay ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-10 opacity-0 scale-50 pointer-events-none'}`}>
                 <div className="bg-[#0b0e14]/90 backdrop-blur-xl border border-white/10 p-1 rounded-2xl shadow-2xl overflow-hidden w-[300px] h-[80px]">
                     <iframe 
-                      src={siteSettings.spotify_url.includes('spotify.com/embed') 
-                        ? (siteSettings.spotify_url.includes('?') ? `${siteSettings.spotify_url}&autoplay=1` : `${siteSettings.spotify_url}?autoplay=1`)
-                        : `https://open.spotify.com/embed/${siteSettings.spotify_url.split('spotify.com/')[1].split('?')[0]}?autoplay=1`
-                      } 
+                      src={formatSpotifyEmbedUrl(siteSettings.spotify_url, siteSettings.spotify_autoplay || false)} 
                       width="100%" 
                       height="100%" 
                       frameBorder="0" 

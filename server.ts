@@ -176,11 +176,13 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
       
       const allowedOrigins = [
         'https://apexcheck.space',
+        'https://www.apexstore.xyz',
+        'https://apexstore.xyz',
         'http://localhost:3000'
       ];
       
       // Allow cloud run domains dynamically
-      if (origin.endsWith('.run.app') || allowedOrigins.indexOf(origin) !== -1) {
+      if (origin.endsWith('.run.app') || origin.endsWith('.vercel.app') || origin.includes('apexstore.xyz') || allowedOrigins.indexOf(origin) !== -1) {
         callback(null, true);
       } else {
         callback(new Error('Not allowed by CORS'));
