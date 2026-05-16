@@ -74,6 +74,7 @@ import jsQR from "jsqr";
 
 type SupabaseUser = any;
 import { Turnstile } from "@marsidev/react-turnstile";
+import { Analytics } from "@vercel/analytics/react";
 import { AccountResult, LogEntry, UserPlan } from "./types";
 import { KeyModal } from "./components/modals/KeyModal";
 import { ReceiptModal } from "./components/modals/ReceiptModal";
@@ -3645,10 +3646,13 @@ function AppContent() {
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="*" element={<AppContent />} />
-      </Routes>
-    </BrowserRouter>
+    <>
+      <BrowserRouter>
+        <Routes>
+          <Route path="*" element={<AppContent />} />
+        </Routes>
+      </BrowserRouter>
+      <Analytics />
+    </>
   );
 }
