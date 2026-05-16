@@ -355,10 +355,17 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
     
     try {
       const docName = process.env.NODE_ENV === 'production' ? 'site' : 'site_dev';
+      console.log(`[Settings] Attempting to save to DB doc: ${docName}`);
       await admin.firestore().collection('settings').doc(docName).set(siteSettings, { merge: true });
+      console.log(`[Settings] Save Successful for ${docName}`);
     } catch(e: any) {
-      console.error('Failed to save settings', e);
-      return res.status(500).json({ error: 'Failed to save settings: ' + (e.message || e) });
+      console.error('[API/Settings] CRITICAL SAVE ERROR:', e);
+      const errorDetail = e.message || e.details || JSON.stringify(e);
+      return res.status(500).json({ 
+        error: 'Failed to save settings to database',
+        detail: errorDetail,
+        doc: process.env.NODE_ENV === 'production' ? 'site' : 'site_dev'
+      });
     }
     
     console.log(`[Settings] Updated:`, siteSettings);

@@ -243,29 +243,35 @@ class SupabaseDoc {
   async set(data: any, options: any = {}) {
     while (true) {
       try {
+        const pk = this.pk();
         if (options.merge) {
-          const { data: existing, error: err } = await supabaseAdmin.from(this.collection).select(this.pk()).eq(this.pk(), this.id).single();
+          const { data: existing, error: err } = await supabaseAdmin.from(this.collection).select(pk).eq(pk, this.id).single();
           if (existing) {
-            const { error } = await supabaseAdmin.from(this.collection).update(toDB(data, this.collection)).eq(this.pk(), this.id);
+            const { error } = await supabaseAdmin.from(this.collection).update(toDB(data, this.collection)).eq(pk, this.id);
             if (error) throw error;
           } else {
-            const { error } = await supabaseAdmin.from(this.collection).insert([toDB({ [this.pk()]: this.id, ...data }, this.collection)]);
+            const { error } = await supabaseAdmin.from(this.collection).insert([toDB({ [pk]: this.id, ...data }, this.collection)]);
             if (error) throw error;
           }
         } else {
-          const { error } = await supabaseAdmin.from(this.collection).upsert([toDB({ [this.pk()]: this.id, ...data }, this.collection)]);
+          const { error } = await supabaseAdmin.from(this.collection).upsert([toDB({ [pk]: this.id, ...data }, this.collection)]);
           if (error) throw error;
         }
         break;
       } catch (err: any) {
+        if (err.message && (err.message.includes("Could not find the table") || (err.message.includes("relation") && err.message.includes("does not exist")))) {
+          console.warn(`Table ${this.collection} missing during set, operation skipped.`);
+          return;
+        }
         if (err.message && err.message.includes("Could not find the") && err.message.includes("column")) {
           const col = extractMissingColumn(err.message);
-          if (col && !missingColumns.has(`${this.collection}.${col}`)) {
+          if (col && col !== this.pk() && !missingColumns.has(`${this.collection}.${col}`)) {
             console.warn(`Column ${col} missing in ${this.collection}, adding to blacklist and retrying...`);
             missingColumns.add(`${this.collection}.${col}`);
             continue;
           }
         }
+        console.error(`[SupabaseDoc] Set error in ${this.collection}:`, err.message || err);
         throw err;
       }
     }

@@ -3638,7 +3638,7 @@ function AppContent() {
                 <div className="bg-[#0b0e14]/90 backdrop-blur-xl border border-white/10 p-1 rounded-2xl shadow-2xl overflow-hidden w-[300px] h-[80px]">
                     <iframe 
                       src={siteSettings.spotify_url.includes('spotify.com/embed') 
-                        ? siteSettings.spotify_url + (siteSettings.spotify_url.includes('?') ? '&' : '?') + 'autoplay=1'
+                        ? (siteSettings.spotify_url.includes('?') ? `${siteSettings.spotify_url}&autoplay=1` : `${siteSettings.spotify_url}?autoplay=1`)
                         : `https://open.spotify.com/embed/${siteSettings.spotify_url.split('spotify.com/')[1].split('?')[0]}?autoplay=1`
                       } 
                       width="100%" 

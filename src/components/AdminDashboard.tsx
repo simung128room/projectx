@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Copy, Database, LogOut, BarChart3, Key, History, ShieldAlert, Activity, Ban, ChevronRight, Settings, Plus, Trash2, Crown, X, Upload, FileText, LayoutDashboard, LineChart, Cpu, HardDrive, ShoppingCart, Package, Users, Wallet, Gift, Globe, Phone, AlertTriangle, Download, Check, Image, MessageSquare, Terminal } from 'lucide-react';
+import { Copy, Database, LogOut, BarChart3, Key, History, ShieldAlert, Activity, Ban, ChevronRight, Settings, Plus, Trash2, Crown, X, Menu, Upload, FileText, LayoutDashboard, LineChart, Cpu, HardDrive, ShoppingCart, Package, Users, Wallet, Gift, Globe, Phone, AlertTriangle, Download, Check, Image, MessageSquare, Terminal } from 'lucide-react';
 import Swal from 'sweetalert2';
 import axios from 'axios';
 import { AccountResult, Product, SiteStats } from '../types';
@@ -458,7 +458,6 @@ import { AdminUserManagement } from './AdminUserManagement';
 import { AdminPagesManagement } from './AdminPagesManagement';
 import { AdminCategoriesManagement } from './AdminCategoriesManagement';
 import { AdminToolsManagement } from './AdminToolsManagement';
-import { Menu } from 'lucide-react';
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   totalChecked, validAccounts, licenseKeys = [], usedKeysHistory = [], blockedIPs = [],
