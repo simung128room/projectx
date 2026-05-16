@@ -472,7 +472,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [isAddingProduct, setIsAddingProduct] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | undefined>(undefined);
   const [stockProduct, setStockProduct] = useState<Product | undefined>(undefined);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isNavOpen, setIsNavOpen] = useState(false);
   
   const [purchaseHistory, setPurchaseHistory] = useState<any[]>(() => {
     const saved = localStorage.getItem('apex_purchase_history');
@@ -564,125 +564,178 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const remainingKeys = licenseKeys.filter(k => k.status === 'active').length;
   const usersWhoBought = new Set(purchaseHistory.map(x => x.userId || 'guest')).size;
 
-  const SidebarItem = ({ id, label, icon: Icon }: any) => (
+  const getTabLabel = (id: string) => {
+    const items: Record<string, string> = {
+      overview: 'หน้าภาพรวม',
+      analytics: 'ข้อมูลวิเคราะห์',
+      store: 'สินค้าในร้าน',
+      categories: 'หมวดหมู่สินค้า',
+      banners: 'ตั้งค่าแบนเนอร์',
+      pages: 'ตั้งค่าหน้าเพจ',
+      users: 'สมาชิกทั้งหมด',
+      keys: 'LICENSE KEYS',
+      history: 'ประวัติรายการ',
+      ips: 'ความปลอดภัย',
+      bot: 'ระบบบอท',
+      tools: 'ตัวช่วยแจกของ',
+      api_keys: 'ระบบ API',
+      settings: 'ตั้งค่าเว็บไซต์',
+      system: 'สถานะระบบ'
+    };
+    return items[id] || id;
+  };
+
+  const NavItem = ({ id, label, icon: Icon, color }: any) => (
     <button
       onClick={() => {
         setAdminTab(id);
-        setIsSidebarOpen(false);
+        setIsNavOpen(false);
       }}
-      className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition-all ${
+      className={`group flex flex-col items-center justify-center gap-3 p-6 rounded-3xl transition-all duration-300 border ${
         adminTab === id 
-        ? 'bg-[#1E90FF] text-white shadow-lg shadow-[#1E90FF]/20' 
-        : 'text-zinc-500 hover:bg-[#121820] hover:text-white'
+        ? 'bg-[#1E90FF] border-[#1E90FF] text-white shadow-xl shadow-[#1E90FF]/25' 
+        : 'bg-[#121820] border-white/5 text-zinc-400 hover:border-zinc-700 hover:bg-[#1a232d] hover:text-white'
       }`}
     >
-      <Icon className="w-4 h-4" />
-      {label}
+      <div className={`p-4 rounded-2xl transition-transform group-hover:scale-110 ${adminTab === id ? 'bg-white/20' : 'bg-black/20 text-[#1E90FF]'}`}>
+        <Icon className="w-8 h-8" />
+      </div>
+      <span className="text-[10px] font-black uppercase tracking-[0.1em]">{label}</span>
     </button>
   );
 
-  const Separator = ({ label }: { label: string }) => (
-    <div className="py-2 px-4">
-      <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest text-center">{label}</p>
-    </div>
-  );
-
   return (
-    <div className="min-h-screen bg-[#0a0d12] flex flex-col md:flex-row font-sans">
-      {/* Mobile Header */}
-      <div className="md:hidden bg-[#0B0F14] border-b border-white/10 px-4 py-4 flex items-center justify-between sticky top-0 z-40">
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-[#1E90FF] rounded-lg">
-            <Crown className="w-5 h-5 text-white" />
-          </div>
-          <h1 className="text-lg font-black text-white tracking-tighter">Admin Panel</h1>
-        </div>
-        <button 
-          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          className="p-2 bg-[#121820] rounded-lg text-zinc-400"
-        >
-          <Menu className="w-6 h-6" />
-        </button>
-      </div>
-
-      {/* Sidebar */}
-      <div className={`fixed md:sticky top-0 left-0 h-screen w-72 bg-[#0B0F14] border-r border-white/10 p-6 z-50 transform transition-transform duration-300 md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-        <div className="flex items-center gap-4 mb-10 px-2 group">
-          <div className="p-3 bg-[#1E90FF] rounded-2xl shadow-lg shadow-[#1E90FF]/20 group-hover:scale-105 transition-transform">
-            <Crown className="w-7 h-7 text-white" />
-          </div>
-          <div>
-            <h1 className="text-xl font-black text-white tracking-tight leading-none mb-1">APEX</h1>
-            <p className="text-[#1E90FF] text-[10px] uppercase font-black tracking-[0.2em] opacity-80">Dashboard</p>
-          </div>
-        </div>
-
-          <div className="flex-1 flex flex-col gap-1 pr-2 overflow-y-auto no-scrollbar">
-            <div className="px-4 py-2 mt-2">
-              <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] mb-1">GENERAL</p>
-            </div>
-            <SidebarItem id="overview" label="หน้าภาพรวม" icon={LayoutDashboard} />
-            <SidebarItem id="analytics" label="ข้อมูลวิเคราะห์" icon={LineChart} />
-
-            <div className="px-4 py-2 mt-4">
-              <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] mb-1">MANAGE SHOP</p>
-            </div>
-            <SidebarItem id="store" label="สินค้าในร้าน" icon={Package} />
-            <SidebarItem id="categories" label="หมวดหมู่สินค้า" icon={LayoutDashboard} />
-            <SidebarItem id="banners" label="ตั้งค่าแบนเนอร์" icon={Image} />
-            <SidebarItem id="pages" label="ตั้งค่าหน้าเพจ" icon={FileText} />
-
-            <div className="px-4 py-2 mt-4">
-              <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] mb-1">REPORTS & USERS</p>
-            </div>
-            <SidebarItem id="users" label="สมาชิกทั้งหมด" icon={Users} />
-            <SidebarItem id="keys" label="LICENSE KEYS" icon={Key} />
-            <SidebarItem id="history" label="ประวัติรายการ" icon={History} />
-            <SidebarItem id="ips" label="ความปลอดภัย" icon={ShieldAlert} />
-
-            <div className="px-4 py-2 mt-4">
-              <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] mb-1">DEVELOPER</p>
-            </div>
-            <SidebarItem id="bot" label="ระบบบอท" icon={Terminal} />
-            <SidebarItem id="tools" label="ตัวช่วยแจกของ" icon={Gift} />
-            <SidebarItem id="api_keys" label="ระบบ API" icon={Key} />
-
-            <div className="px-4 py-2 mt-4">
-              <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] mb-1">SYSTEM</p>
-            </div>
-            <SidebarItem id="settings" label="ตั้งค่าเว็บไซต์" icon={Settings} />
-            <SidebarItem id="system" label="สถานะระบบ" icon={Cpu} />
-          </div>
-
-        <div className="absolute bottom-6 left-6 right-6 space-y-3">
-          <div className="bg-[#0a0d12] border border-white/10 rounded-2xl p-3 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#1E90FF] flex items-center justify-center text-white font-black text-sm shadow-md shadow-[#1E90FF]/20">
-              {adminUsername.charAt(0).toUpperCase()}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-[12px] font-black text-white truncate uppercase tracking-tight">{adminUsername}</p>
-            </div>
-          </div>
-          <button 
-            onClick={() => setIsAdmin(false)}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-zinc-900 text-zinc-400 hover:text-white rounded-xl text-xs font-bold hover:bg-black transition-all shadow-sm"
+    <div className="min-h-screen bg-[#0a0d12] flex flex-col font-sans">
+      {/* Navigation Modal */}
+      <AnimatePresence>
+        {isNavOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8"
           >
-            <LogOut className="w-3.5 h-3.5" />
-            ออกจากระบบ
-          </button>
-        </div>
-      </div>
+            <div 
+              className="absolute inset-0 bg-[#0a0d12]/95 backdrop-blur-md"
+              onClick={() => setIsNavOpen(false)}
+            />
+            
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="relative w-full max-w-5xl bg-[#0B0F14] border border-white/10 rounded-[40px] p-8 md:p-12 shadow-2xl max-h-[90vh] overflow-y-auto no-scrollbar"
+            >
+              <div className="flex items-center justify-between mb-12">
+                <div className="flex items-center gap-6">
+                  <div className="p-4 bg-[#1E90FF] rounded-3xl shadow-lg shadow-[#1E90FF]/20">
+                    <Crown className="w-10 h-10 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-3xl font-black text-white tracking-tight uppercase">Control Center</h2>
+                    <p className="text-[#1E90FF] text-sm font-black tracking-[0.2em] opacity-80">APEX DASHBOARD SYSTEM</p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setIsNavOpen(false)}
+                  className="p-4 bg-[#121820] text-zinc-500 hover:text-white rounded-2xl transition-all"
+                >
+                  <X className="w-8 h-8" />
+                </button>
+              </div>
 
-      {/* Overlay for mobile sidebar */}
-      {isSidebarOpen && (
-        <div 
-          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 md:hidden"
-          onClick={() => setIsSidebarOpen(false)}
-        />
-      )}
+              <div className="space-y-12 pb-12">
+                <section>
+                  <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mb-6 px-2">GENERAL</p>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <NavItem id="overview" label="หน้าภาพรวม" icon={LayoutDashboard} />
+                    <NavItem id="analytics" label="ข้อมูลวิเคราะห์" icon={LineChart} />
+                    <NavItem id="settings" label="ตั้งค่าเว็บไซต์" icon={Settings} />
+                    <NavItem id="system" label="สถานะระบบ" icon={Cpu} />
+                  </div>
+                </section>
+
+                <section>
+                  <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mb-6 px-2">SHOP MANAGEMENT</p>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <NavItem id="store" label="สินค้าในร้าน" icon={Package} />
+                    <NavItem id="categories" label="หมวดหมู่สินค้า" icon={LayoutDashboard} />
+                    <NavItem id="banners" label="ตั้งค่าแบนเนอร์" icon={Image} />
+                    <NavItem id="pages" label="ตั้งค่าหน้าเพจ" icon={FileText} />
+                  </div>
+                </section>
+
+                <section>
+                  <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mb-6 px-2">USERS & REPORTS</p>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <NavItem id="users" label="สมาชิกทั้งหมด" icon={Users} />
+                    <NavItem id="keys" label="LICENSE KEYS" icon={Key} />
+                    <NavItem id="history" label="ประวัติรายการ" icon={History} />
+                    <NavItem id="ips" label="ความปลอดภัย" icon={ShieldAlert} />
+                  </div>
+                </section>
+
+                <section>
+                  <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mb-6 px-2">DEVELOPER TOOLS</p>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <NavItem id="bot" label="ระบบบอท" icon={Terminal} />
+                    <NavItem id="tools" label="ตัวช่วยแจกของ" icon={Gift} />
+                    <NavItem id="api_keys" label="ระบบ API" icon={Key} />
+                  </div>
+                </section>
+              </div>
+
+              <div className="sticky bottom-0 mt-8 pt-8 border-t border-white/5 bg-[#0B0F14] flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 rounded-2xl bg-[#1E90FF] flex items-center justify-center text-white font-black text-xl shadow-lg shadow-[#1E90FF]/25">
+                    {adminUsername.charAt(0).toUpperCase()}
+                  </div>
+                  <div>
+                    <p className="text-lg font-black text-white uppercase tracking-tight">{adminUsername}</p>
+                    <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest">Administrator</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 w-full md:w-auto">
+                   <button 
+                    onClick={() => setIsAdmin(false)}
+                    className="flex-1 md:flex-none px-10 py-5 bg-red-500 hover:bg-red-600 text-white rounded-3xl text-sm font-black transition-all shadow-lg shadow-red-500/20 active:scale-95"
+                  >
+                    ออกจากแผงควบคุม
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Admin Header */}
+      <header className="bg-[#0B0F14] border-b border-white/10 px-6 py-5 sticky top-0 z-40 backdrop-blur-xl">
+        <div className="max-w-[1600px] mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="p-2.5 bg-[#1E90FF] rounded-xl shadow-lg shadow-[#1E90FF]/20">
+              <Crown className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h1 className="text-white font-black text-lg tracking-tight uppercase">{getTabLabel(adminTab)}</h1>
+              <p className="text-[#1E90FF] text-[9px] font-black tracking-[0.2em] uppercase opacity-70">APEX Console</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <button 
+              onClick={() => setIsNavOpen(true)}
+              className="flex items-center gap-3 px-6 py-3 bg-[#121820] hover:bg-[#1a232d] border border-white/5 hover:border-zinc-700 rounded-2xl text-white text-xs font-black transition-all group active:scale-95 shadow-xl"
+            >
+              <Menu className="w-5 h-5 text-[#1E90FF] group-hover:scale-110 transition-transform" />
+              เมนูควบคุมหน้า
+            </button>
+          </div>
+        </div>
+      </header>
 
       {/* Main Content */}
-      <div className="flex-1 p-4 md:p-8 overflow-y-auto">
+      <div className="flex-1 p-4 md:p-8 max-w-[1600px] mx-auto w-full overflow-y-auto no-scrollbar">
         {!isDBReady ? (
           <DatabaseSetupGuide dbErrorDetail={dbErrorDetail} />
         ) : (
