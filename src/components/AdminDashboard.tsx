@@ -613,28 +613,42 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           </div>
         </div>
 
-        <div className="space-y-1 overflow-y-auto max-h-[calc(100vh-160px)] pr-2 scrollbar-none">
-          <SidebarItem id="overview" label="หน้าขภาพรวม" icon={LayoutDashboard} />
-          
-          <Separator label="————- เมนูหลัก —————" />
-          <SidebarItem id="store" label="จัดการสินค้า" icon={Package} />
-          <SidebarItem id="categories" label="จัดการหมวดหมู่" icon={LayoutDashboard} />
-          <SidebarItem id="banners" label="จัดการป้ายโฆษณา" icon={Image} />
-          <SidebarItem id="users" label="จัดการผู้ใช้งาน" icon={Users} />
-          <SidebarItem id="keys" label="License Keys" icon={Key} />
-          
-          <Separator label="————- เครื่องมือ —————" />
-          <SidebarItem id="bot" label="บอทดักซองใหม่ (Dek123)" icon={Terminal} />
-          <SidebarItem id="pages" label="จัดการหน้าเพจ" icon={FileText} />
-          <SidebarItem id="tools" label="แจกรางวัล (Tools)" icon={Gift} />
-          <SidebarItem id="ips" label="Access Control" icon={ShieldAlert} />
-          <SidebarItem id="api_keys" label="API Keys" icon={Key} />
-          <SidebarItem id="history" label="ประวัติการใช้งาน" icon={History} />
-          
-          <Separator label="————- ตั้งค่า —————" />
-          <SidebarItem id="settings" label="Site Settings" icon={Settings} />
-          <SidebarItem id="system" label="System Stats" icon={Cpu} />
-        </div>
+          <div className="flex flex-col gap-1 pr-2 overflow-y-auto max-h-[calc(100vh-180px)] no-scrollbar">
+            <div className="px-4 py-2 mt-2">
+              <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em]">Dashboard</p>
+            </div>
+            <SidebarItem id="overview" label="หน้าภาพรวม" icon={LayoutDashboard} />
+            <SidebarItem id="analytics" label="ข้อมูลวิเคราะห์" icon={LineChart} />
+
+            <div className="px-4 py-2 mt-4">
+              <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em]">Shop Management</p>
+            </div>
+            <SidebarItem id="store" label="จัดการสินค้า" icon={Package} />
+            <SidebarItem id="categories" label="จัดการหมวดหมู่" icon={LayoutDashboard} />
+            <SidebarItem id="banners" label="จัดการป้ายโฆษณา" icon={Image} />
+            <SidebarItem id="pages" label="จัดการหน้าเพจ" icon={FileText} />
+
+            <div className="px-4 py-2 mt-4">
+              <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em]">Users & Security</p>
+            </div>
+            <SidebarItem id="users" label="จัดการผู้ใช้งาน" icon={Users} />
+            <SidebarItem id="keys" label="License Keys" icon={Key} />
+            <SidebarItem id="ips" label="Access Control" icon={ShieldAlert} />
+            <SidebarItem id="history" label="ประวัติการใช้งาน" icon={History} />
+
+            <div className="px-4 py-2 mt-4">
+              <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em]">Advanced Tools</p>
+            </div>
+            <SidebarItem id="bot" label="บอทดักซองใหม่" icon={Terminal} />
+            <SidebarItem id="tools" label="เครื่องมือแจกรางวัล" icon={Gift} />
+            <SidebarItem id="api_keys" label="API Keys" icon={Key} />
+
+            <div className="px-4 py-2 mt-4">
+              <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em]">Platform Settings</p>
+            </div>
+            <SidebarItem id="settings" label="Site Settings" icon={Settings} />
+            <SidebarItem id="system" label="System Stats" icon={Cpu} />
+          </div>
 
         <div className="absolute bottom-6 left-6 right-6 space-y-3">
           <div className="bg-[#0a0d12] border border-white/10 rounded-2xl p-3 flex items-center gap-3">
@@ -683,10 +697,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   { label: 'ยอดขายทั้งหมด (สินค้า)', value: totalOrders.toLocaleString(), icon: Package, color: 'text-[#1a7fe6]', bg: 'bg-[#1E90FF]/10' },
                   { label: 'คำสั่งซื้อที่สำเร็จ', value: totalOrders.toLocaleString(), icon: ShoppingCart, color: 'text-emerald-500', bg: 'bg-emerald-50' },
                   { label: 'รายได้รวม (บาท)', value: totalRevenue.toLocaleString(), icon: Activity, color: 'text-[#1E90FF]', bg: 'bg-[#1E90FF]/10' },
-                  { label: 'คีย์ในระบบทั้งหมด', value: totalKeys.toLocaleString(), icon: Key, color: 'text-white', bg: 'bg-[#121820]' },
-                  { label: 'คีย์ที่ถูกใช้แล้ว', value: usedKeys.toLocaleString(), icon: History, color: 'text-zinc-500', bg: 'bg-[#121820]' },
-                  { label: 'คีย์ที่เหลืออยู่', value: remainingKeys.toLocaleString(), icon: Database, color: 'text-[#1a7fe6]', bg: 'bg-[#1E90FF]/10' },
-                  { label: 'ผู้ใช้ที่ซื้อสินค้า', value: usersWhoBought.toLocaleString(), icon: Users, color: 'text-white', bg: 'bg-[#121820]' }
                 ].map((stat, i) => (
                   <div key={i} className="bg-[#0B0F14] border border-white/10 p-6 rounded-3xl relative overflow-hidden group shadow-sm hover:shadow-md transition-all">
                     <div className={`absolute top-0 right-0 w-24 h-24 ${stat.bg} blur-3xl opacity-50 -mr-8 -mt-8 transition-all group-hover:scale-150`}></div>
@@ -708,48 +718,84 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <div className="bg-[#0B0F14] border border-white/10 rounded-3xl overflow-hidden shadow-sm">
                     <div className="p-6 border-b border-white/5 flex justify-between items-center bg-[#0a0d12]/50">
                       <h3 className="font-bold flex items-center gap-2 text-white">
-                        <LineChart className="w-5 h-5 text-[#1a7fe6]" /> สถิติยอดขาย (Sales Stats)
+                        <LineChart className="w-5 h-5 text-[#1a7fe6]" /> รายงานสรุปยอดขาย (Sales Summary)
                       </h3>
                     </div>
                     <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-                      <div className="bg-[#0a0d12] border border-white/5 rounded-2xl p-6 text-center">
-                        <p className="text-zinc-500 text-xs font-bold uppercase mb-2">วันนี้ขายไป</p>
-                        <p className="text-3xl font-black text-[#1E90FF]">{salesToday.toLocaleString()} <span className="text-sm font-bold text-zinc-400">บาท</span></p>
+                      <div className="bg-[#0a0d12]/50 border border-white/5 rounded-2xl p-6 text-center group hover:bg-[#0d1522] transition-colors">
+                        <p className="text-zinc-500 text-[10px] font-black uppercase mb-2 tracking-widest">วันนี้</p>
+                        <p className="text-2xl font-black text-[#1E90FF]">{salesToday.toLocaleString()} <span className="text-[10px] font-bold text-zinc-500 uppercase ml-1">THB</span></p>
                       </div>
-                      <div className="bg-[#0a0d12] border border-white/5 rounded-2xl p-6 text-center">
-                        <p className="text-zinc-500 text-xs font-bold uppercase mb-2">สัปดาห์นี้ขายไป</p>
-                        <p className="text-3xl font-black text-[#1E90FF]">{salesWeek.toLocaleString()} <span className="text-sm font-bold text-zinc-400">บาท</span></p>
+                      <div className="bg-[#0a0d12]/50 border border-white/5 rounded-2xl p-6 text-center group hover:bg-[#0d1522] transition-colors">
+                        <p className="text-zinc-500 text-[10px] font-black uppercase mb-2 tracking-widest">สัปดาห์นี้</p>
+                        <p className="text-2xl font-black text-[#1E90FF]">{salesWeek.toLocaleString()} <span className="text-[10px] font-bold text-zinc-500 uppercase ml-1">THB</span></p>
                       </div>
-                      <div className="bg-[#0a0d12] border border-white/5 rounded-2xl p-6 text-center">
-                        <p className="text-zinc-500 text-xs font-bold uppercase mb-2">เดือนนี้ขายไป</p>
-                        <p className="text-3xl font-black text-[#1E90FF]">{salesMonth.toLocaleString()} <span className="text-sm font-bold text-zinc-400">บาท</span></p>
+                      <div className="bg-[#0a0d12]/50 border border-white/5 rounded-2xl p-6 text-center group hover:bg-[#0d1522] transition-colors">
+                        <p className="text-zinc-500 text-[10px] font-black uppercase mb-2 tracking-widest">เดือนนี้</p>
+                        <p className="text-2xl font-black text-[#1E90FF]">{salesMonth.toLocaleString()} <span className="text-[10px] font-bold text-zinc-500 uppercase ml-1">THB</span></p>
                       </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-[#0B0F14] border border-white/10 rounded-3xl p-6 shadow-sm">
+                    <h3 className="font-bold flex items-center gap-2 mb-6 text-white uppercase text-xs tracking-widest">
+                      <Cpu className="w-4 h-4 text-[#1a7fe6]" /> ระบบจัดการด่วน (Quick Management)
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {[
+                            { id: 'store', label: 'จัดการสินค้า', desc: 'เพิ่ม ลบ แก้ไข สินค้าในร้าน', icon: Package, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
+                            { id: 'keys', label: 'จัดการ License', desc: 'เพิ่มคีย์และดูประวัติ', icon: Key, color: 'text-[#1E90FF]', bg: 'bg-[#1E90FF]/10' },
+                            { id: 'users', label: 'จัดการสมาชิก', desc: 'ดูรายชื่อและแก้ไขยอดเงิน', icon: Users, color: 'text-purple-500', bg: 'bg-purple-500/10' },
+                            { id: 'settings', label: 'ตั้งค่าเว็บไซต์', desc: 'แก้ไขชื่อเว็บ ช่องทางติดต่อ', icon: Settings, color: 'text-amber-500', bg: 'bg-amber-500/10' },
+                        ].map((item, i) => (
+                           <button 
+                             key={i}
+                             onClick={() => setAdminTab(item.id)}
+                             className="flex items-center gap-4 p-4 rounded-2xl border border-white/5 bg-[#0a0d12] hover:bg-[#121b2a] transition-all text-left group"
+                           >
+                             <div className={`w-12 h-12 rounded-xl ${item.bg} ${item.color} flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform`}>
+                               <item.icon className="w-6 h-6" />
+                             </div>
+                             <div className="flex-1 min-w-0">
+                               <p className="text-sm font-black text-white">{item.label}</p>
+                               <p className="text-[10px] text-zinc-500 font-bold truncate mt-0.5">{item.desc}</p>
+                             </div>
+                             <ChevronRight className="w-4 h-4 text-zinc-600 group-hover:text-white transition-colors" />
+                           </button>
+                        ))}
                     </div>
                   </div>
                 </div>
 
                 <div className="space-y-6">
                   <div className="bg-[#0B0F14] border border-white/10 rounded-3xl p-6 shadow-sm">
-                    <h3 className="font-bold flex items-center gap-2 mb-6 text-white">
-                      <Settings className="w-5 h-5 text-[#1a7fe6]" /> Quick Actions
+                    <h3 className="font-bold flex items-center gap-2 mb-6 text-white uppercase text-xs tracking-widest">
+                      <Settings className="w-4 h-4 text-[#1a7fe6]" /> อื่นๆ
                     </h3>
-                    <div className="space-y-4">
-                      <button onClick={() => setAdminTab('keys')} className="w-full bg-[#1E90FF]/10 hover:bg-[#1E90FF]/20 border border-white/10 p-4 rounded-2xl flex items-center justify-between group transition-all">
+                    <div className="space-y-3">
+                      <button onClick={() => setAdminTab('banners')} className="w-full bg-[#0a0d12] hover:bg-[#121820] border border-white/10 p-4 rounded-2xl flex items-center justify-between group transition-all">
                         <div className="flex items-center gap-3">
-                          <Plus className="w-5 h-5 text-[#1E90FF]" />
+                          <Image className="w-5 h-5 text-zinc-700" />
                           <div className="text-left">
-                            <p className="text-sm font-bold text-[#1E90FF]">จัดการคีย์ (Add Keys)</p>
-                            <p className="text-[10px] text-[#1a7fe6]/70">เพิ่มจำนวนคีย์เข้าสต๊อก</p>
+                            <p className="text-sm font-bold text-white uppercase">ป้ายโฆษณา</p>
                           </div>
                         </div>
-                        <ChevronRight className="w-4 h-4 text-[#1E90FF]" />
+                        <ChevronRight className="w-4 h-4 text-zinc-400" />
                       </button>
-                      <button onClick={() => setAdminTab('users')} className="w-full bg-[#0a0d12] hover:bg-[#121820] border border-white/10 p-4 rounded-2xl flex items-center justify-between group transition-all">
+                      <button onClick={() => setAdminTab('pages')} className="w-full bg-[#0a0d12] hover:bg-[#121820] border border-white/10 p-4 rounded-2xl flex items-center justify-between group transition-all">
                         <div className="flex items-center gap-3">
-                          <Users className="w-5 h-5 text-zinc-700" />
+                          <FileText className="w-5 h-5 text-zinc-700" />
                           <div className="text-left">
-                            <p className="text-sm font-bold text-white">จัดการผู้ใช้ (User Management)</p>
-                            <p className="text-[10px] text-zinc-500">เปลี่ยนรหัสผ่านและรายละเอียด</p>
+                            <p className="text-sm font-bold text-white uppercase">หน้าเพจ</p>
+                          </div>
+                        </div>
+                        <ChevronRight className="w-4 h-4 text-zinc-400" />
+                      </button>
+                      <button onClick={() => setAdminTab('history')} className="w-full bg-[#0a0d12] hover:bg-[#121820] border border-white/10 p-4 rounded-2xl flex items-center justify-between group transition-all">
+                        <div className="flex items-center gap-3">
+                          <History className="w-5 h-5 text-zinc-700" />
+                          <div className="text-left">
+                            <p className="text-sm font-bold text-white uppercase">LOGS</p>
                           </div>
                         </div>
                         <ChevronRight className="w-4 h-4 text-zinc-400" />
