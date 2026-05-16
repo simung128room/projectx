@@ -45,9 +45,11 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           </div>
           
           <h3 className="text-xl font-black text-white mb-1 text-center truncate w-full px-2 z-10">{username}</h3>
-          <span className="text-xs font-bold text-[#1E90FF] uppercase tracking-widest bg-[#1E90FF]/10 px-3 py-1 rounded-full border border-white/10 mb-6 z-10">
-            {role}
-          </span>
+          {role !== 'Admin' && (
+            <span className="text-xs font-bold text-[#1E90FF] uppercase tracking-widest bg-[#1E90FF]/10 px-3 py-1 rounded-full border border-white/10 mb-6 z-10">
+              {role}
+            </span>
+          )}
           
           <div className="w-full bg-[#0B0F14] border border-white/10 rounded-2xl p-4 flex flex-col items-center relative overflow-hidden shadow-sm">
             <div className="flex items-center gap-2 mb-2">

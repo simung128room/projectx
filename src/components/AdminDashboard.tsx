@@ -643,7 +643,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-[12px] font-black text-white truncate uppercase tracking-tight">{adminUsername}</p>
-              <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">Admin Role</p>
             </div>
           </div>
           <button 
