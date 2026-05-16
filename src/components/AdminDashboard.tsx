@@ -496,7 +496,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     popup_enabled: true,
     popup_link: '',
     banners: ["https://img2.pic.in.th/24B843A8-C705-48F6-84FB-50AAA5EFAAA6.png"],
-    proxies: [] as string[]
+    proxies: [] as string[],
+    spotify_url: '',
+    spotify_autoplay: false
   });
 
   useEffect(() => {
@@ -1400,6 +1402,54 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         </button>
                       </div>
                     </div>
+
+                    {/* Spotify Settings */}
+                    <div className="mt-8 p-6 bg-[#0a0d12] border border-white/10 rounded-3xl">
+                      <div className="mb-6">
+                        <h4 className="text-white font-bold flex items-center gap-2"><Globe className="w-5 h-5 text-emerald-500" /> ตัั้งค่าเพลงพื้นหลัง (Spotify)</h4>
+                        <p className="text-zinc-500 text-sm mt-1">ใส่ลิ้งค์ Spotify เพื่อเปิดเพลงอัตโนมัติเมื่อผู้ใช้เข้าเว็บ</p>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div className="space-y-4">
+                          <label className="block text-sm font-bold text-zinc-700 flex items-center gap-2">
+                             ลิ้งค์ Spotify (Track/Playlist/Album URL)
+                          </label>
+                          <input 
+                            type="text"
+                            value={siteSettings.spotify_url || ''}
+                            onChange={(e) => setSiteSettings({ ...siteSettings, spotify_url: e.target.value })}
+                            className="w-full bg-[#0B0F14] border border-white/10 rounded-2xl px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-emerald-500 shadow-inner"
+                            placeholder="https://open.spotify.com/track/..."
+                          />
+                        </div>
+                        <div className="flex items-center space-y-4">
+                          <label className="flex items-center gap-3 cursor-pointer group mt-8">
+                            <div className="relative flex items-center justify-center">
+                              <input 
+                                type="checkbox" 
+                                className="sr-only" 
+                                checked={siteSettings.spotify_autoplay}
+                                onChange={(e) => setSiteSettings({ ...siteSettings, spotify_autoplay: e.target.checked })}
+                              />
+                              <div className={`w-5 h-5 rounded border-2 transition-all duration-300 flex items-center justify-center ${siteSettings.spotify_autoplay ? 'bg-emerald-500 border-emerald-500' : 'bg-[#0B0F14] border-white/20 group-hover:border-zinc-400'}`}>
+                                {siteSettings.spotify_autoplay && <Check className="w-3.5 h-3.5 text-white" />}
+                              </div>
+                            </div>
+                            <span className="text-sm font-bold text-white">เปิดใช้งานเล่นอัตโนมัติ (Autoplay)</span>
+                          </label>
+                        </div>
+                      </div>
+                      <div className="mt-6">
+                        <button 
+                          onClick={handleSaveSettings}
+                          className="w-full md:w-auto px-8 py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl text-sm font-black transition-all flex items-center justify-center gap-2"
+                        >
+                          <Check className="w-4 h-4" /> บันทึกการตั้งค่าเพลง
+                        </button>
+                      </div>
+                    </div>
+
                     <div className="p-4 bg-amber-500/10 border border-amber-100 rounded-2xl flex items-start gap-4">
                       <div className="p-2 bg-amber-500/20 rounded-xl">
                         <AlertTriangle className="w-5 h-5 text-amber-600" />

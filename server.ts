@@ -238,7 +238,9 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
     popup_img_url: 'https://img2.pic.in.th/Red-Black-White-Anime-Podcast-Discord-Logocc6d3bfe807340af.png',
     popup_enabled: true,
     popup_link: '',
-    banners: ["https://img2.pic.in.th/24B843A8-C705-48F6-84FB-50AAA5EFAAA6.png"]
+    banners: ["https://img2.pic.in.th/-71_20260516210303.png"],
+    spotify_url: '',
+    spotify_autoplay: false
   };
 
   // Load from DB
@@ -257,8 +259,37 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
     res.json(siteSettings);
   });
 
+  app.post('/api/reset-password', async (req, res) => {
+    const { username, email, newPassword } = req.body;
+    try {
+      const generatedEmail = `${username.toLowerCase().replace(/\s+/g, '')}@apex-studio.com`;
+      const usersSnapshot = await admin.firestore().collection('users')
+        .where('email', '==', generatedEmail)
+        .where('recoveryEmail', '==', email)
+        .limit(1)
+        .get();
+
+      if (usersSnapshot.empty) {
+        return res.status(404).json({ error: 'ไม่พบผู้ใช้นี้ หรือข้อมูลไม่ถูกต้อง' });
+      }
+
+      const userId = usersSnapshot.docs[0].id;
+      const { error } = await supabaseAdmin.auth.admin.updateUserById(userId, {
+        password: newPassword
+      });
+
+      if (error) {
+        return res.status(400).json({ error: error.message });
+      }
+
+      res.json({ success: true });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message || 'Internal error' });
+    }
+  });
+
   app.post('/api/signup', async (req, res) => {
-    const { email, password } = req.body;
+    const { email, password, recoveryEmail } = req.body;
     try {
       const { data, error } = await supabaseAdmin.auth.admin.createUser({
         email,
@@ -273,11 +304,13 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
       try {
         await admin.firestore().collection('users').doc(data.user.id).set({
           email,
+          recoveryEmail: recoveryEmail || null,
           username: email.split('@')[0],
           balance: 0,
           role: 'user',
           status: 'active',
           updatedAt: new Date().toISOString()
+
         }, { merge: true });
       } catch (err: any) {
         console.error('Failed to create user doc:', err.message || err);
@@ -292,7 +325,7 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
 
   app.post('/api/settings', requireAdmin, async (req, res) => {
     console.log("=== POST /api/settings REACHED ===", req.body);
-    const { truewallet_phone, site_name, contact_line, stats_users_offset, stats_sales_offset, stats_users_override, stats_stock_override, stats_sales_override, popup_img_url, popup_enabled, popup_link, banners, proxies } = req.body;
+    const { truewallet_phone, site_name, contact_line, stats_users_offset, stats_sales_offset, stats_users_override, stats_stock_override, stats_sales_override, popup_img_url, popup_enabled, popup_link, banners, proxies, spotify_url, spotify_autoplay } = req.body;
     if (truewallet_phone !== undefined) siteSettings.truewallet_phone = truewallet_phone;
     if (site_name !== undefined) siteSettings.site_name = site_name;
     if (contact_line !== undefined) siteSettings.contact_line = contact_line;
@@ -304,6 +337,8 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
     if (popup_img_url !== undefined) siteSettings.popup_img_url = popup_img_url;
     if (popup_enabled !== undefined) siteSettings.popup_enabled = popup_enabled === true || popup_enabled === 'true';
     if (popup_link !== undefined) siteSettings.popup_link = popup_link;
+    if (spotify_url !== undefined) siteSettings.spotify_url = spotify_url;
+    if (spotify_autoplay !== undefined) siteSettings.spotify_autoplay = spotify_autoplay === true || spotify_autoplay === 'true';
     if (banners !== undefined && Array.isArray(banners)) siteSettings.banners = banners;
     if (proxies !== undefined && Array.isArray(proxies)) siteSettings.proxies = proxies;
     
@@ -597,21 +632,64 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
       const token_res = await client.post(token_url, token_data, {
         headers: {
           "User-Agent": "Mozilla/5.0 (Linux; Android 11; RMX2195) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Mobile Safari/537.36",
+          "Pragma": "no-cache",
+          "Accept": "*/*",
           "Content-Type": "application/x-www-form-urlencoded",
           "Referer": "https://auth.garena.com/universal/oauth?all_platforms=1&response_type=token&locale=en-SG&client_id=100082&redirect_uri=https://auth.codm.garena.com/auth/auth/callback_n?site=https://api-delete-request.codm.garena.co.id/oauth/callback/"
         }
       });
       
-      const access_token = token_res.data.access_token;
+      const access_token = token_res.data?.access_token;
       if (!access_token) return null;
 
       // Callback to CODM
       const codm_callback_url = `https://auth.codm.garena.com/auth/auth/callback_n?site=https://api-delete-request.codm.garena.co.id/oauth/callback/&access_token=${access_token}`;
-      await client.get(codm_callback_url, { maxRedirects: 0, validateStatus: (s: number) => s < 400 });
+      await client.get(codm_callback_url, { 
+        maxRedirects: 0, 
+        validateStatus: (s: number) => s < 400,
+        headers: {
+            "authority": "auth.codm.garena.com",
+            "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+            "accept-language": "en-US,en;q=0.9",
+            "cache-control": "no-cache",
+            "pragma": "no-cache",
+            "referer": "https://auth.garena.com/",
+            "sec-ch-ua": "\"Chromium\";v=\"107\", \"Not=A?Brand\";v=\"24\"",
+            "sec-ch-ua-mobile": "?1",
+            "sec-ch-ua-platform": "\"Android\"",
+            "sec-fetch-dest": "document",
+            "sec-fetch-mode": "navigate",
+            "sec-fetch-site": "same-site",
+            "sec-fetch-user": "?1",
+            "upgrade-insecure-requests": "1",
+            "user-agent": "Mozilla/5.0 (Linux; Android 11; RMX2195) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Mobile Safari/537.36"
+        }
+      });
 
       // API callback
       const api_callback_url = `https://api-delete-request.codm.garena.co.id/oauth/callback/?access_token=${access_token}`;
-      const api_callback_res = await client.get(api_callback_url, { maxRedirects: 0, validateStatus: (s: number) => s < 400 });
+      const api_callback_res = await client.get(api_callback_url, { 
+        maxRedirects: 0, 
+        validateStatus: (s: number) => s < 400,
+        headers: {
+            "authority": "api-delete-request.codm.garena.co.id",
+            "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+            "accept-language": "en-US,en;q=0.9",
+            "cache-control": "no-cache",
+            "pragma": "no-cache",
+            "referer": "https://auth.garena.com/",
+            "sec-ch-ua": "\"Chromium\";v=\"107\", \"Not=A?Brand\";v=\"24\"",
+            "sec-ch-ua-mobile": "?1",
+            "sec-ch-ua-platform": "\"Android\"",
+            "sec-fetch-dest": "document",
+            "sec-fetch-mode": "navigate",
+            "sec-fetch-site": "cross-site",
+            "sec-fetch-user": "?1",
+            "upgrade-insecure-requests": "1",
+            "user-agent": "Mozilla/5.0 (Linux; Android 11; RMX2195) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Mobile Safari/537.36"
+        }
+      });
+      
       const location = api_callback_res.headers['location'] || '';
 
       if (location.includes("err=3")) return null;
@@ -620,17 +698,47 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
         const check_login_url = "https://api-delete-request.codm.garena.co.id/oauth/check_login/";
         const check_res = await client.get(check_login_url, {
           headers: {
+            "authority": "api-delete-request.codm.garena.co.id",
+            "accept": "application/json, text/plain, */*",
+            "accept-language": "en-US,en;q=0.9",
+            "accept-encoding": "gzip, deflate, br, zstd",
+            "cache-control": "no-cache",
             "codm-delete-token": token,
-            "Referer": "https://delete-request.codm.garena.co.id/"
+            "origin": "https://delete-request.codm.garena.co.id",
+            "pragma": "no-cache",
+            "referer": "https://delete-request.codm.garena.co.id/",
+            "sec-ch-ua": '"Chromium";v="107", "Not=A?Brand";v=\"24"',
+            "sec-ch-ua-mobile": "?1",
+            "sec-ch-ua-platform": '"Android"',
+            "sec-fetch-dest": "empty",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-site": "same-site",
+            "user-agent": "Mozilla/5.0 (Linux; Android 11; RMX2195) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Mobile Safari/537.36",
+            "x-requested-with": "XMLHttpRequest"
           }
         });
         
-        const user_data = check_res.data.user;
+        const user_data = check_res.data?.user;
         if (user_data) {
+          const region_code = user_data.region || "N/A";
+          // Basic CODM Region mappings from python code
+          const codm_regions: any = {
+            'PH': { 'name': 'Philippines', 'flag': '🇵🇭' },
+            'ID': { 'name': 'Indonesia', 'flag': '🇮🇩' },
+            'HK': { 'name': 'Hong Kong', 'flag': '🇭🇰' },
+            'MY': { 'name': 'Malaysia', 'flag': '🇲🇾' },
+            'TW': { 'name': 'Taiwan', 'flag': '🇹🇼' },
+            'TH': { 'name': 'Thailand', 'flag': '🇹🇭' },
+            'SG': { 'name': 'Singapore', 'flag': '🇸🇬' },
+          };
+          const rinfo = codm_regions[region_code] || {};
+          
           return {
             nickname: user_data.codm_nickname || 'N/A',
             level: user_data.codm_level || 'Unknown',
-            region: user_data.region || 'N/A',
+            region: region_code,
+            region_name: rinfo.name || 'Unknown',
+            region_flag: rinfo.flag || '🏳️',
             uid: user_data.uid || 'N/A',
             open_id: user_data.open_id || 'N/A',
             t_open_id: user_data.t_open_id || 'N/A'
@@ -726,7 +834,14 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
             params: { app_id },
             headers: {
                 'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36",
-                'Referer': `https://${base_domain}/?app=${app_id}`
+                'Accept': "application/json, text/plain, */*",
+                'Accept-Language': "en-US,en;q=0.5",
+                'Connection': "keep-alive",
+                'Referer': `https://${base_domain}/?app=${app_id}`,
+                'Sec-Fetch-Dest': "empty",
+                'Sec-Fetch-Mode': "cors",
+                'Sec-Fetch-Site': "same-origin",
+                'Cookie': session_key_roles ? `session_key=${session_key_roles}` : ''
             }
           });
           const roles_data = roles_res.data;
@@ -1250,6 +1365,11 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
           otherGames: gameConnections || [],
           codmNickname: codmInfo?.nickname || 'N/A',
           codmUid: codmInfo?.uid || 'N/A',
+          codmOpenId: codmInfo?.open_id || 'N/A',
+          codmTOpenId: codmInfo?.t_open_id || 'N/A',
+          codmRegion: codmInfo?.region || 'N/A',
+          codmRegionName: codmInfo?.region_name || 'Unknown',
+          codmRegionFlag: codmInfo?.region_flag || '🏳️',
           idCardBound: !!(userData.idcard && userData.idcard !== 'N/A'),
           hasRov,
           rovCharacter,

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { Shield, ShieldAlert, Loader2, Info, Star, ShieldBan } from 'lucide-react';
 import Swal from 'sweetalert2';
+import { AnimatedScroll } from './AnimatedScroll';
 
 export const DiscordBadgeTool: React.FC = () => {
     const [token, setToken] = useState('');
@@ -112,7 +113,8 @@ export const DiscordBadgeTool: React.FC = () => {
     };
 
     return (
-        <div className="max-w-4xl mx-auto space-y-8 pb-20 mt-4 md:mt-8 animate-in fade-in duration-500">
+        <AnimatedScroll direction="up" hideOnScroll={true}>
+          <div className="max-w-4xl mx-auto space-y-8 pb-20 mt-4 md:mt-8">
             <div className="flex flex-col md:flex-row gap-6 items-start justify-between">
                 <div className="flex-1">
                   <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#5865F2]/10 text-[#5865F2] text-xs font-bold mb-4 border border-[#5865F2]/20 backdrop-blur-sm">
@@ -204,6 +206,7 @@ export const DiscordBadgeTool: React.FC = () => {
             <div className="mt-8 text-center text-sm text-zinc-500">
                <p>© apex systems</p>
             </div>
-        </div>
+          </div>
+        </AnimatedScroll>
     );
 };

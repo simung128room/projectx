@@ -4,6 +4,7 @@ import Swal from 'sweetalert2';
 import axios from 'axios';
 import { UserPlan } from '../types';
 import { motion, AnimatePresence } from 'motion/react';
+import { AnimatedScroll } from './AnimatedScroll';
 
 interface WalletViewProps {
   userPlan: UserPlan | null;
@@ -215,8 +216,9 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
   };
 
   return (
-    <div className="w-full max-w-5xl mx-auto p-4 md:p-8 animate-in fade-in duration-500 font-sans text-white min-h-screen">
-      {activeView === 'main' && (
+    <AnimatedScroll direction="up" hideOnScroll={true}>
+      <div className="w-full max-w-5xl mx-auto p-4 md:p-8 font-sans text-white min-h-screen">
+        {activeView === 'main' && (
         <>
           <div className="mb-10 flex flex-col items-start gap-4">
             <div>
@@ -273,7 +275,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
         >
           <button 
             onClick={() => setActiveView('main')}
-            className="mb-8 flex items-center gap-2 text-zinc-500 hover:text-white transition-colors font-bold text-sm"
+            className="mb-8 flex items-center gap-2 text-zinc-500 hover:text-white transition-colors font-bold text-sm active:scale-95"
           >
             <ArrowLeft className="w-4 h-4" /> ย้อนกลับ
           </button>
@@ -308,7 +310,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
               </div>
               <button
                 type="submit"
-                className="w-full py-4 bg-orange-500 hover:bg-orange-600 text-white font-black rounded-2xl transition-all shadow-lg shadow-orange-500/25 text-lg flex items-center justify-center gap-2"
+                className="w-full py-4 bg-orange-500 hover:bg-orange-600 text-white font-black rounded-2xl transition-all shadow-lg shadow-orange-500/25 text-lg flex items-center justify-center gap-2 active:scale-[0.98]"
               >
                 เติมเงิน
               </button>
@@ -394,7 +396,8 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
           </div>
         </motion.div>
       )}
-    </div>
+      </div>
+    </AnimatedScroll>
   );
 };
 

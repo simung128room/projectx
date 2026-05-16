@@ -19,6 +19,11 @@ export interface AccountResult {
   otherGames: string[];
   codmNickname?: string;
   codmUid?: string;
+  codmOpenId?: string;
+  codmTOpenId?: string;
+  codmRegion?: string;
+  codmRegionName?: string;
+  codmRegionFlag?: string;
   idCardBound?: boolean;
   avatarUrl?: string;
   mobileNumber?: string;

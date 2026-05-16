@@ -135,7 +135,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
                   <div className="flex items-center gap-4">
                     <button
                       onClick={() => setPurchaseQuantity(Math.max(1, purchaseQuantity - 1))}
-                      className="w-12 h-12 rounded-xl bg-[#121820] flex items-center justify-center font-black text-xl hover:bg-zinc-200 transition-colors"
+                      className="w-12 h-12 rounded-xl bg-[#121820] flex items-center justify-center font-black text-xl hover:bg-zinc-200 transition-colors active:scale-95"
                       disabled={purchaseQuantity <= 1}
                     >
                       -
@@ -155,7 +155,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
                     />
                     <button
                       onClick={() => setPurchaseQuantity(Math.min(product.stock >= 999999 ? 999 : product.stock, purchaseQuantity + 1))}
-                      className="w-12 h-12 rounded-xl bg-[#121820] flex items-center justify-center font-black text-xl hover:bg-zinc-200 transition-colors"
+                      className="w-12 h-12 rounded-xl bg-[#121820] flex items-center justify-center font-black text-xl hover:bg-zinc-200 transition-colors active:scale-95"
                       disabled={product.stock === 0 || purchaseQuantity >= product.stock}
                     >
                       +
@@ -215,7 +215,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
                 <div className="flex items-center gap-3 w-full">
                    <button 
                      onClick={() => setShowConfirmPurchase(false)}
-                     className="flex-1 py-3 bg-[#0B0F14] border border-[#1E90FF]/30 hover:bg-[#1E90FF]/10 text-[#166bcc] font-bold rounded-xl transition-colors text-sm"
+                     className="flex-1 py-3 bg-[#0B0F14] border border-[#1E90FF]/30 hover:bg-[#1E90FF]/10 text-[#166bcc] font-bold rounded-xl transition-colors text-sm active:scale-95"
                    >
                      ยกเลิก
                    </button>
@@ -229,7 +229,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
                           setShowConfirmPurchase(false);
                         }
                       }}
-                     className="flex-1 py-3 bg-[#1E90FF] hover:bg-[#166bcc] text-white font-bold rounded-xl transition-colors text-sm shadow-md shadow-[#1E90FF]/20 disabled:opacity-50 flex items-center justify-center gap-2"
+                     className="flex-1 py-3 bg-[#1E90FF] hover:bg-[#166bcc] text-white font-bold rounded-xl transition-colors text-sm shadow-md shadow-[#1E90FF]/20 disabled:opacity-50 flex items-center justify-center gap-2 active:scale-95"
                    >
                      {showConfirmPurchase === 'loading' as any ? (
                        <><div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div> กำลังทำรายการ...</>

@@ -4,6 +4,7 @@ import Swal from 'sweetalert2';
 import { UserPlan } from '../types';
 import { User as SupabaseUser } from '@supabase/supabase-js';
 import { getAvatarUrl } from '../lib/avatar';
+import { AnimatedScroll } from './AnimatedScroll';
 
 interface ProfileViewProps {
   user: SupabaseUser | null;
@@ -25,10 +26,11 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   const registeredAt = userPlan?.registeredAt ? new Date(userPlan.registeredAt).toLocaleDateString('th-TH') : new Date().toLocaleDateString('th-TH');
 
   return (
-    <div className="font-sans animate-in fade-in duration-500">
-      <div className="bg-[#0B0F14] border-white/10 border rounded-3xl w-full max-w-4xl mx-auto shadow-sm hover:shadow-md transition-shadow relative overflow-hidden flex flex-col md:flex-row mt-6">
-        
-        {/* Left Side: Balance & Quick Profile */}
+    <AnimatedScroll direction="up" hideOnScroll={true}>
+      <div className="font-sans px-4 pb-12">
+        <div className="bg-[#0B0F14] border-white/10 border rounded-3xl w-full max-w-4xl mx-auto shadow-sm hover:shadow-md transition-shadow relative overflow-hidden flex flex-col md:flex-row mt-6">
+          
+          {/* Left Side: Balance & Quick Profile */}
         <div className="md:w-1/3 bg-[#0a0d12] p-6 sm:p-8 flex flex-col items-center border-b md:border-b-0 md:border-r border-white/10 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-[#1a7fe6]/5 blur-[50px] rounded-full pointer-events-none"></div>
           
@@ -191,6 +193,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           </div>
         </div>
       </div>
-    </div>
+     </div>
+    </AnimatedScroll>
   );
 };

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Power, LogOut, CheckCircle2, AlertCircle, Bot, Loader2, Globe, Shield, Terminal, KeyRound } from 'lucide-react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import { AnimatedScroll } from './AnimatedScroll';
 
 interface DiscordTokenOnToolProps {
   userPlan?: { isPremium: boolean; type?: string };
@@ -105,8 +106,9 @@ export const DiscordTokenOnTool: React.FC<DiscordTokenOnToolProps> = ({ userPlan
   };
 
   return (
-    <div className="max-w-4xl mx-auto pb-10">
-      <div className="bg-[#1c242d] border border-white/10 rounded-[2rem] overflow-hidden shadow-2xl flex flex-col md:flex-row">
+    <AnimatedScroll direction="up" hideOnScroll={true}>
+      <div className="max-w-4xl mx-auto pb-10 mt-6">
+        <div className="bg-[#1c242d] border border-white/10 rounded-[2rem] overflow-hidden shadow-2xl flex flex-col md:flex-row">
         
         {/* Sidebar Settings Area */}
         <div className="w-full md:w-1/3 border-b md:border-b-0 md:border-r border-white/5 p-6 flex flex-col gap-6">
@@ -214,6 +216,7 @@ export const DiscordTokenOnTool: React.FC<DiscordTokenOnToolProps> = ({ userPlan
         </div>
         
       </div>
-    </div>
+     </div>
+    </AnimatedScroll>
   );
 };

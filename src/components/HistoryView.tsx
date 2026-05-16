@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ShoppingCart, Key, CreditCard, Gift, Star, History, ChevronRight, ChevronLeft } from 'lucide-react';
 import { ReceiptModal } from './modals/ReceiptModal';
 import { motion, AnimatePresence } from 'motion/react';
+import { AnimatedScroll } from './AnimatedScroll';
 
 interface HistoryViewProps {
   purchaseHistory?: any[];
@@ -90,8 +91,9 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ purchaseHistory = [], 
   const currentCategoryInfo = categories.find(c => c.id === currentCategory);
 
   return (
-    <div className="w-full max-w-4xl mx-auto mt-6 animate-in fade-in duration-500 font-sans px-4 pb-12">
-      <AnimatePresence mode="wait">
+    <AnimatedScroll direction="up" hideOnScroll={true}>
+      <div className="w-full max-w-4xl mx-auto mt-6 font-sans px-4 pb-12">
+        <AnimatePresence mode="wait">
         {!currentCategory ? (
           <motion.div 
             key="menu"
@@ -226,6 +228,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ purchaseHistory = [], 
 
       {/* Stunning Receipt-Style Modal */}
       <ReceiptModal selectedItem={selectedItem} setSelectedItem={setSelectedItem} />
-    </div>
+      </div>
+    </AnimatedScroll>
   );
 };

@@ -136,6 +136,7 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
               <thead className="text-xs uppercase bg-[#0a0d12] text-zinc-500 font-bold tracking-wider">
                 <tr>
                   <th className="px-4 py-3 border-b border-white/5">อีเมล/ผู้ใช้</th>
+                  <th className="px-4 py-3 border-b border-white/5 text-center">ไอพีล่าสุด</th>
                   <th className="px-4 py-3 border-b border-white/5">บทบาท</th>
                   <th className="px-4 py-3 border-b border-white/5">สถานะ</th>
                   <th className="px-4 py-3 border-b border-white/5 text-right">ยอดเงิน (บาท)</th>
@@ -157,6 +158,9 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
                       >
                          <Copy className="w-3 h-3" />
                       </button>
+                    </td>
+                    <td className="px-4 py-4 text-center">
+                       <span className="font-mono text-xs text-zinc-400 bg-[#121820] px-2 py-1 rounded-md border border-white/5">{u.lastLoginIp || u.last_login_ip || 'ไม่ทราบ'}</span>
                     </td>
                     <td className="px-4 py-4">
                       <span className={`px-2 py-1 rounded-full text-[10px] uppercase tracking-widest font-bold ${u.role === 'Admin' ? 'bg-[#1E90FF]/10 text-[#1E90FF] border border-white/10' : u.role === 'Premium' ? 'bg-amber-500/10 text-amber-600 border border-amber-100' : 'bg-[#121820] text-zinc-400 border border-white/10'}`}>
@@ -272,6 +276,25 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
                         <p className="text-sm font-bold text-zinc-200 mt-0.5">{new Date(selectedUser.registered).toLocaleString('th-TH')}</p>
                       </div>
                       <CalendarIcon className="w-5 h-5 text-zinc-300" />
+                    </div>
+
+                    <div className="p-4 rounded-xl border border-white/5 bg-[#0a0d12]/50 space-y-3">
+                      <div>
+                        <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1">ไอพีล่าสุด</p>
+                        <p className="text-sm font-mono text-white bg-[#121820] w-max px-2 py-1 rounded border border-white/5">{selectedUser.lastLoginIp || selectedUser.last_login_ip || 'ไม่ทราบ'}</p>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                           <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1">อุปกรณ์</p>
+                           <p className="text-xs font-bold text-zinc-300">{selectedUser.lastLoginSource || selectedUser.last_login_source || 'ไม่ทราบ'}</p>
+                        </div>
+                        <div>
+                           <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1">ประเทศ</p>
+                           <p className="text-xs font-bold text-zinc-300 flex items-center gap-1">
+                             {selectedUser.lastLoginCountry || selectedUser.last_login_country || 'ไม่ทราบ'}
+                           </p>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
