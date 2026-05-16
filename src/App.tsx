@@ -473,7 +473,7 @@ function AppContent() {
   const [savedLinesToCheck, setSavedLinesToCheck] = useState<string[]>([]);
   const rawEnvKey = (import.meta.env.VITE_TURNSTILE_SITE_KEY || "").trim();
   const TURNSTILE_SITE_KEY =
-    rawEnvKey.length > 5 ? rawEnvKey : "0x4AAAAAADDurF1TEj8IRq9g";
+    rawEnvKey.length > 5 ? rawEnvKey : "0x4AAAAAADDNPyGBIV4MApep";
 
   function handleDbError(
     error: unknown,
