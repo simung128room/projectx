@@ -64,6 +64,7 @@ import {
   UserPlus,
   ArrowUpRight,
   Zap,
+  Music,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import Swal from "sweetalert2";
@@ -298,6 +299,8 @@ function AppContent() {
     spotify_url: "",
     spotify_autoplay: false
   });
+
+  const [isMusicExpanded, setIsMusicExpanded] = useState(false);
 
   // Home Store State (Moved up to prevent TDZ)
   const defaultProducts: Product[] = [];
@@ -3622,20 +3625,30 @@ function AppContent() {
 
         {/* Global Spotify Audio Player */}
         {siteSettings.spotify_url && (
-          <div className={`fixed bottom-6 right-6 z-[999] transition-all duration-500 transform ${siteSettings.spotify_autoplay ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0 pointer-events-none'}`}>
-             <div className="bg-[#0b0e14]/90 backdrop-blur-xl border border-white/10 p-1 rounded-2xl shadow-2xl overflow-hidden w-[300px] h-[80px]">
-                <iframe 
-                  src={siteSettings.spotify_url.includes('spotify.com/embed') 
-                    ? siteSettings.spotify_url + (siteSettings.spotify_url.includes('?') ? '&' : '?') + 'autoplay=1'
-                    : `https://open.spotify.com/embed/${siteSettings.spotify_url.split('spotify.com/')[1].split('?')[0]}?autoplay=1`
-                  } 
-                  width="100%" 
-                  height="100%" 
-                  frameBorder="0" 
-                  allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
-                  loading="lazy"
-                  className="rounded-xl"
-                ></iframe>
+          <div className="fixed bottom-6 right-6 z-[999] flex flex-col items-end gap-3">
+             <button 
+               onClick={() => setIsMusicExpanded(!isMusicExpanded)}
+               className={`w-12 h-12 rounded-2xl bg-[#0b0e14]/90 backdrop-blur-xl border border-white/10 flex items-center justify-center text-emerald-500 shadow-2xl transition-all duration-300 hover:scale-110 active:scale-95 ${isMusicExpanded ? 'rotate-90' : ''}`}
+               title="เปิด/ปิด แถบเพลง"
+             >
+                <Music className="w-5 h-5" />
+             </button>
+
+             <div className={`transition-all duration-500 transform origin-bottom-right ${isMusicExpanded || siteSettings.spotify_autoplay ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-10 opacity-0 scale-50 pointer-events-none'}`}>
+                <div className="bg-[#0b0e14]/90 backdrop-blur-xl border border-white/10 p-1 rounded-2xl shadow-2xl overflow-hidden w-[300px] h-[80px]">
+                    <iframe 
+                      src={siteSettings.spotify_url.includes('spotify.com/embed') 
+                        ? siteSettings.spotify_url + (siteSettings.spotify_url.includes('?') ? '&' : '?') + 'autoplay=1'
+                        : `https://open.spotify.com/embed/${siteSettings.spotify_url.split('spotify.com/')[1].split('?')[0]}?autoplay=1`
+                      } 
+                      width="100%" 
+                      height="100%" 
+                      frameBorder="0" 
+                      allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+                      loading="lazy"
+                      className="rounded-xl"
+                    ></iframe>
+                </div>
              </div>
           </div>
         )}
