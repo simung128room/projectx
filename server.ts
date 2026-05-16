@@ -96,13 +96,20 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
           if (user) {
             userObj = user;
             (userObj as any).uid = user.id; // Map Supabase user.id to Firebase user.uid
-            if (user.email === 'abopboa.b@gmail.com' || user.email === 'admin_apex@apex-studio.com' || user.email === 'admin@apex-studio.com') {
+            const adminEmails = [
+              'abopboa.b@gmail.com',
+              'admin_apex@apex-studio.com',
+              'admin@apex-studio.com',
+              'admin@admin.com',
+              'apex@apex.com'
+            ];
+            if (adminEmails.includes(user.email || '')) {
               isAdminObj = true;
             } else {
               const userDoc = await admin.firestore().collection('users').doc(user.id).get();
               if (userDoc.exists) {
                 const userData = typeof userDoc.data === 'function' ? userDoc.data() : null;
-                isAdminObj = userData && typeof userData.role === 'string' && userData.role.toLowerCase() === 'admin';
+                isAdminObj = userData && typeof userData.role === 'string' && (userData.role.toLowerCase() === 'admin' || userData.role.toLowerCase() === 'owner');
               } else {
                 isAdminObj = false;
               }
@@ -139,6 +146,7 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
 
   const requireAdmin = async (req: any, res: any, next: any) => {
     if (!req.user || !req.isAdmin) {
+      console.error(`[AdminCheck] Access Denied for ${req.user?.email || 'Unknown'}. isAdmin: ${req.isAdmin}`);
       return res.status(403).json({ error: 'Forbidden: Admin access required. Please re-login.' });
     }
     next();
@@ -348,8 +356,9 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
     try {
       const docName = process.env.NODE_ENV === 'production' ? 'site' : 'site_dev';
       await admin.firestore().collection('settings').doc(docName).set(siteSettings, { merge: true });
-    } catch(e) {
+    } catch(e: any) {
       console.error('Failed to save settings', e);
+      return res.status(500).json({ error: 'Failed to save settings: ' + (e.message || e) });
     }
     
     console.log(`[Settings] Updated:`, siteSettings);

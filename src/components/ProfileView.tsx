@@ -18,7 +18,9 @@ interface ProfileViewProps {
 export const ProfileView: React.FC<ProfileViewProps> = ({
   user, userPlan, setUserPlan, clientIp, setActiveView, handleLogout
 }) => {
-  const role = userPlan?.role || 'สมาชิกทั่วไป';
+  const rawRole = userPlan?.role || 'สมาชิกทั่วไป';
+  const role = rawRole.charAt(0).toUpperCase() + rawRole.slice(1).toLowerCase();
+  const isAdminOrOwner = ['admin', 'owner'].includes(rawRole.toLowerCase());
   const balance = userPlan?.balance || 0;
   const fullName = userPlan?.fullName || '-';
   const username = userPlan?.username || user?.email?.split('@')[0] || '';
@@ -45,7 +47,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           </div>
           
           <h3 className="text-xl font-black text-white mb-1 text-center truncate w-full px-2 z-10">{username}</h3>
-          {role !== 'Admin' && (
+          {!isAdminOrOwner && (
             <span className="text-xs font-bold text-[#1E90FF] uppercase tracking-widest bg-[#1E90FF]/10 px-3 py-1 rounded-full border border-white/10 mb-6 z-10">
               {role}
             </span>

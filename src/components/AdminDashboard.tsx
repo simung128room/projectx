@@ -522,21 +522,25 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       };
       setSiteSettings(payload);
       const res = await axios.post('/api/settings', payload);
-      if (res.data.success) {
+      if (res.data.success || res.status === 200) {
         Swal.fire({ 
           title: 'สำเร็จ', 
           text: 'บันทึกการตั้งค่าระบบเรียบร้อยแล้ว', 
           icon: 'success', 
-          confirmButtonColor: '#dc2626',
-          background: '#fff',
-          color: '#000'
+          confirmButtonColor: '#1E90FF',
+          background: '#0B0F14',
+          color: '#fff'
         });
       }
     } catch (err: any) {
+      console.error('Save Settings Error:', err);
+      const errorMsg = err.response?.data?.error || err.message || 'ไม่สามารถบันทึกข้อมูลได้';
       Swal.fire({
         title: 'ผิดพลาด',
-        text: err.response?.data?.error || 'ไม่สามารถบันทึกข้อมูลได้',
-        icon: 'error'
+        text: errorMsg,
+        icon: 'error',
+        background: '#0B0F14',
+        color: '#fff'
       });
     }
   };
@@ -603,51 +607,51 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
       {/* Sidebar */}
       <div className={`fixed md:sticky top-0 left-0 h-screen w-72 bg-[#0B0F14] border-r border-white/10 p-6 z-50 transform transition-transform duration-300 md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-        <div className="flex items-center gap-4 mb-8">
-          <div className="p-3 bg-[#1E90FF] rounded-2xl shadow-md shadow-[#1E90FF]/20">
-            <Crown className="w-6 h-6 text-white" />
+        <div className="flex items-center gap-4 mb-10 px-2 group">
+          <div className="p-3 bg-[#1E90FF] rounded-2xl shadow-lg shadow-[#1E90FF]/20 group-hover:scale-105 transition-transform">
+            <Crown className="w-7 h-7 text-white" />
           </div>
           <div>
-            <h1 className="text-xl font-black text-white tracking-tight">Console</h1>
-            <p className="text-zinc-400 text-[10px] uppercase font-bold tracking-widest">System Control</p>
+            <h1 className="text-xl font-black text-white tracking-tight leading-none mb-1">APEX</h1>
+            <p className="text-[#1E90FF] text-[10px] uppercase font-black tracking-[0.2em] opacity-80">Dashboard</p>
           </div>
         </div>
 
-          <div className="flex flex-col gap-1 pr-2 overflow-y-auto max-h-[calc(100vh-180px)] no-scrollbar">
+          <div className="flex-1 flex flex-col gap-1 pr-2 overflow-y-auto no-scrollbar">
             <div className="px-4 py-2 mt-2">
-              <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em]">Dashboard</p>
+              <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] mb-1">GENERAL</p>
             </div>
             <SidebarItem id="overview" label="หน้าภาพรวม" icon={LayoutDashboard} />
             <SidebarItem id="analytics" label="ข้อมูลวิเคราะห์" icon={LineChart} />
 
             <div className="px-4 py-2 mt-4">
-              <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em]">Shop Management</p>
+              <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] mb-1">MANAGE SHOP</p>
             </div>
-            <SidebarItem id="store" label="จัดการสินค้า" icon={Package} />
-            <SidebarItem id="categories" label="จัดการหมวดหมู่" icon={LayoutDashboard} />
-            <SidebarItem id="banners" label="จัดการป้ายโฆษณา" icon={Image} />
-            <SidebarItem id="pages" label="จัดการหน้าเพจ" icon={FileText} />
+            <SidebarItem id="store" label="สินค้าในร้าน" icon={Package} />
+            <SidebarItem id="categories" label="หมวดหมู่สินค้า" icon={LayoutDashboard} />
+            <SidebarItem id="banners" label="ตั้งค่าแบนเนอร์" icon={Image} />
+            <SidebarItem id="pages" label="ตั้งค่าหน้าเพจ" icon={FileText} />
 
             <div className="px-4 py-2 mt-4">
-              <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em]">Users & Security</p>
+              <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] mb-1">REPORTS & USERS</p>
             </div>
-            <SidebarItem id="users" label="จัดการผู้ใช้งาน" icon={Users} />
-            <SidebarItem id="keys" label="License Keys" icon={Key} />
-            <SidebarItem id="ips" label="Access Control" icon={ShieldAlert} />
-            <SidebarItem id="history" label="ประวัติการใช้งาน" icon={History} />
+            <SidebarItem id="users" label="สมาชิกทั้งหมด" icon={Users} />
+            <SidebarItem id="keys" label="LICENSE KEYS" icon={Key} />
+            <SidebarItem id="history" label="ประวัติรายการ" icon={History} />
+            <SidebarItem id="ips" label="ความปลอดภัย" icon={ShieldAlert} />
 
             <div className="px-4 py-2 mt-4">
-              <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em]">Advanced Tools</p>
+              <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] mb-1">DEVELOPER</p>
             </div>
-            <SidebarItem id="bot" label="บอทดักซองใหม่" icon={Terminal} />
-            <SidebarItem id="tools" label="เครื่องมือแจกรางวัล" icon={Gift} />
-            <SidebarItem id="api_keys" label="API Keys" icon={Key} />
+            <SidebarItem id="bot" label="ระบบบอท" icon={Terminal} />
+            <SidebarItem id="tools" label="ตัวช่วยแจกของ" icon={Gift} />
+            <SidebarItem id="api_keys" label="ระบบ API" icon={Key} />
 
             <div className="px-4 py-2 mt-4">
-              <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em]">Platform Settings</p>
+              <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] mb-1">SYSTEM</p>
             </div>
-            <SidebarItem id="settings" label="Site Settings" icon={Settings} />
-            <SidebarItem id="system" label="System Stats" icon={Cpu} />
+            <SidebarItem id="settings" label="ตั้งค่าเว็บไซต์" icon={Settings} />
+            <SidebarItem id="system" label="สถานะระบบ" icon={Cpu} />
           </div>
 
         <div className="absolute bottom-6 left-6 right-6 space-y-3">

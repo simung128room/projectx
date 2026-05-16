@@ -3624,7 +3624,7 @@ function AppContent() {
         )}
 
         {/* Global Spotify Audio Player */}
-        {siteSettings.spotify_url && activeView !== "admin" && (
+        {siteSettings.spotify_url && (
           <div className="fixed bottom-6 right-6 z-[999] flex flex-col items-end gap-3">
              <button 
                onClick={() => setIsMusicExpanded(!isMusicExpanded)}
