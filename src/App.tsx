@@ -1956,6 +1956,18 @@ function AppContent() {
             <ShoppingCart className="w-5 h-5" /> สินค้าทั้งหมด
           </button>
 
+          {!user && (
+            <button
+              onClick={() => {
+                setActiveView("login");
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === "login" || activeView === "signup" ? "bg-[#1E90FF] text-white shadow-md shadow-[#1E90FF]/20" : "text-zinc-500 hover:bg-[#0a0d12] hover:text-white"}`}
+            >
+              <LogIn className="w-5 h-5" /> เข้าสู่ระบบ
+            </button>
+          )}
+
           {user && (
             <>
               <button
@@ -2248,6 +2260,20 @@ function AppContent() {
                       <ShoppingCart className="w-5 h-5 shrink-0" />{" "}
                       <span className="font-semibold text-[15px]">สินค้าทั้งหมด</span>
                     </button>
+
+                    {!user && (
+                      <button
+                        onClick={() => {
+                          setActiveView("login");
+                          setIsMobileMenuOpen(false);
+                          window.scrollTo({ top: 0, behavior: "smooth" });
+                        }}
+                        className={`w-full flex items-center gap-3 px-6 py-3.5 relative transition-colors ${activeView === "login" || activeView === "signup" ? "bg-[#0d1a2e] text-[#1E90FF] before:absolute before:left-0 before:top-0 before:bottom-0 before:w-[3px] before:bg-[#1E90FF] before:rounded-r-sm" : "text-zinc-400 hover:bg-[#1e2129] hover:text-white"}`}
+                      >
+                        <LogIn className="w-5 h-5 shrink-0" />{" "}
+                        <span className="font-semibold text-[15px]">เข้าสู่ระบบ</span>
+                      </button>
+                    )}
 
                     {user && (
                       <div className="flex flex-col">
