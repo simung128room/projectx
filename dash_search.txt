@@ -1,0 +1,534 @@
+436-    "all",
+437-  );
+438-  const [isPageTransitioning, setIsPageTransitioning] = useState(false);
+439-  const [usersList, setUsersList] = useState<any[]>([]);
+440-
+441:  const setActiveView = useCallback(
+442-    (view: any) => {
+443-      if (activeView === view) return;
+444-      setIsPageTransitioning(true);
+445-      setTimeout(() => {
+446-        window.history.pushState(null, "", "/" + view);
+--
+692-            ? `คุณได้สั่งซื้อ ${product.name} สำเร็จแล้ว`
+693-            : "ระบบได้ดาวน์โหลดไฟล์คีย์/ข้อมูลสินค้าให้ท่านอัตโนมัติ (และสามารถตรวจสอบย้อนหลังได้ที่ประวัติการสั่งซื้อ)",
+694-        confirmButtonColor: "#16a34a",
+695-        confirmButtonText: "ตกลง",
+696-      }).then(() => {
+697:        setActiveView("history");
+698-        if (quantity === 1) {
+699-          setPurchasedItemReceipt({
+700-            ...newHistoryItem,
+701-            title: "สั่งซื้อสำเร็จ",
+702-            icon: ShoppingCart,
+--
+1126-        );
+1127-      }
+1128-    }
+1129-  };
+1130-  const handleLogoClick = () => {
+1131:    setActiveView("login");
+1132-  };
+1133-
+1134-  const handleLogout = async () => {
+1135-    try {
+1136-      await auth.auth.signOut();
+--
+1140-    localStorage.removeItem("apex_admin");
+1141-    delete axios.defaults.headers.common["Authorization"];
+1142-    setIsAdmin(false);
+1143-    setUserPlan(null);
+1144-    setUser(null);
+1145:    setActiveView("home");
+1146-    Swal.fire({
+1147-      icon: "info",
+1148-      title: "ออกจากระบบแล้ว",
+1149-      timer: 1500,
+1150-      showConfirmButton: false,
+--
+1903-          {/* Sidebar Menu Items */}
+1904-          <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-3 pl-3 mt-4">
+1905-            เมนูหลัก
+1906-          </div>
+1907-            <button
+1908:            onClick={() => setActiveView("dashboard")}
+1909-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === "dashboard" ? "bg-[#1E90FF] text-white shadow-md shadow-[#1E90FF]/20" : "text-zinc-500 hover:bg-[#0a0d12] hover:text-white"}`}
+1910-          >
+1911-            <Terminal className="w-5 h-5" /> ตรวจสอบไอดี (Checker)
+1912-          </button>
+1913-          <button
+1914:            onClick={() => setActiveView("home")}
+1915-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === "home" ? "bg-[#1E90FF] text-white shadow-md shadow-[#1E90FF]/20" : "text-zinc-500 hover:bg-[#0a0d12] hover:text-white"}`}
+1916-          >
+1917-            <Home className="w-5 h-5" /> หน้าแรก
+1918-          </button>
+1919-          <button
+1920-            onClick={() => {
+1921:              setActiveView(user ? "wallet" : "login");
+1922-              window.scrollTo({ top: 0, behavior: "smooth" });
+1923-            }}
+1924-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === "wallet" ? "bg-[#1E90FF] text-white shadow-md shadow-[#1E90FF]/20" : "text-zinc-500 hover:bg-[#0a0d12] hover:text-white"}`}
+1925-          >
+1926-            <Wallet className="w-5 h-5" /> เติมเงิน
+1927-          </button>
+1928-          <button
+1929-            onClick={() => {
+1930:              setActiveView("categories");
+1931-              window.scrollTo({ top: 0, behavior: "smooth" });
+1932-            }}
+1933-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === "categories" ? "bg-[#1E90FF] text-white shadow-md shadow-[#1E90FF]/20" : "text-zinc-500 hover:bg-[#0a0d12] hover:text-white"}`}
+1934-          >
+1935-            <ShoppingCart className="w-5 h-5" /> สินค้าทั้งหมด
+--
+1951-              <div
+1952-                className={`overflow-hidden transition-all duration-300 ease-in-out ${isDesktopToolsOpen ? "max-h-[800px] opacity-100" : "max-h-0 opacity-0"}`}
+1953-              >
+1954-                <div className="flex flex-col gap-1 mt-1 pl-2 border-l border-white/5 ml-8">
+1955-                  <button
+1956:                    onClick={() => setActiveView("telegram_catcher")}
+1957-                    className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-2xl text-sm font-bold transition-all ${activeView === "telegram_catcher" ? "bg-[#2AABEE]/10 text-[#2AABEE] shadow-md shadow-[#2AABEE]/10" : "text-zinc-400 hover:bg-[#0a0d12] hover:text-white"}`}
+1958-                  >
+1959-                    ดักซองเทเลแกรม
+1960-                  </button>
+1961-                  <button
+1962:                    onClick={() => setActiveView("discord_catcher")}
+1963-                    className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-2xl text-sm font-bold transition-all ${activeView === "discord_catcher" ? "bg-[#5865F2]/10 text-[#5865F2] shadow-md shadow-[#5865F2]/10" : "text-zinc-400 hover:bg-[#0a0d12] hover:text-white"}`}
+1964-                  >
+1965-                    ดักซองดิสคอร์ด
+1966-                  </button>
+1967-                  <button
+1968:                    onClick={() => setActiveView("discord_on")}
+1969-                    className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-2xl text-sm font-bold transition-all ${activeView === "discord_on" ? "bg-[#5865F2]/10 text-[#5865F2] shadow-md shadow-[#5865F2]/10" : "text-zinc-400 hover:bg-[#0a0d12] hover:text-white"}`}
+1970-                  >
+1971-                    รันโทเค่นดิสอคร์ด
+1972-                  </button>
+1973-                  <button
+1974:                    onClick={() => setActiveView("discord_badge")}
+1975-                    className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-2xl text-sm font-bold transition-all ${activeView === "discord_badge" ? "bg-[#5865F2]/10 text-[#5865F2] shadow-md shadow-[#5865F2]/10" : "text-zinc-400 hover:bg-[#0a0d12] hover:text-white"}`}
+1976-                  >
+1977-                    รับตราอัตโนมัติ
+1978-                  </button>
+1979-                  <button
+1980:                    onClick={() => setActiveView("two_fa_generator")}
+1981-                    className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-2xl text-sm font-bold transition-all ${activeView === "two_fa_generator" ? "bg-indigo-500/10 text-indigo-400 shadow-md shadow-indigo-500/10" : "text-zinc-400 hover:bg-[#0a0d12] hover:text-white"}`}
+1982-                  >
+1983-                    2FA Generator
+1984-                  </button>
+1985-                </div>
+--
+1987-            </>
+1988-          )}
+1989-
+1990-          <button
+1991-            onClick={() => {
+1992:              setActiveView(user ? "history" : "login");
+1993-              window.scrollTo({ top: 0, behavior: "smooth" });
+1994-            }}
+1995-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === "history" ? "bg-[#1E90FF] text-white shadow-md shadow-[#1E90FF]/20" : "text-zinc-500 hover:bg-[#0a0d12] hover:text-white"}`}
+1996-          >
+1997-            <History className="w-5 h-5" /> ประวัติการใช้งาน
+1998-          </button>
+1999-          <button
+2000-            onClick={() => {
+2001:              setActiveView("contact");
+2002-              window.scrollTo({ top: 0, behavior: "smooth" });
+2003-            }}
+2004-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === "contact" ? "bg-[#1E90FF] text-white shadow-md shadow-[#1E90FF]/20" : "text-zinc-500 hover:bg-[#0a0d12] hover:text-white"}`}
+2005-          >
+2006-            <Phone className="w-5 h-5" /> ติดต่อแอดมิน
+--
+2022-              {customPages.map((page) => (
+2023-                <button
+2024-                  key={page.id}
+2025-                  onClick={() => {
+2026-                    setSelectedPage(page);
+2027:                    setActiveView("custom_page");
+2028-                  }}
+2029-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === "custom_page" && selectedPage?.id === page.id ? "bg-[#1E90FF] text-white shadow-md shadow-[#1E90FF]/20" : "text-zinc-500 hover:bg-[#0a0d12] hover:text-white"}`}
+2030-                >
+2031-                  <FileText className="w-5 h-5" />{" "}
+2032-                  {page.title.replace(/^#+\s*/, "")}
+--
+2073-                  </span>
+2074-                </div>
+2075-              </div>
+2076-              <div className="grid grid-cols-2 gap-2">
+2077-                <button
+2078:                  onClick={() => setActiveView("profile")}
+2079-                  className="py-2.5 bg-[#0B0F14] border border-white/10 text-zinc-400 rounded-2xl text-xs font-bold hover:bg-[#0a0d12] hover:border-white/20 transition-colors flex items-center justify-center gap-2"
+2080-                >
+2081-                  <Settings className="w-4 h-4" />
+2082-                  โปรไฟล์
+2083-                </button>
+--
+2101-          <div className="flex items-center justify-between px-5 w-full relative">
+2102-            <motion.div
+2103-              whileHover={{ scale: 1.05 }}
+2104-              whileTap={{ scale: 0.95 }}
+2105-              className="flex items-center gap-3 cursor-pointer relative group"
+2106:              onClick={() => setActiveView("home")}
+2107-            >
+2108-              <div className="absolute inset-0 bg-[#1E90FF]/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+2109-              <span className="text-[20px] font-black text-transparent bg-clip-text bg-gradient-to-r from-[#1a9fff] to-cyan-400 tracking-wide drop-shadow-[0_0_15px_rgba(26,159,255,0.3)]">
+2110-                APEXSTORETH
+2111-              </span>
+2112-            </motion.div>
+2113-
+2114-            <div className="flex items-center gap-2">
+2115-              <button
+2116:                onClick={() => setActiveView("search")}
+2117-                className="w-10 h-10 bg-[#1e2129] border border-[#2a2d35] rounded-xl flex items-center justify-center text-zinc-400 hover:text-white transition-colors"
+2118-                aria-label="Search"
+2119-              >
+2120-                <Search className="w-5 h-5" />
+2121-              </button>
+--
+2192-
+2193-                <div className="flex flex-col flex-1 overflow-y-auto no-scrollbar py-2">
+2194-                  <div className="flex flex-col border-b border-white/5 pb-2 mb-2">
+2195-                    <button
+2196-                      onClick={() => {
+2197:                        setActiveView("dashboard");
+2198-                        setIsMobileMenuOpen(false);
+2199-                      }}
+2200-                      className={`w-full flex items-center gap-3 px-6 py-3.5 relative transition-colors ${activeView === "dashboard" ? "bg-[#0d1a2e] text-[#1E90FF] before:absolute before:left-0 before:top-0 before:bottom-0 before:w-[3px] before:bg-[#1E90FF] before:rounded-r-sm" : "text-zinc-400 hover:bg-[#1e2129] hover:text-white"}`}
+2201-                    >
+2202-                      <Terminal className="w-5 h-5 shrink-0" />{" "}
+2203-                      <span className="font-semibold text-[15px]">ตรวจสอบไอดี (Checker)</span>
+2204-                    </button>
+2205-                    <button
+2206-                      onClick={() => {
+2207:                        setActiveView("home");
+2208-                        setIsMobileMenuOpen(false);
+2209-                      }}
+2210-                      className={`w-full flex items-center gap-3 px-6 py-3.5 relative transition-colors ${activeView === "home" ? "bg-[#0d1a2e] text-[#1E90FF] before:absolute before:left-0 before:top-0 before:bottom-0 before:w-[3px] before:bg-[#1E90FF] before:rounded-r-sm" : "text-zinc-400 hover:bg-[#1e2129] hover:text-white"}`}
+2211-                    >
+2212-                      <Home className="w-5 h-5 shrink-0" />{" "}
+2213-                      <span className="font-semibold text-[15px]">หน้าแรก</span>
+2214-                    </button>
+2215-                    <button
+2216-                      onClick={() => {
+2217-                        !user
+2218:                          ? setActiveView("login")
+2219:                          : setActiveView("wallet");
+2220-                        setIsMobileMenuOpen(false);
+2221-                      }}
+2222-                      className={`w-full flex items-center gap-3 px-6 py-3.5 relative transition-colors ${activeView === "wallet" ? "bg-[#0d1a2e] text-[#1E90FF] before:absolute before:left-0 before:top-0 before:bottom-0 before:w-[3px] before:bg-[#1E90FF] before:rounded-r-sm" : "text-zinc-400 hover:bg-[#1e2129] hover:text-white"}`}
+2223-                    >
+2224-                      <Wallet className="w-5 h-5 shrink-0" />{" "}
+--
+2226-                        เติมเงิน
+2227-                      </span>
+2228-                    </button>
+2229-                    <button
+2230-                      onClick={() => {
+2231:                        setActiveView("categories");
+2232-                        setIsMobileMenuOpen(false);
+2233-                        window.scrollTo({ top: 0, behavior: "smooth" });
+2234-                      }}
+2235-                      className={`w-full flex items-center gap-3 px-6 py-3.5 relative transition-colors ${activeView === "categories" ? "bg-[#0d1a2e] text-[#1E90FF] before:absolute before:left-0 before:top-0 before:bottom-0 before:w-[3px] before:bg-[#1E90FF] before:rounded-r-sm" : "text-zinc-400 hover:bg-[#1e2129] hover:text-white"}`}
+2236-                    >
+--
+2260-                          className={`overflow-hidden transition-all duration-300 ease-in-out bg-black/20 ${isMobileToolsOpen ? "max-h-[800px] opacity-100" : "max-h-0 opacity-0"}`}
+2261-                        >
+2262-                          <div className="flex flex-col py-2">
+2263-                            <button
+2264-                              onClick={() => {
+2265:                                setActiveView("telegram_catcher");
+2266-                                setIsMobileMenuOpen(false);
+2267-                              }}
+2268-                              className={`w-full flex items-center gap-3 pl-14 pr-6 py-3 relative transition-colors ${activeView === "telegram_catcher" ? "text-[#1E90FF]" : "text-zinc-500 hover:text-white"}`}
+2269-                            >
+2270-                              <span className="font-medium text-[14px]">
+2271-                                ดักซองเทเลแกรม
+2272-                              </span>
+2273-                            </button>
+2274-                            <button
+2275-                              onClick={() => {
+2276:                                setActiveView("discord_catcher");
+2277-                                setIsMobileMenuOpen(false);
+2278-                              }}
+2279-                              className={`w-full flex items-center gap-3 pl-14 pr-6 py-3 relative transition-colors ${activeView === "discord_catcher" ? "text-[#1E90FF]" : "text-zinc-500 hover:text-white"}`}
+2280-                            >
+2281-                              <span className="font-medium text-[14px]">
+2282-                                ดักซองดิสคอร์ด
+2283-                              </span>
+2284-                            </button>
+2285-                            <button
+2286-                              onClick={() => {
+2287:                                setActiveView("discord_on");
+2288-                                setIsMobileMenuOpen(false);
+2289-                              }}
+2290-                              className={`w-full flex items-center gap-3 pl-14 pr-6 py-3 relative transition-colors ${activeView === "discord_on" ? "text-[#1E90FF]" : "text-zinc-500 hover:text-white"}`}
+2291-                            >
+2292-                              <span className="font-medium text-[14px]">
+2293-                                รันโทเค่นดิสอคร์ด
+2294-                              </span>
+2295-                            </button>
+2296-                            <button
+2297-                              onClick={() => {
+2298:                                setActiveView("discord_badge");
+2299-                                setIsMobileMenuOpen(false);
+2300-                              }}
+2301-                              className={`w-full flex items-center gap-3 pl-14 pr-6 py-3 relative transition-colors ${activeView === "discord_badge" ? "text-[#1E90FF]" : "text-zinc-500 hover:text-white"}`}
+2302-                            >
+2303-                              <span className="font-medium text-[14px]">
+2304-                                รับตราอัตโนมัติ
+2305-                              </span>
+2306-                            </button>
+2307-                            <button
+2308-                              onClick={() => {
+2309:                                setActiveView("two_fa_generator");
+2310-                                setIsMobileMenuOpen(false);
+2311-                              }}
+2312-                              className={`w-full flex items-center gap-3 pl-14 pr-6 py-3 relative transition-colors ${activeView === "two_fa_generator" ? "text-[#1E90FF]" : "text-zinc-500 hover:text-white"}`}
+2313-                            >
+2314-                              <span className="font-medium text-[14px]">
+--
+2323-
+2324-                  {user && (
+2325-                    <div className="flex flex-col">
+2326-                      <button
+2327-                        onClick={() => {
+2328:                          setActiveView("history");
+2329-                          setIsMobileMenuOpen(false);
+2330-                          window.scrollTo({ top: 0, behavior: "smooth" });
+2331-                        }}
+2332-                        className={`w-full flex items-center gap-3 px-6 py-3.5 relative transition-colors ${activeView === "history" ? "bg-[#0d1a2e] text-[#1E90FF] before:absolute before:left-0 before:top-0 before:bottom-0 before:w-[3px] before:bg-[#1E90FF] before:rounded-r-sm" : "text-zinc-400 hover:bg-[#1e2129] hover:text-white"}`}
+2333-                      >
+--
+2336-                          ประวัติการใช้งาน
+2337-                        </span>
+2338-                      </button>
+2339-                      <button
+2340-                        onClick={() => {
+2341:                          setActiveView("profile");
+2342-                          setIsMobileMenuOpen(false);
+2343-                          window.scrollTo({ top: 0, behavior: "smooth" });
+2344-                        }}
+2345-                        className={`w-full flex items-center gap-3 px-6 py-3.5 relative transition-colors ${activeView === "profile" ? "bg-[#0d1a2e] text-[#1E90FF] before:absolute before:left-0 before:top-0 before:bottom-0 before:w-[3px] before:bg-[#1E90FF] before:rounded-r-sm" : "text-zinc-400 hover:bg-[#1e2129] hover:text-white"}`}
+2346-                      >
+--
+2352-                    </div>
+2353-                  )}
+2354-                  <div className="flex flex-col border-b border-white/5 pb-2 mb-2">
+2355-                    <button
+2356-                      onClick={() => {
+2357:                        setActiveView("contact");
+2358-                        setIsMobileMenuOpen(false);
+2359-                        window.scrollTo({ top: 0, behavior: "smooth" });
+2360-                      }}
+2361-                      className={`w-full flex items-center gap-3 px-6 py-3.5 relative transition-colors ${activeView === "contact" ? "bg-[#0d1a2e] text-[#1E90FF] before:absolute before:left-0 before:top-0 before:bottom-0 before:w-[3px] before:bg-[#1E90FF] before:rounded-r-sm" : "text-zinc-400 hover:bg-[#1e2129] hover:text-white"}`}
+2362-                    >
+--
+2372-                      {customPages.map((page) => (
+2373-                        <button
+2374-                          key={page.id}
+2375-                          onClick={() => {
+2376-                            setSelectedPage(page);
+2377:                            setActiveView("custom_page");
+2378-                            setIsMobileMenuOpen(false);
+2379-                          }}
+2380-                          className={`w-full flex items-center gap-3 px-6 py-3.5 relative transition-colors ${activeView === "custom_page" && selectedPage?.id === page.id ? "bg-[#0d1a2e] text-[#1E90FF] before:absolute before:left-0 before:top-0 before:bottom-0 before:w-[3px] before:bg-[#1E90FF] before:rounded-r-sm" : "text-zinc-400 hover:bg-[#1e2129] hover:text-white"}`}
+2381-                        >
+2382-                          <FileText className="w-5 h-5 shrink-0" />{" "}
+--
+2390-
+2391-                  {user && isAdmin && (
+2392-                    <div className="flex flex-col border-b border-white/5 pb-2 mb-2">
+2393-                      <button
+2394-                        onClick={() => {
+2395:                          setActiveView("admin");
+2396-                          setIsMobileMenuOpen(false);
+2397-                        }}
+2398-                        className={`w-full flex items-center gap-3 px-6 py-3.5 relative transition-colors ${activeView === "admin" ? "bg-purple-500/10 text-purple-400 before:absolute before:left-0 before:top-0 before:bottom-0 before:w-[3px] before:bg-purple-500 before:rounded-r-sm" : "text-purple-500/70 hover:bg-[#1e2129] hover:text-purple-400"}`}
+2399-                      >
+2400-                        <ShieldAlert className="w-5 h-5 shrink-0" />{" "}
+--
+2490-          >
+2491-            {activeView === "categories" && (
+2492-              <CategoriesView
+2493-                categories={categories}
+2494-                products={products}
+2495:                onBack={() => setActiveView("home")}
+2496-                onSelectCategory={(cat) => {
+2497-                  setSelectedCategory(cat);
+2498:                  setActiveView("category_products");
+2499-                }}
+2500-              />
+2501-            )}
+2502-
+2503-            {activeView === "category_products" && selectedCategory && (
+2504-              <CategoryProductsView
+2505-                category={selectedCategory}
+2506-                categories={categories}
+2507-                products={products}
+2508:                onBack={() => setActiveView("categories")}
+2509-                onProductClick={(id) => {
+2510-                  setSelectedProductId(id);
+2511:                  setActiveView("product_detail");
+2512-                }}
+2513-              />
+2514-            )}
+2515-
+2516-            {activeView === "search" && (
+2517-              <SearchView
+2518-                products={products}
+2519-                onBack={() =>
+2520-                  window.history.length > 1
+2521-                    ? window.history.back()
+2522:                    : setActiveView("home")
+2523-                }
+2524-                onProductClick={(id) => {
+2525-                  setSelectedProductId(id);
+2526:                  setActiveView("product_detail");
+2527-                }}
+2528-              />
+2529-            )}
+2530-
+2531-            {activeView === "home" && (
+--
+2534-                categories={categories}
+2535-                stats={siteStats}
+2536-                user={user}
+2537-                siteSettings={siteSettings}
+2538-                purchaseHistory={purchaseHistory}
+2539:                setActiveView={setActiveView}
+2540-                onProductClick={(id) => {
+2541-                  setSelectedProductId(id);
+2542:                  setActiveView("product_detail");
+2543-                }}
+2544-                onSelectCategory={(cat) => {
+2545-                  setSelectedCategory(cat);
+2546:                  setActiveView("category_products");
+2547-                }}
+2548-              />
+2549-            )}
+2550-
+2551-            {activeView === "product_detail" && selectedProductId && (
+2552-              <ProductDetailView
+2553-                product={products.find((p) => p.id === selectedProductId)!}
+2554-                user={user}
+2555:                onBack={() => setActiveView("home")}
+2556-                handlePurchase={async (p, q) => {
+2557-                  await handlePurchase(p, q);
+2558-                }}
+2559:                setActiveView={setActiveView}
+2560-              />
+2561-            )}
+2562-
+2563-            {activeView === "contact" && (
+2564-              <ContactView
+2565:                onBack={() => setActiveView("home")}
+2566-                facebookLink={siteSettings?.facebook_link || siteSettings?.contact_line}
+2567-                discordLink={siteSettings?.discord_link}
+2568-                instagramLink={siteSettings?.instagram_link}
+2569-                contactEmail={siteSettings?.contact_email}
+2570-              />
+2571-            )}
+2572-            {activeView === "custom_page" && selectedPage && (
+2573-              <PageView
+2574-                page={selectedPage}
+2575:                onBack={() => setActiveView("home")}
+2576-              />
+2577-            )}
+2578-
+2579-            {activeView === "login" && (
+2580:              <AuthView initialMode="login" setActiveView={setActiveView} />
+2581-            )}
+2582-            {activeView === "signup" && (
+2583:              <AuthView initialMode="signup" setActiveView={setActiveView} />
+2584-            )}
+2585-
+2586-            {activeView === "profile" && (
+2587-              <ProfileView
+2588-                user={user}
+2589-                userPlan={userPlan}
+2590-                setUserPlan={setUserPlan}
+2591-                clientIp={clientIp}
+2592:                setActiveView={setActiveView}
+2593-                handleLogout={handleLogout}
+2594-              />
+2595-            )}
+2596-
+2597-            {activeView === "telegram_catcher" && (
+--
+2612-              />
+2613-            )}
+2614-            {(activeView as string) === "checker_logs" && (
+2615-              <CheckerLogsView
+2616-                logs={logs}
+2617:                onBack={() => setActiveView("home")}
+2618-              />
+2619-            )}
+2620-            {activeView === "log_categories" && (
+2621-              <LogCategoriesView
+2622-                userPlan={userPlan}
+2623-                isAdmin={isAdmin}
+2624-                onNavigateAction={(action) =>
+2625:                  setActiveView(action as void | any)
+2626-                }
+2627-                filterType="all"
+2628-              />
+2629-            )}
+2630-            {activeView === "vip_logs" && (
+2631-              <LogCategoriesView
+2632-                userPlan={userPlan}
+2633-                isAdmin={isAdmin}
+2634-                onNavigateAction={(action) =>
+2635:                  setActiveView(action as void | any)
+2636-                }
+2637-                filterType="vip"
+2638-              />
+2639-            )}
+2640-            {activeView === "free_logs" && (
+2641-              <LogCategoriesView
+2642-                userPlan={userPlan}
+2643-                isAdmin={isAdmin}
+2644-                onNavigateAction={(action) =>
+2645:                  setActiveView(action as void | any)
+2646-                }
+2647-                filterType="free"
+2648-              />
+2649-            )}
+2650-            {activeView === "history" && (
+--
+2908-                  เกี่ยวกับเรา
+2909-                </h4>
+2910-                <ul className="space-y-3 flex flex-col items-center">
+2911-                  <li>
+2912-                    <button
+2913:                      onClick={() => setActiveView("home")}
+2914-                      className="hover:text-[#1E90FF] transition-colors"
+2915-                    >
+2916-                      สินค้าทั่วไป
+2917-                    </button>
+2918-                  </li>
+2919-                  <li>
+2920-                    <button
+2921:                      onClick={() => setActiveView("premium")}
+2922-                      className="hover:text-[#1E90FF] transition-colors"
+2923-                    >
+2924-                      แอพพรีเมียม
+2925-                    </button>
+2926-                  </li>
+2927-                  <li>
+2928-                    <button
+2929:                      onClick={() => setActiveView("vip")}
+2930-                      className="hover:text-[#1E90FF] transition-colors"
+2931-                    >
+2932-                      ยศ VIP
+2933-                    </button>
+2934-                  </li>
+--
+3303-            selectedItem={purchasedItemReceipt}
+3304-            setSelectedItem={(item) => {
+3305-              setPurchasedItemReceipt(item);
+3306-              // When modal is manually closed
+3307-              if (!item) {
+3308:                setActiveView("history");
+3309-              }
+3310-            }}
+3311-          />
+3312-        )}
+3313-

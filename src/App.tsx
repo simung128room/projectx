@@ -1908,13 +1908,13 @@ function AppContent() {
             onClick={() => setActiveView("dashboard")}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === "dashboard" ? "bg-[#1E90FF] text-white shadow-md shadow-[#1E90FF]/20" : "text-zinc-500 hover:bg-[#0a0d12] hover:text-white"}`}
           >
-            <Terminal className="w-5 h-5" /> ตรวจสอบไอดี (Checker)
+            <Terminal className="w-5 h-5" /> แดชบอร์ดตรวจสอบไอดี
           </button>
           <button
             onClick={() => setActiveView("home")}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === "home" ? "bg-[#1E90FF] text-white shadow-md shadow-[#1E90FF]/20" : "text-zinc-500 hover:bg-[#0a0d12] hover:text-white"}`}
           >
-            <Home className="w-5 h-5" /> หน้าแรก (Store)
+            <Home className="w-5 h-5" /> หน้าแรก
           </button>
           <button
             onClick={() => {
@@ -1968,13 +1968,7 @@ function AppContent() {
                     onClick={() => setActiveView("discord_on")}
                     className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-2xl text-sm font-bold transition-all ${activeView === "discord_on" ? "bg-[#5865F2]/10 text-[#5865F2] shadow-md shadow-[#5865F2]/10" : "text-zinc-400 hover:bg-[#0a0d12] hover:text-white"}`}
                   >
-                    รันโทเค่นดิสอคร์ด
-                  </button>
-                  <button
-                    onClick={() => setActiveView("dashboard")}
-                    className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-2xl text-sm font-bold transition-all ${activeView === "dashboard" ? "bg-[#1E90FF]/10 text-[#1E90FF] shadow-md shadow-[#1E90FF]/10" : "text-zinc-400 hover:bg-[#0a0d12] hover:text-white"}`}
-                  >
-                    เช็คบัญชีการีน่า
+                    รันโทเค่นดิสคอร์ด
                   </button>
                   <button
                     onClick={() => setActiveView("discord_badge")}
@@ -1986,7 +1980,7 @@ function AppContent() {
                     onClick={() => setActiveView("two_fa_generator")}
                     className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-2xl text-sm font-bold transition-all ${activeView === "two_fa_generator" ? "bg-indigo-500/10 text-indigo-400 shadow-md shadow-indigo-500/10" : "text-zinc-400 hover:bg-[#0a0d12] hover:text-white"}`}
                   >
-                    2FA Generator
+                    สร้างรหัส 2FA
                   </button>
                 </div>
               </div>
@@ -2206,7 +2200,7 @@ function AppContent() {
                       className={`w-full flex items-center gap-3 px-6 py-3.5 relative transition-colors ${activeView === "dashboard" ? "bg-[#0d1a2e] text-[#1E90FF] before:absolute before:left-0 before:top-0 before:bottom-0 before:w-[3px] before:bg-[#1E90FF] before:rounded-r-sm" : "text-zinc-400 hover:bg-[#1e2129] hover:text-white"}`}
                     >
                       <Terminal className="w-5 h-5 shrink-0" />{" "}
-                      <span className="font-semibold text-[15px]">ตรวจสอบไอดี (Checker)</span>
+                      <span className="font-semibold text-[15px]">แดชบอร์ดตรวจสอบไอดี</span>
                     </button>
                     <button
                       onClick={() => {
@@ -2216,7 +2210,7 @@ function AppContent() {
                       className={`w-full flex items-center gap-3 px-6 py-3.5 relative transition-colors ${activeView === "home" ? "bg-[#0d1a2e] text-[#1E90FF] before:absolute before:left-0 before:top-0 before:bottom-0 before:w-[3px] before:bg-[#1E90FF] before:rounded-r-sm" : "text-zinc-400 hover:bg-[#1e2129] hover:text-white"}`}
                     >
                       <Home className="w-5 h-5 shrink-0" />{" "}
-                      <span className="font-semibold text-[15px]">หน้าแรก (Store)</span>
+                      <span className="font-semibold text-[15px]">หน้าแรก</span>
                     </button>
                     <button
                       onClick={() => {
@@ -2296,18 +2290,7 @@ function AppContent() {
                               className={`w-full flex items-center gap-3 pl-14 pr-6 py-3 relative transition-colors ${activeView === "discord_on" ? "text-[#1E90FF]" : "text-zinc-500 hover:text-white"}`}
                             >
                               <span className="font-medium text-[14px]">
-                                รันโทเค่นดิสอคร์ด
-                              </span>
-                            </button>
-                            <button
-                              onClick={() => {
-                                setActiveView("dashboard");
-                                setIsMobileMenuOpen(false);
-                              }}
-                              className={`w-full flex items-center gap-3 pl-14 pr-6 py-3 relative transition-colors ${activeView === "dashboard" ? "text-[#1E90FF]" : "text-zinc-500 hover:text-white"}`}
-                            >
-                              <span className="font-medium text-[14px]">
-                                เช็คบัญชีการีน่า
+                                รันโทเค่นดิสคอร์ด
                               </span>
                             </button>
                             <button
@@ -2329,7 +2312,7 @@ function AppContent() {
                               className={`w-full flex items-center gap-3 pl-14 pr-6 py-3 relative transition-colors ${activeView === "two_fa_generator" ? "text-[#1E90FF]" : "text-zinc-500 hover:text-white"}`}
                             >
                               <span className="font-medium text-[14px]">
-                                2FA Generator
+                                สร้างรหัส 2FA
                               </span>
                             </button>
                           </div>
