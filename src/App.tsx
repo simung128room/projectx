@@ -280,7 +280,7 @@ function ComboTextarea({
       onChange={handleChange}
       rows={12}
       disabled={disabled}
-      className={`w-full bg-[#0a0d12] border border-white/10 rounded-2xl p-5 text-sm font-mono text-white focus:border-[#1E90FF]/50 focus:ring-1 focus:ring-[#1E90FF]/30 outline-none resize-none transition-all scrollbar-thin scrollbar-thumb-zinc-300 placeholder:text-zinc-400 h-[280px] ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
+      className={`w-full bg-[#050505] border border-zinc-800 p-3 text-[11px] font-mono text-emerald-400 focus:border-emerald-500/50 focus:outline-none resize-none transition-all scrollbar-thin scrollbar-thumb-zinc-800 h-[320px] shadow-inner ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
       placeholder={"user:pass\nuser|pass"}
       spellCheck="false"
     />
@@ -1384,88 +1384,130 @@ function AppContent() {
     index: number,
     cToken?: string | null,
   ) => {
-    try {
-      setTotalChecked((prev) => prev + 1);
-      addLog(
-        `[${index + 1}] กำลังทำ DataDome Bypass...`,
-        "shield",
-        "text-amber-400",
-      );
-
-      const response = await axios.post(`/api/check`, {
-        account: acc,
-        password: pass,
-        turnstileToken: cToken,
-      });
-      const result = response.data;
-
-      if (result.success) {
-        addLog(
-          `[${index + 1}] SSO Authenticated! กำลังดึงข้อมูลเกม...`,
-          "key",
-          "text-cyan-400",
-        );
-        const newResult: AccountResult = {
-          ...result.data,
-          cleanAt: new Date().toLocaleDateString("th-TH"),
-          skins: result.data.skins || 0,
-        };
-
-        setValidAccounts((prev) => [newResult, ...prev]);
-        addLog(
-          `[${index + 1}] สำเร็จ: ${acc} [UID: ${newResult.uid}]`,
-          "check-circle",
-          "text-green-400 font-bold",
-        );
-      } else {
-        let errorMsg = result.error || "Check failed";
-        if (typeof errorMsg === "object") {
-          try {
-            errorMsg = JSON.stringify(errorMsg);
-          } catch (e) {
-            errorMsg = String(errorMsg);
-          }
-        }
-
-        const isRateLimit =
-          typeof errorMsg === "string" &&
-          (errorMsg.includes("error_too_many_requests") ||
-            errorMsg.includes("Too many requests") ||
-            errorMsg.includes("(403)"));
-
-        if (!isRateLimit) {
-          setInvalidCount((prev) => prev + 1);
+    let retries = 2; // Up to 2 retries for proxy errors
+    while (retries >= 0 && runningRef.current) {
+      try {
+        if (retries < 2) {
           addLog(
-            `[${index + 1}] ไม่ผ่าน: ${acc} (${errorMsg})`,
-            "x",
-            "text-[#1E90FF]",
+            `[${index + 1}] ลองตรวจสอบใหม่ (${acc})... (${2 - retries}/2)`,
+            "shield",
+            "text-amber-500",
           );
         } else {
+          setTotalChecked((prev) => prev + 1);
           addLog(
-            `[${index + 1}] แนะนำให้หยุดพัก: ${acc} (ถูกจำกัด IP ชั่วคราว / Rate Limit)`,
-            "alert-triangle",
+            `[${index + 1}] กำลังทำ DataDome Bypass...`,
+            "shield",
             "text-amber-400",
           );
-          setRunning(false);
-          runningRef.current = false;
         }
-      }
-    } catch (err: any) {
-      setInvalidCount((prev) => prev + 1);
-      console.error(`Check failed for ${acc}:`, err);
-      let errMsg = err.response?.data?.error || err.message;
-      if (typeof errMsg === "object") {
-        try {
-          errMsg = JSON.stringify(errMsg);
-        } catch (e) {
-          errMsg = String(errMsg);
+
+        const response = await axios.post(`/api/check`, {
+          account: acc,
+          password: pass,
+          turnstileToken: cToken,
+        });
+        const result = response.data;
+
+        if (result.success) {
+          addLog(
+            `[${index + 1}] SSO Authenticated! กำลังดึงข้อมูลเกม...`,
+            "key",
+            "text-cyan-400",
+          );
+          const newResult: AccountResult = {
+            ...result.data,
+            cleanAt: new Date().toLocaleDateString("th-TH"),
+            skins: result.data.skins || 0,
+          };
+
+          setValidAccounts((prev) => [newResult, ...prev]);
+          addLog(
+            `[${index + 1}] สำเร็จ: ${acc} [UID: ${newResult.uid}]`,
+            "check-circle",
+            "text-green-400 font-bold",
+          );
+          return;
+        } else {
+          let errorMsg = result.error || "Check failed";
+          if (typeof errorMsg === "object") {
+            try {
+              errorMsg = JSON.stringify(errorMsg);
+            } catch (e) {
+              errorMsg = String(errorMsg);
+            }
+          }
+          
+          if (result.isProxyError && retries > 0) {
+            retries--;
+            continue;
+          }
+
+          const isRateLimit =
+            typeof errorMsg === "string" &&
+            (errorMsg.includes("error_too_many_requests") ||
+              errorMsg.includes("Too many requests") ||
+              errorMsg.includes("(403)"));
+
+          if (!isRateLimit) {
+            if (result.isProxyError) {
+              addLog(
+                `[${index + 1}] ข้ามบัญชี: ${acc} (${errorMsg})`,
+                "alert-triangle",
+                "text-amber-500 font-bold",
+              );
+            } else {
+              setInvalidCount((prev) => prev + 1);
+              addLog(
+                `[${index + 1}] ไม่ผ่าน: ${acc} (${errorMsg})`,
+                "x",
+                "text-[#1E90FF]",
+              );
+            }
+          } else {
+            addLog(
+              `[${index + 1}] แนะนำให้หยุดพัก: ${acc} (ถูกจำกัด IP ชั่วคราว / Rate Limit)`,
+              "alert-triangle",
+              "text-amber-400",
+            );
+            setRunning(false);
+            runningRef.current = false;
+          }
+          return;
         }
+      } catch (err: any) {
+        let errMsg = err.response?.data?.error || err.message;
+        if (typeof errMsg === "object") {
+          try {
+            errMsg = JSON.stringify(errMsg);
+          } catch (e) {
+            errMsg = String(errMsg);
+          }
+        }
+        
+        const isProxy = err.response?.data?.isProxyError || (typeof errMsg === 'string' && errMsg.includes('Proxy'));
+        if (isProxy && retries > 0) {
+          retries--;
+          continue;
+        }
+
+        if (isProxy) {
+          addLog(
+            `[${index + 1}] ข้ามบัญชี: ${acc} (Proxy ล้มเหลว)`,
+            "alert-triangle",
+            "text-amber-500 font-bold",
+          );
+        } else {
+          setInvalidCount((prev) => prev + 1);
+          console.error(`Check failed for ${acc}:`, err);
+          addLog(
+            `[${index + 1}] ระบบขัดข้อง: ${acc} (${errMsg})`,
+            "x",
+            "text-[#1a7fe6] font-bold",
+          );
+        }
+        return;
       }
-      addLog(
-        `[${index + 1}] ระบบขัดข้อง: ${acc} (${errMsg})`,
-        "x",
-        "text-[#1a7fe6] font-bold",
-      );
     }
   };
 
@@ -2763,564 +2805,185 @@ function AppContent() {
             )}
 
             {activeView === "dashboard" && (
-              <>
-                {/* Minimal Dashboard Header */}
-                <div className="mb-8 relative rounded-3xl bg-[#0B0F14] border border-white/5 shadow-sm overflow-hidden flex flex-col items-center justify-center py-16 text-center">
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg h-32 bg-[#1E90FF]/10 blur-[120px] rounded-full pointer-events-none"></div>
-
-                  <div className="relative z-10 flex flex-col items-center">
-                    <div className="px-4 py-1.5 rounded-full border border-white/10 bg-[#1E90FF]/10 text-xs font-bold text-[#1E90FF] tracking-widest uppercase flex items-center gap-2 mb-6">
-                      <span className="relative flex h-2 w-2">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#1E90FF] opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-[#1a7fe6]"></span>
-                      </span>
-                      System Online
-                    </div>
-
-                    <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight select-none">
-                      ระบบตรวจสอบไอดี
-                    </h1>
-
-                    <p className="mt-4 text-sm text-zinc-400 bg-[#0a0d12] px-6 py-2 rounded-full border border-white/10 inline-block font-medium">
-                      ระบบตรวจสอบด้วยความแม่นยำสูง
-                    </p>
+              <div className="max-w-6xl mx-auto w-full font-mono text-zinc-300">
+                {/* Termux Header */}
+                <div className="border border-zinc-800 bg-[#050505] p-2 flex items-center justify-between shadow-2xl relative mb-1">
+                  <div className="flex items-center gap-3">
+                    <Terminal className="w-4 h-4 text-emerald-500" />
+                    <span className="text-zinc-400 font-bold text-xs uppercase tracking-widest">root@apex-studio:~</span>
                   </div>
+                  <div className="flex gap-2">
+                    <div className="w-2.5 h-2.5 rounded-full bg-zinc-700"></div>
+                    <div className="w-2.5 h-2.5 rounded-full bg-zinc-700"></div>
+                    <div className="w-2.5 h-2.5 rounded-full bg-zinc-700"></div>
+                  </div>
+                  <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-emerald-500/20 to-transparent"></div>
                 </div>
 
-                {/* Top Stats Row (Minimal Style) */}
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-8">
-                  <div className="bg-[#0B0F14] border border-white/10 rounded-2xl p-4 flex flex-col justify-between shadow-sm hover:shadow-md transition-all">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="w-8 h-8 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0">
-                        <Check className="w-4 h-4 text-emerald-500" />
-                      </div>
-                      <span className="text-[10px] sm:text-xs text-zinc-500 font-bold uppercase truncate">
-                        สำเร็จ (VALID)
-                      </span>
-                    </div>
-                    <span className="text-2xl font-black text-white leading-none">
-                      {validAccounts.length}
-                    </span>
+                <div className="border border-zinc-800 bg-[#050505] p-5 shadow-2xl relative overflow-hidden">
+                  <div className="absolute top-0 right-0 p-8 opacity-[0.02] pointer-events-none">
+                    <Terminal className="w-96 h-96 text-white" />
+                  </div>
+                  
+                  <div className="text-emerald-500 mb-6 text-sm relative z-10">
+                    <p>$ ./apex-checker --mode secured</p>
+                    <p className="text-zinc-400">Loading modules... <span className="text-emerald-500">OK.</span></p>
+                    <p className="text-zinc-500 text-xs">Waiting for payload...</p>
                   </div>
 
-                  <div className="bg-[#0B0F14] border border-white/10 rounded-2xl p-4 flex flex-col justify-between shadow-sm hover:shadow-md transition-all">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="w-8 h-8 rounded-xl bg-[#1E90FF]/10 flex items-center justify-center shrink-0">
-                        <X className="w-4 h-4 text-[#1a7fe6]" />
-                      </div>
-                      <span className="text-[10px] sm:text-xs text-zinc-500 font-bold uppercase truncate">
-                        ไม่ผ่าน (INVALID)
-                      </span>
-                    </div>
-                    <span className="text-2xl font-black text-white leading-none">
-                      {invalidCount}
-                    </span>
-                  </div>
-
-                  <div className="bg-[#0B0F14] border border-white/10 rounded-2xl p-4 flex flex-col justify-between shadow-sm hover:shadow-md transition-all">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="w-8 h-8 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0">
-                        <Shield className="w-4 h-4 text-emerald-500" />
-                      </div>
-                      <span className="text-[10px] sm:text-xs text-zinc-500 font-bold uppercase truncate">
-                        ปกติ (CLEAN)
-                      </span>
-                    </div>
-                    <span className="text-2xl font-black text-white leading-none">
-                      {validAccounts.filter((a) => a.isClean).length}
-                    </span>
-                  </div>
-
-                  <div className="bg-[#0B0F14] border border-white/10 rounded-2xl p-4 flex flex-col justify-between shadow-sm hover:shadow-md transition-all">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="w-8 h-8 rounded-xl bg-amber-500/10 flex items-center justify-center shrink-0">
-                        <Gamepad2 className="w-4 h-4 text-amber-500" />
-                      </div>
-                      <span className="text-[10px] sm:text-xs text-zinc-500 font-bold uppercase truncate">
-                        ROV
-                      </span>
-                    </div>
-                    <span className="text-2xl font-black text-white leading-none">
-                      {validAccounts.filter((a) => a.hasRov).length}
-                    </span>
-                  </div>
-
-                  <div className="bg-[#0B0F14] border border-white/10 rounded-2xl p-4 flex flex-col justify-between shadow-sm hover:shadow-md transition-all">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="w-8 h-8 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0">
-                        <Shield className="w-4 h-4 text-emerald-500" />
-                      </div>
-                      <span className="text-[10px] sm:text-xs text-zinc-500 font-bold uppercase truncate">
-                        ROV CLEAN
-                      </span>
-                    </div>
-                    <span className="text-2xl font-black text-white leading-none">
-                      {
-                        validAccounts.filter((a) => a.hasRov && a.rovClean)
-                          .length
-                      }
-                    </span>
-                  </div>
-
-                  <div className="bg-[#0B0F14] border border-white/10 rounded-2xl p-4 flex flex-col justify-between shadow-sm hover:shadow-md transition-all">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="w-8 h-8 rounded-xl bg-[#1E90FF]/10 flex items-center justify-center shrink-0">
-                        <X className="w-4 h-4 text-[#1a7fe6]" />
-                      </div>
-                      <span className="text-[10px] sm:text-xs text-zinc-500 font-bold uppercase truncate">
-                        ROV NOT CLEAN
-                      </span>
-                    </div>
-                    <span className="text-2xl font-black text-white leading-none">
-                      {
-                        validAccounts.filter((a) => a.hasRov && !a.rovClean)
-                          .length
-                      }
-                    </span>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                  {/* Left Panel: Combo & Controls */}
-                  <div className="lg:col-span-4 flex flex-col gap-6">
-                    {/* Input Card */}
-                    <div className="bg-[#0B0F14] border border-white/10 shadow-sm rounded-3xl p-6 relative overflow-hidden">
-                      <div className="flex flex-col gap-4 mb-6">
-                        <div className="flex justify-between items-center w-full">
-                          <h2 className="text-lg font-bold flex items-center gap-3 text-white">
-                            นำข้อมูลเข้าสู่ระบบ
-                          </h2>
-                          <span className="bg-[#121820] px-3 py-1 rounded-full text-xs text-[#1E90FF] font-bold">
-                            {combo.trim() ? combo.trim().split("\n").length : 0}{" "}
-                            รายการ
-                          </span>
-                        </div>
-
-                        <div className="flex grid grid-cols-2 gap-3 relative z-10 w-full">
-                          <button
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-6 relative z-10">
+                    {/* Left: Combo & Control */}
+                    <div className="md:col-span-4 flex flex-col gap-4">
+                      <div className="flex items-center justify-between border-b border-zinc-900 pb-2">
+                        <span className="text-emerald-500 text-xs font-bold shrink-0">{'>'} INPUT_DATA</span>
+                        <div className="flex gap-3 text-[10px] font-bold">
+                          <button 
                             onClick={async () => {
                               const { value: url } = await Swal.fire({
                                 title: "ดึงข้อมูลจาก URL",
                                 input: "url",
-                                inputPlaceholder:
-                                  "https://pastebin.com/raw/...",
-                                showCancelButton: true,
-                                confirmButtonText: "ดึงข้อมูล",
-                                cancelButtonText: "ยกเลิก",
+                                background: "#050505",
+                                color: "#10b981",
+                                confirmButtonColor: "#10b981",
                               });
                               if (url) {
                                 try {
-                                  Swal.showLoading();
                                   const res = await axios.get(url);
-                                  if (res.data) {
-                                    setCombo(res.data);
-                                    Swal.close();
-                                    Swal.fire({
-                                      title: "สำเร็จ",
-                                      text: `ดึงข้อมูลสำเร็จ ${res.data.trim().split("\n").length} รายการ`,
-                                      icon: "success",
-                                      timer: 2000,
-                                    });
-                                  }
-                                } catch (err) {
-                                  Swal.fire(
-                                    "ล้มเหลว",
-                                    "ไม่สามารถเชื่อมต่อ URL ได้",
-                                    "error",
-                                  );
-                                }
+                                  if (res.data) setCombo(res.data);
+                                } catch(e) {}
                               }
                             }}
-                            className="bg-[#0a0d12] hover:bg-[#121820] py-3 rounded-2xl border border-white/10 text-[11px] font-bold text-zinc-700 flex items-center justify-center gap-2 transition-all w-full"
-                          >
-                            <Home className="w-4 h-4" /> ดึงจากแพลตฟอร์ม
-                          </button>
-
-                          <label className="cursor-pointer bg-[#1E90FF]/10 hover:bg-[#1E90FF]/20 py-3 rounded-2xl border border-[#1E90FF]/30 text-[11px] font-bold text-[#1E90FF] flex items-center justify-center gap-2 transition-all w-full">
-                            <Upload className="w-4 h-4" /> อัปโหลดไฟล์ (.txt)
-                            <input
-                              type="file"
-                              accept=".txt"
-                              className="hidden"
-                              onChange={handleFileUpload}
-                              ref={fileInputRef}
-                            />
+                            className="text-zinc-600 hover:text-emerald-500 transition-colors"
+                          >[URL]</button>
+                          <label className="cursor-pointer text-zinc-600 hover:text-emerald-500 transition-colors">
+                            [FILE]
+                            <input type="file" accept=".txt" className="hidden" onChange={handleFileUpload} ref={fileInputRef} />
                           </label>
                         </div>
                       </div>
 
-                      <div className="relative z-10 mb-6">
-                        <ComboTextarea
-                          initialValue={combo}
-                          onChangeDebounced={(val) => setCombo(val)}
-                          disabled={false} // Users explicitly requested to be able to type while checking
-                        />
+                      <ComboTextarea
+                        initialValue={combo}
+                        onChangeDebounced={(val) => setCombo(val)}
+                        disabled={false}
+                      />
+                      
+                      <div className="grid grid-cols-2 gap-2 mt-2 font-bold text-xs">
+                        <button 
+                          onClick={startCheck} 
+                          disabled={running} 
+                          className="bg-zinc-900/50 border border-emerald-500/30 text-emerald-500 hover:bg-emerald-500/10 hover:border-emerald-500 py-3 transition-all disabled:opacity-30 disabled:border-zinc-800 disabled:text-zinc-600 disabled:hover:bg-transparent"
+                        >
+                          [ EXECUTE ]
+                        </button>
+                        <button 
+                          onClick={stopCheck} 
+                          disabled={!running} 
+                          className="bg-zinc-900/50 border border-red-500/30 text-red-500 hover:bg-red-500/10 hover:border-red-500 py-3 transition-all disabled:opacity-30 disabled:border-zinc-800 disabled:text-zinc-600 disabled:hover:bg-transparent"
+                        >
+                          [ ABORT ]
+                        </button>
                       </div>
 
-                      <div className="flex flex-col gap-3 relative z-10 pt-2 border-t border-white/5 mt-2">
-                        <button
-                          onClick={startCheck}
-                          disabled={running}
-                          className="w-full bg-[#1E90FF] text-white hover:bg-[#1a7fe6] py-4 rounded-2xl font-bold text-base flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-[#1a7fe6]/20"
-                        >
-                          <Play
-                            className="w-5 h-5 flex-shrink-0"
-                            fill="currentColor"
-                          />{" "}
-                          เริ่มตรวจสอบ
-                        </button>
-                        <button
-                          onClick={stopCheck}
-                          disabled={!running}
-                          className="w-full bg-[#0B0F14] hover:bg-[#0a0d12] border border-white/10 text-zinc-400 py-3 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          <Square className="w-4 h-4" fill="currentColor" />{" "}
-                          โหมดยกเลิก
-                        </button>
+                      <div className="mt-4 pt-4 border-t border-zinc-900 flex flex-col gap-3 text-xs">
+                        <span className="text-zinc-600 font-bold mb-1">{'>'} EXPORT_DATA</span>
+                        <div className="grid grid-cols-2 gap-2">
+                          <button onClick={exportClean} className="border border-zinc-800 bg-zinc-950 text-emerald-600 hover:bg-zinc-900 hover:border-emerald-500/30 transition-all py-2 rounded-sm outline-none">CLN.txt</button>
+                          <button onClick={exportBound} className="border border-zinc-800 bg-zinc-950 text-amber-600 hover:bg-zinc-900 hover:border-amber-500/30 transition-all py-2 rounded-sm outline-none">BND.txt</button>
+                          <button onClick={exportRov} className="border border-zinc-800 bg-zinc-950 text-cyan-600 hover:bg-zinc-900 hover:border-cyan-500/30 transition-all py-2 rounded-sm outline-none">ROV.txt</button>
+                          <button onClick={exportAllValid} className="border border-zinc-800 bg-zinc-950 text-[#1E90FF] hover:bg-zinc-900 hover:border-[#1E90FF]/30 transition-all py-2 rounded-sm outline-none">ALL.txt</button>
+                        </div>
                       </div>
                     </div>
 
-                    {/* Export Options */}
-                    <div className="bg-[#0B0F14] border border-white/10 shadow-sm rounded-3xl p-6 relative overflow-hidden">
-                      <h3 className="text-xs font-bold text-zinc-500 mb-4 uppercase tracking-widest flex items-center gap-2">
-                        <Download className="w-4 h-4" /> ส่งออกผลลัพธ์
-                      </h3>
-                      <div className="flex flex-col gap-3">
-                        <div className="grid grid-cols-2 gap-3 pb-3">
-                          <button
-                            onClick={exportClean}
-                            className="bg-emerald-500/10 hover:bg-emerald-100 text-emerald-600 border border-emerald-500/30 py-3 rounded-2xl font-bold text-xs transition-colors flex items-center justify-center gap-1.5"
-                          >
-                            <Shield className="w-3.5 h-3.5" /> บันทึกปกติ
-                          </button>
-                          <button
-                            onClick={exportBound}
-                            className="bg-amber-500/10 hover:bg-amber-100 text-amber-600 border border-amber-200 py-3 rounded-2xl font-bold text-xs transition-colors flex items-center justify-center gap-1.5"
-                          >
-                            <Gamepad2 className="w-3.5 h-3.5" /> บันทึกมีเชื่อม
-                          </button>
+                    {/* Right: Terminal Logs & Stats */}
+                    <div className="md:col-span-8 flex flex-col gap-4">
+                      <div className="flex border border-zinc-800 bg-[#000000] p-4 flex-col h-[460px] shadow-inner relative">
+                        <div className="flex flex-wrap items-center justify-between border-b border-zinc-900 pb-3 mb-3 text-[11px] uppercase tracking-wider font-bold">
+                           <span className="text-emerald-500 flex items-center gap-2"><Terminal className="w-3 h-3"/> realtime.log</span>
+                           <div className="flex gap-4 items-center text-zinc-500">
+                             <span className="text-emerald-500/80">VL:{validAccounts.length}</span>
+                             <span className="text-red-500/80">INV:{invalidCount}</span>
+                             <span className="text-cyan-500/80">CL:{validAccounts.filter(a => a.isClean).length}</span>
+                             <ElapsedTimeDisplay running={running} startTime={startTime} />
+                             <button onClick={clearLog} className="text-zinc-600 hover:text-red-500 transition-colors ml-2">[X]</button>
+                           </div>
                         </div>
-                        <button
-                          onClick={exportRov}
-                          className="bg-cyan-50 hover:bg-cyan-100 text-cyan-600 border border-cyan-200 py-3 rounded-2xl font-bold text-xs transition-colors w-full flex items-center justify-center gap-1.5 shadow-sm mb-3"
-                        >
-                          <Gamepad2 className="w-4 h-4" /> บันทึก ROV (ทั้งหมด)
-                        </button>
-                        <button
-                          onClick={exportAllValid}
-                          className="bg-[#1E90FF] hover:bg-[#166bcc] text-white py-3 rounded-2xl font-bold text-xs transition-colors w-full flex items-center justify-center gap-1.5 shadow-sm"
-                        >
-                          <ListChecks className="w-4 h-4" /> บันทึกทั้งหมด (ALL
-                          VALID)
-                        </button>
-                      </div>
-                    </div>
-                  </div>
+                        
+                        <div ref={logDivRef} className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-800 text-[11px] leading-relaxed space-y-1.5 pr-3 isolate">
+                          {logs.length === 0 && <div className="text-zinc-600 flex items-center gap-2 mt-2"><Terminal className="w-3 h-3"/> Waiting for instructions...</div>}
+                          {logs.map(log => {
+                             let lightModeColor = "text-zinc-500";
+                             if (log.colorClass.includes("emerald") || log.colorClass.includes("green")) lightModeColor = "text-emerald-500";
+                             else if (log.colorClass.includes("red") || log.colorClass.includes("x")) lightModeColor = "text-red-500";
+                             else if (log.colorClass.includes("cyan") || log.colorClass.includes("amber")) lightModeColor = "text-amber-500";
+                             else if (log.colorClass.includes("blue") || log.colorClass.includes("1a7fe6")) lightModeColor = "text-red-500"; // making fails red instead of blue
 
-                  {/* Right Panel: Terminal Log & Results */}
-                  <div className="lg:col-span-8 flex flex-col gap-6">
-                    <div className="bg-[#0B0F14] border border-white/10 shadow-sm rounded-3xl p-6 sm:p-7 h-[450px] flex flex-col relative overflow-hidden">
-                      <div className="absolute top-0 right-0 p-8 opacity-[0.03] pointer-events-none">
-                        <Terminal className="w-64 h-64 text-white" />
-                      </div>
-                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 pb-5 border-b border-white/5 gap-4">
-                        <div className="flex items-center gap-3 flex-wrap">
-                          <h3 className="font-bold text-lg flex items-center gap-3 text-white">
-                            <div className="w-8 h-8 rounded-xl bg-[#121820] flex items-center justify-center">
-                              <Terminal className="text-zinc-500 w-4 h-4" />
-                            </div>
-                            บันทึกเรียลไทม์
-                          </h3>
-                          <div className="flex items-center gap-2">
-                            <ElapsedTimeDisplay
-                              running={running}
-                              startTime={startTime}
-                            />
-                            <div className="px-3 py-1 bg-[#1E90FF]/10 border border-[#1E90FF]/30 rounded-full text-[10px] font-bold text-[#1E90FF] uppercase tracking-widest">
-                              Secured Mode
-                            </div>
-                          </div>
+                             return (
+                               <div key={log.id} className={`${lightModeColor} flex items-start gap-3 break-all font-medium`}>
+                                 <span className="shrink-0 text-zinc-700">[{log.time}]</span>
+                                 <span className="flex-1">
+                                   {log.iconName === "shield" && <Shield className="inline w-3 h-3 mr-1.5 shrink-0 -mt-0.5" />}
+                                   {log.iconName === "terminal" && <Terminal className="inline w-3 h-3 mr-1.5 shrink-0 -mt-0.5" />}
+                                   {log.iconName === "check-circle" && <CheckCircle2 className="inline w-3 h-3 mr-1.5 shrink-0 -mt-0.5" />}
+                                   {log.iconName === "x" && <X className="inline w-3 h-3 mr-1.5 shrink-0 -mt-0.5" />}
+                                   {log.iconName === "check" && <Check className="inline w-3 h-3 mr-1.5 shrink-0 -mt-0.5" />}
+                                   {log.text}
+                                 </span>
+                               </div>
+                             )
+                          })}
                         </div>
-                        <button
-                          onClick={clearLog}
-                          className="px-4 py-2 bg-[#0B0F14] hover:bg-[#0a0d12] rounded-full text-xs font-bold text-zinc-500 transition-colors border border-white/10 flex items-center gap-1.5"
-                        >
-                          <X className="w-3.5 h-3.5" /> ล้างข้อความ
-                        </button>
                       </div>
 
-                      <div
-                        ref={logDivRef}
-                        className="flex-1 bg-[#0a0d12] border border-white/10 p-6 rounded-2xl text-[13px] font-mono overflow-auto scrollbar-thin scrollbar-thumb-zinc-300"
-                      >
-                        {logs.length === 0 && (
-                          <div className="text-zinc-400 flex flex-col items-center justify-center h-full gap-4 opacity-70">
-                            <Terminal className="w-12 h-12" />
-                            <span>ระบบพร้อมทำงาน รอรับข้อมูล...</span>
-                          </div>
-                        )}
-                        {logs.map((log) => {
-                          // Adjust log colors for light mode
-                          let lightModeColor = "text-zinc-400";
-                          if (
-                            log.colorClass.includes("emerald") ||
-                            log.colorClass.includes("green")
-                          )
-                            lightModeColor = "text-emerald-600";
-                          else if (log.colorClass.includes("red"))
-                            lightModeColor = "text-[#1a7fe6]";
-                          else if (
-                            log.colorClass.includes("cyan") ||
-                            log.colorClass.includes("amber")
-                          )
-                            lightModeColor = "text-amber-500";
-
-                          return (
-                            <div
-                              key={log.id}
-                              className={`${lightModeColor} mb-2 flex items-start gap-3 break-all whitespace-pre-wrap leading-relaxed`}
-                            >
-                              <span className="shrink-0 text-zinc-400 font-medium">
-                                [{log.time}]
-                              </span>
-                              <span className="flex-1">
-                                <div className="flex items-start">
-                                  {log.iconName === "shield" && (
-                                    <Shield className="inline w-3.5 h-3.5 mr-2.5 shrink-0 mt-1" />
-                                  )}
-                                  {log.iconName === "terminal-pulse" && (
-                                    <Terminal className="inline w-3.5 h-3.5 mr-2.5 shrink-0 animate-pulse mt-1" />
-                                  )}
-                                  {log.iconName === "terminal" && (
-                                    <Terminal className="inline w-3.5 h-3.5 mr-2.5 shrink-0 mt-1" />
-                                  )}
-                                  {log.iconName === "check-circle" && (
-                                    <CheckCircle2 className="inline w-3.5 h-3.5 mr-2.5 shrink-0 mt-1" />
-                                  )}
-                                  {log.iconName === "x" && (
-                                    <X className="inline w-3.5 h-3.5 mr-2.5 shrink-0 mt-1" />
-                                  )}
-                                  {log.iconName === "check" && (
-                                    <Check className="inline w-3.5 h-3.5 mr-2.5 shrink-0 mt-1" />
-                                  )}
-                                  {log.iconName === "square" && (
-                                    <Square className="inline w-3.5 h-3.5 mr-2.5 shrink-0 mt-1" />
-                                  )}
-                                  {log.iconName === "crown" && (
-                                    <Crown className="inline w-3.5 h-3.5 mr-2.5 shrink-0 mt-1" />
-                                  )}
-                                  <span className="flex-1 font-medium">
-                                    {log.text}
-                                  </span>
-                                </div>
-                              </span>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    {validAccounts.length > 0 && (
-                      <div className="bg-[#0B0F14] border border-white/10 rounded-3xl p-6 sm:p-7 shadow-sm">
-                        <div className="flex items-center justify-between mb-6 pb-5 border-b border-white/5">
-                          <h3 className="font-bold text-lg text-white flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-100 flex items-center justify-center">
-                              <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                            </div>
-                            ผลลัพธ์ที่สำเร็จ
-                            <span className="bg-[#121820] text-zinc-400 px-3 py-1 rounded-full text-xs font-bold ml-2 border border-white/10">
-                              {validAccounts.length}
-                            </span>
-                          </h3>
-                        </div>
-                        <div className="space-y-4 max-h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-300 pr-3">
-                          {validAccounts.map((acc, idx) => (
-                            <div
-                              key={idx}
-                              className="bg-[#0a0d12] border border-white/10 rounded-2xl p-5 sm:p-6 flex flex-col gap-5 hover:border-emerald-500/30 transition-all hover:bg-[#0B0F14] relative overflow-hidden group hover:shadow-md hover:shadow-black/5"
-                            >
-                              {/* Header Section */}
-                              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 relative z-10">
-                                <div className="flex items-center gap-4">
-                                  <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center border border-emerald-100">
-                                    <Check className="w-6 h-6 text-emerald-500" />
-                                  </div>
-                                  <div>
-                                    <div className="flex flex-wrap items-center gap-1 mb-1">
-                                      <div className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest bg-[#0B0F14] px-2 py-0.5 rounded-md border border-white/5">
-                                        UID: {acc.uid} | {acc.region}
-                                      </div>
-                                      {acc.codmUid &&
-                                        acc.codmNickname !== "N/A" && (
-                                          <div className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest bg-[#0B0F14] px-2 py-0.5 rounded-md border border-white/5 flex gap-2">
-                                            <span>CODM UID: {acc.codmUid}</span>{" "}
-                                            {acc.codmOpenId && (
-                                              <span>
-                                                | OPENID: {acc.codmOpenId}
-                                              </span>
-                                            )}{" "}
-                                            {acc.codmRegionFlag && (
-                                              <span>
-                                                | {acc.codmRegionFlag}
-                                              </span>
-                                            )}
-                                          </div>
-                                        )}
+                      {/* Results */}
+                      {validAccounts.length > 0 && (
+                        <div className="flex flex-col gap-3 mt-2">
+                           <div className="flex justify-between items-center border-b border-zinc-900 pb-2">
+                             <span className="text-emerald-500 text-[11px] font-bold uppercase tracking-wider flex items-center gap-2"><Database className="w-3 h-3" /> valid_accounts.json</span>
+                             <span className="text-[10px] bg-emerald-500/10 text-emerald-500 px-2 py-0.5">{validAccounts.length}</span>
+                           </div>
+                           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[400px] overflow-y-auto scrollbar-thin pr-2">
+                              {validAccounts.map((acc, idx) => (
+                                 <div key={idx} className="border border-zinc-800 bg-[#000000] p-4 text-[11px] flex flex-col gap-2 relative group hover:border-emerald-500/50 transition-colors shadow-inner">
+                                    <div className="absolute top-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                       <button onClick={() => {
+                                          navigator.clipboard.writeText(`${acc.account}:${acc.password}`);
+                                       }} className="text-zinc-500 hover:text-emerald-500">[COPY]</button>
                                     </div>
-                                    <div className="text-white font-bold font-mono text-base sm:text-lg">
-                                      {acc.account}{" "}
-                                      {acc.codmNickname &&
-                                        acc.codmNickname !== "N/A" && (
-                                          <span className="text-blue-500 ml-2">
-                                            ({acc.codmNickname})
-                                          </span>
-                                        )}
+                                    <div className="font-bold text-emerald-500 text-sm">{acc.account} <span className="text-zinc-700">|</span> <span className="text-zinc-400">{acc.password}</span></div>
+                                    
+                                    <div className="grid grid-cols-2 gap-x-2 gap-y-1.5 text-zinc-600 mt-2 font-medium">
+                                       <div>UID: <span className="text-zinc-300">{acc.uid}</span></div>
+                                       <div>LV: <span className="text-zinc-300">{acc.level}</span></div>
+                                       <div>ST: <span className={acc.isClean ? "text-emerald-500" : "text-amber-500"}>{acc.isClean ? "CLEAN" : "BOUND"}</span></div>
+                                       <div>ROV: <span className="text-zinc-300">{acc.hasRov ? "YES" : "NO"}</span></div>
                                     </div>
-                                  </div>
-                                </div>
-                                <div className="flex flex-wrap items-center gap-2">
-                                  <button
-                                    onClick={() => {
-                                      navigator.clipboard.writeText(
-                                        `${acc.account}:${acc.password}`,
-                                      );
-                                      Swal.fire({
-                                        toast: true,
-                                        position: "top-end",
-                                        icon: "success",
-                                        title: "คัดลอกบัญชีแล้ว!",
-                                        showConfirmButton: false,
-                                        timer: 1500,
-                                        background: "#10b981",
-                                        color: "#fff",
-                                      });
-                                    }}
-                                    className="px-3 py-1.5 bg-emerald-500/10 hover:bg-emerald-100 text-emerald-600 border border-emerald-500/30 rounded-xl text-[11px] font-bold transition-all active:scale-95 flex items-center gap-2"
-                                  >
-                                    <Copy className="w-3 h-3" /> คัดลอก
-                                  </button>
-                                  <div className="px-3 py-1.5 bg-[#0B0F14] rounded-xl border border-white/10 text-[11px] text-zinc-700 font-mono font-bold shadow-sm">
-                                    PASS: {acc.password}
-                                  </div>
-                                  <div className="px-3 py-1.5 bg-blue-50 text-blue-600 border border-blue-100 rounded-xl text-[11px] font-black italic">
-                                    LV. {acc.level}
-                                  </div>
-                                  <div className="px-3 py-1.5 bg-amber-500/10 text-amber-600 border border-amber-100 rounded-xl text-[11px] font-black uppercase">
-                                    {acc.rank}
-                                  </div>
-                                </div>
-                              </div>
+                                    
+                                    {(acc.idCardBound || acc.phoneBound || acc.emailVerified || acc.fbLinked) && !acc.isClean && (
+                                       <div className="text-[9px] text-amber-500/80 mt-1 uppercase">
+                                          BND: {[
+                                             acc.emailVerified ? "MAIL" : null,
+                                             acc.phoneBound ? "PHONE" : null,
+                                             acc.fbLinked ? "FB" : null,
+                                             acc.idCardBound ? "ID" : null,
+                                          ].filter(Boolean).join(", ")}
+                                       </div>
+                                    )}
 
-                              {/* Details Grid */}
-                              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 border-t border-b border-white/10 py-4 relative z-10 bg-[#0B0F14]/50 px-2 rounded-xl">
-                                <div className="flex flex-col gap-1">
-                                  <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">
-                                    สถานะไอดี
-                                  </div>
-                                  {acc.isClean ? (
-                                    <span className="text-xs text-emerald-600 font-bold flex items-center gap-1.5">
-                                      <Shield className="w-3.5 h-3.5" /> CLEAN
-                                      (ปกติ)
-                                    </span>
-                                  ) : (
-                                    <span className="text-xs text-amber-600 font-bold flex items-center gap-1.5">
-                                      🔗 BOUND (
-                                      {[
-                                        acc.emailVerified ? "Email" : null,
-                                        acc.phoneBound ? "Phone" : null,
-                                        acc.fbLinked ? "Facebook" : null,
-                                        acc.idCardBound ? "ID Card" : null,
-                                      ]
-                                        .filter(Boolean)
-                                        .join(", ") || "Connected"}
-                                      )
-                                    </span>
-                                  )}
-                                </div>
-                                <div className="flex flex-col gap-1">
-                                  <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">
-                                    ID Card / Phone
-                                  </div>
-                                  <span
-                                    className={`text-xs font-bold flex items-center gap-1.5 ${acc.idCardBound || acc.phoneBound ? "text-amber-500" : "text-zinc-500"}`}
-                                  >
-                                    {acc.idCardBound
-                                      ? "ID CARD BOUND"
-                                      : acc.phoneBound
-                                        ? "PHONE BOUND"
-                                        : "NOT BOUND"}
-                                  </span>
-                                </div>
-                                <div className="flex flex-col gap-1">
-                                  <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">
-                                    Email Verified
-                                  </div>
-                                  <span
-                                    className={`text-xs font-bold flex items-center gap-1.5 ${acc.emailVerified ? "text-emerald-500" : "text-zinc-500"}`}
-                                  >
-                                    {acc.emailVerified
-                                      ? "ยืนยันแล้ว"
-                                      : "ยังไม่ยืนยัน"}
-                                  </span>
-                                </div>
-                                <div className="flex flex-col gap-1">
-                                  <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">
-                                    Facebook
-                                  </div>
-                                  <span
-                                    className={`text-xs font-bold flex items-center gap-1.5 ${acc.fbLinked ? "text-blue-500" : "text-zinc-500"}`}
-                                  >
-                                    {acc.fbLinked
-                                      ? "เชื่อมต่อแล้ว"
-                                      : "ไม่ได้เชื่อมต่อ"}
-                                  </span>
-                                </div>
-                              </div>
-
-                              {/* Footer Section */}
-                              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 relative z-10">
-                                <div className="flex flex-wrap items-center gap-2">
-                                  <div className="text-[10px] text-zinc-500 font-bold mr-1">
-                                    เกมอื่นๆ:
-                                  </div>
-                                  {acc.otherGames.length > 0 ? (
-                                    acc.otherGames.map((g, gi) => (
-                                      <span
-                                        key={gi}
-                                        className="px-2 py-0.5 bg-[#0B0F14] text-zinc-400 rounded-md text-[9px] border border-white/10 uppercase font-bold"
-                                      >
-                                        {g}
-                                      </span>
-                                    ))
-                                  ) : (
-                                    <span className="text-[9px] text-zinc-400 italic">
-                                      ไม่พบประวัติเกมอื่น
-                                    </span>
-                                  )}
-                                  {acc.hasRov && (
-                                    <span className="px-2 py-0.5 bg-amber-500/10 text-amber-600 border border-amber-100 rounded-md text-[9px] font-bold uppercase flex items-center gap-1">
-                                      <Gamepad2 className="w-2.5 h-2.5" /> ROV
-                                      ACTIVE
-                                      {acc.rovCharacter &&
-                                        acc.rovCharacter !== "N/A" &&
-                                        ` - ${acc.rovCharacter}`}
-                                    </span>
-                                  )}
-                                </div>
-                                <div className="text-[10px] text-zinc-400 font-mono bg-[#0B0F14] border border-white/10 px-2 py-1 rounded-md">
-                                  Checked: {acc.cleanAt}
-                                </div>
-                              </div>
-                            </div>
-                          ))}
+                                    {acc.otherGames.length > 0 && (
+                                       <div className="mt-1.5 pt-1.5 border-t border-zinc-900 text-zinc-500 text-[10px]">G: {acc.otherGames.join(", ")}</div>
+                                    )}
+                                 </div>
+                              ))}
+                           </div>
                         </div>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
                 </div>
-              </>
-            )}
-          </Suspense>
+              </div>
+            )}          </Suspense>
         </div>
 
         {/* Footer */}

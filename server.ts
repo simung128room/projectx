@@ -1430,17 +1430,17 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
       let errorMsg = 'Network Error: ' + (errMsg || 'Unknown Error');
       
       if (err?.code === 'ECONNABORTED' || errMsg.includes('timeout') || err?.code === 'ETIMEDOUT') {
-        errorMsg = 'การเชื่อมต่อหมดเวลา (Timeout). อาจเกิดจาก Proxy ช้าหรือใช้งานไม่ได้ (ภายใน 30 วินาที)';
+        errorMsg = 'Timeout (Proxy ช้าหรือใช้งานไม่ได้)';
       } else if (err?.name === 'AbortError' || err?.code === 'ERR_CANCELED' || err?.name === 'CanceledError' || errMsg === 'canceled') {
-        errorMsg = 'การเชื่อมต่อถูกยกเลิก (ใช้เวลาเกิน 90 วินาที). Proxy ช้าเกินไป หรือค้าง';
+        errorMsg = 'ยกเลิกการเชื่อมต่ออัตโนมัติ (Proxy ช้าเกินไป)';
       } else if (err?.code === 'ECONNRESET') {
-        errorMsg = 'การเชื่อมต่อถูกตัด (ECONNRESET). โปรดเปลี่ยน Proxy หรือลองใหม่อีกครั้ง';
+        errorMsg = 'การเชื่อมต่อถูกตัด (ECONNRESET)';
       } else if (errMsg.includes('disconnected') || errMsg.includes('TLS')) {
-        errorMsg = 'ไม่สามารถสร้างการเชื่อมต่อที่ปลอดภัย (TLS Error). Proxy นี้อาจไม่รองรับ HTTPS หรือถูกบล็อก';
+        errorMsg = 'เชื่อมต่อไม่ปลอดภัย (TLS Error/Blocked)';
       } else if (err?.code === 'ECONNREFUSED' || errMsg.includes('ECONNREFUSED')) {
-        errorMsg = 'เชื่อมต่อล้มเหลว (ECONNREFUSED). เซิร์ฟเวอร์ Proxy ออฟไลน์หรือไม่สามารถติดต่อได้';
+        errorMsg = 'เซิร์ฟเวอร์ Proxy ออฟไลน์';
       } else if (errMsg.includes('CONNECT response')) {
-        errorMsg = 'การเชื่อมต่อถูกตัดตอนเชื่อมต่อกับ Proxy (Proxy connection ended). กรุณาลองทดสอบอีกครั้ง หรือเปลี่ยน Proxy';
+        errorMsg = 'Proxy หมดอายุหรือถูกแบน';
       }
       
       return res.json({ success: false, error: errorMsg, isProxyError: true });
