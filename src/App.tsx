@@ -312,6 +312,8 @@ function AppContent() {
 
   const [isMusicExpanded, setIsMusicExpanded] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const ytIframeRef = useRef<HTMLIFrameElement>(null);
+  const [ytPlaying, setYtPlaying] = useState(false);
 
   const formatSpotifyEmbedUrl = (url: string, autoplay: boolean) => {
     if (!url) return '';
@@ -335,9 +337,9 @@ function AppContent() {
 
       if (videoId) {
         // Use youtube-nocookie for better privacy and reliability
-        let yUrl = `https://www.youtube-nocookie.com/embed/${videoId}?rel=0&showinfo=0&controls=0`;
+        let yUrl = `https://www.youtube-nocookie.com/embed/${videoId}?rel=0&showinfo=0&controls=0&enablejsapi=1&loop=1&playlist=${videoId}`;
         if (autoplay) {
-          yUrl += '&autoplay=1&mute=0';
+          yUrl += '&autoplay=1&mute=1';
         }
         return yUrl;
       }
@@ -376,6 +378,31 @@ function AppContent() {
       window.addEventListener('click', playAudio);
     }
   }, [siteSettings.spotify_autoplay, siteSettings.spotify_url]);
+
+  useEffect(() => {
+    if (siteSettings.spotify_url && (siteSettings.spotify_url.includes('youtube.com') || siteSettings.spotify_url.includes('youtu.be'))) {
+      const handleFirstInteraction = () => {
+        if (ytIframeRef.current && ytIframeRef.current.contentWindow) {
+          ytIframeRef.current.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'unMute', args: [] }), '*');
+          if (siteSettings.spotify_autoplay) {
+            ytIframeRef.current.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'playVideo', args: [] }), '*');
+            setYtPlaying(true);
+          }
+        }
+        window.removeEventListener('click', handleFirstInteraction);
+        window.removeEventListener('keydown', handleFirstInteraction);
+        window.removeEventListener('scroll', handleFirstInteraction);
+      };
+      window.addEventListener('click', handleFirstInteraction);
+      window.addEventListener('keydown', handleFirstInteraction);
+      window.addEventListener('scroll', handleFirstInteraction);
+      return () => {
+        window.removeEventListener('click', handleFirstInteraction);
+        window.removeEventListener('keydown', handleFirstInteraction);
+        window.removeEventListener('scroll', handleFirstInteraction);
+      };
+    }
+  }, [siteSettings.spotify_url, siteSettings.spotify_autoplay]);
 
   // Home Store State (Moved up to prevent TDZ)
   const defaultProducts: Product[] = [];
@@ -3313,47 +3340,78 @@ function AppContent() {
 
         {/* Global Audio Provider */}
         {siteSettings.spotify_url && (
-          <div className="fixed bottom-6 right-6 z-[999] flex flex-col items-end gap-3">
+          <div className="fixed bottom-6 right-6 z-[990] flex flex-col items-end gap-3 pointer-events-none">
              <button 
-               onClick={() => setIsMusicExpanded(!isMusicExpanded)}
-               className={`w-12 h-12 rounded-2xl bg-[#0b0e14]/90 backdrop-blur-xl border border-white/10 flex items-center justify-center text-[#1E90FF] shadow-2xl transition-all duration-300 hover:scale-110 active:scale-95 ${isMusicExpanded ? 'rotate-90' : ''}`}
+               onClick={() => {
+                 if (siteSettings.spotify_url.includes('youtube.com') || siteSettings.spotify_url.includes('youtu.be')) {
+                   if (ytIframeRef.current && ytIframeRef.current.contentWindow) {
+                     if (ytPlaying) {
+                       ytIframeRef.current.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'pauseVideo', args: [] }), '*');
+                       setYtPlaying(false);
+                     } else {
+                       ytIframeRef.current.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'unMute', args: [] }), '*');
+                       ytIframeRef.current.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'playVideo', args: [] }), '*');
+                       setYtPlaying(true);
+                     }
+                   }
+                 } else {
+                   setIsMusicExpanded(!isMusicExpanded);
+                 }
+               }}
+               className={`w-12 h-12 rounded-2xl bg-[#0b0e14]/90 backdrop-blur-xl border border-white/10 flex items-center justify-center text-[#1E90FF] shadow-2xl transition-all duration-300 pointer-events-auto hover:scale-110 active:scale-95 ${isMusicExpanded || ytPlaying ? 'rotate-90' : ''}`}
                title="เปิด/ปิด แถบเพลง"
              >
-                <Music className="w-5 h-5" />
+                <Music className={`w-5 h-5 ${ytPlaying || siteSettings.spotify_autoplay || siteSettings.spotify_url.match(/\.(mp3|wav|ogg|m4a)$/) || siteSettings.spotify_url.includes('drive.google.com/uc') || siteSettings.spotify_url.startsWith('data:audio') ? 'animate-pulse' : ''}`} />
              </button>
 
-             <div className={`transition-all duration-500 transform origin-bottom-right ${isMusicExpanded || siteSettings.spotify_autoplay ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-10 opacity-0 scale-50 pointer-events-none'}`}>
-                <div className={`bg-[#0b0e14]/90 backdrop-blur-xl border border-white/10 p-1 rounded-2xl shadow-2xl overflow-hidden ${siteSettings.spotify_url.match(/\.(mp3|wav|ogg|m4a)$/) || siteSettings.spotify_url.includes('drive.google.com/uc') || siteSettings.spotify_url.startsWith('data:audio') ? 'w-auto h-auto' : 'w-[300px] h-[80px]'}`}>
-                    {siteSettings.spotify_url.match(/\.(mp3|wav|ogg|m4a)$/) || siteSettings.spotify_url.includes('drive.google.com/uc') || siteSettings.spotify_url.startsWith('data:audio') ? (
-                      <div className="p-3 flex items-center gap-4 min-w-[280px]">
-                         <div className="w-10 h-10 rounded-xl bg-[#1E90FF]/10 flex items-center justify-center">
-                            <Music className="w-5 h-5 text-[#1E90FF] animate-pulse" />
-                         </div>
-                         <div className="flex-1">
-                            <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Playing Background Music</p>
-                            <audio 
-                              ref={audioRef}
-                              src={formatSpotifyEmbedUrl(siteSettings.spotify_url, false)} 
-                              controls 
-                              autoPlay={siteSettings.spotify_autoplay}
-                              loop
-                              className="h-8 w-full mt-1 accent-[#1E90FF]"
-                            />
-                         </div>
-                      </div>
-                    ) : (
-                      <iframe 
-                        src={formatSpotifyEmbedUrl(siteSettings.spotify_url, siteSettings.spotify_autoplay || false)} 
-                        width="100%" 
-                        height="100%" 
-                        frameBorder="0" 
-                        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
-                        loading="lazy"
-                        className="rounded-xl"
-                      ></iframe>
-                    )}
-                </div>
-             </div>
+             {!(siteSettings.spotify_url.includes('youtube.com') || siteSettings.spotify_url.includes('youtu.be')) && (
+               <div className={`transition-all duration-500 transform origin-bottom-right pointer-events-auto ${isMusicExpanded || siteSettings.spotify_autoplay ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-10 opacity-0 scale-50 pointer-events-none'}`}>
+                  <div className={`bg-[#0b0e14]/90 backdrop-blur-xl border border-white/10 p-1 rounded-2xl shadow-2xl overflow-hidden ${siteSettings.spotify_url.match(/\.(mp3|wav|ogg|m4a)$/) || siteSettings.spotify_url.includes('drive.google.com/uc') || siteSettings.spotify_url.startsWith('data:audio') ? 'w-auto h-auto' : 'w-[300px] h-[80px]'}`}>
+                      {siteSettings.spotify_url.match(/\.(mp3|wav|ogg|m4a)$/) || siteSettings.spotify_url.includes('drive.google.com/uc') || siteSettings.spotify_url.startsWith('data:audio') ? (
+                        <div className="p-3 flex items-center gap-4 min-w-[280px]">
+                           <div className="w-10 h-10 rounded-xl bg-[#1E90FF]/10 flex items-center justify-center">
+                              <Music className="w-5 h-5 text-[#1E90FF] animate-pulse" />
+                           </div>
+                           <div className="flex-1">
+                              <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Playing Background Music</p>
+                              <audio 
+                                ref={audioRef}
+                                src={formatSpotifyEmbedUrl(siteSettings.spotify_url, false)} 
+                                controls 
+                                autoPlay={siteSettings.spotify_autoplay}
+                                loop
+                                className="h-8 w-full mt-1 accent-[#1E90FF]"
+                              />
+                           </div>
+                        </div>
+                      ) : (
+                        <iframe 
+                          src={formatSpotifyEmbedUrl(siteSettings.spotify_url, siteSettings.spotify_autoplay || false)} 
+                          width="100%" 
+                          height="100%" 
+                          frameBorder="0" 
+                          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+                          loading="lazy"
+                          className="rounded-xl"
+                        ></iframe>
+                      )}
+                  </div>
+               </div>
+             )}
+          </div>
+        )}
+
+        {/* YouTube Background Invisible Audio Player */}
+        {siteSettings.spotify_url && (siteSettings.spotify_url.includes('youtube.com') || siteSettings.spotify_url.includes('youtu.be')) && (
+          <div className="fixed bottom-0 left-0 w-0 h-0 opacity-0 pointer-events-none overflow-hidden z-[-9999]">
+             <iframe 
+               ref={ytIframeRef}
+               src={formatSpotifyEmbedUrl(siteSettings.spotify_url, siteSettings.spotify_autoplay || false)}
+               width="1"
+               height="1"
+               frameBorder="0"
+               allow="autoplay; encrypted-media"
+             ></iframe>
           </div>
         )}
       </div>
