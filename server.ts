@@ -253,8 +253,8 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
     popup_enabled: true,
     popup_link: '',
     banners: ["https://img2.pic.in.th/-71_20260516210303.png"],
-    spotify_url: '',
-    spotify_autoplay: false,
+    spotify_url: 'https://youtu.be/WczSfh3gJaU?si=PI1i4X0p0FGbdEfq',
+    spotify_autoplay: true,
     proxies: ['http://e7221fa7-20b7-43a7-9f76-c69fbc35cdef@lv3.gen5.netmld.shop:8080'],
     auto_proxy: true
   };

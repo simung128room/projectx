@@ -306,8 +306,8 @@ function AppContent() {
     popup_link: "",
     stats_users_offset: 1278,
     stats_sales_offset: 0,
-    spotify_url: "",
-    spotify_autoplay: false
+    spotify_url: "https://youtu.be/WczSfh3gJaU?si=PI1i4X0p0FGbdEfq",
+    spotify_autoplay: true
   });
 
   const [isMusicExpanded, setIsMusicExpanded] = useState(false);
@@ -337,7 +337,7 @@ function AppContent() {
 
       if (videoId) {
         // Use youtube-nocookie for better privacy and reliability
-        let yUrl = `https://www.youtube-nocookie.com/embed/${videoId}?rel=0&showinfo=0&controls=0&enablejsapi=1&loop=1&playlist=${videoId}`;
+        let yUrl = `https://www.youtube-nocookie.com/embed/${videoId}?rel=0&showinfo=0&controls=0&enablejsapi=1&loop=1&playlist=${videoId}&origin=${encodeURIComponent(window.location.origin)}&playsinline=1`;
         if (autoplay) {
           yUrl += '&autoplay=1&mute=1';
         }
@@ -455,7 +455,7 @@ function AppContent() {
     | "log_categories"
     | "vip_logs"
     | "free_logs";
-  const [activeView, setRawActiveView] = useState<ViewType>("dashboard");
+  const [activeView, setRawActiveView] = useState<ViewType>("home");
   const [selectedProductId, setSelectedProductId] = useState<string | null>(
     null,
   );
@@ -482,7 +482,7 @@ function AppContent() {
   useEffect(() => {
     const handlePopState = () => {
       let path = window.location.pathname.replace("/", "");
-      if (path === "") path = "dashboard";
+      if (path === "") path = "home";
 
       // Routing aliases
       if (path === "register") path = "signup";
@@ -1931,12 +1931,6 @@ function AppContent() {
           <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-3 pl-3 mt-4">
             เมนูหลัก
           </div>
-            <button
-            onClick={() => setActiveView("dashboard")}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === "dashboard" ? "bg-[#1E90FF] text-white shadow-md shadow-[#1E90FF]/20" : "text-zinc-500 hover:bg-[#0a0d12] hover:text-white"}`}
-          >
-            <Terminal className="w-5 h-5" /> แดชบอร์ดตรวจสอบไอดี
-          </button>
           <button
             onClick={() => setActiveView("home")}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === "home" ? "bg-[#1E90FF] text-white shadow-md shadow-[#1E90FF]/20" : "text-zinc-500 hover:bg-[#0a0d12] hover:text-white"}`}
@@ -2219,16 +2213,6 @@ function AppContent() {
 
                 <div className="flex flex-col flex-1 overflow-y-auto no-scrollbar py-2">
                   <div className="flex flex-col border-b border-white/5 pb-2 mb-2">
-                    <button
-                      onClick={() => {
-                        setActiveView("dashboard");
-                        setIsMobileMenuOpen(false);
-                      }}
-                      className={`w-full flex items-center gap-3 px-6 py-3.5 relative transition-colors ${activeView === "dashboard" ? "bg-[#0d1a2e] text-[#1E90FF] before:absolute before:left-0 before:top-0 before:bottom-0 before:w-[3px] before:bg-[#1E90FF] before:rounded-r-sm" : "text-zinc-400 hover:bg-[#1e2129] hover:text-white"}`}
-                    >
-                      <Terminal className="w-5 h-5 shrink-0" />{" "}
-                      <span className="font-semibold text-[15px]">แดชบอร์ดตรวจสอบไอดี</span>
-                    </button>
                     <button
                       onClick={() => {
                         setActiveView("home");
@@ -2726,187 +2710,6 @@ function AppContent() {
                 usersList={usersList}
                 onRefreshData={fetchAllData}
               />
-            )}
-
-            {activeView === "dashboard" && (
-              <div className="max-w-6xl mx-auto w-full font-mono text-zinc-300">
-                {/* Termux Header */}
-                <div className="border border-zinc-800 bg-[#050505] p-2 flex items-center justify-between shadow-2xl relative mb-1">
-                  <div className="flex items-center gap-3">
-                    <Terminal className="w-4 h-4 text-emerald-500" />
-                    <span className="text-zinc-400 font-bold text-xs uppercase tracking-widest">root@apex-studio:~</span>
-                  </div>
-                  <div className="flex gap-2">
-                    <div className="w-2.5 h-2.5 rounded-full bg-zinc-700"></div>
-                    <div className="w-2.5 h-2.5 rounded-full bg-zinc-700"></div>
-                    <div className="w-2.5 h-2.5 rounded-full bg-zinc-700"></div>
-                  </div>
-                  <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-emerald-500/20 to-transparent"></div>
-                </div>
-
-                <div className="border border-zinc-800 bg-[#050505] p-5 shadow-2xl relative overflow-hidden">
-                  <div className="absolute top-0 right-0 p-8 opacity-[0.02] pointer-events-none">
-                    <Terminal className="w-96 h-96 text-white" />
-                  </div>
-                  
-                  <div className="text-emerald-500 mb-6 text-sm relative z-10">
-                    <p>$ ./apex-checker --mode secured</p>
-                    <p className="text-zinc-400">Loading modules... <span className="text-emerald-500">OK.</span></p>
-                    <p className="text-zinc-500 text-xs">Waiting for payload...</p>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-12 gap-6 relative z-10">
-                    {/* Left: Combo & Control */}
-                    <div className="md:col-span-4 flex flex-col gap-4">
-                      <div className="flex items-center justify-between border-b border-zinc-900 pb-2">
-                        <span className="text-emerald-500 text-xs font-bold shrink-0">{'>'} INPUT_DATA</span>
-                        <div className="flex gap-3 text-[10px] font-bold">
-                          <button 
-                            onClick={async () => {
-                              const { value: url } = await Swal.fire({
-                                title: "ดึงข้อมูลจาก URL",
-                                input: "url",
-                                background: "#050505",
-                                color: "#10b981",
-                                confirmButtonColor: "#10b981",
-                              });
-                              if (url) {
-                                try {
-                                  const res = await axios.get(url);
-                                  if (res.data) setCombo(res.data);
-                                } catch(e) {}
-                              }
-                            }}
-                            className="text-zinc-600 hover:text-emerald-500 transition-colors"
-                          >[URL]</button>
-                          <label className="cursor-pointer text-zinc-600 hover:text-emerald-500 transition-colors">
-                            [FILE]
-                            <input type="file" accept=".txt" className="hidden" onChange={handleFileUpload} ref={fileInputRef} />
-                          </label>
-                        </div>
-                      </div>
-
-                      <ComboTextarea
-                        initialValue={combo}
-                        onChangeDebounced={(val) => setCombo(val)}
-                        disabled={false}
-                      />
-                      
-                      <div className="grid grid-cols-2 gap-2 mt-2 font-bold text-xs">
-                        <button 
-                          onClick={startCheck} 
-                          disabled={running} 
-                          className="bg-zinc-900/50 border border-emerald-500/30 text-emerald-500 hover:bg-emerald-500/10 hover:border-emerald-500 py-3 transition-all disabled:opacity-30 disabled:border-zinc-800 disabled:text-zinc-600 disabled:hover:bg-transparent"
-                        >
-                          [ EXECUTE ]
-                        </button>
-                        <button 
-                          onClick={stopCheck} 
-                          disabled={!running} 
-                          className="bg-zinc-900/50 border border-red-500/30 text-red-500 hover:bg-red-500/10 hover:border-red-500 py-3 transition-all disabled:opacity-30 disabled:border-zinc-800 disabled:text-zinc-600 disabled:hover:bg-transparent"
-                        >
-                          [ ABORT ]
-                        </button>
-                      </div>
-
-                      <div className="mt-4 pt-4 border-t border-zinc-900 flex flex-col gap-3 text-xs">
-                        <span className="text-zinc-600 font-bold mb-1">{'>'} EXPORT_DATA</span>
-                        <div className="grid grid-cols-2 gap-2">
-                          <button onClick={exportClean} className="border border-zinc-800 bg-zinc-950 text-emerald-600 hover:bg-zinc-900 hover:border-emerald-500/30 transition-all py-2 rounded-sm outline-none">CLN.txt</button>
-                          <button onClick={exportBound} className="border border-zinc-800 bg-zinc-950 text-amber-600 hover:bg-zinc-900 hover:border-amber-500/30 transition-all py-2 rounded-sm outline-none">BND.txt</button>
-                          <button onClick={exportRov} className="border border-zinc-800 bg-zinc-950 text-cyan-600 hover:bg-zinc-900 hover:border-cyan-500/30 transition-all py-2 rounded-sm outline-none">ROV.txt</button>
-                          <button onClick={exportAllValid} className="border border-zinc-800 bg-zinc-950 text-[#1E90FF] hover:bg-zinc-900 hover:border-[#1E90FF]/30 transition-all py-2 rounded-sm outline-none">ALL.txt</button>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Right: Terminal Logs & Stats */}
-                    <div className="md:col-span-8 flex flex-col gap-4">
-                      <div className="flex border border-zinc-800 bg-[#000000] p-4 flex-col h-[460px] shadow-inner relative">
-                        <div className="flex flex-wrap items-center justify-between border-b border-zinc-900 pb-3 mb-3 text-[11px] uppercase tracking-wider font-bold">
-                           <span className="text-emerald-500 flex items-center gap-2"><Terminal className="w-3 h-3"/> realtime.log</span>
-                           <div className="flex gap-4 items-center text-zinc-500">
-                             <span className="text-emerald-500/80">VL:{validAccounts.length}</span>
-                             <span className="text-red-500/80">INV:{invalidCount}</span>
-                             <span className="text-cyan-500/80">CL:{validAccounts.filter(a => a.isClean).length}</span>
-                             <ElapsedTimeDisplay running={running} startTime={startTime} />
-                             <button onClick={clearLog} className="text-zinc-600 hover:text-red-500 transition-colors ml-2">[X]</button>
-                           </div>
-                        </div>
-                        
-                        <div ref={logDivRef} className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-800 text-[11px] leading-relaxed space-y-1.5 pr-3 isolate">
-                          {logs.length === 0 && <div className="text-zinc-600 flex items-center gap-2 mt-2"><Terminal className="w-3 h-3"/> Waiting for instructions...</div>}
-                          {logs.map(log => {
-                             let lightModeColor = "text-zinc-500";
-                             if (log.colorClass.includes("emerald") || log.colorClass.includes("green")) lightModeColor = "text-emerald-500";
-                             else if (log.colorClass.includes("red") || log.colorClass.includes("x")) lightModeColor = "text-red-500";
-                             else if (log.colorClass.includes("cyan") || log.colorClass.includes("amber")) lightModeColor = "text-amber-500";
-                             else if (log.colorClass.includes("blue") || log.colorClass.includes("1a7fe6")) lightModeColor = "text-red-500"; // making fails red instead of blue
-
-                             return (
-                               <div key={log.id} className={`${lightModeColor} flex items-start gap-3 break-all font-medium`}>
-                                 <span className="shrink-0 text-zinc-700">[{log.time}]</span>
-                                 <span className="flex-1">
-                                   {log.iconName === "shield" && <Shield className="inline w-3 h-3 mr-1.5 shrink-0 -mt-0.5" />}
-                                   {log.iconName === "terminal" && <Terminal className="inline w-3 h-3 mr-1.5 shrink-0 -mt-0.5" />}
-                                   {log.iconName === "check-circle" && <CheckCircle2 className="inline w-3 h-3 mr-1.5 shrink-0 -mt-0.5" />}
-                                   {log.iconName === "x" && <X className="inline w-3 h-3 mr-1.5 shrink-0 -mt-0.5" />}
-                                   {log.iconName === "check" && <Check className="inline w-3 h-3 mr-1.5 shrink-0 -mt-0.5" />}
-                                   {log.text}
-                                 </span>
-                               </div>
-                             )
-                          })}
-                        </div>
-                      </div>
-
-                      {/* Results */}
-                      {validAccounts.length > 0 && (
-                        <div className="flex flex-col gap-3 mt-2">
-                           <div className="flex justify-between items-center border-b border-zinc-900 pb-2">
-                             <span className="text-emerald-500 text-[11px] font-bold uppercase tracking-wider flex items-center gap-2"><Database className="w-3 h-3" /> valid_accounts.json</span>
-                             <span className="text-[10px] bg-emerald-500/10 text-emerald-500 px-2 py-0.5">{validAccounts.length}</span>
-                           </div>
-                           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[400px] overflow-y-auto scrollbar-thin pr-2">
-                              {validAccounts.map((acc, idx) => (
-                                 <div key={idx} className="border border-zinc-800 bg-[#000000] p-4 text-[11px] flex flex-col gap-2 relative group hover:border-emerald-500/50 transition-colors shadow-inner">
-                                    <div className="absolute top-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                       <button onClick={() => {
-                                          navigator.clipboard.writeText(`${acc.account}:${acc.password}`);
-                                       }} className="text-zinc-500 hover:text-emerald-500">[COPY]</button>
-                                    </div>
-                                    <div className="font-bold text-emerald-500 text-sm">{acc.account} <span className="text-zinc-700">|</span> <span className="text-zinc-400">{acc.password}</span></div>
-                                    
-                                    <div className="grid grid-cols-2 gap-x-2 gap-y-1.5 text-zinc-600 mt-2 font-medium">
-                                       <div>UID: <span className="text-zinc-300">{acc.uid}</span></div>
-                                       <div>LV: <span className="text-zinc-300">{acc.level}</span></div>
-                                       <div>ST: <span className={acc.isClean ? "text-emerald-500" : "text-amber-500"}>{acc.isClean ? "CLEAN" : "BOUND"}</span></div>
-                                       <div>ROV: <span className="text-zinc-300">{acc.hasRov ? "YES" : "NO"}</span></div>
-                                    </div>
-                                    
-                                    {(acc.idCardBound || acc.phoneBound || acc.emailVerified || acc.fbLinked) && !acc.isClean && (
-                                       <div className="text-[9px] text-amber-500/80 mt-1 uppercase">
-                                          BND: {[
-                                             acc.emailVerified ? "MAIL" : null,
-                                             acc.phoneBound ? "PHONE" : null,
-                                             acc.fbLinked ? "FB" : null,
-                                             acc.idCardBound ? "ID" : null,
-                                          ].filter(Boolean).join(", ")}
-                                       </div>
-                                    )}
-
-                                    {acc.otherGames.length > 0 && (
-                                       <div className="mt-1.5 pt-1.5 border-t border-zinc-900 text-zinc-500 text-[10px]">G: {acc.otherGames.join(", ")}</div>
-                                    )}
-                                 </div>
-                              ))}
-                           </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
             )}          </Suspense>
         </div>
 
@@ -3403,12 +3206,12 @@ function AppContent() {
 
         {/* YouTube Background Invisible Audio Player */}
         {siteSettings.spotify_url && (siteSettings.spotify_url.includes('youtube.com') || siteSettings.spotify_url.includes('youtu.be')) && (
-          <div className="fixed bottom-0 left-0 w-0 h-0 opacity-0 pointer-events-none overflow-hidden z-[-9999]">
+          <div className="fixed top-0 left-0 w-[400px] h-[300px] pointer-events-none z-[-9999]" style={{ opacity: 0.001 }}>
              <iframe 
                ref={ytIframeRef}
                src={formatSpotifyEmbedUrl(siteSettings.spotify_url, siteSettings.spotify_autoplay || false)}
-               width="1"
-               height="1"
+               width="100%"
+               height="100%"
                frameBorder="0"
                allow="autoplay; encrypted-media"
              ></iframe>
