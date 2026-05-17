@@ -428,7 +428,7 @@ function AppContent() {
     | "log_categories"
     | "vip_logs"
     | "free_logs";
-  const [activeView, setRawActiveView] = useState<ViewType>("home");
+  const [activeView, setRawActiveView] = useState<ViewType>("dashboard");
   const [selectedProductId, setSelectedProductId] = useState<string | null>(
     null,
   );
@@ -455,7 +455,7 @@ function AppContent() {
   useEffect(() => {
     const handlePopState = () => {
       let path = window.location.pathname.replace("/", "");
-      if (path === "") path = "home";
+      if (path === "") path = "dashboard";
 
       // Routing aliases
       if (path === "register") path = "signup";
@@ -1383,23 +1383,14 @@ function AppContent() {
     pass: string,
     index: number,
     cToken?: string | null,
+    pool?: string[],
+    originalLine?: string
   ) => {
     let retries = 2; // Up to 2 retries for proxy errors
     while (retries >= 0 && runningRef.current) {
       try {
         if (retries < 2) {
-          addLog(
-            `[${index + 1}] ลองตรวจสอบใหม่ (${acc})... (${2 - retries}/2)`,
-            "shield",
-            "text-amber-500",
-          );
-        } else {
-          setTotalChecked((prev) => prev + 1);
-          addLog(
-            `[${index + 1}] กำลังทำ DataDome Bypass...`,
-            "shield",
-            "text-amber-400",
-          );
+          // addLog omitted for cleaner UI
         }
 
         const response = await axios.post(`/api/check`, {
@@ -1411,9 +1402,9 @@ function AppContent() {
 
         if (result.success) {
           addLog(
-            `[${index + 1}] SSO Authenticated! กำลังดึงข้อมูลเกม...`,
+            `[${index + 1}] Auth [OK] -> ${acc}`,
             "key",
-            "text-cyan-400",
+            "text-emerald-400 font-bold",
           );
           const newResult: AccountResult = {
             ...result.data,
@@ -1423,9 +1414,9 @@ function AppContent() {
 
           setValidAccounts((prev) => [newResult, ...prev]);
           addLog(
-            `[${index + 1}] สำเร็จ: ${acc} [UID: ${newResult.uid}]`,
-            "check-circle",
-            "text-green-400 font-bold",
+            `[${index + 1}] HIT: ${acc}`,
+            "check",
+            "text-emerald-500 font-bold",
           );
           return;
         } else {
@@ -1438,9 +1429,15 @@ function AppContent() {
             }
           }
           
-          if (result.isProxyError && retries > 0) {
-            retries--;
-            continue;
+          if (result.isProxyError || (typeof errorMsg === 'string' && errorMsg.includes('Proxy'))) {
+            if (pool && originalLine) {
+               pool.push(originalLine); // Put back to queue to retry later
+               return;
+            }
+            if (retries > 0) {
+              retries--;
+              continue;
+            }
           }
 
           const isRateLimit =
@@ -1451,22 +1448,21 @@ function AppContent() {
 
           if (!isRateLimit) {
             if (result.isProxyError) {
-              addLog(
-                `[${index + 1}] ข้ามบัญชี: ${acc} (${errorMsg})`,
-                "alert-triangle",
-                "text-amber-500 font-bold",
-              );
+              if (pool && originalLine) {
+                 pool.push(originalLine);
+                 return;
+              }
             } else {
               setInvalidCount((prev) => prev + 1);
               addLog(
-                `[${index + 1}] ไม่ผ่าน: ${acc} (${errorMsg})`,
+                `[${index + 1}] FAIL: ${acc} - ${errorMsg}`,
                 "x",
-                "text-[#1E90FF]",
+                "text-red-500",
               );
             }
           } else {
             addLog(
-              `[${index + 1}] แนะนำให้หยุดพัก: ${acc} (ถูกจำกัด IP ชั่วคราว / Rate Limit)`,
+              `[${index + 1}] WARN: Rate Limit / IP Blocked. Pausing...`,
               "alert-triangle",
               "text-amber-400",
             );
@@ -1485,25 +1481,31 @@ function AppContent() {
           }
         }
         
-        const isProxy = err.response?.data?.isProxyError || (typeof errMsg === 'string' && errMsg.includes('Proxy'));
-        if (isProxy && retries > 0) {
-          retries--;
-          continue;
+        const isProxy = err.response?.data?.isProxyError || (typeof errMsg === 'string' && errMsg.includes('Proxy')) || errMsg.includes('timeout') || err.code === 'ECONNABORTED';
+        
+        if (isProxy) {
+          if (pool && originalLine) {
+             pool.push(originalLine); // Requeue!
+             return;
+          }
+          if (retries > 0) {
+            retries--;
+            continue;
+          }
         }
 
         if (isProxy) {
-          addLog(
-            `[${index + 1}] ข้ามบัญชี: ${acc} (Proxy ล้มเหลว)`,
-            "alert-triangle",
-            "text-amber-500 font-bold",
-          );
+          if (pool && originalLine) {
+             pool.push(originalLine); // Requeue!
+             return;
+          }
         } else {
           setInvalidCount((prev) => prev + 1);
           console.error(`Check failed for ${acc}:`, err);
           addLog(
-            `[${index + 1}] ระบบขัดข้อง: ${acc} (${errMsg})`,
+            `[${index + 1}] ERR: ${acc} - ${errMsg}`,
             "x",
-            "text-[#1a7fe6] font-bold",
+            "text-red-500 font-bold",
           );
         }
         return;
@@ -1533,43 +1535,7 @@ function AppContent() {
       return;
     }
 
-    if (!user) {
-      Swal.fire({
-        title: "ต้องเข้าสู่ระบบ",
-        text: "กรุณาเข้าสู่ระบบก่อนเริ่มการทำงาน",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonText: "เข้าสู่ระบบ",
-      }).then((res) => {
-        if (res.isConfirmed) setActiveView("login");
-      });
-      return;
-    }
-
-    const MAX_DAILY = 100;
-    const isPremium = userPlan?.isPremium;
     let linesToCheck = lines;
-
-    if (!isPremium) {
-      const remaining = MAX_DAILY - dailyUsage;
-      if (remaining <= 0) {
-        Swal.fire({
-          title: "โควต้าเต็ม",
-          text: "คุณใช้งานครบ 100 บรรทัดสำหรับวันนี้แล้ว โปรดอัปเกรด VIP สำหรับการตรวจแบบไม่มีจำกัด",
-          icon: "error",
-        });
-        return;
-      }
-      if (lines.length > remaining) {
-        linesToCheck = lines.slice(0, remaining);
-        Swal.fire({
-          title: "จำกัดจำนวน (ผู้ใช้ปกติ)",
-          text: `คุณตรวจสอบได้อีก ${remaining} บรรทัดในวันนี้ ระบบจะทำการตรวจสอบเพียง ${remaining} บรรทัดแรกตามโควต้า`,
-          icon: "warning",
-        });
-      }
-    }
-
     setSavedLinesToCheck(linesToCheck);
 
     // Always show Turnstile modal to fetch a real token, even for premium (Turnstile is invisible for good users)
@@ -1618,7 +1584,7 @@ function AppContent() {
 
         if (acc && pass) {
           active++;
-          await checkSingle(acc.trim(), pass.trim(), index, token);
+          await checkSingle(acc.trim(), pass.trim(), index, token, pool, line);
           if (!userPlan?.isPremium) {
             setDailyUsage((prev) => prev + 1);
           }
@@ -1934,42 +1900,21 @@ function AppContent() {
           </motion.div>
         </div>
         <div className="flex-1 space-y-1">
-          {!user && (
-            <div className="mb-6 flex flex-col font-sans px-2">
-              {/* Main Button: Login */}
-              <button
-                onClick={() => setActiveView("login")}
-                className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-[#1A56DB] to-[#1E90FF] text-white py-3.5 px-4 rounded-[18px] font-semibold text-[15px] shadow-[0_2px_10px_rgba(30,144,255,0.1)] transition-transform active:scale-95"
-              >
-                <LogIn className="w-5 h-5" />
-                เข้าสู่ระบบ
-              </button>
-
-              {/* Thin Separator */}
-              <div className="w-full flex items-center justify-center my-4">
-                <div className="w-full h-[1px] bg-[#1A56DB]/30"></div>
-              </div>
-
-              {/* Secondary Button: Signup */}
-              <button
-                onClick={() => setActiveView("signup")}
-                className="w-full flex items-center justify-center gap-2 border border-[#1E90FF]/30 hover:border-[#1E90FF]/60 hover:bg-[#1E90FF]/10 text-[#1E90FF] py-3.5 px-4 rounded-[18px] font-semibold text-[15px] transition-all active:scale-95"
-              >
-                <UserPlus className="w-5 h-5" />
-                สมัครสมาชิก
-              </button>
-            </div>
-          )}
-
           {/* Sidebar Menu Items */}
           <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-3 pl-3 mt-4">
             เมนูหลัก
           </div>
+            <button
+            onClick={() => setActiveView("dashboard")}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === "dashboard" ? "bg-[#1E90FF] text-white shadow-md shadow-[#1E90FF]/20" : "text-zinc-500 hover:bg-[#0a0d12] hover:text-white"}`}
+          >
+            <Terminal className="w-5 h-5" /> ตรวจสอบไอดี (Checker)
+          </button>
           <button
             onClick={() => setActiveView("home")}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === "home" ? "bg-[#1E90FF] text-white shadow-md shadow-[#1E90FF]/20" : "text-zinc-500 hover:bg-[#0a0d12] hover:text-white"}`}
           >
-            <Home className="w-5 h-5" /> หน้าแรก
+            <Home className="w-5 h-5" /> หน้าแรก (Store)
           </button>
           <button
             onClick={() => {
@@ -2151,22 +2096,7 @@ function AppContent() {
                 </button>
               </div>
             </div>
-          ) : (
-            <div className="flex flex-col gap-2">
-              <button
-                onClick={() => setActiveView("login")}
-                className="w-full py-3.5 bg-[#1E90FF] text-white rounded-2xl text-sm font-bold hover:bg-[#166bcc] transition-colors shadow-m"
-              >
-                เข้าสู่ระบบ
-              </button>
-              <button
-                onClick={() => setActiveView("signup")}
-                className="w-full py-3.5 bg-transparent border border-[#1E90FF]/30 text-[#1E90FF] hover:border-[#1E90FF]/60 hover:bg-[#1E90FF]/10 rounded-2xl text-sm font-bold transition-all"
-              >
-                สมัครสมาชิก
-              </button>
-            </div>
-          )}
+          ) : null}
         </div>
       </aside>
 
@@ -2270,13 +2200,23 @@ function AppContent() {
                   <div className="flex flex-col border-b border-white/5 pb-2 mb-2">
                     <button
                       onClick={() => {
+                        setActiveView("dashboard");
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className={`w-full flex items-center gap-3 px-6 py-3.5 relative transition-colors ${activeView === "dashboard" ? "bg-[#0d1a2e] text-[#1E90FF] before:absolute before:left-0 before:top-0 before:bottom-0 before:w-[3px] before:bg-[#1E90FF] before:rounded-r-sm" : "text-zinc-400 hover:bg-[#1e2129] hover:text-white"}`}
+                    >
+                      <Terminal className="w-5 h-5 shrink-0" />{" "}
+                      <span className="font-semibold text-[15px]">ตรวจสอบไอดี (Checker)</span>
+                    </button>
+                    <button
+                      onClick={() => {
                         setActiveView("home");
                         setIsMobileMenuOpen(false);
                       }}
                       className={`w-full flex items-center gap-3 px-6 py-3.5 relative transition-colors ${activeView === "home" ? "bg-[#0d1a2e] text-[#1E90FF] before:absolute before:left-0 before:top-0 before:bottom-0 before:w-[3px] before:bg-[#1E90FF] before:rounded-r-sm" : "text-zinc-400 hover:bg-[#1e2129] hover:text-white"}`}
                     >
                       <Home className="w-5 h-5 shrink-0" />{" "}
-                      <span className="font-semibold text-[15px]">หน้าแรก</span>
+                      <span className="font-semibold text-[15px]">หน้าแรก (Store)</span>
                     </button>
                     <button
                       onClick={() => {
@@ -2443,32 +2383,6 @@ function AppContent() {
                       </span>
                     </button>
                   </div>
-
-                  {!user && (
-                    <div className="px-6 py-4 flex flex-col gap-3 mt-auto border-t border-white/5 pt-6">
-                      <button
-                        onClick={() => {
-                          setActiveView("login");
-                          setIsMobileMenuOpen(false);
-                        }}
-                        className="w-full flex items-center justify-center gap-2 bg-[#1E90FF] hover:bg-[#166bcc] text-white py-3 px-4 rounded-xl font-bold text-[15px] transition-colors"
-                      >
-                        <LogIn className="w-5 h-5" />
-                        เข้าสู่ระบบ
-                      </button>
-
-                      <button
-                        onClick={() => {
-                          setActiveView("signup");
-                          setIsMobileMenuOpen(false);
-                        }}
-                        className="w-full flex items-center justify-center gap-2 border border-[#1E90FF]/30 hover:bg-[#1e2129] text-[#1E90FF] py-3 px-4 rounded-xl font-bold text-[15px] transition-colors"
-                      >
-                        <UserPlus className="w-5 h-5" />
-                        สมัครสมาชิก
-                      </button>
-                    </div>
-                  )}
 
                   {user && customPages && customPages.length > 0 && (
                     <div className="flex flex-col border-b border-white/5 pb-2 mb-2">

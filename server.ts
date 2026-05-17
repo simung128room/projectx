@@ -1004,6 +1004,7 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
       }
     }
 
+    
     const jar = new CookieJar();
     
     // User-Agent Pool for basic rotation
@@ -1024,7 +1025,7 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
       : `"Chromium";v="${chromeVer}", "Google Chrome";v="${chromeVer}", "Not?A_Brand";v="99"`;
     let secChPlatform = isMac ? '"macOS"' : '"Windows"';
 
-    // Wait for proxies if empty (in case it's starting)
+    // Wait for proxies
     if (freeProxies.length === 0) {
       await fetchFreeProxies();
     }
@@ -1038,7 +1039,6 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
     if (siteSettings.auto_proxy !== false && freeProxies.length > 0) {
       availableProxies.push(...freeProxies);
     } else if (!siteSettings.proxies || siteSettings.proxies.length === 0) {
-      // Fallback: If no custom proxies and no auto_proxy, at least use freeProxies to avoid getting banned instantly
       availableProxies.push(...freeProxies);
     }
     
@@ -1049,23 +1049,17 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
     let agent;
     try {
       if (proxyUrl) {
-        // 10s timeout so the proxy fails BEFORE the platform (Cloud Run/Nginx) limit
         agent = new HttpsProxyAgent(proxyUrl, { timeout: 10000, rejectUnauthorized: false } as any);
       } else {
         agent = new https.Agent({ rejectUnauthorized: false });
       }
     } catch (err) {
-      console.error('Failed to initialize proxy agent:', err);
       agent = new https.Agent({ rejectUnauthorized: false });
     }
 
-    
     const controller = new AbortController();
-    // 10s hard limit for the whole route to ensure we respond with JSON before platform drop
-    const timeoutId = setTimeout(() => controller.abort(), 10000); 
+    const timeoutId = setTimeout(() => controller.abort(), 20000); 
 
-    
-    // Make sure we clear the timeout when the request closes or route returns
     res.on('finish', () => clearTimeout(timeoutId));
     res.on('close', () => clearTimeout(timeoutId));
 
@@ -1083,182 +1077,29 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
       signal: controller.signal,
       validateStatus: (status: number) => status < 500
     };
-    const client = axios.create(axiosConfig);
+    
+    const { wrapper } = await import('axios-cookiejar-support');
+    let client = wrapper(axios.create(axiosConfig));
+    client.defaults.jar = jar;
 
-    // Manual Cookie Management to avoid HttpsProxyAgent conflict with axios-cookiejar-support
-    client.interceptors.request.use(async (config) => {
-      try {
-        const url = config.url || '';
-        const cookie = await jar.getCookieString(url.startsWith('http') ? url : (config.baseURL || '') + url);
-        if (cookie) {
-          if (config.headers && typeof config.headers.set === 'function') {
-            try {
-              config.headers.set('Cookie', cookie);
-            } catch (ignore) {}
-          } else if (config.headers) {
-            try {
-              (config.headers as any)['Cookie'] = cookie;
-            } catch (ignore) {}
-          }
-        }
-      } catch (e) {
-        console.error("Cookie request interceptor error:", e);
-      }
-      return config;
-    }, (error) => Promise.reject(error));
-
-    client.interceptors.response.use(async (response) => {
-      try {
-        const setCookies = response.headers['set-cookie'];
-        if (setCookies) {
-          const url = response.config.url || '';
-          const targetUrl = url.startsWith('http') ? url : (response.config.baseURL || '') + url;
-          for (const cookieStr of setCookies) {
-            await jar.setCookie(cookieStr, targetUrl);
-          }
-        }
-      } catch (e) {
-        console.error("Cookie response interceptor error:", e);
-      }
-      return response;
-    }, (error) => Promise.reject(error));
+    const setupFallbackClient = () => {
+       const directAgent = new https.Agent({ rejectUnauthorized: false });
+       const fbClient = wrapper(axios.create({ ...axiosConfig, httpsAgent: directAgent, httpAgent: directAgent }));
+       fbClient.defaults.jar = jar;
+       return fbClient;
+    };
 
     try {
-      // 1. Precise DataDome Handshake with updated fingerprint
-      const ddPayloadObj = {
-        "ttst": 76.70000004768372, "ifov": false, "hc": 4, "br_oh": 824, "br_ow": 1536,
-        "ua": randomUserAgent,
-        "wbd": false, "dp0": true, "tagpu": 5.738121195951787, "wdif": false, "wdifrm": false,
-        "npmtm": false, "br_h": 738, "br_w": 260, "isf": false, "nddc": 1, "rs_h": 864,
-        "rs_w": 1536, "rs_cd": 24, "phe": false, "nm": false, "jsf": false, "lg": "en-US",
-        "pr ": 1.25, "ars_h": 824, "ars_w": 1536, "tz": -480, "str_ss": true, "str_ls": true,
-        "str_idb": true, "str_odb": false, "plgod": false, "plg": 5, "plgne": true, "plgre": true,
-        "plgof": false, "plggt": false, "pltod": false, "hcovdr": false, "hcovdr2": false,
-        "plovdr": false, "plovdr2": false, "ftsovdr": false, "ftsovdr2": false, "lb": false,
-        "eva": 33, "lo": false, "ts_mtp": 0, "ts_tec": false, "ts_tsa": false, "vnd": "Google Inc.",
-        "bid": "NA", "mmt": "application/pdf,text/pdf", "plu": "PDF Viewer,Chrome PDF Viewer,Chromium PDF Viewer,Microsoft Edge PDF Viewer,WebKit built-in PDF",
-        "hdn": false, "awe": false, "geb": false, "dat": false, "med": "defined", "aco": "probably",
-        "acots": false, "acmp": "probably", "acmpts": true, "acw": "probably", "acwts": false,
-        "acma": "maybe", "acmats": false, "ac3": "", "ac3ts": false, "acf": "probably", "acfts": false,
-        "acmp4": "maybe", "acmp4ts": false, "acmp3": "probably", "acmp3ts": false, "acwm": "maybe",
-        "acwmts": false, "ocpt": false, "vco": "", "vcots": false, "vch": "probably", "vchts": true,
-        "vcw": "probably", "vcwts": true, "vc3": "maybe", "vc3ts": false, "vcmp": "", "vcmpts": false,
-        "vcq": "maybe", "vcqts": false, "vc1": "probably", "vc1ts": true, "dvm": 8, "sqt": false,
-        "so": "landscape-primary", "bda": false, "wdw": true, "prm": true, "tzp": true, "cvs": true,
-        "usb": true, "cap": true, "tbf": false, "lgs": true, "tpd": true
-      };
-      
-      const payloadParams = new URLSearchParams();
-      payloadParams.append('jsData', JSON.stringify(ddPayloadObj));
-      payloadParams.append('eventCounters', '[]');
-      payloadParams.append('jsType', 'ch');
-      payloadParams.append('cid', 'KOWn3t9QNk3dJJJEkpZJpspfb2HPZIVs0KSR7RYTscx5iO7o84cw95j40zFFG7mpfbKxmfhAOs~bM8Lr8cHia2JZ3Cq2LAn5k6XAKkONfSSad99Wu36EhKYyODGCZwae');
-      payloadParams.append('ddk', 'AE3F04AD3F0D3A462481A337485081');
-      payloadParams.append('Referer', 'https://account.garena.com/');
-      payloadParams.append('request', '/');
-      payloadParams.append('responsePage', 'origin');
-      payloadParams.append('ddv', '4.35.4');
-      
-      const ddPayload = payloadParams.toString();
-
-      console.log('--- Calling DataDome ---');
-      const ddRes = await client.post('https://dd.garena.com/js/', ddPayload, {
-        headers: { 
-          'accept': '*/*',
-          'accept-language': 'en-US,en;q=0.9',
-          'content-type': 'application/x-www-form-urlencoded',
-          'origin': 'https://account.garena.com',
-          'referer': 'https://account.garena.com/',
-          'sec-ch-ua': secChUa,
-          'sec-ch-ua-mobile': '?0',
-          'sec-ch-ua-platform': secChPlatform,
-          'sec-fetch-dest': 'empty',
-          'sec-fetch-mode': 'cors',
-          'sec-fetch-site': 'same-site',
-          'user-agent': randomUserAgent
-        }
-      });
-      console.log('--- DataDome Done ---');
-
-      if (ddRes.data && ddRes.data.cookie) {
-        const ddCookieParts = ddRes.data.cookie.split(';');
-        const ddCookieValue = ddCookieParts[0];
-        await jar.setCookie(ddCookieValue, 'https://sso.garena.com');
-      }
-
-      // Small delay to simulate human-like transition
-      await new Promise(r => setTimeout(r, 800 + Math.random() * 500));
-
-      let usedDirectClient = false;
-      let directClient;
-      let preloginRes;
-
-      if (ddRes.status !== 200) {
-        console.log(`--- DataDome Proxy ${ddRes.status}. Skipping proxy Prelogin. ---`);
-        preloginRes = { status: ddRes.status };
-      } else {
-        // 2. Prelogin Challenge with enhanced headers
-        console.log('--- Calling Prelogin ---');
-        preloginRes = await client.get('https://sso.garena.com/api/prelogin', {
-          params: { app_id: '10100', account, format: 'json', id: Date.now() },
-          headers: {
-            'accept': 'application/json, text/plain, */*',
-            'accept-language': 'en-US,en;q=0.9',
-            'connection': 'keep-alive',
-            'host': 'sso.garena.com',
-            'referer': 'https://account.garena.com/',
-            'sec-ch-ua': secChUa,
-            'sec-ch-ua-mobile': '?0',
-            'sec-ch-ua-platform': secChPlatform,
-            'sec-fetch-dest': 'empty',
-            'sec-fetch-mode': 'cors',
-            'sec-fetch-site': 'same-origin',
-            'user-agent': randomUserAgent
-          }
-        });
-        console.log('--- Prelogin Done ---');
-      }
-
-      if (preloginRes.status !== 200) {
-        console.log(`--- Proxy ${preloginRes.status}. Trying DIRECT connection (No Proxy) ---`);
-        // Fallback to Server IP
-        usedDirectClient = true;
-        const directAgent = new https.Agent({ rejectUnauthorized: false });
-        directClient = axios.create({ ...axiosConfig, httpsAgent: directAgent, httpAgent: directAgent });
-        
-        // Attach same cookie jar logic
-        directClient.interceptors.request.use(async (config) => {
-          try {
-            const url = config.url || '';
-            const cookie = await jar.getCookieString(url.startsWith('http') ? url : (config.baseURL || '') + url);
-            if (cookie) {
-              if (config.headers && typeof config.headers.set === 'function') config.headers.set('Cookie', cookie);
-              else if (config.headers) (config.headers as any)['Cookie'] = cookie;
-            }
-          } catch (e) {}
-          return config;
-        }, (e) => Promise.reject(e));
-
-        directClient.interceptors.response.use(async (response) => {
-          try {
-            const setCookies = response.headers['set-cookie'];
-            if (setCookies) {
-              const targetUrl = response.config.url?.startsWith('http') ? response.config.url : (response.config.baseURL || '') + (response.config.url || '');
-              for (const cookieStr of setCookies) await jar.setCookie(cookieStr, targetUrl);
-            }
-          } catch (e) {}
-          return response;
-        }, (e) => Promise.reject(e));
-
-        jar.removeAllCookiesSync();
-
-        console.log('--- Calling DataDome (Direct) ---');
-        const fallbackDdRes = await directClient.post('https://dd.garena.com/js/', ddPayload, {
-          headers: { 
+      const getDatadomeCookie = async (httpClient: any) => {
+        const url = 'https://dd.garena.com/js/';
+        const headers = {
             'accept': '*/*',
+            'accept-encoding': 'gzip, deflate, br, zstd',
             'accept-language': 'en-US,en;q=0.9',
+            'cache-control': 'no-cache',
             'content-type': 'application/x-www-form-urlencoded',
             'origin': 'https://account.garena.com',
+            'pragma': 'no-cache',
             'referer': 'https://account.garena.com/',
             'sec-ch-ua': secChUa,
             'sec-ch-ua-mobile': '?0',
@@ -1267,23 +1108,59 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
             'sec-fetch-mode': 'cors',
             'sec-fetch-site': 'same-site',
             'user-agent': randomUserAgent
-          }
-        });
+        };
 
-        if (fallbackDdRes.data && fallbackDdRes.data.cookie) {
-          const ddCookieParts = fallbackDdRes.data.cookie.split(';');
-          const ddCookieValue = ddCookieParts[0];
-          await jar.setCookie(ddCookieValue, 'https://sso.garena.com');
+        const jsDataPayload = {
+            "ttst": 76.70000004768372, "ifov": false, "hc": 4, "br_oh": 824, "br_ow": 1536, "ua": randomUserAgent, "wbd": false, "dp0": true, "tagpu": 5.738121195951787, "wdif": false, "wdifrm": false, "npmtm": false, "br_h": 738, "br_w": 260, "isf": false, "nddc": 1, "rs_h": 864, "rs_w": 1536, "rs_cd": 24, "phe": false, "nm": false, "jsf": false, "lg": "en-US", "pr": 1.25, "ars_h": 824, "ars_w": 1536, "tz": -480, "str_ss": true, "str_ls": true, "str_idb": true, "str_odb": false, "plgod": false, "plg": 5, "plgne": true, "plgre": true, "plgof": false, "plggt": false, "pltod": false, "hcovdr": false, "hcovdr2": false, "plovdr": false, "plovdr2": false, "ftsovdr": false, "ftsovdr2": false, "lb": false, "eva": 33, "lo": false, "ts_mtp": 0, "ts_tec": false, "ts_tsa": false, "vnd": "Google Inc.", "bid": "NA", "mmt": "application/pdf,text/pdf", "plu": "PDF Viewer,Chrome PDF Viewer,Chromium PDF Viewer,Microsoft Edge PDF Viewer,WebKit built-in PDF", "hdn": false, "awe": false, "geb": false, "dat": false, "med": "defined", "aco": "probably", "acots": false, "acmp": "probably", "acmpts": true, "acw": "probably", "acwts": false, "acma": "maybe", "acmats": false, "acaa": "probably", "acaats": true, "ac3": "", "ac3ts": false, "acf": "probably", "acfts": false, "acmp4": "maybe", "acmp4ts": false, "acmp3": "probably", "acmp3ts": false, "acwm": "maybe", "acwmts": false, "ocpt": false, "vco": "", "vcots": false, "vch": "probably", "vchts": true, "vcw": "probably", "vcwts": true, "vc3": "maybe", "vc3ts": false, "vcmp": "", "vcmpts": false, "vcq": "maybe", "vcqts": false, "vc1": "probably", "vc1ts": true, "dvm": 8, "sqt": false, "so": "landscape-primary", "bda": false, "wdw": true, "prm": true, "tzp": true, "cvs": true, "usb": true, "cap": true, "tbf": false, "lgs": true, "tpd": true
+        };
+
+        const payload = {
+            'jsData': JSON.stringify(jsDataPayload),
+            'eventCounters': '[]',
+            'jsType': 'ch',
+            'cid': 'KOWn3t9QNk3dJJJEkpZJpspfb2HPZIVs0KSR7RYTscx5iO7o84cw95j40zFFG7mpfbKxmfhAOs~bM8Lr8cHia2JZ3Cq2LAn5k6XAKkONfSSad99Wu36EhKYyODGCZwae',
+            'ddk': 'AE3F04AD3F0D3A462481A337485081',
+            'Referer': 'https://account.garena.com/',
+            'request': '/',
+            'responsePage': 'origin',
+            'ddv': '4.35.4'
+        };
+
+        const dataParams = new URLSearchParams();
+        for (const key in payload) {
+            dataParams.append(key, payload[key as keyof typeof payload]);
         }
 
-        preloginRes = await directClient.get('https://sso.garena.com/api/prelogin', {
-          params: { app_id: '10100', account, format: 'json', id: Date.now() },
-          headers: {
+        const ddRes = await httpClient.post(url, dataParams.toString(), { headers, timeout: 10000 });
+        if (ddRes.data && typeof ddRes.data === 'string') {
+          try {
+             return JSON.parse(ddRes.data);
+          } catch(e){}
+        }
+        return ddRes.data;
+      };
+
+      let ddJson = await getDatadomeCookie(client);
+      let activeClient = client;
+
+      if (!ddJson || !ddJson.cookie || ddJson.status === 403) {
+        console.log(`Proxy failed DataDome. Using direct connection for DataDome...`);
+        activeClient = setupFallbackClient();
+        ddJson = await getDatadomeCookie(activeClient);
+      }
+
+      if (ddJson && ddJson.cookie) {
+        const datadomeValue = ddJson.cookie.split(';')[0];
+        await jar.setCookie(datadomeValue, 'https://sso.garena.com');
+      }
+
+      const preloginHeaders = {
             'accept': 'application/json, text/plain, */*',
+            'accept-encoding': 'gzip, deflate, br, zstd',
             'accept-language': 'en-US,en;q=0.9',
             'connection': 'keep-alive',
             'host': 'sso.garena.com',
-            'referer': 'https://account.garena.com/',
+            'referer': `https://sso.garena.com/universal/login?app_id=10100&redirect_uri=https%3A%2F%2Faccount.garena.com%2F&locale=en-SG&account=${account}`,
             'sec-ch-ua': secChUa,
             'sec-ch-ua-mobile': '?0',
             'sec-ch-ua-platform': secChPlatform,
@@ -1291,82 +1168,111 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
             'sec-fetch-mode': 'cors',
             'sec-fetch-site': 'same-origin',
             'user-agent': randomUserAgent
-          }
-        });
-        
-        if (preloginRes.status !== 200) {
-           return res.json({ success: false, error: `ระบบ Garena ป้องกันการเข้าถึงบัญชี (${preloginRes.status}) แนะนำให้แก้ไข Proxy ด่วน` });
-        }
-      }
+      };
 
-      const { v1, v2, error: preError } = preloginRes.data;
-      if (preError) return res.json({ success: false, error: `Account Error: ${preError}` });
-      if (!v1 || !v2) {
-        console.error("Prelogin Debug Data:", JSON.stringify(preloginRes.data));
-        if (preloginRes.data && (preloginRes.data.captcha || (preloginRes.data.url && preloginRes.data.url.includes('captcha')))) {
-          return res.json({ success: false, error: 'ระบบตรวจพบโปรแกรมอัตโนมัติ (DataDome / Captcha). กรุณาเปลี่ยน Proxy' });
-        }
-        return res.json({ success: false, error: 'Challenge failed (Empty v1/v2). Garena structure might have changed. Debug: ' + JSON.stringify(preloginRes.data).substring(0, 50) });
-      }
-
-      // 3. SSO Login Attempt
-      console.log('--- Calling SSO Login ---');
-      const hashedPassword = encryptPassword(password, v1, v2);
-      const activeClient = usedDirectClient ? directClient : client;
-      
-      const loginRes = await activeClient.get('https://sso.garena.com/api/login', {
-        params: {
-          app_id: '10100', account, password: hashedPassword,
-          redirect_uri: 'https://account.garena.com/',
-          format: 'json', id: Date.now()
-        },
-        headers: {
-          'accept': 'application/json, text/plain, */*',
-          'referer': 'https://account.garena.com/',
-          'sec-ch-ua': secChUa,
-          'sec-ch-ua-mobile': '?0',
-          'sec-ch-ua-platform': secChPlatform,
-          'user-agent': randomUserAgent
-        }
+      let preloginRes = await activeClient.get('https://sso.garena.com/api/prelogin', {
+          params: { 'app_id': '10100', 'account': account, 'format': 'json', 'id': Date.now().toString() },
+          headers: preloginHeaders
       });
-      console.log('--- Login Done ---');
+
+      if (preloginRes.status === 403 && activeClient === client) {
+         console.log(`Proxy blocked at Prelogin. Switching to Direct...`);
+         activeClient = setupFallbackClient();
+         ddJson = await getDatadomeCookie(activeClient);
+         if (ddJson && ddJson.cookie) {
+           await jar.setCookie(ddJson.cookie.split(';')[0], 'https://sso.garena.com');
+         }
+         preloginRes = await activeClient.get('https://sso.garena.com/api/prelogin', {
+            params: { 'app_id': '10100', 'account': account, 'format': 'json', 'id': Date.now().toString() },
+            headers: preloginHeaders
+         });
+      }
+
+      if (preloginRes.status === 403) {
+         return res.json({ success: false, error: 'ระบบโดนจำกัดการเข้าถึง (403 Forbidden)' });
+      }
+
+      const preData = preloginRes.data;
+      if (preData.error) {
+         return res.json({ success: false, error: `Prelogin: ${preData.error}` });
+      }
+      if (!preData.v1 || !preData.v2) {
+         return res.json({ success: false, error: 'ระบบตรวจพบโปรแกรมอัตโนมัติ (DataDome / Captcha).' });
+      }
+
+      const hashed_password = encryptPassword(password, preData.v1, preData.v2);
+      const loginParams = {
+          'app_id': '10100',
+          'account': account,
+          'password': hashed_password,
+          'redirect_uri': 'https://account.garena.com/',
+          'format': 'json',
+          'id': Date.now().toString()
+      };
+
+      const loginRes = await activeClient.get('https://sso.garena.com/api/login', {
+         params: loginParams,
+         headers: {
+            'accept': 'application/json, text/plain, */*',
+            'referer': 'https://account.garena.com/',
+            'user-agent': randomUserAgent
+         }
+      });
 
       const loginData = loginRes.data;
       if (loginData.error) {
         const errorMsg = loginData.error === 'error_auth' ? 'รหัสผ่านผิด' : 
-                        loginData.error === 'error_not_exist' ? 'ไม่พบไอดีนี้' : 
-                        loginData.error;
+                         loginData.error.includes('captcha') ? 'ต้องแก้ Captcha (Garena Login)' :
+                         loginData.error === 'error_not_exist' ? 'ไม่พบไอดีนี้' : 
+                         loginData.error;
         return res.json({ success: false, error: errorMsg });
       }
 
-      // 4. Successful Login - Fetch Info
-      console.log('--- Calling Account Init ---');
+      // Fetch Account Details
       const initRes = await activeClient.get('https://account.garena.com/api/account/init', {
         headers: { 
           'accept': '*/*',
           'referer': 'https://account.garena.com/',
-          'sec-ch-ua': secChUa,
-          'sec-ch-ua-mobile': '?0',
-          'sec-ch-ua-platform': secChPlatform,
           'user-agent': randomUserAgent
         }
       });
-      console.log('--- Account Init Done ---');      
+      
       const resData = initRes.data || {};
       const userData = resData.user_info || resData || {};
       
+      let fbLinked = false;
+      let fbUsername = 'N/A';
+      let fbUid = 'N/A';
+      
+      const fbAccount = userData.fb_account;
+      if (fbAccount) {
+         if (typeof fbAccount === 'object') {
+             fbUsername = fbAccount.name || 'N/A';
+             fbUid = fbAccount.id || 'N/A';
+         } else if (typeof fbAccount === 'string' && fbAccount !== 'Not Set') {
+             try {
+                const parsed = JSON.parse(fbAccount);
+                fbUsername = parsed.name || parsed.fb_username || 'N/A';
+                fbUid = parsed.id || parsed.fb_uid || 'N/A';
+             } catch(e) {
+                fbUsername = fbAccount;
+             }
+         }
+         fbLinked = true;
+      }
+      if (userData.is_fbconnect_enabled) fbLinked = true;
+
       const binds = [];
-      if (userData.email && userData.email !== 'N/A') binds.push('Email');
-      if (userData.mobile_no && userData.mobile_no !== 'N/A') binds.push('Phone');
-      if (userData.is_fbconnect_enabled) binds.push('Facebook');
-      if (userData.idcard && userData.idcard !== 'N/A') binds.push('ID Card');
+      if (userData.email && userData.email !== 'N/A' && !userData.email.startsWith('***') && userData.email.includes('@')) binds.push('Email');
+      if (userData.mobile_no && userData.mobile_no !== 'N/A' && String(userData.mobile_no).trim()) binds.push('Phone');
+      if (fbLinked) binds.push('Facebook');
+      if (userData.idcard && userData.idcard !== 'N/A' && String(userData.idcard).trim()) binds.push('ID Card');
       
       const isClean = binds.length === 0;
 
-      // 5. Fetch CODM & Game Info
       const [codmInfo, gameConnections] = await Promise.all([
-        getCodmInfo(activeClient),
-        getGameConnections(activeClient)
+        getCodmInfo(activeClient).catch(() => null),
+        getGameConnections(activeClient).catch(() => [])
       ]);
 
       const rovGames = (gameConnections || []).filter((g: string) => g.toUpperCase().includes('ROV'));
@@ -1384,6 +1290,20 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
       const rovClean = hasRov && !emailVerified && !phoneBound;
       const hasCodm = codmInfo != null && codmInfo.level !== 'Unknown';
 
+      // Ensure last login handles timestamps correctly
+      let lastLoginDateFormatted = 'N/A';
+      const lastHist = resData.login_history?.[0];
+      if (lastHist?.timestamp) {
+         lastLoginDateFormatted = new Date(lastHist.timestamp * 1000).toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      } else if (userData.last_login?.time) {
+         lastLoginDateFormatted = new Date(userData.last_login.time * 1000).toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      }
+
+      let avatarUrl = 'N/A';
+      if (userData.avatar && userData.avatar !== 'N/A') {
+          avatarUrl = userData.avatar.startsWith('http') ? userData.avatar : `https://account.garena.com/static/${userData.avatar}`;
+      }
+
       return res.json({
         success: true,
         data: {
@@ -1394,7 +1314,7 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
           isClean,
           phoneBound,
           emailVerified,
-          fbLinked: !!userData.is_fbconnect_enabled,
+          fbLinked,
           region: userData.acc_country || 'TH',
           otherGames: gameConnections || [],
           codmNickname: codmInfo?.nickname || 'N/A',
@@ -1409,30 +1329,28 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
           rovCharacter,
           rovClean,
           hasCodm,
-          avatarUrl: userData.avatar || 'N/A',
+          avatarUrl,
           mobileNumber: userData.mobile_no || 'N/A',
           emailAddress: userData.email || 'N/A',
-          fbUsername: userData.fb_account || 'N/A',
+          fbUsername,
           twoFaEnabled: !!userData.two_step_verify_enable,
           authenticatorEnabled: !!userData.authenticator_enable,
-          lastLoginDate: resData.login_history?.[0]?.timestamp ? new Date(resData.login_history[0].timestamp * 1000).toLocaleString('th-TH') : 'N/A',
-          lastLoginIp: resData.login_history?.[0]?.ip || 'N/A',
-          lastLoginCountry: resData.login_history?.[0]?.country || 'N/A',
-          lastLoginSource: resData.login_history?.[0]?.source || 'Unknown'
+          lastLoginDate: lastLoginDateFormatted,
+          lastLoginIp: lastHist?.ip || userData.last_login?.ip || 'N/A',
+          lastLoginCountry: lastHist?.country || userData.last_login?.country || 'N/A',
+          lastLoginSource: lastHist?.source || userData.last_login?.source || 'Unknown'
         }
       });
 
     } catch (err: any) {
       const errMsg = err?.message || '';
-      if (!['ECONNREFUSED', 'canceled', 'CanceledError', 'AbortError'].some(e => errMsg.includes(e) || err?.name === e || err?.code === e)) {
-         console.error("Garena API Error:", errMsg || err);
-      }
+      console.error("Garena API Error:", errMsg || err);
       let errorMsg = 'Network Error: ' + (errMsg || 'Unknown Error');
       
       if (err?.code === 'ECONNABORTED' || errMsg.includes('timeout') || err?.code === 'ETIMEDOUT') {
-        errorMsg = 'Timeout (Proxy ช้าหรือใช้งานไม่ได้)';
+        errorMsg = 'การเชื่อมต่อถูกยกเลิก (ใช้เวลาเกิน). Proxy ช้าเกินไป หรือค้าง';
       } else if (err?.name === 'AbortError' || err?.code === 'ERR_CANCELED' || err?.name === 'CanceledError' || errMsg === 'canceled') {
-        errorMsg = 'ยกเลิกการเชื่อมต่ออัตโนมัติ (Proxy ช้าเกินไป)';
+        errorMsg = 'การเชื่อมต่อถูกยกเลิก (ใช้เวลาเกิน). Proxy ช้าเกินไป หรือค้าง';
       } else if (err?.code === 'ECONNRESET') {
         errorMsg = 'การเชื่อมต่อถูกตัด (ECONNRESET)';
       } else if (errMsg.includes('disconnected') || errMsg.includes('TLS')) {
