@@ -314,6 +314,14 @@ function AppContent() {
   const audioRef = useRef<HTMLAudioElement>(null);
   const ytIframeRef = useRef<HTMLIFrameElement>(null);
   const [ytPlaying, setYtPlaying] = useState(false);
+  const [deferMedia, setDeferMedia] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDeferMedia(false);
+    }, 2500);
+    return () => clearTimeout(timer);
+  }, []);
 
   const formatSpotifyEmbedUrl = (url: string, autoplay: boolean) => {
     if (!url) return '';
@@ -3168,7 +3176,7 @@ function AppContent() {
         )}
 
         {/* Global Audio Provider */}
-        {siteSettings.spotify_url && (
+        {!deferMedia && siteSettings.spotify_url && (
           <div className="fixed bottom-6 right-6 z-[990] flex flex-col items-end gap-3 pointer-events-none">
              <button 
                onClick={() => {
@@ -3231,7 +3239,7 @@ function AppContent() {
         )}
 
         {/* YouTube Background Invisible Audio Player */}
-        {siteSettings.spotify_url && (siteSettings.spotify_url.includes('youtube.com') || siteSettings.spotify_url.includes('youtu.be')) && (
+        {!deferMedia && siteSettings.spotify_url && (siteSettings.spotify_url.includes('youtube.com') || siteSettings.spotify_url.includes('youtu.be')) && (
           <div className="fixed top-0 left-0 w-[400px] h-[300px] pointer-events-none z-[-9999]" style={{ opacity: 0.001 }}>
              <iframe 
                ref={ytIframeRef}
