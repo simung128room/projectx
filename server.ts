@@ -29,11 +29,11 @@ async function fetchFreeProxies() {
   if (now - lastFreeProxyFetch < 15 * 60 * 1000 && freeProxies.length > 0) return;
   lastFreeProxyFetch = now;
   try {
-    const res = await axios.get('https://api.proxyscrape.com/v2/?request=displayproxies&protocol=http&timeout=10000&country=all&ssl=yes&anonymity=all', { timeout: 10000 });
+    const res = await axios.get('https://raw.githubusercontent.com/proxifly/free-proxy-list/main/proxies/protocols/http/data.txt', { timeout: 10000 });
     if (typeof res.data === 'string') {
       const proxies = res.data.split('\n').map(p => p.trim()).filter(p => p.length > 5);
       if (proxies.length > 0) {
-        freeProxies = proxies.map(p => `http://${p}`);
+        freeProxies = proxies.map(p => p.startsWith('http') ? p : `http://${p}`);
         console.log(`[Proxy] Fetched ${freeProxies.length} free proxies automatically.`);
       }
     }
@@ -255,7 +255,8 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
     banners: ["https://img2.pic.in.th/-71_20260516210303.png"],
     spotify_url: '',
     spotify_autoplay: false,
-    proxies: ['http://e7221fa7-20b7-43a7-9f76-c69fbc35cdef@lv3.gen5.netmld.shop:8080']
+    proxies: ['http://e7221fa7-20b7-43a7-9f76-c69fbc35cdef@lv3.gen5.netmld.shop:8080'],
+    auto_proxy: true
   };
 
   // Load from DB
@@ -340,7 +341,7 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
 
   app.post('/api/settings', requireAdmin, async (req, res) => {
     console.log("=== POST /api/settings REACHED ===", req.body);
-    const { truewallet_phone, site_name, contact_line, stats_users_offset, stats_sales_offset, stats_users_override, stats_stock_override, stats_sales_override, popup_img_url, popup_enabled, popup_link, banners, proxies, spotify_url, spotify_autoplay } = req.body;
+    const { truewallet_phone, site_name, contact_line, stats_users_offset, stats_sales_offset, stats_users_override, stats_stock_override, stats_sales_override, popup_img_url, popup_enabled, popup_link, banners, proxies, auto_proxy, spotify_url, spotify_autoplay } = req.body;
     if (truewallet_phone !== undefined) siteSettings.truewallet_phone = truewallet_phone;
     if (site_name !== undefined) siteSettings.site_name = site_name;
     if (contact_line !== undefined) siteSettings.contact_line = contact_line;
@@ -356,6 +357,7 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
     if (spotify_autoplay !== undefined) siteSettings.spotify_autoplay = spotify_autoplay === true || spotify_autoplay === 'true';
     if (banners !== undefined && Array.isArray(banners)) siteSettings.banners = banners;
     if (proxies !== undefined && Array.isArray(proxies)) siteSettings.proxies = proxies;
+    if (auto_proxy !== undefined) siteSettings.auto_proxy = auto_proxy === true || auto_proxy === 'true';
     
     // Clear cached stats so they refresh next time someone calls /api/stats
     lastStatsFetch = 0;
@@ -1022,17 +1024,26 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
       : `"Chromium";v="${chromeVer}", "Google Chrome";v="${chromeVer}", "Not?A_Brand";v="99"`;
     let secChPlatform = isMac ? '"macOS"' : '"Windows"';
 
-    // Webshare Proxy provided by user
     // Wait for proxies if empty (in case it's starting)
     if (freeProxies.length === 0) {
       await fetchFreeProxies();
     }
 
     let proxyUrl = '';
+    const availableProxies = [];
     if (siteSettings.proxies && Array.isArray(siteSettings.proxies) && siteSettings.proxies.length > 0) {
-      proxyUrl = siteSettings.proxies[Math.floor(Math.random() * siteSettings.proxies.length)];
-    } else if (freeProxies.length > 0) {
-      proxyUrl = freeProxies[Math.floor(Math.random() * freeProxies.length)];
+      availableProxies.push(...siteSettings.proxies);
+    }
+    
+    if (siteSettings.auto_proxy !== false && freeProxies.length > 0) {
+      availableProxies.push(...freeProxies);
+    } else if (!siteSettings.proxies || siteSettings.proxies.length === 0) {
+      // Fallback: If no custom proxies and no auto_proxy, at least use freeProxies to avoid getting banned instantly
+      availableProxies.push(...freeProxies);
+    }
+    
+    if (availableProxies.length > 0) {
+      proxyUrl = availableProxies[Math.floor(Math.random() * availableProxies.length)];
     }
     
     let agent;

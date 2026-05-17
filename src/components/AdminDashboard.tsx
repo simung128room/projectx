@@ -500,6 +500,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     popup_link: '',
     banners: ["https://img2.pic.in.th/24B843A8-C705-48F6-84FB-50AAA5EFAAA6.png"],
     proxies: ['http://e7221fa7-20b7-43a7-9f76-c69fbc35cdef@lv3.gen5.netmld.shop:8080'],
+    auto_proxy: true,
     spotify_url: '',
     spotify_autoplay: false
   });
@@ -1805,7 +1806,51 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       </div>
                       
                       <div className="space-y-4">
-                         <label className="block text-sm font-bold text-zinc-400">Custom Proxy URLs (1 บรรทัดต่อ 1 Proxy - ปล่อยว่างเพื่อใช้ Free Proxy)</label>
+                         <div className="flex items-center justify-between">
+                           <label className="block text-sm font-bold text-zinc-400">Custom Proxy URLs (1 บรรทัดต่อ 1 Proxy - ปล่อยว่างเพื่อใช้ Free Proxy)</label>
+                           <button
+                             type="button"
+                             onClick={async () => {
+                               try {
+                                 Swal.fire({
+                                   title: 'กำลังโหลดข้อมูล...',
+                                   text: 'กรุณารอสักครู่',
+                                   allowOutsideClick: false,
+                                   didOpen: () => {
+                                     Swal.showLoading();
+                                   },
+                                   background: '#0B0F14',
+                                   color: '#fff'
+                                 });
+                                 const res = await axios.get('https://raw.githubusercontent.com/proxifly/free-proxy-list/main/proxies/protocols/http/data.txt');
+                                 if (typeof res.data === 'string') {
+                                   let px = res.data.split('\n').filter((p: string) => p.trim().length > 5);
+                                   px = px.map((p: string) => p.startsWith('http') ? p : `http://${p}`);
+                                   setSiteSettings({ ...siteSettings, proxies: px });
+                                   Swal.fire({
+                                     icon: 'success',
+                                     title: 'สำเร็จ',
+                                     text: `ดึง Proxy ได้ทั้งหมด ${px.length} รายการ`,
+                                     background: '#0B0F14',
+                                     color: '#fff',
+                                     confirmButtonColor: '#1E90FF'
+                                   });
+                                 }
+                               } catch (err: any) {
+                                 Swal.fire({
+                                   icon: 'error',
+                                   title: 'เกิดข้อผิดพลาด',
+                                   text: err.message,
+                                   background: '#0B0F14',
+                                   color: '#fff'
+                                 });
+                               }
+                             }}
+                             className="text-xs font-bold text-[#1E90FF] hover:text-[#1E90FF]/80 flex items-center gap-1.5"
+                           >
+                             <Globe className="w-4 h-4" /> ดึง Proxy ล่าสุด (Proxifly)
+                           </button>
+                         </div>
                          <textarea 
                            value={(siteSettings.proxies || []).join('\n')}
                            onChange={(e) => setSiteSettings({ ...siteSettings, proxies: e.target.value.split('\n') })}
@@ -1814,6 +1859,24 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                            onBlur={(e) => setSiteSettings({ ...siteSettings, proxies: e.target.value.split('\n').map(url => typeof url === 'string' ? url.trim() : '').filter(Boolean) })}
                          />
                          <p className="text-xs text-zinc-500 mt-2">รูปแบบ: http://[user]:[password]@[ip]:[port] หรือ http://[ip]:[port]</p>
+                         
+                         <label className="flex items-center gap-3 cursor-pointer group mt-4">
+                           <div className="relative flex items-center justify-center">
+                             <input 
+                               type="checkbox" 
+                               className="sr-only" 
+                               checked={siteSettings.auto_proxy !== false}
+                               onChange={(e) => setSiteSettings({ ...siteSettings, auto_proxy: e.target.checked })}
+                             />
+                             <div className={`w-5 h-5 rounded border-2 transition-all duration-300 flex items-center justify-center ${siteSettings.auto_proxy !== false ? 'bg-[#1E90FF] border-[#1E90FF]' : 'bg-[#0B0F14] border-white/20 group-hover:border-zinc-400'}`}>
+                               {siteSettings.auto_proxy !== false && <Check className="w-3.5 h-3.5 text-white" />}
+                             </div>
+                           </div>
+                           <div className="flex flex-col">
+                             <span className="text-sm font-bold text-white">ใช้ Free Proxies อัตโนมัติร่วมกับ Proxy ด้านบน (รวมกัน)</span>
+                             <span className="text-xs text-zinc-500 mt-0.5">ระบบจะดึงจาก Proxifly และสลับให้อัตโนมัติในพื้นหลัง (แนะนำให้เปิดไว้เพื่อกันบล็อก)</span>
+                           </div>
+                         </label>
                       </div>
                     </div>
                   </div>
