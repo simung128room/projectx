@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Copy, Database, LogOut, BarChart3, Key, History, ShieldAlert, Activity, Ban, ChevronRight, Settings, Plus, Trash2, Crown, X, Menu, Upload, FileText, LayoutDashboard, LineChart, Cpu, HardDrive, ShoppingCart, Package, Users, Wallet, Gift, Globe, Phone, AlertTriangle, Download, Check, Image, MessageSquare, Terminal } from 'lucide-react';
+import { Copy, Database, LogOut, BarChart3, Key, History, ShieldAlert, Activity, Ban, ChevronRight, Settings, Plus, Trash2, Crown, X, Menu, Upload, FileText, LayoutDashboard, LineChart, Cpu, HardDrive, ShoppingCart, Package, Users, Wallet, Gift, Globe, Phone, AlertTriangle, Download, Check, Image, MessageSquare, Terminal, RefreshCw } from 'lucide-react';
 import Swal from 'sweetalert2';
 import axios from 'axios';
 import { AccountResult, Product, SiteStats } from '../types';
@@ -503,6 +503,65 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     spotify_url: '',
     spotify_autoplay: false
   });
+
+  const [uploadingMusic, setUploadingMusic] = useState(false);
+  const musicFileRef = useRef<HTMLInputElement>(null);
+
+  const handleMusicUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 20 * 1024 * 1024) {
+      Swal.fire({
+        title: 'เกิดข้อผิดพลาด',
+        text: 'ไฟล์มีขนาดใหญ่เกินไป (จำกัด 20MB)',
+        icon: 'error',
+        background: '#0B0F14',
+        color: '#fff',
+        confirmButtonColor: '#1a7fe6'
+      });
+      return;
+    }
+
+    setUploadingMusic(true);
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await axios.post('/api/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+
+      if (response.data?.url) {
+        setSiteSettings(prev => ({ ...prev, spotify_url: response.data.url }));
+        Swal.fire({
+          title: 'สำเร็จ',
+          text: 'อัพโหลดเพลงสำเร็จแล้ว',
+          icon: 'success',
+          background: '#0B0F14',
+          color: '#fff',
+          timer: 1500,
+          showConfirmButton: false
+        });
+      }
+    } catch (err) {
+      console.error('Music upload error:', err);
+      Swal.fire({
+        title: 'เกิดข้อผิดพลาด',
+        text: 'ไม่สามารถอัพโหลดเพลงได้',
+        icon: 'error',
+        background: '#0B0F14',
+        color: '#fff',
+        confirmButtonColor: '#1a7fe6'
+      });
+    } finally {
+      setUploadingMusic(false);
+      if (musicFileRef.current) musicFileRef.current.value = '';
+    }
+  };
 
   useEffect(() => {
     if (adminTab === 'settings' || adminTab === 'banners') {
@@ -1550,20 +1609,39 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     <div className="mt-8 p-6 bg-[#0a0d12] border border-white/10 rounded-3xl">
                       <div className="mb-6">
                         <h4 className="text-white font-bold flex items-center gap-2"><Globe className="w-5 h-5 text-emerald-500" /> แผงควบคุมเพลงพื้นหลัง (Background Music)</h4>
-                        <p className="text-zinc-500 text-sm mt-1">ใส่ลิ้งค์ Spotify หรือลิ้งค์ไฟล์เสียงโดยตรง (.mp3) เพื่อเปิดเพลงอัตโนมัติเมื่อผู้ใช้เข้าเว็บ</p>
+                        <p className="text-zinc-500 text-sm mt-1">ใส่ลิ้งค์ Spotify หรืออัพโหลดไฟล์เสียงโดยตรง (.mp3) เพื่อเปิดเพลงอัตโนมัติเมื่อผู้ใช้เข้าเว็บ</p>
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div className="space-y-4">
-                          <label className="block text-sm font-bold text-zinc-700 flex items-center gap-2">
-                             ลิ้งค์เพลง (Spotify หรือ ลิ้งค์ตรง MP3)
-                          </label>
+                          <div className="flex items-center justify-between">
+                            <label className="block text-sm font-bold text-zinc-700 flex items-center gap-2">
+                               ลิ้งค์เพลง (Spotify หรือ ลิ้งค์ตรง MP3)
+                            </label>
+                            <div className="relative group">
+                              <button 
+                                onClick={() => musicFileRef.current?.click()}
+                                disabled={uploadingMusic}
+                                className="flex items-center gap-2 text-xs font-bold text-[#1E90FF] hover:text-[#1E90FF]/80 transition-colors disabled:opacity-50"
+                              >
+                                {uploadingMusic ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5" />}
+                                อัพโหลดไฟล์เสียง
+                              </button>
+                              <input 
+                                type="file" 
+                                ref={musicFileRef} 
+                                onChange={handleMusicUpload} 
+                                className="hidden" 
+                                accept="audio/*"
+                              />
+                            </div>
+                          </div>
                           <input 
                             type="text"
                             value={siteSettings.spotify_url || ''}
                             onChange={(e) => setSiteSettings({ ...siteSettings, spotify_url: e.target.value })}
                             className="w-full bg-[#0B0F14] border border-white/10 rounded-2xl px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-emerald-500 shadow-inner"
-                            placeholder="https://... (MP3 หรือ Spotify)"
+                            placeholder="https://... หรือ อัพโหลดไฟล์"
                           />
                         </div>
                         <div className="flex items-center space-y-4">

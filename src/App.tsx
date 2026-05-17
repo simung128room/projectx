@@ -318,7 +318,7 @@ function AppContent() {
     let embedUrl = url;
     
     // Check if it's a direct audio file
-    if (url.match(/\.(mp3|wav|ogg|m4a)$/) || url.includes('drive.google.com/uc')) {
+    if (url.match(/\.(mp3|wav|ogg|m4a)$/) || url.includes('drive.google.com/uc') || url.startsWith('data:audio')) {
       return url;
     }
     
@@ -343,7 +343,7 @@ function AppContent() {
   };
 
   useEffect(() => {
-    if (siteSettings.spotify_autoplay && siteSettings.spotify_url && (siteSettings.spotify_url.match(/\.(mp3|wav|ogg|m4a)$/) || siteSettings.spotify_url.includes('drive.google.com/uc'))) {
+    if (siteSettings.spotify_autoplay && siteSettings.spotify_url && (siteSettings.spotify_url.match(/\.(mp3|wav|ogg|m4a)$/) || siteSettings.spotify_url.includes('drive.google.com/uc') || siteSettings.spotify_url.startsWith('data:audio'))) {
       const playAudio = () => {
         if (audioRef.current) {
           audioRef.current.play().catch(() => {
@@ -3742,8 +3742,8 @@ function AppContent() {
              </button>
 
              <div className={`transition-all duration-500 transform origin-bottom-right ${isMusicExpanded || siteSettings.spotify_autoplay ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-10 opacity-0 scale-50 pointer-events-none'}`}>
-                <div className={`bg-[#0b0e14]/90 backdrop-blur-xl border border-white/10 p-1 rounded-2xl shadow-2xl overflow-hidden ${siteSettings.spotify_url.match(/\.(mp3|wav|ogg|m4a)$/) || siteSettings.spotify_url.includes('drive.google.com/uc') ? 'w-auto h-auto' : 'w-[300px] h-[80px]'}`}>
-                    {siteSettings.spotify_url.match(/\.(mp3|wav|ogg|m4a)$/) || siteSettings.spotify_url.includes('drive.google.com/uc') ? (
+                <div className={`bg-[#0b0e14]/90 backdrop-blur-xl border border-white/10 p-1 rounded-2xl shadow-2xl overflow-hidden ${siteSettings.spotify_url.match(/\.(mp3|wav|ogg|m4a)$/) || siteSettings.spotify_url.includes('drive.google.com/uc') || siteSettings.spotify_url.startsWith('data:audio') ? 'w-auto h-auto' : 'w-[300px] h-[80px]'}`}>
+                    {siteSettings.spotify_url.match(/\.(mp3|wav|ogg|m4a)$/) || siteSettings.spotify_url.includes('drive.google.com/uc') || siteSettings.spotify_url.startsWith('data:audio') ? (
                       <div className="p-3 flex items-center gap-4 min-w-[280px]">
                          <div className="w-10 h-10 rounded-xl bg-[#1E90FF]/10 flex items-center justify-center">
                             <Music className="w-5 h-5 text-[#1E90FF] animate-pulse" />
