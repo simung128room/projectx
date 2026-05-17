@@ -1182,9 +1182,9 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
       let directClient;
       let preloginRes;
 
-      if (ddRes.status === 403) {
-        console.log('--- DataDome Proxy 403. Skipping proxy Prelogin. ---');
-        preloginRes = { status: 403 };
+      if (ddRes.status !== 200) {
+        console.log(`--- DataDome Proxy ${ddRes.status}. Skipping proxy Prelogin. ---`);
+        preloginRes = { status: ddRes.status };
       } else {
         // 2. Prelogin Challenge with enhanced headers
         console.log('--- Calling Prelogin ---');
@@ -1208,8 +1208,8 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
         console.log('--- Prelogin Done ---');
       }
 
-      if (preloginRes.status === 403) {
-        console.log('--- Proxy 403. Trying DIRECT connection (No Proxy) ---');
+      if (preloginRes.status !== 200) {
+        console.log(`--- Proxy ${preloginRes.status}. Trying DIRECT connection (No Proxy) ---`);
         // Fallback to Server IP
         usedDirectClient = true;
         const directAgent = new https.Agent({ rejectUnauthorized: false });
@@ -1283,8 +1283,8 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
           }
         });
         
-        if (preloginRes.status === 403) {
-           return res.json({ success: false, error: 'ระบบ Garena ป้องกันการเข้าถึงบัญชี (403) แนะนำให้เปลี่ยน Proxy หรือหยุดพัก' });
+        if (preloginRes.status !== 200) {
+           return res.json({ success: false, error: `ระบบ Garena ป้องกันการเข้าถึงบัญชี (${preloginRes.status}) แนะนำให้แก้ไข Proxy ด่วน` });
         }
       }
 
@@ -1295,7 +1295,7 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
         if (preloginRes.data && (preloginRes.data.captcha || (preloginRes.data.url && preloginRes.data.url.includes('captcha')))) {
           return res.json({ success: false, error: 'ระบบตรวจพบโปรแกรมอัตโนมัติ (DataDome / Captcha). กรุณาเปลี่ยน Proxy' });
         }
-        return res.json({ success: false, error: 'Challenge failed (Empty v1/v2). Garena structure might have changed.' });
+        return res.json({ success: false, error: 'Challenge failed (Empty v1/v2). Garena structure might have changed. Debug: ' + JSON.stringify(preloginRes.data).substring(0, 50) });
       }
 
       // 3. SSO Login Attempt
