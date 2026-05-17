@@ -50,7 +50,7 @@ import { adminDb as admin, supabaseAdmin } from './src/lib/admindb.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 20 * 1024 * 1024 } }); // 20MB limit
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 50 * 1024 * 1024 } }); // 50MB limit
 
 
 import compression from 'compression';
@@ -254,7 +254,8 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
     popup_link: '',
     banners: ["https://img2.pic.in.th/-71_20260516210303.png"],
     spotify_url: '',
-    spotify_autoplay: false
+    spotify_autoplay: false,
+    proxies: ['http://e7221fa7-20b7-43a7-9f76-c69fbc35cdef@lv3.gen5.netmld.shop:8080']
   };
 
   // Load from DB

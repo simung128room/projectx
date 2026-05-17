@@ -499,7 +499,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     popup_enabled: true,
     popup_link: '',
     banners: ["https://img2.pic.in.th/24B843A8-C705-48F6-84FB-50AAA5EFAAA6.png"],
-    proxies: [] as string[],
+    proxies: ['http://e7221fa7-20b7-43a7-9f76-c69fbc35cdef@lv3.gen5.netmld.shop:8080'],
     spotify_url: '',
     spotify_autoplay: false
   });
@@ -511,10 +511,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 20 * 1024 * 1024) {
+    if (file.size > 50 * 1024 * 1024) {
       Swal.fire({
         title: 'เกิดข้อผิดพลาด',
-        text: 'ไฟล์มีขนาดใหญ่เกินไป (จำกัด 20MB)',
+        text: 'ไฟล์มีขนาดใหญ่เกินไป (จำกัด 50MB)',
         icon: 'error',
         background: '#0B0F14',
         color: '#fff',
@@ -547,11 +547,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           showConfirmButton: false
         });
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Music upload error:', err);
+      const errorMsg = err.response?.data?.error || 'ไม่สามารถอัพโหลดเพลงได้';
       Swal.fire({
         title: 'เกิดข้อผิดพลาด',
-        text: 'ไม่สามารถอัพโหลดเพลงได้',
+        text: errorMsg,
         icon: 'error',
         background: '#0B0F14',
         color: '#fff',
@@ -1609,14 +1610,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     <div className="mt-8 p-6 bg-[#0a0d12] border border-white/10 rounded-3xl">
                       <div className="mb-6">
                         <h4 className="text-white font-bold flex items-center gap-2"><Globe className="w-5 h-5 text-emerald-500" /> แผงควบคุมเพลงพื้นหลัง (Background Music)</h4>
-                        <p className="text-zinc-500 text-sm mt-1">ใส่ลิ้งค์ Spotify หรืออัพโหลดไฟล์เสียงโดยตรง (.mp3) เพื่อเปิดเพลงอัตโนมัติเมื่อผู้ใช้เข้าเว็บ</p>
+                        <p className="text-zinc-500 text-sm mt-1">ใส่ลิ้งค์ YouTube, Spotify หรืออัพโหลดไฟล์เสียงโดยตรง (.mp3) เพื่อเปิดเพลงอัตโนมัติเมื่อผู้ใช้เข้าเว็บ</p>
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div className="space-y-4">
                           <div className="flex items-center justify-between">
                             <label className="block text-sm font-bold text-zinc-700 flex items-center gap-2">
-                               ลิ้งค์เพลง (Spotify หรือ ลิ้งค์ตรง MP3)
+                               ลิ้งค์เพลง (แนะนำ YouTube หรือไฟล์อัพโหลดเพื่อเพลงเต็ม)
                             </label>
                             <div className="relative group">
                               <button 
@@ -1641,7 +1642,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                             value={siteSettings.spotify_url || ''}
                             onChange={(e) => setSiteSettings({ ...siteSettings, spotify_url: e.target.value })}
                             className="w-full bg-[#0B0F14] border border-white/10 rounded-2xl px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-emerald-500 shadow-inner"
-                            placeholder="https://... หรือ อัพโหลดไฟล์"
+                            placeholder="https://... YouTube, Spotify หรือ ไฟล์อัพโหลด"
                           />
                         </div>
                         <div className="flex items-center space-y-4">
@@ -1657,7 +1658,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                 {siteSettings.spotify_autoplay && <Check className="w-3.5 h-3.5 text-white" />}
                               </div>
                             </div>
-                            <span className="text-sm font-bold text-white">เปิดใช้งานเล่นอัตโนมัติ (Autoplay)</span>
+                            <div className="flex flex-col">
+                              <span className="text-sm font-bold text-white">เปิดใช้งานเล่นอัตโนมัติ (Autoplay)</span>
+                              <span className="text-[10px] text-zinc-500 mt-0.5">* แนะนำใช้ YouTube หรือ ไฟล์อัพโหลดเพื่อให้ได้เพลงเต็ม (Spotify จะติดพรีวิว 30 วิ)</span>
+                            </div>
                           </label>
                         </div>
                       </div>

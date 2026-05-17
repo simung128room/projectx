@@ -321,6 +321,27 @@ function AppContent() {
     if (url.match(/\.(mp3|wav|ogg|m4a)$/) || url.includes('drive.google.com/uc') || url.startsWith('data:audio')) {
       return url;
     }
+
+    // Handle YouTube
+    if (url.includes('youtube.com') || url.includes('youtu.be')) {
+      let videoId = '';
+      if (url.includes('v=')) {
+        videoId = url.split('v=')[1].split('&')[0];
+      } else if (url.includes('youtu.be/')) {
+        videoId = url.split('youtu.be/')[1].split('?')[0];
+      } else if (url.includes('embed/')) {
+        videoId = url.split('embed/')[1].split('?')[0];
+      }
+
+      if (videoId) {
+        // Use youtube-nocookie for better privacy and reliability
+        let yUrl = `https://www.youtube-nocookie.com/embed/${videoId}?rel=0&showinfo=0&controls=0`;
+        if (autoplay) {
+          yUrl += '&autoplay=1&mute=0';
+        }
+        return yUrl;
+      }
+    }
     
     // Convert regular link to embed link
     if (url.includes('spotify.com') && !url.includes('spotify.com/embed')) {
