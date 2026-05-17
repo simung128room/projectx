@@ -143,7 +143,7 @@ export const TelegramCatcherTool: React.FC<TelegramCatcherToolProps> = ({ userPl
                 <Send className="w-5 h-5 -ml-1" />
              </div>
              <div>
-               <h2 className="text-white font-bold text-lg leading-tight">Telegram Setup</h2>
+               <h2 className="text-white font-bold text-lg leading-tight">ดักซองเทเลแกรม</h2>
                <p className="text-[#2AABEE] text-xs font-medium">TrueMoney Catcher</p>
              </div>
           </div>

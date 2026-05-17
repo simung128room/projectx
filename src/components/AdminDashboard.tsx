@@ -489,6 +489,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     site_name: 'APEX STUDIO',
     truewallet_phone: '',
     contact_line: 'https://www.facebook.com/share/18emwBsqUf/?mibextid=wwXIfr',
+    discord_link: '',
+    facebook_link: '',
+    instagram_link: '',
+    contact_email: '',
     stats_users_offset: 1278,
     stats_sales_offset: 4432,
     popup_img_url: 'https://img2.pic.in.th/Red-Black-White-Anime-Podcast-Discord-Logocc6d3bfe807340af.png',
@@ -1457,14 +1461,53 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       </div>
                       <div className="space-y-4">
                         <label className="block text-sm font-bold text-zinc-700 flex items-center gap-2">
-                           <Users className="w-4 h-4 text-blue-500" /> ลิงก์ Facebook Page
+                           <Users className="w-4 h-4 text-blue-500" /> ลิงก์ Discord
                         </label>
                         <input 
                           type="text"
-                          value={siteSettings.contact_line}
-                          onChange={(e) => setSiteSettings({ ...siteSettings, contact_line: e.target.value })}
+                          value={siteSettings.discord_link}
+                          onChange={(e) => setSiteSettings({ ...siteSettings, discord_link: e.target.value })}
+                          className="w-full bg-[#0B0F14] border border-white/10 rounded-2xl px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-indigo-500 shadow-inner"
+                          placeholder="https://discord.gg/..."
+                        />
+                      </div>
+
+                      <div className="space-y-4">
+                        <label className="block text-sm font-bold text-zinc-700 flex items-center gap-2">
+                           <Users className="w-4 h-4 text-emerald-500" /> ลิงก์ Facebook Page
+                        </label>
+                        <input 
+                          type="text"
+                          value={siteSettings.facebook_link || siteSettings.contact_line}
+                          onChange={(e) => setSiteSettings({ ...siteSettings, facebook_link: e.target.value, contact_line: e.target.value })}
                           className="w-full bg-[#0B0F14] border border-white/10 rounded-2xl px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-blue-500 shadow-inner"
-                          placeholder="https://www.facebook.com/share/..."
+                          placeholder="https://www.facebook.com/..."
+                        />
+                      </div>
+
+                      <div className="space-y-4">
+                        <label className="block text-sm font-bold text-zinc-700 flex items-center gap-2">
+                           <Users className="w-4 h-4 text-pink-500" /> ลิงก์ Instagram
+                        </label>
+                        <input 
+                          type="text"
+                          value={siteSettings.instagram_link}
+                          onChange={(e) => setSiteSettings({ ...siteSettings, instagram_link: e.target.value })}
+                          className="w-full bg-[#0B0F14] border border-white/10 rounded-2xl px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-pink-500 shadow-inner"
+                          placeholder="https://www.instagram.com/..."
+                        />
+                      </div>
+
+                      <div className="space-y-4">
+                        <label className="block text-sm font-bold text-zinc-700 flex items-center gap-2">
+                           <Users className="w-4 h-4 text-gray-500" /> อีเมลติดต่อ (Support)
+                        </label>
+                        <input 
+                          type="email"
+                          value={siteSettings.contact_email}
+                          onChange={(e) => setSiteSettings({ ...siteSettings, contact_email: e.target.value })}
+                          className="w-full bg-[#0B0F14] border border-white/10 rounded-2xl px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-zinc-500 shadow-inner"
+                          placeholder="support@example.com"
                         />
                       </div>
 
@@ -1504,24 +1547,23 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       </div>
                     </div>
 
-                    {/* Spotify Settings */}
                     <div className="mt-8 p-6 bg-[#0a0d12] border border-white/10 rounded-3xl">
                       <div className="mb-6">
-                        <h4 className="text-white font-bold flex items-center gap-2"><Globe className="w-5 h-5 text-emerald-500" /> ตัั้งค่าเพลงพื้นหลัง (Spotify)</h4>
-                        <p className="text-zinc-500 text-sm mt-1">ใส่ลิ้งค์ Spotify เพื่อเปิดเพลงอัตโนมัติเมื่อผู้ใช้เข้าเว็บ</p>
+                        <h4 className="text-white font-bold flex items-center gap-2"><Globe className="w-5 h-5 text-emerald-500" /> แผงควบคุมเพลงพื้นหลัง (Background Music)</h4>
+                        <p className="text-zinc-500 text-sm mt-1">ใส่ลิ้งค์ Spotify หรือลิ้งค์ไฟล์เสียงโดยตรง (.mp3) เพื่อเปิดเพลงอัตโนมัติเมื่อผู้ใช้เข้าเว็บ</p>
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div className="space-y-4">
                           <label className="block text-sm font-bold text-zinc-700 flex items-center gap-2">
-                             ลิ้งค์ Spotify (Track/Playlist/Album URL)
+                             ลิ้งค์เพลง (Spotify หรือ ลิ้งค์ตรง MP3)
                           </label>
                           <input 
                             type="text"
                             value={siteSettings.spotify_url || ''}
                             onChange={(e) => setSiteSettings({ ...siteSettings, spotify_url: e.target.value })}
                             className="w-full bg-[#0B0F14] border border-white/10 rounded-2xl px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-emerald-500 shadow-inner"
-                            placeholder="https://open.spotify.com/track/..."
+                            placeholder="https://... (MP3 หรือ Spotify)"
                           />
                         </div>
                         <div className="flex items-center space-y-4">

@@ -536,9 +536,6 @@ export const HomeView: React.FC<HomeViewProps> = ({
       <AnimatedScroll delay={235} direction="left">
         <div className="pt-8 w-full overflow-hidden">
           <div className="flex items-center gap-3 mb-6 pb-3 border-b-2 border-zinc-900">
-             <div className="w-10 h-10 bg-[#1E90FF] rounded-xl flex items-center justify-center shadow-lg shadow-[#1a7fe6]/20">
-               <Activity className="w-6 h-6 text-white" />
-             </div>
              <div>
                <h2 className="text-lg font-bold text-white leading-tight">รายการสั่งชื้อสินค้าล่าสุด</h2>
                <p className="text-[11px] text-[#1E90FF] font-medium mt-0.5">สินค้าที่ลูกค้าเพิ่งซื้อ 10 รายการล่าสุด</p>
@@ -612,13 +609,19 @@ export const HomeView: React.FC<HomeViewProps> = ({
               </div>
               <div>
                 <h2 className="text-lg font-bold text-white leading-tight">
-                  สินค้าทั่วไป
+                  สินค้าแนะนำสำหรับคุณ
                 </h2>
                 <p className="text-[11px] text-zinc-500 font-medium">
-                  สินค้าแนะนำสำหรับคุณ
+                  สินค้าทั่วไป
                 </p>
               </div>
             </div>
+            <button
+              onClick={() => setActiveView("categories")}
+              className="bg-zinc-900 text-white px-5 py-2.5 rounded-xl text-xs font-bold hover:bg-zinc-800 transition-all active:scale-95 flex items-center gap-2"
+            >
+              ดูเพิ่มเติม <ChevronRight className="w-3.5 h-3.5" />
+            </button>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">

@@ -125,7 +125,7 @@ export const DiscordCatcherTool: React.FC<DiscordCatcherToolProps> = ({ userPlan
                 <Bot className="w-5 h-5" />
              </div>
              <div>
-               <h2 className="text-white font-bold text-lg leading-tight">Discord Setup</h2>
+               <h2 className="text-white font-bold text-lg leading-tight">ดักซองดิสคอร์ด</h2>
                <p className="text-[#5865F2] text-xs font-medium">TrueMoney Catcher</p>
              </div>
           </div>

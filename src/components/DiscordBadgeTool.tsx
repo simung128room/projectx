@@ -121,10 +121,10 @@ export const DiscordBadgeTool: React.FC = () => {
                      <Star className="w-4 h-4" /> DISCORD TOOL
                   </div>
                   <h2 className="text-4xl md:text-5xl font-black text-white flex items-center gap-4 tracking-tight drop-shadow-lg">
-                     Get <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-[#5865F2]">HypeSquad</span> Badge
+                     รับ <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-[#5865F2]">ตราอัตโนมัติ</span>
                   </h2>
                   <p className="text-zinc-400 mt-4 text-base leading-relaxed max-w-2xl font-medium">
-                     Select the House you want. Receive a free HypeSquad badge for your profile easily with no cost!
+                     เลือกบ้านที่คุณต้องการเข้า และรับเหรียญตรา HypeSquad บนโปรไฟล์ของคุณได้ทันที ฟรีไม่มีค่าใช้จ่าย!
                   </p>
                 </div>
             </div>
@@ -132,9 +132,9 @@ export const DiscordBadgeTool: React.FC = () => {
             <div className="bg-orange-500/10 border border-orange-500/20 rounded-2xl p-4 flex gap-4 text-orange-400 text-sm">
                 <Info className="w-6 h-6 shrink-0" />
                 <div>
-                   <p className="font-bold mb-1">Security Warning!</p>
+                   <p className="font-bold mb-1">คำเตือนด้านความปลอดภัย!</p>
                    <p className="opacity-90 leading-relaxed">
-                       Our system doesn't store your User Token in the database. You can always invalidate your token by changing your password. Use an alt account for maximum safety.
+                       ระบบของเราไม่มีการเก็บ Token ของคุณลงฐานข้อมูล คุณสามารถรีเซ็ต Token ได้ด้วยการเปลี่ยนรหัสผ่าน เพื่อความปลอดภัยสูงสุด แนะนำให้ลองกับไอดีสำรองก่อน
                    </p>
                 </div>
             </div>

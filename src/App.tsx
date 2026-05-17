@@ -65,6 +65,7 @@ import {
   ArrowUpRight,
   Zap,
   Music,
+  ShieldCheck,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import Swal from "sweetalert2";
@@ -183,6 +184,11 @@ const LogCategoriesView = lazy(() =>
     default: module.LogCategoriesView,
   })),
 );
+const TwoFAGenerator = lazy(() =>
+  import("./components/TwoFAGenerator").then((module) => ({
+    default: module.TwoFAGenerator,
+  })),
+);
 
 import { CustomCursor } from "./components/CustomCursor";
 
@@ -291,6 +297,10 @@ function AppContent() {
     site_name: "APEX STUDIO",
     truewallet_phone: "",
     contact_line: "https://www.facebook.com/share/18emwBsqUf/?mibextid=wwXIfr",
+    discord_link: "",
+    facebook_link: "",
+    instagram_link: "",
+    contact_email: "support.apexstoreth@gmail.com",
     popup_enabled: false,
     popup_img_url: "",
     popup_link: "",
@@ -301,10 +311,16 @@ function AppContent() {
   });
 
   const [isMusicExpanded, setIsMusicExpanded] = useState(false);
+  const audioRef = useRef<HTMLAudioElement>(null);
 
   const formatSpotifyEmbedUrl = (url: string, autoplay: boolean) => {
     if (!url) return '';
     let embedUrl = url;
+    
+    // Check if it's a direct audio file
+    if (url.match(/\.(mp3|wav|ogg|m4a)$/) || url.includes('drive.google.com/uc')) {
+      return url;
+    }
     
     // Convert regular link to embed link
     if (url.includes('spotify.com') && !url.includes('spotify.com/embed')) {
@@ -325,6 +341,20 @@ function AppContent() {
     }
     return embedUrl;
   };
+
+  useEffect(() => {
+    if (siteSettings.spotify_autoplay && siteSettings.spotify_url && (siteSettings.spotify_url.match(/\.(mp3|wav|ogg|m4a)$/) || siteSettings.spotify_url.includes('drive.google.com/uc'))) {
+      const playAudio = () => {
+        if (audioRef.current) {
+          audioRef.current.play().catch(() => {
+            console.log("Autoplay blocked, waiting for user interaction");
+          });
+        }
+        window.removeEventListener('click', playAudio);
+      };
+      window.addEventListener('click', playAudio);
+    }
+  }, [siteSettings.spotify_autoplay, siteSettings.spotify_url]);
 
   // Home Store State (Moved up to prevent TDZ)
   const defaultProducts: Product[] = [];
@@ -369,6 +399,7 @@ function AppContent() {
     | "contact"
     | "login"
     | "signup"
+    | "two_fa_generator"
     | "wallet"
     | "redeem"
     | "product_detail"
@@ -1917,31 +1948,37 @@ function AppContent() {
                     onClick={() => setActiveView("telegram_catcher")}
                     className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-2xl text-sm font-bold transition-all ${activeView === "telegram_catcher" ? "bg-[#2AABEE]/10 text-[#2AABEE] shadow-md shadow-[#2AABEE]/10" : "text-zinc-400 hover:bg-[#0a0d12] hover:text-white"}`}
                   >
-                    Telegram Catcher
+                    ดักซองเทเลแกรม
                   </button>
                   <button
                     onClick={() => setActiveView("discord_catcher")}
                     className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-2xl text-sm font-bold transition-all ${activeView === "discord_catcher" ? "bg-[#5865F2]/10 text-[#5865F2] shadow-md shadow-[#5865F2]/10" : "text-zinc-400 hover:bg-[#0a0d12] hover:text-white"}`}
                   >
-                    Discord Catcher
+                    ดักซองดิสคอร์ด
                   </button>
                   <button
                     onClick={() => setActiveView("discord_on")}
                     className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-2xl text-sm font-bold transition-all ${activeView === "discord_on" ? "bg-[#5865F2]/10 text-[#5865F2] shadow-md shadow-[#5865F2]/10" : "text-zinc-400 hover:bg-[#0a0d12] hover:text-white"}`}
                   >
-                    Discord Token Checker
+                    รันโทเค่นดิสอคร์ด
                   </button>
                   <button
                     onClick={() => setActiveView("dashboard")}
                     className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-2xl text-sm font-bold transition-all ${activeView === "dashboard" ? "bg-[#1E90FF]/10 text-[#1E90FF] shadow-md shadow-[#1E90FF]/10" : "text-zinc-400 hover:bg-[#0a0d12] hover:text-white"}`}
                   >
-                    Garena Checker
+                    เช็คบัญชีการีน่า
                   </button>
                   <button
                     onClick={() => setActiveView("discord_badge")}
                     className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-2xl text-sm font-bold transition-all ${activeView === "discord_badge" ? "bg-[#5865F2]/10 text-[#5865F2] shadow-md shadow-[#5865F2]/10" : "text-zinc-400 hover:bg-[#0a0d12] hover:text-white"}`}
                   >
-                    Discord Badge Checker
+                    รับตราอัตโนมัติ
+                  </button>
+                  <button
+                    onClick={() => setActiveView("two_fa_generator")}
+                    className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-2xl text-sm font-bold transition-all ${activeView === "two_fa_generator" ? "bg-indigo-500/10 text-indigo-400 shadow-md shadow-indigo-500/10" : "text-zinc-400 hover:bg-[#0a0d12] hover:text-white"}`}
+                  >
+                    2FA Generator
                   </button>
                 </div>
               </div>
@@ -2234,7 +2271,7 @@ function AppContent() {
                               className={`w-full flex items-center gap-3 pl-14 pr-6 py-3 relative transition-colors ${activeView === "telegram_catcher" ? "text-[#1E90FF]" : "text-zinc-500 hover:text-white"}`}
                             >
                               <span className="font-medium text-[14px]">
-                                Telegram Catcher
+                                ดักซองเทเลแกรม
                               </span>
                             </button>
                             <button
@@ -2245,7 +2282,7 @@ function AppContent() {
                               className={`w-full flex items-center gap-3 pl-14 pr-6 py-3 relative transition-colors ${activeView === "discord_catcher" ? "text-[#1E90FF]" : "text-zinc-500 hover:text-white"}`}
                             >
                               <span className="font-medium text-[14px]">
-                                Discord Catcher
+                                ดักซองดิสคอร์ด
                               </span>
                             </button>
                             <button
@@ -2256,7 +2293,7 @@ function AppContent() {
                               className={`w-full flex items-center gap-3 pl-14 pr-6 py-3 relative transition-colors ${activeView === "discord_on" ? "text-[#1E90FF]" : "text-zinc-500 hover:text-white"}`}
                             >
                               <span className="font-medium text-[14px]">
-                                Token Checker
+                                รันโทเค่นดิสอคร์ด
                               </span>
                             </button>
                             <button
@@ -2267,7 +2304,7 @@ function AppContent() {
                               className={`w-full flex items-center gap-3 pl-14 pr-6 py-3 relative transition-colors ${activeView === "dashboard" ? "text-[#1E90FF]" : "text-zinc-500 hover:text-white"}`}
                             >
                               <span className="font-medium text-[14px]">
-                                Garena Checker
+                                เช็คบัญชีการีน่า
                               </span>
                             </button>
                             <button
@@ -2278,7 +2315,18 @@ function AppContent() {
                               className={`w-full flex items-center gap-3 pl-14 pr-6 py-3 relative transition-colors ${activeView === "discord_badge" ? "text-[#1E90FF]" : "text-zinc-500 hover:text-white"}`}
                             >
                               <span className="font-medium text-[14px]">
-                                Badge Checker
+                                รับตราอัตโนมัติ
+                              </span>
+                            </button>
+                            <button
+                              onClick={() => {
+                                setActiveView("two_fa_generator");
+                                setIsMobileMenuOpen(false);
+                              }}
+                              className={`w-full flex items-center gap-3 pl-14 pr-6 py-3 relative transition-colors ${activeView === "two_fa_generator" ? "text-[#1E90FF]" : "text-zinc-500 hover:text-white"}`}
+                            >
+                              <span className="font-medium text-[14px]">
+                                2FA Generator
                               </span>
                             </button>
                           </div>
@@ -2555,7 +2603,10 @@ function AppContent() {
             {activeView === "contact" && (
               <ContactView
                 onBack={() => setActiveView("home")}
-                facebookLink={siteSettings?.contact_line}
+                facebookLink={siteSettings?.facebook_link || siteSettings?.contact_line}
+                discordLink={siteSettings?.discord_link}
+                instagramLink={siteSettings?.instagram_link}
+                contactEmail={siteSettings?.contact_email}
               />
             )}
             {activeView === "custom_page" && selectedPage && (
@@ -2593,6 +2644,7 @@ function AppContent() {
               <DiscordTokenOnTool userPlan={userPlan} />
             )}
             {activeView === "discord_badge" && <DiscordBadgeTool />}
+            {activeView === "two_fa_generator" && <TwoFAGenerator />}
             {activeView === "logs" && (
               <HistoryLogsView
                 usedKeysHistory={usedKeysHistory}
@@ -3346,13 +3398,44 @@ function AppContent() {
                   <li>
                     <button
                       onClick={() =>
-                        window.open(siteSettings?.contact_line, "_blank")
+                        siteSettings?.discord_link && siteSettings.discord_link !== '#' ? window.open(siteSettings.discord_link, "_blank") : null
                       }
-                      className="flex items-center gap-2 hover:text-[#1E90FF] transition-colors"
+                      className="flex items-center gap-2 hover:text-[#5865F2] transition-colors"
                     >
-                      <div className="w-1.5 h-1.5 rounded-full bg-[#00B900]"></div>
-                      Line Official
+                      <div className="w-1.5 h-1.5 rounded-full bg-[#5865F2]"></div>
+                      Discord
                     </button>
+                  </li>
+                  <li>
+                    <button
+                      onClick={() =>
+                        siteSettings?.instagram_link && siteSettings.instagram_link !== '#' ? window.open(siteSettings.instagram_link, "_blank") : null
+                      }
+                      className="flex items-center gap-2 hover:text-[#E4405F] transition-colors"
+                    >
+                      <div className="w-1.5 h-1.5 rounded-full bg-[#E4405F]"></div>
+                      Instagram
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      onClick={() =>
+                        (siteSettings?.facebook_link || siteSettings?.contact_line) && (siteSettings?.facebook_link !== '#' && siteSettings?.contact_line !== '#') ? window.open(siteSettings?.facebook_link || siteSettings?.contact_line, "_blank") : null
+                      }
+                      className="flex items-center gap-2 hover:text-[#1877F2] transition-colors"
+                    >
+                      <div className="w-1.5 h-1.5 rounded-full bg-[#1877F2]"></div>
+                      Facebook
+                    </button>
+                  </li>
+                  <li>
+                    <a
+                      href={`mailto:${siteSettings?.contact_email || 'support.apexstoreth@gmail.com'}`}
+                      className="flex items-center gap-2 hover:text-white text-zinc-400 transition-colors"
+                    >
+                      <div className="w-1.5 h-1.5 rounded-full bg-zinc-400"></div>
+                      Email Support
+                    </a>
                   </li>
                 </ul>
               </div>
@@ -3647,28 +3730,47 @@ function AppContent() {
           />
         )}
 
-        {/* Global Spotify Audio Player */}
+        {/* Global Audio Provider */}
         {siteSettings.spotify_url && (
           <div className="fixed bottom-6 right-6 z-[999] flex flex-col items-end gap-3">
              <button 
                onClick={() => setIsMusicExpanded(!isMusicExpanded)}
-               className={`w-12 h-12 rounded-2xl bg-[#0b0e14]/90 backdrop-blur-xl border border-white/10 flex items-center justify-center text-emerald-500 shadow-2xl transition-all duration-300 hover:scale-110 active:scale-95 ${isMusicExpanded ? 'rotate-90' : ''}`}
+               className={`w-12 h-12 rounded-2xl bg-[#0b0e14]/90 backdrop-blur-xl border border-white/10 flex items-center justify-center text-[#1E90FF] shadow-2xl transition-all duration-300 hover:scale-110 active:scale-95 ${isMusicExpanded ? 'rotate-90' : ''}`}
                title="เปิด/ปิด แถบเพลง"
              >
                 <Music className="w-5 h-5" />
              </button>
 
              <div className={`transition-all duration-500 transform origin-bottom-right ${isMusicExpanded || siteSettings.spotify_autoplay ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-10 opacity-0 scale-50 pointer-events-none'}`}>
-                <div className="bg-[#0b0e14]/90 backdrop-blur-xl border border-white/10 p-1 rounded-2xl shadow-2xl overflow-hidden w-[300px] h-[80px]">
-                    <iframe 
-                      src={formatSpotifyEmbedUrl(siteSettings.spotify_url, siteSettings.spotify_autoplay || false)} 
-                      width="100%" 
-                      height="100%" 
-                      frameBorder="0" 
-                      allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
-                      loading="lazy"
-                      className="rounded-xl"
-                    ></iframe>
+                <div className={`bg-[#0b0e14]/90 backdrop-blur-xl border border-white/10 p-1 rounded-2xl shadow-2xl overflow-hidden ${siteSettings.spotify_url.match(/\.(mp3|wav|ogg|m4a)$/) || siteSettings.spotify_url.includes('drive.google.com/uc') ? 'w-auto h-auto' : 'w-[300px] h-[80px]'}`}>
+                    {siteSettings.spotify_url.match(/\.(mp3|wav|ogg|m4a)$/) || siteSettings.spotify_url.includes('drive.google.com/uc') ? (
+                      <div className="p-3 flex items-center gap-4 min-w-[280px]">
+                         <div className="w-10 h-10 rounded-xl bg-[#1E90FF]/10 flex items-center justify-center">
+                            <Music className="w-5 h-5 text-[#1E90FF] animate-pulse" />
+                         </div>
+                         <div className="flex-1">
+                            <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Playing Background Music</p>
+                            <audio 
+                              ref={audioRef}
+                              src={formatSpotifyEmbedUrl(siteSettings.spotify_url, false)} 
+                              controls 
+                              autoPlay={siteSettings.spotify_autoplay}
+                              loop
+                              className="h-8 w-full mt-1 accent-[#1E90FF]"
+                            />
+                         </div>
+                      </div>
+                    ) : (
+                      <iframe 
+                        src={formatSpotifyEmbedUrl(siteSettings.spotify_url, siteSettings.spotify_autoplay || false)} 
+                        width="100%" 
+                        height="100%" 
+                        frameBorder="0" 
+                        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+                        loading="lazy"
+                        className="rounded-xl"
+                      ></iframe>
+                    )}
                 </div>
              </div>
           </div>

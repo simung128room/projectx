@@ -1,13 +1,22 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { ArrowLeft, MessageSquare } from 'lucide-react';
+import { ArrowLeft, MessageSquare, Mail } from 'lucide-react';
 
 interface ContactViewProps {
   onBack: () => void;
   facebookLink?: string;
+  discordLink?: string;
+  instagramLink?: string;
+  contactEmail?: string;
 }
 
-export const ContactView: React.FC<ContactViewProps> = ({ onBack, facebookLink = '#' }) => {
+export const ContactView: React.FC<ContactViewProps> = ({ 
+  onBack, 
+  facebookLink = '#',
+  discordLink = 'https://discord.gg/2NSuSmkzun',
+  instagramLink = '#',
+  contactEmail = 'support.apexstoreth@gmail.com'
+}) => {
   return (
     <div className="w-full max-w-5xl mx-auto p-4 md:p-8 animate-in fade-in duration-500 font-sans text-white">
       <button 
@@ -32,10 +41,15 @@ export const ContactView: React.FC<ContactViewProps> = ({ onBack, facebookLink =
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Discord */}
         <a 
-          href="https://discord.gg/2NSuSmkzun" 
-          target="_blank" 
+          href={discordLink} 
+          target={discordLink !== '#' ? "_blank" : "_self"} 
           rel="noopener noreferrer"
           className="bg-[#0B0F14] border border-white/10 hover:border-[#5865F2] hover:shadow-md hover:shadow-[#5865F2]/10 transition-all rounded-3xl p-8 flex flex-col items-center justify-center text-center group cursor-pointer"
+          onClick={(e) => {
+            if (discordLink === '#') {
+              e.preventDefault();
+            }
+          }}
         >
           <div className="w-20 h-20 bg-[#5865F2]/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
             <svg width="40" height="40" viewBox="0 0 127.14 96.36" fill="#5865F2" xmlns="http://www.w3.org/2000/svg">
@@ -47,6 +61,11 @@ export const ContactView: React.FC<ContactViewProps> = ({ onBack, facebookLink =
           <div className="mt-6 px-6 py-2.5 bg-[#5865F2] text-white rounded-xl font-bold text-sm shadow-sm group-hover:bg-[#4752C4] transition-colors">
             เข้าร่วม Discord
           </div>
+          {discordLink === '#' && (
+            <div className="absolute top-4 right-4 bg-[#121820] text-zinc-500 text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wide">
+              เร็วๆ นี้
+            </div>
+          )}
         </a>
 
         {/* Facebook */}
@@ -72,6 +91,60 @@ export const ContactView: React.FC<ContactViewProps> = ({ onBack, facebookLink =
             ติดต่อผ่าน Facebook
           </div>
           {facebookLink === '#' && (
+            <div className="absolute top-4 right-4 bg-[#121820] text-zinc-500 text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wide">
+              เร็วๆ นี้
+            </div>
+          )}
+        </a>
+
+        {/* Instagram */}
+        <a 
+          href={instagramLink} 
+          target={instagramLink !== '#' ? "_blank" : "_self"} 
+          rel="noopener noreferrer"
+          className="bg-[#0B0F14] border border-white/10 hover:border-[#E4405F] hover:shadow-md hover:shadow-[#E4405F]/10 transition-all rounded-3xl p-8 flex flex-col items-center justify-center text-center group cursor-pointer relative overflow-hidden"
+          onClick={(e) => {
+            if (instagramLink === '#') {
+              e.preventDefault();
+            }
+          }}
+        >
+          <div className="w-20 h-20 bg-[#E4405F]/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="#E4405F" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.28.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+            </svg>
+          </div>
+          <h2 className="text-xl font-black text-white mb-2">Instagram</h2>
+          <p className="text-zinc-500 text-sm font-medium">ติดตามบรรยากาศและโปรโมชั่นต่างๆ ผ่านทาง Instagram</p>
+          <div className="mt-6 px-6 py-2.5 bg-[#E4405F] text-white rounded-xl font-bold text-sm shadow-sm group-hover:bg-[#d83753] transition-colors">
+            ติดตาม Instagram
+          </div>
+          {instagramLink === '#' && (
+            <div className="absolute top-4 right-4 bg-[#121820] text-zinc-500 text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wide">
+              เร็วๆ นี้
+            </div>
+          )}
+        </a>
+
+        {/* Email Support */}
+        <a 
+          href={`mailto:${contactEmail}`} 
+          className="bg-[#0B0F14] border border-white/10 hover:border-zinc-500 hover:shadow-md hover:shadow-white/5 transition-all rounded-3xl p-8 flex flex-col items-center justify-center text-center group cursor-pointer relative overflow-hidden"
+          onClick={(e) => {
+            if (!contactEmail) {
+              e.preventDefault();
+            }
+          }}
+        >
+          <div className="w-20 h-20 bg-white/5 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+             <Mail className="w-10 h-10 text-white" />
+          </div>
+          <h2 className="text-xl font-black text-white mb-2">Email Support</h2>
+          <p className="text-zinc-500 text-sm font-medium">ติดต่อแจ้งปัญหาหรือสอบถามข้อมูลเพิ่มเติมผ่านทางอีเมล</p>
+          <div className="mt-6 px-6 py-2.5 bg-zinc-800 text-white rounded-xl font-bold text-sm shadow-sm group-hover:bg-zinc-700 transition-colors">
+            ส่งอีเมลหาเรา
+          </div>
+          {!contactEmail && (
             <div className="absolute top-4 right-4 bg-[#121820] text-zinc-500 text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wide">
               เร็วๆ นี้
             </div>
