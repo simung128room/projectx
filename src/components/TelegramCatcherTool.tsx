@@ -158,13 +158,13 @@ export const TelegramCatcherTool: React.FC<TelegramCatcherToolProps> = ({ userPl
                   value={telegramPhone}
                   onChange={e => setTelegramPhone(e.target.value)}
                   placeholder="+66XXXXXXXXX"
-                  className="w-full bg-[#0e1621] border border-white/5 rounded-xl py-3 pl-10 pr-4 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-[#2AABEE]/50 transition-colors"
+                  className="w-full bg-[#0a0d12] border border-white/10 rounded-xl py-3 pl-10 pr-4 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-[#2AABEE]/50 focus:ring-1 focus:ring-[#2AABEE]/20 transition-all font-mono"
                   disabled={status !== 'none' && status !== 'error'}
                 />
               </div>
             </div>
 
-            <div>
+            <div className="pt-2">
               <label className="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-1.5 block">TrueMoney Phone</label>
               <div className="relative">
                 <Wallet className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
@@ -173,19 +173,21 @@ export const TelegramCatcherTool: React.FC<TelegramCatcherToolProps> = ({ userPl
                   value={truemoneyPhone}
                   onChange={e => setTruemoneyPhone(e.target.value)}
                   placeholder="0XXXXXXXXX"
-                  className="w-full bg-[#0e1621] border border-white/5 rounded-xl py-3 pl-10 pr-4 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-[#2AABEE]/50 transition-colors"
+                  className="w-full bg-[#0a0d12] border border-white/10 rounded-xl py-3 pl-10 pr-4 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-[#2AABEE]/50 focus:ring-1 focus:ring-[#2AABEE]/20 transition-all font-mono"
                   disabled={status !== 'none' && status !== 'error'}
                 />
               </div>
             </div>
             
+            <div className="h-px bg-white/5 my-2" />
+
             {(status === 'none' || status === 'error') && (
               <button 
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-[#2AABEE] hover:bg-[#229ED9] text-white font-bold rounded-xl py-3 text-sm transition-all shadow-lg shadow-[#2AABEE]/20 flex items-center justify-center gap-2 mt-2 disabled:opacity-50"
+                className="w-full bg-[#2AABEE] hover:bg-[#229ED9] text-white font-black rounded-xl py-3 text-sm transition-all shadow-lg shadow-[#2AABEE]/20 flex items-center justify-center gap-2 mt-2 disabled:opacity-50 active:scale-[0.98]"
               >
-                {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Bot className="w-5 h-5" /> Connect</>}
+                {isLoading ? <><Loader2 className="w-4 h-4 animate-spin" /> Connecting...</> : <><Bot className="w-5 h-5" /> Connect Bot</>}
               </button>
             )}
             
@@ -256,20 +258,29 @@ export const TelegramCatcherTool: React.FC<TelegramCatcherToolProps> = ({ userPl
             </div>
             <div>
               <div className="text-white font-bold text-sm">TrueMoney Catcher Bot</div>
-              <div className="text-[#2AABEE] text-xs mt-0.5">
-                {status === 'connected' ? 'online' : status === 'none' ? 'waiting for connection...' : 'connecting...'}
+              <div className={`text-xs mt-0.5 font-medium transition-colors ${
+                status === 'connected' ? 'text-emerald-400' : 
+                status === 'idle' || status === 'connecting' || status.includes('pending') ? 'text-[#7ED6FF]' :
+                status === 'error' ? 'text-red-400' : 'text-zinc-400'
+              }`}>
+                {status === 'connected' ? '● Online & Ready' : 
+                 status === 'none' ? 'Waiting for connection...' : 
+                 status === 'idle' || status === 'connecting' ? 'Establishing connection...' : 
+                 status === 'pending_otp' ? 'Waiting for OTP verification' :
+                 status === 'pending_password' ? 'Waiting for 2FA Password' :
+                 status === 'error' ? 'Connection failed' : 'Processing...'}
               </div>
             </div>
           </div>
 
           <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-3 z-10 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
             {logs.length === 0 ? (
-              <div className="mt-auto mb-auto text-center">
+              <div className="mt-auto mb-auto text-center opacity-40">
                 <div className="w-16 h-16 bg-[#1c242d] rounded-full flex items-center justify-center mx-auto mb-4 border border-white/5">
-                  <Bot className="w-8 h-8 text-zinc-500" />
+                   <Send className="w-6 h-6 text-zinc-500" />
                 </div>
-                <div className="bg-white/5 text-zinc-400 text-xs px-4 py-1.5 rounded-full inline-block font-medium">
-                  Add phone numbers and connect to start
+                <div className="bg-white/5 text-zinc-400 text-[10px] px-6 py-2 rounded-full inline-block font-black uppercase tracking-[0.2em]">
+                  Awaiting Connection
                 </div>
               </div>
             ) : (

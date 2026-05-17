@@ -140,13 +140,13 @@ export const DiscordCatcherTool: React.FC<DiscordCatcherToolProps> = ({ userPlan
                   value={discordToken}
                   onChange={e => setDiscordToken(e.target.value)}
                   placeholder="MTA...."
-                  className="w-full bg-[#0e1621] border border-white/5 rounded-xl py-3 pl-10 pr-4 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-[#5865F2]/50 transition-colors font-mono"
+                  className="w-full bg-[#0a0d12] border border-white/10 rounded-xl py-3 pl-10 pr-4 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-[#5865F2]/50 focus:ring-1 focus:ring-[#5865F2]/20 transition-all font-mono"
                   disabled={status !== 'none' && status !== 'error'}
                 />
               </div>
             </div>
 
-            <div>
+            <div className="pt-2">
               <label className="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-1.5 block">TrueMoney Phone</label>
               <div className="relative">
                 <Wallet className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
@@ -155,19 +155,25 @@ export const DiscordCatcherTool: React.FC<DiscordCatcherToolProps> = ({ userPlan
                   value={truemoneyPhone}
                   onChange={e => setTruemoneyPhone(e.target.value)}
                   placeholder="08X-XXX-XXXX"
-                  className="w-full bg-[#0e1621] border border-white/5 rounded-xl py-3 pl-10 pr-4 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-[#5865F2]/50 transition-colors font-mono"
+                  className="w-full bg-[#0a0d12] border border-white/10 rounded-xl py-3 pl-10 pr-4 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-[#5865F2]/50 focus:ring-1 focus:ring-[#5865F2]/20 transition-all font-mono"
                   disabled={status !== 'none' && status !== 'error'}
                 />
               </div>
             </div>
             
+            <div className="h-px bg-white/5 my-2" /> 
+
             {(status === 'none' || status === 'error') && (
               <button 
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-[#5865F2] hover:bg-[#4752C4] text-white font-bold rounded-xl py-3 text-sm transition-all shadow-lg shadow-[#5865F2]/20 flex items-center justify-center gap-2 mt-2 disabled:opacity-50"
+                className="w-full bg-[#5865F2] hover:bg-[#4752C4] text-white font-black rounded-xl py-3 text-sm transition-all shadow-lg shadow-[#5865F2]/20 flex items-center justify-center gap-2 mt-2 disabled:opacity-50 active:scale-[0.98]"
               >
-                {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Bot className="w-5 h-5" /> Connect Bot</>}
+                {isLoading ? (
+                  <><Loader2 className="w-4 h-4 animate-spin" /> Connecting...</>
+                ) : (
+                  <><Bot className="w-5 h-5" /> Connect Bot</>
+                )}
               </button>
             )}
             
@@ -192,8 +198,15 @@ export const DiscordCatcherTool: React.FC<DiscordCatcherToolProps> = ({ userPlan
             </div>
             <div>
               <div className="text-white font-bold text-sm">TrueMoney Catcher Bot</div>
-              <div className="text-[#5865F2] text-xs mt-0.5">
-                {status === 'connected' ? 'online' : status === 'none' ? 'waiting for connection...' : 'connecting...'}
+              <div className={`text-xs mt-0.5 font-medium transition-colors ${
+                status === 'connected' ? 'text-emerald-400' : 
+                status === 'idle' || status === 'connecting' ? 'text-amber-400' :
+                status === 'error' ? 'text-red-400' : 'text-indigo-300'
+              }`}>
+                {status === 'connected' ? '● Online & Ready' : 
+                 status === 'none' ? 'Waiting for connection...' : 
+                 status === 'idle' || status === 'connecting' ? 'Establishing connection...' : 
+                 status === 'error' ? 'Connection failed' : 'Processing...'}
               </div>
             </div>
           </div>

@@ -132,19 +132,21 @@ export const DiscordTokenOnTool: React.FC<DiscordTokenOnToolProps> = ({ userPlan
                   value={discordToken}
                   onChange={e => setDiscordToken(e.target.value)}
                   placeholder="MTA...."
-                  className="w-full bg-[#0e1621] border border-white/5 rounded-xl py-3 pl-10 pr-4 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-[#5865F2]/50 transition-colors font-mono"
+                  className="w-full bg-[#0a0d12] border border-white/10 rounded-xl py-3 pl-10 pr-4 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-[#5865F2]/50 focus:ring-1 focus:ring-[#5865F2]/20 transition-all font-mono"
                   disabled={status !== 'none' && status !== 'error'}
                 />
               </div>
             </div>
             
+            <div className="h-px bg-white/5 my-2" />
+
             {(status === 'none' || status === 'error') && (
               <button 
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-[#5865F2] hover:bg-[#4752C4] text-white font-bold rounded-xl py-3 text-sm transition-all shadow-lg shadow-[#5865F2]/20 flex items-center justify-center gap-2 mt-2 disabled:opacity-50"
+                className="w-full bg-[#5865F2] hover:bg-[#4752C4] text-white font-black rounded-xl py-3 text-sm transition-all shadow-lg shadow-[#5865F2]/20 flex items-center justify-center gap-2 mt-2 disabled:opacity-50 active:scale-[0.98]"
               >
-                {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Power className="w-5 h-5" /> Connect Token</>}
+                {isLoading ? <><Loader2 className="w-4 h-4 animate-spin" /> Connecting...</> : <><Power className="w-5 h-5" /> Connect Token</>}
               </button>
             )}
             
@@ -169,10 +171,15 @@ export const DiscordTokenOnTool: React.FC<DiscordTokenOnToolProps> = ({ userPlan
             </div>
             <div>
               <div className="text-white font-bold text-sm">Discord Token Status</div>
-              <div className="text-[#5865F2] text-xs mt-0.5 flex items-center gap-1.5">
+              <div className={`text-xs mt-0.5 flex items-center gap-1.5 font-medium transition-colors ${
+                status === 'connected' ? 'text-emerald-400' : 
+                status === 'idle' || status === 'connecting' ? 'text-amber-400' :
+                status === 'error' ? 'text-red-400' : 'text-indigo-300'
+              }`}>
                 {status === 'connected' ? (
-                  <>online <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span></>
-                ) : status === 'none' ? 'waiting for token...' : 'connecting...'}
+                  <>● Online & Working <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span></>
+                ) : status === 'none' ? 'Waiting for token...' : 
+                status === 'error' ? 'Connection failed' : 'Establishing connection...'}
               </div>
             </div>
           </div>
