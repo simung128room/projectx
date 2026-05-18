@@ -82,6 +82,24 @@ app.set('trust proxy', 1);
   const PORT = 3000;
 
   // Add RateLimiting to prevent bot attacks
+  const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 10,
+    standardHeaders: true,
+    legacyHeaders: false,
+    validate: { xForwardedForHeader: false, trustProxy: false },
+    message: { error: 'ขออภัย คุณทำรายการบ่อยเกินไป กรุณารอสักครู่' }
+  });
+
+  const mutationLimiter = rateLimit({
+    windowMs: 1 * 60 * 1000,
+    max: 30, // 30 requests per minute
+    standardHeaders: true, 
+    legacyHeaders: false, 
+    validate: { xForwardedForHeader: false, trustProxy: false },
+    message: { error: 'คุณดำเนินการบางอย่างเร็วเกินไป กรุณารอสักครู่' }
+  });
+
   const checkLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 100, 
@@ -331,7 +349,7 @@ const cleanupTokenCache = () => {
     res.json(siteSettings);
   });
 
-  app.post('/api/reset-password', checkLimiter, async (req, res) => {
+  app.post('/api/reset-password', authLimiter, async (req, res) => {
     const { username, email, newPassword } = req.body;
     try {
       const generatedEmail = `${username.toLowerCase().replace(/\s+/g, '')}@apex-studio.com`;
@@ -360,7 +378,7 @@ const cleanupTokenCache = () => {
     }
   });
 
-  app.post('/api/signup', async (req, res) => {
+  app.post('/api/signup', authLimiter, async (req, res) => {
     const { email, password, recoveryEmail } = req.body;
     try {
       const { data, error } = await supabaseAdmin.auth.admin.createUser({
@@ -437,7 +455,7 @@ const cleanupTokenCache = () => {
     return res.json({ success: true, settings: siteSettings });
   });
 
-  app.post('/api/topup/truemoney', requireAuth, async (req: any, res: any) => {
+  app.post('/api/topup/truemoney', mutationLimiter, requireAuth, async (req: any, res: any) => {
     try {
       const { voucherCode } = req.body;
       const uid = req.user.uid;
@@ -530,7 +548,7 @@ const cleanupTokenCache = () => {
 
   const usedSlips = new Set<string>();
 
-  app.post('/api/topup/slip', requireAuth, async (req: any, res: any) => {
+  app.post('/api/topup/slip', mutationLimiter, requireAuth, async (req: any, res: any) => {
     try {
       const { imageBase64 } = req.body;
       const uid = req.user.uid;
@@ -1468,7 +1486,12 @@ const cleanupTokenCache = () => {
     if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
     try {
       const product = req.body;
-      const { id, ...dataToSaveRaw } = product;
+      const allowedFields = ['name', 'description', 'price', 'originalPrice', 'stock', 'categoryId', 'stockData', 'image', 'isHighlight', 'customPageId', 'youtubeUrl', 'type'];
+      const sanitizedProduct = Object.fromEntries(
+        Object.entries(product).filter(([k]) => allowedFields.includes(k))
+      );
+
+      const { id, ...dataToSaveRaw } = sanitizedProduct as any;
       if (dataToSaveRaw.stockData) {
         dataToSaveRaw.stockData = compressStock(dataToSaveRaw.stockData);
       }
@@ -1537,7 +1560,12 @@ const cleanupTokenCache = () => {
     if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
     try {
       const product = req.body;
-      const { id, ...dataToSaveRaw } = product;
+      const allowedFields = ['name', 'description', 'price', 'originalPrice', 'stock', 'categoryId', 'stockData', 'image', 'isHighlight', 'customPageId', 'youtubeUrl', 'type'];
+      const sanitizedProduct = Object.fromEntries(
+        Object.entries(product).filter(([k]) => allowedFields.includes(k))
+      );
+      
+      const { id, ...dataToSaveRaw } = sanitizedProduct as any;
       if (dataToSaveRaw.stockData) {
         dataToSaveRaw.stockData = compressStock(dataToSaveRaw.stockData);
       }
@@ -1773,7 +1801,7 @@ console.log('HIT STATS ENDPOINT');
     }
   });
 
-  app.post('/api/buy', requireAuth, async (req: any, res: any) => {
+  app.post('/api/buy', mutationLimiter, requireAuth, async (req: any, res: any) => {
     const { productId, quantity } = req.body;
     if (!productId || typeof quantity !== 'number' || quantity < 1) {
       return res.status(400).json({ error: 'Invalid product or quantity' });
@@ -2230,19 +2258,35 @@ console.log('HIT STATS ENDPOINT');
       
       const targetUID = req.query.uid;
       
+      let needsSortInMemory = false;
+      
       if (req.isAdmin) {
         if (targetUID) {
           q = q.where('uid', '==', targetUID) as any;
+          needsSortInMemory = true;
+          q = q.limit(1000);
+        } else {
+          q = q.orderBy('used_at', 'desc').limit(100);
         }
       } else if (req.user) {
         // User requesting their own history
-        q = q.where('uid', '==', req.user.uid) as any;
+        q = q.where('uid', '==', req.user.uid).limit(1000) as any;
+        needsSortInMemory = true;
       } else {
         return res.status(401).json({ error: 'Unauthorized' });
       }
 
-      const snapshot = await q.orderBy('used_at', 'desc').limit(100).get();
-      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const snapshot = await q.get();
+      let data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      
+      if (needsSortInMemory) {
+        data.sort((a: any, b: any) => {
+          const dateA = new Date(a.used_at || 0).getTime();
+          const dateB = new Date(b.used_at || 0).getTime();
+          return dateB - dateA;
+        });
+        data = data.slice(0, 100); // Limit to 100 results per request
+      }
       res.json(data);
     } catch (err: any) {
       console.error('Internal server error fetching used_keys:', err.message || err);
@@ -2408,7 +2452,7 @@ console.log('HIT STATS ENDPOINT');
   // Mutex for key redemption
   const redeemLocks: Record<string, Promise<any>> = {};
 
-  app.post('/api/redeem', requireAuth, async (req: any, res: any) => {
+  app.post('/api/redeem', mutationLimiter, requireAuth, async (req: any, res: any) => {
     const { key } = req.body;
     if (!key) return res.status(400).json({ error: 'Key is required' });
 
@@ -2551,19 +2595,17 @@ console.log('HIT STATS ENDPOINT');
       const { uid } = req.params;
       const data = req.body;
       
-      // Prevent privilege escalation and balance spoofing
+      // Prevent privilege escalation and balance spoofing via whitelisting for non-admin
+      let dataToUpdate = data;
       if (!req.isAdmin) {
-        delete data.balance;
-        delete data.amount;
-        delete data.role;
-        delete data.isPremium;
-        delete data.status;
-        delete data.rank;
-        delete data.premiumExpireDate;
+        const allowedFields = ['avatar', 'displayName', 'bio', 'username', 'fullName', 'email', 'registeredAt']; 
+        dataToUpdate = Object.fromEntries(
+          Object.entries(data).filter(([k]) => allowedFields.includes(k))
+        );
       }
       
       const docRef = admin.firestore().collection('users').doc(uid);
-      await docRef.set({ ...data, updatedAt: new Date().toISOString() }, { merge: true });
+      await docRef.set({ ...dataToUpdate, updatedAt: new Date().toISOString() }, { merge: true });
       res.json({ success: true });
     } catch (err: any) {
       console.error('Error saving user:', err.message || JSON.stringify(err));

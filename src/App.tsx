@@ -1157,6 +1157,9 @@ function AppContent() {
     setIsAdmin(false);
     setUserPlan(null);
     setUser(null);
+    setPurchaseHistory([]);
+    setTopupHistory([]);
+    setUsedKeysHistory([]);
     setActiveView("home");
     Swal.fire({
       icon: "info",
