@@ -2083,8 +2083,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   setStockProduct(undefined);
                   Swal.fire({ title: 'เพิ่มสต๊อกสำเร็จ', icon: 'success', background: '#09090b', color: '#fff' });
                 } catch (err: any) {
-                  console.error(err.response?.data || err);
-                  Swal.fire('Error', 'ไม่สามารถอัพเดตสต๊อกได้', 'error');
+                  const errorExt = err.response?.data?.error || err.message || JSON.stringify(err);
+                  console.error("Update stock error:", err.response?.data || err);
+                  Swal.fire('Error', `ไม่สามารถอัพเดตสต๊อกได้: ${errorExt}`, 'error');
                 }
               }
             }}

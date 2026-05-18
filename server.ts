@@ -21,7 +21,7 @@ import os from 'os';
 import zlib from 'zlib';
 
 const compressStock = (stockData: any) => {
-  if (!Array.isArray(stockData) || stockData.length < 5000) return stockData;
+  if (!Array.isArray(stockData) || stockData.length < 500) return stockData;
   return { __compressed: zlib.gzipSync(JSON.stringify(stockData)).toString('base64') };
 };
 
@@ -184,27 +184,8 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
     });
   });
 
-  app.use(cors({
-    origin: function (origin, callback) {
-      // Allow requests with no origin (like mobile apps or curl requests)
-      if (!origin) return callback(null, true);
-      
-      const allowedOrigins = [
-        'https://apexcheck.space',
-        'https://www.apexstore.xyz',
-        'https://apexstore.xyz',
-        'http://localhost:3000'
-      ];
-      
-      // Allow cloud run domains dynamically
-      if (origin.endsWith('.run.app') || origin.endsWith('.vercel.app') || origin.includes('apexstore.xyz') || allowedOrigins.indexOf(origin) !== -1) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
-    },
-    credentials: true
-  }));
+  app.use(cors());
+  app.options('*', cors());
   app.use(express.json({ limit: '50mb' }));
   app.use(express.urlencoded({ limit: '50mb', extended: true }));
   app.use(injectUser);
