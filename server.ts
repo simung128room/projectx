@@ -233,6 +233,15 @@ const cleanupTokenCache = () => {
   app.options('*', cors());
   app.use(express.json({ limit: '50mb' }));
   app.use(express.urlencoded({ limit: '50mb', extended: true }));
+  
+  // Security Fix: Prevent aggressive caching of user-specific APIs to avoid data leaks
+  app.use((req, res, next) => {
+    if (req.path.startsWith('/api/')) {
+       res.setHeader('Cache-Control', 'private, no-cache, no-store, must-revalidate');
+    }
+    next();
+  });
+  
   app.use(injectUser);
 
   app.post('/api/upload', requireAdmin, (req: any, res: any, next: any) => {
@@ -1422,21 +1431,36 @@ const cleanupTokenCache = () => {
 
   app.get('/api/products', async (req: any, res: any) => {
     try {
+      // Opt-in for public caching of products (TTL 30 seconds)
+      res.setHeader('Cache-Control', 'public, max-age=30, s-maxage=30');
       const data = await getCachedCollection('products');
       const processedData = data.map((item: any) => {
-        if (!req.isAdmin) {
-          const { stockData, ...publicItem } = item;
-          return publicItem;
-        }
-        if (item.stockData) {
-          return { ...item, stockData: decompressStock(item.stockData) };
-        }
-        return item;
+        // ALWAYS strip stockData to prevent RAM blowout (both for admin and public)
+        const { stockData, ...publicItem } = item;
+        return publicItem;
       });
       res.json(processedData);
     } catch (err: any) {
       console.error('PROD ERR OBJ:', JSON.stringify(err, Object.getOwnPropertyNames(err)));
       res.status(500).json({ error: String(err && err.message ? err.message : err) });
+    }
+  });
+
+  app.get('/api/products/:id/stock', requireAdmin, async (req: any, res: any) => {
+    if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
+    try {
+      const doc = await admin.firestore().collection('products').doc(req.params.id).get();
+      if (!doc.exists) {
+        return res.status(404).json({ error: 'Product not found' });
+      }
+      let stockData = doc.data()?.stockData || [];
+      if (stockData) {
+        stockData = decompressStock(stockData);
+      }
+      res.json({ stockData });
+    } catch (err: any) {
+      console.error('Error fetching stock data:', err);
+      res.status(500).json({ error: String(err.message || err) });
     }
   });
 
@@ -1555,6 +1579,7 @@ const cleanupTokenCache = () => {
   app.get('/api/stats', async (req, res) => {
 console.log('HIT STATS ENDPOINT');
     try {
+      res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=120');
       const now = Date.now();
       if (cachedStats && now - lastStatsFetch < 600000) {
         return res.json(cachedStats);
@@ -1902,7 +1927,13 @@ console.log('HIT STATS ENDPOINT');
         const data = snapshot.docs.map((doc: any) => ({ dbId: doc.id, ...doc.data() }));
         return res.json(data);
       } else if (req.user) {
-        const snapshot = await q.where('userId', '==', req.user.uid).limit(1000).get();
+        let snapshot;
+        try {
+           snapshot = await q.where('uid', '==', req.user.uid).limit(1000).get();
+        } catch (e: any) {
+           // Fallback in case 'uid' was not indexed properly or older data doesn't have it
+           snapshot = await q.where('userId', '==', req.user.uid).limit(1000).get();
+        }
         let data = snapshot.docs.map((doc: any) => ({ dbId: doc.id, ...doc.data() }));
         data.sort((a: any, b: any) => {
           const dateA = new Date(a.date || 0).getTime();
@@ -1934,6 +1965,7 @@ console.log('HIT STATS ENDPOINT');
   // --- Categories Endpoints ---
   app.get('/api/categories', async (req, res) => {
     try {
+      res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=60');
       const data = await getCachedCollection('categories', 60000);
       res.json(data);
     } catch (err: any) {
@@ -1986,6 +2018,7 @@ console.log('HIT STATS ENDPOINT');
   // --- Custom Pages Endpoints ---
   app.get('/api/pages', async (req, res) => {
     try {
+      res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=60');
       const data = await getCachedCollection('custom_pages', 60000);
       res.json(data);
     } catch (err: any) {
@@ -2582,7 +2615,7 @@ console.log('HIT STATS ENDPOINT');
          }
       }
 
-      const snapshot = await admin.firestore().collection('users').get();
+      const snapshot = await admin.firestore().collection('users').limit(1000).get();
       const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       res.json(data);
     } catch (err: any) {

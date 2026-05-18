@@ -1237,18 +1237,27 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           <td className="px-4 py-4 text-right">
                              <div className="flex items-center justify-end gap-2">
                                 <button 
-                                  onClick={() => {
-                                    if (!p.stockData || p.stockData.length === 0) {
+                                  onClick={async () => {
+                                    if (p.stock === 0) {
                                       return Swal.fire('ไม่มีสต๊อก', 'สินค้านี้ยังไม่มีข้อมูลสต๊อกให้ดาวน์โหลด', 'error');
                                     }
-                                    const text = p.stockData.join('\n');
-                                    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
-                                    const url = URL.createObjectURL(blob);
-                                    const link = document.createElement('a');
-                                    link.href = url;
-                                    link.download = `stock_${p.name}.txt`;
-                                    link.click();
-                                    URL.revokeObjectURL(url);
+                                    try {
+                                      const res = await axios.get(`/api/products/${p.id}/stock`);
+                                      const sd = res.data.stockData;
+                                      if (!sd || sd.length === 0) {
+                                        return Swal.fire('ไม่มีสต๊อก', 'สินค้านี้ยังไม่มีข้อมูลสต๊อกให้ดาวน์โหลด', 'error');
+                                      }
+                                      const text = sd.join('\n');
+                                      const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+                                      const url = URL.createObjectURL(blob);
+                                      const link = document.createElement('a');
+                                      link.href = url;
+                                      link.download = `stock_${p.name}.txt`;
+                                      link.click();
+                                      URL.revokeObjectURL(url);
+                                    } catch (err: any) {
+                                      Swal.fire('ข้อผิดพลาด', err.response?.data?.error || err.message, 'error');
+                                    }
                                   }}
                                   className="p-2 border border-blue-200 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
                                   title="โหลดสต๊อก TXT เพื่อดูรายบรรทัด"
