@@ -38,6 +38,7 @@ import {
   FileImage,
   Database,
   Globe,
+  Mail,
   BarChart3,
   Settings,
   Activity,
@@ -571,6 +572,7 @@ function AppContent() {
   const [showPrivacy, setShowPrivacy] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
   const [showAboutUs, setShowAboutUs] = useState(false);
+  const [showContactUs, setShowContactUs] = useState(false);
   const [clientIp, setClientIp] = useState<string | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -622,36 +624,13 @@ function AppContent() {
 
   const [vipTab, setVipTab] = useState<"key">("key");
 
-  const [purchaseHistory, setPurchaseHistory] = useState<any[]>(() => {
-    const saved = localStorage.getItem("apex_purchase_history");
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        return [];
-      }
-    }
-    return [];
-  });
+  const [purchaseHistory, setPurchaseHistory] = useState<any[]>([]);
 
-  const [topupHistory, setTopupHistory] = useState<any[]>(() => {
-    const saved = localStorage.getItem("apex_topup_history");
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        return [];
-      }
-    }
-    return [];
-  });
+  const [topupHistory, setTopupHistory] = useState<any[]>([]);
 
 
   useEffect(() => {
-    localStorage.setItem(
-      "apex_topup_history",
-      JSON.stringify(topupHistory.slice(0, 50)),
-    );
+    // Topup history is user-specific, we do not cache it in localStorage.
   }, [topupHistory]);
 
   const handlePurchase = async (product: Product, quantity: number = 1) => {
@@ -2040,10 +2019,9 @@ function AppContent() {
           </button>
           <button
             onClick={() => {
-              setActiveView("contact");
-              window.scrollTo({ top: 0, behavior: "smooth" });
+              setShowContactUs(true);
             }}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === "contact" ? "bg-[#1E90FF] text-white shadow-md shadow-[#1E90FF]/20" : "text-zinc-500 hover:bg-[#0a0d12] hover:text-white"}`}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all text-zinc-500 hover:bg-[#0a0d12] hover:text-white`}
           >
             <Phone className="w-5 h-5" /> ติดต่อแอดมิน
           </button>
@@ -2400,11 +2378,10 @@ function AppContent() {
                   <div className="flex flex-col border-b border-white/5 pb-2 mb-2">
                     <button
                       onClick={() => {
-                        setActiveView("contact");
+                        setShowContactUs(true);
                         setIsMobileMenuOpen(false);
-                        window.scrollTo({ top: 0, behavior: "smooth" });
                       }}
-                      className={`w-full flex items-center gap-3 px-6 py-3.5 relative transition-colors ${activeView === "contact" ? "bg-[#0d1a2e] text-[#1E90FF] before:absolute before:left-0 before:top-0 before:bottom-0 before:w-[3px] before:bg-[#1E90FF] before:rounded-r-sm" : "text-zinc-400 hover:bg-[#1e2129] hover:text-white"}`}
+                      className={`w-full flex items-center gap-3 px-6 py-3.5 relative transition-colors text-zinc-400 hover:bg-[#1e2129] hover:text-white`}
                     >
                       <Phone className="w-5 h-5 shrink-0" />{" "}
                       <span className="font-semibold text-[15px]">
@@ -2835,7 +2812,7 @@ function AppContent() {
                   <li>
                     <button
                       onClick={() =>
-                        window.open(siteSettings?.contact_line, "_blank")
+                        setShowContactUs(true)
                       }
                       className="hover:text-[#1E90FF] transition-colors"
                     >
@@ -2852,37 +2829,15 @@ function AppContent() {
                 </h4>
                 <ul className="space-y-3 flex flex-col items-center">
                   <li>
-                    <button
-                      onClick={() =>
-                        siteSettings?.discord_link && siteSettings.discord_link !== '#' ? window.open(siteSettings.discord_link, "_blank") : null
-                      }
+                    <a
+                      href="https://discord.gg/EvFjgkSB4W"
+                      target="_blank"
+                      rel="noreferrer"
                       className="flex items-center gap-2 hover:text-[#5865F2] transition-colors"
                     >
                       <div className="w-1.5 h-1.5 rounded-full bg-[#5865F2]"></div>
                       Discord
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      onClick={() =>
-                        siteSettings?.instagram_link && siteSettings.instagram_link !== '#' ? window.open(siteSettings.instagram_link, "_blank") : null
-                      }
-                      className="flex items-center gap-2 hover:text-[#E4405F] transition-colors"
-                    >
-                      <div className="w-1.5 h-1.5 rounded-full bg-[#E4405F]"></div>
-                      Instagram
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      onClick={() =>
-                        (siteSettings?.facebook_link || siteSettings?.contact_line) && (siteSettings?.facebook_link !== '#' && siteSettings?.contact_line !== '#') ? window.open(siteSettings?.facebook_link || siteSettings?.contact_line, "_blank") : null
-                      }
-                      className="flex items-center gap-2 hover:text-[#1877F2] transition-colors"
-                    >
-                      <div className="w-1.5 h-1.5 rounded-full bg-[#1877F2]"></div>
-                      Facebook
-                    </button>
+                    </a>
                   </li>
                   <li>
                     <a
@@ -3209,6 +3164,74 @@ function AppContent() {
               <div className="pt-6 mt-6 border-t border-white/5 flex justify-end w-full">
                 <button
                   onClick={() => setShowAboutUs(false)}
+                  className="bg-[#1E90FF]/10 hover:bg-[#1E90FF]/25 text-[#1E90FF] font-bold py-3 px-8 rounded-2xl transition-all w-full sm:w-auto"
+                >
+                  ปิดหน้าต่างนี้
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+
+        {showContactUs && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-[100] backdrop-blur-md font-sans"
+          >
+            <motion.div 
+              initial={{ scale: 0.95, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 20 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              className="bg-[#0B0F14] border border-white/10 rounded-[2rem] p-6 sm:p-8 max-w-md w-full flex flex-col shadow-2xl relative"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl sm:text-2xl font-bold flex items-center gap-2 text-white">
+                  <Phone className="w-6 h-6 shrink-0 text-[#1E90FF]" />{" "}
+                  ติดต่อเรา
+                </h2>
+                <button onClick={() => setShowContactUs(false)} className="p-2 hover:bg-white/10 rounded-full transition-colors">
+                  <X className="w-5 h-5 text-zinc-400" />
+                </button>
+              </div>
+              
+              <div className="space-y-4">
+                <a
+                  href="https://discord.gg/EvFjgkSB4W"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-4 p-4 bg-[#5865F2]/10 hover:bg-[#5865F2]/20 border border-[#5865F2]/20 rounded-2xl text-white transition-all group"
+                >
+                  <div className="w-12 h-12 bg-[#5865F2] rounded-xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                     <span className="font-bold text-xl block">D</span>
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-lg">Discord</h3>
+                    <p className="text-zinc-400 text-sm">เข้าร่วมเซิร์ฟเวอร์ของเรา</p>
+                  </div>
+                </a>
+
+                {siteSettings?.contact_email && (
+                  <a
+                    href={`mailto:${siteSettings.contact_email}`}
+                    className="flex items-center gap-4 p-4 bg-zinc-800/50 hover:bg-zinc-800 border border-white/5 hover:border-white/10 rounded-2xl text-white transition-all group"
+                  >
+                    <div className="w-12 h-12 bg-zinc-700 rounded-xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                       <Mail className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-lg">Email</h3>
+                      <p className="text-zinc-400 text-sm">{siteSettings.contact_email}</p>
+                    </div>
+                  </a>
+                )}
+              </div>
+              
+              <div className="pt-6 mt-6 border-t border-white/5 flex justify-end w-full">
+                <button
+                  onClick={() => setShowContactUs(false)}
                   className="bg-[#1E90FF]/10 hover:bg-[#1E90FF]/25 text-[#1E90FF] font-bold py-3 px-8 rounded-2xl transition-all w-full sm:w-auto"
                 >
                   ปิดหน้าต่างนี้

@@ -104,7 +104,26 @@ app.set('trust proxy', 1);
 
 const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp: number } | Promise<{ user: any, isAdmin: boolean, timestamp: number }>>();
 
+const cleanupTokenCache = () => {
+  if (userTokenCache.size > 1000) {
+    const now = Date.now();
+    for (const [key, value] of userTokenCache.entries()) {
+      if (!(value instanceof Promise) && now - value.timestamp > 60000) {
+        userTokenCache.delete(key);
+      }
+    }
+    // If still too large after expiry sweep, remove oldest
+    if (userTokenCache.size > 1000) {
+      const keysToDelete = Array.from(userTokenCache.keys()).slice(0, userTokenCache.size - 1000);
+      for (const key of keysToDelete) {
+        userTokenCache.delete(key);
+      }
+    }
+  }
+};
+
   const injectUser = async (req: any, res: any, next: any) => {
+    cleanupTokenCache();
     const authHeader = req.headers.authorization;
     if (authHeader && authHeader.startsWith('Bearer ')) {
       const token = authHeader.split('Bearer ')[1]?.trim();
@@ -1383,7 +1402,11 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
     if (firestoreCache[collectionName] && now - firestoreCache[collectionName].timestamp < ttl) {
       return firestoreCache[collectionName].data;
     }
-    const snapshot = await admin.firestore().collection(collectionName).get();
+    let query: any = admin.firestore().collection(collectionName);
+    if (collectionName === 'products') {
+      query = query.limit(1000); // Prevent RAM blowout and Firestore exhaustion for now
+    }
+    const snapshot = await query.get();
     const data = snapshot.docs.map(doc => {
       const d = doc.data();
       // DO NOT decompress stockData here, let the endpoints do it!
@@ -1612,8 +1635,8 @@ console.log('HIT STATS ENDPOINT');
         const data = snapshot.docs.map((doc: any) => ({ dbId: doc.id, ...doc.data() }));
         return res.json(data);
       } else if (req.user) {
-        // Fetch all user purchases (avoid composite index requirement on userId + date)
-        const snapshot = await q.where('userId', '==', req.user.uid).get();
+        // Fetch user purchases (avoid composite index requirement on userId + date by limiting)
+        const snapshot = await q.where('userId', '==', req.user.uid).limit(1000).get();
         let data = snapshot.docs.map((doc: any) => ({ dbId: doc.id, ...doc.data() }));
         // Sort in memory
         data.sort((a: any, b: any) => {
@@ -1879,7 +1902,7 @@ console.log('HIT STATS ENDPOINT');
         const data = snapshot.docs.map((doc: any) => ({ dbId: doc.id, ...doc.data() }));
         return res.json(data);
       } else if (req.user) {
-        const snapshot = await q.where('userId', '==', req.user.uid).get();
+        const snapshot = await q.where('userId', '==', req.user.uid).limit(1000).get();
         let data = snapshot.docs.map((doc: any) => ({ dbId: doc.id, ...doc.data() }));
         data.sort((a: any, b: any) => {
           const dateA = new Date(a.date || 0).getTime();
