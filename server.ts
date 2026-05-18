@@ -74,12 +74,22 @@ const communityUpload = multer({ storage: multer.memoryStorage(), limits: { file
 
 
 import compression from 'compression';
+import helmet from 'helmet';
 
 console.log('[Server] --- Supabase VERSION REBOOT ---');
 const app = express();
+app.use(helmet({
+  contentSecurityPolicy: false,
+  crossOriginEmbedderPolicy: false
+}));
 app.use(compression());
 app.set('trust proxy', 1);
   const PORT = 3000;
+
+  // Key generator that considers IP + UID (if authenticated)
+  const userRateLimitKeyGenerator = (req: any) => {
+    return `${req.ip}:${req.user?.uid || 'guest'}`;
+  };
 
   // Add RateLimiting to prevent bot attacks
   const authLimiter = rateLimit({
@@ -87,6 +97,7 @@ app.set('trust proxy', 1);
     max: 10,
     standardHeaders: true,
     legacyHeaders: false,
+    keyGenerator: userRateLimitKeyGenerator,
     validate: { xForwardedForHeader: false, trustProxy: false },
     message: { error: 'ขออภัย คุณทำรายการบ่อยเกินไป กรุณารอสักครู่' }
   });
@@ -96,6 +107,7 @@ app.set('trust proxy', 1);
     max: 30, // 30 requests per minute
     standardHeaders: true, 
     legacyHeaders: false, 
+    keyGenerator: userRateLimitKeyGenerator,
     validate: { xForwardedForHeader: false, trustProxy: false },
     message: { error: 'คุณดำเนินการบางอย่างเร็วเกินไป กรุณารอสักครู่' }
   });
@@ -105,6 +117,7 @@ app.set('trust proxy', 1);
     max: 100, 
     standardHeaders: true, 
     legacyHeaders: false, 
+    keyGenerator: userRateLimitKeyGenerator,
     validate: { xForwardedForHeader: false, trustProxy: false },
     message: { error: 'ขออภัย คุณส่งคำร้องขอเยอะเกินไป (Anti-Bot Protection) กรุณารอสักครู่' }
   });
@@ -557,9 +570,26 @@ const cleanupTokenCache = () => {
       }
 
       const imageBuffer = Buffer.from(imageBase64, 'base64');
-      const blob = new Blob([imageBuffer], { type: 'image/jpeg' });
+      
+      // Limit file size to ~5MB
+      if (imageBuffer.length > 5 * 1024 * 1024) {
+         console.warn(`[Security] User ${uid} attempted to upload a file too large (${imageBuffer.length} bytes).`);
+         return res.status(400).json({ success: false, error: 'ขนาดไฟล์ใหญ่เกินไป (ห้ามเกิน 5MB)' });
+      }
+
+      // Detect magic bytes 
+      const hex = imageBuffer.toString('hex', 0, 4).toUpperCase();
+      const isJpeg = hex.startsWith('FFD8FF');
+      const isPng = hex.startsWith('89504E47');
+      
+      if (!isJpeg && !isPng) {
+         console.warn(`[Security] User ${uid} uploaded invalid file type (magic bytes: ${hex}).`);
+         return res.status(400).json({ success: false, error: 'รูปแบบไฟล์ไม่ถูกต้อง รองรับเฉพาะ JPG หรือ PNG เท่านั้น' });
+      }
+
+      const blob = new Blob([imageBuffer], { type: isJpeg ? 'image/jpeg' : 'image/png' });
       const form = new FormData();
-      form.append('files', blob, 'slip.jpg');
+      form.append('files', blob, isJpeg ? 'slip.jpg' : 'slip.png');
 
       const response = await axios.post(
         'https://api.slipok.com/api/line/apikey/65331',
@@ -1810,138 +1840,108 @@ console.log('HIT STATS ENDPOINT');
     const userId = req.user.uid;
     const lockKey = userId + '_' + productId;
     
-    // Acquire lock
-    while (purchaseLocks[lockKey]) {
-      await purchaseLocks[lockKey];
-    }
-    
+    // Memory lock as an extra precaution before entering transaction
+    while (purchaseLocks[lockKey]) { await purchaseLocks[lockKey]; }
     let releaseLock: () => void;
     purchaseLocks[lockKey] = new Promise(resolve => { releaseLock = resolve as any; });
 
     try {
       const userRef = admin.firestore().collection('users').doc(userId);
       const productRef = admin.firestore().collection('products').doc(productId);
+      const purchasesRef = admin.firestore().collection('purchases').doc(); // Auto-gen transaction docref
+      
+      console.log('buy request for user', userId, 'product', productId, 'qty', quantity);
 
-      console.log('buy request for user', userId, 'product', productId);
+      const result = await admin.firestore().runTransaction(async (t) => {
+        const userDoc = await t.get(userRef);
+        const productDoc = await t.get(productRef);
 
-      const [userDoc, productDoc] = await Promise.all([userRef.get(), productRef.get()]);
+        if (!userDoc.exists) { throw new Error('User not found'); }
+        if (!productDoc.exists) { throw new Error('Product not found'); }
 
-      if (!userDoc.exists) {
-         console.log('User not found in db:', userId);
-         releaseLock!();
-         delete purchaseLocks[lockKey];
-         return res.status(404).json({ error: 'User not found' });
-      }
-      if (!productDoc.exists) {
-        releaseLock!();
-        delete purchaseLocks[lockKey];
-        return res.status(404).json({ error: 'Product not found' });
-      }
+        const userData = userDoc.data() || {};
+        const productData = productDoc.data() || {};
 
-      const userData = userDoc.data() || {};
-      const productData = productDoc.data() || {};
+        const price = Number(productData.price) || 0;
+        const totalCost = price * quantity;
 
-      const price = Number(productData.price) || 0;
-      const totalCost = price * quantity;
+        if ((Number(userData.balance) || 0) < totalCost) {
+          throw new Error('ยอดเงินไม่เพียงพอ');
+        }
 
-      if ((Number(userData.balance) || 0) < totalCost) {
-        releaseLock!();
-        delete purchaseLocks[lockKey];
-        return res.status(400).json({ error: 'ยอดเงินไม่เพียงพอ' });
-      }
+        // Decompress stock array for safe extraction
+        let existingStock = productData.stockData;
+        if (existingStock) { existingStock = decompressStock(existingStock); }
+        if (!Array.isArray(existingStock)) { existingStock = []; }
 
-      const availableStock = Array.isArray(productData.stockData) ? productData.stockData.length : 0;
-      if (availableStock < quantity) {
-        releaseLock!();
-        delete purchaseLocks[lockKey];
-        return res.status(400).json({ error: 'สินค้าในสต๊อกไม่เพียงพอ' });
-      }
+        const availableStock = existingStock.length;
+        if (availableStock < quantity) { throw new Error('สินค้าในสต๊อกไม่เพียงพอ'); }
 
-      // Claim items
-      const currentStockData = [...productData.stockData];
-      const claimedItems: string[] = [];
-      for (let i = 0; i < quantity; i++) {
-        claimedItems.push(currentStockData.shift() as string);
-      }
+        // Claim items (FIFO)
+        const currentStockData = [...existingStock];
+        const claimedItems: string[] = [];
+        for (let i = 0; i < quantity; i++) {
+          claimedItems.push(currentStockData.shift() as string);
+        }
 
-      const newBalance = (Number(userData.balance) || 0) - totalCost;
+        const newBalance = (Number(userData.balance) || 0) - totalCost;
 
-      const newHistoryItem = {
-        id: Math.random().toString(36).substring(7),
-        userId: userId,
-        username: userData.username || (req.user && req.user.email ? req.user.email.split('@')[0] : 'Unknown'),
-        productId: productId,
-        productName: `${productData.name || 'Unknown Product'} (x${quantity})`,
-        price: totalCost,
-        secretData: claimedItems.join('\n'),
-        date: new Date().toISOString(),
-        billNumber: 'B-' + Math.floor(Math.random()*1000000).toString().padStart(6, '0'),
-        is_special: false
-      };
+        const newHistoryItem = {
+          id: purchasesRef.id,
+          userId: userId,
+          username: userData.username || (req.user && req.user.email ? req.user.email.split('@')[0] : 'Unknown'),
+          productId: productId,
+          productName: `${productData.name || 'Unknown Product'} (x${quantity})`,
+          price: totalCost,
+          secretData: claimedItems.join('\n'),
+          date: new Date().toISOString(),
+          billNumber: 'B-' + Math.floor(Math.random()*1000000).toString().padStart(6, '0'),
+          is_special: false
+        };
 
-      // Sanitize payload to strip any undefined values that Firestore will reject
-      const userUpdatePayload = JSON.parse(JSON.stringify({ balance: newBalance }));
-      const productUpdatePayload = JSON.parse(JSON.stringify({ 
-        ...productData,
-        stock: currentStockData.length, 
-        stockData: compressStock(currentStockData.filter(v => v !== undefined && v !== null)), 
-        soldCount: (Number(productData.soldCount) || 0) + quantity 
-      }));
-      const historyPayload = JSON.parse(JSON.stringify({
-        id: newHistoryItem.id || 'N/A',
-        userId: newHistoryItem.userId || 'N/A',
-        username: newHistoryItem.username || 'Unknown',
-        productId: newHistoryItem.productId || 'N/A',
-        productName: newHistoryItem.productName || 'Unknown Product',
-        price: newHistoryItem.price || 0,
-        secretData: newHistoryItem.secretData || '',
-        date: newHistoryItem.date || new Date().toISOString(),
-        billNumber: newHistoryItem.billNumber || 'B-000000',
-        is_special: false
-      }));
+        const userUpdatePayload = JSON.parse(JSON.stringify({ balance: newBalance }));
+        const productUpdatePayload = JSON.parse(JSON.stringify({ 
+          ...productData,
+          stock: currentStockData.length, 
+          stockData: compressStock(currentStockData.filter(v => v !== undefined && v !== null)), 
+          soldCount: (Number(productData.soldCount) || 0) + quantity 
+        }));
+        const historyPayload = JSON.parse(JSON.stringify(newHistoryItem));
 
-      // Fire off response IMMEDIATELY so user gets 0.1s response times
-      res.json({
-        success: true,
-        purchase: newHistoryItem,
-        updatedUser: { ...userData, balance: newBalance },
-        updatedProduct: { id: productId, ...productData, stock: currentStockData.length, soldCount: (productData.soldCount || 0) + quantity },
+        t.update(userRef, userUpdatePayload);
+        t.update(productRef, productUpdatePayload);
+        t.set(purchasesRef, historyPayload);
+
+        return {
+          purchase: newHistoryItem,
+          updatedUser: { ...userData, balance: newBalance },
+          updatedProduct: { id: productId, ...productData, stock: currentStockData.length, soldCount: (productData.soldCount || 0) + quantity },
+        };
       });
 
-      // Perform updates in background and then release lock
-      Promise.all([
-        userRef.update(userUpdatePayload),
-        productRef.update(productUpdatePayload),
-        admin.firestore().collection('purchases').add(historyPayload)
-      ]).then(() => {
-        invalidateCache('products');
-        invalidateCache('purchases');
-        invalidateStatsCache();
-        releaseLock!();
-        delete purchaseLocks[lockKey];
-      }).catch((bgErr) => {
-        const fs = require('fs');
-        try { fs.writeFileSync('purchase_bg_error.log', JSON.stringify({ message: bgErr.message, stack: bgErr.stack })); } catch(e){}
-        console.error('------- BACKGROUND BUY ERROR -------', bgErr);
-        releaseLock!();
-        delete purchaseLocks[lockKey];
+      // Transaction succeeded
+      invalidateCache('products');
+      invalidateCache('purchases');
+      invalidateStatsCache();
+
+      res.json({
+        success: true,
+        purchase: result.purchase,
+        updatedUser: result.updatedUser,
+        updatedProduct: result.updatedProduct,
       });
 
     } catch (err: any) {
-      const fs = require('fs');
-      try { fs.writeFileSync('purchase_error.log', JSON.stringify({ message: err.message, stack: err.stack, details: err.details, code: err.code })); } catch(e){}
-      console.error('------- BUY ERROR TRACE -------');
-      console.error(err);
-      if (err.details) console.error('Details:', err.details);
-      console.error('------- END BUY ERROR -------');
-      
-      releaseLock!();
-      delete purchaseLocks[lockKey];
-      
-      // If we haven't sent headers yet, send an error
-      if (!res.headersSent) {
-        res.status(500).json({ error: 'Internal server error during purchase', details: String(err && err.message ? err.message : err), code: err.code });
+      console.error('------- BUY ERROR TRACE -------', err);
+      const msg = err.message || '';
+      if (msg === 'ยอดเงินไม่เพียงพอ' || msg === 'สินค้าในสต๊อกไม่เพียงพอ' || msg === 'User not found' || msg === 'Product not found') {
+         res.status(400).json({ error: msg });
+      } else {
+         res.status(500).json({ error: String(err && err.message ? err.message : err) });
       }
+    } finally {
+      if (releaseLock) releaseLock();
+      delete purchaseLocks[lockKey];
     }
   });
 

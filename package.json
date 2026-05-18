@@ -33,6 +33,7 @@
     "eruda": "^3.4.3",
     "express": "^4.22.1",
     "express-rate-limit": "^8.4.1",
+    "helmet": "^8.1.0",
     "hi-base32": "^0.5.1",
     "https-proxy-agent": "^9.0.0",
     "jimp": "^1.6.1",
