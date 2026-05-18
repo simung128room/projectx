@@ -1386,9 +1386,7 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
     const snapshot = await admin.firestore().collection(collectionName).get();
     const data = snapshot.docs.map(doc => {
       const d = doc.data();
-      if (d.stockData) {
-        d.stockData = decompressStock(d.stockData);
-      }
+      // DO NOT decompress stockData here, let the endpoints do it!
       return { id: doc.id, ...d };
     });
     firestoreCache[collectionName] = { data, timestamp: now };
@@ -1406,6 +1404,9 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
         if (!req.isAdmin) {
           const { stockData, ...publicItem } = item;
           return publicItem;
+        }
+        if (item.stockData) {
+          return { ...item, stockData: decompressStock(item.stockData) };
         }
         return item;
       });
@@ -1607,15 +1608,23 @@ console.log('HIT STATS ENDPOINT');
       const adminDb = admin.firestore();
       let q: any = adminDb.collection('purchases');
       if (req.isAdmin) {
-        q = q.orderBy('date', 'desc').limit(100);
+        const snapshot = await q.orderBy('date', 'desc').limit(100).get();
+        const data = snapshot.docs.map((doc: any) => ({ dbId: doc.id, ...doc.data() }));
+        return res.json(data);
       } else if (req.user) {
-        q = q.where('userId', '==', req.user.uid).orderBy('date', 'desc').limit(100);
+        // Fetch all user purchases (avoid composite index requirement on userId + date)
+        const snapshot = await q.where('userId', '==', req.user.uid).get();
+        let data = snapshot.docs.map((doc: any) => ({ dbId: doc.id, ...doc.data() }));
+        // Sort in memory
+        data.sort((a: any, b: any) => {
+          const dateA = new Date(a.date || 0).getTime();
+          const dateB = new Date(b.date || 0).getTime();
+          return dateB - dateA;
+        });
+        return res.json(data.slice(0, 100)); // Limit to 100 on client via array slicing
       } else {
         return res.json([]);
       }
-      const snapshot = await q.get();
-      const data = snapshot.docs.map(doc => ({ dbId: doc.id, ...doc.data() }));
-      res.json(data);
     } catch (err: any) {
       console.error('Internal server error fetching purchases:', err.message || err);
       res.status(500).json({ error: String(err && err.message ? err.message : err) });
@@ -1866,15 +1875,21 @@ console.log('HIT STATS ENDPOINT');
       const adminDb = admin.firestore();
       let q: any = adminDb.collection('topups');
       if (req.isAdmin) {
-        q = q.orderBy('date', 'desc').limit(100);
+        const snapshot = await q.orderBy('date', 'desc').limit(100).get();
+        const data = snapshot.docs.map((doc: any) => ({ dbId: doc.id, ...doc.data() }));
+        return res.json(data);
       } else if (req.user) {
-        q = q.where('userId', '==', req.user.uid).orderBy('date', 'desc').limit(100);
+        const snapshot = await q.where('userId', '==', req.user.uid).get();
+        let data = snapshot.docs.map((doc: any) => ({ dbId: doc.id, ...doc.data() }));
+        data.sort((a: any, b: any) => {
+          const dateA = new Date(a.date || 0).getTime();
+          const dateB = new Date(b.date || 0).getTime();
+          return dateB - dateA;
+        });
+        return res.json(data.slice(0, 100));
       } else {
         return res.json([]);
       }
-      const snapshot = await q.get();
-      const data = snapshot.docs.map(doc => ({ dbId: doc.id, ...doc.data() }));
-      res.json(data);
     } catch (err: any) {
       console.error('Internal server error fetching topups:', err.message || err);
       res.status(500).json({ error: String(err && err.message ? err.message : err) });

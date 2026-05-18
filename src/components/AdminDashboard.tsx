@@ -239,10 +239,11 @@ const AddStockModal = ({
 
   const updateTextCount = () => {
     if (isBigTextMode) {
-       let matches = 0;
        const val = largeTextRef.current;
        if (!val) { setStockCount(0); return; }
-       for (let i=0; i<val.length; i++) if (val[i] === '\n') matches++;
+       
+       // Use fast V8-optimized built-ins for counting newlines without regex
+       let matches = val.split('\n').length - 1;
        setStockCount(Math.ceil((matches + 1) / linesPerStock));
        return;
     }
@@ -291,19 +292,11 @@ const AddStockModal = ({
       if (!sourceText.trim() && fileStockPreview.length === 0) return;
       
       let lines: string[] = [];
-      // manual fast splitting without heavy array functions for HUGE string map/filter
-      let currentLine = "";
-      for (let i = 0; i < sourceText.length; i++) {
-         if (sourceText[i] === '\n') {
-            const t = currentLine.trim();
-            if (t.length > 0) lines.push(t);
-            currentLine = "";
-         } else {
-            currentLine += sourceText[i];
-         }
+      const splitLines = sourceText.split('\n');
+      for (let i = 0; i < splitLines.length; i++) {
+         const t = splitLines[i].trim();
+         if (t.length > 0) lines.push(t);
       }
-      const t = currentLine.trim();
-      if (t.length > 0) lines.push(t);
 
       if (linesPerStock > 1) {
         for (let i = 0; i < lines.length; i += linesPerStock) {
@@ -2158,8 +2151,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   let currentChunk: string[] = [];
                   let currentChunkSize = 0;
                   
-                  for (const item of newItems) {
-                    const itemSize = new Blob([item]).size;
+                  for (let i = 0; i < newItems.length; i++) {
+                    const item = newItems[i];
+                    const itemSize = item.length * 2; // Approximate byte size to be safe (UTF-16)
                     if (currentChunkSize + itemSize > maxBytesPerChunk && currentChunk.length > 0) {
                       chunks.push(currentChunk);
                       currentChunk = [item];
