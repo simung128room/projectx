@@ -2085,7 +2085,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 } catch (err: any) {
                   const errorExt = err.response?.data?.error || err.message || JSON.stringify(err);
                   console.error("Update stock error:", err.response?.data || err);
-                  Swal.fire('Error', `ไม่สามารถอัพเดตสต๊อกได้: ${errorExt}`, 'error');
+                  Swal.fire('Error', `ไม่สามารถอัพเดตสต๊อกได้: ${typeof errorExt === 'object' ? JSON.stringify(errorExt) : errorExt}`, 'error');
                 }
               }
             }}

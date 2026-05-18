@@ -22,13 +22,17 @@ import zlib from 'zlib';
 
 const compressStock = (stockData: any) => {
   if (!Array.isArray(stockData) || stockData.length < 500) return stockData;
-  return { __compressed: zlib.gzipSync(JSON.stringify(stockData)).toString('base64') };
+  return [{ __compressed: zlib.gzipSync(JSON.stringify(stockData)).toString('base64') }];
 };
 
 const decompressStock = (data: any) => {
-  if (data && typeof data === 'object' && data.__compressed) {
+  let compData = data;
+  if (Array.isArray(data) && data.length === 1 && data[0] && typeof data[0] === 'object' && data[0].__compressed) {
+    compData = data[0];
+  }
+  if (compData && typeof compData === 'object' && compData.__compressed) {
     try {
-      return JSON.parse(zlib.gunzipSync(Buffer.from(data.__compressed, 'base64')).toString('utf-8'));
+      return JSON.parse(zlib.gunzipSync(Buffer.from(compData.__compressed, 'base64')).toString('utf-8'));
     } catch(e) { return []; }
   }
   return data;
@@ -1373,7 +1377,7 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
     const snapshot = await admin.firestore().collection(collectionName).get();
     const data = snapshot.docs.map(doc => {
       const d = doc.data();
-      if (d.stockData && d.stockData.__compressed) {
+      if (d.stockData) {
         d.stockData = decompressStock(d.stockData);
       }
       return { id: doc.id, ...d };
@@ -1418,7 +1422,7 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
       invalidateStatsCache();
       
       const responseData = { id: docRef.id, dbId: docRef.id, ...dataToSave };
-      if (responseData.stockData && responseData.stockData.__compressed) {
+      if (responseData.stockData) {
         responseData.stockData = decompressStock(responseData.stockData);
       }
       res.json(responseData);
@@ -1444,7 +1448,7 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
       invalidateStatsCache();
       
       const responseData = { id: req.params.id, ...dataToSave };
-      if (responseData.stockData && responseData.stockData.__compressed) {
+      if (responseData.stockData) {
         responseData.stockData = decompressStock(responseData.stockData);
       }
       res.json(responseData);
