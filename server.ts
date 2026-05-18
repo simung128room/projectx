@@ -1416,10 +1416,16 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
       const docRef = await admin.firestore().collection('products').add(dataToSave);
       invalidateCache('products');
       invalidateStatsCache();
-      res.json({ id: docRef.id, dbId: docRef.id, ...dataToSave });
+      
+      const responseData = { id: docRef.id, dbId: docRef.id, ...dataToSave };
+      if (responseData.stockData && responseData.stockData.__compressed) {
+        responseData.stockData = decompressStock(responseData.stockData);
+      }
+      res.json(responseData);
     } catch (err: any) {
       console.error('Internal server error creating product:', JSON.stringify(err, Object.getOwnPropertyNames(err)));
-      res.status(500).json({ error: String(err && err.message ? err.message : err) });
+      const errMsg = err?.message || JSON.stringify(err);
+      res.status(500).json({ error: String(errMsg) });
     }
   });
 
@@ -1436,10 +1442,16 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
       await docRef.update(dataToSave);
       invalidateCache('products');
       invalidateStatsCache();
-      res.json({ id: req.params.id, ...dataToSave });
-    } catch (err) {
-      console.error('Internal server error updating product:', err);
-      res.status(500).json({ error: String(err && err.message ? err.message : err) });
+      
+      const responseData = { id: req.params.id, ...dataToSave };
+      if (responseData.stockData && responseData.stockData.__compressed) {
+        responseData.stockData = decompressStock(responseData.stockData);
+      }
+      res.json(responseData);
+    } catch (err: any) {
+      console.error('Internal server error updating product:', JSON.stringify(err, Object.getOwnPropertyNames(err)));
+      const errMsg = err?.message || JSON.stringify(err);
+      res.status(500).json({ error: String(errMsg) });
     }
   });
 
