@@ -2908,14 +2908,26 @@ function AppContent() {
         </footer>
 
         {/* Modals */}
+        <AnimatePresence>
         {showPrivacy && (
-          <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50 backdrop-blur-sm font-sans animate-in fade-in duration-200">
-            <div className="bg-[#0B0F14] border border-white/10 rounded-3xl p-6 sm:p-8 max-w-3xl w-full max-h-[90vh] flex flex-col shadow-xl">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-[100] backdrop-blur-md font-sans"
+          >
+            <motion.div 
+              initial={{ scale: 0.95, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 20 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              className="bg-[#0B0F14] border border-white/10 rounded-[2rem] p-6 sm:p-8 max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl relative"
+            >
               <h2 className="text-xl sm:text-2xl font-bold mb-6 text-white flex items-center gap-2">
                 <Shield className="w-6 h-6 shrink-0 text-[#1a7fe6]" />{" "}
                 นโยบายความเป็นส่วนตัว (Privacy Policy)
               </h2>
-              <div className="overflow-y-auto pr-2 sm:pr-4 space-y-6 text-sm leading-relaxed text-zinc-400 scrollbar-thin scrollbar-thumb-zinc-300 flex-1">
+              <div className="overflow-y-auto pr-2 sm:pr-4 space-y-6 text-sm leading-relaxed text-zinc-400 scrollbar-thin scrollbar-thumb-zinc-700 flex-1">
                 <p>
                   <strong>อัปเดตล่าสุด:</strong>{" "}
                   {new Date().toLocaleDateString("th-TH", {
@@ -3007,18 +3019,29 @@ function AppContent() {
                   ทำความเข้าใจและปิดหน้าต่าง
                 </button>
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         )}
 
         {showTerms && (
-          <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50 backdrop-blur-sm font-sans animate-in fade-in duration-200">
-            <div className="bg-[#0B0F14] border border-white/10 rounded-3xl p-6 sm:p-8 max-w-3xl w-full max-h-[90vh] flex flex-col shadow-xl">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-[100] backdrop-blur-md font-sans"
+          >
+            <motion.div 
+              initial={{ scale: 0.95, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 20 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              className="bg-[#0B0F14] border border-white/10 rounded-[2rem] p-6 sm:p-8 max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl relative"
+            >
               <h2 className="text-xl sm:text-2xl font-bold mb-6 flex items-center gap-2 text-white">
                 <ListChecks className="w-6 h-6 shrink-0 text-[#1a7fe6]" />{" "}
                 ข้อกำหนดการใช้งาน (Terms of Use)
               </h2>
-              <div className="overflow-y-auto pr-2 sm:pr-4 space-y-6 text-sm leading-relaxed text-zinc-400 scrollbar-thin scrollbar-thumb-zinc-300 flex-1">
+              <div className="overflow-y-auto pr-2 sm:pr-4 space-y-6 text-sm leading-relaxed text-zinc-400 scrollbar-thin scrollbar-thumb-zinc-700 flex-1">
                 <div>
                   <h3 className="font-bold text-white text-base mb-2">
                     1. การรับรองความยินยอมและผูกพัน
@@ -3110,20 +3133,31 @@ function AppContent() {
                   ข้าพเจ้ายอมรับและตกลงตามข้อกำหนดกติกา
                 </button>
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         )}
 
         {showAboutUs && (
-          <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50 backdrop-blur-sm font-sans animate-in fade-in duration-200">
-            <div className="bg-[#0B0F14] border border-white/10 rounded-3xl p-6 sm:p-8 max-w-3xl w-full max-h-[90vh] flex flex-col shadow-xl">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-[100] backdrop-blur-md font-sans"
+          >
+            <motion.div 
+              initial={{ scale: 0.95, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 20 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              className="bg-[#0B0F14] border border-white/10 rounded-[2rem] p-6 sm:p-8 max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl relative"
+            >
               <h2 className="text-xl sm:text-2xl font-bold mb-6 flex items-center gap-3 text-white">
                 <div className="w-8 h-8 rounded-full bg-[#1E90FF]/25 flex items-center justify-center text-[#1E90FF]">
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 </div>
                 บริษัทและโครงการ (About APEX STUDIO)
               </h2>
-              <div className="overflow-y-auto pr-2 sm:pr-4 space-y-6 text-sm leading-relaxed text-zinc-400 scrollbar-thin scrollbar-thumb-zinc-300 flex-1">
+              <div className="overflow-y-auto pr-2 sm:pr-4 space-y-6 text-sm leading-relaxed text-zinc-400 scrollbar-thin scrollbar-thumb-zinc-700 flex-1">
                 
                 <div>
                   <h3 className="font-bold text-white text-base mb-2">
@@ -3184,9 +3218,10 @@ function AppContent() {
                   ปิดหน้าต่างนี้
                 </button>
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         )}
+        </AnimatePresence>
 
         <KeyModal
           show={showKeyModal}

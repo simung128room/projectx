@@ -181,11 +181,13 @@ const AddStockModal = ({
   const [linesPerStock, setLinesPerStock] = useState(1);
   const [fileStockPreview, setFileStockPreview] = useState<string[]>([]);
   const [singleFilesPreview, setSingleFilesPreview] = useState<{name: string, b64: string}[]>([]);
-  const [mode, setMode] = useState<'text'|'file'|'single-file'>('file');
+  const [mode, setMode] = useState<'text'|'file'|'single-file'>('text');
   const [stockCount, setStockCount] = useState(0);
+  const [isBigTextMode, setIsBigTextMode] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const singleFileRef = useRef<HTMLInputElement>(null);
   const textRef = useRef<HTMLTextAreaElement>(null);
+  const largeTextRef = useRef<string>("");
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -194,9 +196,11 @@ const AddStockModal = ({
     reader.onload = (event) => {
       const text = event.target?.result as string;
       if (text) {
-        // Fast processing
-        const lines = text.split('\n').filter(l => l.trim().length > 0).map(l => l.trim());
-        setFileStockPreview(lines);
+        largeTextRef.current = text;
+        const matches = text.match(/\n/g);
+        const linesCount = matches ? matches.length + 1 : 1;
+        setFileStockPreview(new Array(linesCount)); // Just to keep math accurate
+        setIsBigTextMode(true);
       }
     };
     reader.readAsText(file);
@@ -206,7 +210,7 @@ const AddStockModal = ({
     const fileList = e.target.files;
     if (!fileList || fileList.length === 0) return;
     
-    const maxFileSize = 5 * 1024 * 1024; // 5MB limit
+    const maxFileSize = 5 * 1024 * 1024;
     const rejectedFiles: string[] = [];
 
     Array.from(fileList).forEach((file: File) => {
@@ -228,12 +232,21 @@ const AddStockModal = ({
       if (rejectedFiles.length === 1) {
         Swal.fire({title: 'ไฟล์ใหญ่เกินไป', text: `ไฟล์ ${rejectedFiles[0]} มีขนาดใหญ่กว่า 5MB. ให้ใช้วิธีอัพโหลดไฟล์แล้ววางลิงก์แทน`, icon: 'error', background: '#09090b', color: '#fff'});
       } else {
-        Swal.fire({title: 'พบไฟล์ใหญ่เกิน 5MB', text: `มี ${rejectedFiles.length} ไฟล์ที่มีขนาดใหญ่กว่า 5MB เช่น ${rejectedFiles[0]} ระบบจึงต้องข้ามไฟล์เหล่านี้ไป (เพิ่มไปแค่ไฟล์ที่ขนาดผ่าน)`, icon: 'warning', background: '#09090b', color: '#fff'});
+        Swal.fire({title: 'พบไฟล์ใหญ่เกิน 5MB', text: `มี ${rejectedFiles.length} ไฟล์ที่มีขนาดใหญ่กว่า 5MB เช่น ${rejectedFiles[0]} ระบบจึงต้องข้ามไฟล์เหล่านี้ไป`, icon: 'warning', background: '#09090b', color: '#fff'});
       }
     }
   };
 
   const updateTextCount = () => {
+    if (isBigTextMode) {
+       let matches = 0;
+       const val = largeTextRef.current;
+       if (!val) { setStockCount(0); return; }
+       for (let i=0; i<val.length; i++) if (val[i] === '\n') matches++;
+       setStockCount(Math.ceil((matches + 1) / linesPerStock));
+       return;
+    }
+    
     if (!textRef.current) return;
     const val = textRef.current.value;
     if (!val.trim()) {
@@ -245,15 +258,53 @@ const AddStockModal = ({
     setStockCount(Math.ceil(rawLines / linesPerStock));
   };
 
+  const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const text = e.clipboardData.getData('text');
+    if (text.length > 100000) {
+      e.preventDefault();
+      largeTextRef.current = text;
+      setIsBigTextMode(true);
+      if (textRef.current) {
+         textRef.current.value = "=== พบข้อมูลขนาดใหญ่มาก (โหมด Big Data) ===\n\nระบบซ่อนตัวอย่างเพื่อความลื่นไหล รองรับแล้ว 3,000,000+ บรรทัด\n\n(หากต้องการแก้ไขกรุณากดปุ่มล้างข้อมูลด้านล่าง)";
+      }
+      setTimeout(updateTextCount, 0);
+    }
+  };
+
+  const resetBigData = () => {
+     largeTextRef.current = "";
+     setIsBigTextMode(false);
+     if (textRef.current) textRef.current.value = "";
+     setStockCount(0);
+     setFileStockPreview([]);
+  };
+
   useEffect(() => {
     updateTextCount();
-  }, [linesPerStock]);
+  }, [linesPerStock, isBigTextMode]);
 
   const handleSaveStock = () => {
     let newItems: string[] = [];
-    if (mode === 'text' && textRef.current && textRef.current.value.trim()) {
-      const text = textRef.current.value;
-      const lines = text.split('\n').map(x => x.trim()).filter(x => x.length > 0);
+    const sourceText = isBigTextMode ? largeTextRef.current : (textRef.current?.value || "");
+    
+    if (mode === 'text' || mode === 'file') {
+      if (!sourceText.trim() && fileStockPreview.length === 0) return;
+      
+      let lines: string[] = [];
+      // manual fast splitting without heavy array functions for HUGE string map/filter
+      let currentLine = "";
+      for (let i = 0; i < sourceText.length; i++) {
+         if (sourceText[i] === '\n') {
+            const t = currentLine.trim();
+            if (t.length > 0) lines.push(t);
+            currentLine = "";
+         } else {
+            currentLine += sourceText[i];
+         }
+      }
+      const t = currentLine.trim();
+      if (t.length > 0) lines.push(t);
+
       if (linesPerStock > 1) {
         for (let i = 0; i < lines.length; i += linesPerStock) {
           const chunk = lines.slice(i, i + linesPerStock).join('\n');
@@ -261,15 +312,6 @@ const AddStockModal = ({
         }
       } else {
         newItems = lines;
-      }
-    } else if (mode === 'file' && fileStockPreview.length > 0) {
-      if (linesPerStock > 1) {
-        for (let i = 0; i < fileStockPreview.length; i += linesPerStock) {
-          const chunk = fileStockPreview.slice(i, i + linesPerStock).join('\n');
-          newItems.push(chunk);
-        }
-      } else {
-        newItems = [...fileStockPreview];
       }
     } else if (mode === 'single-file' && singleFilesPreview.length > 0) {
       newItems = singleFilesPreview.map(f => JSON.stringify({ type: 'file', name: f.name, data: f.b64 }));
@@ -279,7 +321,6 @@ const AddStockModal = ({
       return Swal.fire({title: 'ข้อมูลว่างเปล่า', text: 'ไม่ได้เพิ่มสต๊อกใหม่', icon: 'error', background: '#09090b', color: '#fff'});
     }
 
-    // Increase message if it's huge so user knows it might take time
     if (newItems.length > 500) {
       Swal.fire({
         title: 'กำลังประมวลผล',
@@ -412,14 +453,23 @@ const AddStockModal = ({
             <div>
               <div className="flex items-center justify-between mb-2">
                 <label className="text-xs font-bold text-zinc-500">วางข้อมูลสต๊อก</label>
-                <span className="text-[10px] text-zinc-400 bg-zinc-900 px-2 py-0.5 rounded">
-                  คำนวณได้: {stockCount} สต๊อก
-                </span>
+                <div className="flex items-center gap-2">
+                  {isBigTextMode && (
+                    <button onClick={resetBigData} className="text-[10px] bg-red-500/20 text-red-400 hover:bg-red-500/30 px-2 py-0.5 rounded font-bold transition-colors">
+                      ล้างข้อมูล (Clear)
+                    </button>
+                  )}
+                  <span className="text-[10px] text-zinc-400 bg-zinc-900 px-2 py-0.5 rounded">
+                    คำนวณได้: {stockCount} สต๊อก
+                  </span>
+                </div>
               </div>
               <textarea 
                 ref={textRef}
                 onChange={updateTextCount}
-                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl p-4 text-white focus:outline-none focus:border-indigo-500 text-sm h-40 resize-none font-mono text-xs leading-relaxed"
+                onPaste={handlePaste}
+                disabled={isBigTextMode}
+                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl p-4 text-white focus:outline-none focus:border-indigo-500 text-sm h-40 resize-none font-mono text-xs leading-relaxed disabled:opacity-50"
                 placeholder="ข้อมูลบรรทัดที่ 1&#10;ข้อมูลบรรทัดที่ 2&#10;ข้อมูลบรรทัดที่ 3&#10;..."
               />
             </div>
@@ -492,6 +542,7 @@ import { AdminUserManagement } from './AdminUserManagement';
 import { AdminPagesManagement } from './AdminPagesManagement';
 import { AdminCategoriesManagement } from './AdminCategoriesManagement';
 import { AdminToolsManagement } from './AdminToolsManagement';
+import AdminStockManagement from './AdminStockManagement';
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   totalChecked, validAccounts, licenseKeys = [], usedKeysHistory = [], blockedIPs = [],
@@ -758,6 +809,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                     <NavItem id="store" label="สินค้าในร้าน" icon={Package} />
                     <NavItem id="categories" label="หมวดหมู่สินค้า" icon={LayoutDashboard} />
+                    <NavItem id="stock" label="จัดการสต็อก" icon={Database} />
                     <NavItem id="banners" label="ตั้งค่าแบนเนอร์" icon={Image} />
                     <NavItem id="pages" label="ตั้งค่าหน้าเพจ" icon={FileText} />
                   </div>
@@ -2028,6 +2080,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   </div>
                 </div>
               </div>
+            </motion.div>
+          )}
+
+          {adminTab === 'stock' && (
+            <motion.div 
+              key="stock"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+            >
+              <AdminStockManagement
+                products={products}
+                categories={categories}
+                setProducts={setProducts}
+              />
             </motion.div>
           )}
 
