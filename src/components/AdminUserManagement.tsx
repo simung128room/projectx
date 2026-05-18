@@ -108,10 +108,11 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
     }
   };
 
-  // Match history by username/email
-  const userPurchaseHistory = purchaseHistory.filter(h => h.username && selectedUser && selectedUser.email && (h.username.toLowerCase() === selectedUser.email.toLowerCase() || h.username.toLowerCase() === selectedUser.email.split('@')[0].toLowerCase() || selectedUser.email.toLowerCase().startsWith(h.username.toLowerCase())));
-  const userTopupHistory = topupHistory.filter(h => h.username && selectedUser && selectedUser.email && (h.username.toLowerCase() === selectedUser.email.toLowerCase() || h.username.toLowerCase() === selectedUser.email.split('@')[0].toLowerCase() || selectedUser.email.toLowerCase().startsWith(h.username.toLowerCase())));
-  const userKeysHistory = usedKeysHistory; // For simulation, assuming keys might be linked later, currently we just show all or none
+  // Match history by ID
+  const selectedUID = selectedUser?.id || selectedUser?.uid;
+  const userPurchaseHistory = purchaseHistory.filter(h => (h.userId === selectedUID || h.uid === selectedUID));
+  const userTopupHistory = topupHistory.filter(h => (h.uid === selectedUID || h.userId === selectedUID));
+  const userKeysHistory = usedKeysHistory.filter(h => h.uid === selectedUID);
 
   return (
     <div className="space-y-6">

@@ -1665,6 +1665,7 @@ console.log('HIT STATS ENDPOINT');
         await admin.firestore().collection('used_keys').add({
             key,
             used_by_discord: true,
+            uid: req.body.uid || null,
             used_at: new Date().toISOString()
         });
         return res.json({ success: true, message: 'รับยศสำเร็จ!' });
@@ -2140,9 +2141,25 @@ console.log('HIT STATS ENDPOINT');
     }
   });
 
-  app.get('/api/used_keys', requireAdmin, async (req: any, res: any) => {
+  app.get('/api/used_keys', async (req: any, res: any) => {
     try {
-      const snapshot = await admin.firestore().collection('used_keys').orderBy('used_at', 'desc').limit(100).get();
+      const db = admin.firestore();
+      let q = db.collection('used_keys');
+      
+      const targetUID = req.query.uid;
+      
+      if (req.isAdmin) {
+        if (targetUID) {
+          q = q.where('uid', '==', targetUID) as any;
+        }
+      } else if (req.user) {
+        // User requesting their own history
+        q = q.where('uid', '==', req.user.uid) as any;
+      } else {
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
+
+      const snapshot = await q.orderBy('used_at', 'desc').limit(100).get();
       const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       res.json(data);
     } catch (err: any) {
@@ -2153,8 +2170,8 @@ console.log('HIT STATS ENDPOINT');
 
   app.post('/api/used_keys', async (req, res) => {
     try {
-      const { key, ip, details } = req.body;
-      const newDoc = { key, ip, details, used_at: new Date().toISOString() };
+      const { key, ip, details, uid } = req.body;
+      const newDoc = { key, ip, details, uid: uid || null, used_at: new Date().toISOString() };
       const docRef = await admin.firestore().collection('used_keys').add(newDoc);
       res.json({ id: docRef.id, dbId: docRef.id, ...newDoc });
     } catch (err) {
@@ -2374,6 +2391,7 @@ console.log('HIT STATS ENDPOINT');
         await admin.firestore().collection('used_keys').add({
           key: key,
           ip: req.ip,
+          uid: uid,
           details: `Redeemed product rank ${rankToGive}`,
           used_at: new Date().toISOString()
         });
@@ -2387,6 +2405,7 @@ console.log('HIT STATS ENDPOINT');
         await admin.firestore().collection('used_keys').add({
           key: key,
           ip: req.ip,
+          uid: uid,
           details: `Redeemed rank ${keyData.type}`,
           used_at: new Date().toISOString()
         });

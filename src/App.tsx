@@ -933,17 +933,21 @@ function AppContent() {
         }
       });
 
+      // User Data (History)
+      if (user) {
+        fireAndSet("/api/used_keys", setUsedKeysHistory);
+        fireAndSet("/api/purchases", (data) => {
+          if (Array.isArray(data)) setPurchaseHistory(data);
+        });
+        fireAndSet("/api/topups", (data) => {
+          if (Array.isArray(data)) setTopupHistory(data);
+        });
+      }
+
       // Admin endpoints Check
       if (isAdmin) {
         fireAndSet("/api/license_keys", setLicenseKeys);
-        fireAndSet("/api/used_keys", setUsedKeysHistory);
         fireAndSet("/api/blocked_ips", setBlockedIPs);
-        fireAndSet("/api/purchases", (data) => {
-          if (Array.isArray(data) && data.length > 0) setPurchaseHistory(data);
-        });
-        fireAndSet("/api/topups", (data) => {
-          if (Array.isArray(data) && data.length > 0) setTopupHistory(data);
-        });
         fireAndSet("/api/users", (data) => {
           if (Array.isArray(data)) setUsersList(data);
         });
@@ -2653,8 +2657,9 @@ function AppContent() {
             {activeView === "two_fa_generator" && <TwoFAGenerator />}
             {activeView === "logs" && (
               <HistoryLogsView
-                usedKeysHistory={usedKeysHistory}
-                purchaseHistory={purchaseHistory}
+                usedKeysHistory={usedKeysHistory.filter(h => h.uid === user?.id)}
+                purchaseHistory={purchaseHistory.filter(h => h.uid === user?.id || h.userId === user?.id)}
+                topupHistory={topupHistory.filter(h => h.uid === user?.id || h.userId === user?.id)}
               />
             )}
             {(activeView as string) === "checker_logs" && (
@@ -2695,9 +2700,9 @@ function AppContent() {
             )}
             {activeView === "history" && (
               <HistoryView
-                purchaseHistory={purchaseHistory}
-                topupHistory={topupHistory}
-                usedKeysHistory={usedKeysHistory}
+                purchaseHistory={purchaseHistory.filter(h => h.uid === user?.id || h.userId === user?.id)}
+                topupHistory={topupHistory.filter(h => h.uid === user?.id || h.userId === user?.id)}
+                usedKeysHistory={usedKeysHistory.filter(h => h.uid === user?.id)}
               />
             )}
             {activeView === "wallet" && (

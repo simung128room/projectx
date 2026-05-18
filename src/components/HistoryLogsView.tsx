@@ -5,21 +5,16 @@ import { motion, AnimatePresence } from 'motion/react';
 interface HistoryLogsViewProps {
   usedKeysHistory?: any[];
   purchaseHistory?: any[];
+  topupHistory?: any[];
 }
 
-export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({ usedKeysHistory = [], purchaseHistory = [] }) => {
+export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({ usedKeysHistory = [], purchaseHistory = [], topupHistory = [] }) => {
   const [filter, setFilter] = useState<'key_purchase' | 'keys' | 'topup' | 'general_purchase' | 'special_purchase'>('key_purchase');
-  const [topupHistory, setTopupHistory] = useState<any[]>([]);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [selectedItem, setSelectedItem] = useState<{details: any, type: string} | null>(null);
 
   React.useEffect(() => {
-    try {
-      const saved = localStorage.getItem('apex_topup_history');
-      if (saved) {
-        setTopupHistory(JSON.parse(saved));
-      }
-    } catch(e) {}
+    // Optional mounted state log
   }, []);
 
   const handleCopy = (text: string, id: string) => {
