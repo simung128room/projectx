@@ -77,7 +77,29 @@ import compression from 'compression';
 import helmet from 'helmet';
 
 console.log('[Server] --- Supabase VERSION REBOOT ---');
+
+async function sendAlert(title: string, message: string, color: number = 16711680) {
+  const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
+  if (!webhookUrl) return;
+  try {
+    await axios.post(webhookUrl, {
+      embeds: [{
+        title,
+        description: message,
+        color,
+        timestamp: new Date().toISOString()
+      }]
+    });
+  } catch (err: any) {
+    console.error('Failed to send discord alert:', err.message);
+  }
+}
+
 const app = express();
+app.use((req: any, res: any, next: any) => {
+  req.id = crypto.randomUUID();
+  next();
+});
 app.use(helmet({
   contentSecurityPolicy: false,
   crossOriginEmbedderPolicy: false
@@ -99,7 +121,11 @@ app.set('trust proxy', 1);
     legacyHeaders: false,
     keyGenerator: userRateLimitKeyGenerator,
     validate: { xForwardedForHeader: false, trustProxy: false },
-    message: { error: 'ขออภัย คุณทำรายการบ่อยเกินไป กรุณารอสักครู่' }
+    message: { error: 'ขออภัย คุณทำรายการบ่อยเกินไป กรุณารอสักครู่' },
+    handler: (req: any, res: any, next: any, options: any) => {
+      sendAlert('Auth Rate Limit Triggered 🚨', `**IP**: ${req.ip}\n**User**: ${req.user?.uid || 'guest'}\n**Path**: ${req.originalUrl}\n**Method**: ${req.method}`, 16711680);
+      res.status(options.statusCode || 429).json(options.message);
+    }
   });
 
   const mutationLimiter = rateLimit({
@@ -109,7 +135,11 @@ app.set('trust proxy', 1);
     legacyHeaders: false, 
     keyGenerator: userRateLimitKeyGenerator,
     validate: { xForwardedForHeader: false, trustProxy: false },
-    message: { error: 'คุณดำเนินการบางอย่างเร็วเกินไป กรุณารอสักครู่' }
+    message: { error: 'คุณดำเนินการบางอย่างเร็วเกินไป กรุณารอสักครู่' },
+    handler: (req: any, res: any, next: any, options: any) => {
+      sendAlert('Mutation Rate Limit Triggered ⚠️', `**IP**: ${req.ip}\n**User**: ${req.user?.uid || 'guest'}\n**Path**: ${req.originalUrl}\n**Method**: ${req.method}`, 16753920);
+      res.status(options.statusCode || 429).json(options.message);
+    }
   });
 
   const checkLimiter = rateLimit({
@@ -275,6 +305,17 @@ const cleanupTokenCache = () => {
   
   app.use(injectUser);
 
+  // Helper to check magic bytes
+  const isImageSafe = (buffer: Buffer) => {
+    if (buffer.length < 4) return false;
+    const hex = buffer.toString('hex', 0, 4).toUpperCase();
+    const isJpeg = hex.startsWith('FFD8FF');
+    const isPng = hex.startsWith('89504E47');
+    const isGif = hex.startsWith('47494638'); // GIF8
+    const isWebp = hex.startsWith('52494646') && buffer.toString('hex', 8, 12).toUpperCase() === '57454250'; // RIFF...WEBP
+    return isJpeg || isPng || isGif || isWebp;
+  };
+
   app.post('/api/upload', requireAdmin, (req: any, res: any, next: any) => {
     upload.single('file')(req, res, (err) => {
       if (err) {
@@ -285,8 +326,9 @@ const cleanupTokenCache = () => {
     });
   }, (req: any, res: any) => {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-    if (!req.file.mimetype.startsWith('image/')) {
-      return res.status(400).json({ error: 'Only image files are allowed' });
+    if (!isImageSafe(req.file.buffer)) {
+      sendAlert('Unsafe Upload Attempt (Admin) ⚠️', `**IP**: ${req.ip}\n**User**: ${req.user?.uid || 'guest'}`, 16753920);
+      return res.status(400).json({ error: 'Invalid file type. Only secure images allowed.' });
     }
     const base64Data = req.file.buffer.toString('base64');
     const mimeType = req.file.mimetype;
@@ -303,8 +345,9 @@ const cleanupTokenCache = () => {
     });
   }, (req: any, res: any) => {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-    if (!req.file.mimetype.startsWith('image/')) {
-      return res.status(400).json({ error: 'Only image files are allowed' });
+    if (!isImageSafe(req.file.buffer)) {
+      sendAlert('Unsafe Upload Attempt (Community) ⚠️', `**IP**: ${req.ip}\n**User**: ${req.user?.uid || 'guest'}`, 16753920);
+      return res.status(400).json({ error: 'Invalid file type. Only secure images allowed.' });
     }
     const base64Data = req.file.buffer.toString('base64');
     const mimeType = req.file.mimetype;
@@ -313,9 +356,23 @@ const cleanupTokenCache = () => {
 
   
 
-  // Logging middleware for debugging
-  app.use((req, res, next) => {
-    console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+  // Structured Logging Middleware
+  app.use((req: any, res: any, next: any) => {
+    const start = Date.now();
+    res.on('finish', () => {
+      const duration = Date.now() - start;
+      console.log(JSON.stringify({
+        level: 'info',
+        event: 'request_completed',
+        requestId: req.id,
+        method: req.method,
+        url: req.url,
+        status: res.statusCode,
+        durationMs: duration,
+        ip: req.ip,
+        userId: req.user?.uid || 'guest'
+      }));
+    });
     next();
   });
 
@@ -1937,6 +1994,7 @@ console.log('HIT STATS ENDPOINT');
       if (msg === 'ยอดเงินไม่เพียงพอ' || msg === 'สินค้าในสต๊อกไม่เพียงพอ' || msg === 'User not found' || msg === 'Product not found') {
          res.status(400).json({ error: msg });
       } else {
+         sendAlert('Transaction Failed / Rollback ❌', `**User**: ${userId}\n**Product**: ${productId}\n**Error**: ${msg}`, 16711680);
          res.status(500).json({ error: String(err && err.message ? err.message : err) });
       }
     } finally {
