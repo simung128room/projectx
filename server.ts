@@ -79,6 +79,15 @@ import sharp from 'sharp';
 
 console.log('[Server] --- Supabase VERSION REBOOT ---');
 
+// Validate Critical Secrets before starting
+const REQUIRED_SECRETS = ['VITE_SUPABASE_URL', 'VITE_SUPABASE_ANON_KEY', 'SUPABASE_SERVICE_ROLE_KEY'];
+for (const key of REQUIRED_SECRETS) {
+  if (!process.env[key]) {
+    console.error(`[Fatal Error] Missing required secret: ${key}`);
+    process.exit(1);
+  }
+}
+
 async function sendAlert(title: string, message: string, color: number = 16711680, requestId?: string) {
   const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
   if (!webhookUrl) return;
@@ -97,10 +106,36 @@ async function sendAlert(title: string, message: string, color: number = 1671168
   }
 }
 
+// Immutable Audit Logging
+async function writeAuditLog(action: string, actor: string, target: string, req: express.Request | any, extraContext: any = {}) {
+  try {
+    const logEntry = {
+      timestamp: new Date().toISOString(),
+      action,
+      actor,
+      target,
+      ip: req.ip || 'Unknown',
+      requestId: req.id || 'N/A',
+      ...extraContext
+    };
+    await admin.firestore().collection('sys_audit_logs').add(logEntry);
+  } catch (err) {
+    console.error('[Audit Log] Failed to write audit log:', err);
+  }
+}
+
 // Global Error Boundaries
 process.on('uncaughtException', (err) => {
   console.error(JSON.stringify({ level: 'fatal', event: 'uncaughtException', message: err.message, stack: err.stack }));
-  sendAlert('Uncaught Exception 🔥', `**Error**: ${err.message}`, 16711680).then(() => process.exit(1));
+  
+  // Synchronous trace for sure crash logging
+  try {
+    fs.appendFileSync('crash.log', `${new Date().toISOString()} ${err.stack}\n`);
+  } catch(e) {}
+
+  sendAlert('Uncaught Exception 🔥', `**Error**: ${err.message}`, 16711680)
+    .catch(() => {})
+    .finally(() => process.exit(1));
 });
 
 process.on('unhandledRejection', (reason, promise) => {
@@ -111,6 +146,7 @@ process.on('unhandledRejection', (reason, promise) => {
 const app = express();
 app.use((req: any, res: any, next: any) => {
   req.id = crypto.randomUUID();
+  res.setHeader('X-Request-ID', req.id);
   next();
 });
 app.use(helmet({
@@ -122,9 +158,24 @@ app.set('trust proxy', 1);
   const PORT = 3000;
 
   // Health and Liveness Probes
-  app.get('/health', (req, res) => res.json({ status: 'ok', uptime: process.uptime() }));
-  app.get('/ready', (req, res) => res.json({ status: 'ready' }));
-  app.get('/live', (req, res) => res.json({ status: 'live' }));
+  app.get('/health', async (req, res) => {
+    const used = process.memoryUsage();
+    // Memory threshold alert
+    if (used.heapUsed / used.heapTotal > 0.90) {
+      sendAlert('High Memory Usage ⚠️', `Heap is at ${Math.round((used.heapUsed/used.heapTotal)*100)}% (${Math.round(used.heapUsed/1024/1024)}MB)`, 16753920).catch(() => {});
+    }
+    res.json({ status: 'ok', uptime: process.uptime(), memory: used });
+  });
+  app.get('/live', (req, res) => res.json({ status: 'alive' }));
+  app.get('/ready', async (req, res) => {
+    try {
+      // Validate Database Connectivity
+      await admin.firestore().collection('products').limit(1).get();
+      res.json({ status: 'ready', uptime: process.uptime() });
+    } catch (err: any) {
+      res.status(503).json({ status: 'not ready', error: String(err) });
+    }
+  });
 
   // Key generator that considers IP + UID (if authenticated)
   const userRateLimitKeyGenerator = (req: any) => {
@@ -142,7 +193,7 @@ app.set('trust proxy', 1);
     message: { error: 'ขออภัย คุณทำรายการบ่อยเกินไป กรุณารอสักครู่' },
     handler: (req: any, res: any, next: any, options: any) => {
       sendAlert('Auth Rate Limit Triggered 🚨', `**IP**: ${req.ip}\n**User**: ${req.user?.uid || 'guest'}\n**Path**: ${req.originalUrl}\n**Method**: ${req.method}`, 16711680, req.id);
-      res.status(options.statusCode || 429).json(options.message);
+      res.status(options.statusCode || 429).json({ ...options.message, requestId: req.id });
     }
   });
 
@@ -156,7 +207,7 @@ app.set('trust proxy', 1);
     message: { error: 'คุณดำเนินการบางอย่างเร็วเกินไป กรุณารอสักครู่' },
     handler: (req: any, res: any, next: any, options: any) => {
       sendAlert('Mutation Rate Limit Triggered ⚠️', `**IP**: ${req.ip}\n**User**: ${req.user?.uid || 'guest'}\n**Path**: ${req.originalUrl}\n**Method**: ${req.method}`, 16753920, req.id);
-      res.status(options.statusCode || 429).json(options.message);
+      res.status(options.statusCode || 429).json({ ...options.message, requestId: req.id });
     }
   });
 
@@ -167,7 +218,10 @@ app.set('trust proxy', 1);
     legacyHeaders: false, 
     keyGenerator: userRateLimitKeyGenerator,
     validate: { xForwardedForHeader: false, trustProxy: false },
-    message: { error: 'ขออภัย คุณส่งคำร้องขอเยอะเกินไป (Anti-Bot Protection) กรุณารอสักครู่' }
+    message: { error: 'ขออภัย คุณส่งคำร้องขอเยอะเกินไป (Anti-Bot Protection) กรุณารอสักครู่' },
+    handler: (req: any, res: any, next: any, options: any) => {
+      res.status(options.statusCode || 429).json({ ...options.message, requestId: req.id });
+    }
   });
 
   const globalLimiter = rateLimit({
@@ -350,13 +404,26 @@ const cleanupTokenCache = () => {
     }
     
     try {
-      // Re-encode image to strip EXIF and normalize format
-      const sanitizedBuffer = await sharp(req.file.buffer)
-        .jpeg({ quality: 90 })
-        .toBuffer();
-        
+      const image = sharp(req.file.buffer);
+      const metadata = await image.metadata();
+      
+      let sanitizedBuffer: Buffer;
+      let mimeType: string;
+
+      if (metadata.format === 'png') {
+        sanitizedBuffer = await image.png({ compressionLevel: 6 }).toBuffer(); // strips EXIF by default
+        mimeType = 'image/png';
+      } else {
+        sanitizedBuffer = await image.jpeg({ quality: 90 }).toBuffer();
+        mimeType = 'image/jpeg';
+      }
+      
+      // Limit to 5MB after process
+      if (sanitizedBuffer.length > 5 * 1024 * 1024) {
+         throw new Error('Output image size exceeds limit after re-encoding');
+      }
+
       const base64Data = sanitizedBuffer.toString('base64');
-      const mimeType = 'image/jpeg';
       res.json({ url: `data:${mimeType};base64,${base64Data}` });
     } catch (err: any) {
       console.error('Image processing failed:', err);
@@ -380,13 +447,26 @@ const cleanupTokenCache = () => {
     }
     
     try {
-      // Re-encode image to strip EXIF and normalize format
-      const sanitizedBuffer = await sharp(req.file.buffer)
-        .jpeg({ quality: 90 })
-        .toBuffer();
-        
+      const image = sharp(req.file.buffer);
+      const metadata = await image.metadata();
+      
+      let sanitizedBuffer: Buffer;
+      let mimeType: string;
+
+      if (metadata.format === 'png') {
+        sanitizedBuffer = await image.png({ compressionLevel: 6 }).toBuffer(); // strips EXIF by default
+        mimeType = 'image/png';
+      } else {
+        sanitizedBuffer = await image.jpeg({ quality: 90 }).toBuffer();
+        mimeType = 'image/jpeg';
+      }
+      
+      // Limit to 5MB after process
+      if (sanitizedBuffer.length > 5 * 1024 * 1024) {
+         throw new Error('Output image size exceeds limit after re-encoding');
+      }
+
       const base64Data = sanitizedBuffer.toString('base64');
-      const mimeType = 'image/jpeg';
       res.json({ url: `data:${mimeType};base64,${base64Data}` });
     } catch (err: any) {
       console.error('Image processing failed:', err);
@@ -562,6 +642,7 @@ const cleanupTokenCache = () => {
     }
     
     console.log(`[Settings] Updated:`, siteSettings);
+    writeAuditLog('SITE_SETTINGS_UPDATE', req.user?.uid || 'admin', 'sys_settings', req);
     return res.json({ success: true, settings: siteSettings });
   });
 
@@ -1702,6 +1783,8 @@ const cleanupTokenCache = () => {
       invalidateCache('products');
       invalidateStatsCache();
       
+      writeAuditLog('PRODUCT_UPDATE', req.user?.uid || 'admin', req.params.id, req);
+      
       const responseData = { id: req.params.id, ...dataToSave };
       if (responseData.stockData) {
         responseData.stockData = decompressStock(responseData.stockData);
@@ -1720,6 +1803,9 @@ const cleanupTokenCache = () => {
       await admin.firestore().collection('products').doc(req.params.id).delete();
       invalidateCache('products');
       invalidateStatsCache();
+      
+      writeAuditLog('PRODUCT_DELETE', req.user?.uid || 'admin', req.params.id, req);
+      
       res.json({ success: true });
     } catch (err) {
       console.error('Internal server error deleting product:', err);
@@ -1922,6 +2008,7 @@ console.log('HIT STATS ENDPOINT');
       await purchasesRef.doc(foundDoc.id).update({ ...foundDoc, discordClaimed: true });
 
       res.json({ success: true, message: 'รับยศสำเร็จ!' });
+      writeAuditLog('DISCORD_ROLE_CLAIM', req.user?.uid || 'system', 'discord_role', req, { key: req.body.key });
     } catch (e: any) {
       console.error(e);
       res.status(500).json({ error: 'Internal server error' });
@@ -2020,6 +2107,12 @@ console.log('HIT STATS ENDPOINT');
       invalidateCache('products');
       invalidateCache('purchases');
       invalidateStatsCache();
+      
+      writeAuditLog('PRODUCT_PURCHASE', userId, productId, req, {
+        quantity,
+        totalCost: result.purchase.price,
+        billNumber: result.purchase.billNumber
+      });
 
       res.json({
         success: true,
