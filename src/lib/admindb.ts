@@ -37,7 +37,7 @@ const forwardMap: Record<string, string> = {
   updatedAt: 'updatedat',
   isPremium: 'ispremium',
   productName: 'productname',
-  stockData: 'stock_data',
+  stockData: 'stockdata',
   userId: 'user_id',
   username: 'username'
 };
