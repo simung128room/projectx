@@ -75,17 +75,19 @@ const communityUpload = multer({ storage: multer.memoryStorage(), limits: { file
 
 import compression from 'compression';
 import helmet from 'helmet';
+import sharp from 'sharp';
 
 console.log('[Server] --- Supabase VERSION REBOOT ---');
 
-async function sendAlert(title: string, message: string, color: number = 16711680) {
+async function sendAlert(title: string, message: string, color: number = 16711680, requestId?: string) {
   const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
   if (!webhookUrl) return;
   try {
+    const desc = requestId ? message + `\n**Request ID**: ${requestId}` : message;
     await axios.post(webhookUrl, {
       embeds: [{
         title,
-        description: message,
+        description: desc,
         color,
         timestamp: new Date().toISOString()
       }]
@@ -94,6 +96,17 @@ async function sendAlert(title: string, message: string, color: number = 1671168
     console.error('Failed to send discord alert:', err.message);
   }
 }
+
+// Global Error Boundaries
+process.on('uncaughtException', (err) => {
+  console.error(JSON.stringify({ level: 'fatal', event: 'uncaughtException', message: err.message, stack: err.stack }));
+  sendAlert('Uncaught Exception 🔥', `**Error**: ${err.message}`, 16711680).then(() => process.exit(1));
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error(JSON.stringify({ level: 'error', event: 'unhandledRejection', reason: String(reason) }));
+  sendAlert('Unhandled Rejection ⚠️', `**Reason**: ${String(reason)}`, 16711680);
+});
 
 const app = express();
 app.use((req: any, res: any, next: any) => {
@@ -107,6 +120,11 @@ app.use(helmet({
 app.use(compression());
 app.set('trust proxy', 1);
   const PORT = 3000;
+
+  // Health and Liveness Probes
+  app.get('/health', (req, res) => res.json({ status: 'ok', uptime: process.uptime() }));
+  app.get('/ready', (req, res) => res.json({ status: 'ready' }));
+  app.get('/live', (req, res) => res.json({ status: 'live' }));
 
   // Key generator that considers IP + UID (if authenticated)
   const userRateLimitKeyGenerator = (req: any) => {
@@ -123,7 +141,7 @@ app.set('trust proxy', 1);
     validate: { xForwardedForHeader: false, trustProxy: false },
     message: { error: 'ขออภัย คุณทำรายการบ่อยเกินไป กรุณารอสักครู่' },
     handler: (req: any, res: any, next: any, options: any) => {
-      sendAlert('Auth Rate Limit Triggered 🚨', `**IP**: ${req.ip}\n**User**: ${req.user?.uid || 'guest'}\n**Path**: ${req.originalUrl}\n**Method**: ${req.method}`, 16711680);
+      sendAlert('Auth Rate Limit Triggered 🚨', `**IP**: ${req.ip}\n**User**: ${req.user?.uid || 'guest'}\n**Path**: ${req.originalUrl}\n**Method**: ${req.method}`, 16711680, req.id);
       res.status(options.statusCode || 429).json(options.message);
     }
   });
@@ -137,7 +155,7 @@ app.set('trust proxy', 1);
     validate: { xForwardedForHeader: false, trustProxy: false },
     message: { error: 'คุณดำเนินการบางอย่างเร็วเกินไป กรุณารอสักครู่' },
     handler: (req: any, res: any, next: any, options: any) => {
-      sendAlert('Mutation Rate Limit Triggered ⚠️', `**IP**: ${req.ip}\n**User**: ${req.user?.uid || 'guest'}\n**Path**: ${req.originalUrl}\n**Method**: ${req.method}`, 16753920);
+      sendAlert('Mutation Rate Limit Triggered ⚠️', `**IP**: ${req.ip}\n**User**: ${req.user?.uid || 'guest'}\n**Path**: ${req.originalUrl}\n**Method**: ${req.method}`, 16753920, req.id);
       res.status(options.statusCode || 429).json(options.message);
     }
   });
@@ -324,15 +342,26 @@ const cleanupTokenCache = () => {
       }
       next();
     });
-  }, (req: any, res: any) => {
+  }, async (req: any, res: any) => {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
     if (!isImageSafe(req.file.buffer)) {
-      sendAlert('Unsafe Upload Attempt (Admin) ⚠️', `**IP**: ${req.ip}\n**User**: ${req.user?.uid || 'guest'}`, 16753920);
+      sendAlert('Unsafe Upload Attempt (Admin) ⚠️', `**IP**: ${req.ip}\n**User**: ${req.user?.uid || 'guest'}`, 16753920, req.id);
       return res.status(400).json({ error: 'Invalid file type. Only secure images allowed.' });
     }
-    const base64Data = req.file.buffer.toString('base64');
-    const mimeType = req.file.mimetype;
-    res.json({ url: `data:${mimeType};base64,${base64Data}` });
+    
+    try {
+      // Re-encode image to strip EXIF and normalize format
+      const sanitizedBuffer = await sharp(req.file.buffer)
+        .jpeg({ quality: 90 })
+        .toBuffer();
+        
+      const base64Data = sanitizedBuffer.toString('base64');
+      const mimeType = 'image/jpeg';
+      res.json({ url: `data:${mimeType};base64,${base64Data}` });
+    } catch (err: any) {
+      console.error('Image processing failed:', err);
+      res.status(500).json({ error: 'Failed to process image' });
+    }
   });
 
   app.post('/api/community/upload', requireAuth, (req: any, res: any, next: any) => {
@@ -343,15 +372,26 @@ const cleanupTokenCache = () => {
       }
       next();
     });
-  }, (req: any, res: any) => {
+  }, async (req: any, res: any) => {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
     if (!isImageSafe(req.file.buffer)) {
-      sendAlert('Unsafe Upload Attempt (Community) ⚠️', `**IP**: ${req.ip}\n**User**: ${req.user?.uid || 'guest'}`, 16753920);
+      sendAlert('Unsafe Upload Attempt (Community) ⚠️', `**IP**: ${req.ip}\n**User**: ${req.user?.uid || 'guest'}`, 16753920, req.id);
       return res.status(400).json({ error: 'Invalid file type. Only secure images allowed.' });
     }
-    const base64Data = req.file.buffer.toString('base64');
-    const mimeType = req.file.mimetype;
-    res.json({ url: `data:${mimeType};base64,${base64Data}` });
+    
+    try {
+      // Re-encode image to strip EXIF and normalize format
+      const sanitizedBuffer = await sharp(req.file.buffer)
+        .jpeg({ quality: 90 })
+        .toBuffer();
+        
+      const base64Data = sanitizedBuffer.toString('base64');
+      const mimeType = 'image/jpeg';
+      res.json({ url: `data:${mimeType};base64,${base64Data}` });
+    } catch (err: any) {
+      console.error('Image processing failed:', err);
+      res.status(500).json({ error: 'Failed to process image' });
+    }
   });
 
   
@@ -1994,7 +2034,7 @@ console.log('HIT STATS ENDPOINT');
       if (msg === 'ยอดเงินไม่เพียงพอ' || msg === 'สินค้าในสต๊อกไม่เพียงพอ' || msg === 'User not found' || msg === 'Product not found') {
          res.status(400).json({ error: msg });
       } else {
-         sendAlert('Transaction Failed / Rollback ❌', `**User**: ${userId}\n**Product**: ${productId}\n**Error**: ${msg}`, 16711680);
+         sendAlert('Transaction Failed / Rollback ❌', `**User**: ${userId}\n**Product**: ${productId}\n**Error**: ${msg}`, 16711680, req.id);
          res.status(500).json({ error: String(err && err.message ? err.message : err) });
       }
     } finally {
