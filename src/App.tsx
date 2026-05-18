@@ -104,11 +104,7 @@ const AdminDashboard = lazy(() =>
     default: module.AdminDashboard,
   })),
 );
-const HomeView = lazy(() =>
-  import("./components/HomeView").then((module) => ({
-    default: module.HomeView,
-  })),
-);
+import { HomeView } from "./components/HomeView";
 const ProductDetailView = lazy(() =>
   import("./components/ProductDetailView").then((module) => ({
     default: module.ProductDetailView,
