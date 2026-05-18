@@ -171,11 +171,11 @@ const ProductManagerModal = ({
 
 const AddStockModal = ({ 
   product, 
-  onSave, 
+  onAppendStock, 
   onClose 
 }: { 
   product: Product, 
-  onSave: (p: Product) => void, 
+  onAppendStock: (newItems: string[]) => void, 
   onClose: () => void 
 }) => {
   const [linesPerStock, setLinesPerStock] = useState(1);
@@ -207,8 +207,8 @@ const AddStockModal = ({
     if (!fileList || fileList.length === 0) return;
     
     Array.from(fileList).forEach((file: File) => {
-      if (file.size > 2 * 1024 * 1024) {
-        Swal.fire({title: 'ไฟล์ใหญ่เกินไป', text: `ไฟล์ ${file.name} มีขนาดใหญ่กว่า 2MB`, icon: 'error', background: '#09090b', color: '#fff'});
+      if (file.size > 800 * 1024) {
+        Swal.fire({title: 'ไฟล์ใหญ่เกินไป', text: `ไฟล์ ${file.name} มีขนาดใหญ่กว่า 800KB. ถ้าต้องการอัพโหลดไฟล์ขนาดนี้ ให้ใช้วิธีอัพโหลดไฟล์แล้ววางลิงก์แทน`, icon: 'error', background: '#09090b', color: '#fff'});
         return;
       }
       const reader = new FileReader();
@@ -269,7 +269,7 @@ const AddStockModal = ({
     }
 
     // Increase message if it's huge so user knows it might take time
-    if (newItems.length > 10000) {
+    if (newItems.length > 500) {
       Swal.fire({
         title: 'กำลังประมวลผล',
         text: `กำลังเตรียมบันทึกสต๊อก ${newItems.length.toLocaleString()} รายการ โปรดรอสักครู่และห้ามปิดหน้าต่างนี้...`,
@@ -280,10 +280,7 @@ const AddStockModal = ({
       });
     }
 
-    const updatedProduct = { ...product };
-    updatedProduct.stockData = (updatedProduct.stockData || []).concat(newItems);
-    updatedProduct.stock = updatedProduct.stockData.length;
-    onSave(updatedProduct);
+    onAppendStock(newItems);
   };
 
   return (
@@ -366,7 +363,7 @@ const AddStockModal = ({
             >
               <Upload className="w-8 h-8 text-indigo-400 mb-3" />
               <p className="text-sm font-bold text-zinc-300">อัพโหลดไฟล์สินค้า</p>
-              <p className="text-xs text-zinc-500 mt-1">สูงสุด 2MB ต่อไฟล์ (เลือกหลายไฟล์ได้)</p>
+              <p className="text-xs text-zinc-500 mt-1">สูงสุด 800KB ต่อไฟล์ (เลือกหลายไฟล์ได้)</p>
               <input 
                 type="file" 
                 multiple
@@ -2075,13 +2072,56 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           <AddStockModal 
             product={stockProduct}
             onClose={() => setStockProduct(undefined)}
-            onSave={async (p) => {
+            onAppendStock={async (newItems) => {
               if (setProducts) {
                 try {
-                  const res = await axios.put(`/api/products/${p.id}`, p);
-                  setProducts(products.map(prod => prod.id === p.id ? res.data : prod));
+                  const maxBytesPerChunk = 400 * 1024; // 400KB payload chunking
+                  const chunks: string[][] = [];
+                  let currentChunk: string[] = [];
+                  let currentChunkSize = 0;
+                  
+                  for (const item of newItems) {
+                    const itemSize = new Blob([item]).size;
+                    if (currentChunkSize + itemSize > maxBytesPerChunk && currentChunk.length > 0) {
+                      chunks.push(currentChunk);
+                      currentChunk = [item];
+                      currentChunkSize = itemSize;
+                    } else {
+                      currentChunk.push(item);
+                      currentChunkSize += itemSize;
+                    }
+                  }
+                  if (currentChunk.length > 0) {
+                    chunks.push(currentChunk);
+                  }
+                  
+                  if (chunks.length > 1) {
+                    Swal.fire({
+                      title: 'กำลังอัพโหลดสต๊อก',
+                      text: `กำลังส่งข้อมูล ${chunks.length} ชุด ป้องกันขนาดเกินกำหนด...`,
+                      icon: 'info',
+                      showConfirmButton: false,
+                      allowOutsideClick: false,
+                      background: '#09090b', color: '#fff'
+                    });
+                  }
+
+                  let lastRes;
+                  let addedCount = 0;
+                  for (let i = 0; i < chunks.length; i++) {
+                    lastRes = await axios.post(`/api/products/${stockProduct.id}/stock`, { newItems: chunks[i] });
+                    addedCount += chunks[i].length;
+                  }
+                  
+                  if (lastRes && lastRes.data?.product) {
+                     setProducts(products.map(prod => prod.id === stockProduct.id ? lastRes.data.product : prod));
+                  } else {
+                     const fresh = await axios.get(`/api/products/${stockProduct.id}`);
+                     setProducts(products.map(prod => prod.id === stockProduct.id ? fresh.data : prod));
+                  }
+
                   setStockProduct(undefined);
-                  Swal.fire({ title: 'เพิ่มสต๊อกสำเร็จ', icon: 'success', background: '#09090b', color: '#fff' });
+                  Swal.fire({ title: 'เพิ่มสต๊อกสำเร็จ', text: `เพิ่มแล้ว ${addedCount} รายการ`, icon: 'success', background: '#09090b', color: '#fff' });
                 } catch (err: any) {
                   const errorExt = err.response?.data?.error || err.message || JSON.stringify(err);
                   console.error("Update stock error:", err.response?.data || err);

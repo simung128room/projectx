@@ -1433,6 +1433,49 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
     }
   });
 
+  app.post('/api/products/:id/stock', requireAdmin, async (req, res) => {
+    if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
+    try {
+      const { newItems } = req.body;
+      if (!Array.isArray(newItems) || newItems.length === 0) {
+        return res.json({ success: true });
+      }
+
+      const docRef = admin.firestore().collection('products').doc(req.params.id);
+      const doc = await docRef.get();
+      
+      if (!doc.exists) {
+        return res.status(404).json({ error: 'Product not found' });
+      }
+      
+      const productData = doc.data();
+      let existingStock = productData.stockData;
+      if (existingStock) {
+        existingStock = decompressStock(existingStock);
+      }
+      if (!Array.isArray(existingStock)) {
+        existingStock = [];
+      }
+      
+      const updatedStockList = [...existingStock, ...newItems];
+      const dataToSave = { 
+         stockData: compressStock(updatedStockList),
+         stock: updatedStockList.length
+      };
+      
+      await docRef.update(dataToSave);
+      invalidateCache('products');
+      invalidateStatsCache();
+      
+      const responseData = { id: req.params.id, ...productData, ...dataToSave, stockData: updatedStockList };
+      res.json({ success: true, added: newItems.length, product: responseData });
+    } catch (err: any) {
+      console.error('Internal server error appending stock:', JSON.stringify(err, Object.getOwnPropertyNames(err)));
+      const errMsg = err?.message || JSON.stringify(err);
+      res.status(500).json({ error: String(errMsg) });
+    }
+  });
+
   app.put('/api/products/:id', requireAdmin, async (req, res) => {
     if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
     try {
