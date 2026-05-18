@@ -70,6 +70,7 @@ import { adminDb as admin, supabaseAdmin } from './src/lib/admindb.js';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 50 * 1024 * 1024 } }); // 50MB limit
+const communityUpload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } }); // 5MB limit
 
 
 import compression from 'compression';
@@ -210,7 +211,7 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
   });
 
   app.post('/api/community/upload', requireAuth, (req: any, res: any, next: any) => {
-    upload.single('file')(req, res, (err) => {
+    communityUpload.single('file')(req, res, (err) => {
       if (err) {
         console.error('Multer error:', err);
         return res.status(500).json({ error: 'Upload failed: ' + err.message });
@@ -381,9 +382,10 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
     return res.json({ success: true, settings: siteSettings });
   });
 
-  app.post('/api/topup/truemoney', async (req, res) => {
+  app.post('/api/topup/truemoney', requireAuth, async (req: any, res: any) => {
     try {
-      const { voucherCode, uid } = req.body;
+      const { voucherCode } = req.body;
+      const uid = req.user.uid;
       const phone = siteSettings.truewallet_phone;
       
       if (!voucherCode) {
@@ -473,9 +475,10 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
 
   const usedSlips = new Set<string>();
 
-  app.post('/api/topup/slip', async (req, res) => {
+  app.post('/api/topup/slip', requireAuth, async (req: any, res: any) => {
     try {
-      const { imageBase64, uid } = req.body;
+      const { imageBase64 } = req.body;
+      const uid = req.user.uid;
       if (!imageBase64) {
         return res.status(400).json({ success: false, error: 'ข้อมูลไม่ครบถ้วน' });
       }
@@ -888,7 +891,7 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
   // Add RateLimiting to prevent bot attacks
   const checkLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 100000, 
+    max: 100, 
     standardHeaders: true, 
     legacyHeaders: false, 
     validate: { xForwardedForHeader: false, trustProxy: false },
@@ -897,7 +900,7 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
 
   const globalLimiter = rateLimit({
     windowMs: 1 * 60 * 1000, 
-    max: 100000, 
+    max: 200, 
     standardHeaders: true,
     legacyHeaders: false,
     validate: { xForwardedForHeader: false, trustProxy: false },
@@ -1613,7 +1616,7 @@ console.log('HIT STATS ENDPOINT');
     }
   });
 
-  app.post('/api/purchases', async (req, res) => {
+  app.post('/api/purchases', requireAdmin, async (req, res) => {
     // Legacy endpoint, we can leave it to avoid breaking changes, or just require admin.
     if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
     try {
@@ -2168,7 +2171,7 @@ console.log('HIT STATS ENDPOINT');
     }
   });
 
-  app.post('/api/used_keys', async (req, res) => {
+  app.post('/api/used_keys', requireAdmin, async (req, res) => {
     try {
       const { key, ip, details, uid } = req.body;
       const newDoc = { key, ip, details, uid: uid || null, used_at: new Date().toISOString() };
@@ -2476,6 +2479,8 @@ console.log('HIT STATS ENDPOINT');
         delete data.role;
         delete data.isPremium;
         delete data.status;
+        delete data.rank;
+        delete data.premiumExpireDate;
       }
       
       const docRef = admin.firestore().collection('users').doc(uid);
@@ -2669,9 +2674,14 @@ console.log('HIT STATS ENDPOINT');
       return { promise: p, resolve: rs };
   }
 
-  app.post('/api/telegram/catcher/request', async (req, res) => {
-      const { telegramPhone, truemoneyPhone, isPremium } = req.body;
+  app.post('/api/telegram/catcher/request', requireAuth, async (req: any, res: any) => {
+      const { telegramPhone, truemoneyPhone } = req.body;
       if (!telegramPhone || !truemoneyPhone) return res.status(400).json({ error: 'Missing phone numbers' });
+
+      // Verify Premium
+      const userRef = admin.firestore().collection('users').doc(req.user.uid);
+      const userDoc = await userRef.get();
+      const isPremium = req.isAdmin || (userDoc.exists && userDoc.data()?.isPremium);
 
       // Daily Limit logic (100 users) -> Note: If premium, bypass.
       const today = new Date().toISOString().slice(0, 10);
@@ -2809,7 +2819,7 @@ console.log('HIT STATS ENDPOINT');
       res.json({ success: true });
   });
 
-  app.post('/api/truemoney/redeem', async (req, res) => {
+  app.post('/api/truemoney/redeem', requireAuth, async (req: any, res: any) => {
     try {
       const { url, phone } = req.body;
       if (!url || !phone) return res.status(400).json({ error: 'Missing parameters' });
@@ -2835,9 +2845,16 @@ console.log('HIT STATS ENDPOINT');
       }
   }
 
-  app.post('/api/discord/token-on/start', async (req, res) => {
-      const { discordToken, isPremium } = req.body;
+  app.post('/api/discord/token-on/start', requireAuth, async (req: any, res: any) => {
+      const { discordToken } = req.body;
       if (!discordToken) return res.status(400).json({ error: 'Missing token' });
+
+      // Verify Premium (since it's a 24/7 process that drains memory, we MUST protect it)
+      const userRef = admin.firestore().collection('users').doc(req.user.uid);
+      const userDoc = await userRef.get();
+      if (!req.isAdmin && (!userDoc.exists || !userDoc.data()?.isPremium)) {
+          return res.status(403).json({ error: 'Premium feature only' });
+      }
 
       try {
           let sess = discordTokenOnSessions.get(discordToken);
@@ -2967,9 +2984,14 @@ console.log('HIT STATS ENDPOINT');
       }
   }
 
-  app.post('/api/discord/catcher/request', async (req, res) => {
-      const { discordToken, truemoneyPhone, isPremium } = req.body;
+  app.post('/api/discord/catcher/request', requireAuth, async (req: any, res: any) => {
+      const { discordToken, truemoneyPhone } = req.body;
       if (!discordToken || !truemoneyPhone) return res.status(400).json({ error: 'Missing token or phone number' });
+
+      // Verify Premium
+      const userRef = admin.firestore().collection('users').doc(req.user.uid);
+      const userDoc = await userRef.get();
+      const isPremium = req.isAdmin || (userDoc.exists && userDoc.data()?.isPremium);
 
       // Daily Limit logic (shared with telegram or separate if prefered, using tgDailyCount for simplicity if not premium)
       const today = new Date().toISOString().slice(0, 10);
@@ -3113,7 +3135,7 @@ console.log('HIT STATS ENDPOINT');
   });
 
   // Discord HypeSquad Tool API
-  app.post('/api/discord/hypesquad', async (req, res) => {
+  app.post('/api/discord/hypesquad', requireAuth, async (req: any, res: any) => {
     try {
       const { token, house_id } = req.body;
       if (!token) return res.status(400).json({ error: 'Token is required' });
@@ -3142,7 +3164,7 @@ console.log('HIT STATS ENDPOINT');
     }
   });
 
-  app.delete('/api/discord/hypesquad', async (req, res) => {
+  app.delete('/api/discord/hypesquad', requireAuth, async (req: any, res: any) => {
     try {
       const { token } = req.body;
       if (!token) return res.status(400).json({ error: 'Token is required' });
