@@ -7,11 +7,12 @@ import { CategoryCard } from './CategoryCard';
 interface CategoriesViewProps {
   categories: Category[];
   products: Product[];
+  siteSettings?: any;
   onBack: () => void;
   onSelectCategory: (categoryId: string) => void;
 }
 
-export const CategoriesView: React.FC<CategoriesViewProps> = ({ categories, products, onBack, onSelectCategory }) => {
+export const CategoriesView: React.FC<CategoriesViewProps> = ({ categories, products, siteSettings, onBack, onSelectCategory }) => {
   const getCategoryPriceInfo = (categoryName: string) => {
     const catProducts = categoryName === 'all' ? products : products.filter(p => p.category === categoryName);
     if (catProducts.length === 0) return null;
@@ -54,6 +55,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({ categories, prod
           label="ทุกหมวดหมู่"
           itemCountDesc={`ทั้งหมด ${getProductCountText('all')}`}
           priceRangeStr={allPriceInfo || undefined}
+          bgImage={siteSettings?.banners?.[0] || "https://img2.pic.in.th/-71_20260516210303.png"}
           index={0}
           onClick={() => onSelectCategory('all')}
           accentColor="#1E90FF"

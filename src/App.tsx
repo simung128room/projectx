@@ -2537,6 +2537,7 @@ function AppContent() {
               <CategoriesView
                 categories={categories}
                 products={products}
+                siteSettings={siteSettings}
                 onBack={() => setActiveView("home")}
                 onSelectCategory={(cat) => {
                   setSelectedCategory(cat);

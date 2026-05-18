@@ -202,44 +202,8 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
               backgroundImage: bgImage
                 ? `url(${bgImage})`
                 : "linear-gradient(45deg, #121820, #0B0F14)",
-              filter: title === 'ดูสินค้าทั้งหมด' ? "brightness(0.55) saturate(1.2)" : undefined
             }}
           />
-
-          {title === 'ดูสินค้าทั้งหมด' && (
-            <>
-              <div
-                className="custom-banner-overlay"
-                style={{
-                  background: `linear-gradient(120deg, ${gradientFrom}cc 30%, transparent 70%)`,
-                }}
-              />
-              <div className="custom-banner-dots" />
-
-              {/* Shop watermark strip */}
-              <div className="custom-watermark-strip">
-                {Array(8)
-                  .fill("APEX STORE")
-                  .map((t, i) => (
-                    <span key={i}>{t}</span>
-                  ))}
-              </div>
-
-              {/* APEX STORE logo */}
-              <div className="custom-og-logo">
-                <span className="og-text">APEX STOR</span>
-                <span style={{ display: "inline-block", transform: "scaleX(-1) rotate(180deg) translateY(-1px)", color: "#fff" }}>E</span>
-              </div>
-
-              {/* Category label */}
-              <div className="custom-cat-label-group">
-                <span className="custom-cat-label-th">{label}</span>
-                <span className="custom-cat-label-en" style={{ color: accentColor }}>
-                  {title}
-                </span>
-              </div>
-            </>
-          )}
         </div>
 
         {/* Info row */}
