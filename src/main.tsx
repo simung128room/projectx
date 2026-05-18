@@ -21,12 +21,12 @@ window.addEventListener('unhandledrejection', function(event) {
     return;
   }
   
-  if (event.reason && typeof event.reason.message === 'string' && event.reason.message.includes('WebSocket')) {
+  if (event.reason && typeof event.reason.message === 'string' && (event.reason.message.includes('WebSocket') || event.reason.message.includes('Lock was stolen'))) {
     event.preventDefault();
     return;
   }
 
-  if (typeof event.reason === 'string' && event.reason.includes('WebSocket')) {
+  if (typeof event.reason === 'string' && (event.reason.includes('WebSocket') || event.reason.includes('Lock was stolen'))) {
     event.preventDefault();
     return;
   }

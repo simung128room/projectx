@@ -178,13 +178,14 @@ const AddStockModal = ({
   onSave: (p: Product) => void, 
   onClose: () => void 
 }) => {
-  const [stockInput, setStockInput] = useState('');
   const [linesPerStock, setLinesPerStock] = useState(1);
   const [fileStockPreview, setFileStockPreview] = useState<string[]>([]);
   const [singleFilesPreview, setSingleFilesPreview] = useState<{name: string, b64: string}[]>([]);
   const [mode, setMode] = useState<'text'|'file'|'single-file'>('file');
+  const [stockCount, setStockCount] = useState(0);
   const fileRef = useRef<HTMLInputElement>(null);
   const singleFileRef = useRef<HTMLInputElement>(null);
+  const textRef = useRef<HTMLTextAreaElement>(null);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -193,9 +194,8 @@ const AddStockModal = ({
     reader.onload = (event) => {
       const text = event.target?.result as string;
       if (text) {
-        const lines = text.split('\n')
-                          .map(l => l.trim())
-                          .filter(l => l.length > 0);
+        // Fast processing
+        const lines = text.split('\n').filter(l => l.trim().length > 0).map(l => l.trim());
         setFileStockPreview(lines);
       }
     };
@@ -206,9 +206,7 @@ const AddStockModal = ({
     const fileList = e.target.files;
     if (!fileList || fileList.length === 0) return;
     
-    // Process all selected files to strings (Base64)
     Array.from(fileList).forEach((file: File) => {
-      // Check file size (limit 2MB per file to avoid crashing localStorage)
       if (file.size > 2 * 1024 * 1024) {
         Swal.fire({title: 'ไฟล์ใหญ่เกินไป', text: `ไฟล์ ${file.name} มีขนาดใหญ่กว่า 2MB`, icon: 'error', background: '#09090b', color: '#fff'});
         return;
@@ -224,10 +222,27 @@ const AddStockModal = ({
     });
   };
 
+  const updateTextCount = () => {
+    if (!textRef.current) return;
+    const val = textRef.current.value;
+    if (!val.trim()) {
+      setStockCount(0);
+      return;
+    }
+    let matches = val.match(/\n/g);
+    let rawLines = matches ? matches.length + 1 : 1;
+    setStockCount(Math.ceil(rawLines / linesPerStock));
+  };
+
+  useEffect(() => {
+    updateTextCount();
+  }, [linesPerStock]);
+
   const handleSaveStock = () => {
     let newItems: string[] = [];
-    if (mode === 'text' && stockInput.trim()) {
-      const lines = stockInput.split('\n').map(x => x.trim()).filter(x => x.length > 0);
+    if (mode === 'text' && textRef.current && textRef.current.value.trim()) {
+      const text = textRef.current.value;
+      const lines = text.split('\n').map(x => x.trim()).filter(x => x.length > 0);
       if (linesPerStock > 1) {
         for (let i = 0; i < lines.length; i += linesPerStock) {
           const chunk = lines.slice(i, i + linesPerStock).join('\n');
@@ -246,7 +261,6 @@ const AddStockModal = ({
         newItems = [...fileStockPreview];
       }
     } else if (mode === 'single-file' && singleFilesPreview.length > 0) {
-      // For single files, we can encode them as JSON strings containing the file data to fit into the string[] array
       newItems = singleFilesPreview.map(f => JSON.stringify({ type: 'file', name: f.name, data: f.b64 }));
     }
 
@@ -254,8 +268,20 @@ const AddStockModal = ({
       return Swal.fire({title: 'ข้อมูลว่างเปล่า', text: 'ไม่ได้เพิ่มสต๊อกใหม่', icon: 'error', background: '#09090b', color: '#fff'});
     }
 
+    // Increase message if it's huge so user knows it might take time
+    if (newItems.length > 10000) {
+      Swal.fire({
+        title: 'กำลังประมวลผล',
+        text: `กำลังเตรียมบันทึกสต๊อก ${newItems.length.toLocaleString()} รายการ โปรดรอสักครู่และห้ามปิดหน้าต่างนี้...`,
+        icon: 'info',
+        showConfirmButton: false,
+        allowOutsideClick: false,
+        background: '#09090b', color: '#fff'
+      });
+    }
+
     const updatedProduct = { ...product };
-    updatedProduct.stockData = [...(updatedProduct.stockData || []), ...newItems];
+    updatedProduct.stockData = (updatedProduct.stockData || []).concat(newItems);
     updatedProduct.stock = updatedProduct.stockData.length;
     onSave(updatedProduct);
   };
@@ -379,12 +405,12 @@ const AddStockModal = ({
               <div className="flex items-center justify-between mb-2">
                 <label className="text-xs font-bold text-zinc-500">วางข้อมูลสต๊อก</label>
                 <span className="text-[10px] text-zinc-400 bg-zinc-900 px-2 py-0.5 rounded">
-                  คำนวณได้: {stockInput.trim() ? Math.ceil(stockInput.split('\n').filter(x => x.trim().length > 0).length / linesPerStock) : 0} สต๊อก
+                  คำนวณได้: {stockCount} สต๊อก
                 </span>
               </div>
               <textarea 
-                value={stockInput}
-                onChange={e => setStockInput(e.target.value)}
+                ref={textRef}
+                onChange={updateTextCount}
                 className="w-full bg-zinc-900 border border-zinc-800 rounded-xl p-4 text-white focus:outline-none focus:border-indigo-500 text-sm h-40 resize-none font-mono text-xs leading-relaxed"
                 placeholder="ข้อมูลบรรทัดที่ 1&#10;ข้อมูลบรรทัดที่ 2&#10;ข้อมูลบรรทัดที่ 3&#10;..."
               />

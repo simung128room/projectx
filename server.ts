@@ -18,6 +18,21 @@ import rateLimit from 'express-rate-limit';
 import multer from 'multer';
 import fs from 'fs';
 import os from 'os';
+import zlib from 'zlib';
+
+const compressStock = (stockData: any) => {
+  if (!Array.isArray(stockData) || stockData.length < 5000) return stockData;
+  return { __compressed: zlib.gzipSync(JSON.stringify(stockData)).toString('base64') };
+};
+
+const decompressStock = (data: any) => {
+  if (data && typeof data === 'object' && data.__compressed) {
+    try {
+      return JSON.parse(zlib.gunzipSync(Buffer.from(data.__compressed, 'base64')).toString('utf-8'));
+    } catch(e) { return []; }
+  }
+  return data;
+};
 
 // Automatic Free Proxy fetcher
 let freeProxies: string[] = [];
@@ -1375,7 +1390,13 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
       return firestoreCache[collectionName].data;
     }
     const snapshot = await admin.firestore().collection(collectionName).get();
-    const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const data = snapshot.docs.map(doc => {
+      const d = doc.data();
+      if (d.stockData && d.stockData.__compressed) {
+        d.stockData = decompressStock(d.stockData);
+      }
+      return { id: doc.id, ...d };
+    });
     firestoreCache[collectionName] = { data, timestamp: now };
     return data;
   };
@@ -1406,6 +1427,9 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
     try {
       const product = req.body;
       const { id, ...dataToSaveRaw } = product;
+      if (dataToSaveRaw.stockData) {
+        dataToSaveRaw.stockData = compressStock(dataToSaveRaw.stockData);
+      }
       // Deep strip undefined values to please Firestore
       const dataToSave = JSON.parse(JSON.stringify(dataToSaveRaw));
       const docRef = await admin.firestore().collection('products').add(dataToSave);
@@ -1423,6 +1447,9 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
     try {
       const product = req.body;
       const { id, ...dataToSaveRaw } = product;
+      if (dataToSaveRaw.stockData) {
+        dataToSaveRaw.stockData = compressStock(dataToSaveRaw.stockData);
+      }
       const dataToSave = JSON.parse(JSON.stringify(dataToSaveRaw));
       const docRef = admin.firestore().collection('products').doc(req.params.id);
       await docRef.update(dataToSave);
@@ -1720,7 +1747,7 @@ console.log('HIT STATS ENDPOINT');
       const productUpdatePayload = JSON.parse(JSON.stringify({ 
         ...productData,
         stock: currentStockData.length, 
-        stockData: currentStockData.filter(v => v !== undefined && v !== null), 
+        stockData: compressStock(currentStockData.filter(v => v !== undefined && v !== null)), 
         soldCount: (Number(productData.soldCount) || 0) + quantity 
       }));
       const historyPayload = JSON.parse(JSON.stringify({

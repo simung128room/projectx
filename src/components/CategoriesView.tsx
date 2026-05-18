@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { Package, ArrowLeft, ChevronRight, ShoppingCart, Star, TrendingUp } from 'lucide-react';
 import { Category, Product } from '../types';
+import { CategoryCard } from './CategoryCard';
 
 interface CategoriesViewProps {
   categories: Category[];
@@ -48,85 +49,32 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({ categories, prod
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <motion.div
-           initial={{ opacity: 0, y: 20 }}
-           animate={{ opacity: 1, y: 0 }}
-           onClick={() => onSelectCategory('all')}
-           className="bg-[#0B0F14] border text-left border-white/10 hover:border-[#1a7fe6]/30 hover:shadow-xl hover:shadow-[#1a7fe6]/10 rounded-3xl overflow-hidden transition-all cursor-pointer group flex flex-col"
-        >
-           <div className="h-32 bg-zinc-900 flex items-center justify-center relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-tr from-[#1E90FF]/20 to-transparent opacity-50"></div>
-              <div className="w-16 h-16 rounded-2xl bg-[#0B0F14]/10 backdrop-blur-md flex items-center justify-center text-white border border-white/20 relative z-10 group-hover:scale-110 transition-transform">
-                <ShoppingCart className="w-8 h-8" />
-              </div>
-              <div className="absolute bottom-2 right-4 text-[10px] font-black text-white/40 tracking-widest uppercase">Apex Store</div>
-           </div>
-           <div className="p-6 pb-8 flex-1 flex flex-col items-start justify-center">
-              <div className="flex w-full items-center justify-between mb-2">
-                 <h2 className="text-xl font-black text-white group-hover:text-[#1a7fe6] transition-colors">ดูสินค้าทั้งหมด</h2>
-                 <div className="w-8 h-8 rounded-full bg-[#121820] flex items-center justify-center text-zinc-400 group-hover:bg-[#1E90FF]/10 group-hover:text-[#1a7fe6] transition-all">
-                    <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-all" />
-                 </div>
-              </div>
-              <div className="w-full flex items-center justify-between mt-4">
-                 <p className="text-sm text-zinc-500 font-medium flex items-center gap-1.5">
-                   <Package className="w-3.5 h-3.5" /> ทุกหมวดหมู่ · {getProductCountText('all')}
-                 </p>
-                 {allPriceInfo ? (
-                   <span className="text-sm font-black text-[#1E90FF] bg-[#1E90FF]/10 px-3 py-1 rounded-lg border border-white/10">{allPriceInfo}</span>
-                 ) : (
-                   <span className="text-sm font-bold text-zinc-400 bg-[#0a0d12] px-3 py-1 rounded-lg border border-white/10">ไม่ทราบราคา</span>
-                 )}
-              </div>
-           </div>
-        </motion.div>
+        <CategoryCard
+          title="ดูสินค้าทั้งหมด"
+          label="ทุกหมวดหมู่"
+          itemCountDesc={`ทั้งหมด ${getProductCountText('all')}`}
+          priceRangeStr={allPriceInfo || undefined}
+          index={0}
+          onClick={() => onSelectCategory('all')}
+          accentColor="#1E90FF"
+          glowColor="rgba(30,144,255,0.6)"
+          gradientFrom="#0B0F14"
+        />
 
         {categories.map((c, i) => (
-          <motion.div
+          <CategoryCard
             key={c.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: (i + 1) * 0.05 }}
+            title={c.title}
+            label={c.subtitle || "หมวดหมู่"}
+            itemCountDesc={`${getProductCountText(c.name)}`}
+            priceRangeStr={getCategoryPriceInfo(c.name) || undefined}
+            bgImage={c.bannerUrl || undefined}
+            index={i + 1}
             onClick={() => onSelectCategory(c.name)}
-            className="bg-[#0B0F14] text-left border border-white/10 hover:border-[#1a7fe6]/30 hover:shadow-xl hover:shadow-[#1a7fe6]/10 rounded-3xl overflow-hidden transition-all cursor-pointer group flex flex-col"
-          >
-            {c.bannerUrl ? (
-              <div className="h-32 w-full overflow-hidden relative">
-                 <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors z-10 flex items-center justify-center opacity-0 group-hover:opacity-100 duration-300">
-                    <div className="w-10 h-10 rounded-full bg-[#0B0F14]/20 backdrop-blur-md flex items-center justify-center text-white border border-white/30">
-                      <ChevronRight className="w-5 h-5" />
-                    </div>
-                 </div>
-                 <img src={c.bannerUrl || undefined} alt={c.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-              </div>
-            ) : (
-              <div className="h-32 bg-zinc-900 flex items-center justify-center relative overflow-hidden">
-                 <div className="absolute inset-0 bg-gradient-to-tr from-[#1E90FF]/20 to-transparent opacity-50"></div>
-                 <div className="w-16 h-16 rounded-2xl bg-[#0B0F14]/10 backdrop-blur-md flex items-center justify-center text-white border border-white/20 relative z-10 group-hover:scale-110 transition-transform">
-                   <Package className="w-8 h-8" />
-                 </div>
-                 <div className="absolute bottom-2 right-4 text-[10px] font-black text-white/40 tracking-widest uppercase">Category</div>
-              </div>
-            )}
-            <div className="p-6 pb-8 flex-1 flex flex-col items-start justify-center">
-               <div className="flex items-center w-full justify-between mb-2">
-                  <h2 className="text-xl font-black text-white group-hover:text-[#1a7fe6] transition-colors uppercase tracking-tight">{c.title}</h2>
-                  <div className="w-8 h-8 rounded-full bg-[#121820] flex items-center justify-center text-zinc-400 group-hover:bg-[#1E90FF]/10 group-hover:text-[#1a7fe6] transition-all">
-                    <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-all" />
-                  </div>
-               </div>
-               <div className="w-full flex items-center justify-between mt-4">
-                 <p className="text-sm text-zinc-500 font-medium flex items-center gap-1.5">
-                   <Star className="w-3.5 h-3.5 text-amber-500" /> {c.subtitle || `1 หมวดหมู่ · ${getProductCountText(c.name)}`}
-                 </p>
-                 {getCategoryPriceInfo(c.name) ? (
-                   <span className="text-sm font-black text-[#1E90FF] bg-[#1E90FF]/10 px-3 py-1 rounded-lg border border-white/10">{getCategoryPriceInfo(c.name)}</span>
-                 ) : (
-                   <span className="text-sm font-bold text-zinc-400 bg-[#0a0d12] px-3 py-1 rounded-lg border border-white/10">ไม่ทราบราคา</span>
-                 )}
-               </div>
-            </div>
-          </motion.div>
+            accentColor="#1E90FF"
+            glowColor="rgba(30,144,255,0.6)"
+            gradientFrom="#0B0F14"
+          />
         ))}
       </div>
     </div>

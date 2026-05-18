@@ -1,6 +1,7 @@
 import Swal from "sweetalert2";
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
+import { CategoryCard } from "./CategoryCard";
 import {
   ShoppingCart,
   Package,
@@ -23,6 +24,7 @@ import {
   User,
   Box,
   CreditCard,
+  Headset,
 } from "lucide-react";
 import { Product, SiteStats, Category } from "../types";
 import { AnimatedScroll } from "./AnimatedScroll";
@@ -343,31 +345,31 @@ export const HomeView: React.FC<HomeViewProps> = ({
               },
             },
             {
-              icon: Key,
-              label: "เปิดใช้งานคีย์",
-              id: "Redeem",
-              desc: "ใช้โค้ด/คีย์",
+              icon: Headset,
+              label: "ติดต่อเรา",
+              id: "Contact",
+              desc: "ติดต่อแอดมิน",
               color: "blue",
-              action: () => setActiveView("redeem"),
+              action: () => setActiveView("contact"),
             },
             {
               icon: History,
-              label: "ประวัติเช็คไอดี",
-              id: "CheckerLogs",
-              desc: "รายการตรวจสอบ",
+              label: "ประวัติการใช้งาน",
+              id: "History",
+              desc: "ประวัติของคุณ",
               color: "blue",
               action: () => {
                 if (!user) {
                   Swal.fire({
                     icon: "warning",
                     title: "กรุณาเข้าสู่ระบบ",
-                    text: "โปรดเข้าสู่ระบบก่อนดูประวัติเช็คไอดี",
+                    text: "โปรดเข้าสู่ระบบก่อนดูประวัติการใช้งาน",
                     confirmButtonColor: "#1E90FF",
                     background: "#0B0F14",
                     color: "#fff",
                   });
                 } else {
-                  setActiveView("checker_logs");
+                  setActiveView("history");
                 }
               },
             },
@@ -452,82 +454,34 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
           <div className="flex flex-col gap-4">
             {categories &&
-              categories.slice(0, 3).map((cat, i) => (
-                <motion.button
-                  key={cat.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.1 }}
-                  onClick={() => onSelectCategory(cat.name)}
-                  className="group w-full bg-[#0B0F14] border border-white/10 rounded-2xl overflow-hidden hover:border-[#1a7fe6] hover:shadow-xl hover:shadow-[#1a7fe6]/5 transition-all text-left active:scale-[0.98]"
-                >
-                  <div className="relative aspect-[1640/500] bg-zinc-900 overflow-hidden">
-                    {cat.bannerUrl ? (
-                      <img
-                        src={cat.bannerUrl}
-                        alt={cat.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center gap-4">
-                        <div className="bg-[#1E90FF] text-white text-[10px] font-bold px-3 py-1.5 rounded-lg tracking-widest text-center leading-tight">
-                          APEX
-                          <br />
-                          STORETH
-                        </div>
-                        <div className="text-white text-lg font-bold tracking-widest">
-                          BANNER 2000×500
-                        </div>
-                      </div>
-                    )}
-                    {/* Overlay icon on hover */}
-                    <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100 duration-300">
-                      <div className="w-12 h-12 rounded-full bg-[#0B0F14]/20 backdrop-blur-md flex items-center justify-center text-white border border-white/30">
-                        <ChevronRight className="w-6 h-6" />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="p-4 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-[#1E90FF]/10 rounded-xl flex items-center justify-center text-[#1E90FF] group-hover:bg-[#1E90FF] group-hover:text-white transition-all">
-                        <Package className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <h3 className="text-base font-bold text-[#1E90FF] group-hover:text-[#1E90FF] relative inline-block transition-colors">
-                          {cat.title}
-                          <span className="absolute left-0 -bottom-0.5 w-0 h-0.5 bg-[#1E90FF] transition-all duration-300 group-hover:w-full"></span>
-                        </h3>
-                        <p className="text-xs text-zinc-400 mt-0.5 font-medium flex items-center gap-1">
-                          <TrendingUp className="w-3 h-3" /> สินค้ายอดนิยม
-                        </p>
-                      </div>
-                    </div>
-                    {(() => {
-                      const catProducts = products.filter(
-                        (p) => p.category === cat.name,
-                      );
-                      if (catProducts.length === 0)
-                        return (
-                          <div className="text-sm font-bold text-zinc-400 bg-[#0a0d12] px-3 py-1 rounded-lg border border-white/10 whitespace-nowrap">
-                            ไม่ทราบราคา
-                          </div>
-                        );
-                      const prices = catProducts.map((p) => p.price);
-                      const minP = Math.min(...prices);
-                      const maxP = Math.max(...prices);
-                      return minP === maxP ? (
-                        <div className="text-sm font-black text-[#1E90FF] bg-[#1E90FF]/10 px-3 py-1 rounded-lg border border-white/10 whitespace-nowrap">
-                          ฿{minP.toLocaleString()}
-                        </div>
-                      ) : (
-                        <div className="text-sm font-black text-[#1E90FF] bg-[#1E90FF]/10 px-3 py-1 rounded-lg border border-white/10 whitespace-nowrap">
-                          ฿{minP.toLocaleString()} - ฿{maxP.toLocaleString()}
-                        </div>
-                      );
-                    })()}
-                  </div>
-                </motion.button>
-              ))}
+              categories.slice(0, 3).map((cat, i) => {
+                const catProducts = products.filter((p) => p.category === cat.name);
+                let priceRangeStr = "ไม่ทราบราคา";
+                let itemCountDesc = `${catProducts.length} รายการ`;
+
+                if (catProducts.length > 0) {
+                  const prices = catProducts.map((p) => p.price);
+                  const minP = Math.min(...prices);
+                  const maxP = Math.max(...prices);
+                  priceRangeStr = minP === maxP ? `฿${minP.toLocaleString()}` : `฿${minP.toLocaleString()} - ฿${maxP.toLocaleString()}`;
+                }
+
+                return (
+                  <CategoryCard
+                    key={cat.id}
+                    title={cat.title}
+                    label="หมวดหมู่"
+                    itemCountDesc={itemCountDesc}
+                    priceRangeStr={catProducts.length > 0 ? priceRangeStr : undefined}
+                    bgImage={cat.bannerUrl || undefined}
+                    index={i}
+                    onClick={() => onSelectCategory(cat.name)}
+                    accentColor="#1E90FF"
+                    glowColor="rgba(30,144,255,0.6)"
+                    gradientFrom="#0a1f3a"
+                  />
+                );
+              })}
           </div>
         </div>
       </AnimatedScroll>
