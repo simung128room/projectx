@@ -574,6 +574,7 @@ function AppContent() {
 
   const [showPrivacy, setShowPrivacy] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
+  const [showAboutUs, setShowAboutUs] = useState(false);
   const [clientIp, setClientIp] = useState<string | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -2808,15 +2809,23 @@ function AppContent() {
               {/* Links Group 2 */}
               <div className="flex flex-col items-center">
                 <h4 className="text-white font-bold mb-4 tracking-wider">
-                  เงื่อนไขการให้บริการ
+                  ข้อมูลสำคัญ
                 </h4>
                 <ul className="space-y-3 flex flex-col items-center">
+                  <li>
+                    <button
+                      onClick={() => setShowAboutUs(true)}
+                      className="hover:text-[#1E90FF] transition-colors"
+                    >
+                      เกี่ยวกับเรา
+                    </button>
+                  </li>
                   <li>
                     <button
                       onClick={() => setShowTerms(true)}
                       className="hover:text-[#1E90FF] transition-colors"
                     >
-                      เงื่อนไขการให้บริการ
+                      เงื่อนไขการใช้งาน
                     </button>
                   </li>
                   <li>
@@ -2901,7 +2910,7 @@ function AppContent() {
         {/* Modals */}
         {showPrivacy && (
           <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50 backdrop-blur-sm font-sans animate-in fade-in duration-200">
-            <div className="bg-[#0B0F14] border border-white/10 rounded-3xl p-6 sm:p-8 max-w-2xl w-full max-h-[90vh] flex flex-col shadow-xl">
+            <div className="bg-[#0B0F14] border border-white/10 rounded-3xl p-6 sm:p-8 max-w-3xl w-full max-h-[90vh] flex flex-col shadow-xl">
               <h2 className="text-xl sm:text-2xl font-bold mb-6 text-white flex items-center gap-2">
                 <Shield className="w-6 h-6 shrink-0 text-[#1a7fe6]" />{" "}
                 นโยบายความเป็นส่วนตัว (Privacy Policy)
@@ -2922,39 +2931,30 @@ function AppContent() {
                   </h3>
                   <ul className="list-disc pl-5 space-y-1">
                     <li>
-                      <strong>ข้อมูล IP Address:</strong> เรามีการบันทึกที่อยู่
-                      IP ของผู้ใช้งาน เพื่อวัตถุประสงค์ด้านความปลอดภัย
-                      การป้องกันสแปม การโจมตีระบบ (DDoS)
-                      และการแบนผู้ใช้อัตโนมัติ (IP Blocking)
+                      <strong>ข้อมูลระบุตัวตนและบัญชี:</strong> เมื่อคุณสมัครสมาชิก เราอาจจัดเก็บข้อมูลเช่น อีเมล ชื่อผู้ใช้ รหัสผ่าน (ที่ถูกเข้ารหัสและทำแฮชอย่างแน่นหนา) ข้อมูลสิทธิ์การใช้งาน (Role/VIP) และเครดิตคงเหลือของคุณ
                     </li>
                     <li>
-                      <strong>ข้อมูลสถิติและการใช้งาน:</strong>{" "}
-                      เราอาจเก็บข้อมูลพฤติกรรมการใช้งานในภาพรวม (Analytics)
-                      เพื่อนำมาวิเคราะห์และปรับปรุงประสิทธิภาพระบบให้ดียิ่งขึ้น
+                      <strong>ข้อมูลการทำธุรกรรม (Transaction Data):</strong> หากมีการทำธุรกรรมเติมเงินซื้อสินค้า เราจะเก็บข้อมูลบันทึกการทำธุรกรรม เช่น เวลา จำนวนเงิน หมายเลขอ้างอิง เพื่อประเมิน วิเคราะห์ และป้องกันการหลอกลวง
                     </li>
                     <li>
-                      <strong>ข้อมูล Combo (อีเมล/รหัสผ่าน):</strong> ระบบ{" "}
-                      <strong>
-                        ไม่มีการบันทึกหรือบันทึกข้อมูลรหัสผ่าน Combo
-                        ตัวเต็มลงในฐานข้อมูลของเราเพื่อประโยชน์อื่นใด
-                      </strong>{" "}
-                      ข้อมูลในส่วนนี้จะถูกใช้เพื่อประมวลผลการจำลองในเบราว์เซอร์ของคุณ
-                      หรือประมวลผลชั่วคราวและลบทิ้งทันที
+                      <strong>ข้อมูล IP Address และ Log Files:</strong> ตามข้อบังคับและเพื่อความปลอดภัย เรามีการเก็บบันทึก IP Address, Browser Agent, เวลาเข้าระบบ และพฤติกรรมการใช้งาน เพื่อใช้เป็นหลักฐานและป้องกันเหตุโจมตีระบบ (DDoS/BotNet) 
+                    </li>
+                    <li>
+                      <strong>ข้อมูลการเชื่อมต่อคู่ค้า (External API):</strong> หากคุณผูกบัญชีบริการภายนอก เช่น Discord หรือ Telegram เรามีความจำเป็นต้องดึงข้อมูลสาธารณะหรือ Token ที่คุณอนุญาตเพื่อใช้ทำงานบนแพลตฟอร์มของเรา
                     </li>
                   </ul>
                 </div>
 
                 <div>
                   <h3 className="font-bold text-white text-base mb-2">
-                    2. คุกกี้ (Cookies) และ Local Storage
+                    2. การปกป้องข้อมูล Combo และสินทรัพย์ของท่าน
                   </h3>
+                  <p className="mb-2">
+                    สำหรับการใช้เครื่องมือ Checkers ใดๆ ก็ตามบนเว็บไซต์ ทางแพลตฟอร์มขอยืนยันว่า{" "}
+                    <strong>จะไม่มีการบันทึกหรือโจรกรรมข้อมูลบัญชี/รหัสผ่านหน้าเว็บแบบเต็มจำนวนเพื่อผลประโยชน์อื่นใด</strong>
+                  </p>
                   <p>
-                    เรามีการใช้งาน Local Storage
-                    ในบราวเซอร์ของท่านเพื่อประโยชน์ในการจดจำการตั้งค่าระบบ,
-                    จดจำประวัติการตรวจสอบชั่วคราว
-                    ข้อมูลในส่วนนี้จะถูกเก็บอยู่ในเครื่องคอมพิวเตอร์
-                    หรืออุปกรณ์ของคุณเอง
-                    และไม่มีการดึงข้อมูลกลับมายังเซิร์ฟเวอร์ส่วนกลาง
+                    คีย์และข้อมูลที่คุณกรอกจะถูกใช้ประมวลผลเซสชั่นชั่วคราว (Volatile) ระหว่างเว็บและเซิร์ฟเวอร์ และข้อมูลดิบจะถูกพิจารณาล้างออกทันทีเมื่อเสร็จสิ้นรอบ เพื่อสร้างความเชื่อมั่นสูงสุด 100% ให้แก่ผู้ใช้งาน
                   </p>
                 </div>
 
@@ -2963,48 +2963,48 @@ function AppContent() {
                     3. การเปิดเผยข้อมูลแก่บุคคลที่สาม
                   </h3>
                   <p>
-                    เราเคารพความเป็นส่วนตัวของคุณ{" "}
-                    <strong>
-                      เราจะไม่ขาย, แลกเปลี่ยน, หรือเปิดเผยข้อมูลเครดิต คีย์
-                      หรือที่อยู่ IP ของคุณให้แก่บุคคลที่สาม
-                    </strong>{" "}
-                    โดยเด็ดขาด ยกเว้นในกรณีที่มีคำสั่งศาล
-                    หรือต้องดำเนินการเพื่อปฏิบัติตามกฎหมาย
+                    เอเพ็กซ์สโตร์จะไม่นำข้อมูลส่วนตัว อีเมล หรือเงินคงเหลือของคุณไปเปิดเผย จำหน่าย หรือแลกเปลี่ยนกับบุคคลที่สามโดยเด็ดขาด <em>เว้นแต่:</em>
                   </p>
+                  <ul className="list-disc pl-5 space-y-1 mt-2">
+                    <li>ผู้ให้บริการประมวลผลที่จำเป็น (Cloud Hosting, Payment Gateway) เฉพาะส่วนที่ต้องให้บริการ</li>
+                    <li>เป็นไปเพื่อปฏิบัติตามกฎหมาย มีคำสั่งศาล หรือคำสั่งของหน่วยงานที่มีอำนาจบังคับตามกฎหมาย</li>
+                    <li>เพื่อใช้ป้องกันและรักษาความปลอดภัยต่อชีวิต หรือปกป้องทรัพย์สินของ APEX STUDIO </li>
+                  </ul>
                 </div>
 
                 <div>
                   <h3 className="font-bold text-white text-base mb-2">
-                    4. ยอมรับสถานะความปลอดภัย (Anti DevTools)
+                    4. คุกกี้ (Cookies) และการจัดเก็บ Cache
                   </h3>
-                  <p className="mb-2">
-                    ระบบมีการปรับใช้การบล็อคเครื่องมือสำหรับนักพัฒนาและการหน่วงแบบฟอร์มบางชนิด
-                    ในการใช้งานเว็บไซต์ ถือว่าคุณยอมรับเงื่อนไขนี้
-                  </p>
-                </div>
-
-                <div>
-                  <h3 className="font-bold text-white text-base mb-2">
-                    5. ข้อจำกัดความรับผิดชอบ
-                  </h3>
-                  <p className="text-[#1a7fe6] mb-2 font-medium">
-                    เว็บไซต์เป็นเพียงเครื่องมือช่วยเหลือ
-                    เครื่องมือจำลองเพื่อการตรวจสอบ (Simulation)
-                    ไม่มีความเชื่อมโยงโดยตรงกับเซิร์ฟเวอร์ลิขสิทธิ์ใดๆ
-                  </p>
                   <p>
-                    ผู้พัฒนาไม่รับผิดชอบต่อความสูญเสีย ด้านตัวเงิน ข้อมูล
-                    หรือตัวบัญชีจากการใช้งานเว็บไซต์
-                    ซึ่งคุณต้องเป็นผู้นำไปใช้บนความเสี่ยงของคุณเอง
+                    เราใช้คุกกี้ Session และ Local Storage เพื่อช่วยจดจำการเข้าสู่ระบบ สถานะการทำงาน หรือตั้งค่าธีม ลดภาระที่คุณต้องล็อกอินซ้ำ ไม่มีโฆษณาแทรกแซง ไม่มีการใช้ Tracking Pixels นำมาวิเคราะห์ขายต่อ หากคุณลบแคช การเชื่อมต่อและการจดจำทั้งหมดที่คุณบันทึกไว้ในเบราว์เซอร์จะถูกล้างใหม่ทันที
+                  </p>
+                </div>
+
+                <div>
+                  <h3 className="font-bold text-white text-base mb-2">
+                    5. สิทธิของเจ้าของข้อมูล (Data Subject Rights)
+                  </h3>
+                  <p>
+                    ภายใต้กฎหมายที่มีผลบังคับ คุณมีสิทธิขอเข้าถึง แก้ไข แจ้งขอสำเนา หรือลบข้อมูลบัญชีของตนเองได้บางส่วน ทั้งนี้ อาจมีข้อยกเว้นสำหรับประวัติการทำรายได้ ธุรกรรม ข้อมูลล็อกที่ขัดกฎหมายการลบข้อมูล (Data Retention) หากประสงค์ติดต่อเพื่อลบข้อมูล สามารถขอความช่วยเหลือแอดมินได้ผ่านหน้าติดต่อ
+                  </p>
+                </div>
+
+                <div>
+                  <h3 className="font-bold text-white text-base mb-2">
+                    6. การแก้ไขเปลี่ยนแปลงนโยบาย
+                  </h3>
+                  <p>
+                    ระบบขอสงวนสิทธิ์ในการแก้ไขปรับปรุง เปลี่ยนแปลงข้อความในนโยบายฉบับนี้โดยไม่ต้องแจ้งให้ผู้ใช้ทราบล่วงหน้า โดยสามารถตรวจสอบวันได้ที่หน้าหัวข้อ “อัปเดตล่าสุด” การเข้าถึงแพลตฟอร์มอย่างต่อเนื่องถือเป็นการยืนยันและการยอมรับข้อตกลงฉบับปรับปรุงแล้ว
                   </p>
                 </div>
               </div>
-              <div className="pt-6 mt-6 border-t border-white/5 text-right">
+              <div className="pt-6 mt-6 border-t border-white/5 flex gap-3 flex-col sm:flex-row justify-end">
                 <button
                   onClick={() => setShowPrivacy(false)}
-                  className="bg-[#1E90FF]/10 hover:bg-[#1E90FF]/20 text-[#1E90FF] font-bold py-3 px-8 rounded-2xl transition-colors w-full sm:w-auto"
+                  className="bg-[#1E90FF]/10 hover:bg-[#1E90FF]/25 text-[#1E90FF] font-bold py-3 px-8 rounded-2xl transition-colors w-full sm:w-auto"
                 >
-                  เข้าใจและยอมรับ
+                  ทำความเข้าใจและปิดหน้าต่าง
                 </button>
               </div>
             </div>
@@ -3013,7 +3013,7 @@ function AppContent() {
 
         {showTerms && (
           <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50 backdrop-blur-sm font-sans animate-in fade-in duration-200">
-            <div className="bg-[#0B0F14] border border-white/10 rounded-3xl p-6 sm:p-8 max-w-2xl w-full max-h-[90vh] flex flex-col shadow-xl">
+            <div className="bg-[#0B0F14] border border-white/10 rounded-3xl p-6 sm:p-8 max-w-3xl w-full max-h-[90vh] flex flex-col shadow-xl">
               <h2 className="text-xl sm:text-2xl font-bold mb-6 flex items-center gap-2 text-white">
                 <ListChecks className="w-6 h-6 shrink-0 text-[#1a7fe6]" />{" "}
                 ข้อกำหนดการใช้งาน (Terms of Use)
@@ -3021,89 +3021,167 @@ function AppContent() {
               <div className="overflow-y-auto pr-2 sm:pr-4 space-y-6 text-sm leading-relaxed text-zinc-400 scrollbar-thin scrollbar-thumb-zinc-300 flex-1">
                 <div>
                   <h3 className="font-bold text-white text-base mb-2">
-                    1. วัตถุประสงค์การใช้งานและตกลง
+                    1. การรับรองความยินยอมและผูกพัน
                   </h3>
                   <p>
-                    เครื่องมือนี้จัดทำขึ้นเพื่อช่วยประหยัดเวลาในการตรวจสอบ บัญชี
-                    รหัส หรือคีย์ต่างๆ{" "}
-                    <strong>
-                      ผู้ใช้จะต้องเป็นเจ้าของข้อมูลหรือได้รับอนุญาตในการตรวจสอบข้อมูลเหล่านี้เท่านั้น
-                    </strong>{" "}
-                    การนำเครื่องมือไปใช้งานในเชิงละเมิดสิทธิผู้อื่นถือเป็นความรับผิดชอบของคุณแต่เพียงผู้เดียว
+                    การเข้าถึงและใช้งานบริการ เครื่องมือตรวจสอบ บอท และผลิตภัณฑ์ของเรา ถือเป็นการรับรองว่าท่านได้ทำความเข้าใจและตกลงยอมรับเงื่อนไขการใช้บริการของ <strong>APEX STUDIO</strong> อย่างครบถ้วนทุกประการ หากคุณไม่เห็นด้วยกับกฎหมายและข้อบังคับเหล่านี้กรุณายุติการเข้าถึงและการใช้งานโดยทันที
                   </p>
                 </div>
 
                 <div>
                   <h3 className="font-bold text-white text-base mb-2">
-                    2. ข้อห้ามและการละเมิดขั้นร้ายแรง
+                    2. ขอบเขตสิทธิ์ หน้าที่ และการใช้งานที่ยอมรับได้ (AUP)
                   </h3>
-                  <p className="mb-1">
-                    ในระหว่างการใช้งานเว็บไซต์ คุณตกลงที่จะละเว้นการกระทำดังนี้:
+                  <p className="mb-2">
+                    คุณตกลงที่จะใช้สิทธิ์ในการเข้าถึงที่เรารับรอง เพื่อจุดประสงค์ส่วนตัวที่ถูกต้องตามกฎหมาย และยินยอมที่จะ <strong>ไม่กระทำ</strong> สิ่งเหล่านี้ไม่ว่ากรณีใดๆ :
                   </p>
                   <ul className="list-disc pl-5 space-y-1">
                     <li>
-                      <strong>ห้ามดัดแปลง หรือเจาะระบบ:</strong>{" "}
-                      ห้ามทำการทำวิศวกรรมย้อนกลับ (Reverse Engineering),
-                      ซับเน็ตสแกนเนอร์, หรือพยายามเรียก API
-                      ของระบบโดยตรงโดยไม่ผ่านหนาเว็บไซต์
+                      <strong>ห้ามวิศวกรรมย้อนกลับ (No Reverse Engineering):</strong> ห้ามดัดแปลง ชำแหละเจาะระบบ สแกนพอร์ต จำลอง API เถื่อน นำ API ผิดกฎหมายหรือ Bypass เข้าใช้บริการของเราโดยไม่ได้รับอนุญาต
                     </li>
                     <li>
-                      <strong>ห้ามทำ DDoS/Bot Abuse:</strong>{" "}
-                      ห้ามใช้สคริปต์อัตโนมัติ หุ่นยนต์เพื่อกระหน่ำยิง Request
-                      ซึ่งอาจส่งผลเสียต่อการให้บริการส่วนรวม
+                      <strong>ห้ามกระทำละเมิดแพลตฟอร์มรุนแรง (Anti-DDoS, Spamming):</strong> ห้ามทดสอบความปลอดภัย ก่อความล่าช้า หรือกระหน่ำยิงแพ็กเกจ (Flood Requests) เพื่อทำลายความเสถียรของเซิร์ฟเวอร์
                     </li>
                     <li>
-                      <strong>ห้ามนำไปประกอบธุรกิจทุจริต:</strong>{" "}
-                      ไม่คัดลอกบัญชีที่ไม่ใช่ของตนไปค้าขายอย่างละเมิดกฎหมาย
+                      <strong>ข้อพิพาทความเป็นเจ้าของข้อมูลส่วนบุคคล:</strong> ผู้ใช้งานจะต้องเป็นเจ้าของข้อมูล พาสเวิร์ด คีย์ บัญชี หรือมีสิทธิ์อนุญาตโดยชอบธรรมเท่านั้น หากท่านนำไปใช้งานในทางละเมิดผู้อื่น สิทธิ ความรับผิดชอบทางกฎหมายใดๆ ถือเป็นความรับผิดชอบของตัวลูกค้า/ผู้ใช้งานโดยเพียงผู้เดียวเท่านั้น ทางทีมงานจะไม่มีส่วนรู้เห็นในทุกกรณี
+                    </li>
+                    <li>
+                      <strong>การบ่อนทำลาย/แอบอ้าง:</strong> ห้ามคัดลอก ทำสำเนาเนื้อหา และผลิตภัณฑ์เพื่อไปชุบมือเปิบ แอบอ้าง หรือขายนอกแพลตฟอร์มโดยไม่ได้รับอนุญาต
                     </li>
                   </ul>
                 </div>
 
                 <div>
                   <h3 className="font-bold text-white text-base mb-2">
-                    3. สิทธิ์การระงับการเข้าถึง (Ban/IP Block)
+                    3. การชำระเงิน การเติมเงิน และนโยบายล้างบางเครดิต (No Refund Policy)
                   </h3>
+                  <p className="mb-2">
+                    เมื่อคุณยืนยันเติมเครดิต ชำระคีย์ โอนเงินซื้อบัญชี หรือสินค้าดิจิทัลใน APEX STUDIO คำสั่งซื้อดังกล่าว <strong>ไม่สามารถคืนเป็นเงินสด (Non-Refundable) ในทุกกรณี</strong> เครดิตในรหัสไม่สามารถโยกย้ายข้ามผู้ใช้ได้ หากพบความผิดปกติของการเติมเงิน บัตรปลอม หรือการโกง แอดมินมีสิทธิเต็มที่ในการเพิกถอนยอด ล็อคแบน และยึดสินค้าทั้งหมดทันที
+                  </p>
                   <p>
-                    ทีมงานขอสงวนสิทธิ์ในการระงับบัญชีผู้ใช้ บล็อก IP Address
-                    หรือเพิกถอนสิทธิ์การใช้งาน (Ban) ในทันที
-                    โดยไม่ต้องแจ้งให้ทราบล่วงหน้าและไม่ชดเชยค่าเสียหายใดๆ
-                    หากเราตรวจพบพฤติการณ์ละเมิดด้านความปลอดภัย หรือมีปริมาณ
-                    Request มากเกินกว่าที่ระบบรองรับ (Rate Limit)
+                    สินค้ารับประกันการใช้งาน จะถูกอ้างอิงตามระยะเวลาประกันของสินค้าชิ้นนั้นๆ หากเลยเงื่อนไขที่กำหนดไว้จะไม่รับผิดชอบทุกกรณี
                   </p>
                 </div>
 
                 <div>
                   <h3 className="font-bold text-white text-base mb-2">
-                    4. การยกเว้นความรับผิดชอบ
+                    4. ข้อยกเว้นและข้อจำกัดความรับผิดชอบ (Disclaimer)
                   </h3>
+                  <p className="mb-2">
+                    การทำธุรกรรมและเครื่องมือนี้ ทำงานในรูปแบบ "ตามสภาพ (As is)" เราไม่รับประกัน 100% ว่าไม่มีข้อบกพร่อง การขัดข้อง ล่าช้า หรือผลเช็คต่างๆ จะแม่นยำเสมอไป ทั้งนี้เครื่องมือเราไร้สถานะ (No-Affiliation) ต่อนายจ้างหรือบริษัทแม่ของช่องโซเชียลนั้นๆ 
+                  </p>
                   <p>
-                    เราไม่รับประกัน 100%
-                    ว่าผลลัพธ์ข้อมูลที่ตรวจสอบแล้วจะถูกต้องแม่นยำเสมอไป
-                    และเว็บไซต์ไม่มีความเกี่ยวข้องใดๆ
-                    หากบัญชีเป้าหมายของคุณถูกแบนจากแพลตฟอร์มต้นทาง{" "}
-                    <strong>
-                      (การใช้งานอาจขัดต่อ ToS ของผู้ให้บริการปลายทาง)
-                    </strong>
+                    เราจะไม่รับผิดชอบจากความสูญเสีย โดนแบน ยอดวิวตก หรือความเสียหายในทางอ้อม ทางการค้า หรือทางปกครองที่เกิดจากการเข้าใช้บริการ ข้อมูลต่างๆ สามารถเข้าถึงได้ขึ้นอยู่กับความเสี่ยงของตนเอง
                   </p>
                 </div>
 
                 <div>
                   <h3 className="font-bold text-white text-base mb-2">
-                    5. การปรับปรุงและการเปลี่ยนแปลงข้อตกลง
+                    5. สิทธิของการยุติการให้บริการ และ IP Ban
                   </h3>
                   <p>
-                    เราอาจพิจารณาปรับปรุงข้อกำหนดส่วนนี้โดยไม่จำเป็นต้องแจ้งให้คุณทราบล่วงหน้า
-                    ในกรณีที่มีการคืนเงิน หรือปรับเปลี่ยนเครดิตในเว็บไซต์
-                    จะถูกตัดสินโดยดุลพินิจสูงสุดของทีมงาน
+                    ทีมงาน APEX STUDIO ถือสิทธิเด็ดขาดสูงสุดในการเตะ หรือถอดถอนผู้ใช้ ระงับบัญชี (Ban) เปลี่ยนแปลงแก้ไขการใช้งาน และระงับช่องทางการเข้าถึง (IP Blocking) โดยไม่ต้องแจ้งตักเตือนรวมถึงชดใช้ค่าเสียหายใดๆ ให้แก่ผู้ใช้งาน หากพบการทุจริต หรือคุกคามเจ้าหน้าที่ 
+                  </p>
+                </div>
+
+                <div>
+                  <h3 className="font-bold text-white text-base mb-2">
+                    6. การระงับกรณีเปิดเครื่องมือ Developer Tools
+                  </h3>
+                  <p>
+                    หากเราตรวจพบว่าคุณพยายามเข้าถึง Inspection Tools หรือ Console เพื่อป่วนการหน่วงเวลา ระบบจะจับรีไดเร็ค ล้าง Session การใช้งาน ปิดบังรหัส หรือหยุดทำงาน ถือว่าผู้ใช้ฝืนกฎโดยเจตนา
+                  </p>
+                </div>
+
+                <div>
+                  <h3 className="font-bold text-white text-base mb-2">
+                    7. เหตุสุดวิสัยและการปรับปรุง
+                  </h3>
+                  <p>
+                    ในกรณีที่มีการอัปเดตรหัส ฝั่ง Third-Party เปลี่ยนมาตรการ ปิดช่องโหว่ ปิดพอร์ต หรือเหตุภัยพิบัติซึ่งทำให้ระบบบอท เครื่องมือ ตลอดจนหน้าต่างตรวจสอบไม่สามารถใช้การได้ ถือเป็นเหตุที่เหนือการควบคุม (Force Majeure) และเราอาจจำเป็นต้องยุติฟีเจอร์นั้นชั่วคราวหรือถาวร โดยไม่จำเป็นต้องชดเชย
                   </p>
                 </div>
               </div>
               <div className="pt-6 mt-6 border-t border-white/5 text-right w-full">
                 <button
                   onClick={() => setShowTerms(false)}
-                  className="bg-[#1E90FF] hover:bg-[#166bcc] text-white font-bold py-3 px-8 rounded-2xl transition-colors w-full sm:w-auto"
+                  className="bg-[#1E90FF] hover:bg-[#166bcc] text-white font-bold py-3 px-8 rounded-2xl transition-all shadow-md hover:shadow-lg w-full sm:w-auto"
                 >
-                  ข้าพเจ้ายอมรับข้อกำหนด
+                  ข้าพเจ้ายอมรับและตกลงตามข้อกำหนดกติกา
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {showAboutUs && (
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50 backdrop-blur-sm font-sans animate-in fade-in duration-200">
+            <div className="bg-[#0B0F14] border border-white/10 rounded-3xl p-6 sm:p-8 max-w-3xl w-full max-h-[90vh] flex flex-col shadow-xl">
+              <h2 className="text-xl sm:text-2xl font-bold mb-6 flex items-center gap-3 text-white">
+                <div className="w-8 h-8 rounded-full bg-[#1E90FF]/25 flex items-center justify-center text-[#1E90FF]">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+                บริษัทและโครงการ (About APEX STUDIO)
+              </h2>
+              <div className="overflow-y-auto pr-2 sm:pr-4 space-y-6 text-sm leading-relaxed text-zinc-400 scrollbar-thin scrollbar-thumb-zinc-300 flex-1">
+                
+                <div>
+                  <h3 className="font-bold text-white text-base mb-2">
+                    จุดเริ่มต้น และวิสัยทัศน์ (Vision & Origin)
+                  </h3>
+                  <p>
+                    <strong>APEX STUDIO</strong> เกิดจากแนวคิดที่ต้องการทลายข้อจำกัดด้านเวลาและความยุ่งยากของการบริหารโซเชียลมีเดีย ทรัพยากรบัญชี และคีย์ผลิตภัณฑ์ ด้วยเจตนารมณ์ที่จะรวบรวม "เครื่องมือตัวคัดกรองอัตโนมัติ" และ "สินทรัพย์ดิจิทัลแอปพรีเมียม" เข้าไว้ในแพลตฟอร์มเดียว เราออกแบบเทคโนโลยีที่เน้นเรื่องความเสถียร ความทันสมัย ปลอดภัย และราคาที่ทุกคนจับต้องได้ 
+                  </p>
+                </div>
+
+                <div>
+                  <h3 className="font-bold text-white text-base mb-2">
+                    ผลิตภัณฑ์หลักของเรา (Products & Services)
+                  </h3>
+                  <p className="mb-2">เครือข่ายของ APEX STUDIO ภาคภูมิใจที่จะนำเสนอขอบข่ายการบริการหลากหลาย ได้แก่ :</p>
+                  <ul className="list-disc pl-5 space-y-1">
+                    <li>
+                      <strong>Automation Verification Tools (Checkers):</strong> เครื่องมือตรวจสอบไอดี (ตัวเช็ค) ทรงพลังที่รองรับบัญชีจำนวนมากพร้อมกัน โดยไม่สูญเสียความแม่นยำ พร้อมเทคโนโลยีคัดกรอง Proxy ที่ทันสมัย
+                    </li>
+                    <li>
+                      <strong>Discord & Telegram Connect API:</strong> ให้บริการระบบดึงข้อมูล ยืนยันสลิป การรับยศบอท (Auto Role) และสิทธิพิเศษการจำลองเซิร์ฟเวอร์แบบเบ็ดเสร็จ
+                    </li>
+                    <li>
+                      <strong>Digital Marketplace & VIP Tiers:</strong> ร้านค้าจำหน่ายผลิตภัณฑ์ซอฟต์แวร์ คีย์โปรแกรม และคลังบัญชีพรีเมียม สำหรับลูกค้าสายโซเชียล รวมถึงลูกค้าองค์กร ด้วยระบบจัดการคลัง Stock ที่รวดเร็ว ตัดยอดและส่งสินค้าผ่านระบบอัตโนมัติตลอด 24 ชั่วโมง
+                    </li>
+                  </ul>
+                </div>
+
+                <div>
+                  <h3 className="font-bold text-white text-base mb-2">
+                    ความมุ่งมั่นด้านความปลอดภัย (Security Commitment)
+                  </h3>
+                  <p>
+                    รากฐานของโปรเจ็กต์คือการเก็บรักษาข้อมูลให้เป็นความลับ (Confidentiality) สถาปัตยกรรมเซิร์ฟเวอร์ของเรามีระบบการแฮชคีย์รหัสผ่าน การลดพึ่งพิงฐานข้อมูลที่เก็บรอยนิ้วมือของผู้ใช้ (Zero Logging Policy สำหรับเครดิตการเช็ค) และขับเคลื่อนเซิร์ฟเวอร์ด้วย Proxy ป้องกันการรุกล้ำ ทำให้ข้อมูลการทำธุรกรรมของคุณได้รับการการันตี 100% ภายใต้ความน่าเชื่อถือของแพลตฟอร์ม
+                  </p>
+                </div>
+
+                <div>
+                  <h3 className="font-bold text-white text-base mb-2">
+                    ช่องทางติดต่อคอมมูนิตี้ (Contact & Community)
+                  </h3>
+                  <p className="mb-2">
+                    เราไม่ได้มีแต่เว็บขายของ แต่เราเติบโตด้วยแรงสุนทรีย์ของคอมมูนิตี้ หากคุณประสบปัญหาในการใช้งาน พบช่องโหว่ หรืออยากพูดคุยเสนอแนวทางใหม่ๆ:
+                  </p>
+                  <ul className="list-disc pl-5">
+                    <li><strong>Discord Server:</strong> สถานที่เชื่อมสัมพันธ์ ร้องขอเครดิต หรือสอบถามการเซ็ตอัปบอท</li>
+                    <li><strong>Line Official:</strong> ทีม Support โดยผู้ดูแลมืออาชีพ (ตอบกลับรวดเร็วที่สุด)</li>
+                  </ul>
+                  <p className="mt-2 text-zinc-500 italic">"ขอบคุณผู้ใช้งานและพันธมิตรทุกคน ที่เล็งเห็นคุณค่าและก้าวเดินไปพร้อมกับ APEX STUDIO ขวากหนามทางดิจิทัลไหนที่ยาก... เราพร้อมเบิกทางให้คุณ"</p>
+                </div>
+
+              </div>
+              <div className="pt-6 mt-6 border-t border-white/5 flex justify-end w-full">
+                <button
+                  onClick={() => setShowAboutUs(false)}
+                  className="bg-[#1E90FF]/10 hover:bg-[#1E90FF]/25 text-[#1E90FF] font-bold py-3 px-8 rounded-2xl transition-all w-full sm:w-auto"
+                >
+                  ปิดหน้าต่างนี้
                 </button>
               </div>
             </div>
