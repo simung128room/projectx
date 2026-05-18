@@ -206,9 +206,12 @@ const AddStockModal = ({
     const fileList = e.target.files;
     if (!fileList || fileList.length === 0) return;
     
+    const maxFileSize = 5 * 1024 * 1024; // 5MB limit
+    const rejectedFiles: string[] = [];
+
     Array.from(fileList).forEach((file: File) => {
-      if (file.size > 800 * 1024) {
-        Swal.fire({title: 'ไฟล์ใหญ่เกินไป', text: `ไฟล์ ${file.name} มีขนาดใหญ่กว่า 800KB. ถ้าต้องการอัพโหลดไฟล์ขนาดนี้ ให้ใช้วิธีอัพโหลดไฟล์แล้ววางลิงก์แทน`, icon: 'error', background: '#09090b', color: '#fff'});
+      if (file.size > maxFileSize) {
+        rejectedFiles.push(file.name);
         return;
       }
       const reader = new FileReader();
@@ -220,6 +223,14 @@ const AddStockModal = ({
       };
       reader.readAsDataURL(file);
     });
+
+    if (rejectedFiles.length > 0) {
+      if (rejectedFiles.length === 1) {
+        Swal.fire({title: 'ไฟล์ใหญ่เกินไป', text: `ไฟล์ ${rejectedFiles[0]} มีขนาดใหญ่กว่า 5MB. ให้ใช้วิธีอัพโหลดไฟล์แล้ววางลิงก์แทน`, icon: 'error', background: '#09090b', color: '#fff'});
+      } else {
+        Swal.fire({title: 'พบไฟล์ใหญ่เกิน 5MB', text: `มี ${rejectedFiles.length} ไฟล์ที่มีขนาดใหญ่กว่า 5MB เช่น ${rejectedFiles[0]} ระบบจึงต้องข้ามไฟล์เหล่านี้ไป (เพิ่มไปแค่ไฟล์ที่ขนาดผ่าน)`, icon: 'warning', background: '#09090b', color: '#fff'});
+      }
+    }
   };
 
   const updateTextCount = () => {
@@ -363,7 +374,7 @@ const AddStockModal = ({
             >
               <Upload className="w-8 h-8 text-indigo-400 mb-3" />
               <p className="text-sm font-bold text-zinc-300">อัพโหลดไฟล์สินค้า</p>
-              <p className="text-xs text-zinc-500 mt-1">สูงสุด 800KB ต่อไฟล์ (เลือกหลายไฟล์ได้)</p>
+              <p className="text-xs text-zinc-500 mt-1">สูงสุด 5MB ต่อไฟล์ (เลือกหลายไฟล์ได้)</p>
               <input 
                 type="file" 
                 multiple
