@@ -81,6 +81,27 @@ app.use(compression());
 app.set('trust proxy', 1);
   const PORT = 3000;
 
+  // Add RateLimiting to prevent bot attacks
+  const checkLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100, 
+    standardHeaders: true, 
+    legacyHeaders: false, 
+    validate: { xForwardedForHeader: false, trustProxy: false },
+    message: { error: 'ขออภัย คุณส่งคำร้องขอเยอะเกินไป (Anti-Bot Protection) กรุณารอสักครู่' }
+  });
+
+  const globalLimiter = rateLimit({
+    windowMs: 1 * 60 * 1000, 
+    max: 200, 
+    standardHeaders: true,
+    legacyHeaders: false,
+    validate: { xForwardedForHeader: false, trustProxy: false },
+    message: { error: 'Too many requests, please try again later.' }
+  });
+
+  app.use('/api/', globalLimiter);
+
 const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp: number } | Promise<{ user: any, isAdmin: boolean, timestamp: number }>>();
 
   const injectUser = async (req: any, res: any, next: any) => {
@@ -205,6 +226,9 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
     });
   }, (req: any, res: any) => {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+    if (!req.file.mimetype.startsWith('image/')) {
+      return res.status(400).json({ error: 'Only image files are allowed' });
+    }
     const base64Data = req.file.buffer.toString('base64');
     const mimeType = req.file.mimetype;
     res.json({ url: `data:${mimeType};base64,${base64Data}` });
@@ -220,6 +244,9 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
     });
   }, (req: any, res: any) => {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+    if (!req.file.mimetype.startsWith('image/')) {
+      return res.status(400).json({ error: 'Only image files are allowed' });
+    }
     const base64Data = req.file.buffer.toString('base64');
     const mimeType = req.file.mimetype;
     res.json({ url: `data:${mimeType};base64,${base64Data}` });
@@ -276,7 +303,7 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
     res.json(siteSettings);
   });
 
-  app.post('/api/reset-password', async (req, res) => {
+  app.post('/api/reset-password', checkLimiter, async (req, res) => {
     const { username, email, newPassword } = req.body;
     try {
       const generatedEmail = `${username.toLowerCase().replace(/\s+/g, '')}@apex-studio.com`;
@@ -887,27 +914,6 @@ const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp:
     } catch (e) {}
     return game_info;
   };
-
-  // Add RateLimiting to prevent bot attacks
-  const checkLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 100, 
-    standardHeaders: true, 
-    legacyHeaders: false, 
-    validate: { xForwardedForHeader: false, trustProxy: false },
-    message: { error: 'ขออภัย คุณส่งคำร้องขอเยอะเกินไป (Anti-Bot Protection) กรุณารอสักครู่' }
-  });
-
-  const globalLimiter = rateLimit({
-    windowMs: 1 * 60 * 1000, 
-    max: 200, 
-    standardHeaders: true,
-    legacyHeaders: false,
-    validate: { xForwardedForHeader: false, trustProxy: false },
-    message: { error: 'Too many requests, please try again later.' }
-  });
-
-  app.use('/api/', globalLimiter);
 
   // Cache for Turnstile tokens (since they are single-use against Cloudflare, but we need them for a bulk loop)
   const turnstileCache = new Map<string, number>();
@@ -1634,7 +1640,8 @@ console.log('HIT STATS ENDPOINT');
 
   app.post('/api/discord-rekey', async (req: any, res: any) => {
     const { key, secret, plan } = req.body;
-    if (secret !== 'MY_SECRET_DISCORD_TOKEN_1234') {
+    const expectedSecret = process.env.DISCORD_BOT_SECRET || 'MY_SECRET_DISCORD_TOKEN_1234';
+    if (secret !== expectedSecret) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
     try {
@@ -1649,7 +1656,8 @@ console.log('HIT STATS ENDPOINT');
   app.post('/api/discord-redeem', async (req: any, res: any) => {
     const { key, secret } = req.body;
     // ตั้งค่ารหัสลับให้ตรงกันระหว่างเว็บกับบอท
-    if (secret !== 'MY_SECRET_DISCORD_TOKEN_1234') {
+    const expectedSecret = process.env.DISCORD_BOT_SECRET || 'MY_SECRET_DISCORD_TOKEN_1234';
+    if (secret !== expectedSecret) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
     
@@ -2809,7 +2817,7 @@ console.log('HIT STATS ENDPOINT');
       res.json({ status: sess.status, logs: sess.logs });
   });
 
-  app.post('/api/telegram/catcher/stop', async (req, res) => {
+  app.post('/api/telegram/catcher/stop', requireAuth, async (req: any, res: any) => {
       const { telegramPhone } = req.body;
       const sess = tgSessions.get(telegramPhone);
       if (sess) {
@@ -2958,7 +2966,7 @@ console.log('HIT STATS ENDPOINT');
       res.json({ status: sess.status, logs: sess.logs });
   });
 
-  app.post('/api/discord/token-on/stop', async (req, res) => {
+  app.post('/api/discord/token-on/stop', requireAuth, async (req: any, res: any) => {
       const { discordToken } = req.body;
       const sess = discordTokenOnSessions.get(discordToken);
       if (sess) {
@@ -3124,7 +3132,7 @@ console.log('HIT STATS ENDPOINT');
       res.json({ status: sess.status, logs: sess.logs });
   });
 
-  app.post('/api/discord/catcher/stop', async (req, res) => {
+  app.post('/api/discord/catcher/stop', requireAuth, async (req: any, res: any) => {
       const { discordToken } = req.body;
       const sess = discordSessions.get(discordToken);
       if (sess) {

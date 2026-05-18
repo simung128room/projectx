@@ -5,12 +5,15 @@ const {
     TextInputStyle, SlashCommandBuilder, REST, Routes, PermissionFlagsBits 
 } = require('discord.js');
 
-// แก้ไขตั้งค่าที่นี่
-const config = {
-    token: 'MTUwMjYyODk3NTY5OTAzODI4OA.GYJLaK.HqPylOMs5q--_pFbY4gGSsXbfmOIF-8dQqWmNM', 
+const fs = require('fs');
+let config = {
+    token: '', 
     apiUrl: 'http://127.0.0.1:3000',
     secret: 'MY_SECRET_DISCORD_TOKEN_1234'
 };
+try {
+  config = require('./bot_config.js');
+} catch(e) {}
 
 const client = new Client({
     intents: [
