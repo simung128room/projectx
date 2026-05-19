@@ -179,7 +179,7 @@ app.set('trust proxy', 1);
 
   // Key generator that considers IP + UID (if authenticated)
   const userRateLimitKeyGenerator = (req: any) => {
-    return `${req.ip}:${req.user?.uid || 'guest'}`;
+    return `${req.ip}:${(req as any).user?.uid || 'guest'}`;
   };
 
   // Add RateLimiting to prevent bot attacks
@@ -192,7 +192,7 @@ app.set('trust proxy', 1);
     validate: { xForwardedForHeader: false, trustProxy: false },
     message: { error: 'ขออภัย คุณทำรายการบ่อยเกินไป กรุณารอสักครู่' },
     handler: (req: any, res: any, next: any, options: any) => {
-      sendAlert('Auth Rate Limit Triggered 🚨', `**IP**: ${req.ip}\n**User**: ${req.user?.uid || 'guest'}\n**Path**: ${req.originalUrl}\n**Method**: ${req.method}`, 16711680, req.id);
+      sendAlert('Auth Rate Limit Triggered 🚨', `**IP**: ${req.ip}\n**User**: ${(req as any).user?.uid || 'guest'}\n**Path**: ${req.originalUrl}\n**Method**: ${req.method}`, 16711680, req.id);
       res.status(options.statusCode || 429).json({ ...options.message, requestId: req.id });
     }
   });
@@ -206,7 +206,7 @@ app.set('trust proxy', 1);
     validate: { xForwardedForHeader: false, trustProxy: false },
     message: { error: 'คุณดำเนินการบางอย่างเร็วเกินไป กรุณารอสักครู่' },
     handler: (req: any, res: any, next: any, options: any) => {
-      sendAlert('Mutation Rate Limit Triggered ⚠️', `**IP**: ${req.ip}\n**User**: ${req.user?.uid || 'guest'}\n**Path**: ${req.originalUrl}\n**Method**: ${req.method}`, 16753920, req.id);
+      sendAlert('Mutation Rate Limit Triggered ⚠️', `**IP**: ${req.ip}\n**User**: ${(req as any).user?.uid || 'guest'}\n**Path**: ${req.originalUrl}\n**Method**: ${req.method}`, 16753920, req.id);
       res.status(options.statusCode || 429).json({ ...options.message, requestId: req.id });
     }
   });
@@ -339,7 +339,7 @@ const cleanupTokenCache = () => {
 
   const requireAdmin = async (req: any, res: any, next: any) => {
     if (!req.user || !req.isAdmin) {
-      console.error(`[AdminCheck] Access Denied for ${req.user?.email || 'Unknown'}. isAdmin: ${req.isAdmin}`);
+      console.error(`[AdminCheck] Access Denied for ${(req as any).user?.email || 'Unknown'}. isAdmin: ${req.isAdmin}`);
       return res.status(403).json({ error: 'Forbidden: Admin access required. Please re-login.' });
     }
     next();
@@ -399,7 +399,7 @@ const cleanupTokenCache = () => {
   }, async (req: any, res: any) => {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
     if (!isImageSafe(req.file.buffer)) {
-      sendAlert('Unsafe Upload Attempt (Admin) ⚠️', `**IP**: ${req.ip}\n**User**: ${req.user?.uid || 'guest'}`, 16753920, req.id);
+      sendAlert('Unsafe Upload Attempt (Admin) ⚠️', `**IP**: ${req.ip}\n**User**: ${(req as any).user?.uid || 'guest'}`, 16753920, req.id);
       return res.status(400).json({ error: 'Invalid file type. Only secure images allowed.' });
     }
     
@@ -442,7 +442,7 @@ const cleanupTokenCache = () => {
   }, async (req: any, res: any) => {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
     if (!isImageSafe(req.file.buffer)) {
-      sendAlert('Unsafe Upload Attempt (Community) ⚠️', `**IP**: ${req.ip}\n**User**: ${req.user?.uid || 'guest'}`, 16753920, req.id);
+      sendAlert('Unsafe Upload Attempt (Community) ⚠️', `**IP**: ${req.ip}\n**User**: ${(req as any).user?.uid || 'guest'}`, 16753920, req.id);
       return res.status(400).json({ error: 'Invalid file type. Only secure images allowed.' });
     }
     
@@ -490,7 +490,7 @@ const cleanupTokenCache = () => {
         status: res.statusCode,
         durationMs: duration,
         ip: req.ip,
-        userId: req.user?.uid || 'guest'
+        userId: (req as any).user?.uid || 'guest'
       }));
     });
     next();
@@ -642,14 +642,14 @@ const cleanupTokenCache = () => {
     }
     
     console.log(`[Settings] Updated:`, siteSettings);
-    writeAuditLog('SITE_SETTINGS_UPDATE', req.user?.uid || 'admin', 'sys_settings', req);
+    writeAuditLog('SITE_SETTINGS_UPDATE', (req as any).user?.uid || 'admin', 'sys_settings', req);
     return res.json({ success: true, settings: siteSettings });
   });
 
   app.post('/api/topup/truemoney', mutationLimiter, requireAuth, async (req: any, res: any) => {
     try {
       const { voucherCode } = req.body;
-      const uid = req.user.uid;
+      const uid = (req as any).user.uid;
       const phone = siteSettings.truewallet_phone;
       
       if (!voucherCode) {
@@ -742,7 +742,7 @@ const cleanupTokenCache = () => {
   app.post('/api/topup/slip', mutationLimiter, requireAuth, async (req: any, res: any) => {
     try {
       const { imageBase64 } = req.body;
-      const uid = req.user.uid;
+      const uid = (req as any).user.uid;
       if (!imageBase64) {
         return res.status(400).json({ success: false, error: 'ข้อมูลไม่ครบถ้วน' });
       }
@@ -1783,7 +1783,7 @@ const cleanupTokenCache = () => {
       invalidateCache('products');
       invalidateStatsCache();
       
-      writeAuditLog('PRODUCT_UPDATE', req.user?.uid || 'admin', req.params.id, req);
+      writeAuditLog('PRODUCT_UPDATE', (req as any).user?.uid || 'admin', req.params.id, req);
       
       const responseData = { id: req.params.id, ...dataToSave };
       if (responseData.stockData) {
@@ -1804,7 +1804,7 @@ const cleanupTokenCache = () => {
       invalidateCache('products');
       invalidateStatsCache();
       
-      writeAuditLog('PRODUCT_DELETE', req.user?.uid || 'admin', req.params.id, req);
+      writeAuditLog('PRODUCT_DELETE', (req as any).user?.uid || 'admin', req.params.id, req);
       
       res.json({ success: true });
     } catch (err) {
@@ -1902,7 +1902,7 @@ console.log('HIT STATS ENDPOINT');
         return res.json(data);
       } else if (req.user) {
         // Fetch user purchases (avoid composite index requirement on userId + date by limiting)
-        const snapshot = await q.where('userId', '==', req.user.uid).limit(1000).get();
+        const snapshot = await q.where('userId', '==', (req as any).user.uid).limit(1000).get();
         let data = snapshot.docs.map((doc: any) => ({ dbId: doc.id, ...doc.data() }));
         // Sort in memory
         data.sort((a: any, b: any) => {
@@ -2008,7 +2008,7 @@ console.log('HIT STATS ENDPOINT');
       await purchasesRef.doc(foundDoc.id).update({ ...foundDoc, discordClaimed: true });
 
       res.json({ success: true, message: 'รับยศสำเร็จ!' });
-      writeAuditLog('DISCORD_ROLE_CLAIM', req.user?.uid || 'system', 'discord_role', req, { key: req.body.key });
+      writeAuditLog('DISCORD_ROLE_CLAIM', (req as any).user?.uid || 'system', 'discord_role', req, { key: req.body.key });
     } catch (e: any) {
       console.error(e);
       res.status(500).json({ error: 'Internal server error' });
@@ -2021,7 +2021,7 @@ console.log('HIT STATS ENDPOINT');
       return res.status(400).json({ error: 'Invalid product or quantity' });
     }
 
-    const userId = req.user.uid;
+    const userId = (req as any).user.uid;
     const lockKey = userId + '_' + productId;
     
     // Memory lock as an extra precaution before entering transaction
@@ -2073,7 +2073,7 @@ console.log('HIT STATS ENDPOINT');
         const newHistoryItem = {
           id: purchasesRef.id,
           userId: userId,
-          username: userData.username || (req.user && req.user.email ? req.user.email.split('@')[0] : 'Unknown'),
+          username: userData.username || (req.user && (req as any).user.email ? (req as any).user.email.split('@')[0] : 'Unknown'),
           productId: productId,
           productName: `${productData.name || 'Unknown Product'} (x${quantity})`,
           price: totalCost,
@@ -2148,10 +2148,10 @@ console.log('HIT STATS ENDPOINT');
       } else if (req.user) {
         let snapshot;
         try {
-           snapshot = await q.where('uid', '==', req.user.uid).limit(1000).get();
+           snapshot = await q.where('uid', '==', (req as any).user.uid).limit(1000).get();
         } catch (e: any) {
            // Fallback in case 'uid' was not indexed properly or older data doesn't have it
-           snapshot = await q.where('userId', '==', req.user.uid).limit(1000).get();
+           snapshot = await q.where('userId', '==', (req as any).user.uid).limit(1000).get();
         }
         let data = snapshot.docs.map((doc: any) => ({ dbId: doc.id, ...doc.data() }));
         data.sort((a: any, b: any) => {
@@ -2461,7 +2461,7 @@ console.log('HIT STATS ENDPOINT');
         }
       } else if (req.user) {
         // User requesting their own history
-        q = q.where('uid', '==', req.user.uid).limit(1000) as any;
+        q = q.where('uid', '==', (req as any).user.uid).limit(1000) as any;
         needsSortInMemory = true;
       } else {
         return res.status(401).json({ error: 'Unauthorized' });
@@ -2656,7 +2656,7 @@ console.log('HIT STATS ENDPOINT');
     redeemLocks[key] = new Promise(resolve => { releaseLock = resolve as any; });
 
     try {
-      const uid = req.user.uid;
+      const uid = (req as any).user.uid;
       
       let keyData: any = null;
       let keyDocRef: any = null;
@@ -2757,7 +2757,7 @@ console.log('HIT STATS ENDPOINT');
 
   // --- User Profiles Endpoints ---
   app.get('/api/users/:uid', requireAuth, async (req: any, res: any) => {
-    if (req.user.uid !== req.params.uid && !req.isAdmin) {
+    if ((req as any).user.uid !== req.params.uid && !req.isAdmin) {
       return res.status(403).json({ error: 'Forbidden' });
     }
     if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
@@ -2778,7 +2778,7 @@ console.log('HIT STATS ENDPOINT');
   });
 
   app.post('/api/users/:uid', requireAuth, async (req: any, res: any) => {
-    if (req.user.uid !== req.params.uid && !req.isAdmin) {
+    if ((req as any).user.uid !== req.params.uid && !req.isAdmin) {
       return res.status(403).json({ error: 'Forbidden' });
     }
     if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
@@ -2944,7 +2944,7 @@ console.log('HIT STATS ENDPOINT');
       if (!telegramPhone || !truemoneyPhone) return res.status(400).json({ error: 'Missing phone numbers' });
 
       // Verify Premium
-      const userRef = admin.firestore().collection('users').doc(req.user.uid);
+      const userRef = admin.firestore().collection('users').doc((req as any).user.uid);
       const userDoc = await userRef.get();
       const isPremium = req.isAdmin || (userDoc.exists && userDoc.data()?.isPremium);
 
@@ -3115,7 +3115,7 @@ console.log('HIT STATS ENDPOINT');
       if (!discordToken) return res.status(400).json({ error: 'Missing token' });
 
       // Verify Premium (since it's a 24/7 process that drains memory, we MUST protect it)
-      const userRef = admin.firestore().collection('users').doc(req.user.uid);
+      const userRef = admin.firestore().collection('users').doc((req as any).user.uid);
       const userDoc = await userRef.get();
       if (!req.isAdmin && (!userDoc.exists || !userDoc.data()?.isPremium)) {
           return res.status(403).json({ error: 'Premium feature only' });
@@ -3254,7 +3254,7 @@ console.log('HIT STATS ENDPOINT');
       if (!discordToken || !truemoneyPhone) return res.status(400).json({ error: 'Missing token or phone number' });
 
       // Verify Premium
-      const userRef = admin.firestore().collection('users').doc(req.user.uid);
+      const userRef = admin.firestore().collection('users').doc((req as any).user.uid);
       const userDoc = await userRef.get();
       const isPremium = req.isAdmin || (userDoc.exists && userDoc.data()?.isPremium);
 

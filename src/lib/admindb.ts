@@ -370,8 +370,9 @@ class SupabaseQuery {
 }
 
 class SupabaseCollection extends SupabaseQuery {
-  doc(id: string) {
-    return new SupabaseDoc(this.collection, id);
+  doc(id?: string) {
+    const genId = () => Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    return new SupabaseDoc(this.collection, id || genId());
   }
   async add(data: any) {
     const performAdd = async (payload: any) => {
@@ -401,7 +402,16 @@ class SupabaseCollection extends SupabaseQuery {
 }
 
 const db = {
-  collection: (name: string) => new SupabaseCollection(name)
+  collection: (name: string) => new SupabaseCollection(name),
+  runTransaction: async (updateFunction: (t: any) => Promise<any>) => {
+    const t = {
+      get: async (docRef: any) => await docRef.get(),
+      update: async (docRef: any, data: any) => await docRef.update(data),
+      set: async (docRef: any, data: any) => await docRef.set(data),
+      delete: async (docRef: any) => await docRef.delete()
+    };
+    return await updateFunction(t);
+  }
 };
 
 const auth = {

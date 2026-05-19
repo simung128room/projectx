@@ -120,11 +120,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
   const handleProductSelect = (product: Product | null) => {
     if (product) {
-      setIsProductLoading(true);
-      setTimeout(() => {
-        onProductClick(product.id);
-        setIsProductLoading(false);
-      }, 300); // reduced delay for better UX
+      onProductClick(product.id);
     }
   };
 
@@ -147,36 +143,6 @@ export const HomeView: React.FC<HomeViewProps> = ({
       return () => clearInterval(timer);
     }
   }, [bannersToUse.length]);
-
-  if (isProductLoading) {
-    return (
-      <div className="fixed inset-0 z-[200] bg-[#0a0d12]/90 backdrop-blur-sm flex items-center justify-center p-4 overflow-hidden animate-in fade-in duration-200">
-        <div className="flex items-center justify-center">
-          <motion.div
-            initial={{ x: -60, y: -30, opacity: 0, rotate: -45, scale: 0.8 }}
-            animate={{ x: 0, y: 0, opacity: 1, rotate: 0, scale: 1 }}
-            transition={{ duration: 0.5, type: "spring", bounce: 0.5 }}
-            className="text-5xl sm:text-6xl font-black text-white tracking-tighter mix-blend-multiply"
-          >
-            A
-          </motion.div>
-          <motion.div
-            initial={{ x: 60, y: 30, opacity: 0, rotate: 45, scale: 0.8 }}
-            animate={{ x: 0, y: 0, opacity: 1, rotate: 0, scale: 1 }}
-            transition={{
-              duration: 0.5,
-              type: "spring",
-              bounce: 0.5,
-              delay: 0.1,
-            }}
-            className="text-5xl sm:text-6xl font-black text-[#1E90FF] tracking-tighter mix-blend-multiply"
-          >
-            X
-          </motion.div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6 pb-24 font-sans text-white mt-2 sm:mt-4">
