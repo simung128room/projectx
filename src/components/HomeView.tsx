@@ -133,12 +133,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
     setRealtimeStats(stats);
   }, [stats]);
 
-  const totalStock = Array.isArray(products)
-    ? products.reduce((sum, product) => {
-        // If stock is "unlimited" (represented by 99999 or more), we don't count it towards the total stock
-        return sum + (product.stock >= 99999 ? 0 : product.stock);
-      }, 0)
-    : 0;
+  const totalStock = realtimeStats?.stock || 0;
 
   useEffect(() => {
     if (bannersToUse.length > 1) {
