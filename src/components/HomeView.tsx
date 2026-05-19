@@ -150,7 +150,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
       <AnimatedScroll>
         <div className="relative w-full aspect-[4/1] rounded-3xl overflow-hidden shadow-sm border border-white/5 bg-[#0a0d12]">
           <AnimatePresence>
-            <motion.img
+            <motion.img loading="lazy"
               key={currentBanner}
               src={
                 bannersToUse[currentBanner % (bannersToUse.length || 1)] ||

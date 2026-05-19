@@ -61,7 +61,7 @@ export const LogCategoriesView: React.FC<LogCategoriesViewProps> = ({ userPlan, 
 
     // Modal to display attachments
     const htmlAttachments = item.attachments.map((att: any) => {
-        if (att.type === 'image') return `<img src="${att.data}" class="w-full rounded-lg mb-2" />`;
+        if (att.type === 'image') return `<img loading="lazy" src="${att.data}" class="w-full rounded-lg mb-2" />`;
         if (att.type === 'file') return `<a href="${att.data}" target="_blank" class="block w-full py-2 bg-[#1a7fe6] text-white rounded-lg text-center font-bold mb-2">ดาวน์โหลดไฟล์</a>`;
         return `<div class="bg-zinc-900 border border-white/10 p-3 rounded-lg mb-2 text-left text-sm text-zinc-300 break-all select-all font-mono max-h-48 overflow-y-auto">${att.data.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>`;
     }).join('');

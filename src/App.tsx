@@ -936,72 +936,91 @@ function AppContent() {
   const fetchAllData = useCallback(async () => {
     try {
       console.log("Fetching all data from backend...");
+      console.time("fetchAllData");
 
-      const fireAndSet = async (url: string, setter: (data: any) => void) => {
+      const fetchApi = async (url: string) => {
         try {
           const res = await axios.get(url);
-          if (res.data) setter(res.data);
-          return { error: null };
+          return { data: res.data, error: null };
         } catch (e: any) {
           const status = e.response?.status;
           const errorMsg = e.response?.data?.error || e.message;
           if (status !== 401 && status !== 403 && status !== 404) {
             console.error(`Fetch ERROR for ${url}:`, errorMsg);
           }
-          return { error: errorMsg };
+          return { data: null, error: errorMsg };
         }
       };
 
-      // Critical Initial Data Fast Path
-      fireAndSet("/api/stats", (data) => {
-        setSiteStats({
-          users: data.users,
-          stock: data.stock,
-          sales: data.sales,
-          topups: data.totalTopupsAmount,
-          totalOrders: data.totalOrders,
-        });
-      });
-      fireAndSet("/api/products", (data) => {
-        if (Array.isArray(data))
-          setProducts(data.length > 0 ? data : defaultProducts);
-      });
-      fireAndSet("/api/categories", (data) => {
-        if (Array.isArray(data)) setCategories(data);
-      });
+      // Ensure concurrent data fetching
+      const promises = [
+        fetchApi("/api/stats"),
+        fetchApi("/api/products"),
+        fetchApi("/api/categories"),
+        fetchApi("/api/settings"),
+        fetchApi("/api/pages"),
+        fetchApi("/api/logs-system"),
+      ];
 
-      // Secondary Data
-      fireAndSet("/api/settings", (data) => setSiteSettings(data));
-      fireAndSet("/api/pages", (data) => {
-        if (Array.isArray(data)) setCustomPages(data);
-        else if (data && data.data && Array.isArray(data.data))
-          setCustomPages(data.data);
-      });
-      fireAndSet("/api/logs-system", (data) => {
-        if (data && Array.isArray(data.categories)) {
-          setLogCategories(data.categories.filter((c: any) => c.isVisible));
-        }
-      });
-
-      // User Data (History)
       if (user) {
-        fireAndSet("/api/used_keys", setUsedKeysHistory);
-        fireAndSet("/api/purchases", (data) => {
-          if (Array.isArray(data)) setPurchaseHistory(data);
-        });
-        fireAndSet("/api/topups", (data) => {
-          if (Array.isArray(data)) setTopupHistory(data);
-        });
+        promises.push(fetchApi("/api/used_keys"));
+        promises.push(fetchApi("/api/purchases"));
+        promises.push(fetchApi("/api/topups"));
       }
 
-      // Admin endpoints Check
       if (isAdmin) {
-        fireAndSet("/api/license_keys", setLicenseKeys);
-        fireAndSet("/api/blocked_ips", setBlockedIPs);
-        fireAndSet("/api/users", (data) => {
-          if (Array.isArray(data)) setUsersList(data);
+        promises.push(fetchApi("/api/license_keys"));
+        promises.push(fetchApi("/api/blocked_ips"));
+        promises.push(fetchApi("/api/users"));
+      }
+
+      const results = await Promise.all(promises);
+
+      // Map back to setters
+      if (results[0].data) {
+        setSiteStats({
+          users: results[0].data.users,
+          stock: results[0].data.stock,
+          sales: results[0].data.sales,
+          topups: results[0].data.totalTopupsAmount,
+          totalOrders: results[0].data.totalOrders,
         });
       }
+      
+      if (results[1].data && Array.isArray(results[1].data)) {
+        setProducts(results[1].data.length > 0 ? results[1].data : defaultProducts);
+      }
+      
+      if (results[2].data && Array.isArray(results[2].data)) {
+        setCategories(results[2].data);
+      }
+      
+      if (results[3].data) setSiteSettings(results[3].data);
+      
+      if (results[4].data) {
+        const d = results[4].data;
+        setCustomPages(Array.isArray(d) ? d : (d.data && Array.isArray(d.data) ? d.data : []));
+      }
+      
+      if (results[5].data && Array.isArray(results[5].data.categories)) {
+        setLogCategories(results[5].data.categories.filter((c: any) => c.isVisible));
+      }
+
+      let offset = 6;
+      if (user) {
+        if (results[offset].data) setUsedKeysHistory(results[offset].data);
+        if (results[offset+1].data && Array.isArray(results[offset+1].data)) setPurchaseHistory(results[offset+1].data);
+        if (results[offset+2].data && Array.isArray(results[offset+2].data)) setTopupHistory(results[offset+2].data);
+        offset += 3;
+      }
+
+      if (isAdmin) {
+        if (results[offset].data) setLicenseKeys(results[offset].data);
+        if (results[offset+1].data) setBlockedIPs(results[offset+1].data);
+        if (results[offset+2].data && Array.isArray(results[offset+2].data)) setUsersList(results[offset+2].data);
+      }
+      
+      console.timeEnd("fetchAllData");
 
       // Health check for DB readiness
       axios

@@ -70,7 +70,7 @@ export const SearchView: React.FC<SearchViewProps> = ({ products, onBack, onProd
               >
                 {product.image ? (
                   <div className="w-full aspect-video rounded-xl overflow-hidden mb-4 relative bg-zinc-900 border border-white/5">
-                    <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    <img loading="lazy" src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                   </div>
                 ) : (
                   <div className="w-full aspect-video rounded-xl overflow-hidden mb-4 relative bg-zinc-900 flex items-center justify-center border border-white/5 group-hover:border-white/10 transition-colors">

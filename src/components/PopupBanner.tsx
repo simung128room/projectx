@@ -35,7 +35,7 @@ export const PopupBanner: React.FC<PopupBannerProps> = ({ enabled, imgUrl, linkU
   };
 
   const ImageContent = () => (
-    <img 
+    <img loading="lazy" 
       src={imgUrl || "https://images.unsplash.com/photo-1607083206968-13611e3d76db?auto=format&fit=crop&q=80&w=1500&h=1500"} 
       alt="Announcement" 
       className="w-full max-h-[70vh] object-contain"

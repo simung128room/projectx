@@ -137,7 +137,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
             </p>
           </div>
           <div className="w-14 h-14 sm:w-16 sm:h-16 shrink-0 ml-4 flex items-center justify-center">
-            <motion.img 
+            <motion.img loading="lazy" 
               src="https://img2.pic.in.th/IMG_66428dd32388057a24f4.png" 
               alt="Logo" 
               referrerPolicy="no-referrer"

@@ -43,7 +43,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           <div className="absolute top-0 right-0 w-32 h-32 bg-[#1a7fe6]/5 blur-[50px] rounded-full pointer-events-none"></div>
           
           <div className="w-24 h-24 rounded-full bg-[#0B0F14] p-1 mb-4 relative z-10 border shadow-sm border-white/10 overflow-hidden">
-            <img 
+            <img loading="lazy" 
               src={getAvatarUrl(user?.id || username || 'guest')} 
               alt="avatar" 
               className="w-full h-full rounded-full object-cover"

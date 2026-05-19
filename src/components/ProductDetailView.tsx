@@ -43,7 +43,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
             whileHover={{ scale: 1.02 }}
             transition={{ type: "spring", stiffness: 300 }}
           >
-            <img 
+            <img loading="lazy" 
               src={product.imageUrl || undefined} 
               alt={product.name}
               className="absolute inset-0 w-full h-full object-cover z-10 transition-transform duration-700 group-hover:scale-110"

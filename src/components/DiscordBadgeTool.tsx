@@ -162,7 +162,7 @@ export const DiscordBadgeTool: React.FC = () => {
                                         boxShadow: `0 0 15px ${house.color.split('bg-[')[1]?.split(']')[0]}30`
                                     } : {}}
                                 >
-                                    <img src={house.icon} alt={house.name} className={`w-8 h-8 ${houseId === house.id ? 'drop-shadow-lg' : ''}`} />
+                                    <img loading="lazy" src={house.icon} alt={house.name} className={`w-8 h-8 ${houseId === house.id ? 'drop-shadow-lg' : ''}`} />
                                     <span className="font-bold tracking-wide">House of {house.name}</span>
                                 </button>
                             ))}

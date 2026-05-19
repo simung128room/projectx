@@ -1206,7 +1206,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       {products.map((p, i) => (
                         <tr key={i} className="border-b border-white/5 hover:bg-[#0a0d12]/50 transition-colors">
                           <td className="px-4 py-4 flex items-center gap-3">
-                            <img src={p.imageUrl || undefined} alt={p.name} className="w-10 h-10 rounded-lg object-cover bg-[#121820]" />
+                            <img loading="lazy" src={p.imageUrl || undefined} alt={p.name} className="w-10 h-10 rounded-lg object-cover bg-[#121820]" />
                             <div>
                                 <div className="text-white font-bold flex items-center gap-2">
                                   {p.name}

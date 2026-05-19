@@ -232,7 +232,7 @@ export const AdminCategoriesManagement: React.FC<AdminCategoriesManagementProps>
                   
                   {formData.bannerUrl ? (
                     <div className="w-full md:w-64 h-32 rounded-2xl overflow-hidden border border-white/10 shadow-sm relative group bg-[#121820] shrink-0">
-                      <img src={formData.bannerUrl || undefined} alt="Preview" className="w-full h-full object-cover" />
+                      <img loading="lazy" src={formData.bannerUrl || undefined} alt="Preview" className="w-full h-full object-cover" />
                       <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                         <p className="text-white text-xs font-bold text-center px-4 drop-shadow-md">พรีวิวรูปภาพหน้าปก</p>
                       </div>
@@ -276,7 +276,7 @@ export const AdminCategoriesManagement: React.FC<AdminCategoriesManagementProps>
                   <td className="px-6 py-4">
                     {c.bannerUrl ? (
                       <div className="w-24 h-14 rounded-xl overflow-hidden relative shadow-sm border border-white/10 group-hover:border-[#1E90FF]/30 transition-colors">
-                        <img src={c.bannerUrl || undefined} alt={c.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                        <img loading="lazy" src={c.bannerUrl || undefined} alt={c.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                       </div>
                     ) : (
                       <div className="w-24 h-14 bg-[#121820] rounded-xl flex flex-col items-center justify-center text-zinc-400 border border-white/10 border-dashed">
@@ -374,7 +374,7 @@ export const AdminCategoriesManagement: React.FC<AdminCategoriesManagementProps>
                       </div>
                       <div className="w-12 h-12 bg-zinc-800 rounded-xl overflow-hidden shrink-0">
                          {p.imageUrl ? (
-                            <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover" />
+                            <img loading="lazy" src={p.imageUrl} alt={p.name} className="w-full h-full object-cover" />
                          ) : (
                             <div className="w-full h-full flex items-center justify-center text-zinc-600">
                               <ImageIcon className="w-5 h-5" />

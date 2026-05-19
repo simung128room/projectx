@@ -408,16 +408,8 @@ const cleanupTokenCache = () => {
       const image = sharp(req.file.buffer);
       const metadata = await image.metadata();
       
-      let sanitizedBuffer: Buffer;
-      let mimeType: string;
-
-      if (metadata.format === 'png') {
-        sanitizedBuffer = await image.png({ compressionLevel: 6 }).toBuffer(); // strips EXIF by default
-        mimeType = 'image/png';
-      } else {
-        sanitizedBuffer = await image.jpeg({ quality: 90 }).toBuffer();
-        mimeType = 'image/jpeg';
-      }
+      const sanitizedBuffer = await image.webp({ quality: 80 }).toBuffer();
+      const mimeType = 'image/webp';
       
       // Limit to 5MB after process
       if (sanitizedBuffer.length > 5 * 1024 * 1024) {
@@ -451,16 +443,8 @@ const cleanupTokenCache = () => {
       const image = sharp(req.file.buffer);
       const metadata = await image.metadata();
       
-      let sanitizedBuffer: Buffer;
-      let mimeType: string;
-
-      if (metadata.format === 'png') {
-        sanitizedBuffer = await image.png({ compressionLevel: 6 }).toBuffer(); // strips EXIF by default
-        mimeType = 'image/png';
-      } else {
-        sanitizedBuffer = await image.jpeg({ quality: 90 }).toBuffer();
-        mimeType = 'image/jpeg';
-      }
+      const sanitizedBuffer = await image.webp({ quality: 80 }).toBuffer();
+      const mimeType = 'image/webp';
       
       // Limit to 5MB after process
       if (sanitizedBuffer.length > 5 * 1024 * 1024) {
@@ -1633,14 +1617,16 @@ const cleanupTokenCache = () => {
   // --- Products Endpoints ---
 
   const firestoreCache: Record<string, { data: any, timestamp: number }> = {};
-  const getCachedCollection = async (collectionName: string, ttl: number = 20000) => {
+  const getCachedCollection = async (collectionName: string, ttl: number = 20000, res?: any) => {
     const now = Date.now();
     if (firestoreCache[collectionName] && now - firestoreCache[collectionName].timestamp < ttl) {
+      if (res) res.setHeader('X-Cache', 'HIT');
       return firestoreCache[collectionName].data;
     }
+    if (res) res.setHeader('X-Cache', 'MISS');
     let query: any = admin.firestore().collection(collectionName);
     if (collectionName === 'products') {
-      query = query.select('name', 'description', 'price', 'originalPrice', 'soldCount', 'imageUrl', 'stock', 'category', 'isPopular').limit(1000); // Prevent RAM blowout and Firestore exhaustion for now
+      query = query.select('name', 'description', 'price', 'originalPrice', 'soldCount', 'imageUrl', 'stock', 'category', 'isPopular').limit(100); // Prevent RAM blowout and Firestore exhaustion for now
     }
     const snapshot = await query.get();
     const data = snapshot.docs.map(doc => {
@@ -1657,10 +1643,11 @@ const cleanupTokenCache = () => {
   };
 
   app.get('/api/products', async (req: any, res: any) => {
+    res.setHeader('Cache-Control', 'public, max-age=30, s-maxage=30, stale-while-revalidate=59');
     try {
       // Opt-in for public caching of products (TTL 30 seconds)
       res.setHeader('Cache-Control', 'public, max-age=30, s-maxage=30');
-      const data = await getCachedCollection('products');
+      const data = await getCachedCollection('products', 20000, res);
       const processedData = data.map((item: any) => {
         // ALWAYS strip stockData to prevent RAM blowout (both for admin and public)
         const { stockData, ...publicItem } = item;
@@ -1831,7 +1818,7 @@ console.log('HIT STATS ENDPOINT');
       
       let totalStock = 0;
       try {
-        const data = await getCachedCollection('products');
+        const data = await getCachedCollection('products', 20000, res);
         data.forEach((p: any) => {
           if (p.stock > 0 && p.stock < 999999) totalStock += Number(p.stock);
         });
@@ -1841,7 +1828,7 @@ console.log('HIT STATS ENDPOINT');
       let totalSales = 0;
       let totalPurchaseOrders = 0;
       try {
-        const purchases = await getCachedCollection('purchases');
+        const purchases = await getCachedCollection('purchases', 20000, res);
         purchases.forEach((p: any) => {
           totalSales += (p.price || 0);
           totalPurchaseOrders++;
@@ -1851,7 +1838,7 @@ console.log('HIT STATS ENDPOINT');
 
       let totalTopupsAmount = 0;
       try {
-        const topups = await getCachedCollection('topups');
+        const topups = await getCachedCollection('topups', 20000, res);
         topups.forEach((t: any) => {
           totalTopupsAmount += (t.amount || 0);
         });
@@ -1860,7 +1847,7 @@ console.log('HIT STATS ENDPOINT');
 
       let totalUsersCount = 0;
       try {
-        const users = await getCachedCollection('users');
+        const users = await getCachedCollection('users', 20000, res);
         totalUsersCount = users.length;
       } catch(e) {
       }
@@ -1902,7 +1889,7 @@ console.log('HIT STATS ENDPOINT');
         return res.json(data);
       } else if (req.user) {
         // Fetch user purchases (avoid composite index requirement on userId + date by limiting)
-        const snapshot = await q.where('userId', '==', (req as any).user.uid).limit(1000).get();
+        const snapshot = await q.where('userId', '==', (req as any).user.uid).limit(100).get();
         let data = snapshot.docs.map((doc: any) => ({ dbId: doc.id, ...doc.data() }));
         // Sort in memory
         data.sort((a: any, b: any) => {
@@ -2148,10 +2135,10 @@ console.log('HIT STATS ENDPOINT');
       } else if (req.user) {
         let snapshot;
         try {
-           snapshot = await q.where('uid', '==', (req as any).user.uid).limit(1000).get();
+           snapshot = await q.where('uid', '==', (req as any).user.uid).limit(100).get();
         } catch (e: any) {
            // Fallback in case 'uid' was not indexed properly or older data doesn't have it
-           snapshot = await q.where('userId', '==', (req as any).user.uid).limit(1000).get();
+           snapshot = await q.where('userId', '==', (req as any).user.uid).limit(100).get();
         }
         let data = snapshot.docs.map((doc: any) => ({ dbId: doc.id, ...doc.data() }));
         data.sort((a: any, b: any) => {
@@ -2183,9 +2170,10 @@ console.log('HIT STATS ENDPOINT');
 
   // --- Categories Endpoints ---
   app.get('/api/categories', async (req, res) => {
+    res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=60, stale-while-revalidate=86400');
     try {
       res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=60');
-      const data = await getCachedCollection('categories', 60000);
+      const data = await getCachedCollection('categories', 60000, res);
       res.json(data);
     } catch (err: any) {
       console.error('Internal server error fetching categories:', err.message || err);
@@ -2236,9 +2224,10 @@ console.log('HIT STATS ENDPOINT');
 
   // --- Custom Pages Endpoints ---
   app.get('/api/pages', async (req, res) => {
+    res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=60, stale-while-revalidate=86400');
     try {
       res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=60');
-      const data = await getCachedCollection('custom_pages', 60000);
+      const data = await getCachedCollection('custom_pages', 60000, res);
       res.json(data);
     } catch (err: any) {
       console.error('Internal server error fetching pages:', err.message || err);
@@ -2455,13 +2444,13 @@ console.log('HIT STATS ENDPOINT');
         if (targetUID) {
           q = q.where('uid', '==', targetUID) as any;
           needsSortInMemory = true;
-          q = q.limit(1000);
+          q = q.limit(100);
         } else {
           q = q.orderBy('used_at', 'desc').limit(100);
         }
       } else if (req.user) {
         // User requesting their own history
-        q = q.where('uid', '==', (req as any).user.uid).limit(1000) as any;
+        q = q.where('uid', '==', (req as any).user.uid).limit(100) as any;
         needsSortInMemory = true;
       } else {
         return res.status(401).json({ error: 'Unauthorized' });
@@ -2848,7 +2837,7 @@ console.log('HIT STATS ENDPOINT');
          }
       }
 
-      const snapshot = await admin.firestore().collection('users').limit(1000).get();
+      const snapshot = await admin.firestore().collection('users').limit(100).get();
       const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       res.json(data);
     } catch (err: any) {

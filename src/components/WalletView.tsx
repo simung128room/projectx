@@ -238,7 +238,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
               onClick={() => setActiveView('truemoney')}
             >
               <div className="w-24 h-24 mb-6 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6">
-                <img src="https://img1.pic.in.th/images/IMG_6172.png" alt="TrueMoney Wallet" className="w-full h-full object-contain drop-shadow-sm" />
+                <img loading="lazy" src="https://img1.pic.in.th/images/IMG_6172.png" alt="TrueMoney Wallet" className="w-full h-full object-contain drop-shadow-sm" />
               </div>
               <h2 className="text-2xl font-black text-white mb-3">TrueMoney Wallet (อังเปา)</h2>
               <p className="text-zinc-500 text-sm mb-3 leading-relaxed px-4">
@@ -256,7 +256,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
               onClick={() => setActiveView('bank')}
             >
               <div className="w-24 h-24 mb-6 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6">
-                <img src="https://img1.pic.in.th/images/IMG_6164.png" alt="Bank Transfer" className="w-full h-full object-contain drop-shadow-sm" />
+                <img loading="lazy" src="https://img1.pic.in.th/images/IMG_6164.png" alt="Bank Transfer" className="w-full h-full object-contain drop-shadow-sm" />
               </div>
               <h2 className="text-2xl font-black text-white mb-3">ธนาคาร เช็คสลิป</h2>
               <p className="text-zinc-500 text-sm mb-3 leading-relaxed px-4">
@@ -282,7 +282,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
           
           <div className="flex flex-col items-center text-center mb-8">
             <div className="w-32 h-32 mb-4">
-              <img src="https://img1.pic.in.th/images/IMG_6172.png" alt="TrueMoney Wallet" className="w-full h-full object-contain drop-shadow-sm" />
+              <img loading="lazy" src="https://img1.pic.in.th/images/IMG_6172.png" alt="TrueMoney Wallet" className="w-full h-full object-contain drop-shadow-sm" />
             </div>
           </div>
 
@@ -370,7 +370,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
               <label className="flex flex-col items-center justify-center w-full py-10 bg-[#0a0d12] hover:bg-[#121820] transition-all border-2 border-dashed border-white/20 hover:border-[#1E90FF] rounded-[2rem] cursor-pointer group active:scale-[0.98] relative z-10">
                   <input type="file" className="hidden" accept="image/png, image/jpeg" onChange={handleSlipUpload} />
                   <div className="w-28 h-28 mb-4 group-hover:scale-110 transition-transform">
-                     <img src="https://img1.pic.in.th/images/IMG_6164.png" alt="KBank" className="w-full h-full object-contain" />
+                     <img loading="lazy" src="https://img1.pic.in.th/images/IMG_6164.png" alt="KBank" className="w-full h-full object-contain" />
                   </div>
                   <div className="text-center">
                      <span className="text-lg font-black text-white block leading-none">อัปโหลดรูปสลิปได้ที่นี่</span>

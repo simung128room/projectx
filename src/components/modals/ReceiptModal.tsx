@@ -89,7 +89,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ selectedItem, setSel
                 <div className="flex gap-4 relative mb-4">
                   <div className="w-16 h-16 rounded-xl bg-[#121820] border border-white/10 flex items-center justify-center shrink-0 overflow-hidden">
                     {selectedItem.image ? (
-                      <img src={selectedItem.image} alt="product" className="w-full h-full object-cover" />
+                      <img loading="lazy" src={selectedItem.image} alt="product" className="w-full h-full object-cover" />
                     ) : (
                       <ShoppingCart className="w-6 h-6 text-zinc-400" />
                     )}
