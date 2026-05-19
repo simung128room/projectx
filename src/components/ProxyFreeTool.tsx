@@ -133,11 +133,11 @@ export const ProxyFreeTool: React.FC = () => {
         <div>
           <h2 className="text-2xl font-black text-white flex items-center gap-3">
             <Globe className="w-8 h-8 text-[#1E90FF]" />
-            Free Proxy List (Proxifly)
+            Free Proxy List
           </h2>
-          <p className="text-zinc-400 mt-2 flex items-center gap-4">
-            <span>
-              ดึงข้อมูล Proxy แจกฟรีอัตโนมัติจาก Github:
+          <p className="text-zinc-400 mt-2 flex items-center gap-2">
+            อัปเดต Proxy อัตโนมัติจาก{" "}
+            <span className="px-2 py-1 bg-white/10 rounded-lg text-xs font-mono text-white">
               proxifly/free-proxy-list
             </span>
           </p>
@@ -147,41 +147,60 @@ export const ProxyFreeTool: React.FC = () => {
           <button
             onClick={fetchProxies}
             disabled={loading}
-            className="bg-black/50 border border-white/10 hover:bg-white/5 text-zinc-300 px-5 py-3 rounded-2xl font-bold flex items-center gap-2 transition-all disabled:opacity-50"
+            className="bg-[#1E90FF]/10 text-[#1E90FF] border border-[#1E90FF]/20 hover:bg-[#1E90FF]/20 px-5 py-3 rounded-2xl font-bold flex items-center gap-2 transition-all disabled:opacity-50"
           >
             <RefreshCcw
               className={`w-5 h-5 ${loading ? "animate-spin" : ""}`}
             />
-            รีเฟรชข้อมูล
+            ซิงค์ข้อมูลล่าสุด
           </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: "ALL PROXIES", count: stats.total, color: "text-white" },
-          { label: "HTTP/HTTPS", count: stats.http, color: "text-blue-400" },
-          { label: "SOCKS4", count: stats.socks4, color: "text-purple-400" },
-          { label: "SOCKS5", count: stats.socks5, color: "text-emerald-400" },
+          {
+            label: "ALL PROXIES",
+            count: stats.total,
+            color: "text-white",
+            bg: "from-zinc-800/50 to-zinc-900/50",
+          },
+          {
+            label: "HTTP/HTTPS",
+            count: stats.http,
+            color: "text-blue-400",
+            bg: "from-blue-900/20 to-black",
+          },
+          {
+            label: "SOCKS4",
+            count: stats.socks4,
+            color: "text-purple-400",
+            bg: "from-purple-900/20 to-black",
+          },
+          {
+            label: "SOCKS5",
+            count: stats.socks5,
+            color: "text-emerald-400",
+            bg: "from-emerald-900/20 to-black",
+          },
         ].map((stat, idx) => (
           <div
             key={idx}
-            className="bg-[#0a0d12] border border-white/5 p-6 rounded-3xl relative overflow-hidden group"
+            className={`bg-gradient-to-br ${stat.bg} border border-white/5 p-6 rounded-3xl relative overflow-hidden group hover:border-white/10 transition-colors`}
           >
-            <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 blur-3xl rounded-full transform translate-x-16 -translate-y-16 group-hover:bg-[#1E90FF]/10 transition-colors"></div>
-            <p className="text-xs font-bold text-zinc-500 mb-2 tracking-wider">
+            <p className="text-xs font-bold text-zinc-500 mb-2 tracking-widest">
               {stat.label}
             </p>
             <div className="flex items-baseline gap-2">
               <span className={`text-4xl font-black ${stat.color}`}>
                 {loading ? "..." : stat.count.toLocaleString()}
               </span>
-              <span className="text-sm font-medium text-zinc-500">IPs</span>
+              <span className="text-sm font-medium text-zinc-600">IPs</span>
             </div>
             {idx === 0 && (
-              <div className="mt-3 text-xs text-zinc-500 flex items-center gap-1.5">
-                <CheckCircle className="w-3.5 h-3.5 text-emerald-500" />
-                อัพเดทล่าสุด: {stats.lastUpdated}
+              <div className="mt-4 text-xs font-medium text-emerald-400 flex items-center gap-1.5 bg-emerald-500/10 w-max px-2.5 py-1 rounded-full border border-emerald-500/20">
+                <CheckCircle className="w-3.5 h-3.5" />
+                อัปเดต: {stats.lastUpdated}
               </div>
             )}
           </div>
@@ -189,10 +208,10 @@ export const ProxyFreeTool: React.FC = () => {
       </div>
 
       <div className="bg-[#0a0d12] border border-white/5 rounded-3xl overflow-hidden flex flex-col">
-        <div className="border-b border-white/5">
-          <div className="flex px-4 pt-4 overflow-x-auto hide-scrollbar">
+        <div className="border-b border-white/5 bg-black/50">
+          <div className="flex overflow-x-auto hide-scrollbar px-2 pt-2">
             {[
-              { id: "all", label: "ทั้งหมด" },
+              { id: "all", label: "ทั้งหมด (All)" },
               { id: "http", label: "HTTP / HTTPS" },
               { id: "socks4", label: "SOCKS4" },
               { id: "socks5", label: "SOCKS5" },
@@ -202,9 +221,9 @@ export const ProxyFreeTool: React.FC = () => {
                 onClick={() => setActiveTab(tab.id as any)}
                 className={`flex-shrink-0 px-6 py-4 text-sm font-bold border-b-2 transition-all ${
                   activeTab === tab.id
-                    ? "border-[#1E90FF] text-white"
-                    : "border-transparent text-zinc-500 hover:text-zinc-300"
-                }`}
+                    ? "border-[#1E90FF] text-[#1E90FF]"
+                    : "border-transparent text-zinc-500 hover:text-zinc-300 hover:bg-white/5"
+                } rounded-t-xl`}
               >
                 {tab.label}
               </button>
@@ -212,50 +231,54 @@ export const ProxyFreeTool: React.FC = () => {
           </div>
         </div>
 
-        <div className="p-4 sm:p-6 flex-1 flex flex-col">
-          <div className="flex items-center justify-between mb-4">
+        <div className="p-4 sm:p-6 flex-1 flex flex-col gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-black/40 p-4 rounded-2xl border border-white/5">
             <div className="flex items-center gap-3">
-              <Shield className="w-5 h-5 text-[#1E90FF]" />
+              <Shield className="w-5 h-5 text-zinc-400" />
               <span className="text-sm font-bold text-white">
-                รายการ Proxy ({currentList.length})
+                พร้อมใช้งาน:{" "}
+                <span className="text-[#1E90FF]">
+                  {currentList.length.toLocaleString()}
+                </span>{" "}
+                รายการ
               </span>
             </div>
-            <div className="flex gap-2">
-              <button
-                onClick={copyToClipboard}
-                disabled={currentList.length === 0}
-                className="bg-black border border-white/10 hover:bg-white/5 text-zinc-300 px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all disabled:opacity-50"
-              >
-                <Copy className="w-4 h-4" /> Copy All
-              </button>
+            <div className="flex gap-2 w-full sm:w-auto">
               <button
                 onClick={downloadFile}
                 disabled={currentList.length === 0}
-                className="bg-[#1E90FF]/10 text-[#1E90FF] hover:bg-[#1E90FF]/20 px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all disabled:opacity-50"
+                className="flex-1 sm:flex-none justify-center bg-zinc-800 hover:bg-zinc-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all disabled:opacity-50"
               >
-                <Download className="w-4 h-4" /> Download .txt
+                <Download className="w-4 h-4" /> บันทึกไฟล์ (.txt)
+              </button>
+              <button
+                onClick={copyToClipboard}
+                disabled={currentList.length === 0}
+                className="flex-1 sm:flex-none justify-center bg-[#1E90FF] hover:bg-[#166BCC] text-white px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all disabled:opacity-50 shadow-lg shadow-[#1E90FF]/25"
+              >
+                <Copy className="w-4 h-4" /> คัดลอกทั้งหมด
               </button>
             </div>
           </div>
 
-          <div className="flex-1 min-h-[400px] bg-black border border-white/10 rounded-2xl p-4 overflow-hidden relative">
+          <div className="flex-1 min-h-[400px] h-[500px] bg-black border border-white/10 rounded-2xl p-4 overflow-hidden relative">
             {loading ? (
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-zinc-500">
-                <RefreshCcw className="w-8 h-8 animate-spin mb-3 text-[#1E90FF]" />
-                <p className="font-bold">กำลังดึงข้อมูล...</p>
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-zinc-500 bg-black/50 z-10">
+                <RefreshCcw className="w-10 h-10 animate-spin mb-4 text-[#1E90FF]" />
+                <p className="font-bold tracking-wide">กำลังรวบรวม IP...</p>
               </div>
             ) : currentList.length === 0 ? (
               <div className="absolute inset-0 flex items-center justify-center text-zinc-600 font-medium">
-                ไม่พบข้อมูล
+                ไม่มีโปรโตคอลนี้ในขณะนี้
               </div>
-            ) : (
-              <textarea
-                readOnly
-                value={currentList.join("\n")}
-                spellCheck={false}
-                className="w-full h-full bg-transparent text-xs font-mono text-zinc-300 focus:outline-none resize-none scrollbar-thin scrollbar-thumb-zinc-700"
-              />
-            )}
+            ) : null}
+
+            <textarea
+              readOnly
+              value={currentList.join("\n")}
+              spellCheck={false}
+              className="absolute inset-0 w-full h-full p-6 bg-transparent text-[13px] leading-[1.8] font-mono text-zinc-300 focus:outline-none resize-none scrollbar-thin scrollbar-thumb-zinc-700"
+            />
           </div>
         </div>
       </div>
