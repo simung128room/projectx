@@ -2531,7 +2531,7 @@ function AppContent() {
                         }}
                       >
                         <Gift className="w-5 h-5" />
-                        ประวัติสุ่มกาชา
+                        ประวัติการสุ่มสินค้า
                       </div>
                       {isAdmin && (
                         <div
