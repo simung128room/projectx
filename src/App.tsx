@@ -504,7 +504,7 @@ function AppContent() {
         window.history.pushState(null, "", "/" + view);
         setRawActiveView(view);
         setIsPageTransitioning(false);
-      }, 600);
+      }, 50);
     },
     [activeView],
   );
@@ -571,7 +571,7 @@ function AppContent() {
       setIsPageTransitioning(true);
       const timer = setTimeout(() => {
         setIsPageTransitioning(false);
-      }, 700);
+      }, 50);
       prevViewRef.current = activeView;
       return () => clearTimeout(timer);
     }
@@ -1922,11 +1922,11 @@ function AppContent() {
       />
       {/* Page Transition Overlay */}
       {isPageTransitioning && (
-        <div className="fixed inset-0 z-[200] bg-[#0a0d12]/95 backdrop-blur-md flex flex-col items-center justify-center p-4 overflow-hidden animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-[200] bg-[#0a0d12]/95 backdrop-blur-md flex flex-col items-center justify-center p-4 overflow-hidden animate-in fade-in duration-75">
           <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
+            initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.1 }}
           >
             <Loader
               className="w-12 h-12 text-[#1E90FF] animate-spin"

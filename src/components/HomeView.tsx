@@ -133,11 +133,11 @@ export const HomeView: React.FC<HomeViewProps> = ({
     setRealtimeStats(stats);
   }, [stats]);
 
-  const totalStock = Array.isArray(products)
-    ? products.reduce((sum, product) => {
-        return sum + (product.stock >= 99999 ? 0 : product.stock);
-      }, 0)
-    : 0;
+  const stockOverride = siteSettings?.stats_stock_override;
+  const totalStock =
+    stockOverride !== undefined && stockOverride !== null
+      ? Number(stockOverride)
+      : realtimeStats?.stock || 0;
 
   useEffect(() => {
     if (bannersToUse.length > 1) {
@@ -628,7 +628,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 key={product.id}
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.3, delay: i * 0.05 }}
+                transition={{ duration: 0.2, delay: i * 0.03 }}
                 className="bg-[#0B0F14] border border-white/10 rounded-2xl overflow-hidden hover:shadow-xl transition-all h-full flex flex-col group"
               >
                 <div className="aspect-square bg-zinc-900 relative overflow-hidden">
