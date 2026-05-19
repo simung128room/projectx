@@ -109,7 +109,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ purchaseHistory = [], 
                     <History className="w-6 h-6" />
                   </div>
                   <div>
-                    <h2 className="text-xl font-bold text-white leading-none mb-1">ประวัติการใช้งาน</h2>
+                    <h2 className="text-xl font-bold text-white leading-none mb-1">ประวัติสั่งซื้อ</h2>
                     <p className="text-xs font-medium text-zinc-500">เลือกหมวดหมู่ที่ต้องการตรวจสอบ</p>
                   </div>
                 </div>

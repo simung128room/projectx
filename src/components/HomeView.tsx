@@ -354,7 +354,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             },
             {
               icon: History,
-              label: "ประวัติการใช้งาน",
+              label: "ประวัติสั่งซื้อ",
               id: "History",
               desc: "ประวัติของคุณ",
               color: "blue",
@@ -363,7 +363,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   Swal.fire({
                     icon: "warning",
                     title: "กรุณาเข้าสู่ระบบ",
-                    text: "โปรดเข้าสู่ระบบก่อนดูประวัติการใช้งาน",
+                    text: "โปรดเข้าสู่ระบบก่อนดูประวัติสั่งซื้อ",
                     confirmButtonColor: "#1E90FF",
                     background: "#0B0F14",
                     color: "#fff",

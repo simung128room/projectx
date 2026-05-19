@@ -2866,15 +2866,15 @@ console.log('HIT STATS ENDPOINT');
   });
 
 
-  let globalBotProcess: ChildProcess | null = null;
-  let globalBotLogs: string[] = [];
+  // /api/bot/status and globalBot variables removed
 
   app.get('/bot-code', (req, res) => {
     try {
-        const cfgPath = path.join(process.cwd(), 'twer_temp', 'index.js');
+        const cfgPath = path.join(process.cwd(), 'twer_temp', 'bot.py');
         if (fs.existsSync(cfgPath)) {
             const content = fs.readFileSync(cfgPath, 'utf8');
             res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+            res.setHeader('Content-Disposition', 'attachment; filename="bot.py"');
             res.send(content);
         } else {
             res.status(404).send('Bot code not found');
@@ -2884,69 +2884,22 @@ console.log('HIT STATS ENDPOINT');
     }
   });
 
-  app.get('/api/bot/status', requireAdmin, (req, res) => {
-    res.json({
-      running: globalBotProcess !== null && !globalBotProcess.killed,
-      logs: globalBotLogs.slice(-100)
-    });
-  });
-
-  app.post('/api/bot/start', requireAdmin, (req, res) => {
-    if (globalBotProcess !== null && !globalBotProcess.killed) {
-      return res.status(400).json({ error: 'Bot is already running' });
-    }
-    
+  app.post('/api/bot/save', requireAdmin, (req, res) => {
     // Save config first if provided
     if (req.body.config) {
-        fs.writeFileSync(path.join(process.cwd(), 'twer_temp', 'bot_config.js'), req.body.config);
+        fs.writeFileSync(path.join(process.cwd(), 'twer_temp', 'bot.py'), req.body.config);
     }
-    
-    globalBotLogs = [];
-    globalBotProcess = spawn('node', [path.join(process.cwd(), 'twer_temp', 'index.js')], {
-       cwd: path.join(process.cwd(), 'twer_temp'),
-       stdio: ['ignore', 'pipe', 'pipe']
-    });
-
-    globalBotProcess.stdout?.on('data', (data) => {
-       const str = data.toString();
-       globalBotLogs.push(str);
-       if (globalBotLogs.length > 500) globalBotLogs.shift();
-       console.log('[BOT]', str.trim());
-    });
-    
-    globalBotProcess.stderr?.on('data', (data) => {
-       const str = data.toString();
-       globalBotLogs.push('[ERROR] ' + str);
-       if (globalBotLogs.length > 500) globalBotLogs.shift();
-       console.error('[BOT ERROR]', str.trim());
-    });
-
-    globalBotProcess.on('close', (code) => {
-       globalBotLogs.push(`[SYSTEM] Bot Process exited with code ${code}`);
-       globalBotProcess = null;
-    });
-
-    res.json({ success: true, message: 'Bot started' });
-  });
-
-  app.post('/api/bot/stop', requireAdmin, (req, res) => {
-    if (globalBotProcess) {
-       globalBotProcess.kill('SIGINT');
-       globalBotProcess = null;
-       res.json({ success: true, message: 'Bot stopped' });
-    } else {
-       res.status(400).json({ error: 'Bot is not running' });
-    }
+    res.json({ success: true, message: 'Bot config saved' });
   });
 
   app.get('/api/bot/config', requireAdmin, (req, res) => {
     try {
-        const cfgPath = path.join(process.cwd(), 'twer_temp', 'bot_config.js');
+        const cfgPath = path.join(process.cwd(), 'twer_temp', 'bot.py');
         if (fs.existsSync(cfgPath)) {
             const content = fs.readFileSync(cfgPath, 'utf8');
             res.json({ config: content });
         } else {
-            res.json({ config: 'module.exports = {\n  token: "",\n  adminIds: ["123"],\n  maxUsers: 30,\n  delayPerUser: 10,\n  delayOwner: 20,\n  delayOwnerToThird: 100,\n  voucherCodeRegex: /[A-Za-z0-9]{20,}/g,\n  ownerPhone: "",\n  ownerWebhook: ""\n};' });
+            res.json({ config: '# bot.py not found on server' });
         }
     } catch (e) {
         res.status(500).json({ error: String(e) });

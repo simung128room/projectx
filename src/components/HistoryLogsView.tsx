@@ -267,9 +267,9 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({ usedKeysHistor
       <div className="mb-8 pl-2">
         <h1 className="text-3xl font-black mb-2 flex items-center gap-3 tracking-tight">
             <History className="w-8 h-8 text-[#1E90FF]" /> 
-            ประวัติการใช้งาน
+            ประวัติสั่งซื้อ
         </h1>
-        <p className="text-sm font-medium text-zinc-500">History / Logs ประวัติการใช้งานต่างๆ ของคุณในระบบ</p>
+        <p className="text-sm font-medium text-zinc-500">History / Logs ประวัติการทำรายการต่างๆ ของคุณในระบบ</p>
       </div>
 
       {/* Filter Tabs - Scrollable on mobile */}

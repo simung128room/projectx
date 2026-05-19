@@ -9,6 +9,7 @@ import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'rec
 import { supabase } from '../lib/supabase';
 import { AdminApiKeys } from './AdminApiKeys';
 import { AdminBotManagement } from './AdminBotManagement';
+import { ProxyFreeTool } from './ProxyFreeTool';
 
 interface AdminDashboardProps {
   totalChecked: number;
@@ -824,6 +825,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     <NavItem id="bot" label="ระบบบอท" icon={Terminal} />
                     <NavItem id="tools" label="ตัวช่วยแจกของ" icon={Gift} />
                     <NavItem id="api_keys" label="ระบบ API" icon={Key} />
+                    <NavItem id="proxy" label="Proxy Free" icon={Globe} />
                   </div>
                 </section>
               </div>
@@ -1554,6 +1556,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               exit={{ opacity: 0, x: -20 }}
             >
               <AdminBotManagement />
+            </motion.div>
+          )}
+
+          {adminTab === 'proxy' && (
+            <motion.div 
+              key="proxy"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+            >
+              <ProxyFreeTool />
             </motion.div>
           )}
 

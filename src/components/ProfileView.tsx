@@ -143,7 +143,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                   <div className="p-2 bg-[#1E90FF]/20 rounded-lg text-[#1E90FF]">
                     <History className="w-4 h-4" />
                   </div>
-                  <span className="text-sm font-medium text-zinc-700 group-hover:text-white transition-colors">ประวัติการทำรายการ (History)</span>
+                  <span className="text-sm font-medium text-zinc-700 group-hover:text-white transition-colors">ประวัติสั่งซื้อ (History)</span>
                 </div>
                 <ChevronRight className="w-4 h-4 text-zinc-400 group-hover:text-[#1a7fe6] transition-colors" />
               </button>
