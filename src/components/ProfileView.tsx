@@ -4,6 +4,7 @@ import Swal from 'sweetalert2';
 import { UserPlan } from '../types';
 import { User as SupabaseUser } from '@supabase/supabase-js';
 import { getAvatarUrl } from '../lib/avatar';
+import { getUserRank } from '../lib/rank';
 import { AnimatedScroll } from './AnimatedScroll';
 
 interface ProfileViewProps {
@@ -18,9 +19,14 @@ interface ProfileViewProps {
 export const ProfileView: React.FC<ProfileViewProps> = ({
   user, userPlan, setUserPlan, clientIp, setActiveView, handleLogout
 }) => {
-  const rawRole = userPlan?.role || 'สมาชิกทั่วไป';
-  const role = rawRole.charAt(0).toUpperCase() + rawRole.slice(1).toLowerCase();
-  const isAdminOrOwner = ['admin', 'owner'].includes(rawRole.toLowerCase());
+  const rawRole = userPlan?.role;
+  let role = '';
+  if (rawRole && ['admin', 'owner'].includes(rawRole.toLowerCase())) {
+     role = rawRole.charAt(0).toUpperCase() + rawRole.slice(1).toLowerCase();
+  } else {
+     role = getUserRank(userPlan, user);
+  }
+  const isAdminOrOwner = ['admin', 'owner'].includes(rawRole?.toLowerCase() || '');
   const balance = userPlan?.balance || 0;
   const fullName = userPlan?.fullName || '-';
   const username = userPlan?.username || user?.email?.split('@')[0] || '';
@@ -38,12 +44,11 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           
           <div className="w-24 h-24 rounded-full bg-[#0B0F14] p-1 mb-4 relative z-10 border shadow-sm border-white/10 overflow-hidden">
             <img 
-              src={getAvatarUrl(username || 'guest')} 
+              src={getAvatarUrl(user?.id || username || 'guest')} 
               alt="avatar" 
               className="w-full h-full rounded-full object-cover"
               referrerPolicy="no-referrer"
             />
-            <div className="absolute bottom-1 right-1 bg-emerald-500 w-5 h-5 rounded-full border-4 border-white"></div>
           </div>
           
           <h3 className="text-xl font-black text-white mb-1 text-center truncate w-full px-2 z-10">{username}</h3>
@@ -143,29 +148,29 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                   <div className="p-2 bg-[#1E90FF]/20 rounded-lg text-[#1E90FF]">
                     <History className="w-4 h-4" />
                   </div>
-                  <span className="text-sm font-medium text-zinc-700 group-hover:text-white transition-colors">ประวัติสั่งซื้อ (History)</span>
+                  <span className="text-sm font-medium text-zinc-400 group-hover:text-white transition-colors">ประวัติสั่งซื้อ (History)</span>
                 </div>
                 <ChevronRight className="w-4 h-4 text-zinc-400 group-hover:text-[#1a7fe6] transition-colors" />
               </button>
 
-              <button type="button" onClick={() => setActiveView('checker_logs')} className="w-full flex items-center justify-between p-3 rounded-2xl bg-[#0B0F14] border border-white/10 hover:border-indigo-200 hover:bg-[#0a0d12] transition-all group shadow-sm">
+              <button type="button" onClick={() => setActiveView('checker_logs')} className="w-full flex items-center justify-between p-3 rounded-2xl bg-[#0B0F14] border border-white/10 hover:border-zinc-500 hover:bg-[#0a0d12] transition-all group shadow-sm">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-indigo-50 rounded-lg text-indigo-500">
+                  <div className="p-2 bg-zinc-800 rounded-lg text-zinc-400">
                     <History className="w-4 h-4" />
                   </div>
-                  <span className="text-sm font-medium text-zinc-700 group-hover:text-white transition-colors">ประวัติระบบเช็คไอดี (Checker Logs)</span>
+                  <span className="text-sm font-medium text-zinc-400 group-hover:text-white transition-colors">ประวัติระบบเช็คไอดี (Checker Logs)</span>
                 </div>
-                <ChevronRight className="w-4 h-4 text-zinc-400 group-hover:text-indigo-500 transition-colors" />
+                <ChevronRight className="w-4 h-4 text-zinc-500 group-hover:text-zinc-300 transition-colors" />
               </button>
 
-              <button type="button" onClick={() => setActiveView('redeem')} className="w-full flex items-center justify-between p-3 rounded-2xl bg-[#0B0F14] border border-white/10 hover:border-amber-200 hover:bg-amber-50/30 transition-all group shadow-sm">
+              <button type="button" onClick={() => setActiveView('redeem')} className="w-full flex items-center justify-between p-3 rounded-2xl bg-[#0B0F14] border border-white/10 hover:border-[#1E90FF]/30 hover:bg-[#1E90FF]/5 transition-all group shadow-sm">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-amber-500/10 rounded-lg text-amber-500">
+                  <div className="p-2 bg-[#1E90FF]/10 rounded-lg text-[#1E90FF]">
                     <Key className="w-4 h-4" />
                   </div>
-                  <span className="text-sm font-medium text-zinc-700 group-hover:text-white transition-colors">เปิดใช้งานคีย์ไลเซนส์ (Redeem Key)</span>
+                  <span className="text-sm font-medium text-zinc-400 group-hover:text-white transition-colors">เปิดใช้งานคีย์ไลเซนส์ (Redeem Key)</span>
                 </div>
-                <ChevronRight className="w-4 h-4 text-zinc-400 group-hover:text-amber-500 transition-colors" />
+                <ChevronRight className="w-4 h-4 text-zinc-500 group-hover:text-[#1E90FF] transition-colors" />
               </button>
               
               {user && (
@@ -188,9 +193,9 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                     <div className="p-2 bg-[#1E90FF]/10 rounded-lg text-[#1a7fe6]">
                       <LogOut className="w-4 h-4" />
                     </div>
-                    <span className="text-sm font-medium text-zinc-700 group-hover:text-[#1E90FF] transition-colors">ออกจากระบบ</span>
+                    <span className="text-sm font-medium text-zinc-400 group-hover:text-[#1E90FF] transition-colors">ออกจากระบบ</span>
                   </div>
-                  <ChevronRight className="w-4 h-4 text-zinc-400 group-hover:text-[#1a7fe6] transition-colors" />
+                  <ChevronRight className="w-4 h-4 text-zinc-500 group-hover:text-[#1a7fe6] transition-colors" />
                 </button>
               )}
             </div>

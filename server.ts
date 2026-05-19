@@ -178,8 +178,9 @@ app.set('trust proxy', 1);
   });
 
   // Key generator that considers IP + UID (if authenticated)
-  const userRateLimitKeyGenerator = (req: any) => {
-    return `${req.ip}:${(req as any).user?.uid || 'guest'}`;
+  const userRateLimitKeyGenerator = (req: any, res: any) => {
+    const ip = req.rateLimit?.keyGenerator ? req.rateLimit.keyGenerator(req, res) : req['ip'];
+    return `${ip}:${(req as any).user?.uid || 'guest'}`;
   };
 
   // Add RateLimiting to prevent bot attacks
@@ -504,7 +505,7 @@ const cleanupTokenCache = () => {
   let cachedStats: any = null;
   const invalidateStatsCache = () => { lastStatsFetch = 0; cachedStats = null; };
   let siteSettings: any = {
-    site_name: process.env.VITE_SITE_NAME || 'APEX STUDIO',
+    site_name: process.env.VITE_SITE_NAME || 'STORETH',
     truewallet_phone: process.env.TRUEWALLET_PHONE || '',
     contact_line: process.env.CONTACT_LINE || '',
     discord_link: '',
@@ -1840,9 +1841,9 @@ console.log('HIT STATS ENDPOINT');
       let totalSales = 0;
       let totalPurchaseOrders = 0;
       try {
-        const purchasesSnap = await adminDb.collection('purchases').get();
-        purchasesSnap.forEach(doc => {
-          totalSales += (doc.data().price || 0);
+        const purchases = await getCachedCollection('purchases');
+        purchases.forEach((p: any) => {
+          totalSales += (p.price || 0);
           totalPurchaseOrders++;
         });
       } catch(e) {
@@ -1850,17 +1851,17 @@ console.log('HIT STATS ENDPOINT');
 
       let totalTopupsAmount = 0;
       try {
-        const topupsSnap = await adminDb.collection('topups').get();
-        topupsSnap.forEach(doc => {
-          totalTopupsAmount += (doc.data().amount || 0);
+        const topups = await getCachedCollection('topups');
+        topups.forEach((t: any) => {
+          totalTopupsAmount += (t.amount || 0);
         });
       } catch(e) {
       }
 
       let totalUsersCount = 0;
       try {
-        const usersSnap = await adminDb.collection('users').get();
-        totalUsersCount = usersSnap.docs.length;
+        const users = await getCachedCollection('users');
+        totalUsersCount = users.length;
       } catch(e) {
       }
 

@@ -565,7 +565,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   });
 
   const [siteSettings, setSiteSettings] = useState({ 
-    site_name: 'APEX STUDIO',
+    site_name: 'STORETH',
     truewallet_phone: '',
     contact_line: 'https://www.facebook.com/share/18emwBsqUf/?mibextid=wwXIfr',
     discord_link: '',
@@ -776,7 +776,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   </div>
                   <div>
                     <h2 className="text-3xl font-black text-white tracking-tight uppercase">Control Center</h2>
-                    <p className="text-[#1E90FF] text-sm font-black tracking-[0.2em] opacity-80">APEX DASHBOARD SYSTEM</p>
+                    <p className="text-[#1E90FF] text-sm font-black tracking-[0.2em] opacity-80">STORETH DASHBOARD SYSTEM</p>
                   </div>
                 </div>
                 <button 
@@ -863,7 +863,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </div>
             <div>
               <h1 className="text-white font-black text-lg tracking-tight uppercase">{getTabLabel(adminTab)}</h1>
-              <p className="text-[#1E90FF] text-[9px] font-black tracking-[0.2em] uppercase opacity-70">APEX Console</p>
+              <p className="text-[#1E90FF] text-[9px] font-black tracking-[0.2em] uppercase opacity-70">STORETH Console</p>
             </div>
           </div>
 
@@ -1606,7 +1606,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           value={siteSettings.site_name}
                           onChange={(e) => setSiteSettings({ ...siteSettings, site_name: e.target.value })}
                           className="w-full bg-[#0B0F14] border border-white/10 rounded-2xl px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-indigo-500 shadow-inner"
-                          placeholder="APEX STUDIO"
+                          placeholder="STORETH"
                         />
                       </div>
                       <div className="space-y-4">

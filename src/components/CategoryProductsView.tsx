@@ -103,7 +103,7 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
                   <div className="w-full h-full flex items-center justify-center">
                     <div className="text-center">
                       <div className="text-[10px] font-black text-[#1E90FF] tracking-tighter mb-1">
-                        REXZY STUDIO
+                        STORETH
                       </div>
                       <div className="text-white text-xs font-bold leading-tight">
                         PREVIEW

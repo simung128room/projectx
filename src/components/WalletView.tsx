@@ -310,7 +310,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
               </div>
               <button
                 type="submit"
-                className="w-full py-4 bg-orange-500 hover:bg-orange-600 text-white font-black rounded-2xl transition-all shadow-lg shadow-orange-500/25 text-lg flex items-center justify-center gap-2 active:scale-[0.98]"
+                className="w-full py-4 bg-[#1E90FF] hover:bg-[#1a7fe6] text-white font-black rounded-2xl transition-all shadow-lg shadow-[#1E90FF]/25 text-lg flex items-center justify-center gap-2 active:scale-[0.98]"
               >
                 เติมเงิน
               </button>

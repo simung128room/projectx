@@ -80,6 +80,21 @@
     text-shadow: 0 0 10px rgba(30, 144, 255, 0.8), 0 0 20px rgba(30, 144, 255, 0.5);
   }
 
+  /* SunnyBux Menu Styles */
+  .nav-row:hover { 
+    background: rgba(30, 144, 255, 0.1) !important; 
+    border-color: #1E90FF !important; 
+  }
+  .nav-row:active { transform: scale(0.98); }
+  .dd-row:hover { background: rgba(30, 144, 255, 0.1) !important; }
+  .drawer-slide { transition: transform 0.3s cubic-bezier(0.32,0.72,0,1); }
+  .dim-fade { transition: opacity 0.3s ease; }
+  .user-dd-anim { 
+    overflow: hidden; 
+    transition: max-height 0.28s ease, opacity 0.2s ease; 
+  }
+  .btn-press:active { opacity: 0.7; }
+
   .icon {
     font-size: 38px;
     color: #1E90FF;

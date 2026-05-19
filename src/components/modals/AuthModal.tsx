@@ -133,7 +133,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
         </div>
         <h2 className="text-xl font-bold tracking-tight">{authMode === 'login' ? 'เข้าสู่ระบบ' : 'สมัครสมาชิก'}</h2>
         <p className="text-zinc-500 text-xs mt-1">
-          {authMode === 'login' ? 'ลงชื่อเข้าใช้เพื่อเข้าถึง APEX STUDIO' : 'เข้าร่วมกับเราเพื่อเริ่มต้นใช้งานเครื่องมือต่างๆ'}
+          {authMode === 'login' ? 'ลงชื่อเข้าใช้เพื่อเข้าถึง STORETH' : 'เข้าร่วมกับเราเพื่อเริ่มต้นใช้งานเครื่องมือต่างๆ'}
         </p>
       </div>
       

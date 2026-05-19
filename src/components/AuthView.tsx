@@ -133,13 +133,14 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
               {authMode === 'login' ? 'เข้าสู่ระบบ' : authMode === 'forgot' ? 'รีเซ็ตรหัสผ่าน' : 'สร้างบัญชีผู้ใช้ใหม่'}
             </h2>
             <p className="text-zinc-500 text-[13px] sm:text-sm mt-1.5">
-              {authMode === 'login' ? 'ยินดีต้อนรับกลับสู่ APEX STUDIO' : authMode === 'forgot' ? 'กู้คืนบัญชีของคุณ' : 'ลงทะเบียนเพื่อเริ่มต้นใช้งาน'}
+              {authMode === 'login' ? 'ยินดีต้อนรับกลับสู่ STORETH' : authMode === 'forgot' ? 'กู้คืนบัญชีของคุณ' : 'ลงทะเบียนเพื่อเริ่มต้นใช้งาน'}
             </p>
           </div>
           <div className="w-14 h-14 sm:w-16 sm:h-16 shrink-0 ml-4 flex items-center justify-center">
             <motion.img 
-              src="https://i.postimg.cc/6qnW8nqX/IMG-6366.png" 
-              alt="APEX STUDIO" 
+              src="https://img2.pic.in.th/IMG_66428dd32388057a24f4.png" 
+              alt="Logo" 
+              referrerPolicy="no-referrer"
               className="w-full h-full object-contain drop-shadow-md" 
               animate={{ 
                 y: [0, -8, 0],

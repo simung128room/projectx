@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, ArrowLeft, ShoppingCart } from 'lucide-react';
 import { motion } from 'motion/react';
 
@@ -10,10 +10,18 @@ interface SearchViewProps {
 
 export const SearchView: React.FC<SearchViewProps> = ({ products, onBack, onProductClick }) => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedQuery, setDebouncedQuery] = useState('');
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedQuery(searchQuery);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   const filteredProducts = products.filter(p => 
-    p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    (p.details && p.details.toLowerCase().includes(searchQuery.toLowerCase()))
+    p.name.toLowerCase().includes(debouncedQuery.toLowerCase()) || 
+    (p.details && p.details.toLowerCase().includes(debouncedQuery.toLowerCase()))
   );
 
   return (

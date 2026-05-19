@@ -1,24 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ShoppingCart, Key, CreditCard, Gift, Star, History, ChevronRight, ChevronLeft } from 'lucide-react';
 import { ReceiptModal } from './modals/ReceiptModal';
 import { motion, AnimatePresence } from 'motion/react';
 import { AnimatedScroll } from './AnimatedScroll';
+import { Skeleton } from './ui/Skeleton';
+import { FixedSizeList as List } from 'react-window';
 
 interface HistoryViewProps {
   purchaseHistory?: any[];
   topupHistory?: any[];
   usedKeysHistory?: any[];
+  defaultTab?: string | null;
 }
 
-export const HistoryView: React.FC<HistoryViewProps> = ({ purchaseHistory = [], topupHistory = [], usedKeysHistory = [] }) => {
-  const [currentCategory, setCurrentCategory] = useState<string | null>(null);
+export const HistoryView: React.FC<HistoryViewProps> = ({ purchaseHistory = [], topupHistory = [], usedKeysHistory = [], defaultTab = null }) => {
+  const [currentCategory, setCurrentCategory] = useState<string | null>(defaultTab);
   const [selectedItem, setSelectedItem] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (currentCategory) {
+      setIsLoading(true);
+      const timer = setTimeout(() => setIsLoading(false), 600);
+      return () => clearTimeout(timer);
+    }
+  }, [currentCategory]);
 
   const categories = [
     {
       id: 'special_product',
-      title: 'ประวัติการซื้อสินค้าพิเศษ',
-      subtitle: 'Member Point History',
+      title: 'ประวัติการสุ่มสินค้า',
+      subtitle: 'Random Item History',
       icon: Star,
       bg: 'bg-amber-50',
       color: 'text-amber-500'
@@ -89,6 +101,49 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ purchaseHistory = [], 
 
   const currentCategoryData = currentCategory ? getFilteredData(currentCategory).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()) : [];
   const currentCategoryInfo = categories.find(c => c.id === currentCategory);
+
+  const Row = ({ index, style }: { index: number, style: React.CSSProperties }) => {
+    const item = currentCategoryData[index];
+    if (!item) return null;
+    
+    return (
+      <div style={{ ...style, paddingTop: '12px' }}>
+        <div className="bg-[#0B0F14] rounded-3xl border border-white/10 p-4 transition-all hover:border-white/20 hover:shadow-md hover:shadow-black/5 flex flex-col gap-4 mx-1">
+          <div className="flex gap-4 items-center w-full">
+            <div className={`w-14 h-14 shrink-0 rounded-[1.25rem] flex items-center justify-center ${item.bg} ${item.color} shadow-inner`}>
+              <item.icon className="w-6 h-6" />
+            </div>
+            
+            <div className="flex flex-col flex-1 min-w-0 justify-center">
+              <h3 className="text-white font-bold text-sm sm:text-base truncate">{item.title}</h3>
+              <div className="flex items-center justify-between mt-1">
+                <span className="text-xs font-medium text-zinc-500">{new Date(item.date).toLocaleDateString('th-TH')}</span>
+                {item.money !== 0 ? (
+                  <span className={`font-bold font-mono text-xs sm:text-sm ${item.money > 0 ? 'text-emerald-500' : 'text-[#1a7fe6]'}`}>
+                    {item.money > 0 ? '+' : ''}{item.money} ฿
+                  </span>
+                ) : (
+                  <span className="font-bold text-xs text-zinc-400">0 ฿</span>
+                )}
+              </div>
+            </div>
+          </div>
+          
+          <div className="flex items-center justify-between border-t border-white/5/80 pt-3">
+            <div className="flex items-center">
+              {getStatusBadge(item.status || 'success')}
+            </div>
+            <button 
+              onClick={() => setSelectedItem(item)}
+              className="text-[11px] sm:text-xs font-bold text-zinc-700 bg-[#121820] px-4 py-2 rounded-xl hover:bg-zinc-200 transition-colors flex items-center gap-1 active:scale-95"
+            >
+              ดูรายละเอียด <ChevronRight className="w-3 h-3" />
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <AnimatedScroll direction="up" hideOnScroll={true}>
@@ -166,44 +221,36 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ purchaseHistory = [], 
                 </div>
               </div>
 
-              <div className="p-4 md:p-6 bg-[#0a0d12]/30">
-                {currentCategoryData.length > 0 ? (
-                  <div className="flex flex-col gap-3">
-                    {currentCategoryData.map((item, idx) => (
-                      <div key={idx} className="bg-[#0B0F14] rounded-3xl border border-white/10 p-4 transition-all hover:border-white/20 hover:shadow-md hover:shadow-black/5 flex flex-col gap-4">
-                        <div className="flex gap-4 items-center w-full">
-                          <div className={`w-14 h-14 shrink-0 rounded-[1.25rem] flex items-center justify-center ${item.bg} ${item.color} shadow-inner`}>
-                            <item.icon className="w-6 h-6" />
-                          </div>
-                          
-                          <div className="flex flex-col flex-1 min-w-0 justify-center">
-                            <h3 className="text-white font-bold text-sm sm:text-base truncate">{item.title}</h3>
-                            <div className="flex items-center justify-between mt-1">
-                              <span className="text-xs font-medium text-zinc-500">{new Date(item.date).toLocaleDateString('th-TH')}</span>
-                              {item.money !== 0 ? (
-                                <span className={`font-bold font-mono text-xs sm:text-sm ${item.money > 0 ? 'text-emerald-500' : 'text-[#1a7fe6]'}`}>
-                                  {item.money > 0 ? '+' : ''}{item.money} ฿
-                                </span>
-                              ) : (
-                                <span className="font-bold text-xs text-zinc-400">0 ฿</span>
-                              )}
-                            </div>
+              <div className="p-4 md:p-6 bg-[#0a0d12]/30 min-h-[400px]">
+                {isLoading ? (
+                  <div className="space-y-3">
+                    {[1, 2, 3].map((i) => (
+                      <div key={i} className="bg-[#0B0F14] rounded-3xl border border-white/10 p-4 flex flex-col gap-4">
+                        <div className="flex gap-4 items-center">
+                          <Skeleton className="w-14 h-14 rounded-[1.25rem]" />
+                          <div className="flex-1 space-y-2">
+                            <Skeleton className="h-5 w-1/2" />
+                            <Skeleton className="h-4 w-1/4" />
                           </div>
                         </div>
-                        
-                        <div className="flex items-center justify-between border-t border-white/5/80 pt-3">
-                          <div className="flex items-center">
-                            {getStatusBadge(item.status || 'success')}
-                          </div>
-                          <button 
-                            onClick={() => setSelectedItem(item)}
-                            className="text-[11px] sm:text-xs font-bold text-zinc-700 bg-[#121820] px-4 py-2 rounded-xl hover:bg-zinc-200 transition-colors flex items-center gap-1 active:scale-95"
-                          >
-                            ดูรายละเอียด <ChevronRight className="w-3 h-3" />
-                          </button>
+                        <div className="pt-3 border-t border-white/5 flex justify-between">
+                          <Skeleton className="h-6 w-20 rounded-full" />
+                          <Skeleton className="h-8 w-24 rounded-xl" />
                         </div>
                       </div>
                     ))}
+                  </div>
+                ) : currentCategoryData.length > 0 ? (
+                  <div className="flex flex-col gap-3">
+                    <List
+                        height={600}
+                        itemCount={currentCategoryData.length}
+                        itemSize={165}
+                        width="100%"
+                        className="scrollbar-hide"
+                    >
+                        {Row}
+                    </List>
                   </div>
                 ) : (
                   <div className="py-20 flex flex-col items-center justify-center text-center">
@@ -226,7 +273,6 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ purchaseHistory = [], 
         )}
       </AnimatePresence>
 
-      {/* Stunning Receipt-Style Modal */}
       <ReceiptModal selectedItem={selectedItem} setSelectedItem={setSelectedItem} />
       </div>
     </AnimatedScroll>

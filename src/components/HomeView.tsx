@@ -176,7 +176,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
           </div>
           <div className="flex-1 relative z-10 overflow-hidden min-w-0">
             <Marquee
-              text="ยินดีต้อนรับสู่ APEX STUDIO ระบบอัตโนมัติ 24 ชม. | สมัครสมาชิกวันนี้รับโปรพิเศษ"
+              text="ยินดีต้อนรับสู่ระบบอัตโนมัติ 24 ชม. | สมัครสมาชิกวันนี้รับโปรพิเศษ"
               speed={15}
               className="text-zinc-300 text-sm font-medium"
             />
@@ -608,7 +608,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     <div className="w-full h-full flex items-center justify-center">
                       <div className="text-center">
                         <div className="text-[10px] font-black text-[#1E90FF] tracking-tighter mb-1">
-                          APEXSTORETH
+                          STORETH
                         </div>
                         <div className="text-white text-xs font-bold leading-tight">
                           PREVIEW

@@ -306,7 +306,7 @@ export const AdminCategoriesManagement: React.FC<AdminCategoriesManagementProps>
                         <ShoppingCart className="w-4 h-4" />
                         <span className="text-xs font-bold hidden sm:inline">จัดการสินค้า</span>
                       </button>
-                      <button onClick={() => { setEditingCategory(c); setFormData(c); setIsAdding(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="p-2 border border-blue-200 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white rounded-xl transition-colors shadow-sm" title="แก้ไข">
+                      <button onClick={() => { setEditingCategory(c); setFormData(c); setIsAdding(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="p-2 border border-[#1E90FF]/30 bg-[#1E90FF]/10 text-white hover:bg-[#1E90FF] hover:text-white rounded-xl transition-colors shadow-sm" title="แก้ไข">
                         <Edit className="w-4 h-4" />
                       </button>
                       <button onClick={() => deleteCategory(c.id)} className="p-2 border border-[#1E90FF]/30 bg-[#1E90FF]/10 text-[#1E90FF] hover:bg-[#1E90FF] hover:text-white rounded-xl transition-colors shadow-sm" title="ลบ">
