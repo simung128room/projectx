@@ -1640,7 +1640,7 @@ const cleanupTokenCache = () => {
     }
     let query: any = admin.firestore().collection(collectionName);
     if (collectionName === 'products') {
-      query = query.limit(1000); // Prevent RAM blowout and Firestore exhaustion for now
+      query = query.select('name', 'description', 'price', 'originalPrice', 'soldCount', 'imageUrl', 'stock', 'category', 'isPopular').limit(1000); // Prevent RAM blowout and Firestore exhaustion for now
     }
     const snapshot = await query.get();
     const data = snapshot.docs.map(doc => {
