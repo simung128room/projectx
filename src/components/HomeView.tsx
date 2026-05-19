@@ -133,7 +133,11 @@ export const HomeView: React.FC<HomeViewProps> = ({
     setRealtimeStats(stats);
   }, [stats]);
 
-  const totalStock = realtimeStats?.stock || 0;
+  const totalStock = Array.isArray(products)
+    ? products.reduce((sum, product) => {
+        return sum + (product.stock >= 99999 ? 0 : product.stock);
+      }, 0)
+    : 0;
 
   useEffect(() => {
     if (bannersToUse.length > 1) {
@@ -450,7 +454,9 @@ export const HomeView: React.FC<HomeViewProps> = ({
           <div className="flex flex-col gap-4">
             {categories &&
               categories.slice(0, 3).map((cat, i) => {
-                const catProducts = products.filter((p) => p.category === cat.name);
+                const catProducts = products.filter(
+                  (p) => p.category === cat.name,
+                );
                 let priceRangeStr = "ไม่ทราบราคา";
                 let itemCountDesc = `${catProducts.length} รายการ`;
 
@@ -458,7 +464,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   const prices = catProducts.map((p) => p.price);
                   const minP = Math.min(...prices);
                   const maxP = Math.max(...prices);
-                  priceRangeStr = minP === maxP ? `฿${minP.toLocaleString()}` : `฿${minP.toLocaleString()} - ฿${maxP.toLocaleString()}`;
+                  priceRangeStr =
+                    minP === maxP
+                      ? `฿${minP.toLocaleString()}`
+                      : `฿${minP.toLocaleString()} - ฿${maxP.toLocaleString()}`;
                 }
 
                 return (
@@ -467,7 +476,9 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     title={cat.title}
                     label="หมวดหมู่"
                     itemCountDesc={itemCountDesc}
-                    priceRangeStr={catProducts.length > 0 ? priceRangeStr : undefined}
+                    priceRangeStr={
+                      catProducts.length > 0 ? priceRangeStr : undefined
+                    }
                     bgImage={cat.bannerUrl || undefined}
                     index={i}
                     onClick={() => onSelectCategory(cat.name)}
@@ -485,59 +496,97 @@ export const HomeView: React.FC<HomeViewProps> = ({
       <AnimatedScroll delay={235} direction="left">
         <div className="pt-8 w-full overflow-hidden">
           <div className="flex items-center gap-3 mb-6 pb-3 border-b-2 border-zinc-900">
-             <div>
-               <h2 className="text-lg font-bold text-white leading-tight">รายการสั่งชื้อสินค้าล่าสุด</h2>
-               <p className="text-[11px] text-[#1E90FF] font-medium mt-0.5">สินค้าที่ลูกค้าเพิ่งซื้อ 10 รายการล่าสุด</p>
-             </div>
+            <div>
+              <h2 className="text-lg font-bold text-white leading-tight">
+                รายการสั่งชื้อสินค้าล่าสุด
+              </h2>
+              <p className="text-[11px] text-[#1E90FF] font-medium mt-0.5">
+                สินค้าที่ลูกค้าเพิ่งซื้อ 10 รายการล่าสุด
+              </p>
+            </div>
           </div>
 
           <div className="flex overflow-hidden relative w-full translate-z-0">
-            <motion.div 
+            <motion.div
               className="flex gap-4 pr-4 w-max shrink-0 hover:[animation-play-state:paused]"
               animate={{ x: ["0%", "-50%"] }}
-              transition={{ ease: "linear", duration: 40, repeat: Infinity, repeatType: "loop" }}
+              transition={{
+                ease: "linear",
+                duration: 40,
+                repeat: Infinity,
+                repeatType: "loop",
+              }}
             >
-              {[...(purchaseHistory && purchaseHistory.length > 0 ? purchaseHistory.slice(0, 10) : [1,2,3,4,5]), ...(purchaseHistory && purchaseHistory.length > 0 ? purchaseHistory.slice(0, 10) : [1,2,3,4,5])].map((purchase: any, index) => {
+              {[
+                ...(purchaseHistory && purchaseHistory.length > 0
+                  ? purchaseHistory.slice(0, 10)
+                  : [1, 2, 3, 4, 5]),
+                ...(purchaseHistory && purchaseHistory.length > 0
+                  ? purchaseHistory.slice(0, 10)
+                  : [1, 2, 3, 4, 5]),
+              ].map((purchase: any, index) => {
                 const i = index % 10;
-                let isDummy = typeof purchase === 'number';
-                const dummyProduct = isDummy ? products[i % (products.length || 1)] : null;
-                const matchedProduct = !isDummy ? products.find(p => p.name === purchase.productName) : null;
-                
-                let minsAgo = Math.floor(Math.random() * 5) + i * 2 + 1; 
+                let isDummy = typeof purchase === "number";
+                const dummyProduct = isDummy
+                  ? products[i % (products.length || 1)]
+                  : null;
+                const matchedProduct = !isDummy
+                  ? products.find((p) => p.name === purchase.productName)
+                  : null;
+
+                let minsAgo = Math.floor(Math.random() * 5) + i * 2 + 1;
                 if (!isDummy && purchase.date) {
-                  const diffMinutes = Math.floor((Date.now() - new Date(purchase.date).getTime()) / 60000);
+                  const diffMinutes = Math.floor(
+                    (Date.now() - new Date(purchase.date).getTime()) / 60000,
+                  );
                   if (diffMinutes >= 0) minsAgo = diffMinutes;
                 }
                 let timeStr = `${minsAgo} นาทีที่แล้ว`;
                 if (!isDummy && purchase.date && minsAgo >= 60) {
-                   if (minsAgo < 1440) timeStr = `${Math.floor(minsAgo / 60)} ชั่วโมงที่แล้ว`;
-                   else timeStr = `${Math.floor(minsAgo / 1440)} วันที่แล้ว`;
+                  if (minsAgo < 1440)
+                    timeStr = `${Math.floor(minsAgo / 60)} ชั่วโมงที่แล้ว`;
+                  else timeStr = `${Math.floor(minsAgo / 1440)} วันที่แล้ว`;
                 }
 
                 return (
-                  <div 
+                  <div
                     key={index}
                     className="shrink-0 w-[240px] sm:w-[280px] bg-[#111318] border border-[#2a2d35] p-3 rounded-2xl flex gap-4 transition-all cursor-default hover:border-[#1a9fff]/40 shadow-sm"
                   >
                     <div className="w-16 h-16 rounded-xl bg-[#1a1d24] border border-[#2a2d35] shrink-0 overflow-hidden relative">
-                      {(matchedProduct?.imageUrl || dummyProduct?.imageUrl) ? (
-                        <img src={matchedProduct?.imageUrl || dummyProduct?.imageUrl} alt="Product" className="w-full h-full object-cover" />
+                      {matchedProduct?.imageUrl || dummyProduct?.imageUrl ? (
+                        <img
+                          src={
+                            matchedProduct?.imageUrl || dummyProduct?.imageUrl
+                          }
+                          alt="Product"
+                          className="w-full h-full object-cover"
+                        />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center text-[#1a9fff]"><ShoppingCart className="w-6 h-6"/></div>
+                        <div className="w-full h-full flex items-center justify-center text-[#1a9fff]">
+                          <ShoppingCart className="w-6 h-6" />
+                        </div>
                       )}
                     </div>
                     <div className="flex-1 min-w-0 flex flex-col justify-center">
                       <div className="text-[13px] font-bold text-[#e5e7eb] truncate">
-                        {!isDummy && purchase.username ? purchase.username.substring(0, 2) + '***' : 'Us***'} ซื้อแล้ว
+                        {!isDummy && purchase.username
+                          ? purchase.username.substring(0, 2) + "***"
+                          : "Us***"}{" "}
+                        ซื้อแล้ว
                       </div>
                       <div className="text-xs text-[#9ca3af] truncate mt-0.5">
-                        {!isDummy ? purchase.productName : (dummyProduct?.name || 'สินค้าพรีเมียม')}
+                        {!isDummy
+                          ? purchase.productName
+                          : dummyProduct?.name || "สินค้าพรีเมียม"}
                       </div>
                       <div className="flex items-center justify-between mt-1.5">
                         <span className="text-sm font-bold text-[#e5e7eb]">
                           {!isDummy ? purchase.amount || 1 : 1} ชิ้น
                         </span>
-                        <span className="text-[10px] text-[#6b7280] font-medium">{timeStr}</span>
+                        <span className="text-[10px] text-[#6b7280] font-medium">
+                          {timeStr}
+                        </span>
                       </div>
                     </div>
                   </div>
