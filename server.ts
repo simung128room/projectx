@@ -1830,10 +1830,9 @@ console.log('HIT STATS ENDPOINT');
       
       let totalStock = 0;
       try {
-        const productsSnap = await adminDb.collection('products').get();
-        productsSnap.forEach(doc => {
-          const data = doc.data();
-          if (data.stock > 0 && data.stock < 999999) totalStock += data.stock;
+        const data = await getCachedCollection('products');
+        data.forEach((p: any) => {
+          if (p.stock > 0 && p.stock < 999999) totalStock += Number(p.stock);
         });
       } catch (e) {
       }
