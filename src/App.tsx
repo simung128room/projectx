@@ -952,74 +952,62 @@ function AppContent() {
         }
       };
 
-      // Ensure concurrent data fetching
-      const promises = [
-        fetchApi("/api/stats"),
-        fetchApi("/api/products"),
-        fetchApi("/api/categories"),
-        fetchApi("/api/settings"),
-        fetchApi("/api/pages"),
-        fetchApi("/api/logs-system"),
-      ];
+      // 1. Critical Landing Page Data - Non-blocking Independent Resolution
+      fetchApi("/api/stats").then(res => {
+        if (res.data) {
+          setSiteStats({
+            users: res.data.users,
+            stock: res.data.stock,
+            sales: res.data.sales,
+            topups: res.data.totalTopupsAmount,
+            totalOrders: res.data.totalOrders,
+          });
+        }
+      });
 
+      fetchApi("/api/products").then(res => {
+        if (res.data && Array.isArray(res.data)) {
+          setProducts(res.data.length > 0 ? res.data : defaultProducts);
+        }
+      });
+
+      fetchApi("/api/categories").then(res => {
+        if (res.data && Array.isArray(res.data)) {
+          setCategories(res.data);
+        }
+      });
+
+      fetchApi("/api/settings").then(res => {
+        if (res.data) setSiteSettings(res.data);
+      });
+
+      // 2. Secondary Data - Non-blocking
+      fetchApi("/api/pages").then(res => {
+        if (res.data) {
+          const d = res.data;
+          setCustomPages(Array.isArray(d) ? d : (d.data && Array.isArray(d.data) ? d.data : []));
+        }
+      });
+
+      fetchApi("/api/logs-system").then(res => {
+        if (res.data && Array.isArray(res.data.categories)) {
+          setLogCategories(res.data.categories.filter((c: any) => c.isVisible));
+        }
+      });
+
+      // 3. User & Admin Specific Data
       if (user) {
-        promises.push(fetchApi("/api/used_keys"));
-        promises.push(fetchApi("/api/purchases"));
-        promises.push(fetchApi("/api/topups"));
+        fetchApi("/api/used_keys").then(res => { if (res.data) setUsedKeysHistory(res.data); });
+        fetchApi("/api/purchases").then(res => { if (res.data && Array.isArray(res.data)) setPurchaseHistory(res.data); });
+        fetchApi("/api/topups").then(res => { if (res.data && Array.isArray(res.data)) setTopupHistory(res.data); });
       }
 
       if (isAdmin) {
-        promises.push(fetchApi("/api/license_keys"));
-        promises.push(fetchApi("/api/blocked_ips"));
-        promises.push(fetchApi("/api/users"));
+        fetchApi("/api/license_keys").then(res => { if (res.data) setLicenseKeys(res.data); });
+        fetchApi("/api/blocked_ips").then(res => { if (res.data) setBlockedIPs(res.data); });
+        fetchApi("/api/users").then(res => { if (res.data && Array.isArray(res.data)) setUsersList(res.data); });
       }
 
-      const results = await Promise.all(promises);
-
-      // Map back to setters
-      if (results[0].data) {
-        setSiteStats({
-          users: results[0].data.users,
-          stock: results[0].data.stock,
-          sales: results[0].data.sales,
-          topups: results[0].data.totalTopupsAmount,
-          totalOrders: results[0].data.totalOrders,
-        });
-      }
-      
-      if (results[1].data && Array.isArray(results[1].data)) {
-        setProducts(results[1].data.length > 0 ? results[1].data : defaultProducts);
-      }
-      
-      if (results[2].data && Array.isArray(results[2].data)) {
-        setCategories(results[2].data);
-      }
-      
-      if (results[3].data) setSiteSettings(results[3].data);
-      
-      if (results[4].data) {
-        const d = results[4].data;
-        setCustomPages(Array.isArray(d) ? d : (d.data && Array.isArray(d.data) ? d.data : []));
-      }
-      
-      if (results[5].data && Array.isArray(results[5].data.categories)) {
-        setLogCategories(results[5].data.categories.filter((c: any) => c.isVisible));
-      }
-
-      let offset = 6;
-      if (user) {
-        if (results[offset].data) setUsedKeysHistory(results[offset].data);
-        if (results[offset+1].data && Array.isArray(results[offset+1].data)) setPurchaseHistory(results[offset+1].data);
-        if (results[offset+2].data && Array.isArray(results[offset+2].data)) setTopupHistory(results[offset+2].data);
-        offset += 3;
-      }
-
-      if (isAdmin) {
-        if (results[offset].data) setLicenseKeys(results[offset].data);
-        if (results[offset+1].data) setBlockedIPs(results[offset+1].data);
-        if (results[offset+2].data && Array.isArray(results[offset+2].data)) setUsersList(results[offset+2].data);
-      }
-      
       console.timeEnd("fetchAllData");
 
       // Health check for DB readiness
