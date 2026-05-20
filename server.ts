@@ -180,46 +180,111 @@ app.set('trust proxy', 1);
     timestamp: pino.stdTimeFunctions.isoTime
   });
 
-  // System Metrics Monitoring (Event Loop & Memory)
+  // System Metrics & Adaptive Concurrency
   const eldHistogram = monitorEventLoopDelay({ resolution: 20 });
   eldHistogram.enable();
+  
+  let currentConcurrentRequests = 0;
+  let dynamicMaxConcurrency = process.env.INITIAL_CONCURRENT_REQUESTS ? parseInt(process.env.INITIAL_CONCURRENT_REQUESTS) : 800;
+  const ABSOLUTE_MAX_CONCURRENCY = 2000;
+  const MIN_CONCURRENCY = 50;
+  let shedCount = 0;
+
+  const activeRequests = new Map<string, { start: number, url: string, method: string }>();
+
+  // Adaptive Capacity Tuner & Metrics logger
   setInterval(() => {
+    const lagMs = eldHistogram.mean / 1e6;
+    
+    if (lagMs > 100) {
+      // Event loop lagging, reduce concurrency limit (Multiplicative Decrease)
+      dynamicMaxConcurrency = Math.max(MIN_CONCURRENCY, Math.floor(dynamicMaxConcurrency * 0.8));
+    } else if (lagMs < 40 && currentConcurrentRequests >= dynamicMaxConcurrency * 0.7) {
+      // Event loop healthy and we are utilizing capacity, increase limit (Additive Increase)
+      dynamicMaxConcurrency = Math.min(ABSOLUTE_MAX_CONCURRENCY, dynamicMaxConcurrency + 50);
+    }
+
     const mem = process.memoryUsage();
     logger.info({
       eventLoopLagMaxMs: eldHistogram.max / 1e6,
-      eventLoopLagMeanMs: eldHistogram.mean / 1e6,
+      eventLoopLagMeanMs: Math.round(lagMs),
+      dynamicMaxConcurrency,
+      currentConcurrentRequests,
+      shedCount,
       heapUsedMB: Math.round(mem.heapUsed / 1024 / 1024),
-      heapTotalMB: Math.round(mem.heapTotal / 1024 / 1024),
-      rssMB: Math.round(mem.rss / 1024 / 1024),
-    }, 'System Metrics Tick');
+      activeHandles: process._getActiveHandles().length,
+    }, 'System Health & Adaptive Concurrency Tick');
+    
+    shedCount = 0; // reset counter
     eldHistogram.reset();
-  }, 60000); // 1 minute interval
-
-  // Backpressure / Load Shedding Implementation
-  let currentConcurrentRequests = 0;
-  const MAX_CONCURRENT_REQUESTS = process.env.MAX_CONCURRENT_REQUESTS ? parseInt(process.env.MAX_CONCURRENT_REQUESTS) : 800;
-  const MAX_EVENT_LOOP_LAG_MS = process.env.MAX_EVENT_LOOP_LAG_MS ? parseInt(process.env.MAX_EVENT_LOOP_LAG_MS) : 150;
+  }, 10000).unref(); // 10 second interval for faster adaptive response
+  
+  // Watchdog for slow requests
+  setInterval(() => {
+    const now = Date.now();
+    for (const [id, reqData] of activeRequests.entries()) {
+      const duration = now - reqData.start;
+      if (duration > 5000) { // 5s timeout warning
+        logger.warn({
+          requestId: id,
+          url: reqData.url,
+          method: reqData.method,
+          durationMs: duration
+        }, 'Slow Request Watchdog ⚠️: Request hanging');
+      }
+    }
+  }, 5000).unref();
 
   app.use((req, res, next) => {
-    // Health checks and metrics bypass shedding
+    // Health checks and metrics bypass shedding completely
     const isPriorityRoute = req.url?.includes('/health') || req.url?.includes('/live') || req.url?.includes('/ready') || req.url?.includes('/api/stats');
     
-    // Use P99 lag instead of mean for better burst detection if we want, but mean from histogram is fine for 1-minute windows
-    // For real-time, simple time delta is often safer than tracking rolling histogram
+    // Priority Tiering
+    // 2 (CRITICAL): Payment, Auth
+    // 1 (HIGH): User data, Admin
+    // 0 (NORMAL): Products, General
+    let requestPriority = 0; 
+    if (req.url?.includes('/api/purchases') || req.url?.includes('/api/topups')) {
+       requestPriority = 2;
+    } else if (req.url?.includes('/api/users') || req.url?.includes('/admin')) {
+       requestPriority = 1;
+    }
+
+    let shouldShed = false;
+    const capacityRatio = currentConcurrentRequests / dynamicMaxConcurrency;
+
+    if (!isPriorityRoute) {
+      if (capacityRatio >= 1 && requestPriority < 2) {
+         shouldShed = true;
+      } else if (capacityRatio >= 0.9 && requestPriority < 1) {
+         shouldShed = true;
+      } else if (capacityRatio >= 1.1) {
+         // Panic state, shed everything except bypass routes
+         shouldShed = true;
+      }
+    }
     
-    if (!isPriorityRoute && currentConcurrentRequests >= MAX_CONCURRENT_REQUESTS) {
-      res.setHeader('Retry-After', '5');
-      logger.warn({ currentConcurrentRequests, max: MAX_CONCURRENT_REQUESTS }, 'Load Shedding Active - Dropping Request');
-      return res.status(503).json({ error: 'Service Unavailable (High Load/Shedding)' });
+    if (shouldShed) {
+      shedCount++;
+      res.setHeader('Retry-After', '2');
+      logger.warn({ currentConcurrentRequests, dynamicMaxConcurrency, priority: requestPriority, url: req.url }, 'Load Shedding Active - Dropping Request');
+      return res.status(503).json({ error: 'Service Unavailable (High Load)' });
     }
 
     currentConcurrentRequests++;
+    
+    const requestId = (req.headers['x-request-id'] as string) || (req.headers['cf-ray'] as string) || randomUUID();
+    (req as any).id = requestId;
+    res.setHeader('X-Request-ID', requestId);
+    
+    activeRequests.set(requestId, { start: Date.now(), url: req.url || 'unknown', method: req.method });
     
     let decremented = false;
     const releaseConcurrency = () => {
       if (!decremented) {
         currentConcurrentRequests--;
         decremented = true;
+        activeRequests.delete(requestId);
       }
     };
     
