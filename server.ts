@@ -2075,23 +2075,39 @@ const cleanupTokenCache = () => {
       let totalSales = 0;
       let totalPurchaseOrders = 0;
       try {
-         const purchases = await getCachedCollection('purchases', 60000);
-         purchases.forEach((p: any) => {
-           totalSales += (Number(p.price) || 0);
-           totalPurchaseOrders++;
-         });
+        const { data, count, error } = await supabaseAdmin.from('purchases').select('price', { count: 'exact' });
+        if (!error && data) {
+           totalPurchaseOrders = count || data.length;
+           data.forEach((p: any) => totalSales += (p.price || 0));
+        } else {
+           const purchases = await getCachedCollection('purchases', 60000);
+           purchases.forEach((p: any) => {
+             totalSales += (Number(p.price) || 0);
+             totalPurchaseOrders++;
+           });
+        }
       } catch(e) {}
 
       let totalTopupsAmount = 0;
       try {
-         const topups = await getCachedCollection('topups', 60000);
-         topups.forEach((t: any) => totalTopupsAmount += (Number(t.amount) || 0));
+        const { data, error } = await supabaseAdmin.from('topups').select('amount');
+        if (!error && data) {
+           data.forEach((t: any) => totalTopupsAmount += (t.amount || 0));
+        } else {
+           const topups = await getCachedCollection('topups', 60000);
+           topups.forEach((t: any) => totalTopupsAmount += (Number(t.amount) || 0));
+        }
       } catch(e) {}
 
       let totalUsersCount = 0;
       try {
-         const users = await getCachedCollection('users', 60000);
-         totalUsersCount = users.length;
+        const { count, error } = await supabaseAdmin.from('users').select('*', { count: 'exact', head: true });
+        if (!error && count !== null) {
+           totalUsersCount = count;
+        } else {
+           const users = await getCachedCollection('users', 60000);
+           totalUsersCount = users.length;
+        }
       } catch(e) {}
 
       cachedStats = {
