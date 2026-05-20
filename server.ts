@@ -699,10 +699,13 @@ const cleanupTokenCache = () => {
 
   // Load from DB
   try {
-    const docName = process.env.NODE_ENV === 'production' ? 'site' : 'site_dev';
-    admin.firestore().collection('settings').doc(docName).get().then((doc: any) => {
-      if (doc.exists) {
-        siteSettings = { ...siteSettings, ...doc.data() };
+    const docName = process.env.NODE_ENV === 'production' ? 'sys_site' : 'sys_site_dev';
+    supabaseAdmin.from('custom_pages').select('*').eq('slug', docName).single().then(({ data }: any) => {
+      if (data && data.content) {
+        let parsed = {};
+        try { parsed = JSON.parse(data.content); } catch(e) {}
+        siteSettings = { ...siteSettings, ...parsed };
+        console.log("Loaded initial site settings from DB");
       }
     }).catch((err: any) => {
       console.warn("Could not load initial site settings from DB (might not exist yet).", err.message || err);
@@ -801,9 +804,15 @@ const cleanupTokenCache = () => {
     lastStatsFetch = 0;
     
     try {
-      const docName = process.env.NODE_ENV === 'production' ? 'site' : 'site_dev';
+      const docName = process.env.NODE_ENV === 'production' ? 'sys_site' : 'sys_site_dev';
       console.log(`[Settings] Attempting to save to DB doc: ${docName}`);
-      await admin.firestore().collection('settings').doc(docName).set(siteSettings, { merge: true });
+      const payload = { slug: docName, title: 'System Settings', content: JSON.stringify(siteSettings) };
+      const { data: existing } = await supabaseAdmin.from('custom_pages').select('id').eq('slug', docName).single();
+      if (existing && existing.id) {
+         await supabaseAdmin.from('custom_pages').update(payload).eq('id', existing.id);
+      } else {
+         await supabaseAdmin.from('custom_pages').insert([payload]);
+      }
       console.log(`[Settings] Save Successful for ${docName}`);
     } catch(e: any) {
       console.error('[API/Settings] CRITICAL SAVE ERROR:', e);
@@ -811,7 +820,7 @@ const cleanupTokenCache = () => {
       return res.status(500).json({ 
         error: 'Failed to save settings to database',
         detail: errorDetail,
-        doc: process.env.NODE_ENV === 'production' ? 'site' : 'site_dev'
+        doc: process.env.NODE_ENV === 'production' ? 'sys_site' : 'sys_site_dev'
       });
     }
     
@@ -1920,7 +1929,7 @@ const cleanupTokenCache = () => {
     if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
     try {
       const product = req.body;
-      const allowedFields = ['name', 'description', 'price', 'originalPrice', 'stock', 'categoryId', 'stockData', 'image', 'isHighlight', 'customPageId', 'youtubeUrl', 'type'];
+      const allowedFields = ['name', 'description', 'price', 'originalPrice', 'stock', 'categoryId', 'stockData', 'image', 'imageUrl', 'category', 'isHighlight', 'customPageId', 'youtubeUrl', 'type', 'isPopular', 'soldCount'];
       const sanitizedProduct = Object.fromEntries(
         Object.entries(product).filter(([k]) => allowedFields.includes(k))
       );
@@ -1994,7 +2003,7 @@ const cleanupTokenCache = () => {
     if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
     try {
       const product = req.body;
-      const allowedFields = ['name', 'description', 'price', 'originalPrice', 'stock', 'categoryId', 'stockData', 'image', 'isHighlight', 'customPageId', 'youtubeUrl', 'type'];
+      const allowedFields = ['name', 'description', 'price', 'originalPrice', 'stock', 'categoryId', 'stockData', 'image', 'imageUrl', 'category', 'isHighlight', 'customPageId', 'youtubeUrl', 'type', 'isPopular', 'soldCount'];
       const sanitizedProduct = Object.fromEntries(
         Object.entries(product).filter(([k]) => allowedFields.includes(k))
       );
