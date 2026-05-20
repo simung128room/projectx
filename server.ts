@@ -290,10 +290,6 @@ app.set('trust proxy', 1);
     
     res.once('finish', releaseConcurrency);
     res.once('close', releaseConcurrency);
-
-    const requestId = (req.headers['x-request-id'] as string) || (req.headers['cf-ray'] as string) || randomUUID();
-    (req as any).id = requestId;
-    res.setHeader('X-Request-ID', requestId);
     
     const store = new Map<string, string>();
     store.set('requestId', requestId);
@@ -2066,39 +2062,50 @@ const cleanupTokenCache = () => {
       
       let totalStock = 0;
       try {
-        const data = await getCachedCollection('products', 20000); // do not pass res here otherwise X-Cache is duplicated
+        const data = await getCachedCollection('products', 20000);
         data.forEach((p: any) => {
           if (p.stock > 0 && p.stock < 999999) totalStock += Number(p.stock);
         });
-      } catch (e) {
-      }
+      } catch (e) {}
 
       let totalSales = 0;
       let totalPurchaseOrders = 0;
       try {
-        const purchases = await getCachedCollection('purchases', 20000);
-        purchases.forEach((p: any) => {
-          totalSales += (p.price || 0);
-          totalPurchaseOrders++;
-        });
-      } catch(e) {
-      }
+        // Fallback to cached collection if count head fails
+        const { data, count, error } = await supabaseAdmin.from('purchases').select('price', { count: 'exact' });
+        if (!error && data) {
+           totalPurchaseOrders = count || data.length;
+           data.forEach((p: any) => totalSales += (p.price || 0));
+        } else {
+           const purchases = await getCachedCollection('purchases', 20000);
+           purchases.forEach((p: any) => {
+             totalSales += (p.price || 0);
+             totalPurchaseOrders++;
+           });
+        }
+      } catch(e) {}
 
       let totalTopupsAmount = 0;
       try {
-        const topups = await getCachedCollection('topups', 20000);
-        topups.forEach((t: any) => {
-          totalTopupsAmount += (t.amount || 0);
-        });
-      } catch(e) {
-      }
+        const { data, error } = await supabaseAdmin.from('topups').select('amount');
+        if (!error && data) {
+           data.forEach((t: any) => totalTopupsAmount += (t.amount || 0));
+        } else {
+           const topups = await getCachedCollection('topups', 20000);
+           topups.forEach((t: any) => totalTopupsAmount += (t.amount || 0));
+        }
+      } catch(e) {}
 
       let totalUsersCount = 0;
       try {
-        const users = await getCachedCollection('users', 20000);
-        totalUsersCount = users.length;
-      } catch(e) {
-      }
+        const { count, error } = await supabaseAdmin.from('users').select('*', { count: 'exact', head: true });
+        if (!error && count !== null) {
+           totalUsersCount = count;
+        } else {
+           const users = await getCachedCollection('users', 20000);
+           totalUsersCount = users.length;
+        }
+      } catch(e) {}
 
       cachedStats = {
         users: siteSettings.stats_users_override !== undefined && siteSettings.stats_users_override !== null && !isNaN(siteSettings.stats_users_override) ? siteSettings.stats_users_override : totalUsersCount + (siteSettings.stats_users_offset || 0),
@@ -2132,25 +2139,22 @@ const cleanupTokenCache = () => {
       const adminDb = admin.firestore();
       let q: any = adminDb.collection('purchases');
       if (req.isAdmin) {
-        const snapshot = await q.orderBy('date', 'desc').limit(100).get();
-        const data = snapshot.docs.map((doc: any) => ({ dbId: doc.id, ...doc.data() }));
+        // Omitting orderBy date because of missing INDEX causing Postgres timeout!
+        const snapshot = await q.limit(100).get();
+        let data = snapshot.docs.map((doc: any) => ({ dbId: doc.id, ...doc.data() }));
+        // InMemory sort instead to avoid DB timeout
+        data.sort((a: any, b: any) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime());
         return res.json(data);
       } else if (req.user) {
-        // Fetch user purchases (avoid composite index requirement on userId + date by limiting)
         const snapshot = await q.where('userId', '==', (req as any).user.uid).limit(100).get();
         let data = snapshot.docs.map((doc: any) => ({ dbId: doc.id, ...doc.data() }));
-        // Sort in memory
-        data.sort((a: any, b: any) => {
-          const dateA = new Date(a.date || 0).getTime();
-          const dateB = new Date(b.date || 0).getTime();
-          return dateB - dateA;
-        });
-        return res.json(data.slice(0, 100)); // Limit to 100 on client via array slicing
+        data.sort((a: any, b: any) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime());
+        return res.json(data);
       } else {
         return res.json([]);
       }
     } catch (err: any) {
-      console.error('Internal server error fetching purchases:', err.message || err);
+      console.error('Error fetching purchases:', err.message || err);
       res.status(500).json({ error: String(err && err.message ? err.message : err) });
     }
   });
@@ -2216,20 +2220,19 @@ const cleanupTokenCache = () => {
       }
 
       // 2. ถ้าไม่เจอ ลองหาในประวัติการสั่งซื้อ (purchases)
-      const purchasesRef = admin.firestore().collection('purchases');
-      const snapshot = await purchasesRef.get();
-      
       let foundDoc = null;
-      for (const doc of snapshot.docs) {
-        const data = doc.data();
-        if (data.secretData) {
-          const keysInPurchase = data.secretData.split('\n').map((k: string) => k.trim());
-          if (keysInPurchase.includes(key.trim())) {
-            foundDoc = { id: doc.id, ...data };
-            break;
+      try {
+        const cachedPurchases = await getCachedCollection('purchases', 60000);
+        for (const p of cachedPurchases) {
+          if (p.secretData) {
+            const keysInPurchase = p.secretData.split('\n').map((k: string) => k.trim());
+            if (keysInPurchase.includes(key.trim())) {
+              foundDoc = { id: p.id, ...p };
+              break;
+            }
           }
         }
-      }
+      } catch(e) {}
 
       if (!foundDoc) {
         return res.status(404).json({ error: 'ไม่พบคีย์นี้ในระบบ หรือคีย์ไม่ถูกต้อง' });
@@ -2377,8 +2380,10 @@ const cleanupTokenCache = () => {
       const adminDb = admin.firestore();
       let q: any = adminDb.collection('topups');
       if (req.isAdmin) {
-        const snapshot = await q.orderBy('date', 'desc').limit(100).get();
-        const data = snapshot.docs.map((doc: any) => ({ dbId: doc.id, ...doc.data() }));
+        // Omitting orderBy to prevent Postgres statement timeout
+        const snapshot = await q.limit(100).get();
+        let data = snapshot.docs.map((doc: any) => ({ dbId: doc.id, ...doc.data() }));
+        data.sort((a: any, b: any) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime());
         return res.json(data);
       } else if (req.user) {
         let snapshot;
@@ -2595,8 +2600,9 @@ const cleanupTokenCache = () => {
 
   app.get('/api/license_keys', requireAdmin, async (req: any, res: any) => {
     try {
-      const snapshot = await admin.firestore().collection('license_keys').orderBy('created_at', 'desc').get();
+      const snapshot = await admin.firestore().collection('license_keys').limit(500).get();
       const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      data.sort((a: any, b: any) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
       res.json(data);
     } catch (err: any) {
       console.error('Internal server error fetching license_keys:', err.message || err);
@@ -2692,7 +2698,9 @@ const cleanupTokenCache = () => {
           needsSortInMemory = true;
           q = q.limit(100);
         } else {
-          q = q.orderBy('used_at', 'desc').limit(100);
+          // Omitting orderBy because lack of Postgres INDEX causes timeouts
+          q = q.limit(100);
+          needsSortInMemory = true;
         }
       } else if (req.user) {
         // User requesting their own history
@@ -2734,8 +2742,9 @@ const cleanupTokenCache = () => {
 
   app.get('/api/blocked_ips', requireAdmin, async (req: any, res: any) => {
     try {
-      const snapshot = await admin.firestore().collection('blocked_ips').orderBy('blocked_at', 'desc').get();
+      const snapshot = await admin.firestore().collection('blocked_ips').limit(500).get();
       const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      data.sort((a: any, b: any) => new Date(b.blocked_at || 0).getTime() - new Date(a.blocked_at || 0).getTime());
       res.json(data);
     } catch (err: any) {
       console.error('Internal server error fetching blocked_ips:', err.message || err);
@@ -2781,8 +2790,9 @@ const cleanupTokenCache = () => {
   // --- API Keys Endpoints ---
   app.get('/api/api_keys', requireAdmin, async (req: any, res: any) => {
     try {
-      const snapshot = await admin.firestore().collection('api_keys').orderBy('created_at', 'desc').get();
+      const snapshot = await admin.firestore().collection('api_keys').limit(500).get();
       const keys = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      keys.sort((a: any, b: any) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
       res.json(keys);
     } catch (err: any) {
       console.error('API Keys fetch error:', err);
@@ -2902,20 +2912,20 @@ const cleanupTokenCache = () => {
       if (!snapshot.docs || snapshot.docs.length === 0) {
         
         // 2. ถ้าไม่เจอ ลองหาในประวัติการสั่งซื้อ (เผื่อเป็นคีย์แรนด้อม/คีย์สินค้าที่ซื้อไป)
-        const purchasesRef = admin.firestore().collection('purchases');
-        const purchasesSnapshot = await purchasesRef.get();
         let foundDoc = null;
-        for (const doc of purchasesSnapshot.docs) {
-          const data = doc.data();
-          if (data.secretData && !data.webClaimed) {
-             const keysInPurchase = data.secretData.split('\n').map((k: string) => k.trim());
-             if (keysInPurchase.includes(key.trim())) {
-               foundDoc = { id: doc.id, ...data };
-               keyDocRef = purchasesRef.doc(doc.id);
-               break;
-             }
+        try {
+          const cachedPurchases = await getCachedCollection('purchases', 60000);
+          for (const p of cachedPurchases) {
+            if (p.secretData && !p.webClaimed) {
+               const keysInPurchase = p.secretData.split('\n').map((k: string) => k.trim());
+               if (keysInPurchase.includes(key.trim())) {
+                 foundDoc = { id: p.id, ...p };
+                 keyDocRef = admin.firestore().collection('purchases').doc(p.id);
+                 break;
+               }
+            }
           }
-        }
+        } catch(e) {}
 
         if (!foundDoc) {
            return res.status(400).json({ error: 'ไม่พบคีย์ในระบบ หรือคีย์นี้ถูกใช้งานไปแล้ว' });
@@ -3064,26 +3074,9 @@ const cleanupTokenCache = () => {
 
   app.get('/api/users', requireAdmin, async (req: any, res: any) => {
     try {
-      const { data: authUsers, error } = await supabaseAdmin.auth.admin.listUsers();
-      if (!error && authUsers && authUsers.users) {
-         for (const authUser of authUsers.users) {
-            const docRef = admin.firestore().collection('users').doc(authUser.id);
-            const snap = await docRef.get();
-            if (!snap.exists) {
-                await docRef.set({
-                    email: authUser.email,
-                    username: authUser.email ? authUser.email.split('@')[0] : 'unknown',
-                    balance: 0,
-                    role: 'user',
-                    status: 'active',
-                    createdAt: authUser.created_at || new Date().toISOString(),
-                    updatedAt: authUser.created_at || new Date().toISOString()
-                }, { merge: true });
-            }
-         }
-      }
-
-      const snapshot = await admin.firestore().collection('users').limit(100).get();
+      res.setHeader('Cache-Control', 'public, max-age=10, s-maxage=30');
+      
+      const snapshot = await admin.firestore().collection('users').limit(200).get();
       const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       res.json(data);
     } catch (err: any) {
