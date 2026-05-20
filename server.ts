@@ -195,7 +195,37 @@ app.set('trust proxy', 1);
     eldHistogram.reset();
   }, 60000); // 1 minute interval
 
+  // Backpressure / Load Shedding Implementation
+  let currentConcurrentRequests = 0;
+  const MAX_CONCURRENT_REQUESTS = process.env.MAX_CONCURRENT_REQUESTS ? parseInt(process.env.MAX_CONCURRENT_REQUESTS) : 800;
+  const MAX_EVENT_LOOP_LAG_MS = process.env.MAX_EVENT_LOOP_LAG_MS ? parseInt(process.env.MAX_EVENT_LOOP_LAG_MS) : 150;
+
   app.use((req, res, next) => {
+    // Health checks and metrics bypass shedding
+    const isPriorityRoute = req.url?.includes('/health') || req.url?.includes('/live') || req.url?.includes('/ready') || req.url?.includes('/api/stats');
+    
+    // Use P99 lag instead of mean for better burst detection if we want, but mean from histogram is fine for 1-minute windows
+    // For real-time, simple time delta is often safer than tracking rolling histogram
+    
+    if (!isPriorityRoute && currentConcurrentRequests >= MAX_CONCURRENT_REQUESTS) {
+      res.setHeader('Retry-After', '5');
+      logger.warn({ currentConcurrentRequests, max: MAX_CONCURRENT_REQUESTS }, 'Load Shedding Active - Dropping Request');
+      return res.status(503).json({ error: 'Service Unavailable (High Load/Shedding)' });
+    }
+
+    currentConcurrentRequests++;
+    
+    let decremented = false;
+    const releaseConcurrency = () => {
+      if (!decremented) {
+        currentConcurrentRequests--;
+        decremented = true;
+      }
+    };
+    
+    res.once('finish', releaseConcurrency);
+    res.once('close', releaseConcurrency);
+
     const requestId = (req.headers['x-request-id'] as string) || (req.headers['cf-ray'] as string) || randomUUID();
     (req as any).id = requestId;
     res.setHeader('X-Request-ID', requestId);
@@ -235,15 +265,38 @@ app.set('trust proxy', 1);
     if (used.heapUsed / used.heapTotal > 0.90) {
       sendAlert('High Memory Usage ⚠️', `Heap is at ${Math.round((used.heapUsed/used.heapTotal)*100)}% (${Math.round(used.heapUsed/1024/1024)}MB)`, 16753920).catch(() => {});
     }
-    res.json({ status: 'ok', uptime: process.uptime(), memory: used });
+    
+    res.json({ 
+      status: 'ok', 
+      uptime: process.uptime(), 
+      memory: used,
+      metrics: {
+        concurrentRequests: currentConcurrentRequests,
+        eventLoopLag: eldHistogram.mean / 1e6
+      }
+    });
   });
+  
+  // Liveness Probe: Just verifies process is running & event loop is ticking
   app.get('/live', (req, res) => res.json({ status: 'alive' }));
+  
+  // Readiness Probe: Verifies process is capable of downstream operations
   app.get('/ready', async (req, res) => {
     try {
-      // Validate Database Connectivity
-      await admin.firestore().collection('products').limit(1).get();
-      res.json({ status: 'ready', uptime: process.uptime() });
+      // Validate Database Connectivity with a fast fail CircuitBreaker-like timeout pattern
+      // To ensure readiness checks do not hang indefinitely and fool the orchestrator
+      const firestorePromise = admin.firestore().collection('products').limit(1).get();
+      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Firestore Connection Timeout')), 4500));
+      
+      await Promise.race([firestorePromise, timeoutPromise]);
+      
+      res.json({ 
+        status: 'ready', 
+        uptime: process.uptime(),
+        sheddingMetrics: { currentConcurrentRequests } 
+      });
     } catch (err: any) {
+      logger.error({ err: err.message }, 'Readiness Probe Failed: Database disconnected or slow');
       res.status(503).json({ status: 'not ready', error: String(err) });
     }
   });
