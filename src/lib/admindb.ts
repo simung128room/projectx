@@ -308,6 +308,11 @@ class SupabaseQuery {
     this._limit = n;
     return this;
   }
+  select(...fields: string[]) {
+    // Just a placeholder to avoid "query.select is not a function"
+    // Since internally we use .select('*') anyway
+    return this;
+  }
   async get() {
     const executeQuery = async (where: any[], orderBy: any[]) => {
       let q: any = supabaseAdmin.from(this.collection).select('*');
