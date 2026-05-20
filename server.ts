@@ -5,6 +5,7 @@ dotenv.config({ override: true });
 import path from 'path';
 import cors from 'cors';
 import axios from 'axios';
+import CircuitBreaker from 'opossum';
 import { CookieJar } from 'tough-cookie';
 import crypto from 'node:crypto';
 import { fileURLToPath } from 'url';
@@ -156,7 +157,77 @@ app.use(helmet({
 app.use(compression());
 app.set('trust proxy', 1);
   const PORT = 3000;
+  
+  import { pinoHttp } from 'pino-http';
+  import pino from 'pino';
+  import { AsyncLocalStorage } from 'node:async_hooks';
+  import { randomUUID } from 'node:crypto';
+  import { monitorEventLoopDelay } from 'node:perf_hooks';
 
+  const asyncLocalStorage = new AsyncLocalStorage<Map<string, string>>();
+
+  const logger = pino({
+    level: process.env.LOG_LEVEL || 'info', 
+    formatters: {
+      level: (label) => { return { level: label }; },
+    },
+    mixin() {
+      const store = asyncLocalStorage.getStore();
+      return {
+        requestId: store?.get('requestId')
+      };
+    },
+    timestamp: pino.stdTimeFunctions.isoTime
+  });
+
+  // System Metrics Monitoring (Event Loop & Memory)
+  const eldHistogram = monitorEventLoopDelay({ resolution: 20 });
+  eldHistogram.enable();
+  setInterval(() => {
+    const mem = process.memoryUsage();
+    logger.info({
+      eventLoopLagMaxMs: eldHistogram.max / 1e6,
+      eventLoopLagMeanMs: eldHistogram.mean / 1e6,
+      heapUsedMB: Math.round(mem.heapUsed / 1024 / 1024),
+      heapTotalMB: Math.round(mem.heapTotal / 1024 / 1024),
+      rssMB: Math.round(mem.rss / 1024 / 1024),
+    }, 'System Metrics Tick');
+    eldHistogram.reset();
+  }, 60000); // 1 minute interval
+
+  app.use((req, res, next) => {
+    const requestId = (req.headers['x-request-id'] as string) || (req.headers['cf-ray'] as string) || randomUUID();
+    (req as any).id = requestId;
+    res.setHeader('X-Request-ID', requestId);
+    
+    const store = new Map<string, string>();
+    store.set('requestId', requestId);
+    
+    asyncLocalStorage.run(store, () => {
+      next();
+    });
+  });
+
+  app.use(pinoHttp({
+    logger,
+    customProps: (req, res) => {
+      return {
+        userId: (req as any).user?.uid || 'guest'
+      }
+    },
+    useLevel: 'info',
+    quietReqLogger: true,
+    autoLogging: {
+      ignore: (req) => {
+        return req.url?.includes('/health') || req.url?.includes('/live') || req.url?.includes('/ready') || false;
+      }
+    }
+  }));
+
+  // Export root logger for use in other places
+  // We remove global console.log override to prevent library timing issues.
+  // (req as any).log can be used but let's stick to simple
+  
   // Health and Liveness Probes
   app.get('/health', async (req, res) => {
     const used = process.memoryUsage();
@@ -663,10 +734,26 @@ const cleanupTokenCache = () => {
       console.log(`[TrueWallet] Attempting to redeem via XPLUEM: "${voucherHash}" for phone: ${phone}`);
 
       // Using the new API: https://api.xpluem.com/:link/:phone
-      const response = await axios.get(`https://api.xpluem.com/${voucherHash}/${phone}`, {
-          timeout: 15000,
-          validateStatus: (status) => status < 500
+      const fetchTopup = async (vHash: string, pPhone: string) => {
+        return await axios.get(`https://api.xpluem.com/${vHash}/${pPhone}`, {
+            timeout: 15000,
+            validateStatus: (status) => status < 500
+        });
+      };
+
+      const topupBreaker = new CircuitBreaker(fetchTopup, {
+        timeout: 15000,
+        errorThresholdPercentage: 50,
+        resetTimeout: 30000 
       });
+
+      let response: any;
+      try {
+        response = await topupBreaker.fire(voucherHash, phone);
+      } catch (err: any) {
+        console.error(`[TrueWallet] XPLUEM Circuit Breaker Error:`, err.message);
+        return res.status(503).json({ error: 'ระบบเติมเงินขัดข้อง (Circuit Breaker Open) กรุณาลองใหม่ภายหลัง', isProxyError: true });
+      }
 
       const result = response.data;
       console.log(`[TrueWallet] XPLUEM Response:`, JSON.stringify(result));
@@ -1616,29 +1703,61 @@ const cleanupTokenCache = () => {
   // --- Supabase Proxy Routes ---
   // --- Products Endpoints ---
 
-  const firestoreCache: Record<string, { data: any, timestamp: number }> = {};
-  const getCachedCollection = async (collectionName: string, ttl: number = 20000, res?: any) => {
+  const firestoreCache: Record<string, { data: any, timestamp: number, revision: number }> = {};
+  let cacheRevisionCounter = 0; // Increment to bust ETag when data changes
+  
+  const getCachedCollection = async (collectionName: string, ttl: number = 20000, res?: any, req?: any) => {
     const now = Date.now();
+    let cacheHit = false;
+
     if (firestoreCache[collectionName] && now - firestoreCache[collectionName].timestamp < ttl) {
-      if (res) res.setHeader('X-Cache', 'HIT');
-      return firestoreCache[collectionName].data;
+      cacheHit = true;
     }
-    if (res) res.setHeader('X-Cache', 'MISS');
-    let query: any = admin.firestore().collection(collectionName);
-    if (collectionName === 'products') {
-      query = query.select('name', 'description', 'price', 'originalPrice', 'soldCount', 'imageUrl', 'stock', 'category', 'isPopular').limit(100); // Prevent RAM blowout and Firestore exhaustion for now
+
+    if (!cacheHit) {
+      let query: any = admin.firestore().collection(collectionName);
+      if (collectionName === 'products') {
+        query = query.select('name', 'description', 'price', 'originalPrice', 'soldCount', 'imageUrl', 'stock', 'category', 'isPopular').limit(100); // Prevent RAM blowout and Firestore exhaustion for now
+      }
+      const snapshot = await query.get();
+      const data = snapshot.docs.map(doc => {
+        const d = doc.data();
+        // DO NOT decompress stockData here, let the endpoints do it!
+        return { id: doc.id, ...d };
+      });
+      // We keep the old revision if it existed so we do not bust ETag on pure TTL expiry 
+      // ONLY bust cacheRevisionCounter when something updates!
+      const currentRevision = firestoreCache[collectionName]?.revision || cacheRevisionCounter;
+      firestoreCache[collectionName] = { data, timestamp: now, revision: currentRevision };
     }
-    const snapshot = await query.get();
-    const data = snapshot.docs.map(doc => {
-      const d = doc.data();
-      // DO NOT decompress stockData here, let the endpoints do it!
-      return { id: doc.id, ...d };
-    });
-    firestoreCache[collectionName] = { data, timestamp: now };
-    return data;
+
+    const cachedData = firestoreCache[collectionName];
+
+    if (res && req) {
+      // ETag now based on collection name + precise data revision
+      const etag = `W/"${collectionName}-v${cachedData.revision}"`;
+      res.setHeader('ETag', etag);
+      
+      if (req.headers['if-none-match'] === etag) {
+        if (cacheHit) res.setHeader('X-Cache', 'HIT');
+        else res.setHeader('X-Cache', 'MISS');
+        res.status(304).end();
+        return null; // Signals controller not to send JSON
+      }
+
+      if (cacheHit) res.setHeader('X-Cache', 'HIT');
+      else res.setHeader('X-Cache', 'MISS');
+    } else if (res) {
+      if (cacheHit) res.setHeader('X-Cache', 'HIT');
+      else res.setHeader('X-Cache', 'MISS');
+    }
+
+    return cachedData.data;
   };
   
   const invalidateCache = (collectionName: string) => {
+    // Increment global revision so next query has fresh ETag
+    cacheRevisionCounter++;
     delete firestoreCache[collectionName];
   };
 
@@ -1646,14 +1765,15 @@ const cleanupTokenCache = () => {
     res.setHeader('Cache-Control', 'public, max-age=30, s-maxage=30, stale-while-revalidate=59');
     try {
       // Opt-in for public caching of products (TTL 30 seconds)
-      res.setHeader('Cache-Control', 'public, max-age=30, s-maxage=30');
-      const data = await getCachedCollection('products', 20000, res);
-      const processedData = data.map((item: any) => {
-        // ALWAYS strip stockData to prevent RAM blowout (both for admin and public)
-        const { stockData, ...publicItem } = item;
-        return publicItem;
-      });
-      res.json(processedData);
+      const data = await getCachedCollection('products', 20000, res, req);
+      if (data) {
+        const processedData = data.map((item: any) => {
+          // ALWAYS strip stockData to prevent RAM blowout (both for admin and public)
+          const { stockData, ...publicItem } = item;
+          return publicItem;
+        });
+        res.json(processedData);
+      }
     } catch (err: any) {
       console.error('PROD ERR OBJ:', JSON.stringify(err, Object.getOwnPropertyNames(err)));
       res.status(500).json({ error: String(err && err.message ? err.message : err) });
@@ -1806,19 +1926,29 @@ const cleanupTokenCache = () => {
   });
 
   app.get('/api/stats', async (req, res) => {
-console.log('HIT STATS ENDPOINT');
     try {
       res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=120');
       const now = Date.now();
+      
+      const sendCachedStats = () => {
+        // Use global revision counter instead of timestamp to stay synchronized with cache updates
+        const etag = `W/"stats-v${cacheRevisionCounter}"`;
+        res.setHeader('ETag', etag);
+        if (req.headers['if-none-match'] === etag) {
+          return res.status(304).end();
+        }
+        res.json(cachedStats);
+      };
+
       if (cachedStats && now - lastStatsFetch < 600000) {
-        return res.json(cachedStats);
+        return sendCachedStats();
       }
 
       const adminDb = admin.firestore();
       
       let totalStock = 0;
       try {
-        const data = await getCachedCollection('products', 20000, res);
+        const data = await getCachedCollection('products', 20000); // do not pass res here otherwise X-Cache is duplicated
         data.forEach((p: any) => {
           if (p.stock > 0 && p.stock < 999999) totalStock += Number(p.stock);
         });
@@ -1828,7 +1958,7 @@ console.log('HIT STATS ENDPOINT');
       let totalSales = 0;
       let totalPurchaseOrders = 0;
       try {
-        const purchases = await getCachedCollection('purchases', 20000, res);
+        const purchases = await getCachedCollection('purchases', 20000);
         purchases.forEach((p: any) => {
           totalSales += (p.price || 0);
           totalPurchaseOrders++;
@@ -1838,7 +1968,7 @@ console.log('HIT STATS ENDPOINT');
 
       let totalTopupsAmount = 0;
       try {
-        const topups = await getCachedCollection('topups', 20000, res);
+        const topups = await getCachedCollection('topups', 20000);
         topups.forEach((t: any) => {
           totalTopupsAmount += (t.amount || 0);
         });
@@ -1847,7 +1977,7 @@ console.log('HIT STATS ENDPOINT');
 
       let totalUsersCount = 0;
       try {
-        const users = await getCachedCollection('users', 20000, res);
+        const users = await getCachedCollection('users', 20000);
         totalUsersCount = users.length;
       } catch(e) {
       }
@@ -1864,7 +1994,7 @@ console.log('HIT STATS ENDPOINT');
          lastStatsFetch = now;
       }
       
-      res.json(cachedStats);
+      sendCachedStats();
     } catch (err: any) {
       console.error('STATS ERROR:', err);
       // Fallback
@@ -2172,9 +2302,8 @@ console.log('HIT STATS ENDPOINT');
   app.get('/api/categories', async (req, res) => {
     res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=60, stale-while-revalidate=86400');
     try {
-      res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=60');
-      const data = await getCachedCollection('categories', 60000, res);
-      res.json(data);
+      const data = await getCachedCollection('categories', 60000, res, req);
+      if (data) res.json(data);
     } catch (err: any) {
       console.error('Internal server error fetching categories:', err.message || err);
       res.status(500).json({ error: String(err && err.message ? err.message : err) });
@@ -2226,9 +2355,8 @@ console.log('HIT STATS ENDPOINT');
   app.get('/api/pages', async (req, res) => {
     res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=60, stale-while-revalidate=86400');
     try {
-      res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=60');
-      const data = await getCachedCollection('custom_pages', 60000, res);
-      res.json(data);
+      const data = await getCachedCollection('custom_pages', 60000, res, req);
+      if (data) res.json(data);
     } catch (err: any) {
       console.error('Internal server error fetching pages:', err.message || err);
       res.status(500).json({ error: String(err && err.message ? err.message : err) });
@@ -3473,9 +3601,29 @@ if (!process.env.VERCEL) {
     });
   }
 
-  app.listen(3000, "0.0.0.0", () => {
-    console.log(`[Server] Listening on http://0.0.0.0:3000`);
+  const server = app.listen(3000, "0.0.0.0", () => {
+    logger.info(`[Server] Listening on http://0.0.0.0:3000`);
   });
+
+  // Graceful shutdown
+  const gracefulShutdown = (signal: string) => {
+    logger.info(`[Server] Received ${signal}. Draining connections and shutting down gracefully...`);
+    server.close(() => {
+      logger.info(`[Server] Closed out remaining connections.`);
+      // If we had redis or other persistent connections, close them here
+      process.exit(0);
+    });
+
+    // Force close after 10s if connections are hanging
+    setTimeout(() => {
+      logger.error('[Server] Could not close connections in time, forcefully shutting down');
+      process.exit(1);
+    }, 10000).unref();
+  };
+
+  process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+  process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 }
+
 export default app;
 
