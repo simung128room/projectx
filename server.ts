@@ -1907,6 +1907,22 @@ const cleanupTokenCache = () => {
     }
   });
 
+  app.get('/api/products/:id', requireAdmin, async (req: any, res: any) => {
+    if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
+    try {
+      const doc = await admin.firestore().collection('products').doc(req.params.id).get();
+      if (!doc.exists) return res.status(404).json({ error: 'Product not found' });
+      const data = doc.data();
+      const responseData = { id: doc.id, ...data };
+      if (responseData.stockData) {
+        responseData.stockData = decompressStock(responseData.stockData);
+      }
+      res.json(responseData);
+    } catch (err: any) {
+      res.status(500).json({ error: String(err && err.message ? err.message : err) });
+    }
+  });
+
   app.get('/api/products/:id/stock', requireAdmin, async (req: any, res: any) => {
     if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
     try {
@@ -2002,18 +2018,41 @@ const cleanupTokenCache = () => {
   app.put('/api/products/:id', requireAdmin, async (req, res) => {
     if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
     try {
+      const docRef = admin.firestore().collection('products').doc(req.params.id);
+      const currentDoc = await docRef.get();
+      if (!currentDoc.exists) {
+        return res.status(404).json({ error: 'Product not found' });
+      }
+      const existingData = currentDoc.data();
+
       const product = req.body;
       const allowedFields = ['name', 'description', 'price', 'originalPrice', 'stock', 'categoryId', 'stockData', 'image', 'imageUrl', 'category', 'isHighlight', 'customPageId', 'youtubeUrl', 'type', 'isPopular', 'soldCount'];
       const sanitizedProduct = Object.fromEntries(
         Object.entries(product).filter(([k]) => allowedFields.includes(k))
       );
+
+      // Preserve existing internal encoded fields if not provided
+      if (sanitizedProduct.stockData === undefined && existingData.stockData !== undefined) {
+        sanitizedProduct.stockData = existingData.stockData;
+      }
+      if (sanitizedProduct.soldCount === undefined && existingData.soldCount !== undefined) {
+        sanitizedProduct.soldCount = existingData.soldCount;
+      }
+      if (sanitizedProduct.title === undefined && existingData.title !== undefined) {
+        sanitizedProduct.title = existingData.title;
+      }
+      if (sanitizedProduct.subtitle === undefined && existingData.subtitle !== undefined) {
+        sanitizedProduct.subtitle = existingData.subtitle;
+      }
+      if (sanitizedProduct.bannerUrl === undefined && existingData.bannerUrl !== undefined) {
+        sanitizedProduct.bannerUrl = existingData.bannerUrl;
+      }
       
       const { id, ...dataToSaveRaw } = sanitizedProduct as any;
-      if (dataToSaveRaw.stockData) {
+      if (dataToSaveRaw.stockData && !dataToSaveRaw.stockData[0]?.__compressed) {
         dataToSaveRaw.stockData = compressStock(dataToSaveRaw.stockData);
       }
       const dataToSave = JSON.parse(JSON.stringify(dataToSaveRaw));
-      const docRef = admin.firestore().collection('products').doc(req.params.id);
       await docRef.update(dataToSave);
       invalidateCache('products');
       invalidateStatsCache();
