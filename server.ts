@@ -68,7 +68,7 @@ setInterval(fetchFreeProxies, 15 * 60 * 1000);
 
 import { adminDb as admin, supabaseAdmin } from './src/lib/admindb.js';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const _dirname = typeof __dirname !== 'undefined' ? __dirname : process.cwd();
 
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 50 * 1024 * 1024 } }); // 50MB limit
 const communityUpload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } }); // 5MB limit
@@ -3136,10 +3136,20 @@ const cleanupTokenCache = () => {
 
 
   // --- Telegram Gift Catcher Service ---
-  const { TelegramClient } = await import('telegram');
-  const { StringSession } = await import('telegram/sessions/index.js');
-  const { NewMessage } = await import('telegram/events/index.js');
-  const { default: twApi } = await import('@opecgame/twapi');
+  let TelegramClient: any;
+  let StringSession: any;
+  let NewMessage: any;
+  let twApi: any;
+  (async () => {
+    const t = await import('telegram');
+    TelegramClient = t.TelegramClient;
+    const ts = await import('telegram/sessions/index.js');
+    StringSession = ts.StringSession;
+    const te = await import('telegram/events/index.js');
+    NewMessage = te.NewMessage;
+    const tw = await import('@opecgame/twapi');
+    twApi = tw.default;
+  })();
 
   let tgDailyCount = 0;
   let tgLastResetDate = new Date().toISOString().slice(0, 10);
@@ -3684,56 +3694,56 @@ const cleanupTokenCache = () => {
   });
 
 if (!process.env.VERCEL) {
-  if (process.env.NODE_ENV !== "production") {
-    console.log("Initializing Vite middleware (async)...");
-    try {
-      const { createServer: createViteServer } = await import('vite');
-      const vite = await createViteServer({
-        server: { middlewareMode: true },
-        appType: "spa",
-      });
-      app.use(vite.middlewares);
-      console.log("Vite middleware attached.");
-    } catch (err) {
-      console.error("Failed to initialize Vite middleware:", err);
-    }
-  } else {
-    const distPath = path.join(process.cwd(), 'dist');
-    app.use(express.static(distPath, { 
-      maxAge: '1y',
-      setHeaders: (res, path) => {
-        if (path.endsWith('.html')) {
-          res.setHeader('Cache-Control', 'no-cache');
-        }
+  (async () => {
+    if (process.env.NODE_ENV !== "production") {
+      console.log("Initializing Vite middleware (async)...");
+      try {
+        const { createServer: createViteServer } = await import('vite');
+        const vite = await createViteServer({
+          server: { middlewareMode: true },
+          appType: "spa",
+        });
+        app.use(vite.middlewares);
+        console.log("Vite middleware attached.");
+      } catch (err) {
+        console.error("Failed to initialize Vite middleware:", err);
       }
-    }));
-    app.get('*', (req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
+    } else {
+      const distPath = path.join(process.cwd(), 'dist');
+      app.use(express.static(distPath, { 
+        maxAge: '1y',
+        setHeaders: (res, path) => {
+          if (path.endsWith('.html')) {
+            res.setHeader('Cache-Control', 'no-cache');
+          }
+        }
+      }));
+      app.get('*', (req, res) => {
+        res.sendFile(path.join(distPath, 'index.html'));
+      });
+    }
+
+    const server = app.listen(3000, "0.0.0.0", () => {
+      logger.info(`[Server] Listening on http://0.0.0.0:3000`);
     });
-  }
 
-  const server = app.listen(3000, "0.0.0.0", () => {
-    logger.info(`[Server] Listening on http://0.0.0.0:3000`);
-  });
+    // Graceful shutdown
+    const gracefulShutdown = (signal: string) => {
+      logger.info(`[Server] Received ${signal}. Draining connections and shutting down gracefully...`);
+      server.close(() => {
+        logger.info(`[Server] Closed out remaining connections.`);
+        process.exit(0);
+      });
 
-  // Graceful shutdown
-  const gracefulShutdown = (signal: string) => {
-    logger.info(`[Server] Received ${signal}. Draining connections and shutting down gracefully...`);
-    server.close(() => {
-      logger.info(`[Server] Closed out remaining connections.`);
-      // If we had redis or other persistent connections, close them here
-      process.exit(0);
-    });
+      setTimeout(() => {
+        logger.error('[Server] Could not close connections in time, forcefully shutting down');
+        process.exit(1);
+      }, 10000).unref();
+    };
 
-    // Force close after 10s if connections are hanging
-    setTimeout(() => {
-      logger.error('[Server] Could not close connections in time, forcefully shutting down');
-      process.exit(1);
-    }, 10000).unref();
-  };
-
-  process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
-  process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+    process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+    process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+  })();
 }
 
 export default app;
