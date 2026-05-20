@@ -509,7 +509,11 @@ const cleanupTokenCache = () => {
           }
         } catch (error: any) {
           userTokenCache.delete(token);
-          console.error('Error verifying ID token in injectUser:', error.message || error);
+          if (error && error.message && error.message.includes('expired')) {
+            // Ignore expired token
+          } else {
+            console.error('Error verifying ID token in injectUser:', error.message || error);
+          }
         }
       }
     }
@@ -2071,40 +2075,23 @@ const cleanupTokenCache = () => {
       let totalSales = 0;
       let totalPurchaseOrders = 0;
       try {
-        // Fallback to cached collection if count head fails
-        const { data, count, error } = await supabaseAdmin.from('purchases').select('price', { count: 'exact' });
-        if (!error && data) {
-           totalPurchaseOrders = count || data.length;
-           data.forEach((p: any) => totalSales += (p.price || 0));
-        } else {
-           const purchases = await getCachedCollection('purchases', 20000);
-           purchases.forEach((p: any) => {
-             totalSales += (p.price || 0);
-             totalPurchaseOrders++;
-           });
-        }
+         const purchases = await getCachedCollection('purchases', 60000);
+         purchases.forEach((p: any) => {
+           totalSales += (Number(p.price) || 0);
+           totalPurchaseOrders++;
+         });
       } catch(e) {}
 
       let totalTopupsAmount = 0;
       try {
-        const { data, error } = await supabaseAdmin.from('topups').select('amount');
-        if (!error && data) {
-           data.forEach((t: any) => totalTopupsAmount += (t.amount || 0));
-        } else {
-           const topups = await getCachedCollection('topups', 20000);
-           topups.forEach((t: any) => totalTopupsAmount += (t.amount || 0));
-        }
+         const topups = await getCachedCollection('topups', 60000);
+         topups.forEach((t: any) => totalTopupsAmount += (Number(t.amount) || 0));
       } catch(e) {}
 
       let totalUsersCount = 0;
       try {
-        const { count, error } = await supabaseAdmin.from('users').select('*', { count: 'exact', head: true });
-        if (!error && count !== null) {
-           totalUsersCount = count;
-        } else {
-           const users = await getCachedCollection('users', 20000);
-           totalUsersCount = users.length;
-        }
+         const users = await getCachedCollection('users', 60000);
+         totalUsersCount = users.length;
       } catch(e) {}
 
       cachedStats = {
@@ -2530,7 +2517,7 @@ const cleanupTokenCache = () => {
   // --- Log Categories System Endpoints (Stored as JSON in settings for dynamic schema) ---
   let memoryLogSystemData = { categories: [], items: [] };
 
-  app.get('/api/logs-system', async (req, res) => {
+  app.get('/api/logs-system', injectUser, async (req: any, res: any) => {
     try {
       let dbData;
       try {
@@ -2546,20 +2533,17 @@ const cleanupTokenCache = () => {
       
       // Auto-filter based on user VIP status
       let isVip = false;
-      const authHeader = req.headers.authorization;
-      if (authHeader && authHeader.startsWith('Bearer ')) {
-        const token = authHeader.substring(7);
-        try {
-          const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
-          if (user) {
-            const userDoc = await admin.firestore().collection('users').doc(user.id).get();
-            if (userDoc.exists) {
-               const u = userDoc.data();
-               if (u.isPremium === true) isVip = true;
-               if (u.role === 'admin' || u.role === 'Admin') isVip = true;
-            }
-          }
-        } catch(e) {}
+      if (req.isAdmin) {
+         isVip = true;
+      } else if (req.user) {
+         try {
+           const userDoc = await admin.firestore().collection('users').doc(req.user.uid).get();
+           if (userDoc.exists) {
+              const u = userDoc.data();
+              if (u && u.isPremium === true) isVip = true;
+              if (u && (u.role === 'admin' || u.role === 'Admin')) isVip = true;
+           }
+         } catch(e) {}
       }
 
       // Hide content if user is not VIP and item type is premium or belongs to a premium category maybe?
