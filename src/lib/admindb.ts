@@ -186,6 +186,12 @@ function extractMissingColumn(errMsg: string): string | null {
   if (m1) return m1[1];
   const m2 = errMsg.match(/column '([^']+)'/);
   if (m2) return m2[1];
+  const m3 = errMsg.match(/column ([^\s]+) does not exist/);
+  if (m3) {
+    let col = m3[1];
+    if (col.includes('.')) col = col.split('.').pop() || col;
+    return col;
+  }
   return null;
 }
 
@@ -208,7 +214,7 @@ class SupabaseDoc {
       const mapped = fromDB(data);
       return { exists: true, data: () => mapped };
     } catch (err: any) {
-      if (err.message && err.message.includes("Could not find the") && err.message.includes("column")) {
+      if (err.message && ((err.message.includes("Could not find the") && err.message.includes("column")) || (err.message.includes("column") && err.message.includes("does not exist")))) {
         console.warn(`Column error in fetch from ${this.collection}: ${err.message}. This usually means schema is out of sync.`);
       }
       if (err.message && err.message.includes("Could not find the table")) {
@@ -224,7 +230,7 @@ class SupabaseDoc {
         if (error) throw error;
         break;
       } catch (err: any) {
-        if (err.message && err.message.includes("Could not find the") && err.message.includes("column")) {
+        if (err.message && ((err.message.includes("Could not find the") && err.message.includes("column")) || (err.message.includes("column") && err.message.includes("does not exist")))) {
           const col = extractMissingColumn(err.message);
           if (col && !missingColumns.has(`${this.collection}.${col}`)) {
             console.warn(`Column ${col} missing in ${this.collection}, adding to blacklist and retrying...`);
@@ -263,7 +269,7 @@ class SupabaseDoc {
           console.warn(`Table ${this.collection} missing during set, operation skipped.`);
           return;
         }
-        if (err.message && err.message.includes("Could not find the") && err.message.includes("column")) {
+        if (err.message && ((err.message.includes("Could not find the") && err.message.includes("column")) || (err.message.includes("column") && err.message.includes("does not exist")))) {
           const col = extractMissingColumn(err.message);
           if (col && col !== this.pk() && !missingColumns.has(`${this.collection}.${col}`)) {
             console.warn(`Column ${col} missing in ${this.collection}, adding to blacklist and retrying...`);
@@ -316,7 +322,7 @@ class SupabaseQuery {
   }
   async get() {
     const executeQuery = async (where: any[], orderBy: any[]) => {
-      let q: any = supabaseAdmin.from(this.collection).select(this._selectFields || '*');
+      let q: any = supabaseAdmin.from(this.collection).select(this._selectFields ? this._selectFields : '*');
       for (const w of where) {
         if (w.op === '==') q = q.eq(w.field, w.value);
         else if (w.op === '>') q = q.gt(w.field, w.value);
@@ -355,13 +361,22 @@ class SupabaseQuery {
           }
         };
       } catch (err: any) {
-        if (err.message && err.message.includes("Could not find the") && err.message.includes("column")) {
+        if (err.message && ((err.message.includes("Could not find the") && err.message.includes("column")) || (err.message.includes("column") && err.message.includes("does not exist")))) {
           const col = extractMissingColumn(err.message);
+          let handled = false;
+          if (col && this._selectFields && this._selectFields.includes(col)) {
+             this._selectFields = this._selectFields.split(',').filter(f => f.trim() !== col).join(',');
+             handled = true;
+          }
           if (col && !missingColumns.has(`${this.collection}.${col}`)) {
             console.warn(`Column ${col} missing in ${this.collection} during fetch, adding to blacklist and retrying...`);
             missingColumns.add(`${this.collection}.${col}`);
             currentWhere = currentWhere.filter(w => w.field !== col);
             currentOrderBy = currentOrderBy.filter(o => o.field !== col);
+            handled = true;
+          }
+          if (handled) {
+            console.log("RETRYING missing column", col);
             continue;
           }
         }
@@ -394,7 +409,7 @@ class SupabaseCollection extends SupabaseQuery {
     try {
       return await performAdd(toDB({ ...data }, this.collection));
     } catch (err: any) {
-      if (err.message && err.message.includes("Could not find the") && err.message.includes("column")) {
+      if (err.message && ((err.message.includes("Could not find the") && err.message.includes("column")) || (err.message.includes("column") && err.message.includes("does not exist")))) {
         const col = extractMissingColumn(err.message);
         if (col) {
           console.warn(`Column ${col} missing in ${this.collection}, adding to blacklist and retrying...`);
