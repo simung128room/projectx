@@ -84,7 +84,7 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
         </div>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-          {filteredProducts.slice(0, displayLimit).map((product, i) => (
+          {filteredProducts.map((product, i) => (
             <motion.div
               key={product.id}
               initial={{ opacity: 0, scale: 0.95 }}

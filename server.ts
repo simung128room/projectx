@@ -212,7 +212,7 @@ app.set('trust proxy', 1);
       currentConcurrentRequests,
       shedCount,
       heapUsedMB: Math.round(mem.heapUsed / 1024 / 1024),
-      activeHandles: process._getActiveHandles().length,
+      activeHandles: (process as any)._getActiveHandles().length,
     }, 'System Health & Adaptive Concurrency Tick');
     
     shedCount = 0; // reset counter
@@ -698,19 +698,20 @@ const cleanupTokenCache = () => {
   };
 
   // Load from DB
-  try {
-    const docName = process.env.NODE_ENV === 'production' ? 'sys_site' : 'sys_site_dev';
-    supabaseAdmin.from('custom_pages').select('*').eq('slug', docName).single().then(({ data }: any) => {
+  (async () => {
+    try {
+      const docName = process.env.NODE_ENV === 'production' ? 'sys_site' : 'sys_site_dev';
+      const { data } = await supabaseAdmin.from('custom_pages').select('*').eq('slug', docName).single();
       if (data && data.content) {
         let parsed = {};
         try { parsed = JSON.parse(data.content); } catch(e) {}
         siteSettings = { ...siteSettings, ...parsed };
         console.log("Loaded initial site settings from DB");
       }
-    }).catch((err: any) => {
+    } catch (err: any) {
       console.warn("Could not load initial site settings from DB (might not exist yet).", err.message || err);
-    });
-  } catch(e) {}
+    }
+  })();
 
   app.get('/api/settings', (req, res) => {
     res.json(siteSettings);
@@ -1910,7 +1911,7 @@ const cleanupTokenCache = () => {
   app.get('/api/products/:id', requireAdmin, async (req: any, res: any) => {
     if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
     try {
-      const doc = await admin.firestore().collection('products').doc(req.params.id).get();
+      const doc: any = await admin.firestore().collection('products').doc(req.params.id).get();
       if (!doc.exists) return res.status(404).json({ error: 'Product not found' });
       const data = doc.data();
       const responseData = { id: doc.id, ...data };
@@ -2294,7 +2295,7 @@ const cleanupTokenCache = () => {
       }
 
       // Mark as claimed
-      await purchasesRef.doc(foundDoc.id).update({ ...foundDoc, discordClaimed: true });
+      await admin.firestore().collection('purchases').doc(foundDoc.id).update({ ...foundDoc, discordClaimed: true });
 
       res.json({ success: true, message: 'รับยศสำเร็จ!' });
       writeAuditLog('DISCORD_ROLE_CLAIM', (req as any).user?.uid || 'system', 'discord_role', req, { key: req.body.key });
