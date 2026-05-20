@@ -134,7 +134,7 @@ export const TelegramCatcherTool: React.FC<TelegramCatcherToolProps> = ({ userPl
   return (
     <AnimatedScroll direction="up" hideOnScroll={true}>
       <div className="max-w-4xl mx-auto pb-10 mt-6">
-        <div className="bg-[#1c242d] border border-white/10 rounded-[2rem] overflow-hidden shadow-2xl flex flex-col md:flex-row">
+        <div className="bg-[#1c242d] border border-white/10 rounded-xl overflow-hidden shadow-2xl flex flex-col md:flex-row">
         
         {/* Sidebar Settings Area */}
         <div className="w-full md:w-1/3 border-b md:border-b-0 md:border-r border-white/5 p-6 flex flex-col gap-6">
@@ -185,7 +185,7 @@ export const TelegramCatcherTool: React.FC<TelegramCatcherToolProps> = ({ userPl
               <button 
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-[#2AABEE] hover:bg-[#229ED9] text-white font-black rounded-xl py-3 text-sm transition-all shadow-lg shadow-[#2AABEE]/20 flex items-center justify-center gap-2 mt-2 disabled:opacity-50 active:scale-[0.98]"
+                className="w-full bg-[#2AABEE] hover:bg-[#229ED9] text-white font-black rounded-xl py-3 text-sm transition-all shadow-lg shadow-lg"
               >
                 {isLoading ? <><Loader2 className="w-4 h-4 animate-spin" /> Connecting...</> : <><Bot className="w-5 h-5" /> Connect Bot</>}
               </button>
@@ -253,7 +253,7 @@ export const TelegramCatcherTool: React.FC<TelegramCatcherToolProps> = ({ userPl
         <div className="w-full md:w-2/3 bg-[#0e1621] flex flex-col h-[600px] relative">
           
           <div className="bg-[#1c242d] px-6 py-4 flex items-center border-b border-white/5 z-10">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#2AABEE] to-[#229ED9] flex items-center justify-center mr-4">
+            <div className="w-10 h-10 rounded-full bg-[#2563EB] flex items-center justify-center mr-4">
               <Bot className="w-6 h-6 text-white" />
             </div>
             <div>

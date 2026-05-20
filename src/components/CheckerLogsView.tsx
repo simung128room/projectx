@@ -27,7 +27,7 @@ export const CheckerLogsView: React.FC<CheckerLogsViewProps> = ({ logs, onBack }
         </div>
       </div>
 
-      <div className="bg-[#0B0F14] border border-white/10 rounded-3xl p-6 shadow-sm overflow-hidden flex flex-col h-[70vh]">
+      <div className="bg-[#0B0F14] border border-white/10 rounded-xl p-6 shadow-sm overflow-hidden flex flex-col h-[70vh]">
         <div className="flex items-center justify-between mb-4 pb-4 border-b border-white/5 shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-[#121820] border border-white/10 flex items-center justify-center">
@@ -52,7 +52,7 @@ export const CheckerLogsView: React.FC<CheckerLogsViewProps> = ({ logs, onBack }
             {[...logs].map(log => {
               let lightModeColor = 'text-zinc-400';
               if(log.colorClass.includes('emerald') || log.colorClass.includes('green')) lightModeColor = 'text-emerald-600';
-              else if (log.colorClass.includes('red')) lightModeColor = 'text-[#1a7fe6]';
+              else if (log.colorClass.includes('red')) lightModeColor = 'text-[#2563EB]';
               else if (log.colorClass.includes('cyan') || log.colorClass.includes('amber')) lightModeColor = 'text-amber-500';
 
               return (

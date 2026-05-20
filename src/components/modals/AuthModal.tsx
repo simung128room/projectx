@@ -124,16 +124,16 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
   if (!show) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 ">
       <div className="w-full max-w-sm bg-zinc-950 border border-white/10 rounded-[2.5rem] p-8 shadow-xl animate-in fade-in zoom-in duration-300 overflow-hidden relative">
-      <div className={`absolute top-0 right-0 w-32 h-32 blur-[50px] rounded-full -mr-16 -mt-16 ${authMode === 'login' ? 'bg-cyan-500/10' : 'bg-emerald-500/10'}`}></div>
+      <div className={`absolute top-0 right-0 w-32 h-32  rounded-full -mr-16 -mt-16 ${authMode === 'login' ? 'bg-cyan-500/10' : 'bg-emerald-500/10'}`}></div>
       <div className="flex flex-col items-center text-center mb-6 relative z-10">
         <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-4 border ${authMode === 'login' ? 'bg-cyan-500/10 border-cyan-500/20' : 'bg-emerald-500/10 border-emerald-500/20'}`}>
           {authMode === 'login' ? <User className="w-8 h-8 text-cyan-500" /> : <User className="w-8 h-8 text-emerald-500" />}
         </div>
         <h2 className="text-xl font-bold tracking-tight">{authMode === 'login' ? 'เข้าสู่ระบบ' : 'สมัครสมาชิก'}</h2>
         <p className="text-zinc-500 text-xs mt-1">
-          {authMode === 'login' ? 'ลงชื่อเข้าใช้เพื่อเข้าถึง STORETH' : 'เข้าร่วมกับเราเพื่อเริ่มต้นใช้งานเครื่องมือต่างๆ'}
+          {authMode === 'login' ? 'ลงชื่อเข้าใช้เพื่อเข้าถึง APEXSTORE' : 'เข้าร่วมกับเราเพื่อเริ่มต้นใช้งานเครื่องมือต่างๆ'}
         </p>
       </div>
       
@@ -214,8 +214,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
     </div>
 
       {showTurnstileModal && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-[80] backdrop-blur-sm animate-in zoom-in-95 duration-200">
-          <div className="bg-[#050507] border border-white/10 rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-xl relative overflow-hidden flex flex-col items-center">
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-[80]  animate-in zoom-in-95 duration-200">
+          <div className="bg-[#050507] border border-white/10 rounded-xl p-6 sm:p-8 max-w-sm w-full shadow-xl relative overflow-hidden flex flex-col items-center">
             <div className="mb-2 flex items-center justify-center w-full overflow-hidden" style={{ colorScheme: 'dark' }}>
               <div className="flex items-start justify-center w-full">
                 {TURNSTILE_SITE_KEY ? (
@@ -230,7 +230,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
                     className="w-full"
                   />
                 ) : (
-                  <div className="p-3 text-[#1a7fe6] rounded-xl text-center text-[10px] font-bold">
+                  <div className="p-3 text-[#2563EB] rounded-xl text-center text-[10px] font-bold">
                     ยังไม่ได้ตั้งค่า VITE_TURNSTILE_SITE_KEY<br/>Bypass Mode Active
                   </div>
                 )}

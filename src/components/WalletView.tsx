@@ -234,7 +234,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.1 }}
               whileHover={{ y: -5, boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)' }}
-              className="bg-[#0B0F14] border border-white/10 rounded-3xl p-6 sm:p-8 flex flex-col items-center text-center shadow-sm transition-all group relative overflow-hidden cursor-pointer"
+              className="bg-[#0B0F14] border border-white/10 rounded-xl p-6 sm:p-8 flex flex-col items-center text-center shadow-sm transition-all group relative overflow-hidden cursor-pointer"
               onClick={() => setActiveView('truemoney')}
             >
               <div className="w-24 h-24 mb-6 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6">
@@ -252,7 +252,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.2 }}
               whileHover={{ y: -5, boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)' }}
-              className="bg-[#0B0F14] border border-white/10 rounded-3xl p-6 sm:p-8 flex flex-col items-center text-center shadow-sm transition-all group relative overflow-hidden cursor-pointer"
+              className="bg-[#0B0F14] border border-white/10 rounded-xl p-6 sm:p-8 flex flex-col items-center text-center shadow-sm transition-all group relative overflow-hidden cursor-pointer"
               onClick={() => setActiveView('bank')}
             >
               <div className="w-24 h-24 mb-6 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6">
@@ -271,7 +271,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
         <motion.div 
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="max-w-xl mx-auto bg-[#0B0F14] rounded-[2rem] overflow-hidden shadow-sm border border-white/10 p-6 sm:p-8"
+          className="max-w-xl mx-auto bg-[#0B0F14] rounded-xl overflow-hidden shadow-sm border border-white/10 p-6 sm:p-8"
         >
           <button 
             onClick={() => setActiveView('main')}
@@ -304,13 +304,13 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
                   value={truemoneyLink}
                   onChange={(e) => setTruemoneyLink(e.target.value)}
                   placeholder="กรอกลิงค์"
-                  className="w-full bg-[#0a0d12] border-2 border-white/10 rounded-2xl p-4 text-white placeholder:text-zinc-400 focus:outline-none focus:border-[#1a7fe6] focus:bg-[#0B0F14] transition-all font-sans font-bold"
+                  className="w-full bg-[#0a0d12] border-2 border-white/10 rounded-2xl p-4 text-white placeholder:text-zinc-400 focus:outline-none focus:border-[#2563EB] focus:bg-[#0B0F14] transition-all font-sans font-bold"
                   required
                 />
               </div>
               <button
                 type="submit"
-                className="w-full py-4 bg-[#1E90FF] hover:bg-[#1a7fe6] text-white font-black rounded-2xl transition-all shadow-lg shadow-[#1E90FF]/25 text-lg flex items-center justify-center gap-2 active:scale-[0.98]"
+                className="w-full py-4 bg-[#3B82F6] hover:bg-[#2563EB] text-white font-black rounded-2xl transition-all shadow-lg shadow-lg"
               >
                 เติมเงิน
               </button>
@@ -323,7 +323,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
         <motion.div 
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="max-w-xl mx-auto bg-[#0B0F14] rounded-[2rem] overflow-hidden shadow-sm border border-white/10 p-6 sm:p-8"
+          className="max-w-xl mx-auto bg-[#0B0F14] rounded-xl overflow-hidden shadow-sm border border-white/10 p-6 sm:p-8"
         >
           <button 
             onClick={() => setActiveView('main')}
@@ -335,8 +335,8 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
 
 
           <div className="space-y-6">
-            <div className="bg-[#0B0F14] border-2 border-white/5 rounded-3xl p-6 text-center space-y-4 shadow-xl">
-                <div className="flex bg-[#1E90FF] text-white rounded-full px-6 py-2 gap-3 items-center w-fit mx-auto shadow-sm">
+            <div className="bg-[#0B0F14] border-2 border-white/5 rounded-xl p-6 text-center space-y-4 shadow-xl">
+                <div className="flex bg-[#3B82F6] text-white rounded-full px-6 py-2 gap-3 items-center w-fit mx-auto shadow-sm">
                   <span className="font-black text-sm tracking-wide">ธนาคารกสิกรไทย</span>
                 </div>
                 
@@ -349,7 +349,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
                           navigator.clipboard.writeText('1963870325');
                           Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'คัดลอกเลขบัญชีแล้ว', showConfirmButton: false, timer: 1500 });
                         }}
-                        className="p-3 bg-[#1E90FF] text-white rounded-2xl shadow-lg hover:bg-[#1a7fe6] transition-all active:scale-95"
+                        className="p-3 bg-[#3B82F6] text-white rounded-2xl shadow-lg hover:bg-[#2563EB] transition-all active:scale-95"
                       >
                         <Copy className="w-5 h-5" />
                       </button>
@@ -367,7 +367,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
             </div>
 
             <div className="pt-4 flex flex-col items-center w-full">
-              <label className="flex flex-col items-center justify-center w-full py-10 bg-[#0a0d12] hover:bg-[#121820] transition-all border-2 border-dashed border-white/20 hover:border-[#1E90FF] rounded-[2rem] cursor-pointer group active:scale-[0.98] relative z-10">
+              <label className="flex flex-col items-center justify-center w-full py-10 bg-[#0a0d12] hover:bg-[#121820] transition-all border-2 border-dashed border-white/20 hover:border-[#3B82F6] rounded-xl cursor-pointer group active:scale-[0.98] relative z-10">
                   <input type="file" className="hidden" accept="image/png, image/jpeg" onChange={handleSlipUpload} />
                   <div className="w-28 h-28 mb-4 group-hover:scale-110 transition-transform">
                      <img loading="lazy" src="https://img1.pic.in.th/images/IMG_6164.png" alt="KBank" className="w-full h-full object-contain" />
@@ -379,13 +379,13 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
               </label>
             </div>
 
-            <div className="bg-[#1E90FF]/10 border-2 border-white/10 rounded-2xl p-5 flex gap-4 items-center">
-                <div className="w-12 h-12 bg-[#1E90FF] rounded-2xl flex items-center justify-center shrink-0 shadow-lg shadow-[#1E90FF]/20">
+            <div className="bg-[#3B82F6]/10 border-2 border-white/10 rounded-2xl p-5 flex gap-4 items-center">
+                <div className="w-12 h-12 bg-[#3B82F6] rounded-2xl flex items-center justify-center shrink-0 shadow-lg shadow-lg/20">
                   <AlertTriangle className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <p className="text-sm font-black text-[#1E90FF] uppercase tracking-wide leading-tight">สลิปต้องมี QR Code เท่านั้น</p>
-                  <p className="text-[11px] text-[#1a7fe6]/80 font-bold mt-1 leading-relaxed">ระบบไม่รองรับ Wallet หรือสลิปที่ไม่มี QR Code ทุกกรณี หากโอนผิดไม่คืนเงิน</p>
+                  <p className="text-sm font-black text-[#3B82F6] uppercase tracking-wide leading-tight">สลิปต้องมี QR Code เท่านั้น</p>
+                  <p className="text-[11px] text-[#2563EB]/80 font-bold mt-1 leading-relaxed">ระบบไม่รองรับ Wallet หรือสลิปที่ไม่มี QR Code ทุกกรณี หากโอนผิดไม่คืนเงิน</p>
                 </div>
             </div>
 

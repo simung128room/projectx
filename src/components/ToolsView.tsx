@@ -66,11 +66,11 @@ export const ToolsView: React.FC<ToolsViewProps> = ({ setActiveView }) => {
       <div className="font-sans px-4 pb-12">
         {/* Header */}
         <div className="max-w-6xl mx-auto mt-4 mb-8 text-center text-zinc-400">
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#1E90FF]/10 border border-[#1E90FF]/15 rounded-full text-[#1E90FF] text-[10px] font-black uppercase tracking-widest mb-3">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#3B82F6]/10 border border-[#3B82F6]/15 rounded-full text-[#3B82F6] text-[10px] font-black uppercase tracking-widest mb-3">
                 <Bot className="w-3 h-3" /> Power Tools
             </div>
           <h1 className="text-2xl md:text-3xl font-black text-white mb-2 uppercase tracking-tight">
-             ศูนย์รวมเครื่องมือ <span className="text-[#1E90FF]">อัตโนมัติ</span>
+             ศูนย์รวมเครื่องมือ <span className="text-[#3B82F6]">อัตโนมัติ</span>
           </h1>
           <p className="text-zinc-500 max-w-lg mx-auto text-xs md:text-sm leading-relaxed opacity-80">
             เลือกใช้งานเครื่องมือเพื่อเพิ่มความสะดวกสบายในการจัดการระบบต่างๆ ของคุณ
@@ -87,7 +87,7 @@ export const ToolsView: React.FC<ToolsViewProps> = ({ setActiveView }) => {
               transition={{ delay: idx * 0.05 }}
               whileHover={{ y: -3 }}
               onClick={() => setActiveView(tool.id)}
-              className="group cursor-pointer bg-[#0B0F14]/60 backdrop-blur-md border border-white/5 rounded-xl p-4 md:px-6 md:py-5 hover:border-[#1E90FF]/40 transition-all relative overflow-hidden"
+              className="group cursor-pointer bg-[#0B0F14]/60  border border-white/5 rounded-xl p-4 md:px-6 md:py-5 hover:border-[#3B82F6]/40 transition-all relative overflow-hidden"
             >
               {/* Background Glow */}
               <div className={`absolute -right-6 -top-6 w-20 h-20 ${tool.color}/5 blur-2xl rounded-full group-hover:scale-150 transition-transform duration-700`}></div>
@@ -111,14 +111,14 @@ export const ToolsView: React.FC<ToolsViewProps> = ({ setActiveView }) => {
                   </div>
                 </div>
 
-                <h3 className="text-lg font-black text-white mb-1 group-hover:text-[#1E90FF] transition-colors tracking-tight">
+                <h3 className="text-lg font-black text-white mb-1 group-hover:text-[#3B82F6] transition-colors tracking-tight">
                   {tool.name}
                 </h3>
                 <p className="text-zinc-500 text-[13px] leading-relaxed mb-4 flex-1 opacity-70">
                   {tool.desc}
                 </p>
 
-                <div className="flex items-center gap-2 text-[#1E90FF] text-[10px] font-black uppercase tracking-[0.15em] group-hover:gap-3 transition-all">
+                <div className="flex items-center gap-2 text-[#3B82F6] text-[10px] font-black uppercase tracking-[0.15em] group-hover:gap-3 transition-all">
                   เปิดใช้งานเลย <ArrowRight className="w-3.5 h-3.5" />
                 </div>
               </div>

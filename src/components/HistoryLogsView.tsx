@@ -58,13 +58,13 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({ usedKeysHistor
 
     if (isPurchase) {
       return (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200" onClick={() => setSelectedItem(null)}>
-          <div className="bg-[#0B0F14] rounded-[2rem] w-full max-w-md overflow-hidden relative shadow-2xl" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-black/60  z-50 flex items-center justify-center p-4 animate-in fade-in duration-200" onClick={() => setSelectedItem(null)}>
+          <div className="bg-[#0B0F14] rounded-xl w-full max-w-md overflow-hidden relative shadow-2xl" onClick={e => e.stopPropagation()}>
             <div className="p-6 pb-4 relative">
               <button onClick={() => setSelectedItem(null)} className="absolute top-4 right-4 text-zinc-400 hover:text-zinc-400 transition-colors">
                 <X className="w-6 h-6" />
               </button>
-              <h3 className="text-2xl font-black text-[#1E90FF] mb-1">รายละเอียดการซื้อ</h3>
+              <h3 className="text-2xl font-black text-[#3B82F6] mb-1">รายละเอียดการซื้อ</h3>
               <p className="text-zinc-500 text-sm font-medium">หมายเลขบิล: <span className="font-mono text-white bg-[#121820] px-2 py-0.5 rounded-md">BILL-{item.id?.toUpperCase()}</span></p>
             </div>
 
@@ -121,7 +121,7 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({ usedKeysHistor
             <div className="p-6 mt-2">
               <button 
                 onClick={() => setSelectedItem(null)}
-                className="w-full py-4 bg-[#1E90FF] hover:bg-[#166bcc] text-white rounded-2xl text-base font-black transition-all shadow-md shadow-[#1E90FF]/20"
+                className="w-full py-4 bg-[#3B82F6] hover:bg-[#1D4ED8] text-white rounded-2xl text-base font-black transition-all shadow-md shadow-lg/20"
               >
                 ปิด
               </button>
@@ -132,8 +132,8 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({ usedKeysHistor
     }
 
     return (
-      <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200" onClick={() => setSelectedItem(null)}>
-        <div className="bg-[#0B0F14] rounded-3xl w-full max-w-md overflow-hidden shadow-2xl relative" onClick={e => e.stopPropagation()}>
+      <div className="fixed inset-0 bg-black/40  z-50 flex items-center justify-center p-4 animate-in fade-in duration-200" onClick={() => setSelectedItem(null)}>
+        <div className="bg-[#0B0F14] rounded-xl w-full max-w-md overflow-hidden shadow-2xl relative" onClick={e => e.stopPropagation()}>
           <div className="flex justify-between items-center p-6 border-b border-white/5">
             <h3 className="font-bold text-lg text-white">รายละเอียดรายการ</h3>
             <button onClick={() => setSelectedItem(null)} className="p-2 bg-[#121820] hover:bg-zinc-200 text-zinc-400 rounded-full transition-colors absolute top-4 right-4 focus:outline-none">
@@ -215,8 +215,8 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({ usedKeysHistor
     }
 
     return (
-      <div key={item.id} className="bg-[#0B0F14] border border-white/10 rounded-3xl p-5 hover:border-white/20 hover:shadow-md transition-all flex flex-col md:flex-row md:items-center justify-between gap-5 group relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-1.5 h-full bg-[#121820] group-hover:bg-[#1a7fe6] transition-colors"></div>
+      <div key={item.id} className="bg-[#0B0F14] border border-white/10 rounded-xl p-5 hover:border-white/20 hover:shadow-md transition-all flex flex-col md:flex-row md:items-center justify-between gap-5 group relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-1.5 h-full bg-[#121820] group-hover:bg-[#2563EB] transition-colors"></div>
         <div className="flex flex-col gap-2 flex-1 pl-2">
           <div className="flex items-center gap-3">
              <span className="font-bold text-white text-base md:text-lg tracking-tight">{title}</span>
@@ -248,7 +248,7 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({ usedKeysHistor
   const renderPurchaseList = (list: any[], type: string, emptyMessage: string) => {
     if (list.length === 0) {
       return (
-        <div className="py-16 flex flex-col items-center justify-center text-zinc-400 border border-dashed border-white/20 rounded-3xl bg-[#0a0d12]">
+        <div className="py-16 flex flex-col items-center justify-center text-zinc-400 border border-dashed border-white/20 rounded-xl bg-[#0a0d12]">
           <ShoppingCart className="w-8 h-8 mb-4 opacity-30" />
           <p className="font-medium text-sm">{emptyMessage}</p>
         </div>
@@ -266,7 +266,7 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({ usedKeysHistor
       {/* Header */}
       <div className="mb-8 pl-2">
         <h1 className="text-3xl font-black mb-2 flex items-center gap-3 tracking-tight">
-            <History className="w-8 h-8 text-[#1E90FF]" /> 
+            <History className="w-8 h-8 text-[#3B82F6]" /> 
             ประวัติสั่งซื้อ
         </h1>
         <p className="text-sm font-medium text-zinc-500">History / Logs ประวัติการทำรายการต่างๆ ของคุณในระบบ</p>
@@ -288,7 +288,7 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({ usedKeysHistor
                 key={tab.id}
                 onClick={() => setFilter(tab.id as any)}
                 className={`flex items-center gap-2 px-4 py-2.5 font-bold text-xs sm:text-sm rounded-xl transition-all border ${
-                  active ? 'bg-[#1E90FF] text-white border-[#1E90FF] shadow-md shadow-[#1a7fe6]/20' : 'text-zinc-500 border-transparent hover:text-[#1E90FF] hover:bg-[#0a0d12] hover:border-white/10'
+                  active ? 'bg-[#3B82F6] text-white border-[#3B82F6] shadow-md shadow-lg' : 'text-zinc-500 border-transparent hover:text-[#3B82F6] hover:bg-[#0a0d12] hover:border-white/10'
                 }`}
               >
                 <tab.icon className="w-4 h-4 shrink-0" />
@@ -306,7 +306,7 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({ usedKeysHistor
               <Key className="w-5 h-5 text-emerald-500" /> ประวัติการใช้คีย์
             </h2>
             {usedKeysHistory.length === 0 ? (
-              <div className="py-16 flex flex-col items-center justify-center text-zinc-400 border border-dashed border-white/20 rounded-3xl bg-[#0a0d12]">
+              <div className="py-16 flex flex-col items-center justify-center text-zinc-400 border border-dashed border-white/20 rounded-xl bg-[#0a0d12]">
                 <Key className="w-8 h-8 mb-4 opacity-30" />
                 <p className="font-medium text-sm">ยังไม่มีประวัติการใช้งานคีย์</p>
               </div>
@@ -324,7 +324,7 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({ usedKeysHistor
               <Wallet className="w-5 h-5 text-blue-600" /> ประวัติการเติมเงิน
             </h2>
             {topupHistory.length === 0 ? (
-              <div className="py-16 flex flex-col items-center justify-center text-zinc-400 border border-dashed border-white/20 rounded-3xl bg-[#0a0d12]">
+              <div className="py-16 flex flex-col items-center justify-center text-zinc-400 border border-dashed border-white/20 rounded-xl bg-[#0a0d12]">
                 <Wallet className="w-8 h-8 mb-4 opacity-30" />
                 <p className="font-medium text-sm">ยังไม่มีประวัติการเติมเงิน</p>
               </div>
@@ -339,7 +339,7 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({ usedKeysHistor
         {filter === 'key_purchase' && (
           <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-right-8 duration-300">
             <h2 className="text-xl font-bold flex items-center gap-2 text-white mb-4 pl-2">
-              <ShoppingCart className="w-5 h-5 text-[#1a7fe6]" /> ประวัติการซื้อคีย์
+              <ShoppingCart className="w-5 h-5 text-[#2563EB]" /> ประวัติการซื้อคีย์
             </h2>
             {renderPurchaseList(keyPurchases, 'key_purchase', 'ยังไม่มีประวัติการซื้อคีย์')}
           </div>

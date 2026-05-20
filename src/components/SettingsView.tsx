@@ -97,18 +97,18 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user 
     <AnimatedScroll direction="up">
       <div className="font-sans px-4 pb-12">
         <div className="max-w-4xl mx-auto mt-6">
-          <div className="bg-[#0B0F14] border-white/10 border rounded-3xl overflow-hidden shadow-sm flex flex-col md:flex-row">
+          <div className="bg-[#0B0F14] border-white/10 border rounded-xl overflow-hidden shadow-sm flex flex-col md:flex-row">
             
             {/* Sidebar Tabs */}
             <div className="md:w-1/3 bg-[#0a0d12] border-b md:border-b-0 md:border-r border-white/10 p-6">
               <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                <Shield className="w-5 h-5 text-[#1E90FF]" /> ตั้งค่าผู้ใช้
+                <Shield className="w-5 h-5 text-[#3B82F6]" /> ตั้งค่าผู้ใช้
               </h2>
               
               <div className="space-y-2">
                 <button 
                   onClick={() => setCurrentTab('password')}
-                  className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all ${currentTab === 'password' ? 'bg-[#1E90FF] text-white' : 'text-zinc-400 hover:bg-white/5'}`}
+                  className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all ${currentTab === 'password' ? 'bg-[#3B82F6] text-white' : 'text-zinc-400 hover:bg-white/5'}`}
                 >
                   <Key className="w-4 h-4" />
                   <span className="text-sm font-medium">เปลี่ยนรหัสผ่าน</span>
@@ -150,24 +150,24 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user 
                       <label className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mb-1.5 block">รหัสผ่านเดิม</label>
                       <div className="relative">
                         <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
-                        <input type="password" placeholder="••••••••" value={oldPassword} onChange={e => setOldPassword(e.target.value)} className="w-full bg-[#0a0d12] border border-white/10 rounded-xl py-3 pl-10 pr-4 text-sm text-white focus:border-[#1E90FF] outline-none" />
+                        <input type="password" placeholder="••••••••" value={oldPassword} onChange={e => setOldPassword(e.target.value)} className="w-full bg-[#0a0d12] border border-white/10 rounded-xl py-3 pl-10 pr-4 text-sm text-white focus:border-[#3B82F6] outline-none" />
                       </div>
                     </div>
                     <div>
                       <label className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mb-1.5 block">รหัสผ่านใหม่</label>
                       <div className="relative">
                         <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
-                        <input type="password" placeholder="••••••••" value={newPassword} onChange={e => setNewPassword(e.target.value)} className="w-full bg-[#0a0d12] border border-white/10 rounded-xl py-3 pl-10 pr-4 text-sm text-white focus:border-[#1E90FF] outline-none" />
+                        <input type="password" placeholder="••••••••" value={newPassword} onChange={e => setNewPassword(e.target.value)} className="w-full bg-[#0a0d12] border border-white/10 rounded-xl py-3 pl-10 pr-4 text-sm text-white focus:border-[#3B82F6] outline-none" />
                       </div>
                     </div>
                     <div>
                       <label className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mb-1.5 block">ยืนยันรหัสผ่านใหม่</label>
                       <div className="relative">
                         <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
-                        <input type="password" placeholder="••••••••" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} className="w-full bg-[#0a0d12] border border-white/10 rounded-xl py-3 pl-10 pr-4 text-sm text-white focus:border-[#1E90FF] outline-none" />
+                        <input type="password" placeholder="••••••••" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} className="w-full bg-[#0a0d12] border border-white/10 rounded-xl py-3 pl-10 pr-4 text-sm text-white focus:border-[#3B82F6] outline-none" />
                       </div>
                     </div>
-                    <button onClick={handleChangePassword} className="w-full bg-[#1E90FF] hover:bg-[#1a7fe6] text-white font-bold py-3.5 rounded-xl transition-all shadow-sm">
+                    <button onClick={handleChangePassword} className="w-full bg-[#3B82F6] hover:bg-[#2563EB] text-white font-bold py-3.5 rounded-xl transition-all shadow-sm">
                       ยืนยันการเปลี่ยนรหัสผ่าน
                     </button>
                   </div>

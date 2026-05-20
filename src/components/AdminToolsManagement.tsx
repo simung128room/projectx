@@ -153,7 +153,7 @@ export const AdminToolsManagement = () => {
           </div>
 
           {isAddingCategory && (
-            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+            <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6">
               <h3 className="text-lg font-bold text-white mb-4">สร้างหมวดหมู่ใหม่</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                 <div>
@@ -182,14 +182,14 @@ export const AdminToolsManagement = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {categories.map((c) => (
-              <div key={c.id} className="bg-zinc-900 border border-zinc-800 rounded-3xl p-5 relative">
+              <div key={c.id} className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 relative">
                 <div className="flex justify-between items-start mb-3">
                   <h3 className="text-lg font-black text-white">{c.name}</h3>
                   <div className="flex items-center gap-2">
                     <button onClick={() => toggleCategoryVisibility(c.id)} className={`px-2 py-1 flex items-center text-xs font-bold rounded-full ${c.isVisible ? 'bg-emerald-500/20 text-emerald-400' : 'bg-zinc-800 text-zinc-500'}`}>
                       {c.isVisible ? 'ON' : 'OFF'}
                     </button>
-                    <button onClick={() => handleDeleteCategory(c.id)} className="text-[#1a7fe6] hover:text-[#1E90FF] bg-[#1a7fe6]/10 p-1.5 rounded-lg"><Trash2 className="w-4 h-4"/></button>
+                    <button onClick={() => handleDeleteCategory(c.id)} className="text-[#2563EB] hover:text-[#3B82F6] bg-[#2563EB]/10 p-1.5 rounded-lg"><Trash2 className="w-4 h-4"/></button>
                   </div>
                 </div>
                 <p className="text-sm text-zinc-400">{c.subtitle}</p>
@@ -207,7 +207,7 @@ export const AdminToolsManagement = () => {
           </div>
 
           {isAddingItem && (
-            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+            <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6">
               <h3 className="text-lg font-bold text-white mb-4">สร้างเนื้อหาใหม่</h3>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -247,7 +247,7 @@ export const AdminToolsManagement = () => {
                           {a.type === 'file' && <Download className="w-4 h-4 text-amber-400"/>}
                           <span className="truncate max-w-[200px]">{a.data}</span>
                         </div>
-                        <button onClick={() => setAttachments(attachments.filter((_, idx)=>idx!==i))} className="text-[#1a7fe6] hover:text-[#1E90FF]"><Trash2 className="w-4 h-4"/></button>
+                        <button onClick={() => setAttachments(attachments.filter((_, idx)=>idx!==i))} className="text-[#2563EB] hover:text-[#3B82F6]"><Trash2 className="w-4 h-4"/></button>
                       </div>
                     ))}
                   </div>
@@ -274,15 +274,15 @@ export const AdminToolsManagement = () => {
             {items.map((item) => {
               const cat = categories.find(c => c.id === item.categoryId);
               return (
-              <div key={item.id} className="bg-zinc-900 border border-zinc-800 rounded-3xl p-5 relative overflow-hidden group">
+              <div key={item.id} className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 relative overflow-hidden group">
                 <div className="flex justify-between items-start mb-3">
                   <div className="flex gap-2">
-                    <span className="text-[10px] font-bold bg-[#1a7fe6]/20 text-[#1a7fe6] px-2 py-0.5 rounded-full uppercase">{cat?.name || 'ไม่ระบุ'}</span>
+                    <span className="text-[10px] font-bold bg-[#2563EB]/20 text-[#2563EB] px-2 py-0.5 rounded-full uppercase">{cat?.name || 'ไม่ระบุ'}</span>
                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase ${item.type === 'premium' ? 'bg-amber-500/20 text-amber-400' : 'bg-emerald-500/20 text-emerald-400'}`}>
                       {item.type === 'premium' ? 'Premium' : 'Free'}
                     </span>
                   </div>
-                  <button onClick={() => handleDeleteItem(item.id)} className="text-[#1a7fe6] hover:text-[#1E90FF] bg-[#1a7fe6]/10 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 className="w-4 h-4"/></button>
+                  <button onClick={() => handleDeleteItem(item.id)} className="text-[#2563EB] hover:text-[#3B82F6] bg-[#2563EB]/10 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 className="w-4 h-4"/></button>
                 </div>
                 <h3 className="text-lg font-bold text-white mb-2">{item.title}</h3>
                 <div className="bg-zinc-950 rounded-xl border border-zinc-800 p-3 space-y-2 max-h-32 overflow-y-auto mt-2">
@@ -294,7 +294,7 @@ export const AdminToolsManagement = () => {
                 </div>
               </div>
             )})}
-            {items.length === 0 && <div className="col-span-full py-12 text-center text-zinc-500 border-2 border-dashed border-zinc-800 rounded-3xl">ยังไม่มีเนื้อหา</div>}
+            {items.length === 0 && <div className="col-span-full py-12 text-center text-zinc-500 border-2 border-dashed border-zinc-800 rounded-xl">ยังไม่มีเนื้อหา</div>}
           </div>
         </div>
       )}

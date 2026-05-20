@@ -42,11 +42,11 @@ export class GlobalErrorBoundary extends React.Component<ErrorBoundaryProps, Err
         <div className="min-h-screen bg-[#06080B] flex items-center justify-center p-6 font-sans">
           <div className="max-w-md w-full bg-[#0B0F14] border border-white/5 rounded-[2.5rem] p-10 text-center shadow-2xl relative overflow-hidden">
             {/* Background Decoration */}
-            <div className="absolute -top-24 -left-24 w-48 h-48 bg-red-500/10 blur-[80px] rounded-full"></div>
-            <div className="absolute -bottom-24 -right-24 w-48 h-48 bg-[#1E90FF]/10 blur-[80px] rounded-full"></div>
+            <div className="absolute -top-24 -left-24 w-48 h-48 bg-red-500/10  rounded-full"></div>
+            <div className="absolute -bottom-24 -right-24 w-48 h-48 bg-[#3B82F6]/10  rounded-full"></div>
             
             <div className="relative z-10">
-                <div className="w-20 h-20 bg-red-500/10 rounded-3xl flex items-center justify-center mx-auto mb-8 text-red-500 shadow-lg shadow-red-500/5">
+                <div className="w-20 h-20 bg-red-500/10 rounded-xl flex items-center justify-center mx-auto mb-8 text-red-500 shadow-lg shadow-red-500/5">
                     <AlertTriangle className="w-10 h-10" />
                 </div>
                 
@@ -58,7 +58,7 @@ export class GlobalErrorBoundary extends React.Component<ErrorBoundaryProps, Err
                 <div className="flex flex-col gap-3">
                     <button
                         onClick={this.handleReload}
-                        className="w-full flex items-center justify-center gap-2 py-4 bg-[#1E90FF] hover:bg-[#166bcc] text-white rounded-2xl font-black text-sm transition-all active:scale-[0.98] shadow-lg shadow-[#1E90FF]/25 uppercase tracking-wider"
+                        className="w-full flex items-center justify-center gap-2 py-4 bg-[#3B82F6] hover:bg-[#1D4ED8] text-white rounded-2xl font-black text-sm transition-all active:scale-[0.98] shadow-lg shadow-lg/25 uppercase tracking-wider"
                     >
                         <RefreshCcw className="w-4 h-4" /> รีเฟรชหน้านี้
                     </button>

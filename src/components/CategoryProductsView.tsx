@@ -22,6 +22,8 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
   const categoryInfo = categories.find(
     (c) => c.name === category || c.title === category || c.id === category,
   );
+  const [renderLimit, setRenderLimit] = useState(20);
+  
   const filteredProducts =
     category === "all"
       ? products
@@ -32,6 +34,8 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
             p.category === categoryInfo?.name ||
             p.category === categoryInfo?.id,
         );
+        
+  const visibleProducts = filteredProducts.slice(0, renderLimit);
 
   return (
     <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 pt-24 font-sans text-white">
@@ -47,7 +51,7 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
             <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight flex items-center gap-3">
               {category === "all" ? (
                 <div className="flex items-center gap-3 uppercase">
-                  <div className="w-12 h-12 bg-[#1E90FF] rounded-2xl flex items-center justify-center shadow-lg shadow-[#1a7fe6]/20">
+                  <div className="w-12 h-12 bg-[#3B82F6] rounded-2xl flex items-center justify-center shadow-lg shadow-lg/20">
                     <Package className="w-7 h-7 text-white" />
                   </div>
                   สินค้าทั้งหมด
@@ -71,7 +75,7 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
       </div>
 
       {!filteredProducts || filteredProducts.length === 0 ? (
-        <div className="border-2 border-dashed border-white/10 bg-[#0B0F14] rounded-3xl p-16 text-center shadow-sm">
+        <div className="border-2 border-dashed border-white/10 bg-[#0B0F14] rounded-xl p-16 text-center shadow-sm">
           <div className="animate-pulse mb-6 flex justify-center">
             <Package className="w-16 h-16 text-zinc-200" />
           </div>
@@ -83,8 +87,9 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-          {filteredProducts.map((product, i) => (
+        <>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+            {visibleProducts.map((product, i) => (
             <motion.div
               key={product.id}
               initial={{ opacity: 0, scale: 0.95 }}
@@ -94,7 +99,7 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
             >
               <div className="aspect-square bg-zinc-900 relative overflow-hidden">
                 {product.imageUrl ? (
-                  <img
+                  <img loading="lazy"
                     src={product.imageUrl}
                     alt={product.name}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
@@ -102,8 +107,8 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
                     <div className="text-center">
-                      <div className="text-[10px] font-black text-[#1E90FF] tracking-tighter mb-1">
-                        STORETH
+                      <div className="text-[10px] font-black text-[#3B82F6] tracking-tighter mb-1">
+                        APEXSTORE
                       </div>
                       <div className="text-white text-xs font-bold leading-tight">
                         PREVIEW
@@ -114,8 +119,8 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
                   </div>
                 )}
                 {product.stock <= 0 && (
-                  <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex items-center justify-center z-10 transition-opacity opacity-0 group-hover:opacity-100">
-                    <span className="bg-[#1E90FF] text-white font-bold rounded-full px-4 py-1.5 text-xs">
+                  <div className="absolute inset-0 bg-black/40 backdrop- flex items-center justify-center z-10 transition-opacity opacity-0 group-hover:opacity-100">
+                    <span className="bg-[#3B82F6] text-white font-bold rounded-full px-4 py-1.5 text-xs">
                       สินค้าหมด
                     </span>
                   </div>
@@ -134,13 +139,13 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
                         ฿{(product.originalPrice || 0).toLocaleString()}
                       </span>
                     )}
-                  <div className="text-[#1E90FF] font-bold text-sm">
+                  <div className="text-[#3B82F6] font-bold text-sm">
                     ฿{(product.price || 0).toLocaleString()}
                   </div>
                 </div>
 
                 {product.stock <= 0 ? (
-                  <button className="w-full mt-3 bg-[#1E90FF]/20 text-[#1E90FF] rounded-xl py-2.5 text-xs font-bold flex items-center justify-center gap-1.5 cursor-default">
+                  <button className="w-full mt-3 bg-[#3B82F6]/20 text-[#3B82F6] rounded-xl py-2.5 text-xs font-bold flex items-center justify-center gap-1.5 cursor-default">
                     <Package className="w-3.5 h-3.5" /> สินค้าหมด
                   </button>
                 ) : (
@@ -164,7 +169,19 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
               </div>
             </motion.div>
           ))}
-        </div>
+          </div>
+          
+          {visibleProducts.length < filteredProducts.length && (
+            <div className="mt-12 flex justify-center">
+              <button
+                onClick={() => setRenderLimit(prev => prev + 20)}
+                className="px-8 py-3 bg-[#0a0d12] border border-white/5 hover:border-white/20 text-white font-bold rounded-2xl transition-all shadow-lg active:scale-95"
+              >
+                โหลดเพิ่มเติม ({filteredProducts.length - visibleProducts.length} รายการ)
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

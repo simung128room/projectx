@@ -117,7 +117,7 @@ export const DiscordBadgeTool: React.FC = () => {
           <div className="max-w-4xl mx-auto space-y-8 pb-20 mt-4 md:mt-8">
             <div className="flex flex-col md:flex-row gap-6 items-start justify-between">
                 <div className="flex-1">
-                  <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#5865F2]/10 text-[#5865F2] text-xs font-bold mb-4 border border-[#5865F2]/20 backdrop-blur-sm">
+                  <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#5865F2]/10 text-[#5865F2] text-xs font-bold mb-4 border border-[#5865F2]/20 ">
                      <Star className="w-4 h-4" /> DISCORD TOOL
                   </div>
                   <h2 className="text-4xl md:text-5xl font-black text-white flex items-center gap-4 tracking-tight drop-shadow-lg">
@@ -139,8 +139,8 @@ export const DiscordBadgeTool: React.FC = () => {
                 </div>
             </div>
 
-            <div className="bg-[#0B0F14]/90 backdrop-blur-xl border border-white/5 rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-[#5865F2]/80 to-transparent"></div>
+            <div className="bg-[#0B0F14]/90  border border-white/5 rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-[2px] from-transparent via-[#5865F2]/80 to-transparent"></div>
                 
                 <div className="space-y-8 relative z-10">
                     <div>
@@ -153,7 +153,7 @@ export const DiscordBadgeTool: React.FC = () => {
                                     className={`
                                         flex items-center justify-center gap-3 py-5 px-4 rounded-2xl border-2 transition-all duration-300
                                         ${houseId === house.id 
-                                            ? `bg-white/5 border-[${house.color.split('bg-[')[1].split(']')[0]}] text-white shadow-[0_0_20px_rgba(255,255,255,0.1)] scale-105` 
+                                            ? `bg-white/5 border-[${house.color.split('bg-[')[1].split(']')[0]}] text-white shadow-lg scale-105` 
                                             : 'bg-black/40 border-white/5 text-zinc-400 hover:bg-white/5 hover:border-white/10'
                                         }
                                     `}
@@ -186,8 +186,8 @@ export const DiscordBadgeTool: React.FC = () => {
                             disabled={isLoading}
                             className="flex-1 relative group overflow-hidden rounded-2xl disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            <div className="absolute inset-0 bg-gradient-to-r from-[#5865F2] to-indigo-600 transition-transform duration-300 group-hover:scale-[1.02]"></div>
-                            <div className="relative w-full flex items-center justify-center gap-2 py-4 text-white font-bold text-sm shadow-[0_0_20px_rgba(88,101,242,0.3)] group-hover:shadow-[0_0_25px_rgba(88,101,242,0.4)] transition-all">
+                            <div className="absolute inset-0 from-[#5865F2] to-indigo-600 transition-transform duration-300 group-hover:scale-[1.02]"></div>
+                            <div className="relative w-full flex items-center justify-center gap-2 py-4 text-white font-bold text-sm shadow-lg transition-all">
                                 {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Shield className="w-5 h-5" /> Claim HypeSquad Badge</>}
                             </div>
                         </button>

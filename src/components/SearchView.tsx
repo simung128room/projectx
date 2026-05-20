@@ -47,7 +47,7 @@ export const SearchView: React.FC<SearchViewProps> = ({ products, onBack, onProd
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="ค้นหาสินค้า..."
-            className="w-full bg-[#12161E] border border-white/10 rounded-xl py-3 pl-12 pr-4 outline-none focus:border-[#1A56DB]/50 focus:bg-[#151A23] transition-colors text-white placeholder:text-zinc-500"
+            className="w-full bg-[#12161E] border border-white/10 rounded-xl py-3 pl-12 pr-4 outline-none focus:border-[#1D4ED8]/50 focus:bg-[#151A23] transition-colors text-white placeholder:text-zinc-500"
             autoFocus
           />
         </div>
@@ -55,7 +55,7 @@ export const SearchView: React.FC<SearchViewProps> = ({ products, onBack, onProd
 
       <div className="space-y-4">
         {searchQuery && filteredProducts.length === 0 ? (
-          <div className="text-center py-20 bg-[#0B0F14] border border-white/5 rounded-3xl">
+          <div className="text-center py-20 bg-[#0B0F14] border border-white/5 rounded-xl">
             <Search className="w-12 h-12 text-zinc-600 mx-auto mb-4" />
             <h3 className="text-xl font-bold text-white mb-2">ไม่พบสินค้า</h3>
             <p className="text-zinc-500">ไม่พบสินค้าที่ตรงกับ "{searchQuery}"</p>
@@ -78,13 +78,13 @@ export const SearchView: React.FC<SearchViewProps> = ({ products, onBack, onProd
                   </div>
                 )}
                 
-                <h3 className="font-bold text-white text-lg mb-2 line-clamp-2 leading-tight group-hover:text-[#1E90FF] transition-colors flex-1">{product.name}</h3>
+                <h3 className="font-bold text-white text-lg mb-2 line-clamp-2 leading-tight group-hover:text-[#3B82F6] transition-colors flex-1">{product.name}</h3>
                 
                 <div className="flex items-end justify-between mt-auto pt-4 border-t border-white/5">
                   <div className="flex flex-col">
                     <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-1">ราคา</span>
                     <div className="flex items-baseline gap-1">
-                      <span className="text-[#1E90FF] font-medium text-sm">฿</span>
+                      <span className="text-[#3B82F6] font-medium text-sm">฿</span>
                       <span className="text-xl font-black text-white leading-none">{(product.price || 0).toLocaleString()}</span>
                     </div>
                   </div>

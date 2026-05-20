@@ -47,7 +47,7 @@ export const CustomCursor: React.FC = () => {
     <>
       {/* Dot */}
       <motion.div
-        className="fixed top-0 left-0 w-2 h-2 rounded-full bg-[#1E90FF] pointer-events-none z-[9999]"
+        className="fixed top-0 left-0 w-2 h-2 rounded-full bg-[#3B82F6] pointer-events-none z-[9999]"
         style={{ originX: 0.5, originY: 0.5 }}
         animate={{
           x: mousePosition.x - 4, // center the 8px dot (w-2 h-2)
@@ -60,7 +60,7 @@ export const CustomCursor: React.FC = () => {
       
       {/* Ring Ring */}
       <motion.div
-        className="fixed top-0 left-0 rounded-full border border-[#1E90FF]/50 pointer-events-none z-[9998]"
+        className="fixed top-0 left-0 rounded-full border border-[#3B82F6]/50 pointer-events-none z-[9998]"
         animate={{
           width: isHovering ? 60 : 40,
           height: isHovering ? 60 : 40,

@@ -117,43 +117,89 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
   };
 
   return (
-    <div className="min-h-[calc(100vh-100px)] w-full flex items-center justify-center p-4">
-      <motion.div 
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-        className="w-full max-w-md bg-[#0A0D12] rounded-[24px] border border-white/5 shadow-2xl p-6 sm:p-10 relative overflow-hidden"
-      >
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/3 h-[1px] bg-gradient-to-r from-transparent via-[#1E90FF]/40 to-transparent"></div>
+    <div className="min-h-[calc(100vh-100px)] w-full flex items-center justify-center p-4 relative overflow-hidden bg-[#0A0D12]">
+      {/* Background Effects */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-[#3B82F6]/10 via-[#0A0D12] to-[#0A0D12] pointer-events-none"></div>
+      <div className="absolute w-full h-full bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none"></div>
 
-        {/* Header */}
-        <div className="flex justify-between items-start mb-8">
-          <div>
-            <h2 className="text-2xl sm:text-[28px] font-bold text-white tracking-tight leading-tight">
-              {authMode === 'login' ? 'เข้าสู่ระบบ' : authMode === 'forgot' ? 'รีเซ็ตรหัสผ่าน' : 'สร้างบัญชีผู้ใช้ใหม่'}
-            </h2>
-            <p className="text-zinc-500 text-[13px] sm:text-sm mt-1.5">
-              {authMode === 'login' ? 'ยินดีต้อนรับกลับสู่ STORETH' : authMode === 'forgot' ? 'กู้คืนบัญชีของคุณ' : 'ลงทะเบียนเพื่อเริ่มต้นใช้งาน'}
-            </p>
-          </div>
-          <div className="w-14 h-14 sm:w-16 sm:h-16 shrink-0 ml-4 flex items-center justify-center">
-            <motion.img loading="lazy" 
-              src="https://img2.pic.in.th/IMG_66428dd32388057a24f4.png" 
-              alt="Logo" 
-              referrerPolicy="no-referrer"
-              className="w-full h-full object-contain drop-shadow-md" 
-              animate={{ 
-                y: [0, -8, 0],
-                rotate: [0, 8, -8, 0]
-              }}
-              transition={{ 
-                duration: 2.5, 
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
-            />
-          </div>
+      <motion.div 
+        initial={{ opacity: 0, y: 20, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        className="w-full max-w-5xl bg-[#0B0F14]/90 backdrop-blur-xl rounded-2xl border border-white/10 shadow-[0_0_50px_-12px_rgba(0,0,0,0.5)] relative z-10 flex overflow-hidden lg:divide-x lg:divide-white/10"
+      >
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-[2px] from-transparent via-[#3B82F6]/40 to-transparent z-20"></div>
+
+        {/* Left Side: Illustration / Info (Hidden on Mobile) */}
+        <div className="hidden lg:flex w-1/2 bg-zinc-950/50 relative flex-col justify-center p-14 overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-[#3B82F6]/10 via-transparent to-transparent pointer-events-none"></div>
+            
+            <div className="relative z-10">
+                <motion.div 
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.2, duration: 0.6 }}
+                >
+                    <img loading="lazy" src="https://img2.pic.in.th/IMG_66428dd32388057a24f4.png" alt="Logo" className="w-20 h-20 mb-8 drop-shadow-xl" />
+                    <h1 className="text-4xl lg:text-5xl font-black text-white mb-4 leading-tight tracking-tight">
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#3B82F6] to-cyan-400 drop-shadow-sm">APEXSTORE</span><br/>
+                        ระบบบริหาร<br/>ร้านค้าอันดับหนึ่ง
+                    </h1>
+                    <p className="text-zinc-400 text-[15px] leading-relaxed max-w-sm mb-10">
+                        เชื่อมต่อทุกอย่างไว้ในที่เดียว ตอบโจทย์ทุกการใช้งาน ซื้อ-ขาย รวดเร็วและปลอดภัยระดับมาตรฐาน
+                    </p>
+                    
+                    <div className="space-y-5">
+                        <div className="flex items-center gap-4 text-sm text-zinc-300 font-medium">
+                            <div className="w-12 h-12 rounded-2xl bg-[#3B82F6]/10 border border-[#3B82F6]/20 flex items-center justify-center text-[#3B82F6]">
+                                <Zap className="w-5 h-5" />
+                            </div>
+                            ระบบอัตโนมัติ รวดเร็ว 24 ชม.
+                        </div>
+                        <div className="flex items-center gap-4 text-sm text-zinc-300 font-medium">
+                            <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+                                <Lock className="w-5 h-5" />
+                            </div>
+                            ความปลอดภัยสูง ป้องกันข้อมูล
+                        </div>
+                    </div>
+                </motion.div>
+            </div>
         </div>
+
+        {/* Right Side: Form */}
+        <div className="w-full lg:w-1/2 bg-[#0B0F14] p-8 sm:p-12 relative flex flex-col justify-center">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-[#3B82F6]/5 rounded-full blur-3xl pointer-events-none"></div>
+
+          {/* Header */}
+          <div className="flex justify-between items-start mb-8 relative">
+            <div>
+              <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight leading-tight">
+                {authMode === 'login' ? 'เข้าสู่ระบบ' : authMode === 'forgot' ? 'รีเซ็ตรหัสผ่าน' : 'สร้างบัญชีผู้ใช้ใหม่'}
+              </h2>
+              <div className="h-1 w-12 bg-[#3B82F6] rounded-full mt-3 mb-3"></div>
+              <p className="text-zinc-400 text-[13px] sm:text-sm">
+                {authMode === 'login' ? 'ยินดีต้อนรับกลับสู่ APEXSTORE' : authMode === 'forgot' ? 'กู้คืนบัญชีของคุณ' : 'ลงทะเบียนเพื่อเริ่มต้นใช้งานระบบ'}
+              </p>
+            </div>
+            <div className="w-12 h-12 shrink-0 lg:hidden flex items-center justify-center">
+              <motion.img loading="lazy" 
+                src="https://img2.pic.in.th/IMG_66428dd32388057a24f4.png" 
+                alt="Logo" 
+                referrerPolicy="no-referrer"
+                className="w-full h-full object-contain drop-shadow-md" 
+                animate={{ 
+                  y: [0, -4, 0],
+                  rotate: [0, 4, -4, 0]
+                }}
+                transition={{ 
+                  duration: 2.5, 
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              />
+            </div>
+          </div>
 
         <form onSubmit={handleAuth} className="space-y-4">
           <AnimatePresence mode="popLayout">
@@ -167,7 +213,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
                   type="text" 
                   value={authUsername}
                   onChange={(e) => setAuthUsername(e.target.value)}
-                  className="w-full bg-[#12161E] border border-white/5 rounded-xl py-2 pl-10 pr-4 outline-none focus:border-[#1A56DB]/50 focus:bg-[#151A23] transition-colors text-white text-sm placeholder:text-zinc-600 font-sans"
+                  className="w-full bg-[#12161E] border border-white/5 rounded-xl py-2 pl-10 pr-4 outline-none focus:border-[#1D4ED8]/50 focus:bg-[#151A23] transition-colors text-white text-sm placeholder:text-zinc-600 font-sans"
                   placeholder="Username"
                   required
                 />
@@ -185,7 +231,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
                     type="email" 
                     value={authEmail}
                     onChange={(e) => setAuthEmail(e.target.value)}
-                    className="w-full bg-[#12161E] border border-white/5 rounded-xl py-2 pl-10 pr-4 outline-none focus:border-[#1A56DB]/50 focus:bg-[#151A23] transition-colors text-white text-sm placeholder:text-zinc-600 font-sans"
+                    className="w-full bg-[#12161E] border border-white/5 rounded-xl py-2 pl-10 pr-4 outline-none focus:border-[#1D4ED8]/50 focus:bg-[#151A23] transition-colors text-white text-sm placeholder:text-zinc-600 font-sans"
                     placeholder="example@yourmail.com"
                     required
                   />
@@ -205,7 +251,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
                   type={showPassword ? "text" : "password"}
                   value={authPassword}
                   onChange={(e) => setAuthPassword(e.target.value)}
-                  className="w-full bg-[#12161E] border border-white/5 rounded-xl py-2 pl-10 pr-10 outline-none focus:border-[#1A56DB]/50 focus:bg-[#151A23] transition-colors text-white text-sm placeholder:text-zinc-600 font-sans"
+                  className="w-full bg-[#12161E] border border-white/5 rounded-xl py-2 pl-10 pr-10 outline-none focus:border-[#1D4ED8]/50 focus:bg-[#151A23] transition-colors text-white text-sm placeholder:text-zinc-600 font-sans"
                   placeholder="Enter password"
                   required
                   minLength={6}
@@ -247,7 +293,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
                     type={showConfirmPassword ? "text" : "password"}
                     value={authConfirmPassword}
                     onChange={(e) => setAuthConfirmPassword(e.target.value)}
-                    className="w-full bg-[#12161E] border border-white/5 rounded-xl py-2 pl-10 pr-10 outline-none focus:border-[#1A56DB]/50 focus:bg-[#151A23] transition-colors text-white text-sm placeholder:text-zinc-600 font-sans"
+                    className="w-full bg-[#12161E] border border-white/5 rounded-xl py-2 pl-10 pr-10 outline-none focus:border-[#1D4ED8]/50 focus:bg-[#151A23] transition-colors text-white text-sm placeholder:text-zinc-600 font-sans"
                     placeholder="Confirm password"
                     required
                     minLength={6}
@@ -280,11 +326,17 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
             </motion.div>
           )}
 
-          <motion.div layout className="pt-4">
+          <motion.div layout className="pt-6">
             <button 
               type="submit" 
               disabled={authLoading || (!!TURNSTILE_SITE_KEY && !turnstileToken)}
-              className="w-full py-2.5 rounded-xl text-sm font-semibold transition-all flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed bg-[#1E90FF] hover:bg-[#1A56DB] text-white active:scale-[0.98]"
+              className={`w-full py-3.5 rounded-xl text-[15px] font-bold transition-all flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg active:scale-[0.98] ${
+                authMode === 'signup'
+                  ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-500/20'
+                  : authMode === 'forgot'
+                  ? 'bg-fuchsia-600 hover:bg-fuchsia-500 text-white shadow-fuchsia-500/20'
+                  : 'bg-[#3B82F6] hover:bg-[#2563EB] text-white shadow-[#3B82F6]/20'
+              }`}
             >
               {authLoading ? (
                 <div className="flex items-center gap-2">
@@ -292,13 +344,20 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
                   <span>กำลังดำเนินการ...</span>
                 </div>
               ) : (
-                <span>{authMode === 'login' ? 'เข้าสู่ระบบ' : authMode === 'forgot' ? 'ยืนยันการตั้งรหัสผ่านใหม่' : 'ยืนยันการสมัคร'}</span>
+                <span>{authMode === 'login' ? 'เข้าสู่ระบบตอนนี้' : authMode === 'forgot' ? 'ส่งลิงก์รีเซ็ตรหัสผ่าน' : 'สร้างบัญชีใหม่'}</span>
               )}
             </button>
           </motion.div>
         </form>
         
-        <div className="mt-8 text-center text-[13px] flex flex-col gap-3">
+        <div className="mt-8">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="flex-1 h-[1px] bg-white/5"></div>
+            <span className="text-[11px] font-bold text-zinc-600 uppercase tracking-widest">หรือ</span>
+            <div className="flex-1 h-[1px] bg-white/5"></div>
+          </div>
+          
+          <div className="text-center text-[13.5px] flex flex-col gap-4">
           {authMode === 'login' && (
             <div>
               <button 
@@ -310,9 +369,9 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
             </div>
           )}
           {authMode !== 'forgot' && (
-            <div>
+            <div className="flex items-center justify-center gap-2">
               <span className="text-zinc-500">
-                {authMode === 'login' ? 'ยังไม่มีบัญชีใช่หรือไม่? ' : 'มีบัญชีอยู่แล้วใช่หรือไม่? '}
+                {authMode === 'login' ? 'ยังไม่มีบัญชีใช่หรือไม่?' : 'มีบัญชีอยู่แล้วใช่หรือไม่?'}
               </span>
               <button 
                 onClick={() => { 
@@ -320,7 +379,9 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
                   setAuthMode(nextMode); 
                   setActiveView(nextMode); 
                 }} 
-                className="text-[#1E90FF] font-medium hover:text-[#1A56DB] transition-colors underline-offset-4 hover:underline focus:outline-none"
+                className={`font-bold transition-colors underline-offset-4 hover:underline focus:outline-none ${
+                    authMode === 'login' ? 'text-emerald-500 hover:text-emerald-400' : 'text-[#3B82F6] hover:text-[#2563EB]'
+                }`}
               >
                 {authMode === 'login' ? 'สมัครสมาชิก' : 'เข้าสู่ระบบ'}
               </button>
@@ -339,6 +400,8 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
               </button>
             </div>
           )}
+        </div>
+        </div>
         </div>
       </motion.div>
     </div>

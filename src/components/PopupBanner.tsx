@@ -49,18 +49,18 @@ export const PopupBanner: React.FC<PopupBannerProps> = ({ enabled, imgUrl, linkU
           onClick={(e) => {
             if (e.target === e.currentTarget) handleClose();
           }}
-          className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-8 bg-zinc-950/80 backdrop-blur-md"
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-8 bg-zinc-950/80 "
         >
           <motion.div
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="relative w-full max-w-lg max-h-[90vh] bg-[#0B0F14] rounded-3xl shadow-2xl overflow-hidden flex flex-col"
+            className="relative w-full max-w-lg max-h-[90vh] bg-[#0B0F14] rounded-xl shadow-2xl overflow-hidden flex flex-col"
           >
             <button
               onClick={handleClose}
-              className="absolute top-4 right-4 z-10 w-10 h-10 bg-black/50 hover:bg-black/70 backdrop-blur-md rounded-full flex items-center justify-center text-white transition-colors"
+              className="absolute top-4 right-4 z-10 w-10 h-10 bg-black/50 hover:bg-black/70  rounded-full flex items-center justify-center text-white transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
@@ -84,7 +84,7 @@ export const PopupBanner: React.FC<PopupBannerProps> = ({ enabled, imgUrl, linkU
                     checked={dontShow}
                     onChange={(e) => setDontShow(e.target.checked)}
                   />
-                  <div className={`w-5 h-5 rounded border-2 transition-all duration-300 flex items-center justify-center ${dontShow ? 'bg-[#1E90FF] border-[#1E90FF]' : 'bg-[#0B0F14] border-white/20 group-hover:border-zinc-400'}`}>
+                  <div className={`w-5 h-5 rounded border-2 transition-all duration-300 flex items-center justify-center ${dontShow ? 'bg-[#3B82F6] border-[#3B82F6]' : 'bg-[#0B0F14] border-white/20 group-hover:border-zinc-400'}`}>
                     {dontShow && <Check className="w-3.5 h-3.5 text-white" />}
                   </div>
                 </div>

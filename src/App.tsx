@@ -327,7 +327,7 @@ function AppContent() {
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [userPlan, setUserPlan] = useState<UserPlan | null>(null);
   const [siteSettings, setSiteSettings] = useState({
-    site_name: "STORETH",
+    site_name: "APEXSTORE",
     truewallet_phone: "",
     contact_line: "https://www.facebook.com/share/18emwBsqUf/?mibextid=wwXIfr",
     discord_link: "",
@@ -763,7 +763,7 @@ function AppContent() {
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.href = url;
-        link.download = `storeth_order_${product.id}_x${quantity}_${new Date().toISOString().slice(0, 10)}.txt`;
+        link.download = `apexstore_order_${product.id}_x${quantity}_${new Date().toISOString().slice(0, 10)}.txt`;
         link.click();
         URL.revokeObjectURL(url);
       }
@@ -952,46 +952,42 @@ function AppContent() {
         }
       };
 
-      // 1. Critical Landing Page Data - Non-blocking Independent Resolution
-      fetchApi("/api/stats").then(res => {
-        if (res.data) {
+      // 1. Critical Landing Page Data - Promise.all Concurrent Fetching
+      Promise.all([
+        fetchApi("/api/stats"),
+        fetchApi("/api/products"),
+        fetchApi("/api/categories"),
+        fetchApi("/api/settings")
+      ]).then(([statsRes, productsRes, categoriesRes, settingsRes]) => {
+        if (statsRes.data) {
           setSiteStats({
-            users: res.data.users,
-            stock: res.data.stock,
-            sales: res.data.sales,
-            topups: res.data.totalTopupsAmount,
-            totalOrders: res.data.totalOrders,
+            users: statsRes.data.users,
+            stock: statsRes.data.stock,
+            sales: statsRes.data.sales,
+            topups: statsRes.data.totalTopupsAmount,
+            totalOrders: statsRes.data.totalOrders,
           });
         }
-      });
-
-      fetchApi("/api/products").then(res => {
-        if (res.data && Array.isArray(res.data)) {
-          setProducts(res.data.length > 0 ? res.data : defaultProducts);
+        if (productsRes.data && Array.isArray(productsRes.data)) {
+          setProducts(productsRes.data.length > 0 ? productsRes.data : defaultProducts);
         }
-      });
-
-      fetchApi("/api/categories").then(res => {
-        if (res.data && Array.isArray(res.data)) {
-          setCategories(res.data);
+        if (categoriesRes.data && Array.isArray(categoriesRes.data)) {
+          setCategories(categoriesRes.data);
         }
+        if (settingsRes.data) setSiteSettings(settingsRes.data);
       });
 
-      fetchApi("/api/settings").then(res => {
-        if (res.data) setSiteSettings(res.data);
-      });
-
-      // 2. Secondary Data - Non-blocking
-      fetchApi("/api/pages").then(res => {
-        if (res.data) {
-          const d = res.data;
+      // 2. Secondary Data & User Data
+      Promise.all([
+        fetchApi("/api/pages"),
+        fetchApi("/api/logs-system")
+      ]).then(([pagesRes, logsRes]) => {
+        if (pagesRes.data) {
+          const d = pagesRes.data;
           setCustomPages(Array.isArray(d) ? d : (d.data && Array.isArray(d.data) ? d.data : []));
         }
-      });
-
-      fetchApi("/api/logs-system").then(res => {
-        if (res.data && Array.isArray(res.data.categories)) {
-          setLogCategories(res.data.categories.filter((c: any) => c.isVisible));
+        if (logsRes.data && Array.isArray(logsRes.data.categories)) {
+          setLogCategories(logsRes.data.categories.filter((c: any) => c.isVisible));
         }
       });
 
@@ -1066,7 +1062,7 @@ function AppContent() {
       if (savedLogs && JSON.parse(savedLogs).length > 0) {
         setLogs(JSON.parse(savedLogs));
       } else {
-        console.log("Welcome to STORETH System");
+        console.log("Welcome to APEXSTORE System");
         setLogs([
           {
             id: Math.random().toString(36).substring(2, 9),
@@ -1288,7 +1284,7 @@ function AppContent() {
         const newKeys = [];
         for (let i = 0; i < count; i++) {
           const newKey =
-            "STORETH-" +
+            "APEXSTORE-" +
             Math.random().toString(36).substring(2, 10).toUpperCase() +
             "-" +
             Math.random().toString(36).substring(2, 6).toUpperCase();
@@ -1387,7 +1383,7 @@ function AppContent() {
       title: "ลบคีย์หลายรายการ",
       html: `
         <div class="text-left text-sm space-y-2 mb-4">
-          <div><span class="text-zinc-500">คีย์ทั้งหมด:</span> <span class="font-bold text-[#1E90FF]">${totalAll}</span> รายการ</div>
+          <div><span class="text-zinc-500">คีย์ทั้งหมด:</span> <span class="font-bold text-[#3B82F6]">${totalAll}</span> รายการ</div>
           <div><span class="text-zinc-500">ยังไม่ได้ใช้:</span> <span class="font-bold text-emerald-500">${totalActive}</span> รายการ</div>
           <div><span class="text-zinc-500">ใช้แล้ว:</span> <span class="font-bold text-amber-500">${totalUsed}</span> รายการ</div>
         </div>
@@ -1888,22 +1884,22 @@ function AppContent() {
   if (isIPBlocked)
     return (
       <div className="min-h-screen bg-black flex items-center justify-center p-4">
-        <div className="w-full max-w-lg bg-[#1E90FF]/5 border border-[#1E90FF]/20 rounded-[3rem] p-12 text-center relative overflow-hidden">
-          <ShieldAlert className="w-20 h-20 text-[#1a7fe6] mx-auto mb-6 animate-pulse" />
-          <h1 className="text-3xl font-bold text-[#1a7fe6] mb-4 uppercase tracking-tighter">
+        <div className="w-full max-w-lg bg-[#3B82F6]/5 border border-[#3B82F6]/20 rounded-xl p-12 text-center relative overflow-hidden">
+          <ShieldAlert className="w-20 h-20 text-[#2563EB] mx-auto mb-6 animate-pulse" />
+          <h1 className="text-3xl font-bold text-[#2563EB] mb-4 uppercase tracking-tighter">
             Access Revoked
           </h1>
           <p className="text-zinc-400 text-sm leading-relaxed mb-8">
             ที่อยู่ IP ของคุณ ({clientIp})
             ถูกระงับการเข้าถึงระบบเนื่องจากละเมิดข้อตกลงการใช้งานหรือพบพฤติกรรมที่น่าสงสัย
-            หากคุณคิดว่าเป็นความผิดพลาด กรุณาติดต่อผู้ดูแลระบบ STORETH
+            หากคุณคิดว่าเป็นความผิดพลาด กรุณาติดต่อผู้ดูแลระบบ APEXSTORE
           </p>
           <div className="bg-black/50 rounded-2xl p-4 text-[10px] text-zinc-500 font-mono mb-8">
-            Error Code: STORETH_SECURITY_BLOCK_L4
+            Error Code: APEXSTORE_SECURITY_BLOCK_L4
           </div>
           <button
             onClick={() => window.location.reload()}
-            className="bg-[#1E90FF] hover:bg-[#1a7fe6] text-white px-8 py-3 rounded-2xl text-xs font-bold transition-all"
+            className="bg-[#3B82F6] hover:bg-[#2563EB] text-white px-8 py-3 rounded-2xl text-xs font-bold transition-all"
           >
             TRY RECONNECTING
           </button>
@@ -1914,7 +1910,7 @@ function AppContent() {
   if (!isLoaded)
     return (
       <div className="min-h-screen bg-black flex flex-col items-center justify-center font-sans overflow-hidden relative">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(30,144,255,0.05),transparent_70%)] pointer-events-none" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(59,130,246,0.05),transparent_70%)] pointer-events-none" />
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -1925,13 +1921,13 @@ function AppContent() {
             <motion.div
               animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0.8, 0.5] }}
               transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-              className="absolute inset-0 bg-[#1E90FF]/30 rounded-full blur-2xl"
+              className="absolute inset-0 bg-[#3B82F6]/30 rounded-full blur-2xl"
             />
-            <div className="w-20 h-20 rounded-2xl bg-[#1E90FF]/10 border border-[#1E90FF]/30 flex items-center justify-center relative overflow-hidden backdrop-blur-md shadow-[0_0_30px_rgba(30,144,255,0.2)]">
+            <div className="w-20 h-20 rounded-2xl bg-[#3B82F6]/10 border border-[#3B82F6]/30 flex items-center justify-center relative overflow-hidden  shadow-lg">
               <motion.div
                 animate={{ rotate: 360 }}
                 transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
-                className="absolute inset-[-100%] bg-[conic-gradient(from_90deg_at_50%_50%,transparent_40%,#1E90FF_100%)] opacity-70"
+                className="absolute inset-[-100%] bg-[conic-gradient(from_90deg_at_50%_50%,transparent_40%,#3B82F6_100%)] opacity-70"
               />
               <div className="absolute inset-[2px] bg-black rounded-[14px]" />
               <motion.div
@@ -1939,7 +1935,7 @@ function AppContent() {
                 transition={{ repeat: Infinity, duration: 4, ease: "linear" }}
               >
                 <Loader
-                  className="w-8 h-8 text-[#1E90FF] relative z-10 drop-shadow-[0_0_8px_rgba(30,144,255,0.8)]"
+                  className="w-8 h-8 text-[#3B82F6] relative z-10 drop-shadow-lg"
                   strokeWidth={2.5}
                 />
               </motion.div>
@@ -1958,9 +1954,9 @@ function AppContent() {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ duration: 0.5, ease: "easeOut" }}
-              className="w-32 h-auto mb-6 drop-shadow-[0_0_20px_rgba(30,144,255,0.3)]"
+              className="w-32 h-auto mb-6 drop-shadow-lg"
             />
-            <span className="text-[#1E90FF] text-[10px] font-bold tracking-[0.3em] uppercase bg-[#1E90FF]/10 px-3 py-1 rounded-full border border-[#1E90FF]/20">
+            <span className="text-[#3B82F6] text-[10px] font-bold tracking-[0.3em] uppercase bg-[#3B82F6]/10 px-3 py-1 rounded-full border border-[#3B82F6]/20">
               Loading System...
             </span>
           </motion.div>
@@ -1969,7 +1965,7 @@ function AppContent() {
     );
 
   return (
-    <div className="min-h-screen w-full bg-black text-white font-sans selection:bg-[#1E90FF]/30 flex flex-col lg:flex-row-reverse relative">
+    <div className="min-h-screen w-full bg-black text-white font-sans selection:bg-[#3B82F6]/30 flex flex-col lg:flex-row-reverse relative">
       <CustomCursor />
       <PopupBanner
         enabled={siteSettings?.popup_enabled ?? false}
@@ -1978,14 +1974,14 @@ function AppContent() {
       />
       {/* Page Transition Overlay */}
       {isPageTransitioning && (
-        <div className="fixed inset-0 z-[200] bg-black/95 backdrop-blur-md flex flex-col items-center justify-center p-4 overflow-hidden animate-in fade-in duration-75">
+        <div className="fixed inset-0 z-[200] bg-black/95  flex flex-col items-center justify-center p-4 overflow-hidden animate-in fade-in duration-75">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.1 }}
           >
             <Loader
-              className="w-12 h-12 text-[#1E90FF] animate-spin"
+              className="w-12 h-12 text-[#3B82F6] animate-spin"
               strokeWidth={2}
             />
           </motion.div>
@@ -1993,7 +1989,7 @@ function AppContent() {
       )}
 
       {/* Desktop Sidebar (Minimal) - HIDDEN for top menu layout */}
-      <aside className="hidden lg:flex flex-col w-[280px] shrink-0 bg-[#0B0F14] border-l border-[#1E90FF]/10 h-screen sticky top-0 p-6 z-[60] overflow-y-auto no-scrollbar">
+      <aside className="hidden lg:flex flex-col w-[280px] shrink-0 bg-[#0B0F14] border-l border-[#3B82F6]/10 h-screen sticky top-0 p-6 z-[60] overflow-y-auto no-scrollbar">
         <div className="mb-10 w-full flex justify-start">
           <motion.img
             whileHover={{ scale: 1.05 }}
@@ -2001,7 +1997,7 @@ function AppContent() {
             src="https://img2.pic.in.th/IMG_66428dd32388057a24f4.png"
             alt="Logo"
             referrerPolicy="no-referrer"
-            className="h-16 w-auto cursor-pointer drop-shadow-[0_0_15px_rgba(30,144,255,0.2)]"
+            className="h-16 w-auto cursor-pointer drop-shadow-lg"
             onClick={handleLogoClick}
           />
         </div>
@@ -2013,7 +2009,7 @@ function AppContent() {
           </div>
           <button
             onClick={() => setActiveView("home")}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === "home" ? "bg-[#1E90FF]/10 text-[#1E90FF] border border-[#1E90FF]/20" : "text-zinc-500 hover:bg-[#0a0d12] hover:text-white border border-transparent"}`}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === "home" ? "bg-[#3B82F6]/10 text-[#3B82F6] border border-[#3B82F6]/20" : "text-zinc-500 hover:bg-[#0a0d12] hover:text-white border border-transparent"}`}
           >
             <Home className="w-5 h-5 font-bold" /> หน้าแรก
           </button>
@@ -2022,7 +2018,7 @@ function AppContent() {
               setActiveView("categories");
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === "categories" ? "bg-[#1E90FF]/10 text-[#1E90FF] border border-[#1E90FF]/20" : "text-zinc-500 hover:bg-[#0a0d12] hover:text-white border border-transparent"}`}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === "categories" ? "bg-[#3B82F6]/10 text-[#3B82F6] border border-[#3B82F6]/20" : "text-zinc-500 hover:bg-[#0a0d12] hover:text-white border border-transparent"}`}
           >
             <ShoppingCart className="w-5 h-5 font-bold" /> สินค้าทั้งหมด
           </button>
@@ -2031,7 +2027,7 @@ function AppContent() {
               setActiveView(user ? "wallet" : "login");
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === "wallet" ? "bg-[#1E90FF]/10 text-[#1E90FF] border border-[#1E90FF]/20" : "text-zinc-500 hover:bg-[#0a0d12] hover:text-white border border-transparent"}`}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === "wallet" ? "bg-[#3B82F6]/10 text-[#3B82F6] border border-[#3B82F6]/20" : "text-zinc-500 hover:bg-[#0a0d12] hover:text-white border border-transparent"}`}
           >
             <Wallet className="w-5 h-5 font-bold" /> เติมเงิน
           </button>
@@ -2043,7 +2039,7 @@ function AppContent() {
                   title: "กรุณาเข้าสู่ระบบ",
                   text: "คุณต้องเข้าสู่ระบบก่อนใช้งานบรรดาเครื่องมือ",
                   confirmButtonText: "ไปหน้าเข้าสู่ระบบ",
-                  confirmButtonColor: "#1E90FF",
+                  confirmButtonColor: "#3B82F6",
                 }).then(() => setActiveView("login"));
                 return;
               }
@@ -2051,21 +2047,40 @@ function AppContent() {
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
             onMouseEnter={() => toolsImport()}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === "tools" ? "bg-[#1E90FF]/10 text-[#1E90FF] border border-[#1E90FF]/20" : "text-zinc-500 hover:bg-[#0a0d12] hover:text-white border border-transparent"}`}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === "tools" ? "bg-[#3B82F6]/10 text-[#3B82F6] border border-[#3B82F6]/20" : "text-zinc-500 hover:bg-[#0a0d12] hover:text-white border border-transparent"}`}
           >
             <Bot className="w-5 h-5 font-bold" /> เครื่องมือฟรี
           </button>
 
           {!user && (
-            <button
-              onClick={() => {
-                setActiveView("login");
-                window.scrollTo({ top: 0, behavior: "smooth" });
-              }}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === "login" || activeView === "signup" ? "bg-[#1E90FF]/10 text-[#1E90FF] border border-[#1E90FF]/20" : "text-zinc-500 hover:bg-[#0a0d12] hover:text-white border border-transparent"}`}
-            >
-              <LogIn className="w-5 h-5 font-bold" /> เข้าสู่ระบบ
-            </button>
+            <>
+              <div className="w-full h-[1px] bg-white/10 my-4" />
+              <div className="flex flex-col gap-3">
+                <button
+                  onClick={() => {
+                    setActiveView("login");
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                  className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl text-sm font-bold transition-all shadow-lg active:scale-95 ${activeView === "login" ? "bg-[#3B82F6] text-white" : "bg-[#3B82F6]/90 hover:bg-[#3B82F6] text-white"}`}
+                >
+                  <LogIn className="w-5 h-5" /> เข้าสู่ระบบ
+                </button>
+                <div className="flex items-center gap-3 px-2">
+                  <div className="flex-1 h-[1px] bg-white/10" />
+                  <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">or</span>
+                  <div className="flex-1 h-[1px] bg-white/10" />
+                </div>
+                <button
+                  onClick={() => {
+                    setActiveView("signup");
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                  className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl text-sm font-bold transition-all active:scale-95 border ${activeView === "signup" ? "bg-white/10 text-white border-white/20" : "bg-white/5 hover:bg-white/10 text-zinc-300 border-white/5 hover:text-white"}`}
+                >
+                  <UserPlus className="w-5 h-5" /> สมัครสมาชิก
+                </button>
+              </div>
+            </>
           )}
 
           {user && (
@@ -2131,7 +2146,7 @@ function AppContent() {
               setActiveView(user ? "history" : "login");
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === "history" ? "bg-[#1E90FF] text-white shadow-md shadow-[#1E90FF]/20" : "text-zinc-500 hover:bg-[#0a0d12] hover:text-white"}`}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === "history" ? "bg-[#3B82F6] text-white shadow-md shadow-lg" : "text-zinc-500 hover:bg-[#0a0d12] hover:text-white"}`}
           >
             <History className="w-5 h-5" /> ประวัติสั่งซื้อ
           </button>
@@ -2164,7 +2179,7 @@ function AppContent() {
                     setSelectedPage(page);
                     setActiveView("custom_page");
                   }}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === "custom_page" && selectedPage?.id === page.id ? "bg-[#1E90FF] text-white shadow-md shadow-[#1E90FF]/20" : "text-zinc-500 hover:bg-[#0a0d12] hover:text-white"}`}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === "custom_page" && selectedPage?.id === page.id ? "bg-[#3B82F6] text-white shadow-md shadow-lg" : "text-zinc-500 hover:bg-[#0a0d12] hover:text-white"}`}
                 >
                   <FileText className="w-5 h-5" />{" "}
                   {page.title.replace(/^#+\s*/, "")}
@@ -2178,7 +2193,7 @@ function AppContent() {
         <div className="pt-6 border-t border-white/5 mt-6 flex flex-col gap-3 shrink-0">
           {user ? (
             <div className="flex flex-col gap-3">
-              <div className="flex items-center gap-3 bg-[#0a0d12] p-4 rounded-3xl border border-white/10">
+              <div className="flex items-center gap-3 bg-[#0a0d12] p-4 rounded-xl border border-white/10">
                 <div className="w-10 h-10 bg-[#0B0F14] border border-white/10 rounded-full flex items-center justify-center overflow-hidden shrink-0">
                   <img
                     src={getAvatarUrl(
@@ -2222,7 +2237,7 @@ function AppContent() {
                 </button>
                 <button
                   onClick={handleLogout}
-                  className="py-2.5 bg-[#0B0F14] border border-white/10 text-[#1E90FF] rounded-2xl text-xs font-bold hover:bg-[#1E90FF]/10 hover:border-[#1E90FF]/30 transition-colors flex items-center justify-center gap-2"
+                  className="py-2.5 bg-[#0B0F14] border border-white/10 text-[#3B82F6] rounded-2xl text-xs font-bold hover:bg-[#3B82F6]/10 hover:border-[#3B82F6]/30 transition-colors flex items-center justify-center gap-2"
                 >
                   <LogOut className="w-4 h-4" />
                   ออก
@@ -2251,7 +2266,7 @@ function AppContent() {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setActiveView("search")}
-                className="w-11 h-11 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center text-zinc-400 hover:text-[#1E90FF] transition-colors shadow-sm"
+                className="w-11 h-11 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center text-zinc-400 hover:text-[#3B82F6] transition-colors shadow-sm"
                 aria-label="Search"
               >
                 <Search className="w-5 h-5" />
@@ -2259,7 +2274,7 @@ function AppContent() {
               <motion.button
                 whileTap={{ scale: 0.9 }}
                 onClick={() => setIsMobileMenuOpen(true)}
-                className="w-11 h-11 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center text-zinc-400 hover:text-[#1E90FF] active:scale-95 transition-all shadow-sm"
+                className="w-11 h-11 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center text-zinc-400 hover:text-[#3B82F6] active:scale-95 transition-all shadow-sm"
                 aria-label="Menu"
               >
                 <Menu className="w-5 h-5" />
@@ -2277,14 +2292,14 @@ function AppContent() {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] lg:hidden"
+                className="fixed inset-0 bg-black/60  z-[70] lg:hidden"
               />
               <motion.div
-                initial={{ opacity: 0, x: "100%" }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: "100%" }}
-                transition={{ type: "spring", damping: 25, stiffness: 250 }}
-                className="fixed top-0 right-0 bottom-0 w-[80%] max-w-[300px] bg-[#111318] shadow-2xl z-[71] flex flex-col lg:hidden overflow-y-auto no-scrollbar drawer-slide"
+                initial={{ x: "100%" }}
+                animate={{ x: 0 }}
+                exit={{ x: "100%" }}
+                transition={{ type: "tween", ease: [0.32, 0.72, 0, 1], duration: 0.3 }}
+                className="fixed top-0 right-0 bottom-0 w-[80%] max-w-[300px] bg-[#111318] shadow-2xl z-[71] flex flex-col lg:hidden overflow-y-auto no-scrollbar"
               >
                 {/* Close button */}
                 <button
@@ -2312,7 +2327,7 @@ function AppContent() {
                     <div className="flex-grow border-t border-white/5"></div>
                   </div>
                   <div
-                    className={`nav-row flex items-center gap-[13px] border-[1.5px] rounded-[12px] p-[14px] px-[16px] cursor-pointer transition-all ${activeView === "home" ? "border-[#1E90FF] bg-[#1E90FF]/15 text-[#1E90FF]" : "border-white/5 bg-white/5 text-zinc-400 hover:text-white"}`}
+                    className={`nav-row flex items-center gap-[13px] border-[1.5px] rounded-[12px] p-[14px] px-[16px] cursor-pointer transition-all ${activeView === "home" ? "border-[#3B82F6] bg-[#3B82F6]/15 text-[#3B82F6]" : "border-white/5 bg-white/5 text-zinc-400 hover:text-white"}`}
                     onClick={() => {
                       setActiveView("home");
                       setIsMobileMenuOpen(false);
@@ -2324,7 +2339,7 @@ function AppContent() {
                     </span>
                   </div>
                   <div
-                    className={`nav-row flex items-center gap-[13px] border-[1.5px] rounded-[12px] p-[14px] px-[16px] cursor-pointer transition-all ${activeView === "categories" || activeView === "category_products" ? "border-[#1E90FF] bg-[#1E90FF]/15 text-[#1E90FF]" : "border-white/5 bg-white/5 text-zinc-400 hover:text-white"}`}
+                    className={`nav-row flex items-center gap-[13px] border-[1.5px] rounded-[12px] p-[14px] px-[16px] cursor-pointer transition-all ${activeView === "categories" || activeView === "category_products" ? "border-[#3B82F6] bg-[#3B82F6]/15 text-[#3B82F6]" : "border-white/5 bg-white/5 text-zinc-400 hover:text-white"}`}
                     onClick={() => {
                       setActiveView("categories");
                       setIsMobileMenuOpen(false);
@@ -2336,7 +2351,7 @@ function AppContent() {
                     </span>
                   </div>
                   <div
-                    className={`nav-row flex items-center gap-[13px] border-[1.5px] rounded-[12px] p-[14px] px-[16px] cursor-pointer transition-all ${activeView === "wallet" ? "border-[#1E90FF] bg-[#1E90FF]/15 text-[#1E90FF]" : "border-white/5 bg-white/5 text-zinc-400 hover:text-white"}`}
+                    className={`nav-row flex items-center gap-[13px] border-[1.5px] rounded-[12px] p-[14px] px-[16px] cursor-pointer transition-all ${activeView === "wallet" ? "border-[#3B82F6] bg-[#3B82F6]/15 text-[#3B82F6]" : "border-white/5 bg-white/5 text-zinc-400 hover:text-white"}`}
                     onClick={() => {
                       if (!user) {
                         setActiveView("login");
@@ -2352,7 +2367,7 @@ function AppContent() {
                     </span>
                   </div>
                   <div
-                    className={`nav-row flex items-center gap-[13px] border-[1.5px] rounded-[12px] p-[14px] px-[16px] cursor-pointer transition-all ${activeView === "tools" ? "border-[#1E90FF] bg-[#1E90FF]/15 text-[#1E90FF]" : "border-white/5 bg-white/5 text-zinc-400 hover:text-white"}`}
+                    className={`nav-row flex items-center gap-[13px] border-[1.5px] rounded-[12px] p-[14px] px-[16px] cursor-pointer transition-all ${activeView === "tools" ? "border-[#3B82F6] bg-[#3B82F6]/15 text-[#3B82F6]" : "border-white/5 bg-white/5 text-zinc-400 hover:text-white"}`}
                     onClick={() => {
                       if (!user) {
                         Swal.fire({
@@ -2360,7 +2375,7 @@ function AppContent() {
                           title: "กรุณาเข้าสู่ระบบ",
                           text: "คุณต้องเข้าสู่ระบบก่อนใช้งานตัวเลือกนี้",
                           confirmButtonText: "ไปหน้าเข้าสู่ระบบ",
-                          confirmButtonColor: "#1E90FF",
+                          confirmButtonColor: "#3B82F6",
                         }).then(() => {
                            setActiveView("login");
                            setIsMobileMenuOpen(false);
@@ -2394,16 +2409,16 @@ function AppContent() {
                 {user ? (
                   <div className="px-[14px] pt-[20px] shrink-0">
                     <div className="text-[17px] font-bold text-zinc-500 mb-[12px] flex items-center gap-2">
-                      <User className="w-5 h-5 text-[#1E90FF]" />
+                      <User className="w-5 h-5 text-[#3B82F6]" />
                       สมาชิก
                     </div>
                     <div
                       onClick={() => setIsUserMenuOpen((v) => !v)}
-                      className="bg-white/5 border-2 border-white/10 rounded-2xl p-3 flex flex-col gap-3 cursor-pointer hover:border-[#1E90FF]/50 transition-all shadow-sm active:scale-[0.99]"
+                      className="bg-white/5 border-2 border-white/10 rounded-2xl p-3 flex flex-col gap-3 cursor-pointer hover:border-[#3B82F6]/50 transition-all shadow-sm active:scale-[0.99]"
                     >
                       <div className="flex items-center gap-3">
                         {/* Avatar */}
-                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#1E90FF] to-[#000] p-[2px] shrink-0 shadow-md">
+                        <div className="w-12 h-12 rounded-full bg-[#2563EB] p-[2px] shrink-0 shadow-md">
                           <div className="w-full h-full rounded-full bg-[#111318] overflow-hidden p-[1px]">
                             <img
                               src={getAvatarUrl(
@@ -2430,7 +2445,7 @@ function AppContent() {
                           </div>
                           <div className="flex items-center gap-2 mt-0.5">
                             {userPlan?.isPremium ? (
-                              <div className="flex items-center gap-1.5 px-2.5 py-1 bg-gradient-to-r from-[#1E90FF] to-blue-700 text-white text-[10px] font-black rounded-lg uppercase tracking-wider shadow-sm">
+                              <div className="flex items-center gap-1.5 px-2.5 py-1 from-[#3B82F6] to-blue-700 text-white text-[10px] font-black rounded-lg uppercase tracking-wider shadow-sm">
                                 <Crown className="w-3 h-3 fill-white" />
                                 Premium
                               </div>
@@ -2445,14 +2460,14 @@ function AppContent() {
                       </div>
 
                       <div className="flex items-center gap-2">
-                        <div className="flex-1 bg-gradient-to-r from-[#1E90FF]/10 to-transparent border border-[#1E90FF]/20 rounded-xl p-3 flex items-center justify-between">
+                        <div className="flex-1 from-[#3B82F6]/10 to-transparent border border-[#3B82F6]/20 rounded-xl p-3 flex items-center justify-between">
                           <div className="flex items-center gap-2.5">
-                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#1E90FF] to-[#000] flex items-center justify-center shadow-sm ring-2 ring-[#2a2d35] overflow-hidden">
+                            <div className="w-8 h-8 rounded-full bg-[#2563EB] flex items-center justify-center shadow-sm ring-2 ring-[#2a2d35] overflow-hidden">
                               <Coins className="w-5 h-5 text-white drop-shadow-sm" />
                             </div>
                             <div className="flex flex-col">
                               <div className="flex items-center gap-1.5">
-                                <Wallet className="w-3 h-3 text-[#1E90FF]" />
+                                <Wallet className="w-3 h-3 text-[#3B82F6]" />
                                 <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wide">
                                   ยอดเงินคงเหลือ
                                 </span>
@@ -2463,7 +2478,7 @@ function AppContent() {
                                     ? Math.floor(userPlan.balance).toLocaleString()
                                     : "0"}
                                 </span>
-                                <span className="text-[14px] font-black text-[#1E90FF]">
+                                <span className="text-[14px] font-black text-[#3B82F6]">
                                   ฿
                                 </span>
                               </div>
@@ -2487,7 +2502,7 @@ function AppContent() {
                           {userPlan?.username || user?.email?.split("@")[0]}
                         </div>
                       <div
-                        className={`dd-row flex items-center gap-[14px] p-[13px] px-[18px] text-[15px] font-bold text-zinc-400 border-b border-white/5 cursor-pointer transition-colors ${activeView === "profile" ? "bg-[#1E90FF]/10 text-[#1E90FF]" : "hover:bg-white/5 hover:text-white"}`}
+                        className={`dd-row flex items-center gap-[14px] p-[13px] px-[18px] text-[15px] font-bold text-zinc-400 border-b border-white/5 cursor-pointer transition-colors ${activeView === "profile" ? "bg-[#3B82F6]/10 text-[#3B82F6]" : "hover:bg-white/5 hover:text-white"}`}
                         onClick={() => {
                           setActiveView("profile");
                           setIsMobileMenuOpen(false);
@@ -2497,7 +2512,7 @@ function AppContent() {
                         โปรไฟล์
                       </div>
                       <div
-                        className={`dd-row flex items-center gap-[14px] p-[13px] px-[18px] text-[15px] font-bold text-zinc-400 border-b border-white/5 cursor-pointer transition-colors ${activeView === "settings" ? "bg-[#1E90FF]/10 text-[#1E90FF]" : "hover:bg-white/5 hover:text-white"}`}
+                        className={`dd-row flex items-center gap-[14px] p-[13px] px-[18px] text-[15px] font-bold text-zinc-400 border-b border-white/5 cursor-pointer transition-colors ${activeView === "settings" ? "bg-[#3B82F6]/10 text-[#3B82F6]" : "hover:bg-white/5 hover:text-white"}`}
                         onMouseEnter={() => settingsImport()}
                         onClick={() => {
                           setActiveView("settings");
@@ -2508,7 +2523,7 @@ function AppContent() {
                         การตั้งค่าผู้ใช้
                       </div>
                       <div
-                        className={`dd-row flex items-center gap-[14px] p-[13px] px-[18px] text-[15px] font-bold text-zinc-400 border-b border-white/5 cursor-pointer transition-colors ${activeView === "wallet_history" ? "bg-[#1E90FF]/10 text-[#1E90FF]" : "hover:bg-white/5 hover:text-white"}`}
+                        className={`dd-row flex items-center gap-[14px] p-[13px] px-[18px] text-[15px] font-bold text-zinc-400 border-b border-white/5 cursor-pointer transition-colors ${activeView === "wallet_history" ? "bg-[#3B82F6]/10 text-[#3B82F6]" : "hover:bg-white/5 hover:text-white"}`}
                         onMouseEnter={() => historyImport()}
                         onClick={() => {
                           setActiveView("wallet_history");
@@ -2519,7 +2534,7 @@ function AppContent() {
                         ประวัติเติมเงิน
                       </div>
                       <div
-                        className={`dd-row flex items-center gap-[14px] p-[13px] px-[18px] text-[15px] font-bold text-zinc-400 border-b border-white/5 cursor-pointer transition-colors ${activeView === "order_history" ? "bg-[#1E90FF]/10 text-[#1E90FF]" : "hover:bg-white/5 hover:text-white"}`}
+                        className={`dd-row flex items-center gap-[14px] p-[13px] px-[18px] text-[15px] font-bold text-zinc-400 border-b border-white/5 cursor-pointer transition-colors ${activeView === "order_history" ? "bg-[#3B82F6]/10 text-[#3B82F6]" : "hover:bg-white/5 hover:text-white"}`}
                         onMouseEnter={() => historyImport()}
                         onClick={() => {
                           setActiveView("order_history");
@@ -2530,7 +2545,7 @@ function AppContent() {
                         ประวัติการซื้อสินค้า
                       </div>
                       <div
-                        className={`dd-row flex items-center gap-[14px] p-[13px] px-[18px] text-[15px] font-bold text-zinc-400 border-b border-white/5 cursor-pointer transition-colors ${activeView === "random_history" ? "bg-[#1E90FF]/10 text-[#1E90FF]" : "hover:bg-white/5 hover:text-white"}`}
+                        className={`dd-row flex items-center gap-[14px] p-[13px] px-[18px] text-[15px] font-bold text-zinc-400 border-b border-white/5 cursor-pointer transition-colors ${activeView === "random_history" ? "bg-[#3B82F6]/10 text-[#3B82F6]" : "hover:bg-white/5 hover:text-white"}`}
                         onMouseEnter={() => historyImport()}
                         onClick={() => {
                           setActiveView("random_history");
@@ -2566,17 +2581,36 @@ function AppContent() {
                     </div>
                   </div>
                 ) : (
-                  <div className="px-[14px] pt-6 flex flex-col gap-3">
-                    <button
-                      onClick={() => {
-                        setActiveView("login");
-                        setIsMobileMenuOpen(false);
-                      }}
-                      className="w-full py-4 bg-[#1E90FF] text-white rounded-[16px] font-black text-[15px] flex items-center justify-center gap-2 shadow-lg shadow-[#1E90FF]/25 active:scale-[0.98] transition-all"
-                    >
-                      <LogIn className="w-5 h-5" /> เข้าสู่ระบบ / สมัครสมาชิก
-                    </button>
-                  </div>
+                  <>
+                    <div className="px-6 my-4">
+                       <div className="w-full h-[1px] bg-white/10" />
+                    </div>
+                    <div className="px-[14px] flex flex-col gap-4">
+                      <button
+                        onClick={() => {
+                          setActiveView("login");
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className="w-full py-3.5 bg-[#3B82F6] hover:bg-[#2563EB] text-white rounded-[16px] font-black text-[15px] flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95"
+                      >
+                        <LogIn className="w-5 h-5" /> เข้าสู่ระบบ
+                      </button>
+                      <div className="flex items-center gap-3 px-4">
+                         <div className="h-[1px] flex-1 bg-white/10" />
+                         <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">or</span>
+                         <div className="h-[1px] flex-1 bg-white/10" />
+                      </div>
+                      <button
+                        onClick={() => {
+                          setActiveView("signup");
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className="w-full py-3.5 bg-zinc-900 hover:bg-zinc-800 border border-white/10 hover:border-white/20 text-white rounded-[16px] font-black text-[15px] flex items-center justify-center gap-2 active:scale-95 transition-all shadow-sm"
+                      >
+                        <UserPlus className="w-5 h-5" /> สมัครสมาชิก
+                      </button>
+                    </div>
+                  </>
                 )}
 
                 <div className="flex-1 min-h-[20px]" />
@@ -2613,7 +2647,7 @@ function AppContent() {
           <Suspense
             fallback={
               <div className="flex items-center justify-center p-10">
-                <div className="w-8 h-8 border-4 border-[#1E90FF] border-t-transparent flex-shrink-0 animate-spin rounded-full"></div>
+                <div className="w-8 h-8 border-4 border-[#3B82F6] border-t-transparent flex-shrink-0 animate-spin rounded-full"></div>
               </div>
             }
           >
@@ -2716,6 +2750,12 @@ function AppContent() {
                 clientIp={clientIp}
                 setActiveView={setActiveView}
                 handleLogout={handleLogout}
+                purchaseHistory={purchaseHistory.filter(
+                  (h) => h.uid === user?.id || h.userId === user?.id,
+                )}
+                usedKeysHistory={usedKeysHistory.filter(
+                  (h) => h.uid === user?.id,
+                )}
               />
             )}
             {activeView === "telegram_catcher" && (
@@ -2889,8 +2929,8 @@ function AppContent() {
         </div>
 
         {/* Footer */}
-        <footer className="mt-auto pt-16 pb-8 border-t border-[#1E90FF]/10 relative overflow-hidden bg-[#0A0D12]">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-px bg-gradient-to-r from-transparent via-[#1E90FF]/50 to-transparent"></div>
+        <footer className="mt-auto pt-16 pb-8 border-t border-[#3B82F6]/10 relative overflow-hidden bg-[#0A0D12]">
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-px from-transparent via-[#3B82F6]/50 to-transparent"></div>
 
           <div className="max-w-7xl mx-auto px-6 md:px-12 w-full">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-12 text-sm text-zinc-500 mb-12 text-center md:text-center">
@@ -2906,7 +2946,7 @@ function AppContent() {
                   className="leading-relaxed mb-6 text-zinc-400 select-all cursor-text hover:text-white transition-colors"
                   title="คลิกเพื่อคัดลอก"
                 >
-                  STORETH | จำหน่ายสินค้าราคาถูก ปลอดภัย 100%
+                  APEXSTORE | จำหน่ายสินค้าราคาถูก ปลอดภัย 100%
                 </p>
               </div>
 
@@ -2919,7 +2959,7 @@ function AppContent() {
                   <li>
                     <button
                       onClick={() => setActiveView("home")}
-                      className="hover:text-[#1E90FF] transition-colors"
+                      className="hover:text-[#3B82F6] transition-colors"
                     >
                       สินค้าทั่วไป
                     </button>
@@ -2927,7 +2967,7 @@ function AppContent() {
                   <li>
                     <button
                       onClick={() => setActiveView("premium")}
-                      className="hover:text-[#1E90FF] transition-colors"
+                      className="hover:text-[#3B82F6] transition-colors"
                     >
                       แอพพรีเมียม
                     </button>
@@ -2935,7 +2975,7 @@ function AppContent() {
                   <li>
                     <button
                       onClick={() => setActiveView("vip")}
-                      className="hover:text-[#1E90FF] transition-colors"
+                      className="hover:text-[#3B82F6] transition-colors"
                     >
                       ยศ VIP
                     </button>
@@ -2952,7 +2992,7 @@ function AppContent() {
                   <li>
                     <button
                       onClick={() => setShowAboutUs(true)}
-                      className="hover:text-[#1E90FF] transition-colors"
+                      className="hover:text-[#3B82F6] transition-colors"
                     >
                       เกี่ยวกับเรา
                     </button>
@@ -2960,7 +3000,7 @@ function AppContent() {
                   <li>
                     <button
                       onClick={() => setShowTerms(true)}
-                      className="hover:text-[#1E90FF] transition-colors"
+                      className="hover:text-[#3B82F6] transition-colors"
                     >
                       เงื่อนไขการใช้งาน
                     </button>
@@ -2968,7 +3008,7 @@ function AppContent() {
                   <li>
                     <button
                       onClick={() => setShowPrivacy(true)}
-                      className="hover:text-[#1E90FF] transition-colors"
+                      className="hover:text-[#3B82F6] transition-colors"
                     >
                       นโยบายความเป็นส่วนตัว
                     </button>
@@ -2976,7 +3016,7 @@ function AppContent() {
                   <li>
                     <button
                       onClick={() => setShowContactUs(true)}
-                      className="hover:text-[#1E90FF] transition-colors"
+                      className="hover:text-[#3B82F6] transition-colors"
                     >
                       ติดต่อเรา
                     </button>
@@ -3027,17 +3067,17 @@ function AppContent() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-[100] backdrop-blur-md font-sans"
+              className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-[100]  font-sans"
             >
               <motion.div
                 initial={{ scale: 0.95, opacity: 0, y: 20 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 exit={{ scale: 0.95, opacity: 0, y: 20 }}
                 transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                className="bg-[#0B0F14] border border-white/10 rounded-[2rem] p-6 sm:p-8 max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl relative"
+                className="bg-[#0B0F14] border border-white/10 rounded-xl p-6 sm:p-8 max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl relative"
               >
                 <h2 className="text-xl sm:text-2xl font-bold mb-6 text-white flex items-center gap-2">
-                  <Shield className="w-6 h-6 shrink-0 text-[#1a7fe6]" />{" "}
+                  <Shield className="w-6 h-6 shrink-0 text-[#2563EB]" />{" "}
                   นโยบายความเป็นส่วนตัว (Privacy Policy)
                 </h2>
                 <div className="overflow-y-auto pr-2 sm:pr-4 space-y-6 text-sm leading-relaxed text-zinc-400 scrollbar-thin scrollbar-thumb-zinc-700 flex-1">
@@ -3125,7 +3165,7 @@ function AppContent() {
                       </li>
                       <li>
                         เพื่อใช้ป้องกันและรักษาความปลอดภัยต่อชีวิต
-                        หรือปกป้องทรัพย์สินของ STORETH{" "}
+                        หรือปกป้องทรัพย์สินของ APEXSTORE{" "}
                       </li>
                     </ul>
                   </div>
@@ -3172,7 +3212,7 @@ function AppContent() {
                 <div className="pt-6 mt-6 border-t border-white/5 flex gap-3 flex-col sm:flex-row justify-end">
                   <button
                     onClick={() => setShowPrivacy(false)}
-                    className="bg-[#1E90FF]/10 hover:bg-[#1E90FF]/25 text-[#1E90FF] font-bold py-3 px-8 rounded-2xl transition-colors w-full sm:w-auto"
+                    className="bg-[#3B82F6]/10 hover:bg-[#3B82F6]/25 text-[#3B82F6] font-bold py-3 px-8 rounded-2xl transition-colors w-full sm:w-auto"
                   >
                     ทำความเข้าใจและปิดหน้าต่าง
                   </button>
@@ -3186,17 +3226,17 @@ function AppContent() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-[100] backdrop-blur-md font-sans"
+              className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-[100]  font-sans"
             >
               <motion.div
                 initial={{ scale: 0.95, opacity: 0, y: 20 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 exit={{ scale: 0.95, opacity: 0, y: 20 }}
                 transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                className="bg-[#0B0F14] border border-white/10 rounded-[2rem] p-6 sm:p-8 max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl relative"
+                className="bg-[#0B0F14] border border-white/10 rounded-xl p-6 sm:p-8 max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl relative"
               >
                 <h2 className="text-xl sm:text-2xl font-bold mb-6 flex items-center gap-2 text-white">
-                  <ListChecks className="w-6 h-6 shrink-0 text-[#1a7fe6]" />{" "}
+                  <ListChecks className="w-6 h-6 shrink-0 text-[#2563EB]" />{" "}
                   ข้อกำหนดการใช้งาน (Terms of Use)
                 </h2>
                 <div className="overflow-y-auto pr-2 sm:pr-4 space-y-6 text-sm leading-relaxed text-zinc-400 scrollbar-thin scrollbar-thumb-zinc-700 flex-1">
@@ -3208,7 +3248,7 @@ function AppContent() {
                       การเข้าถึงและใช้งานบริการ เครื่องมือตรวจสอบ บอท
                       และผลิตภัณฑ์ของเรา
                       ถือเป็นการรับรองว่าท่านได้ทำความเข้าใจและตกลงยอมรับเงื่อนไขการใช้บริการของ{" "}
-                      <strong>STORETH</strong> อย่างครบถ้วนทุกประการ
+                      <strong>APEXSTORE</strong> อย่างครบถ้วนทุกประการ
                       หากคุณไม่เห็นด้วยกับกฎหมายและข้อบังคับเหล่านี้กรุณายุติการเข้าถึงและการใช้งานโดยทันที
                     </p>
                   </div>
@@ -3262,7 +3302,7 @@ function AppContent() {
                     </h3>
                     <p className="mb-2">
                       เมื่อคุณยืนยันเติมเครดิต ชำระคีย์ โอนเงินซื้อบัญชี
-                      หรือสินค้าดิจิทัลใน STORETH คำสั่งซื้อดังกล่าว{" "}
+                      หรือสินค้าดิจิทัลใน APEXSTORE คำสั่งซื้อดังกล่าว{" "}
                       <strong>
                         ไม่สามารถคืนเป็นเงินสด (Non-Refundable) ในทุกกรณี
                       </strong>{" "}
@@ -3302,7 +3342,7 @@ function AppContent() {
                       5. สิทธิของการยุติการให้บริการ และ IP Ban
                     </h3>
                     <p>
-                      ทีมงาน STORETH ถือสิทธิเด็ดขาดสูงสุดในการเตะ
+                      ทีมงาน APEXSTORE ถือสิทธิเด็ดขาดสูงสุดในการเตะ
                       หรือถอดถอนผู้ใช้ ระงับบัญชี (Ban)
                       เปลี่ยนแปลงแก้ไขการใช้งาน และระงับช่องทางการเข้าถึง (IP
                       Blocking) โดยไม่ต้องแจ้งตักเตือนรวมถึงชดใช้ค่าเสียหายใดๆ
@@ -3339,7 +3379,7 @@ function AppContent() {
                 <div className="pt-6 mt-6 border-t border-white/5 text-right w-full">
                   <button
                     onClick={() => setShowTerms(false)}
-                    className="bg-[#1E90FF] hover:bg-[#166bcc] text-white font-bold py-3 px-8 rounded-2xl transition-all shadow-md hover:shadow-lg w-full sm:w-auto"
+                    className="bg-[#3B82F6] hover:bg-[#1D4ED8] text-white font-bold py-3 px-8 rounded-2xl transition-all shadow-md hover:shadow-lg w-full sm:w-auto"
                   >
                     ข้าพเจ้ายอมรับและตกลงตามข้อกำหนดกติกา
                   </button>
@@ -3353,17 +3393,17 @@ function AppContent() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-[100] backdrop-blur-md font-sans"
+              className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-[100]  font-sans"
             >
               <motion.div
                 initial={{ scale: 0.95, opacity: 0, y: 20 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 exit={{ scale: 0.95, opacity: 0, y: 20 }}
                 transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                className="bg-[#0B0F14] border border-white/10 rounded-[2rem] p-6 sm:p-8 max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl relative"
+                className="bg-[#0B0F14] border border-white/10 rounded-xl p-6 sm:p-8 max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl relative"
               >
                 <h2 className="text-xl sm:text-2xl font-bold mb-6 flex items-center gap-3 text-white">
-                  <div className="w-8 h-8 rounded-full bg-[#1E90FF]/25 flex items-center justify-center text-[#1E90FF]">
+                  <div className="w-8 h-8 rounded-full bg-[#3B82F6]/25 flex items-center justify-center text-[#3B82F6]">
                     <svg
                       className="w-4 h-4"
                       fill="none"
@@ -3378,7 +3418,7 @@ function AppContent() {
                       ></path>
                     </svg>
                   </div>
-                  บริษัทและโครงการ (About STORETH)
+                  บริษัทและโครงการ (About APEXSTORE)
                 </h2>
                 <div className="overflow-y-auto pr-2 sm:pr-4 space-y-6 text-sm leading-relaxed text-zinc-400 scrollbar-thin scrollbar-thumb-zinc-700 flex-1">
                   <div>
@@ -3386,7 +3426,7 @@ function AppContent() {
                       จุดเริ่มต้น และวิสัยทัศน์ (Vision & Origin)
                     </h3>
                     <p>
-                      <strong>STORETH</strong>{" "}
+                      <strong>APEXSTORE</strong>{" "}
                       เกิดจากแนวคิดที่ต้องการทลายข้อจำกัดด้านเวลาและความยุ่งยากของการบริหารโซเชียลมีเดีย
                       ทรัพยากรบัญชี และคีย์ผลิตภัณฑ์ ด้วยเจตนารมณ์ที่จะรวบรวม
                       "เครื่องมือตัวคัดกรองอัตโนมัติ" และ
@@ -3401,7 +3441,7 @@ function AppContent() {
                       ผลิตภัณฑ์หลักของเรา (Products & Services)
                     </h3>
                     <p className="mb-2">
-                      เครือข่ายของ STORETH
+                      เครือข่ายของ APEXSTORE
                       ภาคภูมิใจที่จะนำเสนอขอบข่ายการบริการหลากหลาย ได้แก่ :
                     </p>
                     <ul className="list-disc pl-5 space-y-1">
@@ -3467,7 +3507,7 @@ function AppContent() {
                     </ul>
                     <p className="mt-2 text-zinc-500 italic">
                       "ขอบคุณผู้ใช้งานและพันธมิตรทุกคน
-                      ที่เล็งเห็นคุณค่าและก้าวเดินไปพร้อมกับ STORETH
+                      ที่เล็งเห็นคุณค่าและก้าวเดินไปพร้อมกับ APEXSTORE
                       ขวากหนามทางดิจิทัลไหนที่ยาก... เราพร้อมเบิกทางให้คุณ"
                     </p>
                   </div>
@@ -3475,7 +3515,7 @@ function AppContent() {
                 <div className="pt-6 mt-6 border-t border-white/5 flex justify-end w-full">
                   <button
                     onClick={() => setShowAboutUs(false)}
-                    className="bg-[#1E90FF]/10 hover:bg-[#1E90FF]/25 text-[#1E90FF] font-bold py-3 px-8 rounded-2xl transition-all w-full sm:w-auto"
+                    className="bg-[#3B82F6]/10 hover:bg-[#3B82F6]/25 text-[#3B82F6] font-bold py-3 px-8 rounded-2xl transition-all w-full sm:w-auto"
                   >
                     ปิดหน้าต่างนี้
                   </button>
@@ -3489,18 +3529,18 @@ function AppContent() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-[100] backdrop-blur-md font-sans"
+              className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-[100]  font-sans"
             >
               <motion.div
                 initial={{ scale: 0.95, opacity: 0, y: 20 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 exit={{ scale: 0.95, opacity: 0, y: 20 }}
                 transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                className="bg-[#0B0F14] border border-white/10 rounded-[2rem] p-6 sm:p-8 max-w-md w-full flex flex-col shadow-2xl relative"
+                className="bg-[#0B0F14] border border-white/10 rounded-xl p-6 sm:p-8 max-w-md w-full flex flex-col shadow-2xl relative"
               >
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-xl sm:text-2xl font-bold flex items-center gap-2 text-white">
-                    <Phone className="w-6 h-6 shrink-0 text-[#1E90FF]" />{" "}
+                    <Phone className="w-6 h-6 shrink-0 text-[#3B82F6]" />{" "}
                     ติดต่อเรา
                   </h2>
                   <button
@@ -3550,7 +3590,7 @@ function AppContent() {
                 <div className="pt-6 mt-6 border-t border-white/5 flex justify-end w-full">
                   <button
                     onClick={() => setShowContactUs(false)}
-                    className="bg-[#1E90FF]/10 hover:bg-[#1E90FF]/25 text-[#1E90FF] font-bold py-3 px-8 rounded-2xl transition-all w-full sm:w-auto"
+                    className="bg-[#3B82F6]/10 hover:bg-[#3B82F6]/25 text-[#3B82F6] font-bold py-3 px-8 rounded-2xl transition-all w-full sm:w-auto"
                   >
                     ปิดหน้าต่างนี้
                   </button>
@@ -3570,8 +3610,8 @@ function AppContent() {
 
         {/* Turnstile Modal */}
         {showTurnstileModal && (
-          <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-[70] backdrop-blur-sm font-sans animate-in zoom-in-95 duration-200">
-            <div className="bg-[#0B0F14] border border-white/10 rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-xl relative overflow-hidden flex flex-col items-center">
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-[70]  font-sans animate-in zoom-in-95 duration-200">
+            <div className="bg-[#0B0F14] border border-white/10 rounded-xl p-6 sm:p-8 max-w-sm w-full shadow-xl relative overflow-hidden flex flex-col items-center">
               <div className="bg-[#0a0d12] border border-white/5 rounded-2xl mb-2 relative overflow-hidden w-full h-[58px]">
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[110%] scale-[0.92] flex justify-center">
                   {TURNSTILE_SITE_KEY ? (
@@ -3587,7 +3627,7 @@ function AppContent() {
                       }}
                     />
                   ) : (
-                    <div className="p-3 bg-[#1E90FF]/20 text-[#1E90FF] rounded-xl text-center text-[10px] font-bold w-full mx-8">
+                    <div className="p-3 bg-[#3B82F6]/20 text-[#3B82F6] rounded-xl text-center text-[10px] font-bold w-full mx-8">
                       ยังไม่ได้ตั้งค่า VITE_TURNSTILE_SITE_KEY (Bypass Mode
                       Active)
                     </div>
@@ -3602,7 +3642,7 @@ function AppContent() {
                       console.error,
                     );
                   }}
-                  className="w-full bg-[#1E90FF] hover:bg-[#1a7fe6] text-white font-bold py-3.5 rounded-2xl transition-all shadow-sm mb-4"
+                  className="w-full bg-[#3B82F6] hover:bg-[#2563EB] text-white font-bold py-3.5 rounded-2xl transition-all shadow-sm mb-4"
                 >
                   ดำเนินการต่อ (Bypass)
                 </button>
@@ -3634,7 +3674,7 @@ function AppContent() {
         {/* Global Audio Provider */}
         {!deferMedia && siteSettings.spotify_url && (
           <div className="fixed bottom-6 right-6 z-[990] flex flex-col items-end gap-3 pointer-events-none group/float">
-            <div className="bg-[#0b0e14]/90 backdrop-blur-xl border border-white/10 px-3 py-1.5 rounded-full text-[10px] font-black text-[#1E90FF] tracking-widest opacity-0 group-hover/float:opacity-100 transition-opacity mb-1 shadow-2xl pointer-events-none uppercase">
+            <div className="bg-[#0b0e14]/90  border border-white/10 px-3 py-1.5 rounded-full text-[10px] font-black text-[#3B82F6] tracking-widest opacity-0 group-hover/float:opacity-100 transition-opacity mb-1 shadow-2xl pointer-events-none uppercase">
               Music Player
             </div>
             <button
@@ -3681,7 +3721,7 @@ function AppContent() {
                   setIsMusicExpanded(!isMusicExpanded);
                 }
               }}
-              className={`w-12 h-12 rounded-2xl bg-[#0b0e14]/90 backdrop-blur-xl border border-white/10 flex items-center justify-center text-[#1E90FF] shadow-2xl transition-all duration-300 pointer-events-auto hover:scale-110 active:scale-95 ${isMusicExpanded || ytPlaying ? "rotate-90" : ""}`}
+              className={`w-12 h-12 rounded-2xl bg-[#0b0e14]/90  border border-white/10 flex items-center justify-center text-[#3B82F6] shadow-2xl transition-all duration-300 pointer-events-auto hover:scale-110 active:scale-95 ${isMusicExpanded || ytPlaying ? "rotate-90" : ""}`}
               title="เปิด/ปิด แถบเพลง"
             >
               <Music
@@ -3697,14 +3737,14 @@ function AppContent() {
                 className={`transition-all duration-500 transform origin-bottom-right pointer-events-auto ${isMusicExpanded || siteSettings.spotify_autoplay ? "translate-y-0 opacity-100 scale-100" : "translate-y-10 opacity-0 scale-50 pointer-events-none"}`}
               >
                 <div
-                  className={`bg-[#0b0e14]/90 backdrop-blur-xl border border-white/10 p-1 rounded-2xl shadow-2xl overflow-hidden ${siteSettings.spotify_url.match(/\.(mp3|wav|ogg|m4a)$/) || siteSettings.spotify_url.includes("drive.google.com/uc") || siteSettings.spotify_url.startsWith("data:audio") ? "w-auto h-auto" : "w-[300px] h-[80px]"}`}
+                  className={`bg-[#0b0e14]/90  border border-white/10 p-1 rounded-2xl shadow-2xl overflow-hidden ${siteSettings.spotify_url.match(/\.(mp3|wav|ogg|m4a)$/) || siteSettings.spotify_url.includes("drive.google.com/uc") || siteSettings.spotify_url.startsWith("data:audio") ? "w-auto h-auto" : "w-[300px] h-[80px]"}`}
                 >
                   {siteSettings.spotify_url.match(/\.(mp3|wav|ogg|m4a)$/) ||
                   siteSettings.spotify_url.includes("drive.google.com/uc") ||
                   siteSettings.spotify_url.startsWith("data:audio") ? (
                     <div className="p-3 flex items-center gap-4 min-w-[280px]">
-                      <div className="w-10 h-10 rounded-xl bg-[#1E90FF]/10 flex items-center justify-center">
-                        <Music className="w-5 h-5 text-[#1E90FF] animate-pulse" />
+                      <div className="w-10 h-10 rounded-xl bg-[#3B82F6]/10 flex items-center justify-center">
+                        <Music className="w-5 h-5 text-[#3B82F6] animate-pulse" />
                       </div>
                       <div className="flex-1">
                         <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">
@@ -3719,7 +3759,7 @@ function AppContent() {
                           controls
                           autoPlay={siteSettings.spotify_autoplay}
                           loop
-                          className="h-8 w-full mt-1 accent-[#1E90FF]"
+                          className="h-8 w-full mt-1 accent-[#3B82F6]"
                         />
                       </div>
                     </div>

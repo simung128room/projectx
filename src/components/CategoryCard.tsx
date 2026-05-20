@@ -21,8 +21,8 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
   bgImage,
   index = 0,
   onClick,
-  accentColor = "#1E90FF",
-  glowColor = "rgba(30,144,255,0.6)",
+  accentColor = "#3B82F6",
+  glowColor = "rgba(59,130,246,0.6)",
   gradientFrom = "#0a1f3a",
 }) => {
   const [hovered, setHovered] = useState(false);

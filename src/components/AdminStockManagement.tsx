@@ -88,7 +88,7 @@ export default function AdminStockManagement({ products, categories, setProducts
       cancelButtonText: 'ยกเลิก',
       background: '#0B0F14',
       color: '#fff',
-      confirmButtonColor: '#1a7fe6'
+      confirmButtonColor: '#2563EB'
     }).then((result) => {
       if (result.isConfirmed && result.value) {
          const newStock = [...stockItems];
@@ -113,7 +113,7 @@ export default function AdminStockManagement({ products, categories, setProducts
                 </button>
                 <div>
                    <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                       <Database className="w-5 h-5 text-[#1a7fe6]" /> สต็อก: {selectedProduct.name}
+                       <Database className="w-5 h-5 text-[#2563EB]" /> สต็อก: {selectedProduct.name}
                    </h2>
                    <p className="text-zinc-500 text-sm">ทั้งหมด {stockItems.length} รายการ (พบ {filteredStock.length} รายการ)</p>
                 </div>
@@ -125,12 +125,12 @@ export default function AdminStockManagement({ products, categories, setProducts
                   placeholder="ค้นหาสต็อก..."
                   value={searchTerm}
                   onChange={e => { setSearchTerm(e.target.value); setPage(1); }}
-                  className="w-full bg-[#0a0d12] border border-white/5 rounded-xl py-2 pl-9 pr-4 text-sm text-white focus:border-[#1a7fe6] focus:outline-none transition-colors"
+                  className="w-full bg-[#0a0d12] border border-white/5 rounded-xl py-2 pl-9 pr-4 text-sm text-white focus:border-[#2563EB] focus:outline-none transition-colors"
                 />
             </div>
          </div>
          
-         <div className="bg-[#0B0F14] border border-white/5 rounded-3xl p-4 overflow-hidden">
+         <div className="bg-[#0B0F14] border border-white/5 rounded-xl p-4 overflow-hidden">
              {paginated.length === 0 ? (
                  <div className="text-center py-20">
                     <Database className="w-12 h-12 text-zinc-800 mx-auto mb-4" />
@@ -170,28 +170,28 @@ export default function AdminStockManagement({ products, categories, setProducts
     <div className="space-y-8 animate-in fade-in duration-200">
       <div className="mb-6">
           <h2 className="text-2xl font-black text-white flex items-center gap-2 uppercase tracking-wide">
-              <Database className="w-6 h-6 text-[#1a7fe6]" /> จัดการสต็อกแยกหมวดหมู่
+              <Database className="w-6 h-6 text-[#2563EB]" /> จัดการสต็อกแยกหมวดหมู่
           </h2>
           <p className="text-zinc-500 text-sm mt-2">คุณสามารถดู ค้นหา แก้ไข และลบสต็อกที่อยู่ข้างในสินค้าได้จากหน้านี้</p>
       </div>
 
       {productsByCategory.length === 0 ? (
-          <div className="bg-[#0B0F14] border border-white/5 rounded-3xl p-12 text-center">
+          <div className="bg-[#0B0F14] border border-white/5 rounded-xl p-12 text-center">
               <Package className="w-16 h-16 text-zinc-800 mx-auto mb-4" />
               <p className="text-zinc-500">ยังไม่มีสินค้าในระบบ</p>
           </div>
       ) : (
           <div className="space-y-6">
               {productsByCategory.map((cat: any) => (
-                 <div key={cat.id} className="bg-[#0B0F14] border border-white/5 rounded-3xl p-6">
+                 <div key={cat.id} className="bg-[#0B0F14] border border-white/5 rounded-xl p-6">
                     <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                        <LayoutGrid className="w-5 h-5 text-[#1E90FF]" /> {cat.name}
+                        <LayoutGrid className="w-5 h-5 text-[#3B82F6]" /> {cat.name}
                     </h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                        {cat.products.map((p: any) => {
                            const stockCount = p.stockData?.length || p.stock || 0;
                            return (
-                               <div key={p.id} onClick={() => setSelectedProduct(p)} className="p-4 bg-[#0a0d12] border border-white/5 hover:border-[#1E90FF]/30 rounded-2xl cursor-pointer hover:bg-[#1E90FF]/5 transition-all flex items-center justify-between group">
+                               <div key={p.id} onClick={() => setSelectedProduct(p)} className="p-4 bg-[#0a0d12] border border-white/5 hover:border-[#3B82F6]/30 rounded-2xl cursor-pointer hover:bg-[#3B82F6]/5 transition-all flex items-center justify-between group">
                                   <div>
                                       <p className="font-bold text-zinc-300 group-hover:text-white transition-colors">{p.name}</p>
                                       <div className="flex items-center gap-2 mt-2">
@@ -200,7 +200,7 @@ export default function AdminStockManagement({ products, categories, setProducts
                                           </span>
                                       </div>
                                   </div>
-                                  <div className="w-8 h-8 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center opacity-50 group-hover:opacity-100 group-hover:bg-[#1E90FF] group-hover:border-[#1E90FF] transition-all">
+                                  <div className="w-8 h-8 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center opacity-50 group-hover:opacity-100 group-hover:bg-[#3B82F6] group-hover:border-[#3B82F6] transition-all">
                                       <Edit2 className="w-3 h-3 text-zinc-400 group-hover:text-white" />
                                   </div>
                                </div>

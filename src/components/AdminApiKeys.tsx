@@ -125,7 +125,7 @@ export const AdminApiKeys: React.FC = () => {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h2 className="text-2xl font-black text-white flex items-center gap-2">
-            <Key className="w-6 h-6 text-[#1a7fe6]" />
+            <Key className="w-6 h-6 text-[#2563EB]" />
             API Keys Management
           </h2>
           <p className="text-sm text-zinc-400 mt-1">
@@ -134,7 +134,7 @@ export const AdminApiKeys: React.FC = () => {
         </div>
         <button
           onClick={() => setIsAdding(!isAdding)}
-          className="bg-[#1a7fe6] text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-[#1a7fe6]/80 flex items-center gap-2"
+          className="bg-[#2563EB] text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-[#2563EB]/80 flex items-center gap-2"
         >
           {isAdding ? <XCircle className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
           {isAdding ? 'Cancel' : 'Create Key'}
@@ -151,7 +151,7 @@ export const AdminApiKeys: React.FC = () => {
               value={newKeyName}
               onChange={e => setNewKeyName(e.target.value)}
               placeholder="e.g. My Python Checker Script"
-              className="bg-[#121820] text-white px-4 py-3 rounded-xl border border-white/10 focus:border-[#1a7fe6] outline-none"
+              className="bg-[#121820] text-white px-4 py-3 rounded-xl border border-white/10 focus:border-[#2563EB] outline-none"
             />
           </div>
           <div className="flex items-center gap-3">
@@ -160,7 +160,7 @@ export const AdminApiKeys: React.FC = () => {
               id="isLifetime"
               checked={isLifetime}
               onChange={e => setIsLifetime(e.target.checked)}
-              className="w-4 h-4 rounded bg-[#121820] border-white/10 text-[#1a7fe6] focus:ring-[#1a7fe6]"
+              className="w-4 h-4 rounded bg-[#121820] border-white/10 text-[#2563EB] focus:ring-[#2563EB]"
             />
             <label htmlFor="isLifetime" className="text-sm font-bold text-white">Lifetime (ถาวร)</label>
           </div>
@@ -173,11 +173,11 @@ export const AdminApiKeys: React.FC = () => {
                 required
                 value={expireDays}
                 onChange={e => setExpireDays(e.target.value)}
-                className="bg-[#121820] text-white px-4 py-3 rounded-xl border border-white/10 focus:border-[#1a7fe6] outline-none"
+                className="bg-[#121820] text-white px-4 py-3 rounded-xl border border-white/10 focus:border-[#2563EB] outline-none"
               />
             </div>
           )}
-          <button type="submit" className="bg-[#1a7fe6] text-white font-bold py-3 rounded-xl mt-2">
+          <button type="submit" className="bg-[#2563EB] text-white font-bold py-3 rounded-xl mt-2">
             Generate Key
           </button>
         </form>
@@ -219,7 +219,7 @@ export const AdminApiKeys: React.FC = () => {
                       )}
                     </td>
                     <td className="px-6 py-4 font-bold text-white">{k.name}</td>
-                    <td className="px-6 py-4 font-mono text-xs text-[#1a7fe6] select-all cursor-pointer bg-[#1a7fe6]/10 px-2 py-1 rounded border border-[#1a7fe6]/20">
+                    <td className="px-6 py-4 font-mono text-xs text-[#2563EB] select-all cursor-pointer bg-[#2563EB]/10 px-2 py-1 rounded border border-[#2563EB]/20">
                       {k.key}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">{new Date(k.created_at).toLocaleString()}</td>

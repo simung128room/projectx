@@ -20,6 +20,7 @@ import multer from 'multer';
 import fs from 'fs';
 import os from 'os';
 import zlib from 'zlib';
+import cloudscraper from 'cloudscraper';
 
 const compressStock = (stockData: any) => {
   if (!Array.isArray(stockData) || stockData.length < 500) return stockData;
@@ -310,7 +311,11 @@ app.set('trust proxy', 1);
     quietReqLogger: true,
     autoLogging: {
       ignore: (req) => {
-        return req.url?.includes('/health') || req.url?.includes('/live') || req.url?.includes('/ready') || false;
+        const url = req.url || '';
+        return url.includes('/health') || 
+               url.includes('/live') || 
+               url.includes('/ready') || 
+               !url.startsWith('/api/');
       }
     }
   }));
@@ -3189,6 +3194,50 @@ const cleanupTokenCache = () => {
   let StringSession: any;
   let NewMessage: any;
   let twApi: any;
+
+  class TopupSystem {
+      phoneNumber: string;
+      constructor(phoneNumber: string) {
+          this.phoneNumber = phoneNumber;
+      }
+
+      async redeemVoucher(giftLink: string) {
+          try {
+              const voucherCode = giftLink.split('v=')[1]?.split('&')[0];
+              if (!voucherCode) return { success: false, message: 'INVALID_CODE' };
+
+              const response: any = await (cloudscraper as any).post(
+                  `https://gift.truemoney.com/campaign/vouchers/${voucherCode}/redeem`,
+                  {
+                      json: { mobile: this.phoneNumber, voucher_hash: voucherCode },
+                      headers: {
+                          'Referer': `https://gift.truemoney.com/campaign/?v=${voucherCode}`,
+                          'Origin': 'https://gift.truemoney.com'
+                      }
+                  }
+              );
+
+              if (response?.status?.code === 'SUCCESS') {
+                  return {
+                      success: true,
+                      amount: response.data.my_ticket.amount_baht,
+                      ownerName: response.data.owner_profile.full_name,
+                      voucherCode: voucherCode
+                  };
+              }
+              return { success: false, message: response?.status?.message || 'FAILED' };
+          } catch (error: any) {
+              if (error.response?.body) {
+                  try {
+                      const errData = typeof error.response.body === 'string' ? JSON.parse(error.response.body) : error.response.body;
+                      return { success: false, message: errData.status?.message || 'FAILED' };
+                  } catch (e) {}
+              }
+              return { success: false, message: 'RATE_LIMIT/ERROR' };
+          }
+      }
+  }
+
   (async () => {
     const t = await import('telegram');
     TelegramClient = t.TelegramClient;
@@ -3298,21 +3347,43 @@ const cleanupTokenCache = () => {
               sessData.logs.push('เชื่อมต่อบัญชีสำเร็จ! บอทกำลังดักซองในพื้นหลัง (คุณสามารถปิดหน้านี้ได้)');
               
               // Handle New Message
+              const topup = new TopupSystem(truemoneyPhone);
               client.addEventHandler(async (event: any) => {
                   const message = event.message;
                   if (!message) return;
                   if (message.message) {
-                      const voucherRegex = /https?:\/\/gift\.truemoney\.com\/campaign\/?(?:voucher_detail\/)?\?v=([A-Za-z0-9]+)/gi;
+                      const voucherRegex = /https?:\/\/gift\.truemoney\.com\/campaign\/?(?:voucher_detail\/)?\?v=([A-Za-z0-9]{10,})/gi;
                       const matches = message.message.match(voucherRegex);
                       if (matches && matches.length > 0) {
-                          pushTgLog(telegramPhone, `🎯 เจอซอง! เริ่มการรับเครดิตเข้าเบอร์ ${truemoneyPhone}`);
                           for (const vurl of matches) {
+                              const startTime = Date.now();
+                              pushTgLog(telegramPhone, `🎯 เจอซอง! ${vurl}`);
+                              
                               try {
-                                  const result = await twApi(vurl, truemoneyPhone);
-                                  if (result?.status?.code === 'SUCCESS') {
-                                      pushTgLog(telegramPhone, `✅ รับซองสำเร็จ! +${result.data.my_ticket.amount_baht} บาท`);
+                                  const result = await topup.redeemVoucher(vurl);
+                                  
+                                  if (result.success) {
+                                      const speed = Date.now() - startTime;
+                                      pushTgLog(telegramPhone, `✅ รับซองสำเร็จ! +${result.amount} บาท | ${speed}ms`);
+                                      
+                                      const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
+                                      if (webhookUrl) {
+                                          await axios.post(webhookUrl, {
+                                              embeds: [{
+                                                  title: "🌊 FFM Sniper Success!",
+                                                  color: 0x00FF00,
+                                                  fields: [
+                                                      { name: "💰 จำนวนเงิน", value: `**${result.amount}** บาท`, inline: true },
+                                                      { name: "⚡ ความเร็ว", value: `\`${speed}ms\``, inline: true },
+                                                      { name: "👤 จาก", value: `${result.ownerName}`, inline: true },
+                                                      { name: "🔗 ลิงก์", value: `[Link](${vurl})` }
+                                                  ],
+                                                  timestamp: new Date()
+                                              }]
+                                          }).catch(() => {});
+                                      }
                                   } else {
-                                      pushTgLog(telegramPhone, `❌ ${result?.status?.message || 'ไม่สามารถรับได้'}`);
+                                      pushTgLog(telegramPhone, `❌ ${result.message}`);
                                   }
                               } catch(e) {
                                   pushTgLog(telegramPhone, `❌ ข้อผิดพลาดในการรับซอง`);

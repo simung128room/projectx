@@ -19,7 +19,7 @@ export const ProgressBar: React.FC = () => {
   return (
     <div className="fixed top-0 left-0 w-full h-1 bg-[#0B0F14] z-[9999] pointer-events-none">
       <motion.div
-        className="h-full bg-gradient-to-r from-[#1E90FF]/80 to-cyan-400"
+        className="h-full from-[#3B82F6]/80 to-cyan-400"
         animate={{ width: `${scrollProgress}%` }}
         transition={{ type: "tween", duration: 0.1, ease: "linear" }}
       />

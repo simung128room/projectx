@@ -117,9 +117,9 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
   return (
     <div className="space-y-6">
       {!selectedUser ? (
-        <div className="bg-[#0B0F14] border border-white/10 rounded-3xl p-6 shadow-sm relative overflow-hidden flex flex-col min-h-[500px]">
+        <div className="bg-[#0B0F14] border border-white/10 rounded-xl p-6 shadow-sm relative overflow-hidden flex flex-col min-h-[500px]">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-            <h3 className="font-bold text-white flex items-center gap-2"><Users className="w-5 h-5 text-[#1a7fe6]" /> จัดการผู้ใช้ (User Management)</h3>
+            <h3 className="font-bold text-white flex items-center gap-2"><Users className="w-5 h-5 text-[#2563EB]" /> จัดการผู้ใช้ (User Management)</h3>
             <div className="flex bg-[#0a0d12] border border-white/10 rounded-2xl p-1 overflow-hidden shrink-0 w-full sm:w-64 relative">
               <Search className="w-4 h-4 text-zinc-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input 
@@ -164,7 +164,7 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
                        <span className="font-mono text-xs text-zinc-400 bg-[#121820] px-2 py-1 rounded-md border border-white/5">{u.lastLoginIp || u.last_login_ip || 'ไม่ทราบ'}</span>
                     </td>
                     <td className="px-4 py-4">
-                      <span className={`px-2 py-1 rounded-full text-[10px] uppercase tracking-widest font-bold ${u.role === 'Admin' ? 'bg-[#1E90FF]/10 text-[#1E90FF] border border-white/10' : u.role === 'Premium' ? 'bg-amber-500/10 text-amber-600 border border-amber-100' : 'bg-[#121820] text-zinc-400 border border-white/10'}`}>
+                      <span className={`px-2 py-1 rounded-full text-[10px] uppercase tracking-widest font-bold ${u.role === 'Admin' ? 'bg-[#3B82F6]/10 text-[#3B82F6] border border-white/10' : u.role === 'Premium' ? 'bg-amber-500/10 text-amber-600 border border-amber-100' : 'bg-[#121820] text-zinc-400 border border-white/10'}`}>
                         {u.role}
                       </span>
                     </td>
@@ -198,7 +198,7 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.98 }}
-            className="bg-[#0B0F14] border border-white/10 rounded-3xl overflow-hidden shadow-sm flex flex-col"
+            className="bg-[#0B0F14] border border-white/10 rounded-xl overflow-hidden shadow-sm flex flex-col"
           >
             <div className="p-6 md:p-8 bg-[#0a0d12]/50 border-b border-white/5 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
               <div className="flex items-center gap-4">
@@ -210,7 +210,7 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
                 <div>
                   <h2 className="text-xl font-bold text-white mb-1">{selectedUser.email}</h2>
                   <div className="flex items-center gap-2 text-xs font-bold">
-                    <span className={`px-2 py-0.5 rounded uppercase tracking-widest ${selectedUser.role === 'Admin' ? 'bg-[#1E90FF]/20 text-[#1E90FF]' : selectedUser.role === 'Premium' ? 'bg-amber-100 text-amber-600' : 'bg-zinc-200 text-zinc-400'}`}>
+                    <span className={`px-2 py-0.5 rounded uppercase tracking-widest ${selectedUser.role === 'Admin' ? 'bg-[#3B82F6]/20 text-[#3B82F6]' : selectedUser.role === 'Premium' ? 'bg-amber-100 text-amber-600' : 'bg-zinc-200 text-zinc-400'}`}>
                       {selectedUser.role}
                     </span>
                     <span className={`px-2 py-0.5 rounded uppercase tracking-widest flex items-center gap-1 ${selectedUser.status === 'banned' ? 'bg-zinc-200 text-zinc-400' : 'bg-emerald-100 text-emerald-600'}`}>
@@ -265,7 +265,7 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
                         <button onClick={() => handleUpdateBalance(selectedUser, 'add')} className="flex-1 py-2.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 hover:bg-emerald-100 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 outline-none">
                           <HandCoins className="w-4 h-4" /> เพิ่มเงิน
                         </button>
-                        <button onClick={() => handleUpdateBalance(selectedUser, 'deduct')} className="flex-1 py-2.5 bg-[#1E90FF]/10 border border-[#1E90FF]/30 text-[#1E90FF] hover:bg-[#1E90FF]/20 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 outline-none">
+                        <button onClick={() => handleUpdateBalance(selectedUser, 'deduct')} className="flex-1 py-2.5 bg-[#3B82F6]/10 border border-[#3B82F6]/30 text-[#3B82F6] hover:bg-[#3B82F6]/20 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 outline-none">
                           <ArrowRightLeft className="w-4 h-4" /> หักเงิน
                         </button>
                       </div>
@@ -343,14 +343,14 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
                            </div>
                         </button>
 
-                        <button onClick={() => handleToggleBan(selectedUser)} className={`w-full flex items-center justify-between p-3.5 bg-[#0B0F14] border ${selectedUser.status === 'banned' ? 'border-emerald-500/30 hover:border-emerald-500/50' : 'border-[#1E90FF]/30 hover:border-[#1E90FF]/40'} rounded-xl transition-all group`}>
+                        <button onClick={() => handleToggleBan(selectedUser)} className={`w-full flex items-center justify-between p-3.5 bg-[#0B0F14] border ${selectedUser.status === 'banned' ? 'border-emerald-500/30 hover:border-emerald-500/50' : 'border-[#3B82F6]/30 hover:border-[#3B82F6]/40'} rounded-xl transition-all group`}>
                            <div className="flex items-center gap-3">
-                             <div className={`p-2 rounded-lg transition-colors ${selectedUser.status === 'banned' ? 'bg-emerald-500/10 group-hover:bg-emerald-100' : 'bg-[#1E90FF]/10 group-hover:bg-[#1E90FF]/20'}`}>
-                                {selectedUser.status === 'banned' ? <CheckCircle className="w-4 h-4 text-emerald-600" /> : <Ban className="w-4 h-4 text-[#1E90FF]" />}
+                             <div className={`p-2 rounded-lg transition-colors ${selectedUser.status === 'banned' ? 'bg-emerald-500/10 group-hover:bg-emerald-100' : 'bg-[#3B82F6]/10 group-hover:bg-[#3B82F6]/20'}`}>
+                                {selectedUser.status === 'banned' ? <CheckCircle className="w-4 h-4 text-emerald-600" /> : <Ban className="w-4 h-4 text-[#3B82F6]" />}
                              </div>
                              <div className="flex flex-col items-start leading-tight">
-                                <span className={`text-sm font-bold ${selectedUser.status === 'banned' ? 'text-emerald-700' : 'text-[#166bcc]'}`}>{selectedUser.status === 'banned' ? 'ปลดแบนผู้ใช้นี้' : 'ระงับ/แบนผู้ใช้นี้'}</span>
-                                <span className={`text-[10px] font-medium mt-0.5 ${selectedUser.status === 'banned' ? 'text-emerald-600/70' : 'text-[#1E90FF]/70'}`}>{selectedUser.status === 'banned' ? 'ผู้ใช้จะสามารถล็อกอินได้' : 'ป้องกันการเข้าสู่ระบบ'}</span>
+                                <span className={`text-sm font-bold ${selectedUser.status === 'banned' ? 'text-emerald-700' : 'text-[#1D4ED8]'}`}>{selectedUser.status === 'banned' ? 'ปลดแบนผู้ใช้นี้' : 'ระงับ/แบนผู้ใช้นี้'}</span>
+                                <span className={`text-[10px] font-medium mt-0.5 ${selectedUser.status === 'banned' ? 'text-emerald-600/70' : 'text-[#3B82F6]/70'}`}>{selectedUser.status === 'banned' ? 'ผู้ใช้จะสามารถล็อกอินได้' : 'ป้องกันการเข้าสู่ระบบ'}</span>
                              </div>
                            </div>
                         </button>
@@ -397,7 +397,7 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
                         <p className="text-sm font-bold">{h.productName}</p>
                         <p className="text-xs text-zinc-500">{new Date(h.date).toLocaleString('th-TH')}</p>
                       </div>
-                      <p className="font-bold text-[#1a7fe6] font-mono">-฿{h.price}</p>
+                      <p className="font-bold text-[#2563EB] font-mono">-฿{h.price}</p>
                     </div>
                   )) : <p className="text-center text-sm font-bold text-zinc-400 py-10">ไม่พบประวัติการซื้อ</p>}
                 </div>

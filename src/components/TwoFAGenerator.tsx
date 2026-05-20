@@ -90,10 +90,10 @@ export function TwoFAGenerator() {
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-[#0b0f14]/80 backdrop-blur-xl border border-white/5 rounded-[2rem] overflow-hidden shadow-2xl"
+        className="bg-[#0b0f14]/80  border border-white/5 rounded-xl overflow-hidden shadow-2xl"
       >
         {/* Header */}
-        <div className="p-8 border-b border-white/5 bg-gradient-to-br from-indigo-500/10 via-transparent to-transparent">
+        <div className="p-8 border-b border-white/5 from-indigo-500/10 via-transparent to-transparent">
           <div className="flex items-center gap-4 mb-2">
             <div className="w-12 h-12 rounded-2xl bg-indigo-500/20 flex items-center justify-center border border-indigo-500/30">
               <ShieldCheck className="w-7 h-7 text-indigo-400" />
@@ -163,7 +163,7 @@ export function TwoFAGenerator() {
                       layout
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="group bg-white/5 border border-white/5 rounded-3xl p-5 hover:bg-white/[0.08] hover:border-indigo-500/30 transition-all relative overflow-hidden"
+                      className="group bg-white/5 border border-white/5 rounded-xl p-5 hover:bg-white/[0.08] hover:border-indigo-500/30 transition-all relative overflow-hidden"
                     >
                       {/* Timer Progress Bar */}
                       <div className="absolute bottom-0 left-0 h-1 bg-indigo-500/30" style={{ width: '100%' }}>
@@ -235,7 +235,7 @@ export function TwoFAGenerator() {
 
       {/* Instructions */}
       <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-[#0b0f14]/50 border border-white/5 rounded-3xl p-6">
+        <div className="bg-[#0b0f14]/50 border border-white/5 rounded-xl p-6">
           <h4 className="text-white font-bold mb-2 flex items-center gap-2">
             <div className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
             2FA คืออะไร?
@@ -244,7 +244,7 @@ export function TwoFAGenerator() {
             2FA (Two-Factor Authentication) คือการยืนยันตัวตนแบบสองขั้นตอน เพื่อความปลอดภัยสูงสุดของบัญชีของคุณ รหัสจะเปลี่ยนไปทุกๆ 30 วินาที
           </p>
         </div>
-        <div className="bg-[#0b0f14]/50 border border-white/5 rounded-3xl p-6">
+        <div className="bg-[#0b0f14]/50 border border-white/5 rounded-xl p-6">
           <h4 className="text-white font-bold mb-2 flex items-center gap-2">
             <div className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
             ความปลอดภัย

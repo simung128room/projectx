@@ -15,7 +15,7 @@ const Toast: React.FC<{ toast: ToastType; onClose: (id: string) => void }> = ({ 
     success: <CheckCircle2 className="w-5 h-5 text-emerald-500" />,
     error: <AlertCircle className="w-5 h-5 text-red-500" />,
     warning: <AlertTriangle className="w-5 h-5 text-amber-500" />,
-    info: <Info className="w-5 h-5 text-[#1E90FF]" />,
+    info: <Info className="w-5 h-5 text-[#3B82F6]" />,
     payment: <ShoppingBag className="w-5 h-5 text-purple-500" />
   };
 
@@ -23,7 +23,7 @@ const Toast: React.FC<{ toast: ToastType; onClose: (id: string) => void }> = ({ 
     success: 'bg-[#0B0F14] border-emerald-500/20 shadow-emerald-500/5',
     error: 'bg-[#0B0F14] border-red-500/20 shadow-red-500/5',
     warning: 'bg-[#0B0F14] border-amber-500/20 shadow-amber-500/5',
-    info: 'bg-[#0B0F14] border-[#1E90FF]/20 shadow-[#1E90FF]/5',
+    info: 'bg-[#0B0F14] border-[#3B82F6]/20 shadow-lg/5',
     payment: 'bg-[#0B0F14] border-purple-500/20 shadow-purple-500/5'
   };
 
@@ -33,7 +33,7 @@ const Toast: React.FC<{ toast: ToastType; onClose: (id: string) => void }> = ({ 
       initial={{ opacity: 0, x: 20, scale: 0.95 }}
       animate={{ opacity: 1, x: 0, scale: 1 }}
       exit={{ opacity: 0, x: 20, scale: 0.95 }}
-      className={`relative flex items-center min-w-[280px] max-w-sm gap-4 p-4 pr-10 rounded-2xl border bg-opacity-95 backdrop-blur-xl shadow-xl transition-all ${bgColors[toast.type]}`}
+      className={`relative flex items-center min-w-[280px] max-w-sm gap-4 p-4 pr-10 rounded-2xl border bg-opacity-95  shadow-xl transition-all ${bgColors[toast.type]}`}
     >
       <div className="shrink-0">
         {icons[toast.type]}
