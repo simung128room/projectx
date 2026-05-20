@@ -1300,8 +1300,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                             await axios.delete(`/api/products/${p.id}`);
                                             setProducts(products.filter(prod => prod.id !== p.id));
                                             Swal.fire({ title: 'ลบสำเร็จ', icon: 'success', background: '#09090b', color: '#fff', showConfirmButton: false, timer: 1000 });
-                                          } catch (err) {
-                                            Swal.fire('Error', 'ไม่สามารถลบสินค้าได้', 'error');
+                                          } catch (err: any) {
+                                            Swal.fire('Error', 'ไม่สามารถลบสินค้าได้: ' + (err?.response?.data?.error || err.message), 'error');
                                           }
                                         }
                                       });
