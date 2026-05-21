@@ -73,6 +73,17 @@ import {
 import { motion, AnimatePresence } from "motion/react";
 import Swal from "sweetalert2";
 import axios from "axios";
+import axiosRetry from "axios-retry";
+
+axiosRetry(axios, {
+  retries: 3,
+  retryDelay: axiosRetry.exponentialDelay,
+  retryCondition: (error) => {
+    // Only retry on network errors or 5xx errors.
+    // Do NOT retry on 409 (Conflict/OCC) or other client errors.
+    return axiosRetry.isNetworkOrIdempotentRequestError(error) || error.response?.status === 429;
+  }
+});
 import { supabase as auth } from "./lib/supabase"; // auth here refers to supabase
 
 import jsQR from "jsqr";

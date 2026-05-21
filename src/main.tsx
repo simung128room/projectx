@@ -1,7 +1,8 @@
-import React, { StrictMode, Component, ErrorInfo, ReactNode } from 'react';
+import React, { StrictMode } from 'react';
 import {createRoot} from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 // Remote error logging
 window.onerror = function (message, source, lineno, colno, error) {
@@ -80,51 +81,24 @@ window.addEventListener('unhandledrejection', function(event) {
   }).catch(console.log);
 });
 
-interface Props {
-  children?: ReactNode;
-}
 
-interface State {
-  hasError: boolean;
-  error?: Error;
-}
 
-class ErrorBoundary extends React.Component<Props, State> {
-  public state: State = {
-    hasError: false
-  };
+import { onCLS, onINP, onLCP, onFCP, onTTFB } from 'web-vitals';
 
-  constructor(props: Props) {
-    super(props);
-  }
-
-  public static getDerivedStateFromError(error: Error): State {
-    return { hasError: true, error };
-  }
-
-  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('Uncaught error:', error, errorInfo);
-    fetch('/api/log_error', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ type: 'react_error', message: error.message, stack: error.stack, componentStack: errorInfo.componentStack })
-    }).catch(console.log);
-  }
-
-  public render() {
-    if (this.state.hasError) {
-      return (
-        <div style={{ padding: '20px', color: 'red', backgroundColor: '#000', minHeight: '100vh' }}>
-          <h1>Something went wrong.</h1>
-          <pre style={{ color: 'white', whiteSpace: 'pre-wrap' }}>{this.state.error?.message}</pre>
-          <pre style={{ color: 'gray', whiteSpace: 'pre-wrap', marginTop: '10px' }}>{this.state.error?.stack}</pre>
-        </div>
-      );
-    }
-
-    return (this as any).props.children;
+function sendToAnalytics(metric: any) {
+  const body = JSON.stringify({ metric });
+  if (navigator.sendBeacon) {
+    navigator.sendBeacon('/api/log_vitals', body);
+  } else {
+    fetch('/api/log_vitals', { body, method: 'POST', keepalive: true, headers: { 'Content-Type': 'application/json' } }).catch(console.log);
   }
 }
+
+onCLS(sendToAnalytics);
+onINP(sendToAnalytics);
+onLCP(sendToAnalytics);
+onFCP(sendToAnalytics);
+onTTFB(sendToAnalytics);
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

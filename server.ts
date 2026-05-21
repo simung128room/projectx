@@ -1,3 +1,4 @@
+import './instrumentation';
 import express from 'express';
 import dotenv from 'dotenv';
 dotenv.config({ override: true });
@@ -145,15 +146,68 @@ process.on('unhandledRejection', (reason, promise) => {
   sendAlert('Unhandled Rejection ⚠️', `**Reason**: ${String(reason)}`, 16711680);
 });
 
+import client from 'prom-client';
+
 const app = express();
+
+
+// Initialize Prometheus Metrics
+const collectDefaultMetrics = client.collectDefaultMetrics;
+collectDefaultMetrics({ register: client.register });
+
+const httpRequestDurationMicroseconds = new client.Histogram({
+  name: 'http_request_duration_ms',
+  help: 'Duration of HTTP requests in ms',
+  labelNames: ['method', 'route', 'code'],
+  buckets: [10, 50, 100, 300, 500, 1000, 3000, 5000] // Buckets for response time
+});
+
+export const dbQueryDurationMicroseconds = new client.Histogram({
+  name: 'db_query_duration_ms',
+  help: 'Duration of Database queries in ms',
+  labelNames: ['collection', 'operation'],
+  buckets: [5, 10, 25, 50, 100, 250, 500, 1000]
+});
+
 app.use((req: any, res: any, next: any) => {
+  const start = Date.now();
   req.id = crypto.randomUUID();
   res.setHeader('X-Request-ID', req.id);
+  
+  res.on('finish', () => {
+    const duration = Date.now() - start;
+    const route = req.route ? req.route.path : req.path;
+    // Don't track static assets to avoid cardinality explosion
+    if (route.startsWith('/api/') || route === '/metrics' || route === '/ready') {
+      httpRequestDurationMicroseconds.labels(req.method, route, res.statusCode.toString()).observe(duration);
+    }
+  });
+  
   next();
 });
+
+app.get('/metrics', async (req, res) => {
+  res.set('Content-Type', client.register.contentType);
+  res.end(await client.register.metrics());
+});
+
 app.use(helmet({
-  contentSecurityPolicy: false,
-  crossOriginEmbedderPolicy: false
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://www.youtube.com", "https://s.ytimg.com"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      imgSrc: ["'self'", "data:", "https:", "http:"], // Allow external images (avatars, product images)
+      mediaSrc: ["'self'", "https:"],
+      connectSrc: ["'self'", "https://*.supabase.co", "https://api.ipify.org", "wss://*.supabase.co"],
+      frameSrc: ["'self'", "https://www.youtube.com", "https://discord.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
+      objectSrc: ["'none'"],
+      upgradeInsecureRequests: [],
+    }
+  },
+  crossOriginEmbedderPolicy: false,
+  crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
 app.use(compression());
 app.set('trust proxy', 1);
@@ -1876,36 +1930,75 @@ const cleanupTokenCache = () => {
   // --- Supabase Proxy Routes ---
   // --- Products Endpoints ---
 
+import Redis from 'ioredis';
+
+let redis: Redis | null = null;
+if (process.env.REDIS_URL) {
+  try {
+    redis = new Redis(process.env.REDIS_URL);
+    redis.on('connect', () => console.log('Redis connected successfully'));
+    redis.on('error', (err) => console.error('Redis connection error (falling back to memory):', err));
+  } catch (e) {
+    console.error('Failed to initialize Redis:', e);
+  }
+}
+
   const firestoreCache: Record<string, { data: any, timestamp: number, revision: number }> = {};
   let cacheRevisionCounter = 0; // Increment to bust ETag when data changes
   
   const getCachedCollection = async (collectionName: string, ttl: number = 20000, res?: any, req?: any) => {
     const now = Date.now();
     let cacheHit = false;
+    let cachedData: { data: any, timestamp: number, revision: number } | null = null;
+    const redisKey = `cache:${collectionName}`;
 
-    if (firestoreCache[collectionName] && now - firestoreCache[collectionName].timestamp < ttl) {
+    if (redis && redis.status === 'ready') {
+      try {
+        const redisData = await redis.get(redisKey);
+        if (redisData) {
+          cachedData = JSON.parse(redisData);
+          cacheHit = true;
+        }
+      } catch (err) {
+        console.warn('Redis get error, falling back to memory layer', err);
+      }
+    }
+
+    if (!cachedData && firestoreCache[collectionName] && now - firestoreCache[collectionName].timestamp < ttl) {
+      cachedData = firestoreCache[collectionName];
       cacheHit = true;
     }
 
-    if (!cacheHit) {
+    if (!cachedData) {
       let query: any = admin.firestore().collection(collectionName);
       if (collectionName === 'products') {
-        query = query.select('id', 'name', 'description', 'price', 'originalPrice', 'soldCount', 'imageUrl', 'stock', 'category', 'isPopular', 'image', 'isHighlight', 'customPageId', 'youtubeUrl', 'type', 'tag').limit(100); // Prevent RAM blowout and Firestore exhaustion for now
+        query = query.select('id', 'name', 'description', 'price', 'originalPrice', 'soldCount', 'imageUrl', 'stock', 'category', 'isPopular', 'image', 'isHighlight', 'customPageId', 'youtubeUrl', 'type', 'tag', '_version').limit(100); // Prevent RAM blowout and Firestore exhaustion for now
       }
+      const dbMetricStart = Date.now();
       const snapshot = await query.get();
+      dbQueryDurationMicroseconds.labels(collectionName, 'read').observe(Date.now() - dbMetricStart);
+      
       let data = snapshot.docs.map(doc => {
         const d = doc.data();
         return { id: doc.id, ...d };
       });
       // Filter out soft deleted documents
-      data = data.filter(d => !d.isDeleted);
+      data = data.filter(d => !(d as any).isDeleted);
       // We keep the old revision if it existed so we do not bust ETag on pure TTL expiry 
       // ONLY bust cacheRevisionCounter when something updates!
       const currentRevision = firestoreCache[collectionName]?.revision || cacheRevisionCounter;
-      firestoreCache[collectionName] = { data, timestamp: now, revision: currentRevision };
+      cachedData = { data, timestamp: now, revision: currentRevision };
+      
+      firestoreCache[collectionName] = cachedData;
+      
+      if (redis && redis.status === 'ready') {
+        try {
+          await redis.set(redisKey, JSON.stringify(cachedData), 'PX', ttl);
+        } catch (err) {
+          console.warn('Redis set error', err);
+        }
+      }
     }
-
-    const cachedData = firestoreCache[collectionName];
 
     if (res && req) {
       // ETag now based on collection name + precise data revision
@@ -1929,10 +2022,17 @@ const cleanupTokenCache = () => {
     return cachedData.data;
   };
   
-  const invalidateCache = (collectionName: string) => {
+  const invalidateCache = async (collectionName: string) => {
     // Increment global revision so next query has fresh ETag
     cacheRevisionCounter++;
     delete firestoreCache[collectionName];
+    if (redis && redis.status === 'ready') {
+      try {
+        await redis.del(`cache:${collectionName}`);
+      } catch (err) {
+        console.warn('Redis del error', err);
+      }
+    }
   };
 
   app.get('/api/products', async (req: any, res: any) => {
@@ -3237,6 +3337,25 @@ const cleanupTokenCache = () => {
     res.json({ received: true });
   });
 
+  // Collect Core Web Vitals from frontend
+  app.post('/api/log_vitals', (req, res) => {
+    try {
+      const { metric } = req.body;
+      if (metric && metric.name && metric.value) {
+        // Logging directly to stdout so it gets picked up by standard log aggregators (e.g. Cloud Logging / ELK)
+        console.log(JSON.stringify({ 
+          level: 'info', 
+          type: 'web_vital', 
+          name: metric.name, 
+          value: metric.value, 
+          rating: metric.rating, 
+          id: metric.id 
+        }));
+      }
+    } catch(e) {}
+    res.status(204).end(); // No content to send back, keep it fast
+  });
+
 
   // /api/bot/status and globalBot variables removed
 
@@ -3925,6 +4044,11 @@ if (!process.env.VERCEL) {
         setHeaders: (res, path) => {
           if (path.endsWith('.html')) {
             res.setHeader('Cache-Control', 'no-cache');
+          } else {
+            // Aggressive cache control for JS/CSS/Assets with specific CDN headers
+            res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+            res.setHeader('Cloudflare-CDN-Cache-Control', 'max-age=31536000');
+            res.setHeader('CDN-Cache-Control', 'max-age=31536000');
           }
         }
       }));
