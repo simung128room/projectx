@@ -53,21 +53,27 @@ const ProductManagerModal = ({
   isEdit: boolean,
   categories?: any[]
 }) => {
-  const [formData, setFormData] = useState<Partial<Product>>(product || {
+  const [formData, setFormData] = useState<any>(product || {
     name: '',
     description: '',
-    price: 0,
-    originalPrice: 0,
+    price: '',
+    originalPrice: '',
     imageUrl: '',
-    stock: 0,
+    stock: '',
     category: categories.length > 0 ? categories[0].id : ''
   });
 
   return (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-end p-0 z-50">
-      <div className="bg-[#0B0F14] border-l border-white/5 w-full max-w-md h-full relative overflow-y-auto p-6 sm:p-8 animate-in slide-in-from-right-full duration-300">
-        <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-          <Package className="w-5 h-5 text-emerald-400" />
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center sm:justify-end p-0 z-[100]" onClick={onClose}>
+      <div 
+        className="bg-[#0B0F14] border-none sm:border-l border-white/5 w-full sm:max-w-md h-full relative overflow-y-auto p-6 sm:p-8 animate-in slide-in-from-bottom-full sm:slide-in-from-right-full duration-300 shadow-2xl"
+        onClick={e => e.stopPropagation()}
+      >
+        <button onClick={onClose} className="absolute top-6 right-6 text-zinc-500 hover:text-white transition-colors bg-white/5 rounded-full p-2">
+          <X className="w-5 h-5" />
+        </button>
+        <h2 className="text-xl font-black text-white mb-6 flex items-center gap-2">
+          <Package className="w-5 h-5 text-[#3B82F6]" />
           {isEdit ? 'แก้ไขสินค้า' : 'เพิ่มสินค้าใหม่'}
         </h2>
         
@@ -78,7 +84,7 @@ const ProductManagerModal = ({
               type="text" 
               value={formData.name} 
               onChange={e => setFormData({...formData, name: e.target.value})}
-              className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500 text-sm"
+              className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white font-medium focus:outline-none focus:border-[#3B82F6] focus:ring-1 focus:ring-[#3B82F6]/50 transition-all text-sm"
               placeholder="e.g. Netflix Premium"
             />
           </div>
@@ -87,7 +93,7 @@ const ProductManagerModal = ({
             <textarea 
               value={formData.description} 
               onChange={e => setFormData({...formData, description: e.target.value})}
-              className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500 text-sm h-20 resize-none"
+              className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white font-medium focus:outline-none focus:border-[#3B82F6] focus:ring-1 focus:ring-[#3B82F6]/50 transition-all text-sm h-24 resize-none"
               placeholder="รายละเอียดสินค้า..."
             />
           </div>
@@ -97,18 +103,19 @@ const ProductManagerModal = ({
               <input 
                 type="number" 
                 value={formData.price} 
-                onChange={e => setFormData({...formData, price: parseInt(e.target.value) || 0})}
-                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500 text-sm"
+                onChange={e => setFormData({...formData, price: e.target.value === '' ? '' : Number(e.target.value)})}
+                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white font-medium focus:outline-none focus:border-[#3B82F6] focus:ring-1 focus:ring-[#3B82F6]/50 transition-all text-sm"
+                placeholder="0"
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-zinc-500 mb-1 text-zinc-400">ราคาเต็ม (ถ้ามี)</label>
+              <label className="block text-xs font-bold text-zinc-500 mb-1">ราคาเต็ม (ถ้ามี)</label>
               <input 
                 type="number" 
-                value={formData.originalPrice || 0} 
-                onChange={e => setFormData({...formData, originalPrice: parseInt(e.target.value) || 0})}
-                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-white/50 focus:outline-none focus:border-[#2563EB] text-sm"
-                placeholder="฿0"
+                value={formData.originalPrice} 
+                onChange={e => setFormData({...formData, originalPrice: e.target.value === '' ? '' : Number(e.target.value)})}
+                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white/70 font-medium focus:outline-none focus:border-zinc-500 transition-all text-sm"
+                placeholder="0"
               />
             </div>
           </div>
@@ -118,8 +125,9 @@ const ProductManagerModal = ({
               <input 
                 type="number" 
                 value={formData.stock} 
-                onChange={e => setFormData({...formData, stock: parseInt(e.target.value) || 0})}
-                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500 text-sm"
+                onChange={e => setFormData({...formData, stock: e.target.value === '' ? '' : Number(e.target.value)})}
+                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white font-medium focus:outline-none focus:border-[#3B82F6] focus:ring-1 focus:ring-[#3B82F6]/50 transition-all text-sm"
+                placeholder="0"
               />
             </div>
             <div>
@@ -127,7 +135,7 @@ const ProductManagerModal = ({
               <select 
                 value={formData.category} 
                 onChange={e => setFormData({...formData, category: e.target.value})}
-                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500 text-sm"
+                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white font-medium focus:outline-none focus:border-[#3B82F6] focus:ring-1 focus:ring-[#3B82F6]/50 transition-all text-sm appearance-none"
               >
                 <option value="">เลือกหมวดหมู่</option>
                 {categories.map((cat: any) => (
@@ -142,26 +150,40 @@ const ProductManagerModal = ({
               type="text" 
               value={formData.imageUrl} 
               onChange={e => setFormData({...formData, imageUrl: e.target.value})}
-              className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500 text-sm"
+              className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white font-medium focus:outline-none focus:border-[#3B82F6] focus:ring-1 focus:ring-[#3B82F6]/50 transition-all text-sm"
               placeholder="https://..."
             />
           </div>
+          {formData.imageUrl && (
+            <div className="mt-2 rounded-xl overflow-hidden border border-white/10 aspect-video bg-black/50 relative flex items-center justify-center">
+               <img src={formData.imageUrl} alt="Preview" className="max-w-full max-h-full object-contain" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+            </div>
+          )}
         </div>
 
         <div className="mt-8 flex items-center gap-3">
           <button 
             onClick={onClose}
-            className="flex-1 px-4 py-3 bg-zinc-900 hover:bg-zinc-800 text-white rounded-xl text-sm font-bold transition-colors"
+            className="flex-1 px-4 py-3 bg-zinc-800 hover:bg-zinc-700 text-white rounded-xl text-sm font-bold transition-all active:scale-95"
           >
             ยกเลิก
           </button>
           <button 
             onClick={() => {
-              if(!formData.name || formData.price === undefined || formData.price === null) return Swal.fire({title: 'แจ้งเตือน', text: 'กรุณากรอกชื่อและราคา', icon: 'warning'});
-              onSave(formData as Product);
+              if(!formData.name || formData.price === '' || formData.price === null || formData.price === undefined) {
+                 return Swal.fire({title: 'ข้อมูลไม่ครบ', text: 'กรุณากรอกชื่อและราคาปัจจุบัน', icon: 'warning', background: '#09090b', color: '#fff'});
+              }
+              const p = {
+                ...formData,
+                price: Number(formData.price) || 0,
+                originalPrice: Number(formData.originalPrice) || 0,
+                stock: Number(formData.stock) || 0,
+              };
+              onSave(p as Product);
             }}
-            className="flex-1 px-4 py-3 bg-emerald-500 hover:bg-emerald-400 text-black rounded-xl text-sm font-bold transition-colors"
+            className="flex-1 px-4 py-3 bg-[#3B82F6] hover:bg-[#2563EB] text-white rounded-xl text-sm font-bold shadow-lg shadow-blue-500/20 transition-all active:scale-95 flex items-center justify-center gap-2"
           >
+             <Check className="w-4 h-4" />
             บันทึกสินค้า
           </button>
         </div>
