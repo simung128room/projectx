@@ -940,16 +940,36 @@ function AppContent() {
 
   const [logCategories, setLogCategories] = useState<any[]>([]);
 
+  const fetchRequestId = useRef(0);
+  const fetchAbortController = useRef<AbortController | null>(null);
+
   const fetchAllData = useCallback(async () => {
     try {
-      console.log("Fetching all data from backend...");
-      console.time("fetchAllData");
+      if (fetchAbortController.current) {
+        fetchAbortController.current.abort();
+      }
+      const controller = new AbortController();
+      fetchAbortController.current = controller;
+
+      fetchRequestId.current += 1;
+      const currentRequestId = fetchRequestId.current;
+      
+      console.log("Fetching all data from backend...", { reqId: currentRequestId });
+      console.time(`fetchAllData-${currentRequestId}`);
 
       const fetchApi = async (url: string) => {
         try {
-          const res = await axios.get(url);
+          const res = await axios.get(url, { signal: controller.signal });
+          
+          if (currentRequestId !== fetchRequestId.current) {
+            console.log(`Aborting stale response for ${url}`);
+            return { data: null, error: 'stale' };
+          }
+          
           return { data: res.data, error: null };
         } catch (e: any) {
+          if (axios.isCancel(e)) return { data: null, error: 'canceled' };
+          if (currentRequestId !== fetchRequestId.current) return { data: null, error: 'stale' };
           const status = e.response?.status;
           const errorMsg = e.response?.data?.error || e.message;
           if (status !== 401 && status !== 403 && status !== 404) {
@@ -1031,7 +1051,12 @@ function AppContent() {
   useEffect(() => {
     fetchAllData();
     const timer = setInterval(fetchAllData, 60000);
-    return () => clearInterval(timer);
+    return () => {
+      clearInterval(timer);
+      if (fetchAbortController.current) {
+        fetchAbortController.current.abort();
+      }
+    };
   }, [fetchAllData]);
 
   // App Init & check IP

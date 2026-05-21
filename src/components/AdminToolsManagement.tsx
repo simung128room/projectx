@@ -189,7 +189,7 @@ export const AdminToolsManagement = () => {
                     <button onClick={() => toggleCategoryVisibility(c.id)} className={`px-2 py-1 flex items-center text-xs font-bold rounded-full ${c.isVisible ? 'bg-emerald-500/20 text-emerald-400' : 'bg-zinc-800 text-zinc-500'}`}>
                       {c.isVisible ? 'ON' : 'OFF'}
                     </button>
-                    <button onClick={() => handleDeleteCategory(c.id)} className="text-[#2563EB] hover:text-[#3B82F6] bg-[#2563EB]/10 p-1.5 rounded-lg"><Trash2 className="w-4 h-4"/></button>
+                    <button onClick={() => handleDeleteCategory(c.id)} className="text-red-500 hover:text-red-400 bg-red-500/10 p-1.5 rounded-lg"><Trash2 className="w-4 h-4"/></button>
                   </div>
                 </div>
                 <p className="text-sm text-zinc-400">{c.subtitle}</p>
@@ -247,7 +247,7 @@ export const AdminToolsManagement = () => {
                           {a.type === 'file' && <Download className="w-4 h-4 text-amber-400"/>}
                           <span className="truncate max-w-[200px]">{a.data}</span>
                         </div>
-                        <button onClick={() => setAttachments(attachments.filter((_, idx)=>idx!==i))} className="text-[#2563EB] hover:text-[#3B82F6]"><Trash2 className="w-4 h-4"/></button>
+                        <button onClick={() => setAttachments(attachments.filter((_, idx)=>idx!==i))} className="text-red-500 hover:text-red-400"><Trash2 className="w-4 h-4"/></button>
                       </div>
                     ))}
                   </div>
@@ -282,7 +282,7 @@ export const AdminToolsManagement = () => {
                       {item.type === 'premium' ? 'Premium' : 'Free'}
                     </span>
                   </div>
-                  <button onClick={() => handleDeleteItem(item.id)} className="text-[#2563EB] hover:text-[#3B82F6] bg-[#2563EB]/10 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 className="w-4 h-4"/></button>
+                  <button onClick={() => handleDeleteItem(item.id)} className="text-red-500 hover:text-red-400 bg-red-500/10 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 className="w-4 h-4"/></button>
                 </div>
                 <h3 className="text-lg font-bold text-white mb-2">{item.title}</h3>
                 <div className="bg-zinc-950 rounded-xl border border-zinc-800 p-3 space-y-2 max-h-32 overflow-y-auto mt-2">

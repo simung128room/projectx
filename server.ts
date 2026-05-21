@@ -560,12 +560,51 @@ const cleanupTokenCache = () => {
   app.use(cors());
   app.options('*', cors());
   app.use(express.json({ limit: '50mb' }));
-  app.use(express.urlencoded({ limit: '50mb', extended: true }));
+  const idempotencyCache = new Map<string, { status: number, body: any, timestamp: number }>();
   
-  // Security Fix: Prevent aggressive caching of user-specific APIs to avoid data leaks
+  // Clean up old idempotency keys
+  setInterval(() => {
+    const now = Date.now();
+    for (const [key, value] of idempotencyCache.entries()) {
+      if (now - value.timestamp > 10 * 60 * 1000) { // 10 minutes
+        idempotencyCache.delete(key);
+      }
+    }
+  }, 5 * 60 * 1000);
+
+  app.use((req, res, next) => {
+    if (['POST', 'PUT', 'DELETE'].includes(req.method)) {
+      const idempotencyKey = req.headers['idempotency-key'] as string;
+      if (idempotencyKey) {
+        if (idempotencyCache.has(idempotencyKey)) {
+          const cached = idempotencyCache.get(idempotencyKey)!;
+          return res.status(cached.status).json(cached.body);
+        }
+        
+        // Intercept response to save it
+        const originalJson = res.json.bind(res);
+        res.json = (body: any) => {
+          if (res.statusCode >= 200 && res.statusCode < 300) {
+             idempotencyCache.set(idempotencyKey, { status: res.statusCode, body, timestamp: Date.now() });
+          }
+          return originalJson(body);
+        };
+      }
+    }
+    next();
+  });
   app.use((req, res, next) => {
     if (req.path.startsWith('/api/')) {
-       res.setHeader('Cache-Control', 'private, no-cache, no-store, must-revalidate');
+       // Define purely public GET APIs
+       const publicGetRoutes = ['/api/products', '/api/categories', '/api/pages', '/api/stats', '/api/settings'];
+       
+       if (req.method === 'GET' && publicGetRoutes.includes(req.path)) {
+           // Allow these to handle their own cache policies
+       } else {
+           res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+           res.setHeader('Pragma', 'no-cache');
+           res.setHeader('Expires', '0');
+       }
     }
     next();
   });
@@ -719,6 +758,7 @@ const cleanupTokenCache = () => {
   })();
 
   app.get('/api/settings', (req, res) => {
+    res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=300, stale-while-revalidate=86400');
     res.json(siteSettings);
   });
 
@@ -1853,11 +1893,12 @@ const cleanupTokenCache = () => {
         query = query.select('id', 'name', 'description', 'price', 'originalPrice', 'soldCount', 'imageUrl', 'stock', 'category', 'isPopular', 'image', 'isHighlight', 'customPageId', 'youtubeUrl', 'type', 'tag').limit(100); // Prevent RAM blowout and Firestore exhaustion for now
       }
       const snapshot = await query.get();
-      const data = snapshot.docs.map(doc => {
+      let data = snapshot.docs.map(doc => {
         const d = doc.data();
-        // DO NOT decompress stockData here, let the endpoints do it!
         return { id: doc.id, ...d };
       });
+      // Filter out soft deleted documents
+      data = data.filter(d => !d.isDeleted);
       // We keep the old revision if it existed so we do not bust ETag on pure TTL expiry 
       // ONLY bust cacheRevisionCounter when something updates!
       const currentRevision = firestoreCache[collectionName]?.revision || cacheRevisionCounter;
@@ -1895,9 +1936,9 @@ const cleanupTokenCache = () => {
   };
 
   app.get('/api/products', async (req: any, res: any) => {
-    res.setHeader('Cache-Control', 'public, max-age=30, s-maxage=30, stale-while-revalidate=59');
+    res.setHeader('Cache-Control', 'public, max-age=15, s-maxage=30, stale-while-revalidate=59');
     try {
-      // Opt-in for public caching of products (TTL 30 seconds)
+      // Opt-in for public caching of products (Server-side firestoreCache only)
       const data = await getCachedCollection('products', 20000, res, req);
       if (data) {
         const processedData = data.map((item: any) => {
@@ -1951,10 +1992,12 @@ const cleanupTokenCache = () => {
     if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
     try {
       const product = req.body;
-      const allowedFields = ['name', 'description', 'price', 'originalPrice', 'stock', 'categoryId', 'stockData', 'image', 'imageUrl', 'category', 'isHighlight', 'customPageId', 'youtubeUrl', 'type', 'isPopular', 'soldCount', 'tag'];
+      const allowedFields = ['name', 'description', 'price', 'originalPrice', 'stock', 'categoryId', 'stockData', 'image', 'imageUrl', 'category', 'isHighlight', 'customPageId', 'youtubeUrl', 'type', 'isPopular', 'soldCount', 'tag', '_version'];
       const sanitizedProduct = Object.fromEntries(
         Object.entries(product).filter(([k]) => allowedFields.includes(k))
       );
+      
+      sanitizedProduct._version = 1;
 
       const { id, ...dataToSaveRaw } = sanitizedProduct as any;
       if (dataToSaveRaw.stockData) {
@@ -2025,52 +2068,77 @@ const cleanupTokenCache = () => {
     if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
     try {
       const docRef = admin.firestore().collection('products').doc(req.params.id);
-      const currentDoc = await docRef.get();
-      if (!currentDoc.exists) {
-        return res.status(404).json({ error: 'Product not found' });
-      }
-      const existingData = currentDoc.data();
-
-      const product = req.body;
-      const allowedFields = ['name', 'description', 'price', 'originalPrice', 'stock', 'categoryId', 'stockData', 'image', 'imageUrl', 'category', 'isHighlight', 'customPageId', 'youtubeUrl', 'type', 'isPopular', 'soldCount', 'tag'];
-      const sanitizedProduct = Object.fromEntries(
-        Object.entries(product).filter(([k]) => allowedFields.includes(k))
+      const productUpdates = req.body;
+      
+      const allowedFields = ['name', 'description', 'price', 'originalPrice', 'stock', 'categoryId', 'stockData', 'image', 'imageUrl', 'category', 'isHighlight', 'customPageId', 'youtubeUrl', 'type', 'isPopular', 'soldCount', 'tag', '_version'];
+      const sanitizedUpdates = Object.fromEntries(
+        Object.entries(productUpdates).filter(([k]) => allowedFields.includes(k) && k !== 'id')
       );
 
-      // Preserve existing internal encoded fields if not provided
-      if (sanitizedProduct.stockData === undefined && existingData.stockData !== undefined) {
-        sanitizedProduct.stockData = existingData.stockData;
-      }
-      if (sanitizedProduct.soldCount === undefined && existingData.soldCount !== undefined) {
-        sanitizedProduct.soldCount = existingData.soldCount;
-      }
-      if (sanitizedProduct.title === undefined && existingData.title !== undefined) {
-        sanitizedProduct.title = existingData.title;
-      }
-      if (sanitizedProduct.subtitle === undefined && existingData.subtitle !== undefined) {
-        sanitizedProduct.subtitle = existingData.subtitle;
-      }
-      if (sanitizedProduct.bannerUrl === undefined && existingData.bannerUrl !== undefined) {
-        sanitizedProduct.bannerUrl = existingData.bannerUrl;
-      }
+      let finalData: any;
+      let deltaBefore: any = {};
+      let deltaAfter: any = {};
+
+      await admin.firestore().runTransaction(async (t) => {
+        const currentDoc = await t.get(docRef);
+        if (!currentDoc.exists) {
+          throw new Error('NOT_FOUND');
+        }
+        
+        const existingData = currentDoc.data()!;
+        
+        // Optimistic Concurrency Control (OCC)
+        if (typeof sanitizedUpdates._version === 'number') {
+          const currentVersion = existingData._version || 0;
+          if (sanitizedUpdates._version !== currentVersion) {
+            throw new Error('VERSION_CONFLICT');
+          }
+        }
+        
+        // Calculate Delta for Audit Log and only update what changed
+        Object.keys(sanitizedUpdates).forEach(k => {
+          if (k !== '_version' && sanitizedUpdates[k] !== existingData[k]) {
+            deltaBefore[k] = existingData[k];
+            deltaAfter[k] = sanitizedUpdates[k];
+          }
+        });
+        
+        // Compress stockData if needed
+        if (deltaAfter.stockData && !deltaAfter.stockData[0]?.__compressed) {
+          deltaAfter.stockData = compressStock(deltaAfter.stockData);
+        }
+
+        const dataToSave = JSON.parse(JSON.stringify(deltaAfter));
+        dataToSave._version = (existingData._version || 0) + 1;
+        
+        t.update(docRef, dataToSave);
+        finalData = { ...existingData, ...dataToSave, id: req.params.id };
+      });
       
-      const { id, ...dataToSaveRaw } = sanitizedProduct as any;
-      if (dataToSaveRaw.stockData && !dataToSaveRaw.stockData[0]?.__compressed) {
-        dataToSaveRaw.stockData = compressStock(dataToSaveRaw.stockData);
-      }
-      const dataToSave = JSON.parse(JSON.stringify(dataToSaveRaw));
-      await docRef.update(dataToSave);
       invalidateCache('products');
       invalidateStatsCache();
       
-      writeAuditLog('PRODUCT_UPDATE', (req as any).user?.uid || 'admin', req.params.id, req);
-      
-      const responseData = { id: req.params.id, ...dataToSave };
-      if (responseData.stockData) {
-        responseData.stockData = decompressStock(responseData.stockData);
+      if (Object.keys(deltaAfter).length > 0) {
+        writeAuditLog('PRODUCT_UPDATE', (req as any).user?.uid || 'admin', req.params.id, req, {
+          changes: {
+            before: deltaBefore,
+            after: deltaAfter
+          }
+        });
       }
-      res.json(responseData);
+      
+      if (finalData.stockData) {
+        finalData.stockData = decompressStock(finalData.stockData);
+      }
+      res.json(finalData);
+
     } catch (err: any) {
+      if (err.message === 'VERSION_CONFLICT') {
+        return res.status(409).json({ error: 'Conflict: Product was updated by another admin. Please refresh and try again.' });
+      }
+      if (err.message === 'NOT_FOUND') {
+        return res.status(404).json({ error: 'Product not found' });
+      }
       console.error('Internal server error updating product:', JSON.stringify(err, Object.getOwnPropertyNames(err)));
       const errMsg = err?.message || JSON.stringify(err);
       res.status(500).json({ error: String(errMsg) });
@@ -2080,14 +2148,37 @@ const cleanupTokenCache = () => {
   app.delete('/api/products/:id', requireAdmin, async (req, res) => {
     if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
     try {
-      await admin.firestore().collection('products').doc(req.params.id).delete();
+      const docRef = admin.firestore().collection('products').doc(req.params.id);
+      
+      let existingData: any;
+      await admin.firestore().runTransaction(async (t) => {
+        const doc = await t.get(docRef);
+        if (!doc.exists) {
+          throw new Error('NOT_FOUND');
+        }
+        existingData = doc.data()!;
+        t.update(docRef, { 
+          isDeleted: true, 
+          deletedAt: new Date().toISOString(),
+          _version: (existingData._version || 0) + 1
+        });
+      });
+      
       invalidateCache('products');
       invalidateStatsCache();
       
-      writeAuditLog('PRODUCT_DELETE', (req as any).user?.uid || 'admin', req.params.id, req);
+      writeAuditLog('PRODUCT_DELETE', (req as any).user?.uid || 'admin', req.params.id, req, {
+        changes: { 
+          before: existingData,
+          after: { isDeleted: true }
+        }
+      });
       
-      res.json({ success: true });
-    } catch (err) {
+      res.json({ success: true, softDeleted: true });
+    } catch (err: any) {
+      if (err.message === 'NOT_FOUND') {
+        return res.status(404).json({ error: 'Product not found' });
+      }
       console.error('Internal server error deleting product:', err);
       res.status(500).json({ error: String(err && err.message ? err.message : err) });
     }
@@ -2098,8 +2189,8 @@ const cleanupTokenCache = () => {
   });
 
   app.get('/api/stats', async (req, res) => {
+    res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=120, stale-while-revalidate=59');
     try {
-      res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=120');
       const now = Date.now();
       
       const sendCachedStats = () => {
@@ -2480,7 +2571,7 @@ const cleanupTokenCache = () => {
 
   // --- Categories Endpoints ---
   app.get('/api/categories', async (req, res) => {
-    res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=60, stale-while-revalidate=86400');
+    res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=120, stale-while-revalidate=86400');
     try {
       const data = await getCachedCollection('categories', 60000, res, req);
       if (data) res.json(data);
@@ -2533,7 +2624,7 @@ const cleanupTokenCache = () => {
 
   // --- Custom Pages Endpoints ---
   app.get('/api/pages', async (req, res) => {
-    res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=60, stale-while-revalidate=86400');
+    res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=120, stale-while-revalidate=86400');
     try {
       const data = await getCachedCollection('custom_pages', 60000, res, req);
       if (data) res.json(data);
@@ -3128,7 +3219,6 @@ const cleanupTokenCache = () => {
 
   app.get('/api/users', requireAdmin, async (req: any, res: any) => {
     try {
-      res.setHeader('Cache-Control', 'public, max-age=10, s-maxage=30');
       
       const snapshot = await admin.firestore().collection('users').limit(200).get();
       const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));

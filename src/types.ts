@@ -77,6 +77,7 @@ export interface Product {
   isPopular?: boolean;
   tag?: string;
   stockData?: string[];
+  _version?: number;
 }
 
 export interface SiteStats {

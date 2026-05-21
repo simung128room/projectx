@@ -193,7 +193,20 @@ const ProductManagerModal = ({
                 originalPrice: Number(formData.originalPrice) || 0,
                 stock: Number(formData.stock) || 0,
               };
-              onSave(p as Product);
+              
+              if (isEdit && product) {
+                const delta: any = {};
+                Object.keys(p).forEach((k) => {
+                  if (p[k] !== (product as any)[k]) {
+                    delta[k] = p[k];
+                  }
+                });
+                delta.id = product.id;
+                delta._version = product._version || 0;
+                onSave(delta as Product);
+              } else {
+                onSave(p as Product);
+              }
             }}
             className="flex-1 px-4 py-3 bg-[#3B82F6] hover:bg-[#2563EB] text-white rounded-xl text-sm font-bold shadow-lg shadow-blue-500/20 transition-all active:scale-95 flex items-center justify-center gap-2"
           >
@@ -1321,8 +1334,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                       }).then(async (result) => {
                                         if (result.isConfirmed) {
                                           try {
-                                            await axios.delete(`/api/products/${p.id}`);
+                                            await axios.delete(`/api/products/${p.id}`, {
+                                              headers: { 'Idempotency-Key': `delete_product_${p.id}_${Date.now()}_${Math.random()}` }
+                                            });
                                             setProducts(prev => prev.filter(prod => prod.id !== p.id));
+                                            if (onRefreshData) onRefreshData();
                                             Swal.fire({ title: 'ลบสำเร็จ', icon: 'success', background: '#09090b', color: '#fff', showConfirmButton: false, timer: 1000 });
                                           } catch (err: any) {
                                             Swal.fire('Error', 'ไม่สามารถลบสินค้าได้: ' + (err?.response?.data?.error || err.message), 'error');
@@ -1331,7 +1347,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                       });
                                     }
                                   }}
-                                  className="p-2 border border-[#3B82F6]/30 bg-[#3B82F6]/10 text-[#3B82F6] hover:bg-[#3B82F6]/20 rounded-lg transition-colors"
+                                  className="p-2 border border-red-500/30 bg-red-500/10 text-red-500 hover:bg-red-500/20 rounded-lg transition-colors"
                                   title="ลบสินค้า"
                                 >
                                     <Trash2 className="w-4 h-4" />
@@ -1424,7 +1440,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         </td>
                         <td className="p-4 text-zinc-500">{new Date(key.created_at).toLocaleDateString()}</td>
                         <td className="p-4 text-right">
-                          <button onClick={() => deleteKey(key.id)} className="p-2 hover:bg-[#3B82F6]/10 text-zinc-400 hover:text-[#3B82F6] rounded-lg transition-all">
+                          <button onClick={() => deleteKey(key.id)} className="p-2 hover:bg-red-500/10 text-zinc-400 hover:text-red-500 rounded-lg transition-all">
                             <Trash2 className="w-4 h-4" />
                           </button>
                         </td>
@@ -2148,8 +2164,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             onSave={async (p) => {
               if (setProducts) {
                 try {
-                  const res = await axios.post('/api/products', p);
+                  const res = await axios.post('/api/products', p, {
+                    headers: { 'Idempotency-Key': `post_product_${Date.now()}_${Math.random()}` }
+                  });
                   setProducts(prev => [...prev, res.data]);
+                  if (onRefreshData) onRefreshData();
                   setIsAddingProduct(false);
                   Swal.fire({ title: 'เพิ่มสินค้าสำเร็จ', icon: 'success', background: '#09090b', color: '#fff' });
                 } catch (err: any) {
@@ -2171,14 +2190,23 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             onSave={async (p) => {
               if (setProducts) {
                 try {
-                  const res = await axios.put(`/api/products/${p.id}`, p);
+                  const res = await axios.put(`/api/products/${p.id}`, p, {
+                    headers: { 'Idempotency-Key': `put_product_${p.id}_${p._version}_${Date.now()}_${Math.random()}` }
+                  });
                   setProducts(prev => prev.map(prod => prod.id === p.id ? res.data : prod));
+                  if (onRefreshData) onRefreshData();
                   setEditingProduct(undefined);
                   Swal.fire({ title: 'แก้ไขสินค้าสำเร็จ', icon: 'success', background: '#09090b', color: '#fff' });
                 } catch (err: any) {
+                  const status = err?.response?.status;
                   const errMsg = err?.response?.data?.error || err.message || 'Unknown error';
-                  console.error('Error updating product:', err);
-                  Swal.fire('Error', `ไม่สามารถแก้ไขสินค้าได้: ${errMsg}`, 'error');
+                  if (status === 409) {
+                    Swal.fire('ข้อขัดข้อง', errMsg, 'warning');
+                    if (onRefreshData) onRefreshData();
+                  } else {
+                    console.error('Error updating product:', err);
+                    Swal.fire('Error', `ไม่สามารถแก้ไขสินค้าได้: ${errMsg}`, 'error');
+                  }
                 }
               }
             }}

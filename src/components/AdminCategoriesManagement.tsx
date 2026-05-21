@@ -309,7 +309,7 @@ export const AdminCategoriesManagement: React.FC<AdminCategoriesManagementProps>
                       <button onClick={() => { setEditingCategory(c); setFormData(c); setIsAdding(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="p-2 border border-[#3B82F6]/30 bg-[#3B82F6]/10 text-white hover:bg-[#3B82F6] hover:text-white rounded-xl transition-colors shadow-sm" title="แก้ไข">
                         <Edit className="w-4 h-4" />
                       </button>
-                      <button onClick={() => deleteCategory(c.id)} className="p-2 border border-[#3B82F6]/30 bg-[#3B82F6]/10 text-[#3B82F6] hover:bg-[#3B82F6] hover:text-white rounded-xl transition-colors shadow-sm" title="ลบ">
+                      <button onClick={() => deleteCategory(c.id)} className="p-2 border border-red-500/30 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-xl transition-colors shadow-sm" title="ลบ">
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>

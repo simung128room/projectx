@@ -163,7 +163,7 @@ export const AdminPagesManagement: React.FC<AdminPagesManagementProps> = ({ cust
                 </div>
                 <div className="flex gap-2">
                   <button onClick={() => handleEdit(page)} className="p-2 text-zinc-500 hover:text-[#3B82F6] bg-[#0B0F14] rounded-xl border border-white/10 shadow-sm transition-all"><Edit className="w-4 h-4"/></button>
-                  <button onClick={() => handleDelete(page)} className="p-2 text-zinc-500 hover:text-[#3B82F6] bg-[#0B0F14] rounded-xl border border-white/10 shadow-sm transition-all"><Trash2 className="w-4 h-4"/></button>
+                  <button onClick={() => handleDelete(page)} className="p-2 text-zinc-500 hover:text-red-500 bg-[#0B0F14] rounded-xl border border-white/10 shadow-sm transition-all"><Trash2 className="w-4 h-4"/></button>
                 </div>
               </div>
             ))}
