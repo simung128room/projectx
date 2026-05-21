@@ -601,6 +601,11 @@ export const HomeView: React.FC<HomeViewProps> = ({
               >
                 <div className="aspect-[4/3] bg-zinc-900 relative overflow-hidden p-2">
                   <div className="w-full h-full rounded-2xl overflow-hidden relative">
+                      {product.tag && (
+                        <div className="absolute top-2 right-2 bg-gradient-to-r from-red-500 to-orange-500 text-white font-black text-[10px] px-2 py-0.5 rounded-full z-10 shadow-lg border border-white/20 uppercase tracking-widest">
+                          {product.tag}
+                        </div>
+                      )}
                       {product.imageUrl ? (
                         <img loading="lazy"
                           src={product.imageUrl}

@@ -98,6 +98,11 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
               className="bg-[#0B0F14] border border-white/10 rounded-2xl overflow-hidden hover:shadow-xl transition-all h-full flex flex-col group"
             >
               <div className="aspect-square bg-zinc-900 relative overflow-hidden">
+                {product.tag && (
+                  <div className="absolute top-2 right-2 bg-gradient-to-r from-red-500 to-orange-500 text-white font-black text-[10px] px-2 py-0.5 rounded-full z-10 shadow-lg border border-white/20 uppercase tracking-widest">
+                    {product.tag}
+                  </div>
+                )}
                 {product.imageUrl ? (
                   <img loading="lazy"
                     src={product.imageUrl}

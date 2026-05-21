@@ -145,6 +145,20 @@ const ProductManagerModal = ({
             </div>
           </div>
           <div>
+            <label className="block text-xs font-bold text-zinc-500 mb-1">ป้ายกำกับ (Tag)</label>
+            <select 
+              value={formData.tag || ''} 
+              onChange={e => setFormData({...formData, tag: e.target.value})}
+              className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white font-medium focus:outline-none focus:border-[#3B82F6] focus:ring-1 focus:ring-[#3B82F6]/50 transition-all text-sm appearance-none"
+            >
+              <option value="">ไม่มี (ว่าง)</option>
+              <option value="HOT">HOT</option>
+              <option value="NEW">NEW</option>
+              <option value="แนะนำ">แนะนำ</option>
+              <option value="ขายดี">ขายดี</option>
+            </select>
+          </div>
+          <div>
             <label className="block text-xs font-bold text-zinc-500 mb-1">URL รูปภาพ</label>
             <input 
               type="text" 
@@ -1232,6 +1246,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                             <div>
                                 <div className="text-white font-bold flex items-center gap-2">
                                   {p.name}
+                                  {p.tag && (
+                                    <span className="bg-gradient-to-r from-red-500 to-orange-500 text-white text-[9px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-full">
+                                      {p.tag}
+                                    </span>
+                                  )}
                                   <button 
                                     onClick={() => {
                                       navigator.clipboard.writeText(p.name);

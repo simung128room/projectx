@@ -75,6 +75,7 @@ export interface Product {
   stock: number;
   category?: string;
   isPopular?: boolean;
+  tag?: string;
   stockData?: string[];
 }
 
