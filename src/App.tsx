@@ -190,6 +190,11 @@ const ContactView = lazy(() =>
     default: module.ContactView,
   })),
 );
+const FreeWebsiteTool = lazy(() =>
+  import("./components/FreeWebsiteTool").then((module) => ({
+    default: module.FreeWebsiteTool,
+  }))
+);
 const TelegramCatcherTool = lazy(() =>
   import("./components/TelegramCatcherTool").then((module) => ({
     default: module.TelegramCatcherTool,
@@ -495,6 +500,7 @@ function AppContent() {
     | "categories"
     | "category_products"
     | "dashboard"
+    | "free_website"
     | "telegram_catcher"
     | "discord_catcher"
     | "discord_on"
@@ -562,6 +568,7 @@ function AppContent() {
         "categories",
         "category_products",
         "dashboard",
+        "free_website",
         "telegram_catcher",
         "discord_catcher",
         "discord_on",
@@ -2037,6 +2044,25 @@ function AppContent() {
                 Swal.fire({
                   icon: "warning",
                   title: "กรุณาเข้าสู่ระบบ",
+                  text: "คุณต้องเข้าสู่ระบบก่อนใช้งานฟีเจอร์นี้",
+                  confirmButtonText: "ไปหน้าเข้าสู่ระบบ",
+                  confirmButtonColor: "#3B82F6",
+                }).then(() => setActiveView("login"));
+                return;
+              }
+              setActiveView("free_website");
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === "free_website" ? "bg-purple-500/10 text-purple-400 border border-purple-500/20" : "text-zinc-500 hover:bg-[#0a0d12] hover:text-white border border-transparent"}`}
+          >
+            <Globe className="w-5 h-5 font-bold" /> เปิดเว็บไซต์ฟรี
+          </button>
+          <button
+            onClick={() => {
+              if (!user) {
+                Swal.fire({
+                  icon: "warning",
+                  title: "กรุณาเข้าสู่ระบบ",
                   text: "คุณต้องเข้าสู่ระบบก่อนใช้งานบรรดาเครื่องมือ",
                   confirmButtonText: "ไปหน้าเข้าสู่ระบบ",
                   confirmButtonColor: "#3B82F6",
@@ -2364,6 +2390,31 @@ function AppContent() {
                     <Wallet className="w-5 h-5" />
                     <span className="text-[15px] font-bold">
                       เติมเงิน
+                    </span>
+                  </div>
+                  <div
+                    className={`nav-row flex items-center gap-[13px] border-[1.5px] rounded-[12px] p-[14px] px-[16px] cursor-pointer transition-all ${activeView === "free_website" ? "border-purple-500 bg-purple-500/15 text-purple-400" : "border-white/5 bg-white/5 text-zinc-400 hover:text-white"}`}
+                    onClick={() => {
+                      if (!user) {
+                        Swal.fire({
+                          icon: "warning",
+                          title: "กรุณาเข้าสู่ระบบ",
+                          text: "คุณต้องเข้าสู่ระบบก่อนใช้งานตัวเลือกนี้",
+                          confirmButtonText: "ไปหน้าเข้าสู่ระบบ",
+                          confirmButtonColor: "#3B82F6",
+                        }).then(() => {
+                           setActiveView("login");
+                           setIsMobileMenuOpen(false);
+                        });
+                        return;
+                      }
+                      setActiveView("free_website");
+                      setIsMobileMenuOpen(false);
+                    }}
+                  >
+                    <Globe className="w-5 h-5" />
+                    <span className="text-[15px] font-bold">
+                      เปิดเว็บไซต์ฟรี
                     </span>
                   </div>
                   <div
@@ -2757,6 +2808,9 @@ function AppContent() {
                   (h) => h.uid === user?.id,
                 )}
               />
+            )}
+            {activeView === "free_website" && (
+              <FreeWebsiteTool userPlan={userPlan} onBack={() => setActiveView("home")} />
             )}
             {activeView === "telegram_catcher" && (
               <TelegramCatcherTool userPlan={userPlan} />
