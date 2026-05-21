@@ -1951,7 +1951,7 @@ const cleanupTokenCache = () => {
     if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
     try {
       const product = req.body;
-      const allowedFields = ['name', 'description', 'price', 'originalPrice', 'stock', 'categoryId', 'stockData', 'image', 'imageUrl', 'category', 'isHighlight', 'customPageId', 'youtubeUrl', 'type', 'isPopular', 'soldCount'];
+      const allowedFields = ['name', 'description', 'price', 'originalPrice', 'stock', 'categoryId', 'stockData', 'image', 'imageUrl', 'category', 'isHighlight', 'customPageId', 'youtubeUrl', 'type', 'isPopular', 'soldCount', 'tag'];
       const sanitizedProduct = Object.fromEntries(
         Object.entries(product).filter(([k]) => allowedFields.includes(k))
       );
@@ -2032,7 +2032,7 @@ const cleanupTokenCache = () => {
       const existingData = currentDoc.data();
 
       const product = req.body;
-      const allowedFields = ['name', 'description', 'price', 'originalPrice', 'stock', 'categoryId', 'stockData', 'image', 'imageUrl', 'category', 'isHighlight', 'customPageId', 'youtubeUrl', 'type', 'isPopular', 'soldCount'];
+      const allowedFields = ['name', 'description', 'price', 'originalPrice', 'stock', 'categoryId', 'stockData', 'image', 'imageUrl', 'category', 'isHighlight', 'customPageId', 'youtubeUrl', 'type', 'isPopular', 'soldCount', 'tag'];
       const sanitizedProduct = Object.fromEntries(
         Object.entries(product).filter(([k]) => allowedFields.includes(k))
       );

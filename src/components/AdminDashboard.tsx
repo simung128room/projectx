@@ -770,154 +770,137 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         setAdminTab(id);
         setIsNavOpen(false);
       }}
-      className={`group flex flex-col items-center justify-center gap-3 p-6 rounded-xl transition-all duration-300 border ${
+      className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${
         adminTab === id 
-        ? 'bg-[#3B82F6] border-[#3B82F6] text-white  ' 
-        : 'bg-[#121820] border-white/5 text-zinc-400 hover:border-zinc-700 hover:bg-[#1a232d] hover:text-white'
+        ? 'bg-[#3B82F6]/10 border border-[#3B82F6]/20 text-[#3B82F6] font-bold' 
+        : 'text-zinc-400 hover:bg-white/5 hover:text-white border border-transparent'
       }`}
     >
-      <div className={`p-4 rounded-2xl transition-transform group-hover:scale-110 ${adminTab === id ? 'bg-white/20' : 'bg-black/20 text-[#3B82F6]'}`}>
-        <Icon className="w-8 h-8" />
-      </div>
-      <span className="text-[10px] font-black uppercase tracking-[0.1em]">{label}</span>
+      <Icon className={`w-5 h-5 ${adminTab === id ? 'text-[#3B82F6]' : 'text-zinc-500'}`} />
+      <span className="text-xs font-semibold tracking-wide">{label}</span>
+      {adminTab === id && (
+        <ChevronRight className="w-4 h-4 ml-auto opacity-50" />
+      )}
     </button>
   );
 
   return (
-    <div className="min-h-screen bg-[#0a0d12] flex flex-col font-sans">
-      {/* Navigation Modal */}
+    <div className="min-h-screen bg-[#07090D] flex font-sans text-white">
+      {/* Mobile Nav Overlay */}
       <AnimatePresence>
         {isNavOpen && (
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center p-0"
-          >
-            <div 
-              className="absolute inset-0 bg-[#0a0d12]/95 "
-              onClick={() => setIsNavOpen(false)}
-            />
-            
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 20 }}
-              className="relative w-full h-full bg-[#0a0d12] p-8 md:p-12 overflow-y-auto no-scrollbar"
-            >
-              <div className="flex items-center justify-between mb-12">
-                <div className="flex items-center gap-6">
-                  <div className="p-4 bg-[#3B82F6] rounded-xl  ">
-                    <Crown className="w-10 h-10 text-white" />
-                  </div>
-                  <div>
-                    <h2 className="text-3xl font-black text-white tracking-tight uppercase">Control Center</h2>
-                    <p className="text-[#3B82F6] text-sm font-black tracking-[0.2em] opacity-80">APEXSTORE DASHBOARD SYSTEM</p>
-                  </div>
-                </div>
-                <button 
-                  onClick={() => setIsNavOpen(false)}
-                  className="p-4 bg-[#121820] text-zinc-500 hover:text-white rounded-2xl transition-all"
-                >
-                  <X className="w-8 h-8" />
-                </button>
-              </div>
-
-              <div className="space-y-12 pb-12">
-                <section>
-                  <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mb-6 px-2">GENERAL</p>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                    <NavItem id="overview" label="หน้าภาพรวม" icon={LayoutDashboard} />
-                    <NavItem id="analytics" label="ข้อมูลวิเคราะห์" icon={LineChart} />
-                    <NavItem id="settings" label="ตั้งค่าเว็บไซต์" icon={Settings} />
-                    <NavItem id="system" label="สถานะระบบ" icon={Cpu} />
-                  </div>
-                </section>
-
-                <section>
-                  <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mb-6 px-2">SHOP MANAGEMENT</p>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                    <NavItem id="store" label="สินค้าในร้าน" icon={Package} />
-                    <NavItem id="categories" label="หมวดหมู่สินค้า" icon={LayoutDashboard} />
-                    <NavItem id="stock" label="จัดการสต็อก" icon={Database} />
-                    <NavItem id="banners" label="ตั้งค่าแบนเนอร์" icon={Image} />
-                    <NavItem id="pages" label="ตั้งค่าหน้าเพจ" icon={FileText} />
-                  </div>
-                </section>
-
-                <section>
-                  <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mb-6 px-2">USERS & REPORTS</p>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                    <NavItem id="users" label="สมาชิกทั้งหมด" icon={Users} />
-                    <NavItem id="keys" label="LICENSE KEYS" icon={Key} />
-                    <NavItem id="history" label="ประวัติรายการ" icon={History} />
-                    <NavItem id="ips" label="ความปลอดภัย" icon={ShieldAlert} />
-                  </div>
-                </section>
-
-                <section>
-                  <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mb-6 px-2">DEVELOPER TOOLS</p>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                    <NavItem id="bot" label="ระบบบอท" icon={Terminal} />
-                    <NavItem id="tools" label="ตัวช่วยแจกของ" icon={Gift} />
-                    <NavItem id="api_keys" label="ระบบ API" icon={Key} />
-                    <NavItem id="proxy" label="Proxy Free" icon={Globe} />
-                  </div>
-                </section>
-              </div>
-
-              <div className="sticky bottom-0 mt-8 pt-8 border-t border-white/5 bg-[#0a0d12] flex flex-col md:flex-row items-center justify-between gap-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 rounded-2xl bg-[#3B82F6] flex items-center justify-center text-white font-black text-xl  ">
-                    {adminUsername.charAt(0).toUpperCase()}
-                  </div>
-                  <div>
-                    <p className="text-lg font-black text-white uppercase tracking-tight">{adminUsername}</p>
-                    <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest">Administrator</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 w-full md:w-auto">
-                   <button 
-                    onClick={() => setIsAdmin(false)}
-                    className="flex-1 md:flex-none px-10 py-5 bg-red-500 hover:bg-red-600 text-white rounded-xl text-sm font-black transition-all   active:scale-95"
-                  >
-                    ออกจากแผงควบคุม
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
+            onClick={() => setIsNavOpen(false)}
+            className="fixed inset-0 bg-black/60 z-40 lg:hidden"
+          />
         )}
       </AnimatePresence>
 
-      {/* Admin Header */}
-      <header className="bg-[#0a0d12] border-b border-white/5 px-6 py-5 sticky top-0 z-40 ">
-        <div className="max-w-[1600px] mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="p-2.5 bg-[#3B82F6] rounded-xl  ">
+      {/* Sidebar Navigation */}
+      <aside className={`fixed inset-y-0 left-0 bg-[#0B0E14] border-r border-white/5 w-[280px] z-50 transform transition-transform duration-300 lg:translate-x-0 ${isNavOpen ? 'translate-x-0' : '-translate-x-full'} flex flex-col h-full overflow-hidden shadow-2xl lg:shadow-none`}>
+        {/* Brand/Logo Area */}
+        <div className="p-6 flex items-center justify-between border-b border-white/5 shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-[#3B82F6] rounded-xl flex items-center justify-center flex-shrink-0">
               <Crown className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-white font-black text-lg tracking-tight uppercase">{getTabLabel(adminTab)}</h1>
-              <p className="text-[#3B82F6] text-[9px] font-black tracking-[0.2em] uppercase opacity-70">APEXSTORE Console</p>
+              <h2 className="text-white font-black tracking-tight leading-none text-lg uppercase">APEXSTORE</h2>
+              <p className="text-[9px] text-[#3B82F6] font-bold uppercase tracking-widest mt-1">Admin Console</p>
             </div>
           </div>
+          <button onClick={() => setIsNavOpen(false)} className="lg:hidden p-2 text-zinc-500 hover:text-white bg-white/5 rounded-lg">
+             <X className="w-5 h-5" />
+          </button>
+        </div>
 
-          <div className="flex items-center gap-4">
+        {/* Navigation Links */}
+        <div className="flex-1 overflow-y-auto w-full p-4 space-y-8 no-scrollbar">
+          <div className="space-y-1">
+            <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest mb-3 px-4">ระบบจัดการหลัก</p>
+            <NavItem id="overview" label="หน้าภาพรวม" icon={LayoutDashboard} />
+            <NavItem id="analytics" label="ข้อมูลวิเคราะห์" icon={LineChart} />
+            <NavItem id="settings" label="ตั้งค่าเว็บไซต์" icon={Settings} />
+            <NavItem id="system" label="สถานะระบบ" icon={Cpu} />
+          </div>
+
+          <div className="space-y-1">
+            <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest mb-3 px-4">ร้านค้า & สินค้า</p>
+            <NavItem id="store" label="สินค้าในร้าน" icon={Package} />
+            <NavItem id="categories" label="หมวดหมู่สินค้า" icon={LayoutDashboard} />
+            <NavItem id="stock" label="จัดการสต็อก" icon={Database} />
+            <NavItem id="banners" label="ตั้งค่าแบนเนอร์" icon={Image} />
+            <NavItem id="pages" label="ตั้งค่าหน้าเพจ" icon={FileText} />
+          </div>
+
+          <div className="space-y-1">
+            <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest mb-3 px-4">ผู้ใช้งาน & ประวัติ</p>
+            <NavItem id="users" label="สมาชิกทั้งหมด" icon={Users} />
+            <NavItem id="keys" label="LICENSE KEYS" icon={Key} />
+            <NavItem id="history" label="ประวัติรายการ" icon={History} />
+            <NavItem id="ips" label="ความปลอดภัย" icon={ShieldAlert} />
+          </div>
+
+          <div className="space-y-1">
+            <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest mb-3 px-4">เครื่องมือเสริม</p>
+            <NavItem id="bot" label="ระบบบอท" icon={Terminal} />
+            <NavItem id="tools" label="ตัวช่วยแจกของ" icon={Gift} />
+            <NavItem id="api_keys" label="ระบบ API" icon={Key} />
+          </div>
+        </div>
+
+        {/* Admin User Profile Bottom */}
+        <div className="p-4 border-t border-white/5 bg-[#080B10] shrink-0">
+          <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#3B82F6] to-[#1D4ED8] flex flex-shrink-0 items-center justify-center text-white font-bold">
+              {adminUsername.charAt(0).toUpperCase()}
+            </div>
+            <div className="flex-1 overflow-hidden">
+              <p className="text-sm font-bold text-white truncate">{adminUsername}</p>
+              <p className="text-[10px] text-zinc-500 uppercase font-medium">Administrator</p>
+            </div>
             <button 
-              onClick={() => setIsNavOpen(true)}
-              className="flex items-center gap-3 px-6 py-3 bg-[#121820] hover:bg-[#1a232d] border border-white/5 hover:border-zinc-700 rounded-2xl text-white text-xs font-black transition-all group active:scale-95 "
+              onClick={() => setIsAdmin(false)}
+              className="p-2 text-red-400 hover:text-white hover:bg-red-500/20 rounded-lg transition-colors flex-shrink-0"
+              title="ออกจากระบบ"
             >
-              <Menu className="w-5 h-5 text-[#3B82F6] group-hover:scale-110 transition-transform" />
-              เมนูควบคุมหน้า
+              <LogOut className="w-4 h-4" />
             </button>
           </div>
         </div>
-      </header>
+      </aside>
 
-      {/* Main Content */}
-      <div className="flex-1 p-4 md:p-8 max-w-[1600px] mx-auto w-full overflow-y-auto no-scrollbar">
-        {!isDBReady ? (
+      {/* Main Content Area */}
+      <main className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden lg:pl-[280px]">
+        {/* Top Header */}
+        <header className="h-[72px] bg-[#0B0E14]/80 backdrop-blur-md border-b border-white/5 flex items-center justify-between px-4 lg:px-8 shrink-0 z-30 sticky top-0">
+          <div className="flex items-center gap-4">
+            <button 
+              onClick={() => setIsNavOpen(true)}
+              className="lg:hidden p-2 text-zinc-400 hover:text-white bg-white/5 rounded-lg"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+            <h1 className="text-lg font-bold text-white flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-[#3B82F6] animate-pulse hidden sm:block"></span>
+              {getTabLabel(adminTab)}
+            </h1>
+          </div>
+          
+          <div className="flex items-center gap-3">
+             <div className="hidden sm:flex items-center gap-2 text-[10px] font-mono text-zinc-500 bg-white/5 px-3 py-1.5 rounded-lg border border-white/10">
+               <Activity className="w-3 h-3 text-emerald-500" />
+               SYSTEM ONLINE
+             </div>
+          </div>
+        </header>
+
+        {/* Scrollable Content Body */}
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 w-full max-w-[1400px] mx-auto">
+          {!isDBReady ? (
           <DatabaseSetupGuide dbErrorDetail={dbErrorDetail} />
         ) : (
           <AnimatePresence mode="wait">
@@ -1339,7 +1322,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                         if (result.isConfirmed) {
                                           try {
                                             await axios.delete(`/api/products/${p.id}`);
-                                            setProducts(products.filter(prod => prod.id !== p.id));
+                                            setProducts(prev => prev.filter(prod => prod.id !== p.id));
                                             Swal.fire({ title: 'ลบสำเร็จ', icon: 'success', background: '#09090b', color: '#fff', showConfirmButton: false, timer: 1000 });
                                           } catch (err: any) {
                                             Swal.fire('Error', 'ไม่สามารถลบสินค้าได้: ' + (err?.response?.data?.error || err.message), 'error');
@@ -2166,7 +2149,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               if (setProducts) {
                 try {
                   const res = await axios.post('/api/products', p);
-                  setProducts([...products, res.data]);
+                  setProducts(prev => [...prev, res.data]);
                   setIsAddingProduct(false);
                   Swal.fire({ title: 'เพิ่มสินค้าสำเร็จ', icon: 'success', background: '#09090b', color: '#fff' });
                 } catch (err: any) {
@@ -2189,7 +2172,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               if (setProducts) {
                 try {
                   const res = await axios.put(`/api/products/${p.id}`, p);
-                  setProducts(products.map(prod => prod.id === p.id ? res.data : prod));
+                  setProducts(prev => prev.map(prod => prod.id === p.id ? res.data : prod));
                   setEditingProduct(undefined);
                   Swal.fire({ title: 'แก้ไขสินค้าสำเร็จ', icon: 'success', background: '#09090b', color: '#fff' });
                 } catch (err: any) {
@@ -2249,10 +2232,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   }
                   
                   if (lastRes && lastRes.data?.product) {
-                     setProducts(products.map(prod => prod.id === stockProduct.id ? lastRes.data.product : prod));
+                     setProducts(prev => prev.map(prod => prod.id === stockProduct.id ? lastRes.data.product : prod));
                   } else {
                      const fresh = await axios.get(`/api/products/${stockProduct.id}`);
-                     setProducts(products.map(prod => prod.id === stockProduct.id ? fresh.data : prod));
+                     setProducts(prev => prev.map(prod => prod.id === stockProduct.id ? fresh.data : prod));
                   }
 
                   setStockProduct(undefined);
@@ -2267,6 +2250,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           />
         )}
       </div>
+      </main>
     </div>
   );
 };
