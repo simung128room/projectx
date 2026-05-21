@@ -959,42 +959,38 @@ function AppContent() {
         }
       };
 
-      // 1. Critical Landing Page Data - Promise.all Concurrent Fetching
-      Promise.all([
-        fetchApi("/api/stats"),
-        fetchApi("/api/products"),
-        fetchApi("/api/categories"),
-        fetchApi("/api/settings")
-      ]).then(([statsRes, productsRes, categoriesRes, settingsRes]) => {
-        if (statsRes.data) {
+      // 1. Critical Landing Page Data - Individual Fetching
+      fetchApi("/api/settings").then(res => { if (res.data) setSiteSettings(res.data); });
+      fetchApi("/api/products").then(res => { 
+        if (res.data && Array.isArray(res.data)) {
+          setProducts(res.data.length > 0 ? res.data : defaultProducts);
+        }
+      });
+      fetchApi("/api/categories").then(res => {
+        if (res.data && Array.isArray(res.data)) setCategories(res.data);
+      });
+      fetchApi("/api/stats").then(res => {
+        if (res.data) {
           setSiteStats({
-            users: statsRes.data.users,
-            stock: statsRes.data.stock,
-            sales: statsRes.data.sales,
-            topups: statsRes.data.totalTopupsAmount,
-            totalOrders: statsRes.data.totalOrders,
+            users: res.data.users,
+            stock: res.data.stock,
+            sales: res.data.sales,
+            topups: res.data.totalTopupsAmount,
+            totalOrders: res.data.totalOrders,
           });
         }
-        if (productsRes.data && Array.isArray(productsRes.data)) {
-          setProducts(productsRes.data.length > 0 ? productsRes.data : defaultProducts);
-        }
-        if (categoriesRes.data && Array.isArray(categoriesRes.data)) {
-          setCategories(categoriesRes.data);
-        }
-        if (settingsRes.data) setSiteSettings(settingsRes.data);
       });
 
       // 2. Secondary Data & User Data
-      Promise.all([
-        fetchApi("/api/pages"),
-        fetchApi("/api/logs-system")
-      ]).then(([pagesRes, logsRes]) => {
-        if (pagesRes.data) {
-          const d = pagesRes.data;
+      fetchApi("/api/pages").then(res => {
+        if (res.data) {
+          const d = res.data;
           setCustomPages(Array.isArray(d) ? d : (d.data && Array.isArray(d.data) ? d.data : []));
         }
-        if (logsRes.data && Array.isArray(logsRes.data.categories)) {
-          setLogCategories(logsRes.data.categories.filter((c: any) => c.isVisible));
+      });
+      fetchApi("/api/logs-system").then(res => {
+        if (res.data && Array.isArray(res.data.categories)) {
+          setLogCategories(res.data.categories.filter((c: any) => c.isVisible));
         }
       });
 
@@ -1029,7 +1025,7 @@ function AppContent() {
     } catch (err: any) {
       console.error("Critical fetch error:", err);
     }
-  }, [isAdmin]);
+  }, [isAdmin, user]);
 
   // Backend API Listeners
   useEffect(() => {

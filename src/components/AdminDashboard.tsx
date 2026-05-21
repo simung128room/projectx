@@ -20,7 +20,7 @@ interface AdminDashboardProps {
   adminTab: string;
   setAdminTab: (tab: string) => void;
   products?: Product[];
-  setProducts?: (products: Product[]) => void;
+  setProducts?: React.Dispatch<React.SetStateAction<Product[]>>;
   siteStats?: SiteStats;
   setSiteStats?: (stats: SiteStats) => void;
   customPages?: any[];

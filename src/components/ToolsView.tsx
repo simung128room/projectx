@@ -135,8 +135,8 @@ export const ToolsView: React.FC<ToolsViewProps> = ({ setActiveView }) => {
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ duration: 0.2, delay: idx * 0.05 }}
                   onClick={() => {
-                    if (tool.link) {
-                      window.open(tool.link, '_blank');
+                    if ((tool as any).link) {
+                      window.open((tool as any).link, '_blank');
                     } else {
                       setActiveView(tool.id);
                     }
@@ -186,7 +186,7 @@ export const ToolsView: React.FC<ToolsViewProps> = ({ setActiveView }) => {
                           เข้าใช้งาน
                        </span>
                        <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-zinc-400 group-hover:text-white group-hover:bg-white/10 transition-all">
-                          {tool.link ? (
+                          {(tool as any).link ? (
                             <ExternalLink className="w-4 h-4 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 transition-transform" />
                           ) : (
                             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />

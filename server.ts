@@ -1850,7 +1850,7 @@ const cleanupTokenCache = () => {
     if (!cacheHit) {
       let query: any = admin.firestore().collection(collectionName);
       if (collectionName === 'products') {
-        query = query.select('id', 'name', 'description', 'price', 'originalPrice', 'soldCount', 'imageUrl', 'stock', 'category', 'isPopular', 'image', 'isHighlight', 'customPageId', 'youtubeUrl', 'type').limit(100); // Prevent RAM blowout and Firestore exhaustion for now
+        query = query.select('id', 'name', 'description', 'price', 'originalPrice', 'soldCount', 'imageUrl', 'stock', 'category', 'isPopular', 'image', 'isHighlight', 'customPageId', 'youtubeUrl', 'type', 'tag').limit(100); // Prevent RAM blowout and Firestore exhaustion for now
       }
       const snapshot = await query.get();
       const data = snapshot.docs.map(doc => {
