@@ -1,4 +1,25 @@
-import './instrumentation';
+import { NodeSDK } from '@opentelemetry/sdk-node';
+import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
+import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
+import { resourceFromAttributes } from '@opentelemetry/resources';
+import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
+
+if (process.env.OTLP_TRACE_URL) {
+  const traceExporter = new OTLPTraceExporter({ url: process.env.OTLP_TRACE_URL });
+  const sdk = new NodeSDK({
+    resource: resourceFromAttributes({
+      [SemanticResourceAttributes.SERVICE_NAME]: 'apex-admin-dashboard',
+      [SemanticResourceAttributes.SERVICE_VERSION]: '1.0.0',
+    }),
+    traceExporter,
+    instrumentations: [getNodeAutoInstrumentations()]
+  });
+  sdk.start();
+  process.on('SIGTERM', () => {
+    sdk.shutdown().catch(console.error).finally(() => process.exit(0));
+  });
+}
+
 import express from 'express';
 import dotenv from 'dotenv';
 dotenv.config({ override: true });
