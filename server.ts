@@ -24,8 +24,18 @@ import zlib from 'zlib';
 import cloudscraper from 'cloudscraper';
 
 const compressStock = (stockData: any) => {
-  if (!Array.isArray(stockData) || stockData.length < 500) return stockData;
-  return [{ __compressed: zlib.gzipSync(JSON.stringify(stockData)).toString('base64') }];
+  if (!Array.isArray(stockData)) return stockData;
+  
+  if (stockData.length >= 250) {
+    return [{ __compressed: zlib.gzipSync(JSON.stringify(stockData)).toString('base64') }];
+  }
+
+  const str = JSON.stringify(stockData);
+  if (str.length > 50000) {
+    return [{ __compressed: zlib.gzipSync(str).toString('base64') }];
+  }
+
+  return stockData;
 };
 
 const decompressStock = (data: any) => {
