@@ -1,25 +1,3 @@
-import { NodeSDK } from '@opentelemetry/sdk-node';
-import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
-import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
-import { resourceFromAttributes } from '@opentelemetry/resources';
-import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
-
-if (process.env.OTLP_TRACE_URL) {
-  const traceExporter = new OTLPTraceExporter({ url: process.env.OTLP_TRACE_URL });
-  const sdk = new NodeSDK({
-    resource: resourceFromAttributes({
-      [SemanticResourceAttributes.SERVICE_NAME]: 'apex-admin-dashboard',
-      [SemanticResourceAttributes.SERVICE_VERSION]: '1.0.0',
-    }),
-    traceExporter,
-    instrumentations: [getNodeAutoInstrumentations()]
-  });
-  sdk.start();
-  process.on('SIGTERM', () => {
-    sdk.shutdown().catch(console.error).finally(() => process.exit(0));
-  });
-}
-
 import express from 'express';
 import dotenv from 'dotenv';
 dotenv.config({ override: true });
@@ -1964,13 +1942,21 @@ if (process.env.REDIS_URL) {
   }
 }
 
-  const firestoreCache: Record<string, { data: any, timestamp: number, revision: number }> = {};
+import { LRUCache } from 'lru-cache';
+
+  const memoryCache = new LRUCache<string, { data: any, timestamp: number, revision: number }>({
+    max: 100, // Safe bound to prevent OOM
+    ttl: 1000 * 60, // 1 min default
+    updateAgeOnGet: false,
+  });
+  
+  const inflightRequests = new Map<string, Promise<{ data: any, timestamp: number, revision: number }>>();
   let cacheRevisionCounter = 0; // Increment to bust ETag when data changes
   
   const getCachedCollection = async (collectionName: string, ttl: number = 20000, res?: any, req?: any) => {
     const now = Date.now();
     let cacheHit = false;
-    let cachedData: { data: any, timestamp: number, revision: number } | null = null;
+    let cachedData: { data: any, timestamp: number, revision: number } | undefined = undefined;
     const redisKey = `cache:${collectionName}`;
 
     if (redis && redis.status === 'ready') {
@@ -1985,68 +1971,83 @@ if (process.env.REDIS_URL) {
       }
     }
 
-    if (!cachedData && firestoreCache[collectionName] && now - firestoreCache[collectionName].timestamp < ttl) {
-      cachedData = firestoreCache[collectionName];
-      cacheHit = true;
+    if (!cachedData) {
+      cachedData = memoryCache.get(collectionName);
+      if (cachedData && now - cachedData.timestamp < ttl) {
+        cacheHit = true;
+      } else {
+        cachedData = undefined;
+      }
     }
 
     if (!cachedData) {
-      let query: any = admin.firestore().collection(collectionName);
-      if (collectionName === 'products') {
-        query = query.select('id', 'name', 'description', 'price', 'originalPrice', 'soldCount', 'imageUrl', 'stock', 'category', 'isPopular', 'image', 'isHighlight', 'customPageId', 'youtubeUrl', 'type', 'tag', '_version').limit(100); // Prevent RAM blowout and Firestore exhaustion for now
-      }
-      const dbMetricStart = Date.now();
-      const snapshot = await query.get();
-      dbQueryDurationMicroseconds.labels(collectionName, 'read').observe(Date.now() - dbMetricStart);
-      
-      let data = snapshot.docs.map(doc => {
-        const d = doc.data();
-        return { id: doc.id, ...d };
-      });
-      // Filter out soft deleted documents
-      data = data.filter(d => !(d as any).isDeleted);
-      // We keep the old revision if it existed so we do not bust ETag on pure TTL expiry 
-      // ONLY bust cacheRevisionCounter when something updates!
-      const currentRevision = firestoreCache[collectionName]?.revision || cacheRevisionCounter;
-      cachedData = { data, timestamp: now, revision: currentRevision };
-      
-      firestoreCache[collectionName] = cachedData;
-      
-      if (redis && redis.status === 'ready') {
+      if (inflightRequests.has(collectionName)) {
+        // Coalesce requests (Thundering Herd Protection)
+        cacheHit = true; // Technically a wait, but saves DB call
+        cachedData = await inflightRequests.get(collectionName);
+      } else {
+        const fetchPromise = (async () => {
+          let query: any = admin.firestore().collection(collectionName);
+          if (collectionName === 'products') {
+            query = query.select('id', 'name', 'description', 'price', 'originalPrice', 'soldCount', 'imageUrl', 'stock', 'category', 'isPopular', 'image', 'isHighlight', 'customPageId', 'youtubeUrl', 'type', 'tag', '_version').limit(100);
+          }
+          const dbMetricStart = Date.now();
+          const snapshot = await query.get();
+          dbQueryDurationMicroseconds.labels(collectionName, 'read').observe(Date.now() - dbMetricStart);
+          
+          let data = snapshot.docs.map(doc => {
+            const d = doc.data();
+            return { id: doc.id, ...d };
+          });
+          data = data.filter(d => !(d as any).isDeleted);
+          
+          const oldCache = memoryCache.get(collectionName);
+          const currentRevision = oldCache?.revision || cacheRevisionCounter;
+          const freshData = { data, timestamp: Date.now(), revision: currentRevision };
+          
+          memoryCache.set(collectionName, freshData, { ttl });
+          
+          if (redis && redis.status === 'ready') {
+            try {
+              await redis.set(redisKey, JSON.stringify(freshData), 'PX', ttl);
+            } catch (err) {
+              console.warn('Redis set error', err);
+            }
+          }
+          return freshData;
+        })();
+        
+        inflightRequests.set(collectionName, fetchPromise);
         try {
-          await redis.set(redisKey, JSON.stringify(cachedData), 'PX', ttl);
-        } catch (err) {
-          console.warn('Redis set error', err);
+          cachedData = await fetchPromise;
+        } finally {
+          inflightRequests.delete(collectionName);
         }
       }
     }
 
+    if (!cachedData) throw new Error("Failed to retrieve cache data");
+
     if (res && req) {
-      // ETag now based on collection name + precise data revision
       const etag = `W/"${collectionName}-v${cachedData.revision}"`;
       res.setHeader('ETag', etag);
       
       if (req.headers['if-none-match'] === etag) {
-        if (cacheHit) res.setHeader('X-Cache', 'HIT');
-        else res.setHeader('X-Cache', 'MISS');
+        res.setHeader('X-Cache', cacheHit ? 'HIT' : 'MISS');
         res.status(304).end();
-        return null; // Signals controller not to send JSON
+        return null;
       }
-
-      if (cacheHit) res.setHeader('X-Cache', 'HIT');
-      else res.setHeader('X-Cache', 'MISS');
+      res.setHeader('X-Cache', cacheHit ? 'HIT' : 'MISS');
     } else if (res) {
-      if (cacheHit) res.setHeader('X-Cache', 'HIT');
-      else res.setHeader('X-Cache', 'MISS');
+      res.setHeader('X-Cache', cacheHit ? 'HIT' : 'MISS');
     }
 
     return cachedData.data;
   };
   
   const invalidateCache = async (collectionName: string) => {
-    // Increment global revision so next query has fresh ETag
     cacheRevisionCounter++;
-    delete firestoreCache[collectionName];
+    memoryCache.delete(collectionName);
     if (redis && redis.status === 'ready') {
       try {
         await redis.del(`cache:${collectionName}`);
