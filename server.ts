@@ -5,6 +5,7 @@ dotenv.config({ override: true });
 import path from 'path';
 import cors from 'cors';
 import axios from 'axios';
+axios.defaults.timeout = 15000; // 15 seconds global timeout
 import CircuitBreaker from 'opossum';
 import { CookieJar } from 'tough-cookie';
 import crypto from 'node:crypto';
@@ -35,7 +36,10 @@ const decompressStock = (data: any) => {
   if (compData && typeof compData === 'object' && compData.__compressed) {
     try {
       return JSON.parse(zlib.gunzipSync(Buffer.from(compData.__compressed, 'base64')).toString('utf-8'));
-    } catch(e) { return []; }
+    } catch(e) { 
+        console.error("decompressStock error:", e);
+        return []; 
+    }
   }
   return data;
 };
@@ -596,7 +600,7 @@ const cleanupTokenCache = () => {
   // API health check immediately
   app.get('/api/health', async (req, res) => {
     const clientIp = (req.headers['x-forwarded-for'] as string)?.split(',')[0] || req.ip || 'Unknown';
-    console.log(`[Health] Request from ${clientIp}`);
+    // Muted for performance
     
     // Check if blocked bypassed for performance
     let isBlocked = false;
@@ -1934,7 +1938,17 @@ import Redis from 'ioredis';
 let redis: Redis | null = null;
 if (process.env.REDIS_URL) {
   try {
-    redis = new Redis(process.env.REDIS_URL);
+    redis = new Redis(process.env.REDIS_URL, {
+      maxRetriesPerRequest: 1,
+      retryStrategy: (times) => {
+        if (times > 5) {
+          console.warn('Redis reconnect exhausted, relying fully on memory cache.');
+          return null; // Stop reconnecting after 5 times
+        }
+        return Math.min(times * 100, 3000); // Backoff
+      },
+      commandTimeout: 2000 // Fails fast
+    });
     redis.on('connect', () => console.log('Redis connected successfully'));
     redis.on('error', (err) => console.error('Redis connection error (falling back to memory):', err));
   } catch (e) {
@@ -1953,6 +1967,13 @@ import { LRUCache } from 'lru-cache';
   const inflightRequests = new Map<string, Promise<{ data: any, timestamp: number, revision: number }>>();
   let cacheRevisionCounter = 0; // Increment to bust ETag when data changes
   
+  const dbReadBreaker = new CircuitBreaker(async (action: any) => await action(), {
+    timeout: 7000, 
+    errorThresholdPercentage: 50, 
+    resetTimeout: 10000 
+  });
+  dbReadBreaker.fallback(() => { throw new Error('Database read circuit breaker open or timeout'); });
+
   const getCachedCollection = async (collectionName: string, ttl: number = 20000, res?: any, req?: any) => {
     const now = Date.now();
     let cacheHit = false;
@@ -1986,20 +2007,32 @@ import { LRUCache } from 'lru-cache';
         cacheHit = true; // Technically a wait, but saves DB call
         cachedData = await inflightRequests.get(collectionName);
       } else {
+        const fetchRevisionBeforeStart = cacheRevisionCounter;
         const fetchPromise = (async () => {
-          let query: any = admin.firestore().collection(collectionName);
-          if (collectionName === 'products') {
-            query = query.select('id', 'name', 'description', 'price', 'originalPrice', 'soldCount', 'imageUrl', 'stock', 'category', 'isPopular', 'image', 'isHighlight', 'customPageId', 'youtubeUrl', 'type', 'tag', '_version').limit(100);
-          }
-          const dbMetricStart = Date.now();
-          const snapshot = await query.get();
-          dbQueryDurationMicroseconds.labels(collectionName, 'read').observe(Date.now() - dbMetricStart);
+          const fetchFromDB = async () => {
+            let query: any = admin.firestore().collection(collectionName);
+            if (collectionName === 'products') {
+              query = query.select('id', 'name', 'description', 'price', 'originalPrice', 'soldCount', ' imageUrl', 'stock', 'category', 'isPopular', 'image', 'isHighlight', 'customPageId', 'youtubeUrl', 'type', 'tag', '_version').limit(100);
+            }
+            const dbMetricStart = Date.now();
+            const snapshot = await query.get();
+            dbQueryDurationMicroseconds.labels(collectionName, 'read').observe(Date.now() - dbMetricStart);
+            return snapshot;
+          };
+
+          const snapshot: any = await dbReadBreaker.fire(fetchFromDB);
           
-          let data = snapshot.docs.map(doc => {
+          let data = snapshot.docs.map((doc: any) => {
             const d = doc.data();
             return { id: doc.id, ...d };
           });
-          data = data.filter(d => !(d as any).isDeleted);
+          data = data.filter((d: any) => !d.isDeleted);
+          
+          // Check if cache was invalidated while we were fetching
+          if (fetchRevisionBeforeStart !== cacheRevisionCounter) {
+             // Do not cache this stale data
+             return { data, timestamp: Date.now(), revision: cacheRevisionCounter };
+          }
           
           const oldCache = memoryCache.get(collectionName);
           const currentRevision = oldCache?.revision || cacheRevisionCounter;
@@ -3711,6 +3744,9 @@ import { LRUCache } from 'lru-cache';
       }
 
       try {
+          if (discordTokenOnSessions.size >= 50) {
+              return res.status(503).json({ error: 'Server reached maximum concurrent active connections. Please try again later.' });
+          }
           let sess = discordTokenOnSessions.get(discordToken);
           if (sess && sess.status === 'connected') {
              return res.json({ status: 'connected' });
@@ -3862,6 +3898,9 @@ import { LRUCache } from 'lru-cache';
       }
 
       try {
+          if (discordSessions.size >= 50) {
+              return res.status(503).json({ error: 'Server reached maximum concurrent bot capacity. Please try again later.' });
+          }
           let sess = discordSessions.get(discordToken);
           if (sess && sess.status === 'connected') {
              return res.json({ status: 'connected' });
