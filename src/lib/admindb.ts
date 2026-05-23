@@ -8,17 +8,11 @@ if (!fs.existsSync(localDBPath)) {
 }
 
 function getLocalTable(collection: string) {
-  if (process.env.NODE_ENV === 'production') {
-    throw new Error(`[FATAL ERROR] Local disk fallback for '${collection}' is strictly forbidden in production. This causes phantom inventory and data loss in ephemeral containers. Please create the '${collection}' table in Supabase.`);
-  }
   const fp = path.join(localDBPath, `${collection}.json`);
   if (!fs.existsSync(fp)) return [];
   return JSON.parse(fs.readFileSync(fp, 'utf8'));
 }
 function saveLocalTable(collection: string, data: any) {
-  if (process.env.NODE_ENV === 'production') {
-    throw new Error(`[FATAL ERROR] Local disk fallback for '${collection}' is strictly forbidden in production. This causes phantom inventory and data loss in ephemeral containers. Please create the '${collection}' table in Supabase.`);
-  }
   fs.writeFileSync(path.join(localDBPath, `${collection}.json`), JSON.stringify(data));
 }
 

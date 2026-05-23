@@ -2184,13 +2184,18 @@ import { LRUCache } from 'lru-cache';
           throw new Error('NOT_FOUND');
         }
         
-        const chunkRef = admin.firestore().collection('product_stock_chunks').doc();
-        t.set(chunkRef, { productId: req.params.id, items: compressStock(newItems) });
-        
+        let existingStock = doc.data()?.stockData || [];
+        if (existingStock) {
+           existingStock = decompressStock(existingStock);
+        }
+        if (!Array.isArray(existingStock)) { existingStock = []; }
+
+        existingStock = existingStock.concat(newItems);
+
         const previousStock = doc.data()?.stock || 0;
         const newStockCount = previousStock + newItems.length;
         
-        t.update(docRef, { stock: newStockCount });
+        t.update(docRef, { stock: newStockCount, stockData: compressStock(existingStock) });
         const { stockData, ...safeData } = doc.data()!;
         finalProductData = { ...safeData, stock: newStockCount };
       });
@@ -2603,24 +2608,6 @@ import { LRUCache } from 'lru-cache';
 
         availableItems = availableItems.concat(existingStock);
         
-        // Arrays to track what we need to update/delete
-        let chunkDocsToDelete: any[] = [];
-        
-        if (availableItems.length < quantity) {
-           // We need remaining from chunks, up to let's say 10 chunks to avoid limits
-           const chunksQuery = admin.firestore().collection('product_stock_chunks').where('productId', '==', productId).limit(10);
-           const chunksSnapshot = await t.get(chunksQuery);
-           for (const chunkDoc of chunksSnapshot.docs) {
-               const chunkItems = chunkDoc.data().items || [];
-               let dec = decompressStock(chunkItems); 
-               if (dec && Array.isArray(dec)) {
-                   availableItems = availableItems.concat(dec);
-                   chunkDocsToDelete.push(chunkDoc.ref);
-               }
-               if (availableItems.length >= quantity) break;
-           }
-        }
-        
         if (availableItems.length < quantity) { 
            throw new Error('สินค้าในสต๊อกไม่เพียงพอ'); 
         }
@@ -2628,10 +2615,6 @@ import { LRUCache } from 'lru-cache';
         const claimedItems = availableItems.splice(0, quantity);
         const remainingBuffer = availableItems; // Keep the rest in the product doc
         
-        // Delete the consumed chunk docs to prevent them from being read again
-        for(const cRef of chunkDocsToDelete) {
-           t.delete(cRef);
-        }
         // --- End of Stock Extraction ---
 
         const newBalance = (Number(userData.balance) || 0) - totalCost;
