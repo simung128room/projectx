@@ -184,169 +184,84 @@ export const HomeView: React.FC<HomeViewProps> = ({
         </div>
       </AnimatedScroll>
 
-      {/* Real-time Stats */}
+      {/* User Dashboard Strip */}
       <AnimatedScroll delay={200} direction="left">
-        <div className="grid grid-cols-2 gap-4">
-          {/* Stat 1: Users */}
-          <div className="group relative p-6 rounded-xl border border-white/5 bg-[#0a0d12] shadow-lg hover:-translate-y-1">
-            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-white/5 pointer-events-none transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-6 group-hover:text-cyan-500/10">
-              <Users className="w-24 h-24" />
-            </div>
-            <div className="relative z-10 flex flex-col">
-              <span className="text-zinc-500 font-bold mb-1 text-sm tracking-wide">
-                ผู้ใช้งาน
-              </span>
-              <div className="flex items-baseline gap-2">
-                <motion.span className="text-4xl sm:text-5xl font-black text-white tracking-tight drop-shadow-lg transition-all duration-300">
-                  <NumberTicker
-                    value={512}
-                  />
-                </motion.span>
-                <span className="text-zinc-500 font-bold text-sm">คน</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Stat 2: Sales (Transactions) */}
-          <div className="group relative p-6 rounded-xl border border-white/5 bg-[#0a0d12] shadow-lg hover:-translate-y-1">
-            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-white/5 pointer-events-none transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-6 group-hover:text-[#3B82F6]/10">
-              <ShoppingCart className="w-24 h-24" />
-            </div>
-            <div className="relative z-10 flex flex-col">
-              <span className="text-zinc-500 font-bold mb-1 text-sm tracking-wide">
-                ยอดขาย
-              </span>
-              <div className="flex items-baseline gap-2">
-                <motion.span className="text-4xl sm:text-5xl font-black text-white tracking-tight drop-shadow-lg transition-all duration-300">
-                  <NumberTicker
-                    value={321}
-                  />
-                </motion.span>
-                <span className="text-zinc-500 font-bold text-sm">ครั้ง</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </AnimatedScroll>
-
-      {/* Grid Menu Icons */}
-      <AnimatedScroll delay={200} direction="right">
-        <div
-          className={`grid gap-4 ${user ? "grid-cols-2 lg:grid-cols-4" : "grid-cols-2 lg:grid-cols-4"}`}
-        >
-          {[
-            {
-              icon: Package,
-              label: "สินค้าทั้งหมด",
-              id: "Store",
-              desc: "หมวดหมู่สินค้า",
-              color: "blue",
-              action: () => {
-                setActiveView("categories");
-                window.scrollTo({ top: 0, behavior: "smooth" });
-              },
-            },
-            {
-              icon: Wallet,
-              label: "เติมเงิน",
-              id: "Topup",
-              desc: "เพิ่มเครดิต",
-              color: "blue",
-              action: () => {
-                if (!user) {
-                  Swal.fire({
-                    icon: "warning",
-                    title: "กรุณาเข้าสู่ระบบ",
-                    text: "โปรดเข้าสู่ระบบก่อนทำการเติมเงิน",
-                    confirmButtonColor: "#3B82F6",
-                    background: "#0B0F14",
-                    color: "#fff",
-                  });
-                } else {
-                  setActiveView("wallet");
-                }
-              },
-            },
-            {
-              icon: Headset,
-              label: "ติดต่อเรา",
-              id: "Contact",
-              desc: "ติดต่อแอดมิน",
-              color: "blue",
-              action: () => setActiveView("contact"),
-            },
-            {
-              icon: History,
-              label: "ประวัติสั่งซื้อ",
-              id: "History",
-              desc: "ประวัติของคุณ",
-              color: "blue",
-              action: () => {
-                if (!user) {
-                  Swal.fire({
-                    icon: "warning",
-                    title: "กรุณาเข้าสู่ระบบ",
-                    text: "โปรดเข้าสู่ระบบก่อนดูประวัติสั่งซื้อ",
-                    confirmButtonColor: "#3B82F6",
-                    background: "#0B0F14",
-                    color: "#fff",
-                  });
-                } else {
-                  setActiveView("history");
-                }
-              },
-            },
-          ].map((item, i) => {
-            return (
-              <button
-                key={i}
-                onClick={item.action}
-                className="group relative overflow-hidden rounded-[24px] bg-[#1a1d24] border border-[#2a2d35] p-[1px] text-left transition-all duration-300 hover:-translate-y-1 hover:shadow-lg focus:outline-none active:scale-95"
-              >
-                <div className="relative flex h-full min-h-[140px] flex-col justify-between rounded-[22px] bg-[#111318] px-5 py-5 transition-colors duration-300 group-hover:bg-[#1a1d24]">
-                  {/* Background Decor Icon */}
-                  <div className="absolute -bottom-6 -right-6 opacity-[0.02] text-white transition-all duration-500 group-hover:-rotate-[-15deg] group-hover:scale-125 group-hover:text-[#1a9fff] group-hover:opacity-[0.08] pointer-events-none">
-                    <item.icon className="h-32 w-32" />
-                  </div>
-
-                  {/* Header (Icon + Arrow) */}
-                  <div className="flex items-start justify-between relative z-10 w-full">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-[14px] bg-[#1a1d24] border border-[#2a2d35] text-[#1a9fff] transition-all duration-500 group-hover:scale-110 group-hover:border-[#1a9fff]/30 group-hover:bg-[#1a9fff]/10 group-hover:shadow-lg">
-                      <item.icon className="h-5 w-5" />
-                    </div>
-
-                    {/* Hover Arrow Indicator */}
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/5 text-transparent transition-all duration-500 group-hover:bg-[#1a9fff]/10 group-hover:text-[#1a9fff] -translate-x-4 opacity-0 group-hover:translate-x-0 group-hover:opacity-100">
-                      <svg
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="h-4 w-4 -rotate-45 transition-transform duration-500 group-hover:rotate-0"
-                      >
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                        <polyline points="12 5 19 12 12 19"></polyline>
-                      </svg>
-                    </div>
-                  </div>
-
-                  {/* Body Content */}
-                  <div className="relative z-10 flex flex-col items-start mt-4 w-full">
-                    <span className="text-base sm:text-[17px] font-bold text-[#e5e7eb] tracking-tight transition-colors duration-300 group-hover:text-[#1a9fff]">
-                      {item.label}
-                    </span>
-                    <span className="mt-0.5 text-[11px] font-medium text-[#9ca3af] tracking-wide">
-                      {item.desc}
-                    </span>
-                  </div>
+        <div className="bg-[#0a0d12] border border-white/5 rounded-[24px] p-5 sm:p-8 flex flex-col xl:flex-row gap-6 xl:items-center justify-between shadow-lg hover:border-white/10 transition-colors mb-6">
+          
+          {/* Left: User Profile */}
+          <div className="flex items-center justify-between xl:justify-start gap-4">
+            <div className="flex items-center gap-4 sm:gap-5">
+              <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-full bg-gradient-to-br from-[#3B82F6] to-cyan-400 flex items-center justify-center p-[2px] shadow-lg shadow-blue-500/20">
+                <div className="bg-[#0a0d12] w-full h-full rounded-full flex items-center justify-center overflow-hidden">
+                  {user && user.avatarUrl ? (
+                    <img src={user.avatarUrl} alt="avatar" className="w-full h-full object-cover" />
+                  ) : (
+                    <User className="w-8 h-8 sm:w-10 sm:h-10 text-[#3B82F6]" />
+                  )}
                 </div>
-              </button>
-            );
-          })}
+              </div>
+              <div className="flex flex-col">
+                <span className="text-zinc-400 text-xs sm:text-sm font-medium mb-1">ยินดีต้อนรับเข้าสู่เว็บของเรา</span>
+                <h2 className="text-xl sm:text-3xl font-black text-white tracking-tight leading-none mb-2">
+                  {user ? user.username || "ชื่อผู้ใช้" : "ชื่อผู้ใช้"}
+                </h2>
+                <div className="flex items-center gap-2">
+                  <span className="bg-white/10 text-white text-[10px] sm:text-xs font-bold px-2.5 sm:px-3 py-1 rounded-full border border-white/10">
+                    สมาชิกใหม่
+                  </span>
+                  <span className="text-[10px] sm:text-xs text-zinc-500 font-medium cursor-pointer hover:text-white transition-colors">
+                    ระดับบัญชี กดคลิกเพื่อดูสิทธิพิเศษ
+                  </span>
+                </div>
+              </div>
+            </div>
+            
+            {/* Mobile Topup Quick Action (optional, but good for UX) */}
+            <button 
+              onClick={() => setActiveView("wallet")}
+              className="xl:hidden bg-[#3B82F6]/10 text-[#3B82F6] hover:bg-[#3B82F6] hover:text-white p-3 rounded-full transition-all"
+            >
+              <Wallet className="w-6 h-6" />
+            </button>
+          </div>
+
+          {/* Right: Stats Strip */}
+          <div className="flex flex-col sm:flex-row divide-y sm:divide-y-0 sm:divide-x divide-white/10 bg-white/5 rounded-2xl border border-white/5 overflow-hidden">
+            
+            {/* Balance */}
+            <div className="flex-1 p-4 sm:p-5 flex flex-row sm:flex-col items-center justify-between sm:justify-center gap-2 hover:bg-white/5 transition-colors">
+              <div className="flex items-center gap-2 text-zinc-400">
+                <Wallet className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400" />
+                <span className="text-xs sm:text-sm font-bold">ยอดเงินคงเหลือของคุณ</span>
+              </div>
+              <div className="text-xl sm:text-3xl font-black text-white">
+                ฿ {user ? (user.balance || 0).toLocaleString() : 0}
+              </div>
+            </div>
+
+            {/* Sales */}
+            <div className="flex-1 p-4 sm:p-5 flex flex-row sm:flex-col items-center justify-between sm:justify-center gap-2 hover:bg-white/5 transition-colors">
+              <div className="flex items-center gap-2 text-zinc-400">
+                <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5 text-[#3B82F6]" />
+                <span className="text-xs sm:text-sm font-bold">ยอดขายเว็บของเรา</span>
+              </div>
+              <div className="text-xl sm:text-3xl font-black text-white">
+                321
+              </div>
+            </div>
+
+            {/* Users */}
+            <div className="flex-1 p-4 sm:p-5 flex flex-row sm:flex-col items-center justify-between sm:justify-center gap-2 hover:bg-white/5 transition-colors">
+              <div className="flex items-center gap-2 text-zinc-400">
+                <Users className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400" />
+                <span className="text-xs sm:text-sm font-bold">ผู้ใช้งานทั้งหมดของเว็บ</span>
+              </div>
+              <div className="text-xl sm:text-3xl font-black text-white">
+                522
+              </div>
+            </div>
+
+          </div>
         </div>
       </AnimatedScroll>
 

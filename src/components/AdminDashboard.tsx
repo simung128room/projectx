@@ -1718,58 +1718,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         />
                       </div>
 
-                      <div className="space-y-4">
-                        <label className="block text-sm font-bold text-zinc-700 flex items-center gap-2">
-                           <Users className="w-4 h-4 text-purple-500" /> ปรับจํานวนผู้ใช้งาน (User Offset)
-                        </label>
-                        <input 
-                          type="number"
-                          value={siteSettings.stats_users_offset}
-                          onChange={(e) => setSiteSettings({ ...siteSettings, stats_users_offset: parseInt(e.target.value) || 0 })}
-                          className="w-full bg-[#0a0d12] border border-white/5 rounded-2xl px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-purple-500 shadow-inner"
-                          placeholder="0"
-                        />
-                      </div>
-
-                      <div className="space-y-4">
-                        <label className="block text-sm font-bold text-zinc-700 flex items-center gap-2">
-                           <Box className="w-4 h-4 text-emerald-500" /> ปรับจำนวนหมวดหมู่ (Category Offset)
-                        </label>
-                        <input 
-                          type="number"
-                          value={siteSettings.stats_categories_offset || 0}
-                          onChange={(e) => setSiteSettings({ ...siteSettings, stats_categories_offset: parseInt(e.target.value) || 0 })}
-                          className="w-full bg-[#0a0d12] border border-white/5 rounded-2xl px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-emerald-500 shadow-inner"
-                          placeholder="0"
-                        />
-                      </div>
-
-                      <div className="space-y-4">
-                        <label className="block text-sm font-bold text-zinc-700 flex items-center gap-2">
-                           <Layers className="w-4 h-4 text-amber-500" /> ปรับจำนวนสินค้าพร้อมขาย (Stock Offset)
-                        </label>
-                        <input 
-                          type="number"
-                          value={siteSettings.stats_stock_offset || 0}
-                          onChange={(e) => setSiteSettings({ ...siteSettings, stats_stock_offset: parseInt(e.target.value) || 0 })}
-                          className="w-full bg-[#0a0d12] border border-white/5 rounded-2xl px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-amber-500 shadow-inner"
-                          placeholder="0"
-                        />
-                      </div>
-
-                      <div className="space-y-4">
-                        <label className="block text-sm font-bold text-zinc-700 flex items-center gap-2">
-                           <Activity className="w-4 h-4 text-[#2563EB]" /> ปรับยอดขายสินค้า (Sales Offset)
-                        </label>
-                        <input 
-                          type="number"
-                          value={siteSettings.stats_sales_offset}
-                          onChange={(e) => setSiteSettings({ ...siteSettings, stats_sales_offset: parseInt(e.target.value) || 0 })}
-                          className="w-full bg-[#0a0d12] border border-white/5 rounded-2xl px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-[#2563EB] shadow-inner"
-                          placeholder="0"
-                        />
-                      </div>
-
                       <div className="flex items-end">
                         <button 
                           onClick={handleSaveSettings}
