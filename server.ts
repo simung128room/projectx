@@ -2600,22 +2600,57 @@ import { LRUCache } from 'lru-cache';
         }
 
         // --- Start of Stock Extraction ---
-        let availableItems: string[] = [];
         let existingStock = productData.stockData;
         if (existingStock) {
            existingStock = await decompressStock(existingStock);
         }
         if (!Array.isArray(existingStock)) { existingStock = []; }
 
-        availableItems = availableItems.concat(existingStock);
-        
-        if (availableItems.length < quantity) { 
+        let claimedItems: string[] = [];
+        let chunkDocsToUpdate: { ref: any, remainingItems: any[] }[] = [];
+        let chunkDocsToDelete: any[] = [];
+
+        // Try to take from main doc first
+        if (existingStock.length > 0) {
+           const needed = quantity;
+           const taken = existingStock.splice(0, needed);
+           claimedItems.push(...taken);
+        }
+
+        // If still need more, read chunks
+        if (claimedItems.length < quantity) {
+           const chunksQuery = admin.firestore().collection('product_stock_chunks').where('productId', '==', productId);
+           const chunksSnap = await t.get(chunksQuery);
+           for (const chunkDoc of chunksSnap.docs) {
+              if (claimedItems.length >= quantity) break;
+              
+              let chunkItems = chunkDoc.data().items;
+              if (chunkItems) {
+                 chunkItems = await decompressStock(chunkItems);
+              }
+              if (!Array.isArray(chunkItems)) chunkItems = [];
+              
+              if (chunkItems.length > 0) {
+                 const needed = quantity - claimedItems.length;
+                 const taken = chunkItems.splice(0, needed);
+                 claimedItems.push(...taken);
+                 
+                 if (chunkItems.length > 0) {
+                    chunkDocsToUpdate.push({ ref: chunkDoc.ref, remainingItems: chunkItems });
+                 } else {
+                    chunkDocsToDelete.push(chunkDoc.ref);
+                 }
+              } else {
+                 chunkDocsToDelete.push(chunkDoc.ref);
+              }
+           }
+        }
+
+        if (claimedItems.length < quantity) { 
            throw new Error('สินค้าในสต๊อกไม่เพียงพอ'); 
         }
 
-        const claimedItems = availableItems.splice(0, quantity);
-        const remainingBuffer = availableItems; // Keep the rest in the product doc
-        
+        const remainingBuffer = existingStock; // What's left in the main doc
         // --- End of Stock Extraction ---
 
         const newBalance = (Number(userData.balance) || 0) - totalCost;
@@ -2637,11 +2672,17 @@ import { LRUCache } from 'lru-cache';
         const productUpdatePayload = JSON.parse(JSON.stringify({ 
           ...productData,
           stock: (productData.stock || 0) - quantity, 
-          stockData: await compressStock(remainingBuffer.filter(v => v !== undefined && v !== null)), 
+          stockData: await compressStock(remainingBuffer.filter((v: any) => v !== undefined && v !== null)), 
           soldCount: (Number(productData.soldCount) || 0) + quantity 
         }));
         const historyPayload = JSON.parse(JSON.stringify(newHistoryItem));
 
+        for (const update of chunkDocsToUpdate) {
+            t.update(update.ref, { items: await compressStock(update.remainingItems) });
+        }
+        for (const delRef of chunkDocsToDelete) {
+            t.delete(delRef);
+        }
         t.update(userRef, userUpdatePayload);
         t.update(productRef, productUpdatePayload);
         t.set(purchasesRef, historyPayload);
@@ -2687,15 +2728,13 @@ import { LRUCache } from 'lru-cache';
       });
 
     } catch (err: any) {
+      console.error('------- BUY ERROR TRACE -------', err);
       const msg = err.message || '';
-      if (msg === 'สินค้าในสต๊อกไม่เพียงพอ' || msg === 'ไม่มีไอดีหลงเหลืออยู่ในสต๊อกแล้ว') {
-         res.status(400).json({ success: false, error: "สินค้าหมด! ไม่สามารถสั่งซื้อได้" });
-      } else if (msg === 'ยอดเงินไม่เพียงพอ' || msg === 'User not found' || msg === 'Product not found') {
-         res.status(400).json({ success: false, error: msg });
+      if (msg === 'ยอดเงินไม่เพียงพอ' || msg === 'สินค้าในสต๊อกไม่เพียงพอ' || msg === 'User not found' || msg === 'Product not found') {
+         res.status(400).json({ error: msg });
       } else {
-         console.error('------- BUY ERROR TRACE -------', err);
          sendAlert('Transaction Failed / Rollback ❌', `**User**: ${userId}\n**Product**: ${productId}\n**Error**: ${msg}`, 16711680, req.id);
-         res.status(500).json({ success: false, error: String(err && err.message ? err.message : err) });
+         res.status(500).json({ error: String(err && err.message ? err.message : err) });
       }
     } finally {
       if (releaseLock) releaseLock();
