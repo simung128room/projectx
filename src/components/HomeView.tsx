@@ -191,38 +191,13 @@ export const HomeView: React.FC<HomeViewProps> = ({
           {/* Left: User Profile */}
           <div className="flex items-center justify-between xl:justify-start gap-4">
             <div className="flex items-center gap-4 sm:gap-5">
-              <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-full bg-gradient-to-br from-[#3B82F6] to-cyan-400 flex items-center justify-center p-[2px] shadow-lg shadow-blue-500/20">
-                <div className="bg-[#0a0d12] w-full h-full rounded-full flex items-center justify-center overflow-hidden">
-                  {user && user.avatarUrl ? (
-                    <img src={user.avatarUrl} alt="avatar" className="w-full h-full object-cover" />
-                  ) : (
-                    <User className="w-8 h-8 sm:w-10 sm:h-10 text-[#3B82F6]" />
-                  )}
-                </div>
-              </div>
               <div className="flex flex-col">
                 <span className="text-zinc-400 text-xs sm:text-sm font-medium mb-1">ยินดีต้อนรับเข้าสู่เว็บของเรา</span>
                 <h2 className="text-xl sm:text-3xl font-black text-white tracking-tight leading-none mb-2">
                   {user ? user.username || "ชื่อผู้ใช้" : "ชื่อผู้ใช้"}
                 </h2>
-                <div className="flex items-center gap-2">
-                  <span className="bg-white/10 text-white text-[10px] sm:text-xs font-bold px-2.5 sm:px-3 py-1 rounded-full border border-white/10">
-                    สมาชิกใหม่
-                  </span>
-                  <span className="text-[10px] sm:text-xs text-zinc-500 font-medium cursor-pointer hover:text-white transition-colors">
-                    ระดับบัญชี กดคลิกเพื่อดูสิทธิพิเศษ
-                  </span>
-                </div>
               </div>
             </div>
-            
-            {/* Mobile Topup Quick Action (optional, but good for UX) */}
-            <button 
-              onClick={() => setActiveView("wallet")}
-              className="xl:hidden bg-[#3B82F6]/10 text-[#3B82F6] hover:bg-[#3B82F6] hover:text-white p-3 rounded-full transition-all"
-            >
-              <Wallet className="w-6 h-6" />
-            </button>
           </div>
 
           {/* Right: Stats Strip */}
@@ -231,7 +206,6 @@ export const HomeView: React.FC<HomeViewProps> = ({
             {/* Balance */}
             <div className="flex-1 p-4 sm:p-5 flex flex-row sm:flex-col items-center justify-between sm:justify-center gap-2 hover:bg-white/5 transition-colors">
               <div className="flex items-center gap-2 text-zinc-400">
-                <Wallet className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400" />
                 <span className="text-xs sm:text-sm font-bold">ยอดเงินคงเหลือของคุณ</span>
               </div>
               <div className="text-xl sm:text-3xl font-black text-white">
