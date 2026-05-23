@@ -189,34 +189,34 @@ export const HomeView: React.FC<HomeViewProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
           
           {/* Card 1: User Profile (No avatar) */}
-          <div className="bg-gradient-to-br from-[#0a0d12]/80 to-[#111827]/80 backdrop-blur-md rounded-[24px] p-6 lg:p-8 transition-all duration-300 flex flex-col justify-center border border-white/5 shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:border-white/10 group">
-            <span className="text-sm font-medium text-zinc-400 mb-2">ยินดีต้อนรับเข้าสู่เว็บของเรา</span>
-            <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-tight truncate">
-              {user ? user.username || "ชื่อผู้ใช้" : "ชื่อผู้ใช้"}
+          <div className="bg-[#111318] rounded-[24px] p-6 lg:p-8 transition-all duration-300 flex flex-col justify-center border border-white/5 shadow-lg hover:border-white/10 group">
+            <span className="text-sm font-medium text-zinc-500 mb-2">ยินดีต้อนรับเข้าสู่เว็บของเรา</span>
+            <h2 className="text-2xl sm:text-3xl font-semibold text-zinc-100 tracking-tight leading-tight truncate">
+              {user ? user.username || "ผู้ใช้งาน" : "ยังไม่ได้เข้าสู่ระบบ"}
             </h2>
           </div>
 
           {/* Card 2: Sales */}
-          <div className="bg-gradient-to-br from-[#0a0d12]/80 to-[#111827]/80 backdrop-blur-md rounded-[24px] p-6 lg:p-8 transition-all duration-300 flex items-center gap-5 border border-white/5 shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:border-white/10 group">
-             <div className="w-14 h-14 rounded-full bg-[#1E3A8A] flex items-center justify-center shrink-0 border border-[#1E40AF] group-hover:scale-105 transition-transform">
-              <ShoppingCart className="w-7 h-7 text-blue-400 fill-blue-400/20" />
+          <div className="bg-[#111318] rounded-[24px] p-6 lg:p-8 transition-all duration-300 flex items-center gap-5 border border-white/5 shadow-lg hover:border-white/10 group">
+             <div className="w-14 h-14 rounded-2xl bg-[#1e293b] flex items-center justify-center shrink-0 border border-white/5 group-hover:scale-105 transition-transform">
+              <ShoppingCart className="w-6 h-6 text-zinc-300" />
             </div>
             <div className="flex flex-col justify-center">
-              <span className="text-sm font-medium text-zinc-400 mb-1">ยอดขายเว็บของเรา</span>
-              <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight leading-none">
+              <span className="text-sm font-medium text-zinc-500 mb-1">ยอดขายเว็บของเรา</span>
+              <h2 className="text-3xl sm:text-4xl font-semibold text-zinc-100 tracking-tight leading-none">
                 <NumberTicker value={siteSettings?.stats_sales_offset ? (realtimeStats?.sales || 0) + siteSettings.stats_sales_offset : 321} />
               </h2>
             </div>
           </div>
 
           {/* Card 3: Total Users */}
-          <div className="bg-gradient-to-br from-[#0a0d12]/80 to-[#111827]/80 backdrop-blur-md rounded-[24px] p-6 lg:p-8 transition-all duration-300 flex items-center gap-5 border border-white/5 shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:border-white/10 group">
-             <div className="w-14 h-14 rounded-full bg-[#164E63] flex items-center justify-center shrink-0 border border-[#155E75] group-hover:scale-105 transition-transform">
-              <Users className="w-7 h-7 text-cyan-400 fill-cyan-400/20" />
+          <div className="bg-[#111318] rounded-[24px] p-6 lg:p-8 transition-all duration-300 flex items-center gap-5 border border-white/5 shadow-lg hover:border-white/10 group">
+             <div className="w-14 h-14 rounded-2xl bg-[#1e293b] flex items-center justify-center shrink-0 border border-white/5 group-hover:scale-105 transition-transform">
+              <Users className="w-6 h-6 text-zinc-300" />
             </div>
             <div className="flex flex-col justify-center">
-              <span className="text-sm font-medium text-zinc-400 mb-1">ผู้ใช้งานทั้งหมดของเว็บ</span>
-              <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight leading-none">
+              <span className="text-sm font-medium text-zinc-500 mb-1">ผู้ใช้งานทั้งหมดของเว็บ</span>
+              <h2 className="text-3xl sm:text-4xl font-semibold text-zinc-100 tracking-tight leading-none">
                 <NumberTicker value={siteSettings?.stats_users_offset ? (realtimeStats?.users || 0) + siteSettings.stats_users_offset : 522} />
               </h2>
             </div>
@@ -225,9 +225,9 @@ export const HomeView: React.FC<HomeViewProps> = ({
           {/* Card 4: Wallet (No wallet icon) */}
           <div 
              onClick={() => setActiveView("wallet")}
-             className="bg-gradient-to-br from-[#0a0d12]/80 to-[#111827]/80 backdrop-blur-md rounded-[24px] p-6 lg:p-8 transition-all duration-300 flex flex-col justify-center border border-white/5 shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:border-white/10 cursor-pointer group">
-            <span className="text-sm font-medium text-zinc-400 mb-2">ยอดเงินคงเหลือของคุณ</span>
-            <h2 className="text-3xl sm:text-4xl font-black text-emerald-400 tracking-tight leading-none">
+             className="bg-[#111318] rounded-[24px] p-6 lg:p-8 transition-all duration-300 flex flex-col justify-center border border-white/5 shadow-lg hover:border-white/10 cursor-pointer group">
+            <span className="text-sm font-medium text-zinc-500 mb-2">ยอดเงินคงเหลือของคุณ</span>
+            <h2 className="text-3xl sm:text-4xl font-semibold text-emerald-400 tracking-tight leading-none">
               ฿ {user ? (user.balance || 0).toLocaleString() : 0}
             </h2>
           </div>
