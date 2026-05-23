@@ -186,7 +186,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
       {/* Real-time Stats */}
       <AnimatedScroll delay={200} direction="left">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 gap-4">
           {/* Stat 1: Users */}
           <div className="group relative p-6 rounded-xl border border-white/5 bg-[#0a0d12] shadow-lg hover:-translate-y-1">
             <div className="absolute right-4 top-1/2 -translate-y-1/2 text-white/5 pointer-events-none transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-6 group-hover:text-cyan-500/10">
@@ -199,10 +199,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
               <div className="flex items-baseline gap-2">
                 <motion.span className="text-4xl sm:text-5xl font-black text-white tracking-tight drop-shadow-lg transition-all duration-300">
                   <NumberTicker
-                    value={
-                      (realtimeStats?.users || 0) +
-                      (siteSettings?.stats_users_offset || 0)
-                    }
+                    value={512}
                   />
                 </motion.span>
                 <span className="text-zinc-500 font-bold text-sm">คน</span>
@@ -210,49 +207,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             </div>
           </div>
 
-          {/* Stat 2: Categories */}
-          <div className="group relative p-6 rounded-xl border border-white/5 bg-[#0a0d12] shadow-lg hover:-translate-y-1">
-            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-white/5 pointer-events-none transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-6 group-hover:text-purple-500/10">
-              <Box className="w-24 h-24" />
-            </div>
-            <div className="relative z-10 flex flex-col">
-              <span className="text-zinc-500 font-bold mb-1 text-sm tracking-wide">
-                หมวดหมู่
-              </span>
-              <div className="flex items-baseline gap-2">
-                <motion.span className="text-4xl sm:text-5xl font-black text-white tracking-tight drop-shadow-lg transition-all duration-300">
-                  <NumberTicker 
-                      value={
-                        (siteSettings?.stats_categories_override !== undefined && siteSettings?.stats_categories_override !== null)
-                          ? Number(siteSettings.stats_categories_override)
-                          : (categories ? categories.length : 0) + (siteSettings?.stats_categories_offset || 0)
-                      } 
-                  />
-                </motion.span>
-                <span className="text-zinc-500 font-bold text-sm">รายการ</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Stat 3: Available */}
-          <div className="group relative p-6 rounded-xl border border-white/5 bg-[#0a0d12] shadow-lg hover:-translate-y-1">
-            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-white/5 pointer-events-none transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-6 group-hover:text-emerald-500/10">
-              <Layers className="w-24 h-24" />
-            </div>
-            <div className="relative z-10 flex flex-col">
-              <span className="text-zinc-500 font-bold mb-1 text-sm tracking-wide">
-                พร้อมจำหน่าย
-              </span>
-              <div className="flex items-baseline gap-2">
-                <motion.span className="text-4xl sm:text-5xl font-black text-white tracking-tight drop-shadow-lg transition-all duration-300">
-                  <NumberTicker value={totalStock} />
-                </motion.span>
-                <span className="text-zinc-500 font-bold text-sm">ชิ้น</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Stat 4: Sales (Transactions) */}
+          {/* Stat 2: Sales (Transactions) */}
           <div className="group relative p-6 rounded-xl border border-white/5 bg-[#0a0d12] shadow-lg hover:-translate-y-1">
             <div className="absolute right-4 top-1/2 -translate-y-1/2 text-white/5 pointer-events-none transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-6 group-hover:text-[#3B82F6]/10">
               <ShoppingCart className="w-24 h-24" />
@@ -264,10 +219,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
               <div className="flex items-baseline gap-2">
                 <motion.span className="text-4xl sm:text-5xl font-black text-white tracking-tight drop-shadow-lg transition-all duration-300">
                   <NumberTicker
-                    value={
-                      (realtimeStats?.sales || 0) +
-                      (siteSettings?.stats_sales_offset || 0)
-                    }
+                    value={321}
                   />
                 </motion.span>
                 <span className="text-zinc-500 font-bold text-sm">ครั้ง</span>

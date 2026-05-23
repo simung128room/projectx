@@ -230,7 +230,7 @@ class SupabaseDoc {
         return { id: this.id, ref: this, exists: true, data: () => item };
     }
     let retries = 0;
-    while(retries < 5) {
+    while(retries < 15) {
       retries++;
       try {
         const { data, error } = await supabaseAdmin.from(this.collection).select('*').eq(this.pk(), this.id).single();
@@ -271,7 +271,7 @@ class SupabaseDoc {
         return;
     }
     let retries = 0;
-    while (retries < 5) {
+    while (retries < 15) {
       retries++;
       try {
         const dbPayload = toDB(data, this.collection);
@@ -334,7 +334,7 @@ class SupabaseDoc {
         return;
     }
     let retries = 0;
-    while (retries < 5) {
+    while (retries < 15) {
       retries++;
       try {
         const pk = this.pk();
@@ -470,7 +470,7 @@ class SupabaseQuery {
     let currentOrderBy = [...this._orderBy];
 
     let retries = 0;
-    while (retries < 5) {
+    while (retries < 15) {
       retries++;
       try {
         const { data, error } = await executeQuery(currentWhere, currentOrderBy);
