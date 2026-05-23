@@ -2096,10 +2096,8 @@ import { LRUCache } from 'lru-cache';
       const doc: any = await admin.firestore().collection('products').doc(req.params.id).get();
       if (!doc.exists) return res.status(404).json({ error: 'Product not found' });
       const data = doc.data();
-      const responseData = { id: doc.id, ...data };
-      if (responseData.stockData) {
-        responseData.stockData = decompressStock(responseData.stockData);
-      }
+      const { stockData, ...safeProductData } = data;
+      const responseData = { id: doc.id, ...safeProductData };
       res.json(responseData);
     } catch (err: any) {
       res.status(500).json({ error: String(err && err.message ? err.message : err) });
@@ -2109,14 +2107,28 @@ import { LRUCache } from 'lru-cache';
   app.get('/api/products/:id/stock', requireAdmin, async (req: any, res: any) => {
     if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
     try {
-      const doc = await admin.firestore().collection('products').doc(req.params.id).get();
+      const docRef = admin.firestore().collection('products').doc(req.params.id);
+      const doc = await docRef.get();
       if (!doc.exists) {
         return res.status(404).json({ error: 'Product not found' });
       }
+      
       let stockData = doc.data()?.stockData || [];
       if (stockData) {
         stockData = decompressStock(stockData);
       }
+      if (!Array.isArray(stockData)) stockData = [];
+
+      // Also get from chunks
+      const chunksSnapshot = await docRef.collection('stock_chunks').get();
+      for (const chunkDoc of chunksSnapshot.docs) {
+         const chunkItems = chunkDoc.data().items;
+         if (chunkItems) {
+            const dec = decompressStock(chunkItems);
+            if (Array.isArray(dec)) stockData = stockData.concat(dec);
+         }
+      }
+
       res.json({ stockData });
     } catch (err: any) {
       console.error('Error fetching stock data:', err);
@@ -2145,10 +2157,8 @@ import { LRUCache } from 'lru-cache';
       invalidateCache('products');
       invalidateStatsCache();
       
-      const responseData = { id: docRef.id, dbId: docRef.id, ...dataToSave };
-      if (responseData.stockData) {
-        responseData.stockData = decompressStock(responseData.stockData);
-      }
+      const { stockData, ...safeData } = dataToSave;
+      const responseData = { id: docRef.id, dbId: docRef.id, ...safeData };
       res.json(responseData);
     } catch (err: any) {
       console.error('Internal server error creating product:', JSON.stringify(err, Object.getOwnPropertyNames(err)));
@@ -2166,7 +2176,6 @@ import { LRUCache } from 'lru-cache';
       }
 
       const docRef = admin.firestore().collection('products').doc(req.params.id);
-      let updatedStockList: string[] = [];
       let finalProductData: any = {};
       
       await admin.firestore().runTransaction(async (t) => {
@@ -2175,30 +2184,21 @@ import { LRUCache } from 'lru-cache';
           throw new Error('NOT_FOUND');
         }
         
-        const productData = doc.data()!;
-        let existingStock = productData.stockData;
-        if (existingStock) {
-          existingStock = decompressStock(existingStock);
-        }
-        if (!Array.isArray(existingStock)) {
-          existingStock = [];
-        }
+        const chunkRef = docRef.collection('stock_chunks').doc();
+        t.set(chunkRef, { items: compressStock(newItems) });
         
-        updatedStockList = [...existingStock, ...newItems];
-        const dataToSave = { 
-           stockData: compressStock(updatedStockList),
-           stock: updatedStockList.length
-        };
+        const previousStock = doc.data()?.stock || 0;
+        const newStockCount = previousStock + newItems.length;
         
-        t.update(docRef, dataToSave);
-        finalProductData = { ...productData, ...dataToSave };
+        t.update(docRef, { stock: newStockCount });
+        const { stockData, ...safeData } = doc.data()!;
+        finalProductData = { ...safeData, stock: newStockCount };
       });
       
       invalidateCache('products');
       invalidateStatsCache();
       
-      const responseData = { id: req.params.id, ...finalProductData, stockData: updatedStockList };
-      res.json({ success: true, added: newItems.length, product: responseData });
+      res.json({ success: true, added: newItems.length, product: finalProductData });
     } catch (err: any) {
       if (err.message === 'NOT_FOUND') {
          return res.status(404).json({ error: 'Product not found' });
@@ -2272,10 +2272,8 @@ import { LRUCache } from 'lru-cache';
         });
       }
       
-      if (finalData.stockData) {
-        finalData.stockData = decompressStock(finalData.stockData);
-      }
-      res.json(finalData);
+      const { stockData, ...safeFinalData } = finalData;
+      res.json(safeFinalData);
 
     } catch (err: any) {
       if (err.message === 'VERSION_CONFLICT') {
@@ -2595,17 +2593,45 @@ import { LRUCache } from 'lru-cache';
           throw new Error('ยอดเงินไม่เพียงพอ');
         }
 
-        // Decompress stock array for safe extraction
+        // --- Start of Stock Extraction ---
+        let availableItems: string[] = [];
         let existingStock = productData.stockData;
-        if (existingStock) { existingStock = decompressStock(existingStock); }
+        if (existingStock) {
+           existingStock = decompressStock(existingStock);
+        }
         if (!Array.isArray(existingStock)) { existingStock = []; }
 
-        const availableStock = existingStock.length;
-        if (availableStock < quantity) { throw new Error('สินค้าในสต๊อกไม่เพียงพอ'); }
+        availableItems = availableItems.concat(existingStock);
+        
+        // Arrays to track what we need to update/delete
+        let chunkDocsToDelete: any[] = [];
+        
+        if (availableItems.length < quantity) {
+           // We need remaining from chunks, up to let's say 10 chunks to avoid limits
+           const chunksSnapshot = await t.get(productRef.collection('stock_chunks').limit(10));
+           for (const chunkDoc of chunksSnapshot.docs) {
+               const chunkItems = chunkDoc.data().items || [];
+               let dec = decompressStock(chunkItems); 
+               if (dec && Array.isArray(dec)) {
+                   availableItems = availableItems.concat(dec);
+                   chunkDocsToDelete.push(chunkDoc.ref);
+               }
+               if (availableItems.length >= quantity) break;
+           }
+        }
+        
+        if (availableItems.length < quantity) { 
+           throw new Error('สินค้าในสต๊อกไม่เพียงพอ'); 
+        }
 
-        // Claim items (FIFO)
-        const currentStockData = [...existingStock];
-        const claimedItems = currentStockData.splice(0, quantity) as string[];
+        const claimedItems = availableItems.splice(0, quantity);
+        const remainingBuffer = availableItems; // Keep the rest in the product doc
+        
+        // Delete the consumed chunk docs to prevent them from being read again
+        for(const cRef of chunkDocsToDelete) {
+           t.delete(cRef);
+        }
+        // --- End of Stock Extraction ---
 
         const newBalance = (Number(userData.balance) || 0) - totalCost;
 
@@ -2625,8 +2651,8 @@ import { LRUCache } from 'lru-cache';
         const userUpdatePayload = JSON.parse(JSON.stringify({ balance: newBalance }));
         const productUpdatePayload = JSON.parse(JSON.stringify({ 
           ...productData,
-          stock: currentStockData.length, 
-          stockData: compressStock(currentStockData.filter(v => v !== undefined && v !== null)), 
+          stock: (productData.stock || 0) - quantity, 
+          stockData: compressStock(remainingBuffer.filter(v => v !== undefined && v !== null)), 
           soldCount: (Number(productData.soldCount) || 0) + quantity 
         }));
         const historyPayload = JSON.parse(JSON.stringify(newHistoryItem));
@@ -2639,7 +2665,7 @@ import { LRUCache } from 'lru-cache';
         const resultPayload = {
           purchase: newHistoryItem,
           updatedUser: { ...userData, balance: newBalance },
-          updatedProduct: { id: productId, ...safeProductData, stock: currentStockData.length, soldCount: (productData.soldCount || 0) + quantity },
+          updatedProduct: { id: productId, ...safeProductData, stock: (productData.stock || 0) - quantity, soldCount: (productData.soldCount || 0) + quantity },
         };
 
         if (idempRef) {
