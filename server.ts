@@ -2545,7 +2545,7 @@ import { LRUCache } from 'lru-cache';
       writeAuditLog('DISCORD_ROLE_CLAIM', (req as any).user?.uid || 'system', 'discord_role', req, { key: req.body.key });
     } catch (e: any) {
       console.error(e);
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({ error: err?.details || err?.message || 'Internal server error' });
     }
   });
 
