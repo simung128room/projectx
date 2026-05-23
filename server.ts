@@ -2120,7 +2120,7 @@ import { LRUCache } from 'lru-cache';
       if (!Array.isArray(stockData)) stockData = [];
 
       // Also get from chunks
-      const chunksSnapshot = await docRef.collection('stock_chunks').get();
+      const chunksSnapshot = await admin.firestore().collection('product_stock_chunks').where('productId', '==', req.params.id).get();
       for (const chunkDoc of chunksSnapshot.docs) {
          const chunkItems = chunkDoc.data().items;
          if (chunkItems) {
@@ -2184,8 +2184,8 @@ import { LRUCache } from 'lru-cache';
           throw new Error('NOT_FOUND');
         }
         
-        const chunkRef = docRef.collection('stock_chunks').doc();
-        t.set(chunkRef, { items: compressStock(newItems) });
+        const chunkRef = admin.firestore().collection('product_stock_chunks').doc();
+        t.set(chunkRef, { productId: req.params.id, items: compressStock(newItems) });
         
         const previousStock = doc.data()?.stock || 0;
         const newStockCount = previousStock + newItems.length;
@@ -2608,7 +2608,8 @@ import { LRUCache } from 'lru-cache';
         
         if (availableItems.length < quantity) {
            // We need remaining from chunks, up to let's say 10 chunks to avoid limits
-           const chunksSnapshot = await t.get(productRef.collection('stock_chunks').limit(10));
+           const chunksQuery = admin.firestore().collection('product_stock_chunks').where('productId', '==', productId).limit(10);
+           const chunksSnapshot = await t.get(chunksQuery);
            for (const chunkDoc of chunksSnapshot.docs) {
                const chunkItems = chunkDoc.data().items || [];
                let dec = decompressStock(chunkItems); 

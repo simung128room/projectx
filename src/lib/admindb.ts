@@ -1,4 +1,20 @@
 import { createClient } from '@supabase/supabase-js';
+import fs from 'fs';
+import path from 'path';
+
+const localDBPath = path.join(process.cwd(), '.data');
+if (!fs.existsSync(localDBPath)) {
+  fs.mkdirSync(localDBPath, { recursive: true });
+}
+
+function getLocalTable(collection: string) {
+  const fp = path.join(localDBPath, `${collection}.json`);
+  if (!fs.existsSync(fp)) return [];
+  return JSON.parse(fs.readFileSync(fp, 'utf8'));
+}
+function saveLocalTable(collection: string, data: any) {
+  fs.writeFileSync(path.join(localDBPath, `${collection}.json`), JSON.stringify(data));
+}
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY;
@@ -207,12 +223,18 @@ class SupabaseDoc {
   }
 
   async get() {
+    if (this.collection === 'product_stock_chunks' || this.collection.includes('_chunks') || this.collection === 'idempotency_keys') {
+        const table = getLocalTable(this.collection);
+        const item = table.find((x: any) => x.id === this.id);
+        if (!item) return { id: this.id, ref: this, exists: false, data: () => null };
+        return { id: this.id, ref: this, exists: true, data: () => item };
+    }
     try {
       const { data, error } = await supabaseAdmin.from(this.collection).select('*').eq(this.pk(), this.id).single();
       if (error && error.code !== 'PGRST116') throw error;
-      if (!data) return { exists: false, data: () => null };
+      if (!data) return { id: this.id, ref: this, exists: false, data: () => null };
       const mapped = fromDB(data);
-      return { exists: true, data: () => mapped };
+      return { id: this.id, ref: this, exists: true, data: () => mapped };
     } catch (err: any) {
       if (err.message && ((err.message.includes("Could not find the") && err.message.includes("column")) || (err.message.includes("column") && err.message.includes("does not exist")))) {
         console.warn(`Column error in fetch from ${this.collection}: ${err.message}. This usually means schema is out of sync.`);
@@ -224,6 +246,15 @@ class SupabaseDoc {
     }
   }
   async update(data: any) {
+    if (this.collection === 'product_stock_chunks' || this.collection.includes('_chunks') || this.collection === 'idempotency_keys') {
+        const table = getLocalTable(this.collection);
+        const idx = table.findIndex((x: any) => x.id === this.id);
+        if (idx !== -1) {
+            table[idx] = { ...table[idx], ...data };
+            saveLocalTable(this.collection, table);
+        }
+        return;
+    }
     while (true) {
       try {
         const { error } = await supabaseAdmin.from(this.collection).update(toDB(data, this.collection)).eq(this.pk(), this.id);
@@ -243,10 +274,28 @@ class SupabaseDoc {
     }
   }
   async delete() {
+    if (this.collection === 'product_stock_chunks' || this.collection.includes('_chunks') || this.collection === 'idempotency_keys') {
+        const table = getLocalTable(this.collection);
+        const newTable = table.filter((x: any) => x.id !== this.id);
+        saveLocalTable(this.collection, newTable);
+        return;
+    }
     const { error } = await supabaseAdmin.from(this.collection).delete().eq(this.pk(), this.id);
     if (error) throw error;
   }
   async set(data: any, options: any = {}) {
+    if (this.collection === 'product_stock_chunks' || this.collection.includes('_chunks') || this.collection === 'idempotency_keys') {
+        const table = getLocalTable(this.collection);
+        const idx = table.findIndex((x: any) => x.id === this.id);
+        if (idx !== -1) {
+            if (options.merge) table[idx] = { ...table[idx], ...data, id: this.id };
+            else table[idx] = { ...data, id: this.id };
+        } else {
+            table.push({ ...data, id: this.id });
+        }
+        saveLocalTable(this.collection, table);
+        return;
+    }
     while (true) {
       try {
         const pk = this.pk();
@@ -321,6 +370,40 @@ class SupabaseQuery {
     return this;
   }
   async get() {
+    if (this.collection === 'product_stock_chunks' || this.collection.includes('_chunks') || this.collection === 'idempotency_keys') {
+      let data = getLocalTable(this.collection);
+      for (const w of this._where) {
+        if (w.op === '==') data = data.filter((d: any) => {
+            const key = Object.keys(d).find((k) => k.toLowerCase() === w.field.toLowerCase()) || w.field;
+            return d[key] === w.value;
+        });
+        else if (w.op === '>') data = data.filter((d: any) => {
+            const key = Object.keys(d).find((k) => k.toLowerCase() === w.field.toLowerCase()) || w.field;
+            return d[key] > w.value;
+        });
+        else if (w.op === '<') data = data.filter((d: any) => {
+            const key = Object.keys(d).find((k) => k.toLowerCase() === w.field.toLowerCase()) || w.field;
+            return d[key] < w.value;
+        });
+      }
+      for (const o of this._orderBy) {
+        data.sort((a: any, b: any) => {
+            const keyA = Object.keys(a).find((k) => k.toLowerCase() === o.field.toLowerCase()) || o.field;
+            const keyB = Object.keys(b).find((k) => k.toLowerCase() === o.field.toLowerCase()) || o.field;
+            return o.dir === 'asc' ? (a[keyA] > b[keyB] ? 1 : -1) : (a[keyA] < b[keyB] ? 1 : -1);
+        });
+      }
+      if (this._limit) data = data.slice(0, this._limit);
+      return {
+        docs: data.map((d: any) => ({
+           id: d.id,
+           ref: new SupabaseDoc(this.collection, d.id),
+           data: () => d
+        })),
+        empty: data.length === 0,
+        forEach: (cb: any) => data.forEach((d: any) => cb({ id: d.id, ref: new SupabaseDoc(this.collection, d.id), data: () => d }))
+      };
+    }
     const executeQuery = async (where: any[], orderBy: any[]) => {
       let q: any = supabaseAdmin.from(this.collection).select(this._selectFields ? this._selectFields : '*');
       for (const w of where) {
@@ -347,8 +430,10 @@ class SupabaseQuery {
         return {
           docs: (data || []).map((d: any) => {
             const mapped = fromDB(d);
+            const docId = d.id || d.key || d.ip || d.username || 'unknown';
             return {
-              id: d.id || d.key || d.ip || d.username || 'unknown',
+              id: docId,
+              ref: new SupabaseDoc(this.collection, docId),
               data: () => mapped
             };
           }),
@@ -356,7 +441,8 @@ class SupabaseQuery {
           forEach: function(cb: Function) {
             (data || []).forEach((d: any) => {
               const mapped = fromDB(d);
-              cb({ id: d.id || d.key || d.ip || d.username, data: () => mapped });
+              const docId = d.id || d.key || d.ip || d.username;
+              cb({ id: docId, ref: new SupabaseDoc(this.collection, docId), data: () => mapped });
             });
           }
         };
@@ -396,6 +482,13 @@ class SupabaseCollection extends SupabaseQuery {
     return new SupabaseDoc(this.collection, id || genId());
   }
   async add(data: any) {
+    if (this.collection === 'product_stock_chunks' || this.collection.includes('_chunks') || this.collection === 'idempotency_keys') {
+        const docId = data.id || Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+        const table = getLocalTable(this.collection);
+        table.push({ ...data, id: docId });
+        saveLocalTable(this.collection, table);
+        return { id: docId };
+    }
     const performAdd = async (payload: any) => {
       const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
       if (payload.id && !uuidRegex.test(payload.id)) {
