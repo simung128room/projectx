@@ -8,11 +8,17 @@ if (!fs.existsSync(localDBPath)) {
 }
 
 function getLocalTable(collection: string) {
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error(`[FATAL ERROR] Local disk fallback for '${collection}' is strictly forbidden in production. This causes phantom inventory and data loss in ephemeral containers. Please create the '${collection}' table in Supabase.`);
+  }
   const fp = path.join(localDBPath, `${collection}.json`);
   if (!fs.existsSync(fp)) return [];
   return JSON.parse(fs.readFileSync(fp, 'utf8'));
 }
 function saveLocalTable(collection: string, data: any) {
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error(`[FATAL ERROR] Local disk fallback for '${collection}' is strictly forbidden in production. This causes phantom inventory and data loss in ephemeral containers. Please create the '${collection}' table in Supabase.`);
+  }
   fs.writeFileSync(path.join(localDBPath, `${collection}.json`), JSON.stringify(data));
 }
 
@@ -257,7 +263,19 @@ class SupabaseDoc {
     }
     while (true) {
       try {
-        const { error } = await supabaseAdmin.from(this.collection).update(toDB(data, this.collection)).eq(this.pk(), this.id);
+        let updateQuery = supabaseAdmin.from(this.collection).update(toDB(data, this.collection)).eq(this.pk(), this.id);
+        if (data._version && !missingColumns.has(`${this.collection}._version`)) {
+          // Explicit _version check for optimistic concurrency control
+          updateQuery = updateQuery.eq('_version', data._version - 1).select();
+        }
+        
+        const { error, data: resultData } = await updateQuery;
+        
+        // If we expect optimistic lock success but received no updated rows, someone else modified it!
+        if (!error && data._version && !missingColumns.has(`${this.collection}._version`) && (!resultData || resultData.length === 0)) {
+           throw new Error('VERSION_CONFLICT');
+        }
+        
         if (error) throw error;
         break;
       } catch (err: any) {
@@ -518,13 +536,67 @@ class SupabaseCollection extends SupabaseQuery {
 const db = {
   collection: (name: string) => new SupabaseCollection(name),
   runTransaction: async (updateFunction: (t: any) => Promise<any>) => {
-    const t = {
-      get: async (docRef: any) => await docRef.get(),
-      update: async (docRef: any, data: any) => await docRef.update(data),
-      set: async (docRef: any, data: any) => await docRef.set(data),
-      delete: async (docRef: any) => await docRef.delete()
-    };
-    return await updateFunction(t);
+    let attempts = 0;
+    while (attempts < 5) {
+      try {
+        const reads = new Map();
+        const writes: any[] = [];
+        
+        const t = {
+          get: async (queryOrRef: any) => {
+            const res = await queryOrRef.get();
+            if (res.exists) {
+              reads.set(queryOrRef.id, res.data()._version || 0);
+            } else if (res.docs) {
+              // It's a query
+              res.docs.forEach((d: any) => {
+                reads.set(d.id, d.data()._version || 0);
+              });
+            }
+            return res;
+          },
+          update: (docRef: any, data: any) => {
+            writes.push({ type: 'update', ref: docRef, data });
+          },
+          set: (docRef: any, data: any) => {
+            writes.push({ type: 'set', ref: docRef, data });
+          },
+          delete: (docRef: any) => {
+            writes.push({ type: 'delete', ref: docRef });
+          }
+        };
+        
+        const result = await updateFunction(t);
+        
+        // Execute writes (Optimistic check)
+        for (const w of writes) {
+           if (w.type === 'update' || w.type === 'set') {
+              const oldVersion = reads.get(w.ref.id) || 0;
+              w.data._version = oldVersion + 1;
+              if (w.ref.collection !== 'product_stock_chunks' && !w.ref.collection.includes('_chunks') && w.ref.collection !== 'idempotency_keys') {
+                 // Try to intercept update to append optimistic lock condition manually via Supabase query if needed
+                 // But since we use admindb's update(), we can just let it update.
+                 // To do true optimistic locking via REST, we need to pass the condition.
+                 // For now, we apply the _version increment to prevent client-side overrides.
+              }
+              if (w.type === 'update') await w.ref.update(w.data);
+              else await w.ref.set(w.data);
+           } else if (w.type === 'delete') {
+              await w.ref.delete();
+           }
+        }
+        
+        return result;
+      } catch (err: any) {
+        if (err.message === 'VERSION_CONFLICT' || err.message === 'CONCURRENCY_ERROR') {
+          attempts++;
+          await new Promise(r => setTimeout(r, 100 * Math.pow(2, attempts)));
+          if (attempts >= 5) throw new Error('Transaction failed after retries due to high concurrency. Please try again.');
+          continue; // Retry
+        }
+        throw err;
+      }
+    }
   }
 };
 
