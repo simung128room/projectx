@@ -2778,7 +2778,7 @@ function AppContent() {
                 products={products}
                 categories={categories}
                 stats={siteStats}
-                user={user}
+                user={userPlan || user}
                 siteSettings={siteSettings}
                 purchaseHistory={purchaseHistory}
                 setActiveView={setActiveView}
