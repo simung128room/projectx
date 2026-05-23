@@ -23,29 +23,36 @@ import os from 'os';
 import zlib from 'zlib';
 import cloudscraper from 'cloudscraper';
 
-const compressStock = (stockData: any) => {
+import { promisify } from 'util';
+const gzipAsync = promisify(zlib.gzip);
+const gunzipAsync = promisify(zlib.gunzip);
+
+const compressStock = async (stockData: any) => {
   if (!Array.isArray(stockData)) return stockData;
   
   if (stockData.length >= 250) {
-    return [{ __compressed: zlib.gzipSync(JSON.stringify(stockData)).toString('base64') }];
+    const buffer = await gzipAsync(JSON.stringify(stockData));
+    return [{ __compressed: buffer.toString('base64') }];
   }
 
   const str = JSON.stringify(stockData);
   if (str.length > 50000) {
-    return [{ __compressed: zlib.gzipSync(str).toString('base64') }];
+    const buffer = await gzipAsync(str);
+    return [{ __compressed: buffer.toString('base64') }];
   }
 
   return stockData;
 };
 
-const decompressStock = (data: any) => {
+const decompressStock = async (data: any) => {
   let compData = data;
   if (Array.isArray(data) && data.length === 1 && data[0] && typeof data[0] === 'object' && data[0].__compressed) {
     compData = data[0];
   }
   if (compData && typeof compData === 'object' && compData.__compressed) {
     try {
-      return JSON.parse(zlib.gunzipSync(Buffer.from(compData.__compressed, 'base64')).toString('utf-8'));
+      const buffer = await gunzipAsync(Buffer.from(compData.__compressed, 'base64'));
+      return JSON.parse(buffer.toString('utf-8'));
     } catch(e) { 
         console.error("decompressStock error:", e);
         return []; 
@@ -134,7 +141,8 @@ async function writeAuditLog(action: string, actor: string, target: string, req:
       requestId: req.id || 'N/A',
       ...extraContext
     };
-    await admin.firestore().collection('sys_audit_logs').add(logEntry);
+    // Disabled DB writing due to missing table
+    // await admin.firestore().collection('sys_audit_logs').add(logEntry);
   } catch (err) {
     console.error('[Audit Log] Failed to write audit log:', err);
   }
@@ -729,25 +737,7 @@ const cleanupTokenCache = () => {
 
   
 
-  // Structured Logging Middleware
-  app.use((req: any, res: any, next: any) => {
-    const start = Date.now();
-    res.on('finish', () => {
-      const duration = Date.now() - start;
-      console.log(JSON.stringify({
-        level: 'info',
-        event: 'request_completed',
-        requestId: req.id,
-        method: req.method,
-        url: req.url,
-        status: res.statusCode,
-        durationMs: duration,
-        ip: req.ip,
-        userId: (req as any).user?.uid || 'guest'
-      }));
-    });
-    next();
-  });
+  // Structured Logging Middleware removed as pinoHttp handles this
 
   // Remove duplicate health check below
   // app.get('/api/health', (req, res) => { ... })
@@ -2115,7 +2105,7 @@ import { LRUCache } from 'lru-cache';
       
       let stockData = doc.data()?.stockData || [];
       if (stockData) {
-        stockData = decompressStock(stockData);
+        stockData = await decompressStock(stockData);
       }
       if (!Array.isArray(stockData)) stockData = [];
 
@@ -2124,7 +2114,7 @@ import { LRUCache } from 'lru-cache';
       for (const chunkDoc of chunksSnapshot.docs) {
          const chunkItems = chunkDoc.data().items;
          if (chunkItems) {
-            const dec = decompressStock(chunkItems);
+            const dec = await decompressStock(chunkItems);
             if (Array.isArray(dec)) stockData = stockData.concat(dec);
          }
       }
@@ -2149,7 +2139,7 @@ import { LRUCache } from 'lru-cache';
 
       const { id, ...dataToSaveRaw } = sanitizedProduct as any;
       if (dataToSaveRaw.stockData) {
-        dataToSaveRaw.stockData = compressStock(dataToSaveRaw.stockData);
+        dataToSaveRaw.stockData = await compressStock(dataToSaveRaw.stockData);
       }
       // Deep strip undefined values to please Firestore
       const dataToSave = JSON.parse(JSON.stringify(dataToSaveRaw));
@@ -2186,7 +2176,7 @@ import { LRUCache } from 'lru-cache';
         
         let existingStock = doc.data()?.stockData || [];
         if (existingStock) {
-           existingStock = decompressStock(existingStock);
+           existingStock = await decompressStock(existingStock);
         }
         if (!Array.isArray(existingStock)) { existingStock = []; }
 
@@ -2195,7 +2185,7 @@ import { LRUCache } from 'lru-cache';
         const previousStock = doc.data()?.stock || 0;
         const newStockCount = previousStock + newItems.length;
         
-        t.update(docRef, { stock: newStockCount, stockData: compressStock(existingStock) });
+        t.update(docRef, { stock: newStockCount, stockData: await compressStock(existingStock) });
         const { stockData, ...safeData } = doc.data()!;
         finalProductData = { ...safeData, stock: newStockCount };
       });
@@ -2255,7 +2245,7 @@ import { LRUCache } from 'lru-cache';
         
         // Compress stockData if needed
         if (deltaAfter.stockData && !deltaAfter.stockData[0]?.__compressed) {
-          deltaAfter.stockData = compressStock(deltaAfter.stockData);
+          deltaAfter.stockData = await compressStock(deltaAfter.stockData);
         }
 
         const dataToSave = JSON.parse(JSON.stringify(deltaAfter));
@@ -2440,7 +2430,7 @@ import { LRUCache } from 'lru-cache';
       const offset = (page - 1) * limit;
 
       if (req.isAdmin) {
-        let snapshot = await q.orderBy('date', 'desc').limit(limit);
+        let snapshot = q.orderBy('date', 'desc').limit(limit);
         if (snapshot.offset) {
           snapshot = snapshot.offset(offset);
         }
@@ -2448,7 +2438,7 @@ import { LRUCache } from 'lru-cache';
         let data = snap.docs.map((doc: any) => ({ dbId: doc.id, ...doc.data() }));
         return res.json(data);
       } else if (req.user) {
-        let snapshot = await q.where('userId', '==', (req as any).user.uid).orderBy('date', 'desc').limit(limit);
+        let snapshot = q.where('userId', '==', (req as any).user.uid).orderBy('date', 'desc').limit(limit);
         if (snapshot.offset) {
            snapshot = snapshot.offset(offset);
         }
@@ -2559,8 +2549,10 @@ import { LRUCache } from 'lru-cache';
   });
 
   app.post('/api/buy', mutationLimiter, requireAuth, async (req: any, res: any) => {
-    const { productId, quantity } = req.body;
-    if (!productId || typeof quantity !== 'number' || quantity < 1) {
+    let { productId, quantity } = req.body;
+    quantity = Number(quantity);
+    if (!productId || isNaN(quantity) || quantity < 1) {
+      console.warn(`[Buy] Invalid request. productId: ${productId}, quantity: ${quantity}`);
       return res.status(400).json({ error: 'Invalid product or quantity' });
     }
 
@@ -2611,7 +2603,7 @@ import { LRUCache } from 'lru-cache';
         let availableItems: string[] = [];
         let existingStock = productData.stockData;
         if (existingStock) {
-           existingStock = decompressStock(existingStock);
+           existingStock = await decompressStock(existingStock);
         }
         if (!Array.isArray(existingStock)) { existingStock = []; }
 
@@ -2645,7 +2637,7 @@ import { LRUCache } from 'lru-cache';
         const productUpdatePayload = JSON.parse(JSON.stringify({ 
           ...productData,
           stock: (productData.stock || 0) - quantity, 
-          stockData: compressStock(remainingBuffer.filter(v => v !== undefined && v !== null)), 
+          stockData: await compressStock(remainingBuffer.filter(v => v !== undefined && v !== null)), 
           soldCount: (Number(productData.soldCount) || 0) + quantity 
         }));
         const historyPayload = JSON.parse(JSON.stringify(newHistoryItem));
