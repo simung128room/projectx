@@ -114,7 +114,7 @@ function toDB(data: any, collection?: string): any {
   }
 
   // Encode category or product metadata directly into name
-  if (_data.name !== undefined && (_data.title !== undefined || _data.subtitle !== undefined || _data.bannerUrl !== undefined || _data.stockData !== undefined || _data.soldCount !== undefined)) {
+  if (_data.name !== undefined && (_data.title !== undefined || _data.subtitle !== undefined || _data.bannerUrl !== undefined || _data.stockData !== undefined || _data.soldCount !== undefined || _data.imageUrl !== undefined || _data.originalPrice !== undefined || _data.isPopular !== undefined)) {
       if (typeof _data.name === 'string' && !_data.name.startsWith('{"n":')) {
           _data.name = JSON.stringify({
               n: _data.name,
@@ -122,14 +122,33 @@ function toDB(data: any, collection?: string): any {
               s: _data.subtitle,
               b: _data.bannerUrl,
               sd: _data.stockData,
-              sc: _data.soldCount
+              sc: _data.soldCount,
+              img: _data.imageUrl,
+              op: _data.originalPrice,
+              ip: _data.isPopular
           });
+      } else if (typeof _data.name === 'string') {
+          try {
+             let meta = JSON.parse(_data.name);
+             if (_data.title !== undefined) meta.t = _data.title;
+             if (_data.subtitle !== undefined) meta.s = _data.subtitle;
+             if (_data.bannerUrl !== undefined) meta.b = _data.bannerUrl;
+             if (_data.stockData !== undefined) meta.sd = _data.stockData;
+             if (_data.soldCount !== undefined) meta.sc = _data.soldCount;
+             if (_data.imageUrl !== undefined) meta.img = _data.imageUrl;
+             if (_data.originalPrice !== undefined) meta.op = _data.originalPrice;
+             if (_data.isPopular !== undefined) meta.ip = _data.isPopular;
+             _data.name = JSON.stringify(meta);
+          } catch(e) {}
       }
       delete _data.title;
       delete _data.subtitle;
       delete _data.bannerUrl;
       delete _data.stockData;
       delete _data.soldCount;
+      delete _data.imageUrl;
+      delete _data.originalPrice;
+      delete _data.isPopular;
   }
 
   for (const k in _data) {
@@ -191,6 +210,9 @@ function fromDB(data: any): any {
           if (meta.b !== undefined) res.bannerUrl = meta.b;
           if (meta.sd !== undefined) res.stockData = meta.sd;
           if (meta.sc !== undefined) res.soldCount = meta.sc;
+          if (meta.img !== undefined) res.imageUrl = meta.img;
+          if (meta.op !== undefined) res.originalPrice = meta.op;
+          if (meta.ip !== undefined) res.isPopular = meta.ip;
       } catch (e) {}
   }
 
@@ -223,7 +245,7 @@ class SupabaseDoc {
   }
 
   async get() {
-    if (this.collection === 'product_stock_chunks' || this.collection.includes('_chunks') || this.collection === 'idempotency_keys') {
+    if (this.collection === 'blocked_ips' || this.collection === 'product_stock_chunks' || this.collection.includes('_chunks') || this.collection === 'idempotency_keys') {
         const table = getLocalTable(this.collection);
         const item = table.find((x: any) => x.id === this.id);
         if (!item) return { id: this.id, ref: this, exists: false, data: () => null };
@@ -261,7 +283,7 @@ class SupabaseDoc {
     return { exists: false, data: () => null };
   }
   async update(data: any) {
-    if (this.collection === 'product_stock_chunks' || this.collection.includes('_chunks') || this.collection === 'idempotency_keys') {
+    if (this.collection === 'blocked_ips' || this.collection === 'product_stock_chunks' || this.collection.includes('_chunks') || this.collection === 'idempotency_keys') {
         const table = getLocalTable(this.collection);
         const idx = table.findIndex((x: any) => x.id === this.id);
         if (idx !== -1) {
@@ -311,7 +333,7 @@ class SupabaseDoc {
     }
   }
   async delete() {
-    if (this.collection === 'product_stock_chunks' || this.collection.includes('_chunks') || this.collection === 'idempotency_keys') {
+    if (this.collection === 'blocked_ips' || this.collection === 'product_stock_chunks' || this.collection.includes('_chunks') || this.collection === 'idempotency_keys') {
         const table = getLocalTable(this.collection);
         const newTable = table.filter((x: any) => x.id !== this.id);
         saveLocalTable(this.collection, newTable);
@@ -321,7 +343,7 @@ class SupabaseDoc {
     if (error) throw error;
   }
   async set(data: any, options: any = {}) {
-    if (this.collection === 'product_stock_chunks' || this.collection.includes('_chunks') || this.collection === 'idempotency_keys') {
+    if (this.collection === 'blocked_ips' || this.collection === 'product_stock_chunks' || this.collection.includes('_chunks') || this.collection === 'idempotency_keys') {
         const table = getLocalTable(this.collection);
         const idx = table.findIndex((x: any) => x.id === this.id);
         if (idx !== -1) {
@@ -383,6 +405,7 @@ class SupabaseQuery {
   _where: any[] = [];
   _orderBy: any[] = [];
   _limit?: number;
+  _offset?: number;
 
   public collection: string;
   constructor(collection: string) {
@@ -409,6 +432,10 @@ class SupabaseQuery {
     this._limit = n;
     return this;
   }
+  offset(n: number) {
+    this._offset = n;
+    return this;
+  }
   _selectFields: string | null = null;
 
   select(...fields: string[]) {
@@ -416,7 +443,7 @@ class SupabaseQuery {
     return this;
   }
   async get() {
-    if (this.collection === 'product_stock_chunks' || this.collection.includes('_chunks') || this.collection === 'idempotency_keys') {
+    if (this.collection === 'blocked_ips' || this.collection === 'product_stock_chunks' || this.collection.includes('_chunks') || this.collection === 'idempotency_keys') {
       let data = getLocalTable(this.collection);
       for (const w of this._where) {
         if (w.op === '==') data = data.filter((d: any) => {
@@ -439,7 +466,12 @@ class SupabaseQuery {
             return o.dir === 'asc' ? (a[keyA] > b[keyB] ? 1 : -1) : (a[keyA] < b[keyB] ? 1 : -1);
         });
       }
-      if (this._limit) data = data.slice(0, this._limit);
+      if (this._offset) {
+        if (this._limit) data = data.slice(this._offset, this._offset + this._limit);
+        else data = data.slice(this._offset);
+      } else if (this._limit) {
+        data = data.slice(0, this._limit);
+      }
       return {
         docs: data.map((d: any) => ({
            id: d.id,
@@ -462,6 +494,15 @@ class SupabaseQuery {
       }
       if (this._limit) {
         q = q.limit(this._limit);
+      }
+      if (this._offset) {
+        // Supabase uses range(from, to). If offset is N and limit is L, it's range(N, N + L - 1)
+        if (this._limit) {
+           q = q.range(this._offset, this._offset + this._limit - 1);
+        } else {
+           // If limit not given, we just want to skip offset, maybe default to high limit
+           q = q.range(this._offset, this._offset + 1000000);
+        }
       }
       return await q;
     };
@@ -534,7 +575,7 @@ class SupabaseCollection extends SupabaseQuery {
     return new SupabaseDoc(this.collection, id || genId());
   }
   async add(data: any) {
-    if (this.collection === 'product_stock_chunks' || this.collection.includes('_chunks') || this.collection === 'idempotency_keys') {
+    if (this.collection === 'blocked_ips' || this.collection === 'product_stock_chunks' || this.collection.includes('_chunks') || this.collection === 'idempotency_keys') {
         const docId = data.id || Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
         const table = getLocalTable(this.collection);
         table.push({ ...data, id: docId });
@@ -607,7 +648,7 @@ const db = {
            if (w.type === 'update' || w.type === 'set') {
               const oldVersion = reads.get(w.ref.id) || 0;
               w.data._version = oldVersion + 1;
-              if (w.ref.collection !== 'product_stock_chunks' && !w.ref.collection.includes('_chunks') && w.ref.collection !== 'idempotency_keys') {
+              if (w.ref.collection !== 'blocked_ips' && w.ref.collection !== 'product_stock_chunks' && !w.ref.collection.includes('_chunks') && w.ref.collection !== 'idempotency_keys') {
                  // Try to intercept update to append optimistic lock condition manually via Supabase query if needed
                  // But since we use admindb's update(), we can just let it update.
                  // To do true optimistic locking via REST, we need to pass the condition.

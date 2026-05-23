@@ -1993,7 +1993,7 @@ import { LRUCache } from 'lru-cache';
           const fetchFromDB = async () => {
             let query: any = admin.firestore().collection(collectionName);
             if (collectionName === 'products') {
-              query = query.select('id', 'name', 'description', 'price', 'originalPrice', 'soldCount', ' imageUrl', 'stock', 'category', 'isPopular', 'image', 'isHighlight', 'customPageId', 'youtubeUrl', 'type', 'tag', '_version').limit(100);
+              query = query.limit(100);
             }
             const dbMetricStart = Date.now();
             const snapshot = await query.get();
@@ -2434,17 +2434,26 @@ import { LRUCache } from 'lru-cache';
     try {
       const adminDb = admin.firestore();
       let q: any = adminDb.collection('purchases');
+      
+      const page = Math.max(1, parseInt(req.query.page) || 1);
+      const limit = Math.min(100, parseInt(req.query.limit) || 20);
+      const offset = (page - 1) * limit;
+
       if (req.isAdmin) {
-        // Omitting orderBy date because of missing INDEX causing Postgres timeout!
-        const snapshot = await q.limit(100).get();
-        let data = snapshot.docs.map((doc: any) => ({ dbId: doc.id, ...doc.data() }));
-        // InMemory sort instead to avoid DB timeout
-        data.sort((a: any, b: any) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime());
+        let snapshot = await q.orderBy('date', 'desc').limit(limit);
+        if (snapshot.offset) {
+          snapshot = snapshot.offset(offset);
+        }
+        const snap = await snapshot.get();
+        let data = snap.docs.map((doc: any) => ({ dbId: doc.id, ...doc.data() }));
         return res.json(data);
       } else if (req.user) {
-        const snapshot = await q.where('userId', '==', (req as any).user.uid).limit(100).get();
-        let data = snapshot.docs.map((doc: any) => ({ dbId: doc.id, ...doc.data() }));
-        data.sort((a: any, b: any) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime());
+        let snapshot = await q.where('userId', '==', (req as any).user.uid).orderBy('date', 'desc').limit(limit);
+        if (snapshot.offset) {
+           snapshot = snapshot.offset(offset);
+        }
+        const snap = await snapshot.get();
+        let data = snap.docs.map((doc: any) => ({ dbId: doc.id, ...doc.data() }));
         return res.json(data);
       } else {
         return res.json([]);

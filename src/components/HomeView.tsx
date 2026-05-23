@@ -192,7 +192,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
           <div className="bg-[#111318] rounded-[24px] p-6 lg:p-8 transition-all duration-300 flex flex-col justify-center border border-white/5 shadow-lg hover:border-white/10 group">
             <span className="text-sm font-medium text-zinc-500 mb-2">ยินดีต้อนรับเข้าสู่เว็บของเรา</span>
             <h2 className="text-2xl sm:text-3xl font-semibold text-zinc-100 tracking-tight leading-tight truncate">
-              {user ? user.username || "ผู้ใช้งาน" : "ยังไม่ได้เข้าสู่ระบบ"}
+              {user ? user.username : "ยังไม่ได้เข้าสู่ระบบ"}
             </h2>
           </div>
 
@@ -222,14 +222,19 @@ export const HomeView: React.FC<HomeViewProps> = ({
             </div>
           </div>
 
-          {/* Card 4: Wallet (No wallet icon) */}
+          {/* Card 4: Wallet */}
           <div 
              onClick={() => setActiveView("wallet")}
-             className="bg-[#111318] rounded-[24px] p-6 lg:p-8 transition-all duration-300 flex flex-col justify-center border border-white/5 shadow-lg hover:border-white/10 cursor-pointer group">
-            <span className="text-sm font-medium text-zinc-500 mb-2">ยอดเงินคงเหลือของคุณ</span>
-            <h2 className="text-3xl sm:text-4xl font-semibold text-emerald-400 tracking-tight leading-none">
-              ฿ {user ? (user.balance || 0).toLocaleString() : 0}
-            </h2>
+             className="bg-[#111318] rounded-[24px] p-6 lg:p-8 transition-all duration-300 flex items-center gap-5 border border-white/5 shadow-lg hover:border-white/10 cursor-pointer group">
+             <div className="w-14 h-14 rounded-2xl bg-[#1e293b] flex items-center justify-center shrink-0 border border-white/5 group-hover:scale-105 transition-transform">
+              <Wallet className="w-6 h-6 text-emerald-400" />
+            </div>
+            <div className="flex flex-col justify-center">
+              <span className="text-sm font-medium text-zinc-500 mb-1">ยอดเงินคงเหลือของคุณ</span>
+              <h2 className="text-3xl sm:text-4xl font-semibold text-emerald-400 tracking-tight leading-none">
+                ฿ {user ? (user.balance || 0).toLocaleString() : 0}
+              </h2>
+            </div>
           </div>
 
         </div>
