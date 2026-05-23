@@ -190,7 +190,6 @@ export const HomeView: React.FC<HomeViewProps> = ({
           
           {/* Card 1: User Profile (No avatar) */}
           <div className="bg-[#111318] rounded-[24px] p-6 lg:p-8 transition-all duration-300 flex flex-col justify-center border border-white/5 shadow-lg hover:border-white/10 group">
-            <span className="text-sm font-medium text-zinc-500 mb-2">ยินดีต้อนรับเข้าสู่เว็บของเรา</span>
             <h2 className="text-2xl sm:text-3xl font-semibold text-zinc-100 tracking-tight leading-tight truncate">
               {user ? user.username : "ยังไม่ได้เข้าสู่ระบบ"}
             </h2>
