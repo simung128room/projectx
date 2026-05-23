@@ -2009,7 +2009,7 @@ function AppContent() {
     );
 
   return (
-    <div className="min-h-screen w-full bg-black text-white font-sans selection:bg-[#3B82F6]/30 flex flex-col lg:flex-row-reverse relative">
+    <div className="min-h-screen w-full bg-black text-white font-sans selection:bg-[#3B82F6]/30 flex flex-col lg:flex-row relative">
       <CustomCursor />
       <PopupBanner
         enabled={siteSettings?.popup_enabled ?? false}
@@ -2032,8 +2032,8 @@ function AppContent() {
         </div>
       )}
 
-      {/* Desktop Sidebar (Minimal) - HIDDEN for top menu layout */}
-      <aside className="hidden lg:flex flex-col w-[280px] shrink-0 bg-[#0B0F14] border-l border-[#3B82F6]/10 h-screen sticky top-0 p-6 z-[60] overflow-y-auto no-scrollbar">
+      {/* Desktop Sidebar */}
+      <aside className="hidden lg:flex flex-col w-[280px] shrink-0 bg-[#0B0F14] border-r border-[#3B82F6]/10 h-screen sticky top-0 p-6 z-[60] overflow-y-auto no-scrollbar">
         <div className="mb-10 w-full flex justify-start">
           <motion.img
             whileHover={{ scale: 1.05 }}
@@ -2242,7 +2242,7 @@ function AppContent() {
                     setSelectedPage(page);
                     setActiveView("custom_page");
                   }}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === "custom_page" && selectedPage?.id === page.id ? "bg-[#3B82F6] text-white shadow-md shadow-lg" : "text-zinc-500 hover:bg-[#0a0d12] hover:text-white"}`}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeView === "custom_page" && selectedPage?.id === page.id ? "bg-[#3B82F6]/10 text-[#3B82F6] border border-[#3B82F6]/20" : "text-zinc-500 hover:bg-[#0a0d12] hover:text-white border border-transparent"}`}
                 >
                   <FileText className="w-5 h-5" />{" "}
                   {page.title.replace(/^#+\s*/, "")}
@@ -2251,69 +2251,65 @@ function AppContent() {
             </>
           )}
         </div>
+      </aside>
 
-        {/* Bottom User Profile */}
-        <div className="pt-6 border-t border-white/5 mt-6 flex flex-col gap-3 shrink-0">
-          {user ? (
-            <div className="flex flex-col gap-3">
-              <div className="flex items-center gap-3 bg-[#0a0d12] p-4 rounded-xl border border-white/10">
-                <div className="w-10 h-10 bg-[#0B0F14] border border-white/10 rounded-full flex items-center justify-center overflow-hidden shrink-0">
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col min-h-screen min-w-0 relative">
+        {/* Desktop Top Header */}
+        <header className="hidden lg:flex sticky top-0 z-[50] w-full h-[72px] bg-black/80 backdrop-blur-md border-b border-white/5 items-center justify-between px-8">
+          <div className="flex items-center gap-4">
+            <h1 className="text-xl font-bold bg-gradient-to-r from-white to-zinc-400 bg-clip-text text-transparent">
+              {activeView === "home" ? "ภาพรวม" : 
+               activeView === "categories" ? "หมวดหมู่สินค้า" : 
+               activeView === "category_products" ? "รายการสินค้า" : 
+               activeView === "wallet" ? "เติมเงิน" : 
+               activeView === "profile" ? "ตั้งค่าโปรไฟล์" : 
+               activeView === "history" ? "ประวัติการใช้งาน" : 
+               activeView === "admin" ? "ระบบจัดการหลังบ้าน" : "แดชบอร์ด"}
+            </h1>
+          </div>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setActiveView("search")}
+              className="w-10 h-10 bg-white/5 border border-white/10 rounded-full flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/10 transition-colors shadow-sm"
+              aria-label="Search"
+            >
+              <Search className="w-4 h-4" />
+            </button>
+            {user ? (
+              <div className="flex items-center gap-3 bg-white/5 pl-3 pr-2 py-1.5 rounded-full border border-white/10">
+                <div className="flex flex-col text-right">
+                  <span className="text-xs font-bold text-white leading-tight">
+                    {userPlan?.username || user.email?.split("@")[0] || "User"}
+                  </span>
+                  <span className="text-[10px] text-[#3B82F6] font-bold">
+                    ฿ {userPlan?.balance?.toLocaleString(undefined, { minimumFractionDigits: 2 }) || "0.00"}
+                  </span>
+                </div>
+                <div 
+                  className="w-8 h-8 rounded-full overflow-hidden border border-white/20 bg-black cursor-pointer"
+                  onClick={() => setActiveView("profile")}
+                >
                   <img
-                    src={getAvatarUrl(
-                      user?.id ||
-                        userPlan?.username ||
-                        user?.email?.split("@")[0] ||
-                        "guest",
-                    )}
+                    src={getAvatarUrl(user?.id || userPlan?.username || user?.email?.split("@")[0] || "guest")}
                     alt="avatar"
                     className="w-full h-full object-cover"
                     referrerPolicy="no-referrer"
                   />
                 </div>
-                <div className="flex flex-col truncate flex-1 leading-tight">
-                  {userPlan?.isPremium && (
-                    <span className="text-[10px] font-bold text-amber-500 uppercase tracking-widest mb-0.5">
-                      <Crown className="w-3 h-3 inline mr-1 -mt-0.5" />
-                      PREMIUM
-                    </span>
-                  )}
-                  <span className="text-sm font-bold text-white truncate">
-                    {user.isAnonymous ? "ผู้ใช้งานทั่วไป" : user.email}
-                  </span>
-                  <span className="text-xs text-zinc-400 flex items-center gap-1 font-sans font-bold mt-0.5">
-                    <Wallet className="w-3 h-3" /> ฿
-                    {userPlan?.balance
-                      ? userPlan.balance.toLocaleString(undefined, {
-                          minimumFractionDigits: 2,
-                        })
-                      : "0.00"}
-                  </span>
-                </div>
               </div>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  onClick={() => setActiveView("profile")}
-                  className="py-2.5 bg-[#0B0F14] border border-white/10 text-zinc-400 rounded-2xl text-xs font-bold hover:bg-[#0a0d12] hover:border-white/20 transition-colors flex items-center justify-center gap-2"
-                >
-                  <Settings className="w-4 h-4" />
-                  โปรไฟล์
-                </button>
-                <button
-                  onClick={handleLogout}
-                  className="py-2.5 bg-[#0B0F14] border border-white/10 text-[#3B82F6] rounded-2xl text-xs font-bold hover:bg-[#3B82F6]/10 hover:border-[#3B82F6]/30 transition-colors flex items-center justify-center gap-2"
-                >
-                  <LogOut className="w-4 h-4" />
-                  ออก
-                </button>
-              </div>
-            </div>
-          ) : null}
-        </div>
-      </aside>
+            ) : (
+              <button
+                onClick={() => setActiveView("login")}
+                className="px-5 py-2 bg-[#3B82F6] hover:bg-[#2563EB] text-white text-sm font-bold rounded-full transition-colors shadow-md shadow-[#3B82F6]/20"
+              >
+                เข้าสู่ระบบ
+              </button>
+            )}
+          </div>
+        </header>
 
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-h-screen min-w-0 relative">
-        {/* Global Top Navbar */}
+        {/* Global Top Navbar (Mobile) */}
         <nav className="lg:hidden sticky top-0 z-[60] bg-[#111318] border-b border-white/5 w-full flex flex-col shadow-sm">
           <div className="flex items-center justify-between px-5 h-[64px] relative">
             <motion.img
