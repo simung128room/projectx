@@ -188,14 +188,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
       <AnimatedScroll delay={200} direction="up">
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
           
-          {/* Card 1: User Profile (No avatar) */}
-          <div className="bg-[#111318] rounded-[24px] p-6 lg:p-8 transition-all duration-300 flex flex-col justify-center border border-white/5 shadow-lg hover:border-white/10 group">
-            <h2 className="text-2xl sm:text-3xl font-semibold text-zinc-100 tracking-tight leading-tight truncate">
-              {user ? user.username || user.email?.split("@")[0] : "ยังไม่ได้เข้าสู่ระบบ"}
-            </h2>
-          </div>
-
-          {/* Card 2: Sales */}
+          {/* Card 1: Sales */}
           <div className="bg-[#111318] rounded-[24px] p-6 lg:p-8 transition-all duration-300 flex items-center gap-5 border border-white/5 shadow-lg hover:border-white/10 group">
              <div className="w-14 h-14 rounded-2xl bg-[#1e293b] flex items-center justify-center shrink-0 border border-white/5 group-hover:scale-105 transition-transform">
               <ShoppingCart className="w-6 h-6 text-zinc-300" />
@@ -204,6 +197,19 @@ export const HomeView: React.FC<HomeViewProps> = ({
               <span className="text-sm font-medium text-zinc-500 mb-1">ยอดขายเว็บของเรา</span>
               <h2 className="text-3xl sm:text-4xl font-semibold text-zinc-100 tracking-tight leading-none">
                 <NumberTicker value={siteSettings?.stats_sales_override ? siteSettings?.stats_sales_override : (realtimeStats?.sales || 0) + (siteSettings?.stats_sales_offset || 0)} />
+              </h2>
+            </div>
+          </div>
+
+          {/* Card 2: Total Stock */}
+          <div className="bg-[#111318] rounded-[24px] p-6 lg:p-8 transition-all duration-300 flex items-center gap-5 border border-white/5 shadow-lg hover:border-white/10 group">
+             <div className="w-14 h-14 rounded-2xl bg-[#1e293b] flex items-center justify-center shrink-0 border border-white/5 group-hover:scale-105 transition-transform">
+              <Package className="w-6 h-6 text-zinc-300" />
+            </div>
+            <div className="flex flex-col justify-center">
+              <span className="text-sm font-medium text-zinc-500 mb-1">พร้อมจำหน่าย</span>
+              <h2 className="text-3xl sm:text-4xl font-semibold text-zinc-100 tracking-tight leading-none">
+                <NumberTicker value={products?.reduce((acc, p) => acc + (Math.max(0, p.stock || 0)), 0) || 0} />
               </h2>
             </div>
           </div>
