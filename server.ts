@@ -2687,13 +2687,15 @@ import { LRUCache } from 'lru-cache';
       });
 
     } catch (err: any) {
-      console.error('------- BUY ERROR TRACE -------', err);
       const msg = err.message || '';
-      if (msg === 'ยอดเงินไม่เพียงพอ' || msg === 'สินค้าในสต๊อกไม่เพียงพอ' || msg === 'User not found' || msg === 'Product not found') {
-         res.status(400).json({ error: msg });
+      if (msg === 'สินค้าในสต๊อกไม่เพียงพอ' || msg === 'ไม่มีไอดีหลงเหลืออยู่ในสต๊อกแล้ว') {
+         res.status(400).json({ success: false, error: "สินค้าหมด! ไม่สามารถสั่งซื้อได้" });
+      } else if (msg === 'ยอดเงินไม่เพียงพอ' || msg === 'User not found' || msg === 'Product not found') {
+         res.status(400).json({ success: false, error: msg });
       } else {
+         console.error('------- BUY ERROR TRACE -------', err);
          sendAlert('Transaction Failed / Rollback ❌', `**User**: ${userId}\n**Product**: ${productId}\n**Error**: ${msg}`, 16711680, req.id);
-         res.status(500).json({ error: String(err && err.message ? err.message : err) });
+         res.status(500).json({ success: false, error: String(err && err.message ? err.message : err) });
       }
     } finally {
       if (releaseLock) releaseLock();
