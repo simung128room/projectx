@@ -184,58 +184,54 @@ export const HomeView: React.FC<HomeViewProps> = ({
         </div>
       </AnimatedScroll>
 
-      {/* User Dashboard Strip */}
-      <AnimatedScroll delay={200} direction="left">
-        <div className="bg-[#0a0d12] border border-white/5 rounded-[24px] p-5 sm:p-8 flex flex-col xl:flex-row gap-6 xl:items-center justify-between shadow-lg hover:border-white/10 transition-colors mb-6">
+      {/* 4 Cards Dashboard (Mobile First) */}
+      <AnimatedScroll delay={200} direction="up">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
           
-          {/* Left: User Profile */}
-          <div className="flex items-center justify-between xl:justify-start gap-4">
-            <div className="flex items-center gap-4 sm:gap-5">
-              <div className="flex flex-col">
-                <span className="text-zinc-400 text-xs sm:text-sm font-medium mb-1">ยินดีต้อนรับเข้าสู่เว็บของเรา</span>
-                <h2 className="text-xl sm:text-3xl font-black text-white tracking-tight leading-none mb-2">
-                  {user ? user.username || "ชื่อผู้ใช้" : "ชื่อผู้ใช้"}
-                </h2>
-              </div>
+          {/* Card 1: User Profile (No avatar) */}
+          <div className="bg-gradient-to-br from-[#0a0d12]/80 to-[#111827]/80 backdrop-blur-md rounded-[24px] p-6 lg:p-8 transition-all duration-300 flex flex-col justify-center border border-white/5 shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:border-white/10 group">
+            <span className="text-sm font-medium text-zinc-400 mb-2">ยินดีต้อนรับเข้าสู่เว็บของเรา</span>
+            <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-tight truncate">
+              {user ? user.username || "ชื่อผู้ใช้" : "ชื่อผู้ใช้"}
+            </h2>
+          </div>
+
+          {/* Card 2: Sales */}
+          <div className="bg-gradient-to-br from-[#0a0d12]/80 to-[#111827]/80 backdrop-blur-md rounded-[24px] p-6 lg:p-8 transition-all duration-300 flex items-center gap-5 border border-white/5 shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:border-white/10 group">
+             <div className="w-14 h-14 rounded-full bg-[#1E3A8A] flex items-center justify-center shrink-0 border border-[#1E40AF] group-hover:scale-105 transition-transform">
+              <ShoppingCart className="w-7 h-7 text-blue-400 fill-blue-400/20" />
+            </div>
+            <div className="flex flex-col justify-center">
+              <span className="text-sm font-medium text-zinc-400 mb-1">ยอดขายเว็บของเรา</span>
+              <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight leading-none">
+                <NumberTicker value={siteSettings?.stats_sales_offset ? (realtimeStats?.sales || 0) + siteSettings.stats_sales_offset : 321} />
+              </h2>
             </div>
           </div>
 
-          {/* Right: Stats Strip */}
-          <div className="flex flex-col sm:flex-row divide-y sm:divide-y-0 sm:divide-x divide-white/10 bg-white/5 rounded-2xl border border-white/5 overflow-hidden">
-            
-            {/* Balance */}
-            <div className="flex-1 p-4 sm:p-5 flex flex-row sm:flex-col items-center justify-between sm:justify-center gap-2 hover:bg-white/5 transition-colors">
-              <div className="flex items-center gap-2 text-zinc-400">
-                <span className="text-xs sm:text-sm font-bold">ยอดเงินคงเหลือของคุณ</span>
-              </div>
-              <div className="text-xl sm:text-3xl font-black text-white">
-                ฿ {user ? (user.balance || 0).toLocaleString() : 0}
-              </div>
+          {/* Card 3: Total Users */}
+          <div className="bg-gradient-to-br from-[#0a0d12]/80 to-[#111827]/80 backdrop-blur-md rounded-[24px] p-6 lg:p-8 transition-all duration-300 flex items-center gap-5 border border-white/5 shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:border-white/10 group">
+             <div className="w-14 h-14 rounded-full bg-[#164E63] flex items-center justify-center shrink-0 border border-[#155E75] group-hover:scale-105 transition-transform">
+              <Users className="w-7 h-7 text-cyan-400 fill-cyan-400/20" />
             </div>
-
-            {/* Sales */}
-            <div className="flex-1 p-4 sm:p-5 flex flex-row sm:flex-col items-center justify-between sm:justify-center gap-2 hover:bg-white/5 transition-colors">
-              <div className="flex items-center gap-2 text-zinc-400">
-                <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5 text-[#3B82F6]" />
-                <span className="text-xs sm:text-sm font-bold">ยอดขายเว็บของเรา</span>
-              </div>
-              <div className="text-xl sm:text-3xl font-black text-white">
-                321
-              </div>
+            <div className="flex flex-col justify-center">
+              <span className="text-sm font-medium text-zinc-400 mb-1">ผู้ใช้งานทั้งหมดของเว็บ</span>
+              <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight leading-none">
+                <NumberTicker value={siteSettings?.stats_users_offset ? (realtimeStats?.users || 0) + siteSettings.stats_users_offset : 522} />
+              </h2>
             </div>
-
-            {/* Users */}
-            <div className="flex-1 p-4 sm:p-5 flex flex-row sm:flex-col items-center justify-between sm:justify-center gap-2 hover:bg-white/5 transition-colors">
-              <div className="flex items-center gap-2 text-zinc-400">
-                <Users className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400" />
-                <span className="text-xs sm:text-sm font-bold">ผู้ใช้งานทั้งหมดของเว็บ</span>
-              </div>
-              <div className="text-xl sm:text-3xl font-black text-white">
-                522
-              </div>
-            </div>
-
           </div>
+
+          {/* Card 4: Wallet (No wallet icon) */}
+          <div 
+             onClick={() => setActiveView("wallet")}
+             className="bg-gradient-to-br from-[#0a0d12]/80 to-[#111827]/80 backdrop-blur-md rounded-[24px] p-6 lg:p-8 transition-all duration-300 flex flex-col justify-center border border-white/5 shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:border-white/10 cursor-pointer group">
+            <span className="text-sm font-medium text-zinc-400 mb-2">ยอดเงินคงเหลือของคุณ</span>
+            <h2 className="text-3xl sm:text-4xl font-black text-emerald-400 tracking-tight leading-none">
+              ฿ {user ? (user.balance || 0).toLocaleString() : 0}
+            </h2>
+          </div>
+
         </div>
       </AnimatedScroll>
 
