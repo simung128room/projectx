@@ -133,7 +133,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
   const totalStock =
     stockOverride !== undefined && stockOverride !== null
       ? Number(stockOverride)
-      : realtimeStats?.stock || 0;
+      : (realtimeStats?.stock || 0) + (siteSettings?.stats_stock_offset || 0);
 
   useEffect(() => {
     if (bannersToUse.length > 1) {
@@ -221,7 +221,13 @@ export const HomeView: React.FC<HomeViewProps> = ({
               </span>
               <div className="flex items-baseline gap-2">
                 <motion.span className="text-4xl sm:text-5xl font-black text-white tracking-tight drop-shadow-lg transition-all duration-300">
-                  <NumberTicker value={categories ? categories.length : 0} />
+                  <NumberTicker 
+                      value={
+                        (siteSettings?.stats_categories_override !== undefined && siteSettings?.stats_categories_override !== null)
+                          ? Number(siteSettings.stats_categories_override)
+                          : (categories ? categories.length : 0) + (siteSettings?.stats_categories_offset || 0)
+                      } 
+                  />
                 </motion.span>
                 <span className="text-zinc-500 font-bold text-sm">รายการ</span>
               </div>

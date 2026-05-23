@@ -20,8 +20,23 @@ export default function AdminStockManagement({ products, categories, setProducts
 
   useEffect(() => {
     if (selectedProduct) {
-      const data = selectedProduct.stockData || [];
-      setStockItems(data);
+      // Products list usually strips stockData, so we must fetch it.
+      if (!selectedProduct.stockData) {
+        setLoading(true);
+        axios.get(`/api/products/${selectedProduct.id}/stock`)
+          .then(res => {
+             setStockItems(res.data.stockData || []);
+          })
+          .catch(err => {
+             console.error("Failed to load stock data", err);
+             Swal.fire({title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถโหลดข้อมูลสต็อกได้', icon: 'error', background: '#0a0d12', color: '#fff'});
+          })
+          .finally(() => {
+             setLoading(false);
+          });
+      } else {
+        setStockItems(selectedProduct.stockData || []);
+      }
       setPage(1);
       setSearchTerm("");
     }
@@ -131,7 +146,12 @@ export default function AdminStockManagement({ products, categories, setProducts
          </div>
          
          <div className="bg-[#0B0F14] border border-white/5 rounded-xl p-4 overflow-hidden">
-             {paginated.length === 0 ? (
+             {loading ? (
+                 <div className="text-center py-20">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2563EB] mx-auto mb-4"></div>
+                    <p className="text-zinc-500 font-medium">กำลังโหลดข้อมูลสต็อก...</p>
+                 </div>
+             ) : paginated.length === 0 ? (
                  <div className="text-center py-20">
                     <Database className="w-12 h-12 text-zinc-800 mx-auto mb-4" />
                     <p className="text-zinc-500 font-medium">ไม่พบรายการสต็อก</p>

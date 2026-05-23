@@ -749,9 +749,14 @@ function AppContent() {
     }
 
     try {
+      const idempotencyKey = `buy_${product.id}_${Date.now()}_${Math.random()}`;
       const res = await axios.post("/api/buy", {
         productId: product.id,
         quantity,
+      }, {
+        headers: {
+          'Idempotency-Key': idempotencyKey
+        }
       });
       const {
         purchase: newHistoryItem,

@@ -627,39 +627,7 @@ const cleanupTokenCache = () => {
   app.use(cors());
   app.options('*', cors());
   app.use(express.json({ limit: '50mb' }));
-  const idempotencyCache = new Map<string, { status: number, body: any, timestamp: number }>();
   
-  // Clean up old idempotency keys
-  setInterval(() => {
-    const now = Date.now();
-    for (const [key, value] of idempotencyCache.entries()) {
-      if (now - value.timestamp > 10 * 60 * 1000) { // 10 minutes
-        idempotencyCache.delete(key);
-      }
-    }
-  }, 5 * 60 * 1000);
-
-  app.use((req, res, next) => {
-    if (['POST', 'PUT', 'DELETE'].includes(req.method)) {
-      const idempotencyKey = req.headers['idempotency-key'] as string;
-      if (idempotencyKey) {
-        if (idempotencyCache.has(idempotencyKey)) {
-          const cached = idempotencyCache.get(idempotencyKey)!;
-          return res.status(cached.status).json(cached.body);
-        }
-        
-        // Intercept response to save it
-        const originalJson = res.json.bind(res);
-        res.json = (body: any) => {
-          if (res.statusCode >= 200 && res.statusCode < 300) {
-             idempotencyCache.set(idempotencyKey, { status: res.statusCode, body, timestamp: Date.now() });
-          }
-          return originalJson(body);
-        };
-      }
-    }
-    next();
-  });
   app.use((req, res, next) => {
     if (req.path.startsWith('/api/')) {
        // Define purely public GET APIs
@@ -895,15 +863,18 @@ const cleanupTokenCache = () => {
 
   app.post('/api/settings', requireAdmin, async (req, res) => {
     console.log("=== POST /api/settings REACHED ===", req.body);
-    const { truewallet_phone, site_name, contact_line, stats_users_offset, stats_sales_offset, stats_users_override, stats_stock_override, stats_sales_override, popup_img_url, popup_enabled, popup_link, banners, proxies, auto_proxy, spotify_url, spotify_autoplay } = req.body;
+    const { truewallet_phone, site_name, contact_line, stats_users_offset, stats_sales_offset, stats_categories_offset, stats_stock_offset, stats_users_override, stats_stock_override, stats_sales_override, stats_categories_override, popup_img_url, popup_enabled, popup_link, banners, proxies, auto_proxy, spotify_url, spotify_autoplay } = req.body;
     if (truewallet_phone !== undefined) siteSettings.truewallet_phone = truewallet_phone;
     if (site_name !== undefined) siteSettings.site_name = site_name;
     if (contact_line !== undefined) siteSettings.contact_line = contact_line;
     if (stats_users_offset !== undefined) siteSettings.stats_users_offset = parseInt(stats_users_offset) || 0;
     if (stats_sales_offset !== undefined) siteSettings.stats_sales_offset = parseInt(stats_sales_offset) || 0;
+    if (stats_categories_offset !== undefined) siteSettings.stats_categories_offset = parseInt(stats_categories_offset) || 0;
+    if (stats_stock_offset !== undefined) siteSettings.stats_stock_offset = parseInt(stats_stock_offset) || 0;
     if (stats_users_override !== undefined) siteSettings.stats_users_override = stats_users_override === null || isNaN(parseInt(stats_users_override)) ? null : parseInt(stats_users_override);
     if (stats_stock_override !== undefined) siteSettings.stats_stock_override = stats_stock_override === null || isNaN(parseInt(stats_stock_override)) ? null : parseInt(stats_stock_override);
     if (stats_sales_override !== undefined) siteSettings.stats_sales_override = stats_sales_override === null || isNaN(parseInt(stats_sales_override)) ? null : parseInt(stats_sales_override);
+    if (stats_categories_override !== undefined) siteSettings.stats_categories_override = stats_categories_override === null || isNaN(parseInt(stats_categories_override)) ? null : parseInt(stats_categories_override);
     if (popup_img_url !== undefined) siteSettings.popup_img_url = popup_img_url;
     if (popup_enabled !== undefined) siteSettings.popup_enabled = popup_enabled === true || popup_enabled === 'true';
     if (popup_link !== undefined) siteSettings.popup_link = popup_link;
@@ -2195,34 +2166,43 @@ import { LRUCache } from 'lru-cache';
       }
 
       const docRef = admin.firestore().collection('products').doc(req.params.id);
-      const doc = await docRef.get();
+      let updatedStockList: string[] = [];
+      let finalProductData: any = {};
       
-      if (!doc.exists) {
-        return res.status(404).json({ error: 'Product not found' });
-      }
+      await admin.firestore().runTransaction(async (t) => {
+        const doc = await t.get(docRef);
+        if (!doc.exists) {
+          throw new Error('NOT_FOUND');
+        }
+        
+        const productData = doc.data()!;
+        let existingStock = productData.stockData;
+        if (existingStock) {
+          existingStock = decompressStock(existingStock);
+        }
+        if (!Array.isArray(existingStock)) {
+          existingStock = [];
+        }
+        
+        updatedStockList = [...existingStock, ...newItems];
+        const dataToSave = { 
+           stockData: compressStock(updatedStockList),
+           stock: updatedStockList.length
+        };
+        
+        t.update(docRef, dataToSave);
+        finalProductData = { ...productData, ...dataToSave };
+      });
       
-      const productData = doc.data();
-      let existingStock = productData.stockData;
-      if (existingStock) {
-        existingStock = decompressStock(existingStock);
-      }
-      if (!Array.isArray(existingStock)) {
-        existingStock = [];
-      }
-      
-      const updatedStockList = [...existingStock, ...newItems];
-      const dataToSave = { 
-         stockData: compressStock(updatedStockList),
-         stock: updatedStockList.length
-      };
-      
-      await docRef.update(dataToSave);
       invalidateCache('products');
       invalidateStatsCache();
       
-      const responseData = { id: req.params.id, ...productData, ...dataToSave, stockData: updatedStockList };
+      const responseData = { id: req.params.id, ...finalProductData, stockData: updatedStockList };
       res.json({ success: true, added: newItems.length, product: responseData });
     } catch (err: any) {
+      if (err.message === 'NOT_FOUND') {
+         return res.status(404).json({ error: 'Product not found' });
+      }
       console.error('Internal server error appending stock:', JSON.stringify(err, Object.getOwnPropertyNames(err)));
       const errMsg = err?.message || JSON.stringify(err);
       res.status(500).json({ error: String(errMsg) });
@@ -2423,7 +2403,7 @@ import { LRUCache } from 'lru-cache';
       cachedStats = {
         users: siteSettings.stats_users_override !== undefined && siteSettings.stats_users_override !== null && !isNaN(siteSettings.stats_users_override) ? siteSettings.stats_users_override : totalUsersCount + (siteSettings.stats_users_offset || 0),
         sales: siteSettings.stats_sales_override !== undefined && siteSettings.stats_sales_override !== null && !isNaN(siteSettings.stats_sales_override) ? siteSettings.stats_sales_override : totalSales + (siteSettings.stats_sales_offset || 0),
-        stock: siteSettings.stats_stock_override !== undefined && siteSettings.stats_stock_override !== null && !isNaN(siteSettings.stats_stock_override) ? siteSettings.stats_stock_override : totalStock,
+        stock: siteSettings.stats_stock_override !== undefined && siteSettings.stats_stock_override !== null && !isNaN(siteSettings.stats_stock_override) ? siteSettings.stats_stock_override : totalStock + (siteSettings.stats_stock_offset || 0),
         totalOrders: totalPurchaseOrders,
         totalTopupsAmount
       };
@@ -2587,7 +2567,18 @@ import { LRUCache } from 'lru-cache';
       
       console.log('buy request for user', userId, 'product', productId, 'qty', quantity);
 
+      const idempotencyKey = req.headers['idempotency-key'] as string | undefined;
+
       const result = await admin.firestore().runTransaction(async (t) => {
+        let idempRef: any;
+        if (idempotencyKey) {
+           idempRef = admin.firestore().collection('idempotency_keys').doc(idempotencyKey);
+           const idempDoc = await t.get(idempRef);
+           if (idempDoc.exists) {
+              return { isCachedIdempotency: true, payload: idempDoc.data()?.response };
+           }
+        }
+
         const userDoc = await t.get(userRef);
         const productDoc = await t.get(productRef);
 
@@ -2614,10 +2605,7 @@ import { LRUCache } from 'lru-cache';
 
         // Claim items (FIFO)
         const currentStockData = [...existingStock];
-        const claimedItems: string[] = [];
-        for (let i = 0; i < quantity; i++) {
-          claimedItems.push(currentStockData.shift() as string);
-        }
+        const claimedItems = currentStockData.splice(0, quantity) as string[];
 
         const newBalance = (Number(userData.balance) || 0) - totalCost;
 
@@ -2647,12 +2635,27 @@ import { LRUCache } from 'lru-cache';
         t.update(productRef, productUpdatePayload);
         t.set(purchasesRef, historyPayload);
 
-        return {
+        const { stockData: _omittedStock, ...safeProductData } = productData;
+        const resultPayload = {
           purchase: newHistoryItem,
           updatedUser: { ...userData, balance: newBalance },
-          updatedProduct: { id: productId, ...productData, stock: currentStockData.length, soldCount: (productData.soldCount || 0) + quantity },
+          updatedProduct: { id: productId, ...safeProductData, stock: currentStockData.length, soldCount: (productData.soldCount || 0) + quantity },
         };
+
+        if (idempRef) {
+           t.set(idempRef, { response: resultPayload, timestamp: new Date().toISOString() });
+        }
+
+        return resultPayload;
       });
+
+      // Handle Idempotency Return
+      if (result.isCachedIdempotency) {
+         return res.json({
+           success: true,
+           ...result.payload
+         });
+      }
 
       // Transaction succeeded
       invalidateCache('products');

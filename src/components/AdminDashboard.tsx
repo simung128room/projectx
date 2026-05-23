@@ -1147,10 +1147,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         let currentUsers = (siteStats?.users || 0);
                         let currentStock = (siteStats?.stock || 0);
                         let currentSales = (siteStats?.sales || 0);
+                        let currentCategories = categories?.length || 0;
                         Swal.fire({
-                            title: 'แก้ไขสถิติ',
+                            title: 'แก้ไขสถิติ (Override)',
                             html: `
-                              <input id="swal-users" class="swal2-input" placeholder="ผู้ใช้งาน" value="${currentUsers}">
+                              <input id="swal-users" class="swal2-input" placeholder="จำนวนผู้ใช้งาน" value="${currentUsers}">
+                              <input id="swal-categories" class="swal2-input" placeholder="จำนวนหมวดหมู่" value="${currentCategories}">
                               <input id="swal-stock" class="swal2-input" placeholder="สต๊อกสินค้า" value="${currentStock}">
                               <input id="swal-sales" class="swal2-input" placeholder="ยอดขาย" value="${currentSales}">
                             `,
@@ -1159,6 +1161,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                             preConfirm: () => {
                               return {
                                 users: parseInt((document.getElementById('swal-users') as HTMLInputElement).value),
+                                categories: parseInt((document.getElementById('swal-categories') as HTMLInputElement).value),
                                 stock: parseInt((document.getElementById('swal-stock') as HTMLInputElement).value),
                                 sales: parseInt((document.getElementById('swal-sales') as HTMLInputElement).value)
                               }
@@ -1167,10 +1170,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                             if (result.isConfirmed) {
                                 try {
                                   const u = isNaN(result.value?.users) ? null : result.value?.users;
+                                  const c = isNaN(result.value?.categories) ? null : result.value?.categories;
                                   const st = isNaN(result.value?.stock) ? null : result.value?.stock;
                                   const sa = isNaN(result.value?.sales) ? null : result.value?.sales;
                                   await axios.post('/api/settings', {
                                     stats_users_override: u,
+                                    stats_categories_override: c,
                                     stats_stock_override: st,
                                     stats_sales_override: sa
                                   });
@@ -1722,7 +1727,33 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           value={siteSettings.stats_users_offset}
                           onChange={(e) => setSiteSettings({ ...siteSettings, stats_users_offset: parseInt(e.target.value) || 0 })}
                           className="w-full bg-[#0a0d12] border border-white/5 rounded-2xl px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-purple-500 shadow-inner"
-                          placeholder="1250"
+                          placeholder="0"
+                        />
+                      </div>
+
+                      <div className="space-y-4">
+                        <label className="block text-sm font-bold text-zinc-700 flex items-center gap-2">
+                           <Box className="w-4 h-4 text-emerald-500" /> ปรับจำนวนหมวดหมู่ (Category Offset)
+                        </label>
+                        <input 
+                          type="number"
+                          value={siteSettings.stats_categories_offset || 0}
+                          onChange={(e) => setSiteSettings({ ...siteSettings, stats_categories_offset: parseInt(e.target.value) || 0 })}
+                          className="w-full bg-[#0a0d12] border border-white/5 rounded-2xl px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-emerald-500 shadow-inner"
+                          placeholder="0"
+                        />
+                      </div>
+
+                      <div className="space-y-4">
+                        <label className="block text-sm font-bold text-zinc-700 flex items-center gap-2">
+                           <Layers className="w-4 h-4 text-amber-500" /> ปรับจำนวนสินค้าพร้อมขาย (Stock Offset)
+                        </label>
+                        <input 
+                          type="number"
+                          value={siteSettings.stats_stock_offset || 0}
+                          onChange={(e) => setSiteSettings({ ...siteSettings, stats_stock_offset: parseInt(e.target.value) || 0 })}
+                          className="w-full bg-[#0a0d12] border border-white/5 rounded-2xl px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-amber-500 shadow-inner"
+                          placeholder="0"
                         />
                       </div>
 
