@@ -24,15 +24,25 @@ async function getLocalTable(collection: string) {
   return localTableCache[collection];
 }
 
+const writeSchedules: Record<string, NodeJS.Timeout> = {};
+
 async function saveLocalTable(collection: string, data: any) {
-  localTableCache[collection] = data;
-  const fp = path.join(localDBPath, `${collection}.json`);
+  localTableCache[collection] = data; // Immediately available to local memory readers
+  const fp = path.join(localDBPath, collection + '.json');
   const jsonStr = JSON.stringify(data);
   
   if (!writePromises[collection]) {
     writePromises[collection] = Promise.resolve();
   }
-  writePromises[collection] = writePromises[collection].then(() => fs.promises.writeFile(fp, jsonStr));
+  
+  writePromises[collection] = writePromises[collection].then(async () => {
+    try {
+      await fs.promises.writeFile(fp, jsonStr);
+    } catch (err) {
+      console.error(`Local file write error for ${collection}:`, err);
+    }
+  });
+  
   await writePromises[collection];
 }
 
@@ -328,6 +338,8 @@ async function preprocessMetaFields(collection: string, id: string, data: any) {
   return data;
 }
 
+const isVirtual = (collection: string) => collection === 'product_stock_chunks' || collection.includes('_chunks') || collection === 'idempotency_keys';
+
 class SupabaseDoc {
   public collection: string;
   public id: string;
@@ -340,11 +352,18 @@ class SupabaseDoc {
   }
 
   async get() {
-    if (this.collection === 'blocked_ips' || this.collection === 'product_stock_chunks' || this.collection.includes('_chunks') || this.collection === 'idempotency_keys') {
-        const table = await getLocalTable(this.collection);
-        const item = table.find((x: any) => x.id === this.id);
-        if (!item) return { id: this.id, ref: this, exists: false, data: () => null };
-        return { id: this.id, ref: this, exists: true, data: () => item };
+    if (isVirtual(this.collection)) {
+        const slug = `v:${this.collection}:${this.id}`;
+        try {
+            const { data, error } = await supabaseAdmin.from('custom_pages').select('content').eq('slug', slug).single();
+            if (error || !data) {
+                return { id: this.id, ref: this, exists: false, data: () => null };
+            }
+            const parsed = JSON.parse(data.content);
+            return { id: this.id, ref: this, exists: true, data: () => parsed };
+        } catch (e) {
+            return { id: this.id, ref: this, exists: false, data: () => null };
+        }
     }
     let retries = 0;
     while(retries < 15) {
@@ -382,12 +401,30 @@ class SupabaseDoc {
     return { exists: false, data: () => null };
   }
   async update(data: any) {
-    if (this.collection === 'blocked_ips' || this.collection === 'product_stock_chunks' || this.collection.includes('_chunks') || this.collection === 'idempotency_keys') {
-        const table = await getLocalTable(this.collection);
-        const idx = table.findIndex((x: any) => x.id === this.id);
-        if (idx !== -1) {
-            table[idx] = { ...table[idx], ...data };
-            await saveLocalTable(this.collection, table);
+    if (isVirtual(this.collection)) {
+        const slug = `v:${this.collection}:${this.id}`;
+        try {
+            const { data: existing, error } = await supabaseAdmin.from('custom_pages').select('content').eq('slug', slug).single();
+            const existingContent = existing && existing.content ? JSON.parse(existing.content) : {};
+            const merged = { ...existingContent, ...data, id: this.id };
+            
+            const payload = {
+                slug,
+                title: this.collection,
+                content: JSON.stringify(merged)
+            };
+            
+            const { data: matchingRow } = await supabaseAdmin.from('custom_pages').select('id').eq('slug', slug).single();
+            if (matchingRow) {
+                const { error: err } = await supabaseAdmin.from('custom_pages').update(payload).eq('id', matchingRow.id);
+                if (err) throw err;
+            } else {
+                const { error: err } = await supabaseAdmin.from('custom_pages').insert([payload]);
+                if (err) throw err;
+            }
+        } catch (e: any) {
+            console.error(`Error updating virtual doc ${this.collection}/${this.id}:`, e);
+            throw e;
         }
         return;
     }
@@ -438,26 +475,51 @@ class SupabaseDoc {
     }
   }
   async delete() {
-    if (this.collection === 'blocked_ips' || this.collection === 'product_stock_chunks' || this.collection.includes('_chunks') || this.collection === 'idempotency_keys') {
-        const table = await getLocalTable(this.collection);
-        const newTable = table.filter((x: any) => x.id !== this.id);
-        await saveLocalTable(this.collection, newTable);
+    if (isVirtual(this.collection)) {
+        const slug = `v:${this.collection}:${this.id}`;
+        const { error } = await supabaseAdmin.from('custom_pages').delete().eq('slug', slug);
+        if (error) {
+            console.error(`Error deleting virtual doc ${this.collection}/${this.id}:`, error);
+            throw error;
+        }
         return;
     }
     const { error } = await supabaseAdmin.from(this.collection).delete().eq(this.pk(), this.id);
     if (error) throw error;
   }
   async set(data: any, options: any = {}) {
-    if (this.collection === 'blocked_ips' || this.collection === 'product_stock_chunks' || this.collection.includes('_chunks') || this.collection === 'idempotency_keys') {
-        const table = await getLocalTable(this.collection);
-        const idx = table.findIndex((x: any) => x.id === this.id);
-        if (idx !== -1) {
-            if (options.merge) table[idx] = { ...table[idx], ...data, id: this.id };
-            else table[idx] = { ...data, id: this.id };
-        } else {
-            table.push({ ...data, id: this.id });
+    if (isVirtual(this.collection)) {
+        const slug = `v:${this.collection}:${this.id}`;
+        try {
+            let finalData = { ...data, id: this.id };
+            if (options.merge) {
+                const { data: existing } = await supabaseAdmin.from('custom_pages').select('content').eq('slug', slug).single();
+                if (existing && existing.content) {
+                    try {
+                        const parsed = JSON.parse(existing.content);
+                        finalData = { ...parsed, ...data, id: this.id };
+                    } catch (e) {}
+                }
+            }
+            
+            const payload = {
+                slug,
+                title: this.collection,
+                content: JSON.stringify(finalData)
+            };
+            
+            const { data: matchingRow } = await supabaseAdmin.from('custom_pages').select('id').eq('slug', slug).single();
+            if (matchingRow) {
+                const { error: err } = await supabaseAdmin.from('custom_pages').update(payload).eq('id', matchingRow.id);
+                if (err) throw err;
+            } else {
+                const { error: err } = await supabaseAdmin.from('custom_pages').insert([payload]);
+                if (err) throw err;
+            }
+        } catch (e: any) {
+            console.error(`Error setting virtual doc ${this.collection}/${this.id}:`, e);
+            throw e;
         }
-        await saveLocalTable(this.collection, table);
         return;
     }
     const mergedData = await preprocessMetaFields(this.collection, this.id, { ...data });
@@ -553,43 +615,56 @@ class SupabaseQuery {
     return this;
   }
   async get() {
-    if (this.collection === 'blocked_ips' || this.collection === 'product_stock_chunks' || this.collection.includes('_chunks') || this.collection === 'idempotency_keys') {
-      let data = await getLocalTable(this.collection);
+    if (isVirtual(this.collection)) {
+      const { data, error } = await supabaseAdmin.from('custom_pages').select('content').eq('title', this.collection);
+      if (error) throw error;
+      
+      const items: any[] = [];
+      for (const row of (data || [])) {
+         try {
+           if (row.content) {
+              const item = JSON.parse(row.content);
+              items.push(item);
+           }
+         } catch (e) {}
+      }
+      
+      let filteredData = [...items];
       for (const w of this._where) {
-        if (w.op === '==') data = data.filter((d: any) => {
+        if (w.op === '==') filteredData = filteredData.filter((d: any) => {
             const key = Object.keys(d).find((k) => k.toLowerCase() === w.field.toLowerCase()) || w.field;
             return d[key] === w.value;
         });
-        else if (w.op === '>') data = data.filter((d: any) => {
+        else if (w.op === '>') filteredData = filteredData.filter((d: any) => {
             const key = Object.keys(d).find((k) => k.toLowerCase() === w.field.toLowerCase()) || w.field;
             return d[key] > w.value;
         });
-        else if (w.op === '<') data = data.filter((d: any) => {
+        else if (w.op === '<') filteredData = filteredData.filter((d: any) => {
             const key = Object.keys(d).find((k) => k.toLowerCase() === w.field.toLowerCase()) || w.field;
             return d[key] < w.value;
         });
       }
       for (const o of this._orderBy) {
-        data.sort((a: any, b: any) => {
+        filteredData.sort((a: any, b: any) => {
             const keyA = Object.keys(a).find((k) => k.toLowerCase() === o.field.toLowerCase()) || o.field;
             const keyB = Object.keys(b).find((k) => k.toLowerCase() === o.field.toLowerCase()) || o.field;
             return o.dir === 'asc' ? (a[keyA] > b[keyB] ? 1 : -1) : (a[keyA] < b[keyB] ? 1 : -1);
         });
       }
       if (this._offset) {
-        if (this._limit) data = data.slice(this._offset, this._offset + this._limit);
-        else data = data.slice(this._offset);
+        if (this._limit) filteredData = filteredData.slice(this._offset, this._offset + this._limit);
+        else filteredData = filteredData.slice(this._offset);
       } else if (this._limit) {
-        data = data.slice(0, this._limit);
+        filteredData = filteredData.slice(0, this._limit);
       }
       return {
-        docs: data.map((d: any) => ({
+        docs: filteredData.map((d: any) => ({
            id: d.id,
            ref: new SupabaseDoc(this.collection, d.id),
            data: () => d
         })),
-        empty: data.length === 0,
-        forEach: (cb: any) => data.forEach((d: any) => cb({ id: d.id, ref: new SupabaseDoc(this.collection, d.id), data: () => d }))
+        empty: filteredData.length === 0,
+        forEach: (cb: any) => filteredData.forEach((d: any) => cb({ id: d.id, ref: new SupabaseDoc(this.collection, d.id), data: () => d }))
       };
     }
     const executeQuery = async (where: any[], orderBy: any[]) => {
@@ -626,8 +701,14 @@ class SupabaseQuery {
       try {
         const { data, error } = await executeQuery(currentWhere, currentOrderBy);
         if (error) throw error;
+        
+        let finalData = data || [];
+        if (this.collection === 'custom_pages') {
+          finalData = finalData.filter((d: any) => !d.slug || !d.slug.startsWith('v:'));
+        }
+        
         return {
-          docs: (data || []).map((d: any) => {
+          docs: finalData.map((d: any) => {
             const mapped = fromDB(d);
             const docId = d.id || d.key || d.ip || d.username || 'unknown';
             return {
@@ -636,9 +717,9 @@ class SupabaseQuery {
               data: () => mapped
             };
           }),
-          empty: data ? data.length === 0 : true,
+          empty: finalData.length === 0,
           forEach: function(cb: Function) {
-            (data || []).forEach((d: any) => {
+            finalData.forEach((d: any) => {
               const mapped = fromDB(d);
               const docId = d.id || d.key || d.ip || d.username;
               cb({ id: docId, ref: new SupabaseDoc(this.collection, docId), data: () => mapped });
@@ -689,11 +770,18 @@ class SupabaseCollection extends SupabaseQuery {
     return new SupabaseDoc(this.collection, id || genId());
   }
   async add(data: any) {
-    if (this.collection === 'blocked_ips' || this.collection === 'product_stock_chunks' || this.collection.includes('_chunks') || this.collection === 'idempotency_keys') {
+    if (isVirtual(this.collection)) {
         const docId = data.id || crypto.randomUUID();
-        const table = await getLocalTable(this.collection);
-        table.push({ ...data, id: docId });
-        await saveLocalTable(this.collection, table);
+        const slug = `v:${this.collection}:${docId}`;
+        const finalData = { ...data, id: docId };
+        
+        const payload = {
+            slug,
+            title: this.collection,
+            content: JSON.stringify(finalData)
+        };
+        const { error } = await supabaseAdmin.from('custom_pages').insert([payload]);
+        if (error) throw error;
         return { id: docId };
     }
     const pk = this.collection === 'blocked_ips' ? 'ip' : (this.collection === 'settings' ? 'key' : 'id');
@@ -779,7 +867,7 @@ const db = {
         return result;
       } catch (err: any) {
         if (err.message && err.message.includes('invalid input syntax for type uuid')) {
-          console.warn('Ignoring invalid UUID syntax error for ' + this.collection);
+          console.warn('Ignoring invalid UUID syntax error for transaction');
           return { docs: [], empty: true, forEach: () => {} };
         }
         if (err.message === 'VERSION_CONFLICT' || err.message === 'CONCURRENCY_ERROR') {

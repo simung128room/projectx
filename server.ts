@@ -393,11 +393,7 @@ app.set('trust proxy', 1);
 
   app.use(pinoHttp({
     logger,
-    customProps: (req, res) => {
-      return {
-        userId: (req as any).user?.uid || 'guest'
-      }
-    },
+    customProps: (req, res) => { return {}; },
     useLevel: 'info',
     quietReqLogger: true,
     autoLogging: {
@@ -914,7 +910,9 @@ const cleanupTokenCache = () => {
       });
     }
     
-    console.log(`[Settings] Updated:`, siteSettings);
+    const safeSettings = { ...siteSettings };
+    if (safeSettings.proxies) safeSettings.proxies = safeSettings.proxies.map((p: string) => p.replace(/\/\/.*@/, '//***:***@'));
+    console.log(`[Settings] Updated:`, safeSettings);
     writeAuditLog('SITE_SETTINGS_UPDATE', (req as any).user?.uid || 'admin', 'sys_settings', req);
     return res.json({ success: true, settings: siteSettings });
   });
@@ -2615,10 +2613,10 @@ import { LRUCache } from 'lru-cache';
 
   app.post('/api/buy', mutationLimiter, requireAuth, async (req: any, res: any) => {
     let { productId, quantity } = req.body;
-    quantity = Number(quantity);
+    quantity = parseInt((quantity || 0).toString(), 10);
     if (!productId || isNaN(quantity) || quantity < 1) {
       console.warn(`[Buy] Invalid request. productId: ${productId}, quantity: ${quantity}`);
-      return res.status(400).json({ error: 'Invalid product or quantity' });
+      return res.status(400).json({ error: 'ชื่อสินค้าหรือจำนวนไม่ถูกต้อง' });
     }
 
     const userId = (req as any).user.uid;
@@ -2666,6 +2664,9 @@ import { LRUCache } from 'lru-cache';
 
         if ((Number(userData.balance) || 0) < totalCost) {
           return { isError: true, message: 'ยอดเงินไม่เพียงพอ' };
+        }
+        if (quantity > (Number(productData.stock) || 0)) {
+          return { isError: true, message: 'สินค้าในสต๊อกไม่เพียงพอ' };
         }
 
         // --- Start of Stock Extraction ---
@@ -2782,6 +2783,7 @@ import { LRUCache } from 'lru-cache';
       }
 
       if (result.isError) {
+         console.warn(`[Buy] Purchase validation failed: User ${userId}, Product ${productId}, Quantity ${quantity}. Message: ${result.message}`);
          return res.status(400).json({ error: result.message });
       }
 
