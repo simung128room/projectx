@@ -370,7 +370,17 @@ class SupabaseDoc {
         const dbPayload = toDB(mergedData, this.collection);
         let updateQuery: any = supabaseAdmin.from(this.collection).update(dbPayload).eq(this.pk(), this.id);
         
+        if (data._version !== undefined && !missingColumns.has(`${this.collection}._version`)) {
+          // Explicit _version check for optimistic concurrency control
+          updateQuery = updateQuery.eq('_version', data._version - 1).select();
+        }
+        
         const { error, data: resultData } = await updateQuery;
+        
+        // If we expect optimistic lock success but received no updated rows, someone else modified it!
+        if (!error && (data._version !== undefined) && !missingColumns.has(`${this.collection}._version`) && (!resultData || resultData.length === 0)) {
+           throw new Error('VERSION_CONFLICT');
+        }
         
         if (error) throw error;
         break;
@@ -710,14 +720,16 @@ const db = {
         const result = await updateFunction(t);
         
         // Execute writes (Synchronously locked on the logical application level ideally)
-        for (const w of writes) {
+        await Promise.all(writes.map(async (w) => {
            if (w.type === 'update' || w.type === 'set') {
+              const oldVersion = reads.get(w.ref.id) || 0;
+              w.data._version = oldVersion + 1;
               if (w.type === 'update') await w.ref.update(w.data);
               else await w.ref.set(w.data);
            } else if (w.type === 'delete') {
               await w.ref.delete();
            }
-        }
+        }));
         
         return result;
       } catch (err: any) {

@@ -2155,11 +2155,13 @@ import { LRUCache } from 'lru-cache';
     if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
     try {
       const product = req.body;
-      const allowedFields = ['name', 'description', 'price', 'originalPrice', 'stock', 'categoryId', 'stockData', 'image', 'imageUrl', 'category', 'isHighlight', 'customPageId', 'youtubeUrl', 'type', 'isPopular', 'soldCount', 'tag'];
+      const allowedFields = ['name', 'description', 'price', 'originalPrice', 'stock', 'categoryId', 'stockData', 'image', 'imageUrl', 'category', 'isHighlight', 'customPageId', 'youtubeUrl', 'type', 'isPopular', 'soldCount', 'tag', '_version'];
       const sanitizedProduct = Object.fromEntries(
         Object.entries(product).filter(([k]) => allowedFields.includes(k))
       );
       
+      sanitizedProduct._version = 1;
+
       const { id, ...dataToSaveRaw } = sanitizedProduct as any;
       if (dataToSaveRaw.stockData) {
         dataToSaveRaw.stockData = await compressStock(dataToSaveRaw.stockData);
@@ -2233,7 +2235,7 @@ import { LRUCache } from 'lru-cache';
       const docRef = admin.firestore().collection('products').doc(req.params.id);
       const productUpdates = req.body;
       
-      const allowedFields = ['name', 'description', 'price', 'originalPrice', 'stock', 'categoryId', 'stockData', 'image', 'imageUrl', 'category', 'isHighlight', 'customPageId', 'youtubeUrl', 'type', 'isPopular', 'soldCount', 'tag'];
+      const allowedFields = ['name', 'description', 'price', 'originalPrice', 'stock', 'categoryId', 'stockData', 'image', 'imageUrl', 'category', 'isHighlight', 'customPageId', 'youtubeUrl', 'type', 'isPopular', 'soldCount', 'tag', '_version'];
       const sanitizedUpdates = Object.fromEntries(
         Object.entries(productUpdates).filter(([k]) => allowedFields.includes(k) && k !== 'id')
       );
@@ -2250,9 +2252,16 @@ import { LRUCache } from 'lru-cache';
         
         const existingData = currentDoc.data()!;
         
+        if (typeof sanitizedUpdates._version === 'number') {
+          const currentVersion = existingData._version || 0;
+          if (sanitizedUpdates._version !== currentVersion) {
+            throw new Error('VERSION_CONFLICT');
+          }
+        }
+
         // Calculate Delta for Audit Log and only update what changed
         Object.keys(sanitizedUpdates).forEach(k => {
-          if (sanitizedUpdates[k] !== existingData[k]) {
+          if (k !== '_version' && sanitizedUpdates[k] !== existingData[k]) {
             deltaBefore[k] = existingData[k];
             deltaAfter[k] = sanitizedUpdates[k];
           }
@@ -2264,7 +2273,6 @@ import { LRUCache } from 'lru-cache';
         }
 
         const dataToSave = JSON.parse(JSON.stringify(deltaAfter));
-        
         t.update(docRef, dataToSave);
         finalData = { ...existingData, ...dataToSave, id: req.params.id };
       });
@@ -2613,16 +2621,21 @@ import { LRUCache } from 'lru-cache';
 
       const result = await admin.firestore().runTransaction(async (t) => {
         let idempRef: any;
+        let idempPromise = Promise.resolve(null);
         if (idempotencyKey) {
            idempRef = admin.firestore().collection('idempotency_keys').doc(idempotencyKey);
-           const idempDoc = await t.get(idempRef);
-           if (idempDoc.exists) {
-              return { isCachedIdempotency: true, payload: idempDoc.data()?.response };
-           }
+           idempPromise = t.get(idempRef);
         }
 
-        const userDoc = await t.get(userRef);
-        const productDoc = await t.get(productRef);
+        const [idempDoc, userDoc, productDoc] = await Promise.all([
+          idempPromise,
+          t.get(userRef),
+          t.get(productRef)
+        ]);
+
+        if (idempotencyKey && idempDoc && idempDoc.exists) {
+           return { isCachedIdempotency: true, payload: idempDoc.data()?.response };
+        }
 
         if (!userDoc.exists) { return { isError: true, message: 'User not found' }; }
         if (!productDoc.exists) { return { isError: true, message: 'Product not found' }; }
