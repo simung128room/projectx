@@ -6,7 +6,7 @@ import { supabase as auth } from '../../lib/supabase';
 
 import { Turnstile } from '@marsidev/react-turnstile';
 
-const rawEnvKey = (import.meta.env.VITE_TURNSTILE_SITE_KEY || '').trim();
+const rawEnvKey = (import.meta.env.TURNSTILE_SITE_KEY || '').trim();
 const TURNSTILE_SITE_KEY = rawEnvKey.length > 5 ? rawEnvKey : '0x4AAAAAADDNPyGBIV4MApep';
 
 interface AuthModalProps {
@@ -231,7 +231,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
                   />
                 ) : (
                   <div className="p-3 text-[#2563EB] rounded-xl text-center text-[10px] font-bold">
-                    ยังไม่ได้ตั้งค่า VITE_TURNSTILE_SITE_KEY<br/>Bypass Mode Active
+                    ยังไม่ได้ตั้งค่า TURNSTILE_SITE_KEY<br/>Bypass Mode Active
                   </div>
                 )}
               </div>

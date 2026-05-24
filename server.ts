@@ -120,7 +120,7 @@ import sharp from 'sharp';
 console.log('[Server] --- Supabase VERSION REBOOT ---');
 
 // Validate Critical Secrets before starting
-const REQUIRED_SECRETS = ['VITE_SUPABASE_URL', 'VITE_SUPABASE_ANON_KEY', 'SUPABASE_SERVICE_ROLE_KEY'];
+const REQUIRED_SECRETS = ['SUPABASE_URL', 'SUPABASE_ANON_KEY', 'SUPABASE_SERVICE_ROLE_KEY'];
 for (const key of REQUIRED_SECRETS) {
   if (!process.env[key]) {
     console.error(`[Fatal Error] Missing required secret: ${key}`);
@@ -764,7 +764,7 @@ const cleanupTokenCache = () => {
   let cachedStats: any = null;
   const invalidateStatsCache = () => { lastStatsFetch = 0; cachedStats = null; };
   let siteSettings: any = {
-    site_name: process.env.VITE_SITE_NAME || 'STORETH',
+    site_name: process.env.SITE_NAME || 'STORETH',
     truewallet_phone: process.env.TRUEWALLET_PHONE || '',
     contact_line: process.env.CONTACT_LINE || '',
     discord_link: '',

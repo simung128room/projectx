@@ -665,7 +665,7 @@ function AppContent() {
     string | null
   >(null);
   const [savedLinesToCheck, setSavedLinesToCheck] = useState<string[]>([]);
-  const rawEnvKey = (import.meta.env.VITE_TURNSTILE_SITE_KEY || "").trim();
+  const rawEnvKey = (import.meta.env.TURNSTILE_SITE_KEY || "").trim();
   const TURNSTILE_SITE_KEY =
     rawEnvKey.length > 5 ? rawEnvKey : "0x4AAAAAADDNPyGBIV4MApep";
 
@@ -3741,7 +3741,7 @@ function AppContent() {
                     />
                   ) : (
                     <div className="p-3 bg-[#3B82F6]/20 text-[#3B82F6] rounded-xl text-center text-[10px] font-bold w-full mx-8">
-                      ยังไม่ได้ตั้งค่า VITE_TURNSTILE_SITE_KEY (Bypass Mode
+                      ยังไม่ได้ตั้งค่า TURNSTILE_SITE_KEY (Bypass Mode
                       Active)
                     </div>
                   )}
