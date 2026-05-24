@@ -120,11 +120,10 @@ import sharp from 'sharp';
 console.log('[Server] --- Supabase VERSION REBOOT ---');
 
 // Validate Critical Secrets before starting
-const REQUIRED_SECRETS = ['VITE_SUPABASE_URL', 'VITE_SUPABASE_ANON_KEY', 'SUPABASE_SERVICE_ROLE_KEY'];
+const REQUIRED_SECRETS = ['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY'];
 for (const key of REQUIRED_SECRETS) {
-  if (!process.env[key]) {
-    console.error(`[Fatal Error] Missing required secret: ${key}`);
-    process.exit(1);
+  if (!process.env[key] && !process.env['VITE_' + key]) {
+    console.error('[Warning] Missing recommended secret: ' + key);
   }
 }
 
