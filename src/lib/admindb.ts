@@ -7,13 +7,31 @@ if (!fs.existsSync(localDBPath)) {
   fs.mkdirSync(localDBPath, { recursive: true });
 }
 
-function getLocalTable(collection: string) {
+const localTableCache: Record<string, any[]> = {};
+let writePromises: Record<string, Promise<void>> = {};
+
+async function getLocalTable(collection: string) {
+  if (localTableCache[collection]) return localTableCache[collection];
   const fp = path.join(localDBPath, `${collection}.json`);
-  if (!fs.existsSync(fp)) return [];
-  return JSON.parse(fs.readFileSync(fp, 'utf8'));
+  if (!fs.existsSync(fp)) {
+    localTableCache[collection] = [];
+    return localTableCache[collection];
+  }
+  const data = await fs.promises.readFile(fp, 'utf8');
+  localTableCache[collection] = JSON.parse(data);
+  return localTableCache[collection];
 }
-function saveLocalTable(collection: string, data: any) {
-  fs.writeFileSync(path.join(localDBPath, `${collection}.json`), JSON.stringify(data));
+
+async function saveLocalTable(collection: string, data: any) {
+  localTableCache[collection] = data;
+  const fp = path.join(localDBPath, `${collection}.json`);
+  const jsonStr = JSON.stringify(data);
+  
+  if (!writePromises[collection]) {
+    writePromises[collection] = Promise.resolve();
+  }
+  writePromises[collection] = writePromises[collection].then(() => fs.promises.writeFile(fp, jsonStr));
+  await writePromises[collection];
 }
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL;
@@ -321,7 +339,7 @@ class SupabaseDoc {
 
   async get() {
     if (this.collection === 'blocked_ips' || this.collection === 'product_stock_chunks' || this.collection.includes('_chunks') || this.collection === 'idempotency_keys') {
-        const table = getLocalTable(this.collection);
+        const table = await getLocalTable(this.collection);
         const item = table.find((x: any) => x.id === this.id);
         if (!item) return { id: this.id, ref: this, exists: false, data: () => null };
         return { id: this.id, ref: this, exists: true, data: () => item };
@@ -354,11 +372,11 @@ class SupabaseDoc {
   }
   async update(data: any) {
     if (this.collection === 'blocked_ips' || this.collection === 'product_stock_chunks' || this.collection.includes('_chunks') || this.collection === 'idempotency_keys') {
-        const table = getLocalTable(this.collection);
+        const table = await getLocalTable(this.collection);
         const idx = table.findIndex((x: any) => x.id === this.id);
         if (idx !== -1) {
             table[idx] = { ...table[idx], ...data };
-            saveLocalTable(this.collection, table);
+            await saveLocalTable(this.collection, table);
         }
         return;
     }
@@ -406,9 +424,9 @@ class SupabaseDoc {
   }
   async delete() {
     if (this.collection === 'blocked_ips' || this.collection === 'product_stock_chunks' || this.collection.includes('_chunks') || this.collection === 'idempotency_keys') {
-        const table = getLocalTable(this.collection);
+        const table = await getLocalTable(this.collection);
         const newTable = table.filter((x: any) => x.id !== this.id);
-        saveLocalTable(this.collection, newTable);
+        await saveLocalTable(this.collection, newTable);
         return;
     }
     const { error } = await supabaseAdmin.from(this.collection).delete().eq(this.pk(), this.id);
@@ -416,7 +434,7 @@ class SupabaseDoc {
   }
   async set(data: any, options: any = {}) {
     if (this.collection === 'blocked_ips' || this.collection === 'product_stock_chunks' || this.collection.includes('_chunks') || this.collection === 'idempotency_keys') {
-        const table = getLocalTable(this.collection);
+        const table = await getLocalTable(this.collection);
         const idx = table.findIndex((x: any) => x.id === this.id);
         if (idx !== -1) {
             if (options.merge) table[idx] = { ...table[idx], ...data, id: this.id };
@@ -424,7 +442,7 @@ class SupabaseDoc {
         } else {
             table.push({ ...data, id: this.id });
         }
-        saveLocalTable(this.collection, table);
+        await saveLocalTable(this.collection, table);
         return;
     }
     const mergedData = await preprocessMetaFields(this.collection, this.id, { ...data });
@@ -517,7 +535,7 @@ class SupabaseQuery {
   }
   async get() {
     if (this.collection === 'blocked_ips' || this.collection === 'product_stock_chunks' || this.collection.includes('_chunks') || this.collection === 'idempotency_keys') {
-      let data = getLocalTable(this.collection);
+      let data = await getLocalTable(this.collection);
       for (const w of this._where) {
         if (w.op === '==') data = data.filter((d: any) => {
             const key = Object.keys(d).find((k) => k.toLowerCase() === w.field.toLowerCase()) || w.field;
@@ -650,9 +668,9 @@ class SupabaseCollection extends SupabaseQuery {
   async add(data: any) {
     if (this.collection === 'blocked_ips' || this.collection === 'product_stock_chunks' || this.collection.includes('_chunks') || this.collection === 'idempotency_keys') {
         const docId = data.id || Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-        const table = getLocalTable(this.collection);
+        const table = await getLocalTable(this.collection);
         table.push({ ...data, id: docId });
-        saveLocalTable(this.collection, table);
+        await saveLocalTable(this.collection, table);
         return { id: docId };
     }
     const pk = this.collection === 'blocked_ips' ? 'ip' : (this.collection === 'settings' ? 'key' : 'id');
