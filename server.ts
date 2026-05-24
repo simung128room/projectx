@@ -4284,16 +4284,8 @@ if (!process.env.VERCEL) {
 
     // Graceful shutdown
     const gracefulShutdown = (signal: string) => {
-      logger.info(`[Server] Received ${signal}. Draining connections and shutting down gracefully...`);
-      server.close(() => {
-        logger.info(`[Server] Closed out remaining connections.`);
-        process.exit(0);
-      });
-
-      setTimeout(() => {
-        logger.error('[Server] Could not close connections in time, forcefully shutting down');
-        process.exit(1);
-      }, 10000).unref();
+      logger.info(`[Server] Received ${signal}. Shutting down immediately...`);
+      process.exit(0);
     };
 
     process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
