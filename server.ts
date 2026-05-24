@@ -233,12 +233,12 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://www.youtube.com", "https://s.ytimg.com"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://www.youtube.com", "https://s.ytimg.com", "https://unpkg.com", "https://va.vercel-scripts.com"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       imgSrc: ["'self'", "data:", "https:", "http:"], // Allow external images (avatars, product images)
       mediaSrc: ["'self'", "https:"],
-      connectSrc: ["'self'", "https://*.supabase.co", "https://api.ipify.org", "wss://*.supabase.co"],
-      frameSrc: ["'self'", "https://www.youtube.com", "https://discord.com"],
+      connectSrc: ["'self'", "https://*.supabase.co", "https://api.ipify.org", "wss://*.supabase.co", "ws:", "wss:"],
+      frameSrc: ["'self'", "https://www.youtube.com", "https://discord.com", "https://www.youtube-nocookie.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
       objectSrc: ["'none'"],
       upgradeInsecureRequests: [],

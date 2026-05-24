@@ -2753,7 +2753,7 @@ function AppContent() {
           </div>
         )}
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-0 sm:pt-2 pb-24 w-full flex-1 flex flex-col">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-0 sm:pt-2 pb-6 lg:pb-0 w-full flex-1 flex flex-col">
           <Suspense
             fallback={
               <div className="flex items-center justify-center p-10">
