@@ -1999,8 +1999,8 @@ import { LRUCache } from 'lru-cache';
         const fetchPromise = (async () => {
           const fetchFromDB = async () => {
             let query: any = admin.firestore().collection(collectionName);
-            if (collectionName === 'products') {
-              query = query.limit(100);
+            if (collectionName === 'products' || collectionName === 'purchases' || collectionName === 'topups' || collectionName === 'license_keys' || collectionName === 'users') {
+              query = query.limit(1000);
             }
             const dbMetricStart = Date.now();
             const snapshot = await query.get();
@@ -2542,13 +2542,20 @@ import { LRUCache } from 'lru-cache';
       // 2. ถ้าไม่เจอ ลองหาในประวัติการสั่งซื้อ (purchases)
       let foundDoc = null;
       try {
-        const cachedPurchases = await getCachedCollection('purchases', 60000);
-        for (const p of cachedPurchases) {
-          if (p.secretData) {
-            const keysInPurchase = p.secretData.split('\n').map((k: string) => k.trim());
-            if (keysInPurchase.includes(key.trim())) {
-              foundDoc = { id: p.id, ...p };
-              break;
+        const { data, error } = await supabaseAdmin
+          .from('purchases')
+          .select('*')
+          .ilike('secretData', `%${key.trim()}%`)
+          .limit(10);
+        
+        if (!error && data && data.length > 0) {
+          for (const p of data) {
+            if (p.secretData) {
+              const keysInPurchase = p.secretData.split('\n').map((k: string) => k.trim());
+              if (keysInPurchase.includes(key.trim())) {
+                foundDoc = { id: p.id || p.dbId, ...p };
+                break;
+              }
             }
           }
         }
@@ -3307,15 +3314,22 @@ import { LRUCache } from 'lru-cache';
         // 2. ถ้าไม่เจอ ลองหาในประวัติการสั่งซื้อ (เผื่อเป็นคีย์แรนด้อม/คีย์สินค้าที่ซื้อไป)
         let foundDoc = null;
         try {
-          const cachedPurchases = await getCachedCollection('purchases', 60000);
-          for (const p of cachedPurchases) {
-            if (p.secretData && !p.webClaimed) {
-               const keysInPurchase = p.secretData.split('\n').map((k: string) => k.trim());
-               if (keysInPurchase.includes(key.trim())) {
-                 foundDoc = { id: p.id, ...p };
-                 keyDocRef = admin.firestore().collection('purchases').doc(p.id);
-                 break;
-               }
+          const { data, error } = await supabaseAdmin
+            .from('purchases')
+            .select('*')
+            .ilike('secretData', `%${key.trim()}%`)
+            .limit(10);
+            
+          if (!error && data && data.length > 0) {
+            for (const p of data) {
+              if (p.secretData && !p.webClaimed) {
+                 const keysInPurchase = p.secretData.split('\n').map((k: string) => k.trim());
+                 if (keysInPurchase.includes(key.trim())) {
+                   foundDoc = { id: p.id || p.dbId, ...p };
+                   keyDocRef = admin.firestore().collection('purchases').doc(p.id || p.dbId);
+                   break;
+                 }
+              }
             }
           }
         } catch(e) {}
