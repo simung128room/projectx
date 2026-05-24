@@ -233,6 +233,81 @@ function extractMissingColumn(errMsg: string): string | null {
   return null;
 }
 
+async function preprocessMetaFields(collection: string, id: string, data: any) {
+  if (collection !== 'products' && collection !== 'categories') {
+    return data;
+  }
+
+  const metaKeys = ['title', 'subtitle', 'bannerUrl', 'stockData', 'soldCount', 'imageUrl', 'originalPrice', 'isPopular'];
+  const hasMeta = metaKeys.some(k => data[k] !== undefined) || data.name !== undefined;
+
+  if (!hasMeta) {
+    return data;
+  }
+
+  const pk = 'id';
+
+  // Try to load the existing name column to merge metadata
+  let existingName = '';
+  try {
+    const { data: row } = await supabaseAdmin.from(collection).select('name').eq(pk, id).single();
+    if (row && row.name) {
+      existingName = row.name;
+    }
+  } catch (e) {
+    // If it doesn't exist yet, that's fine (e.g. on inject/add)
+  }
+
+  let meta: any = {};
+  if (existingName.startsWith('{"n":')) {
+    try {
+      meta = JSON.parse(existingName);
+    } catch (e) {
+      meta = { n: existingName };
+    }
+  } else {
+    meta = { n: existingName };
+  }
+
+  // Merge explicitly provided name or parsed meta values
+  if (data.name !== undefined) {
+    if (typeof data.name === 'string' && data.name.startsWith('{"n":')) {
+      try {
+        const incomingMeta = JSON.parse(data.name);
+        meta = { ...meta, ...incomingMeta };
+      } catch (e) {
+        meta.n = data.name;
+      }
+    } else {
+      meta.n = data.name;
+    }
+  }
+
+  if (data.title !== undefined) meta.t = data.title;
+  if (data.subtitle !== undefined) meta.s = data.subtitle;
+  if (data.bannerUrl !== undefined) meta.b = data.bannerUrl;
+  if (data.stockData !== undefined) meta.sd = data.stockData;
+  if (data.soldCount !== undefined) meta.sc = data.soldCount;
+  if (data.imageUrl !== undefined) meta.img = data.imageUrl;
+  if (data.originalPrice !== undefined) meta.op = data.originalPrice;
+  if (data.isPopular !== undefined) meta.ip = data.isPopular;
+
+  // Put it back as a JSON string under name
+  data.name = JSON.stringify(meta);
+
+  // Remove the extra virtual fields so toDB won't try to route them to columns
+  delete data.title;
+  delete data.subtitle;
+  delete data.bannerUrl;
+  delete data.stockData;
+  delete data.soldCount;
+  delete data.imageUrl;
+  delete data.originalPrice;
+  delete data.isPopular;
+
+  return data;
+}
+
 class SupabaseDoc {
   public collection: string;
   public id: string;
@@ -266,11 +341,6 @@ class SupabaseDoc {
           const col = extractMissingColumn(err.message);
           if (col) {
              missingColumns.add(`${this.collection}.${col}`);
-             // Note: select('*') generally shouldn't throw this unless the whole table is corrupted, but just in case, we retry.
-             // If we retry, supabaseAdmin might just fail again because it's '*' and Supabase expands it on the DB side!
-             // So actually we can't 'fix' a select('*') missing column on our side, but we can return data loosely if we want.
-             // For now, if select('*') fails with missing column, it usually means Supabase schema cache is literally busted and needs a reload.
-             // Continuing will just throw it again because we request '*'.
              throw new Error(`Schema cache error on Supabase for table ${this.collection}: ${err.message}. Try reloading the database schema cache.`);
           }
         }
@@ -292,12 +362,13 @@ class SupabaseDoc {
         }
         return;
     }
+    const mergedData = await preprocessMetaFields(this.collection, this.id, { ...data });
     let retries = 0;
     while (retries < 15) {
       retries++;
       try {
-        const dbPayload = toDB(data, this.collection);
-        let updateQuery = supabaseAdmin.from(this.collection).update(dbPayload).eq(this.pk(), this.id);
+        const dbPayload = toDB(mergedData, this.collection);
+        let updateQuery: any = supabaseAdmin.from(this.collection).update(dbPayload).eq(this.pk(), this.id);
         if (data._version && !missingColumns.has(`${this.collection}._version`)) {
           // Explicit _version check for optimistic concurrency control
           updateQuery = updateQuery.eq('_version', data._version - 1).select();
@@ -322,8 +393,8 @@ class SupabaseDoc {
             } else {
               console.warn(`Column ${col} missing but was already blacklisted! Skipping data manipulation manually.`);
             }
-            if (data && typeof data === 'object') {
-              delete data[col]; // Forcibly remove it from the data object to guarantee it is not serialized again
+            if (mergedData && typeof mergedData === 'object') {
+              delete mergedData[col]; // Forcibly remove it from the data object to guarantee it is not serialized again
             }
             continue;
           }
@@ -355,6 +426,7 @@ class SupabaseDoc {
         saveLocalTable(this.collection, table);
         return;
     }
+    const mergedData = await preprocessMetaFields(this.collection, this.id, { ...data });
     let retries = 0;
     while (retries < 15) {
       retries++;
@@ -363,14 +435,14 @@ class SupabaseDoc {
         if (options.merge) {
           const { data: existing, error: err } = await supabaseAdmin.from(this.collection).select(pk).eq(pk, this.id).single();
           if (existing) {
-            const { error } = await supabaseAdmin.from(this.collection).update(toDB(data, this.collection)).eq(pk, this.id);
+            const { error } = await supabaseAdmin.from(this.collection).update(toDB(mergedData, this.collection)).eq(pk, this.id);
             if (error) throw error;
           } else {
-            const { error } = await supabaseAdmin.from(this.collection).insert([toDB({ [pk]: this.id, ...data }, this.collection)]);
+            const { error } = await supabaseAdmin.from(this.collection).insert([toDB({ [pk]: this.id, ...mergedData }, this.collection)]);
             if (error) throw error;
           }
         } else {
-          const { error } = await supabaseAdmin.from(this.collection).upsert([toDB({ [pk]: this.id, ...data }, this.collection)]);
+          const { error } = await supabaseAdmin.from(this.collection).upsert([toDB({ [pk]: this.id, ...mergedData }, this.collection)]);
           if (error) throw error;
         }
         break;
@@ -582,6 +654,9 @@ class SupabaseCollection extends SupabaseQuery {
         saveLocalTable(this.collection, table);
         return { id: docId };
     }
+    const pk = this.collection === 'blocked_ips' ? 'ip' : (this.collection === 'settings' ? 'key' : 'id');
+    const docId = data[pk] || data.id || Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    const mergedData = await preprocessMetaFields(this.collection, docId, { ...data, [pk]: docId });
     const performAdd = async (payload: any) => {
       const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
       if (payload.id && !uuidRegex.test(payload.id)) {
@@ -589,18 +664,18 @@ class SupabaseCollection extends SupabaseQuery {
       }
       const { data: inserted, error } = await supabaseAdmin.from(this.collection).insert([payload]).select().single();
       if (error) throw error;
-      return { id: inserted?.id || data.id };
+      return { id: inserted?.id || docId };
     };
 
     try {
-      return await performAdd(toDB({ ...data }, this.collection));
+      return await performAdd(toDB(mergedData, this.collection));
     } catch (err: any) {
       if (err.message && ((err.message.includes("Could not find the") && err.message.includes("column")) || (err.message.includes("column") && err.message.includes("does not exist")))) {
         const col = extractMissingColumn(err.message);
         if (col) {
           console.warn(`Column ${col} missing in ${this.collection}, adding to blacklist and retrying...`);
           missingColumns.add(`${this.collection}.${col}`);
-          return await performAdd(toDB({ ...data }, this.collection));
+          return await performAdd(toDB(mergedData, this.collection));
         }
       }
       throw err;

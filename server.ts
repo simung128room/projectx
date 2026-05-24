@@ -46,9 +46,26 @@ const compressStock = async (stockData: any) => {
 
 const decompressStock = async (data: any) => {
   let compData = data;
+  if (typeof data === 'string') {
+     try { data = JSON.parse(data); compData = data; } catch(e) {}
+  }
+  
+  if (data && typeof data === 'object' && !Array.isArray(data)) {
+     if (data['0']) {
+         // Convert supabase pseudo-array to real array
+         const arr = [];
+         for (let i = 0; i < Object.keys(data).length; i++) {
+             if (data[i] !== undefined) arr.push(data[i]);
+         }
+         data = arr;
+         compData = data;
+     }
+  }
+
   if (Array.isArray(data) && data.length === 1 && data[0] && typeof data[0] === 'object' && data[0].__compressed) {
     compData = data[0];
   }
+  
   if (compData && typeof compData === 'object' && compData.__compressed) {
     try {
       const buffer = await gunzipAsync(Buffer.from(compData.__compressed, 'base64'));
@@ -2061,6 +2078,14 @@ import { LRUCache } from 'lru-cache';
     }
   };
 
+  app.get('/api/debug-products', async (req: any, res: any) => {
+    try {
+      const snap = await admin.firestore().collection('products').get();
+      const docs = snap.docs.map((d: any) => d.data()).filter((p:any) => p.stock > 0);
+      res.json({ count: docs.length, products: docs.map((p:any) => ({ id: p.id, name: p.name, stock: p.stock, stockDataLen: Array.isArray(p.stockData) ? p.stockData.length : typeof p.stockData, compressedCheck: p.stockData && Array.isArray(p.stockData) && p.stockData[0] ? Object.keys(p.stockData[0]) : null })) });
+    } catch(e: any) { res.status(500).json({ error: e.message }); }
+  });
+
   app.get('/api/products', async (req: any, res: any) => {
     res.setHeader('Cache-Control', 'public, max-age=15, s-maxage=30, stale-while-revalidate=59');
     try {
@@ -2647,6 +2672,9 @@ import { LRUCache } from 'lru-cache';
         }
 
         if (claimedItems.length < quantity) { 
+           // Data desync detected (chunks were lost or corrupted). Fix the stock count.
+           const actualRealStock = existingStock.length + claimedItems.length;
+           t.update(productRef, { stock: actualRealStock });
            throw new Error('สินค้าในสต๊อกไม่เพียงพอ'); 
         }
 
