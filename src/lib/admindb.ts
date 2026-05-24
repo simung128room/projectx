@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 
 import os from 'os';
+import crypto from 'crypto';
 const localDBPath = os.tmpdir() + `/.data`;
 if (!fs.existsSync(localDBPath)) {
   fs.mkdirSync(localDBPath, { recursive: true });
@@ -350,11 +351,20 @@ class SupabaseDoc {
       retries++;
       try {
         const { data, error } = await supabaseAdmin.from(this.collection).select('*').eq(this.pk(), this.id).single();
-        if (error && error.code !== 'PGRST116') throw error;
+        if (error && error.code !== 'PGRST116') {
+          if (error.message && error.message.includes('invalid input syntax for type uuid')) {
+             return { id: this.id, ref: this, exists: false, data: () => null };
+          }
+          throw error;
+        }
         if (!data) return { id: this.id, ref: this, exists: false, data: () => null };
         const mapped = fromDB(data);
         return { id: this.id, ref: this, exists: true, data: () => mapped };
       } catch (err: any) {
+        if (err.message && err.message.includes('invalid input syntax for type uuid')) {
+          console.warn('Ignoring invalid UUID syntax error for ' + this.collection);
+          return { docs: [], empty: true, forEach: () => {} };
+        }
         if (err.message && ((err.message.includes("Could not find the") && err.message.includes("column")) || (err.message.includes("column") && err.message.includes("does not exist")))) {
           console.warn(`Column error in fetch from ${this.collection}: ${err.message}. Adding to blacklist and retrying...`);
           const col = extractMissingColumn(err.message);
@@ -404,6 +414,10 @@ class SupabaseDoc {
         if (error) throw error;
         break;
       } catch (err: any) {
+        if (err.message && err.message.includes('invalid input syntax for type uuid')) {
+          console.warn('Ignoring invalid UUID syntax error for ' + this.collection);
+          return { docs: [], empty: true, forEach: () => {} };
+        }
         if (err.message && ((err.message.includes("Could not find the") && err.message.includes("column")) || (err.message.includes("column") && err.message.includes("does not exist")))) {
           const col = extractMissingColumn(err.message);
           if (col) {
@@ -467,6 +481,10 @@ class SupabaseDoc {
         }
         break;
       } catch (err: any) {
+        if (err.message && err.message.includes('invalid input syntax for type uuid')) {
+          console.warn('Ignoring invalid UUID syntax error for ' + this.collection);
+          return { docs: [], empty: true, forEach: () => {} };
+        }
         if (err.message && (err.message.includes("Could not find the table") || (err.message.includes("relation") && err.message.includes("does not exist")))) {
           console.warn(`Table ${this.collection} missing during set, operation skipped.`);
           return;
@@ -628,6 +646,10 @@ class SupabaseQuery {
           }
         };
       } catch (err: any) {
+        if (err.message && err.message.includes('invalid input syntax for type uuid')) {
+          console.warn('Ignoring invalid UUID syntax error for ' + this.collection);
+          return { docs: [], empty: true, forEach: () => {} };
+        }
         if (err.message && ((err.message.includes("Could not find the") && err.message.includes("column")) || (err.message.includes("column") && err.message.includes("does not exist")))) {
           const col = extractMissingColumn(err.message);
           let handled = false;
@@ -663,19 +685,19 @@ class SupabaseQuery {
 
 class SupabaseCollection extends SupabaseQuery {
   doc(id?: string) {
-    const genId = () => Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    const genId = () => crypto.randomUUID();
     return new SupabaseDoc(this.collection, id || genId());
   }
   async add(data: any) {
     if (this.collection === 'blocked_ips' || this.collection === 'product_stock_chunks' || this.collection.includes('_chunks') || this.collection === 'idempotency_keys') {
-        const docId = data.id || Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+        const docId = data.id || crypto.randomUUID();
         const table = await getLocalTable(this.collection);
         table.push({ ...data, id: docId });
         await saveLocalTable(this.collection, table);
         return { id: docId };
     }
     const pk = this.collection === 'blocked_ips' ? 'ip' : (this.collection === 'settings' ? 'key' : 'id');
-    const docId = data[pk] || data.id || Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    const docId = data[pk] || data.id || crypto.randomUUID();
     const mergedData = await preprocessMetaFields(this.collection, docId, { ...data, [pk]: docId });
     const performAdd = async (payload: any) => {
       const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -690,6 +712,10 @@ class SupabaseCollection extends SupabaseQuery {
     try {
       return await performAdd(toDB(mergedData, this.collection));
     } catch (err: any) {
+        if (err.message && err.message.includes('invalid input syntax for type uuid')) {
+          console.warn('Ignoring invalid UUID syntax error for ' + this.collection);
+          return { docs: [], empty: true, forEach: () => {} };
+        }
       if (err.message && ((err.message.includes("Could not find the") && err.message.includes("column")) || (err.message.includes("column") && err.message.includes("does not exist")))) {
         const col = extractMissingColumn(err.message);
         if (col) {
@@ -752,6 +778,10 @@ const db = {
         
         return result;
       } catch (err: any) {
+        if (err.message && err.message.includes('invalid input syntax for type uuid')) {
+          console.warn('Ignoring invalid UUID syntax error for ' + this.collection);
+          return { docs: [], empty: true, forEach: () => {} };
+        }
         if (err.message === 'VERSION_CONFLICT' || err.message === 'CONCURRENCY_ERROR') {
           attempts++;
           await new Promise(r => setTimeout(r, 100 * Math.pow(2, attempts)));

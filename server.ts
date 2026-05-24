@@ -990,7 +990,7 @@ const cleanupTokenCache = () => {
                 
                 // Add to topups history
                 await admin.firestore().collection('topups').add({
-                  id: Math.random().toString(36).substring(7),
+                  id: crypto.randomUUID(),
                   userId: userDoc.data().username || 'Unknown',
                   uid: uid,
                   amount: amount,
@@ -1122,7 +1122,7 @@ const cleanupTokenCache = () => {
               
               // Add to topups history
               await admin.firestore().collection('topups').add({
-                id: Math.random().toString(36).substring(7),
+                id: crypto.randomUUID(),
                 userId: userDoc.data().username || 'Unknown',
                 uid: uid,
                 amount: amount,
