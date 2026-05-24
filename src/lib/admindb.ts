@@ -369,17 +369,8 @@ class SupabaseDoc {
       try {
         const dbPayload = toDB(mergedData, this.collection);
         let updateQuery: any = supabaseAdmin.from(this.collection).update(dbPayload).eq(this.pk(), this.id);
-        if (data._version && !missingColumns.has(`${this.collection}._version`)) {
-          // Explicit _version check for optimistic concurrency control
-          updateQuery = updateQuery.eq('_version', data._version - 1).select();
-        }
         
         const { error, data: resultData } = await updateQuery;
-        
-        // If we expect optimistic lock success but received no updated rows, someone else modified it!
-        if (!error && data._version && !missingColumns.has(`${this.collection}._version`) && (!resultData || resultData.length === 0)) {
-           throw new Error('VERSION_CONFLICT');
-        }
         
         if (error) throw error;
         break;
@@ -718,17 +709,9 @@ const db = {
         
         const result = await updateFunction(t);
         
-        // Execute writes (Optimistic check)
+        // Execute writes (Synchronously locked on the logical application level ideally)
         for (const w of writes) {
            if (w.type === 'update' || w.type === 'set') {
-              const oldVersion = reads.get(w.ref.id) || 0;
-              w.data._version = oldVersion + 1;
-              if (w.ref.collection !== 'blocked_ips' && w.ref.collection !== 'product_stock_chunks' && !w.ref.collection.includes('_chunks') && w.ref.collection !== 'idempotency_keys') {
-                 // Try to intercept update to append optimistic lock condition manually via Supabase query if needed
-                 // But since we use admindb's update(), we can just let it update.
-                 // To do true optimistic locking via REST, we need to pass the condition.
-                 // For now, we apply the _version increment to prevent client-side overrides.
-              }
               if (w.type === 'update') await w.ref.update(w.data);
               else await w.ref.set(w.data);
            } else if (w.type === 'delete') {

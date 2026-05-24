@@ -2155,13 +2155,11 @@ import { LRUCache } from 'lru-cache';
     if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
     try {
       const product = req.body;
-      const allowedFields = ['name', 'description', 'price', 'originalPrice', 'stock', 'categoryId', 'stockData', 'image', 'imageUrl', 'category', 'isHighlight', 'customPageId', 'youtubeUrl', 'type', 'isPopular', 'soldCount', 'tag', '_version'];
+      const allowedFields = ['name', 'description', 'price', 'originalPrice', 'stock', 'categoryId', 'stockData', 'image', 'imageUrl', 'category', 'isHighlight', 'customPageId', 'youtubeUrl', 'type', 'isPopular', 'soldCount', 'tag'];
       const sanitizedProduct = Object.fromEntries(
         Object.entries(product).filter(([k]) => allowedFields.includes(k))
       );
       
-      sanitizedProduct._version = 1;
-
       const { id, ...dataToSaveRaw } = sanitizedProduct as any;
       if (dataToSaveRaw.stockData) {
         dataToSaveRaw.stockData = await compressStock(dataToSaveRaw.stockData);
@@ -2235,7 +2233,7 @@ import { LRUCache } from 'lru-cache';
       const docRef = admin.firestore().collection('products').doc(req.params.id);
       const productUpdates = req.body;
       
-      const allowedFields = ['name', 'description', 'price', 'originalPrice', 'stock', 'categoryId', 'stockData', 'image', 'imageUrl', 'category', 'isHighlight', 'customPageId', 'youtubeUrl', 'type', 'isPopular', 'soldCount', 'tag', '_version'];
+      const allowedFields = ['name', 'description', 'price', 'originalPrice', 'stock', 'categoryId', 'stockData', 'image', 'imageUrl', 'category', 'isHighlight', 'customPageId', 'youtubeUrl', 'type', 'isPopular', 'soldCount', 'tag'];
       const sanitizedUpdates = Object.fromEntries(
         Object.entries(productUpdates).filter(([k]) => allowedFields.includes(k) && k !== 'id')
       );
@@ -2252,17 +2250,9 @@ import { LRUCache } from 'lru-cache';
         
         const existingData = currentDoc.data()!;
         
-        // Optimistic Concurrency Control (OCC)
-        if (typeof sanitizedUpdates._version === 'number') {
-          const currentVersion = existingData._version || 0;
-          if (sanitizedUpdates._version !== currentVersion) {
-            throw new Error('VERSION_CONFLICT');
-          }
-        }
-        
         // Calculate Delta for Audit Log and only update what changed
         Object.keys(sanitizedUpdates).forEach(k => {
-          if (k !== '_version' && sanitizedUpdates[k] !== existingData[k]) {
+          if (sanitizedUpdates[k] !== existingData[k]) {
             deltaBefore[k] = existingData[k];
             deltaAfter[k] = sanitizedUpdates[k];
           }
@@ -2274,7 +2264,6 @@ import { LRUCache } from 'lru-cache';
         }
 
         const dataToSave = JSON.parse(JSON.stringify(deltaAfter));
-        dataToSave._version = (existingData._version || 0) + 1;
         
         t.update(docRef, dataToSave);
         finalData = { ...existingData, ...dataToSave, id: req.params.id };
@@ -2322,8 +2311,7 @@ import { LRUCache } from 'lru-cache';
         existingData = doc.data()!;
         t.update(docRef, { 
           isDeleted: true, 
-          deletedAt: new Date().toISOString(),
-          _version: (existingData._version || 0) + 1
+          deletedAt: new Date().toISOString()
         });
       });
       
@@ -2493,7 +2481,26 @@ import { LRUCache } from 'lru-cache';
   });
 
   // Mutex for purchase locking
-  const purchaseLocks: Record<string, Promise<any>> = {};
+  const purchaseLocks = new Map<string, Promise<void>>();
+
+  const acquireLocks = async (...keys: string[]) => {
+    // Sort keys to prevent deadlocks
+    const sortedKeys = [...keys].sort();
+    for (const k of sortedKeys) {
+      while (purchaseLocks.has(k)) { await purchaseLocks.get(k); }
+      let rel: () => void;
+      const p = new Promise<void>(r => { rel = r; });
+      (p as any).release = rel!;
+      purchaseLocks.set(k, p);
+    }
+    return () => {
+      for (const k of sortedKeys) {
+        const p = purchaseLocks.get(k) as any;
+        if (p && p.release) p.release();
+        purchaseLocks.delete(k);
+      }
+    };
+  };
 
   app.post('/api/discord-rekey', async (req: any, res: any) => {
     const { key, secret, plan } = req.body;
@@ -2589,12 +2596,11 @@ import { LRUCache } from 'lru-cache';
     }
 
     const userId = (req as any).user.uid;
-    const lockKey = userId + '_' + productId;
+    const userLockKey = `user:${userId}`;
+    const productLockKey = `product:${productId}`;
     
     // Memory lock as an extra precaution before entering transaction
-    while (purchaseLocks[lockKey]) { await purchaseLocks[lockKey]; }
-    let releaseLock: () => void;
-    purchaseLocks[lockKey] = new Promise(resolve => { releaseLock = resolve as any; });
+    const releaseLocks = await acquireLocks(userLockKey, productLockKey);
 
     try {
       const userRef = admin.firestore().collection('users').doc(userId);
@@ -2772,8 +2778,7 @@ import { LRUCache } from 'lru-cache';
       sendAlert('Transaction Failed / Rollback ❌', `**User**: ${userId}\n**Product**: ${productId}\n**Error**: ${msg}`, 16711680, req.id);
       res.status(500).json({ error: String(err && err.message ? err.message : err) });
     } finally {
-      if (releaseLock) releaseLock();
-      delete purchaseLocks[lockKey];
+      if (releaseLocks) releaseLocks();
     }
   });
 
