@@ -120,7 +120,7 @@ import sharp from 'sharp';
 console.log('[Server] --- Supabase VERSION REBOOT ---');
 
 // Validate Critical Secrets before starting
-const REQUIRED_SECRETS = ['SUPABASE_URL', 'SUPABASE_ANON_KEY', 'SUPABASE_SERVICE_ROLE_KEY'];
+const REQUIRED_SECRETS = ['VITE_SUPABASE_URL', 'VITE_SUPABASE_ANON_KEY', 'SUPABASE_SERVICE_ROLE_KEY'];
 for (const key of REQUIRED_SECRETS) {
   if (!process.env[key]) {
     console.error(`[Fatal Error] Missing required secret: ${key}`);
@@ -762,7 +762,7 @@ const cleanupTokenCache = () => {
   // Site Settings State
   let lastStatsFetch = 0;
   let cachedStats: any = null;
-  const invalidateStatsCache = () => { lastStatsFetch = 0; cachedStats = null; };
+  const invalidateStatsCache = () => { lastStatsFetch = 0; cachedStats = null; cacheRevisionCounter++; };
   let siteSettings: any = {
     site_name: process.env.SITE_NAME || 'STORETH',
     truewallet_phone: process.env.TRUEWALLET_PHONE || '',
@@ -771,8 +771,8 @@ const cleanupTokenCache = () => {
     facebook_link: '',
     instagram_link: '',
     contact_email: 'support.apexstoreth@gmail.com',
-    stats_users_offset: 892,
-    stats_sales_offset: 4432,
+    stats_users_offset: 0,
+    stats_sales_offset: 0,
     popup_img_url: 'https://img2.pic.in.th/Red-Black-White-Anime-Podcast-Discord-Logocc6d3bfe807340af.png',
     popup_enabled: true,
     popup_link: '',
@@ -792,7 +792,7 @@ const cleanupTokenCache = () => {
         let parsed = {};
         try { parsed = JSON.parse(data.content); } catch(e) {}
         siteSettings = { ...siteSettings, ...parsed };
-        console.log("Loaded initial site settings from DB");
+        console.log("Loaded initial site settings from DB", siteSettings);
       }
     } catch (err: any) {
       console.warn("Could not load initial site settings from DB (might not exist yet).", err.message || err);
@@ -868,7 +868,7 @@ const cleanupTokenCache = () => {
     }
   });
 
-  app.post('/api/settings', requireAdmin, async (req, res) => {
+  app.post('/api/settings', requireAdmin, async (req: any, res: any) => {
     console.log("=== POST /api/settings REACHED ===", req.body);
     const { truewallet_phone, site_name, contact_line, stats_users_offset, stats_sales_offset, stats_categories_offset, stats_stock_offset, stats_users_override, stats_stock_override, stats_sales_override, stats_categories_override, popup_img_url, popup_enabled, popup_link, banners, proxies, auto_proxy, spotify_url, spotify_autoplay } = req.body;
     if (truewallet_phone !== undefined) siteSettings.truewallet_phone = truewallet_phone;
@@ -892,7 +892,7 @@ const cleanupTokenCache = () => {
     if (auto_proxy !== undefined) siteSettings.auto_proxy = auto_proxy === true || auto_proxy === 'true';
     
     // Clear cached stats so they refresh next time someone calls /api/stats
-    lastStatsFetch = 0;
+    invalidateStatsCache();
     
     try {
       const docName = process.env.NODE_ENV === 'production' ? 'sys_site' : 'sys_site_dev';
@@ -2317,10 +2317,7 @@ import { LRUCache } from 'lru-cache';
           throw new Error('NOT_FOUND');
         }
         existingData = doc.data()!;
-        t.update(docRef, { 
-          isDeleted: true, 
-          deletedAt: new Date().toISOString()
-        });
+        t.delete(docRef);
       });
       
       invalidateCache('products');
@@ -3576,7 +3573,7 @@ import { LRUCache } from 'lru-cache';
 
   app.get('/bot-code', (req, res) => {
     try {
-        const cfgPath = path.join(process.cwd(), 'twer_temp', 'bot.py');
+        const cfgPath = path.join(require('os').tmpdir(), 'bot.py');
         if (fs.existsSync(cfgPath)) {
             const content = fs.readFileSync(cfgPath, 'utf8');
             res.setHeader('Content-Type', 'text/plain; charset=utf-8');
@@ -3593,14 +3590,14 @@ import { LRUCache } from 'lru-cache';
   app.post('/api/bot/save', requireAdmin, (req, res) => {
     // Save config first if provided
     if (req.body.config) {
-        fs.writeFileSync(path.join(process.cwd(), 'twer_temp', 'bot.py'), req.body.config);
+        fs.writeFileSync(path.join(require('os').tmpdir(), 'bot.py'), req.body.config);
     }
     res.json({ success: true, message: 'Bot config saved' });
   });
 
   app.get('/api/bot/config', requireAdmin, (req, res) => {
     try {
-        const cfgPath = path.join(process.cwd(), 'twer_temp', 'bot.py');
+        const cfgPath = path.join(require('os').tmpdir(), 'bot.py');
         if (fs.existsSync(cfgPath)) {
             const content = fs.readFileSync(cfgPath, 'utf8');
             res.json({ config: content });
