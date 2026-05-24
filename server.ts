@@ -2611,8 +2611,8 @@ import { LRUCache } from 'lru-cache';
         const userDoc = await t.get(userRef);
         const productDoc = await t.get(productRef);
 
-        if (!userDoc.exists) { throw new Error('User not found'); }
-        if (!productDoc.exists) { throw new Error('Product not found'); }
+        if (!userDoc.exists) { return { isError: true, message: 'User not found' }; }
+        if (!productDoc.exists) { return { isError: true, message: 'Product not found' }; }
 
         const userData = userDoc.data() || {};
         const productData = productDoc.data() || {};
@@ -2621,7 +2621,7 @@ import { LRUCache } from 'lru-cache';
         const totalCost = price * quantity;
 
         if ((Number(userData.balance) || 0) < totalCost) {
-          throw new Error('ยอดเงินไม่เพียงพอ');
+          return { isError: true, message: 'ยอดเงินไม่เพียงพอ' };
         }
 
         // --- Start of Stock Extraction ---
@@ -2675,7 +2675,7 @@ import { LRUCache } from 'lru-cache';
            // Data desync detected (chunks were lost or corrupted). Fix the stock count.
            const actualRealStock = existingStock.length + claimedItems.length;
            t.update(productRef, { stock: actualRealStock });
-           throw new Error('สินค้าในสต๊อกไม่เพียงพอ'); 
+           return { isError: true, message: 'สินค้าในสต๊อกไม่เพียงพอ' }; 
         }
 
         const remainingBuffer = existingStock; // What's left in the main doc
@@ -2737,6 +2737,10 @@ import { LRUCache } from 'lru-cache';
          });
       }
 
+      if (result.isError) {
+         return res.status(400).json({ error: result.message });
+      }
+
       // Transaction succeeded
       invalidateCache('products');
       invalidateCache('purchases');
@@ -2756,14 +2760,10 @@ import { LRUCache } from 'lru-cache';
       });
 
     } catch (err: any) {
-      console.error('------- BUY ERROR TRACE -------', err);
       const msg = err.message || '';
-      if (msg === 'ยอดเงินไม่เพียงพอ' || msg === 'สินค้าในสต๊อกไม่เพียงพอ' || msg === 'User not found' || msg === 'Product not found') {
-         res.status(400).json({ error: msg });
-      } else {
-         sendAlert('Transaction Failed / Rollback ❌', `**User**: ${userId}\n**Product**: ${productId}\n**Error**: ${msg}`, 16711680, req.id);
-         res.status(500).json({ error: String(err && err.message ? err.message : err) });
-      }
+      console.error('------- BUY ERROR TRACE -------', err);
+      sendAlert('Transaction Failed / Rollback ❌', `**User**: ${userId}\n**Product**: ${productId}\n**Error**: ${msg}`, 16711680, req.id);
+      res.status(500).json({ error: String(err && err.message ? err.message : err) });
     } finally {
       if (releaseLock) releaseLock();
       delete purchaseLocks[lockKey];

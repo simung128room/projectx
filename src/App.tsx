@@ -815,14 +815,40 @@ function AppContent() {
       });
     } catch (err: any) {
       console.error("Purchase error:", err);
-      Swal.fire({
-        icon: "error",
-        title: "เกิดข้อผิดพลาด",
-        text:
-          err.response?.data?.error ||
-          "ไม่สามารถทำรายการได้ในขณะนี้ กรุณาลองใหม่",
-        confirmButtonColor: "#dc2626",
-      });
+      const errorMessage = err.response?.data?.error;
+      
+      if (errorMessage === "สินค้าในสต๊อกไม่เพียงพอ") {
+        Swal.fire({
+          icon: "error",
+          title: "ขออภัย",
+          text: "สินค้าชิ้นนี้เพิ่งหมดไป หรือจำนวนในสต๊อกไม่เพียงพอ",
+          confirmButtonColor: "#dc2626",
+        });
+        
+        // Refetch to update stock and disable button
+        axios.get("/api/products")
+          .then((res) => {
+             if (res.data && Array.isArray(res.data)) {
+                setProducts(res.data);
+                // Also update selected product if we are on the detail page
+                if (activeView === "product_detail") {
+                   const updated = res.data.find((p: any) => p.id === product.id);
+                   if (updated && updated.stock === 0) {
+                      // Handled by UI automatically via products state propagation
+                   }
+                }
+             }
+          }).catch(console.error);
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "เกิดข้อผิดพลาด",
+          text:
+            errorMessage ||
+            "ไม่สามารถทำรายการได้ในขณะนี้ กรุณาลองใหม่",
+          confirmButtonColor: "#dc2626",
+        });
+      }
     }
   };
 
