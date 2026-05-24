@@ -339,10 +339,14 @@ async function preprocessMetaFields(collection: string, id: string, data: any) {
 }
 
 const isVirtual = (collection: string) => collection === 'product_stock_chunks' || collection.includes('_chunks') || collection === 'idempotency_keys';
+const isVirtualSlug = (slug: string) => slug && (slug.startsWith('v:') || slug.startsWith('_sys_virtual_db_col_::'));
+const getVirtualSlug = (collection: string, id: string) => `_sys_virtual_db_col_::${collection}::${id}`;
 
 class SupabaseDoc {
   public collection: string;
   public id: string;
+  private _last_content_raw?: string;
+
   constructor(collection: string, id: string) {
     this.collection = collection;
     this.id = id;
@@ -353,15 +357,24 @@ class SupabaseDoc {
 
   async get() {
     if (isVirtual(this.collection)) {
-        const slug = `v:${this.collection}:${this.id}`;
+        const slug = getVirtualSlug(this.collection, this.id);
+        const legacySlug = `v:${this.collection}:${this.id}`;
         try {
-            const { data, error } = await supabaseAdmin.from('custom_pages').select('content').eq('slug', slug).single();
+            let { data, error } = await supabaseAdmin.from('custom_pages').select('content').eq('slug', slug).single();
             if (error || !data) {
-                return { id: this.id, ref: this, exists: false, data: () => null };
+                const legacyRes = await supabaseAdmin.from('custom_pages').select('content').eq('slug', legacySlug).single();
+                if (!legacyRes.error && legacyRes.data) {
+                    data = legacyRes.data;
+                } else {
+                    this._last_content_raw = undefined;
+                    return { id: this.id, ref: this, exists: false, data: () => null };
+                }
             }
+            this._last_content_raw = data.content;
             const parsed = JSON.parse(data.content);
             return { id: this.id, ref: this, exists: true, data: () => parsed };
         } catch (e) {
+            this._last_content_raw = undefined;
             return { id: this.id, ref: this, exists: false, data: () => null };
         }
     }
@@ -402,25 +415,38 @@ class SupabaseDoc {
   }
   async update(data: any) {
     if (isVirtual(this.collection)) {
-        const slug = `v:${this.collection}:${this.id}`;
+        const slug = getVirtualSlug(this.collection, this.id);
+        const legacySlug = `v:${this.collection}:${this.id}`;
         try {
-            const { data: existing, error } = await supabaseAdmin.from('custom_pages').select('content').eq('slug', slug).single();
-            const existingContent = existing && existing.content ? JSON.parse(existing.content) : {};
+            const { data: matchingRow } = await supabaseAdmin.from('custom_pages').select('id, slug, content').or(`slug.eq.${slug},slug.eq.${legacySlug}`).limit(1);
+            
+            const existingContent = matchingRow && matchingRow[0] && matchingRow[0].content ? JSON.parse(matchingRow[0].content) : {};
+            const activeSlug = matchingRow && matchingRow[0] && matchingRow[0].slug ? matchingRow[0].slug : slug;
             const merged = { ...existingContent, ...data, id: this.id };
             
             const payload = {
-                slug,
+                slug: activeSlug,
                 title: this.collection,
                 content: JSON.stringify(merged)
             };
             
-            const { data: matchingRow } = await supabaseAdmin.from('custom_pages').select('id').eq('slug', slug).single();
-            if (matchingRow) {
-                const { error: err } = await supabaseAdmin.from('custom_pages').update(payload).eq('id', matchingRow.id);
+            if (matchingRow && matchingRow[0]) {
+                const expectedRaw = matchingRow[0].content;
+                const { data: updated, error: err } = await supabaseAdmin.from('custom_pages')
+                    .update(payload)
+                    .eq('id', matchingRow[0].id)
+                    .eq('content', expectedRaw)
+                    .select();
                 if (err) throw err;
+                if (!updated || updated.length === 0) {
+                    throw new Error('VERSION_CONFLICT');
+                }
             } else {
                 const { error: err } = await supabaseAdmin.from('custom_pages').insert([payload]);
-                if (err) throw err;
+                if (err) {
+                    if (err.code === '23505') throw new Error('VERSION_CONFLICT');
+                    throw err;
+                }
             }
         } catch (e: any) {
             console.error(`Error updating virtual doc ${this.collection}/${this.id}:`, e);
@@ -476,8 +502,9 @@ class SupabaseDoc {
   }
   async delete() {
     if (isVirtual(this.collection)) {
-        const slug = `v:${this.collection}:${this.id}`;
-        const { error } = await supabaseAdmin.from('custom_pages').delete().eq('slug', slug);
+        const slug = getVirtualSlug(this.collection, this.id);
+        const legacySlug = `v:${this.collection}:${this.id}`;
+        const { error } = await supabaseAdmin.from('custom_pages').delete().or(`slug.eq.${slug},slug.eq.${legacySlug}`);
         if (error) {
             console.error(`Error deleting virtual doc ${this.collection}/${this.id}:`, error);
             throw error;
@@ -489,32 +516,50 @@ class SupabaseDoc {
   }
   async set(data: any, options: any = {}) {
     if (isVirtual(this.collection)) {
-        const slug = `v:${this.collection}:${this.id}`;
+        const slug = getVirtualSlug(this.collection, this.id);
+        const legacySlug = `v:${this.collection}:${this.id}`;
         try {
+            const { data: matchingRow } = await supabaseAdmin.from('custom_pages').select('id, slug, content').or(`slug.eq.${slug},slug.eq.${legacySlug}`).limit(1);
+            
             let finalData = { ...data, id: this.id };
-            if (options.merge) {
-                const { data: existing } = await supabaseAdmin.from('custom_pages').select('content').eq('slug', slug).single();
-                if (existing && existing.content) {
+            let activeSlug = slug;
+            let expectedRaw: string | null = null;
+            let rowId: string | null = null;
+            
+            if (matchingRow && matchingRow[0]) {
+                activeSlug = matchingRow[0].slug;
+                rowId = matchingRow[0].id;
+                expectedRaw = matchingRow[0].content;
+                if (options.merge) {
                     try {
-                        const parsed = JSON.parse(existing.content);
+                        const parsed = JSON.parse(matchingRow[0].content);
                         finalData = { ...parsed, ...data, id: this.id };
                     } catch (e) {}
                 }
             }
             
             const payload = {
-                slug,
+                slug: activeSlug,
                 title: this.collection,
                 content: JSON.stringify(finalData)
             };
             
-            const { data: matchingRow } = await supabaseAdmin.from('custom_pages').select('id').eq('slug', slug).single();
-            if (matchingRow) {
-                const { error: err } = await supabaseAdmin.from('custom_pages').update(payload).eq('id', matchingRow.id);
+            if (rowId) {
+                const { data: updated, error: err } = await supabaseAdmin.from('custom_pages')
+                    .update(payload)
+                    .eq('id', rowId)
+                    .eq('content', expectedRaw)
+                    .select();
                 if (err) throw err;
+                if (!updated || updated.length === 0) {
+                    throw new Error('VERSION_CONFLICT');
+                }
             } else {
                 const { error: err } = await supabaseAdmin.from('custom_pages').insert([payload]);
-                if (err) throw err;
+                if (err) {
+                    if (err.code === '23505') throw new Error('VERSION_CONFLICT');
+                    throw err;
+                }
             }
         } catch (e: any) {
             console.error(`Error setting virtual doc ${this.collection}/${this.id}:`, e);
@@ -616,15 +661,19 @@ class SupabaseQuery {
   }
   async get() {
     if (isVirtual(this.collection)) {
-      const { data, error } = await supabaseAdmin.from('custom_pages').select('content').eq('title', this.collection);
+      const { data, error } = await supabaseAdmin.from('custom_pages').select('content, slug').eq('title', this.collection);
       if (error) throw error;
       
       const items: any[] = [];
+      const rawMap = new Map<string, string>();
       for (const row of (data || [])) {
          try {
            if (row.content) {
               const item = JSON.parse(row.content);
               items.push(item);
+              if (item.id) {
+                 rawMap.set(item.id, row.content);
+              }
            }
          } catch (e) {}
       }
@@ -658,13 +707,21 @@ class SupabaseQuery {
         filteredData = filteredData.slice(0, this._limit);
       }
       return {
-        docs: filteredData.map((d: any) => ({
-           id: d.id,
-           ref: new SupabaseDoc(this.collection, d.id),
-           data: () => d
-        })),
+        docs: filteredData.map((d: any) => {
+           const doc = new SupabaseDoc(this.collection, d.id);
+           doc['_last_content_raw'] = rawMap.get(d.id);
+           return {
+              id: d.id,
+              ref: doc,
+              data: () => d
+           };
+        }),
         empty: filteredData.length === 0,
-        forEach: (cb: any) => filteredData.forEach((d: any) => cb({ id: d.id, ref: new SupabaseDoc(this.collection, d.id), data: () => d }))
+        forEach: (cb: any) => filteredData.forEach((d: any) => {
+           const doc = new SupabaseDoc(this.collection, d.id);
+           doc['_last_content_raw'] = rawMap.get(d.id);
+           cb({ id: d.id, ref: doc, data: () => d });
+        })
       };
     }
     const executeQuery = async (where: any[], orderBy: any[]) => {
@@ -704,7 +761,7 @@ class SupabaseQuery {
         
         let finalData = data || [];
         if (this.collection === 'custom_pages') {
-          finalData = finalData.filter((d: any) => !d.slug || !d.slug.startsWith('v:'));
+          finalData = finalData.filter((d: any) => !d.slug || !isVirtualSlug(d.slug));
         }
         
         return {
@@ -772,7 +829,7 @@ class SupabaseCollection extends SupabaseQuery {
   async add(data: any) {
     if (isVirtual(this.collection)) {
         const docId = data.id || crypto.randomUUID();
-        const slug = `v:${this.collection}:${docId}`;
+        const slug = getVirtualSlug(this.collection, docId);
         const finalData = { ...data, id: docId };
         
         const payload = {
@@ -781,7 +838,10 @@ class SupabaseCollection extends SupabaseQuery {
             content: JSON.stringify(finalData)
         };
         const { error } = await supabaseAdmin.from('custom_pages').insert([payload]);
-        if (error) throw error;
+        if (error) {
+            if (error.code === '23505') throw new Error('VERSION_CONFLICT');
+            throw error;
+        }
         return { id: docId };
     }
     const pk = this.collection === 'blocked_ips' ? 'ip' : (this.collection === 'settings' ? 'key' : 'id');
