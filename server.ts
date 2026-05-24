@@ -3573,7 +3573,7 @@ import { LRUCache } from 'lru-cache';
 
   app.get('/bot-code', (req, res) => {
     try {
-        const cfgPath = path.join(require('os').tmpdir(), 'bot.py');
+        const cfgPath = path.join(os.tmpdir(), 'bot.py');
         if (fs.existsSync(cfgPath)) {
             const content = fs.readFileSync(cfgPath, 'utf8');
             res.setHeader('Content-Type', 'text/plain; charset=utf-8');
@@ -3590,14 +3590,14 @@ import { LRUCache } from 'lru-cache';
   app.post('/api/bot/save', requireAdmin, (req, res) => {
     // Save config first if provided
     if (req.body.config) {
-        fs.writeFileSync(path.join(require('os').tmpdir(), 'bot.py'), req.body.config);
+        fs.writeFileSync(path.join(os.tmpdir(), 'bot.py'), req.body.config);
     }
     res.json({ success: true, message: 'Bot config saved' });
   });
 
   app.get('/api/bot/config', requireAdmin, (req, res) => {
     try {
-        const cfgPath = path.join(require('os').tmpdir(), 'bot.py');
+        const cfgPath = path.join(os.tmpdir(), 'bot.py');
         if (fs.existsSync(cfgPath)) {
             const content = fs.readFileSync(cfgPath, 'utf8');
             res.json({ config: content });

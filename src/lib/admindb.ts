@@ -2,7 +2,8 @@ import { createClient } from '@supabase/supabase-js';
 import fs from 'fs';
 import path from 'path';
 
-const localDBPath = require('os').tmpdir() + '/.data';
+import os from 'os';
+const localDBPath = os.tmpdir() + `/.data`;
 if (!fs.existsSync(localDBPath)) {
   fs.mkdirSync(localDBPath, { recursive: true });
 }
