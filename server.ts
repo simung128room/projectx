@@ -2379,10 +2379,21 @@ import { LRUCache } from 'lru-cache';
       let totalSales = 0;
       let totalPurchaseOrders = 0;
       try {
-        const { data, count, error } = await supabaseAdmin.from('purchases').select('price', { count: 'exact' });
-        if (!error && data) {
-           totalPurchaseOrders = count || data.length;
-           data.forEach((p: any) => totalSales += (p.price || 0));
+        const { count, error: countErr } = await supabaseAdmin.from('purchases').select('*', { count: 'exact', head: true });
+        if (!countErr && count !== null) {
+           totalPurchaseOrders = count;
+           let offset = 0;
+           const limit = 3000;
+           while (offset < count && offset < 50000) { // max 50k records to prevent overload
+              const { data } = await supabaseAdmin.from('purchases').select('price').range(offset, offset + limit - 1);
+              if (data && data.length > 0) {
+                 for (const p of data) totalSales += (p.price || 0);
+              } else {
+                 break;
+              }
+              offset += limit;
+              await new Promise(r => setTimeout(r, 10)); // Prevent event loop hang
+           }
         } else {
            const purchases = await getCachedCollection('purchases', 60000);
            purchases.forEach((p: any) => {
@@ -2394,9 +2405,20 @@ import { LRUCache } from 'lru-cache';
 
       let totalTopupsAmount = 0;
       try {
-        const { data, error } = await supabaseAdmin.from('topups').select('amount');
-        if (!error && data) {
-           data.forEach((t: any) => totalTopupsAmount += (t.amount || 0));
+        const { count, error: countErr } = await supabaseAdmin.from('topups').select('*', { count: 'exact', head: true });
+        if (!countErr && count !== null) {
+           let offset = 0;
+           const limit = 3000;
+           while (offset < count && offset < 50000) {
+              const { data } = await supabaseAdmin.from('topups').select('amount').range(offset, offset + limit - 1);
+              if (data && data.length > 0) {
+                 for (const t of data) totalTopupsAmount += (Number(t.amount) || 0);
+              } else {
+                 break;
+              }
+              offset += limit;
+              await new Promise(r => setTimeout(r, 10));
+           }
         } else {
            const topups = await getCachedCollection('topups', 60000);
            topups.forEach((t: any) => totalTopupsAmount += (Number(t.amount) || 0));
@@ -3018,9 +3040,22 @@ import { LRUCache } from 'lru-cache';
 
   app.get('/api/license_keys', requireAdmin, async (req: any, res: any) => {
     try {
-      const snapshot = await admin.firestore().collection('license_keys').limit(500).get();
-      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const page = Math.max(1, parseInt(req.query.page) || 1);
+      const limit = Math.min(500, parseInt(req.query.limit) || 100);
+      const offset = (page - 1) * limit;
+
+      let q: any = admin.firestore().collection('license_keys').limit(limit);
+      if (q.offset) {
+         q = q.offset(offset);
+      }
+      
+      const snapshot = await q.get();
+      const data = snapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() }));
+
+      // Sort in memory just in case, but yield first to prevent block
+      await new Promise(r => setTimeout(r, 0));
       data.sort((a: any, b: any) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
+      
       res.json(data);
     } catch (err: any) {
       console.error('Internal server error fetching license_keys:', err.message || err);
@@ -3091,10 +3126,11 @@ import { LRUCache } from 'lru-cache';
 
   app.get('/api/validate_key/:key', async (req, res) => {
     try {
-      const snapshot = await admin.firestore().collection('license_keys').get();
-      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })).find((d: any) => d.key === req.params.key);
-      if (!data) return res.status(404).json({ error: 'Key not found' });
-      res.json(data);
+      const snapshot = await admin.firestore().collection('license_keys').where('key', '==', req.params.key).limit(1).get();
+      if (!snapshot || !snapshot.docs || snapshot.docs.length === 0) {
+        return res.status(404).json({ error: 'Key not found' });
+      }
+      res.json({ id: snapshot.docs[0].id, ...snapshot.docs[0].data() });
     } catch (err) {
       console.error('Internal server error validating key:', err);
       res.status(500).json({ error: String(err && err.message ? err.message : err) });
@@ -3196,9 +3232,8 @@ import { LRUCache } from 'lru-cache';
 
   app.get('/api/check_ip/:ip', async (req, res) => {
     try {
-      const snapshot = await admin.firestore().collection('blocked_ips').get();
-      const data = snapshot.docs.map(doc => doc.data()).find((d: any) => d.ip === req.params.ip);
-      res.json({ blocked: !!data });
+      const doc = await admin.firestore().collection('blocked_ips').doc(req.params.ip).get();
+      res.json({ blocked: !!doc.exists });
     } catch (err) {
       console.error('Internal server error checking IP:', err);
       res.status(500).json({ error: String(err && err.message ? err.message : err) });
