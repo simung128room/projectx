@@ -999,6 +999,15 @@ function AppContent() {
       console.log("Fetching all data from backend...", { reqId: currentRequestId });
       console.time(`fetchAllData-${currentRequestId}`);
 
+      const publicAxios = axios.create();
+      publicAxios.interceptors.request.use(config => {
+        if (config.headers) {
+          delete config.headers.common["Authorization"];
+          delete config.headers["Authorization"];
+        }
+        return config;
+      });
+
       const fetchApi = async (url: string) => {
         try {
           const res = await axios.get(url, { signal: controller.signal });
@@ -1021,35 +1030,55 @@ function AppContent() {
         }
       };
 
-      // 1. Critical Landing Page Data - Individual Fetching
-      fetchApi("/api/settings").then(res => { if (res.data) setSiteSettings(res.data); });
-      fetchApi("/api/products").then(res => { 
-        if (res.data && Array.isArray(res.data)) {
-          setProducts(res.data.length > 0 ? res.data : defaultProducts);
-        }
-      });
-      fetchApi("/api/categories").then(res => {
-        if (res.data && Array.isArray(res.data)) setCategories(res.data);
-      });
-      fetchApi("/api/stats").then(res => {
-        if (res.data) {
-          setSiteStats({
-            users: res.data.users,
-            stock: res.data.stock,
-            sales: res.data.sales,
-            topups: res.data.totalTopupsAmount,
-            totalOrders: res.data.totalOrders,
-          });
+      // 1. Critical Landing Page Data - Parallel Fetching with Promise.all (Using Cache-Eligible publicAxios)
+      const publicEndpoints = [
+        "/api/settings",
+        "/api/products",
+        "/api/categories",
+        "/api/stats",
+        "/api/pages"
+      ];
+
+      Promise.all(
+        publicEndpoints.map(url =>
+          publicAxios.get(url, { signal: controller.signal })
+            .then(res => ({ url, data: res.data, isCanceled: false }))
+            .catch(err => {
+              if (axios.isCancel(err)) {
+                return { url, data: null, isCanceled: true };
+              }
+              console.error(`Parallel fetch error for public endpoint ${url}:`, err);
+              return { url, data: null, isCanceled: false };
+            })
+        )
+      ).then(results => {
+        if (currentRequestId !== fetchRequestId.current) return;
+        
+        for (const res of results) {
+          if (res.isCanceled) continue;
+          
+          if (res.url === "/api/settings" && res.data) {
+            setSiteSettings(res.data);
+          } else if (res.url === "/api/products" && res.data && Array.isArray(res.data)) {
+            setProducts(res.data.length > 0 ? res.data : defaultProducts);
+          } else if (res.url === "/api/categories" && res.data && Array.isArray(res.data)) {
+            setCategories(res.data);
+          } else if (res.url === "/api/stats" && res.data) {
+            setSiteStats({
+              users: res.data.users,
+              stock: res.data.stock,
+              sales: res.data.sales,
+              topups: res.data.totalTopupsAmount,
+              totalOrders: res.data.totalOrders,
+            });
+          } else if (res.url === "/api/pages" && res.data) {
+            const d = res.data;
+            setCustomPages(Array.isArray(d) ? d : (d.data && Array.isArray(d.data) ? d.data : []));
+          }
         }
       });
 
       // 2. Secondary Data & User Data
-      fetchApi("/api/pages").then(res => {
-        if (res.data) {
-          const d = res.data;
-          setCustomPages(Array.isArray(d) ? d : (d.data && Array.isArray(d.data) ? d.data : []));
-        }
-      });
       fetchApi("/api/logs-system").then(res => {
         if (res.data && Array.isArray(res.data.categories)) {
           setLogCategories(res.data.categories.filter((c: any) => c.isVisible));
@@ -2018,7 +2047,7 @@ function AppContent() {
             className="flex flex-col items-center gap-2"
           >
             <motion.img
-              src="https://img2.pic.in.th/IMG_66428dd32388057a24f4.png"
+              src="https://img2.pic.in.th/4D8F9A5A-1535-4802-BD86-5FA08F0D3B3D.png"
               alt="Logo"
               referrerPolicy="no-referrer"
               initial={{ scale: 0.9, opacity: 0 }}
@@ -2064,7 +2093,7 @@ function AppContent() {
           <motion.img
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            src="https://img2.pic.in.th/IMG_66428dd32388057a24f4.png"
+            src="https://img2.pic.in.th/4D8F9A5A-1535-4802-BD86-5FA08F0D3B3D.png"
             alt="Logo"
             referrerPolicy="no-referrer"
             className="h-16 w-auto cursor-pointer drop-shadow-lg"
@@ -2341,7 +2370,7 @@ function AppContent() {
             <motion.img
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              src="https://img2.pic.in.th/IMG_66428dd32388057a24f4.png"
+              src="https://img2.pic.in.th/4D8F9A5A-1535-4802-BD86-5FA08F0D3B3D.png"
               alt="Logo"
               referrerPolicy="no-referrer"
               className="h-8 w-auto cursor-pointer"
@@ -2397,7 +2426,7 @@ function AppContent() {
                 {/* Header / Logo */}
                 <div className="flex items-center justify-start px-[24px] pt-[24px] pb-[16px] shrink-0 relative z-[70]">
                   <img 
-                    src="https://img2.pic.in.th/IMG_66428dd32388057a24f4.png" 
+                    src="https://img2.pic.in.th/4D8F9A5A-1535-4802-BD86-5FA08F0D3B3D.png" 
                     alt="Logo" 
                     referrerPolicy="no-referrer"
                     className="h-10 w-auto drop-shadow-md"
@@ -3050,7 +3079,7 @@ function AppContent() {
               {/* Brand & Intro */}
               <div className="col-span-1 md:col-span-1 flex flex-col items-center">
                 <img 
-                  src="https://img2.pic.in.th/IMG_66428dd32388057a24f4.png" 
+                  src="https://img2.pic.in.th/4D8F9A5A-1535-4802-BD86-5FA08F0D3B3D.png" 
                   alt="Logo" 
                   referrerPolicy="no-referrer"
                   className="h-14 w-auto mb-4"

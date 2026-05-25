@@ -1996,6 +1996,9 @@ import { LRUCache } from 'lru-cache';
         const fetchPromise = (async () => {
           const fetchFromDB = async () => {
             let query: any = admin.firestore().collection(collectionName);
+            if (collectionName === 'products') {
+              query = query.select('id', 'name', 'price', 'stock', 'description', 'image', 'category', 'created_at', '_version');
+            }
             if (collectionName === 'products' || collectionName === 'purchases' || collectionName === 'topups' || collectionName === 'license_keys' || collectionName === 'users') {
               query = query.limit(1000);
             }
@@ -2356,8 +2359,22 @@ import { LRUCache } from 'lru-cache';
         res.json(cachedStats);
       };
 
-      if (cachedStats && now - lastStatsFetch < 600000) {
+      // 1. Try Memory cache (5 mins)
+      if (cachedStats && now - lastStatsFetch < 300000) {
         return sendCachedStats();
+      }
+
+      // 2. Try Redis cache (5 mins)
+      const redisKey = 'cache:stats_compiled';
+      if (redis && redis.status === 'ready') {
+        try {
+          const redisData = await redis.get(redisKey);
+          if (redisData) {
+            cachedStats = JSON.parse(redisData);
+            lastStatsFetch = now;
+            return sendCachedStats();
+          }
+        } catch (e) {}
       }
 
       const adminDb = admin.firestore();
@@ -2373,49 +2390,33 @@ import { LRUCache } from 'lru-cache';
       let totalSales = 0;
       let totalPurchaseOrders = 0;
       try {
-        const { count, error: countErr } = await supabaseAdmin.from('purchases').select('*', { count: 'exact', head: true });
-        if (!countErr && count !== null) {
-           totalPurchaseOrders = count;
-           let offset = 0;
-           const limit = 3000;
-           while (offset < count && offset < 50000) { // max 50k records to prevent overload
-              const { data } = await supabaseAdmin.from('purchases').select('price').range(offset, offset + limit - 1);
-              if (data && data.length > 0) {
-                 for (const p of data) totalSales += (p.price || 0);
-              } else {
-                 break;
-              }
-              offset += limit;
-              await new Promise(r => setTimeout(r, 10)); // Prevent event loop hang
-           }
+        // Optimized: Single query instead of recursive chunk loop requests
+        const { data, error } = await supabaseAdmin.from('purchases').select('price');
+        if (!error && data) {
+          totalPurchaseOrders = data.length;
+          for (const p of data) {
+            totalSales += (Number(p.price) || 0);
+          }
         } else {
-           const purchases = await getCachedCollection('purchases', 60000);
-           purchases.forEach((p: any) => {
-             totalSales += (Number(p.price) || 0);
-             totalPurchaseOrders++;
-           });
+          const purchases = await getCachedCollection('purchases', 60000);
+          purchases.forEach((p: any) => {
+            totalSales += (Number(p.price) || 0);
+            totalPurchaseOrders++;
+          });
         }
       } catch(e) {}
 
       let totalTopupsAmount = 0;
       try {
-        const { count, error: countErr } = await supabaseAdmin.from('topups').select('*', { count: 'exact', head: true });
-        if (!countErr && count !== null) {
-           let offset = 0;
-           const limit = 3000;
-           while (offset < count && offset < 50000) {
-              const { data } = await supabaseAdmin.from('topups').select('amount').range(offset, offset + limit - 1);
-              if (data && data.length > 0) {
-                 for (const t of data) totalTopupsAmount += (Number(t.amount) || 0);
-              } else {
-                 break;
-              }
-              offset += limit;
-              await new Promise(r => setTimeout(r, 10));
-           }
+        // Optimized: Single query select for speed
+        const { data, error } = await supabaseAdmin.from('topups').select('amount');
+        if (!error && data) {
+          for (const t of data) {
+            totalTopupsAmount += (Number(t.amount) || 0);
+          }
         } else {
-           const topups = await getCachedCollection('topups', 60000);
-           topups.forEach((t: any) => totalTopupsAmount += (Number(t.amount) || 0));
+          const topups = await getCachedCollection('topups', 60000);
+          topups.forEach((t: any) => totalTopupsAmount += (Number(t.amount) || 0));
         }
       } catch(e) {}
 
@@ -2423,10 +2424,10 @@ import { LRUCache } from 'lru-cache';
       try {
         const { count, error } = await supabaseAdmin.from('users').select('*', { count: 'exact', head: true });
         if (!error && count !== null) {
-           totalUsersCount = count;
+          totalUsersCount = count;
         } else {
-           const users = await getCachedCollection('users', 60000);
-           totalUsersCount = users.length;
+          const users = await getCachedCollection('users', 60000);
+          totalUsersCount = users.length;
         }
       } catch(e) {}
 
@@ -2439,7 +2440,13 @@ import { LRUCache } from 'lru-cache';
       };
       
       if (totalUsersCount > 0 || totalPurchaseOrders > 0 || totalStock > 0 || totalTopupsAmount > 0) {
-         lastStatsFetch = now;
+        lastStatsFetch = now;
+        // Save to Redis cache for 5 minutes
+        if (redis && redis.status === 'ready') {
+          try {
+            await redis.set(redisKey, JSON.stringify(cachedStats), 'PX', 300000);
+          } catch (e) {}
+        }
       }
       
       sendCachedStats();
