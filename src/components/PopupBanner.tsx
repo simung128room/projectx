@@ -46,17 +46,14 @@ export const PopupBanner: React.FC<PopupBannerProps> = ({ enabled, imgUrl, linkU
     <AnimatePresence>
       {isOpen && (
         <div 
-          onClick={(e) => {
-            if (e.target === e.currentTarget) handleClose();
-          }}
-          className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-8 bg-zinc-950/80 "
+          className="fixed top-24 right-4 sm:top-28 sm:right-6 z-[100] pointer-events-none flex"
         >
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+            initial={{ opacity: 0, scale: 0.9, x: 40 }}
+            animate={{ opacity: 1, scale: 1, x: 0 }}
+            exit={{ opacity: 0, scale: 0.95, x: 40 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="relative w-full max-w-lg max-h-[90vh] bg-[#0B0F14] rounded-xl shadow-2xl overflow-hidden flex flex-col"
+            className="relative w-[calc(100vw-2rem)] max-w-[340px] sm:max-w-[400px] max-h-[85vh] bg-[#0B0F14] rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col pointer-events-auto border border-white/10"
           >
             <button
               onClick={handleClose}
