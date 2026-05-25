@@ -439,7 +439,7 @@ app.set('trust proxy', 1);
       // Validate Database Connectivity with a fast fail CircuitBreaker-like timeout pattern
       // To ensure readiness checks do not hang indefinitely and fool the orchestrator
       const firestorePromise = admin.firestore().collection('products').limit(1).get();
-      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Firestore Connection Timeout')), 4500));
+      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Firestore Connection Timeout')), 15000));
       
       await Promise.race([firestorePromise, timeoutPromise]);
       
@@ -1953,7 +1953,7 @@ import { LRUCache } from 'lru-cache';
   let cacheRevisionCounter = 0; // Increment to bust ETag when data changes
   
   const dbReadBreaker = new CircuitBreaker(async (action: any) => await action(), {
-    timeout: 7000, 
+    timeout: 20000, 
     errorThresholdPercentage: 50, 
     resetTimeout: 10000 
   });

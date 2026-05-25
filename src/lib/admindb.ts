@@ -379,7 +379,7 @@ class SupabaseDoc {
         }
     }
     let retries = 0;
-    while(retries < 15) {
+    while(retries < 5) {
       retries++;
       try {
         const { data, error } = await supabaseAdmin.from(this.collection).select('*').eq(this.pk(), this.id).single();
@@ -456,7 +456,7 @@ class SupabaseDoc {
     }
     const mergedData = await preprocessMetaFields(this.collection, this.id, { ...data });
     let retries = 0;
-    while (retries < 15) {
+    while (retries < 5) {
       retries++;
       try {
         const dbPayload = toDB(mergedData, this.collection);
@@ -569,7 +569,7 @@ class SupabaseDoc {
     }
     const mergedData = await preprocessMetaFields(this.collection, this.id, { ...data });
     let retries = 0;
-    while (retries < 15) {
+    while (retries < 5) {
       retries++;
       try {
         const pk = this.pk();
@@ -753,7 +753,7 @@ class SupabaseQuery {
     let currentOrderBy = [...this._orderBy];
 
     let retries = 0;
-    while (retries < 15) {
+    while (retries < 5) {
       retries++;
       try {
         const { data, error } = await executeQuery(currentWhere, currentOrderBy);
