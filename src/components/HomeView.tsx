@@ -196,7 +196,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             <div className="flex flex-col justify-center">
               <span className="text-sm font-medium text-zinc-500 mb-1">ยอดขายเว็บของเรา</span>
               <h2 className="text-3xl sm:text-4xl font-semibold text-zinc-100 tracking-tight leading-none">
-                <NumberTicker value={siteSettings?.stats_sales_override ? siteSettings?.stats_sales_override : (realtimeStats?.sales || 0) + (siteSettings?.stats_sales_offset !== undefined ? siteSettings.stats_sales_offset : 321)} />
+                <NumberTicker value={siteSettings?.stats_sales_override !== undefined && siteSettings?.stats_sales_override !== null ? siteSettings.stats_sales_override : (realtimeStats?.sales || 0)} />
               </h2>
             </div>
           </div>
@@ -222,7 +222,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             <div className="flex flex-col justify-center">
               <span className="text-sm font-medium text-zinc-500 mb-1">ผู้ใช้งานทั้งหมดของเว็บ</span>
               <h2 className="text-3xl sm:text-4xl font-semibold text-zinc-100 tracking-tight leading-none">
-                <NumberTicker value={siteSettings?.stats_users_override ? siteSettings?.stats_users_override : (realtimeStats?.users || 0) + (siteSettings?.stats_users_offset !== undefined ? siteSettings.stats_users_offset : 561)} />
+                <NumberTicker value={siteSettings?.stats_users_override !== undefined && siteSettings?.stats_users_override !== null ? siteSettings.stats_users_override : (realtimeStats?.users || 0)} />
               </h2>
             </div>
           </div>
