@@ -656,6 +656,7 @@ function AppContent() {
   const [showContactUs, setShowContactUs] = useState(false);
   const [clientIp, setClientIp] = useState<string | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [loadingProgress, setLoadingProgress] = useState(0);
 
   const [logoClicks, setLogoClicks] = useState(0);
   const [showAdminLogin, setShowAdminLogin] = useState(false);
@@ -1132,6 +1133,28 @@ function AppContent() {
 
   // App Init & check IP
   useEffect(() => {
+    let progress = 0;
+    let dataReady = false;
+    
+    // Simulate loading progress
+    const interval = setInterval(() => {
+      setLoadingProgress(prev => {
+        let next = prev + Math.floor(Math.random() * 15) + 5;
+        
+        // Capping at 80-90% if initialization is not complete
+        if (!dataReady && next > 85) {
+          next = 85 + Math.floor(Math.random() * 5);
+        }
+        
+        if (next >= 100) {
+          clearInterval(interval);
+          setTimeout(() => setIsLoaded(true), 400); // 400ms delay to see 100%
+          return 100;
+        }
+        return next;
+      });
+    }, 120);
+
     const initApp = async () => {
       // Load local storage data using a static key, independent of IP so VPN works
       const savedLogs = localStorage.getItem(`checker_logs_main`);
@@ -1173,8 +1196,6 @@ function AppContent() {
         ]);
       }
 
-      setIsLoaded(true); // Load instantly from local storage
-
       try {
         const res = await axios.get("/api/health");
         const ip = res.data.clientIp || "Unknown";
@@ -1183,8 +1204,12 @@ function AppContent() {
         setClientIp("offline_local");
         console.error("IP Check Failed", err);
       }
+      
+      dataReady = true;
     };
     initApp();
+    
+    return () => clearInterval(interval);
   }, []);
 
   // Sync combo to ref for high-speed access
@@ -2056,8 +2081,16 @@ function AppContent() {
               className="w-32 h-auto mb-6 drop-shadow-lg"
             />
             <span className="text-[#3B82F6] text-[10px] font-bold tracking-[0.3em] uppercase bg-[#3B82F6]/10 px-3 py-1 rounded-full border border-[#3B82F6]/20">
-              Loading System...
+              Loading System... {loadingProgress}%
             </span>
+            <div className="w-48 h-1 bg-zinc-900 rounded-full mt-3 overflow-hidden relative">
+              <motion.div 
+                className="absolute inset-y-0 left-0 bg-[#3B82F6] rounded-full shadow-[0_0_10px_#3B82F6]"
+                initial={{ width: 0 }}
+                animate={{ width: `${loadingProgress}%` }}
+                transition={{ ease: "easeOut", duration: 0.2 }}
+              />
+            </div>
           </motion.div>
         </motion.div>
       </div>
