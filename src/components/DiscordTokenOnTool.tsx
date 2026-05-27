@@ -54,7 +54,7 @@ export const DiscordTokenOnTool: React.FC<DiscordTokenOnToolProps> = ({ userPlan
           icon: 'warning',
           title: 'Missing Details',
           text: 'Please enter your Discord Token',
-          background: '#0B0F14',
+          background: '#0B0D0F',
           color: '#fff'
       });
       return;
@@ -73,7 +73,7 @@ export const DiscordTokenOnTool: React.FC<DiscordTokenOnToolProps> = ({ userPlan
             icon: 'error',
             title: 'Error Occurred',
             text: res.data.error,
-            background: '#0B0F14',
+            background: '#0B0D0F',
             color: '#fff'
         });
         setStatus('error');
@@ -85,7 +85,7 @@ export const DiscordTokenOnTool: React.FC<DiscordTokenOnToolProps> = ({ userPlan
             icon: 'error',
             title: 'Error Occurred',
             text: error.response?.data?.error || error.message,
-            background: '#0B0F14',
+            background: '#0B0D0F',
             color: '#fff'
         });
     } finally {
@@ -99,7 +99,7 @@ export const DiscordTokenOnTool: React.FC<DiscordTokenOnToolProps> = ({ userPlan
       await axios.post('/api/discord/token-on/stop', { discordToken });
       setStatus('none');
       setLogs([]);
-      Swal.fire({ title: 'Stopped Successfully', icon: 'success', toast: true, position: 'top-end', showConfirmButton: false, timer: 1500, background: '#0B0F14', color: '#fff' });
+      Swal.fire({ title: 'Stopped Successfully', icon: 'success', toast: true, position: 'top-end', showConfirmButton: false, timer: 1500, background: '#0B0D0F', color: '#fff' });
     } catch (e) {
       console.error(e);
     }
@@ -132,7 +132,7 @@ export const DiscordTokenOnTool: React.FC<DiscordTokenOnToolProps> = ({ userPlan
                   value={discordToken}
                   onChange={e => setDiscordToken(e.target.value)}
                   placeholder="MTA...."
-                  className="w-full bg-[#0a0d12] border border-white/10 rounded-xl py-3 pl-10 pr-4 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-[#5865F2]/50 focus:ring-1 focus:ring-[#5865F2]/20 transition-all font-mono"
+                  className="w-full bg-[#121417] border border-white/10 rounded-xl py-3 pl-10 pr-4 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-[#5865F2]/50 focus:ring-1 focus:ring-[#5865F2]/20 transition-all font-mono"
                   disabled={status !== 'none' && status !== 'error'}
                 />
               </div>

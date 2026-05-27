@@ -111,14 +111,14 @@ export const ToolsView: React.FC<ToolsViewProps> = ({ setActiveView }) => {
               placeholder="ค้นหาเครื่องมือ..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-[#0a0d12] border border-white/10 rounded-2xl py-3 pl-11 pr-4 text-sm text-white focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all placeholder:text-zinc-600"
+              className="w-full bg-[#121417] border border-white/10 rounded-2xl py-3 pl-11 pr-4 text-sm text-white focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all placeholder:text-zinc-600"
             />
           </div>
         </div>
 
         {/* Tools Grid Area */}
         {filteredTools.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 text-center border border-dashed border-white/10 rounded-3xl bg-[#0a0d12]">
+          <div className="flex flex-col items-center justify-center py-20 text-center border border-dashed border-white/10 rounded-3xl bg-[#121417]">
             <Search className="w-10 h-10 text-zinc-700 mb-4" />
             <h3 className="text-white font-bold mb-1">ไม่พบเครื่องมือ</h3>
             <p className="text-zinc-500 text-sm">ลองใช้คำค้นหาอื่นดูอีกครั้ง</p>
@@ -202,7 +202,7 @@ export const ToolsView: React.FC<ToolsViewProps> = ({ setActiveView }) => {
 
         {/* Informational Footer */}
         <div className="mt-12 flex justify-center">
-            <div className="inline-flex flex-col sm:flex-row items-center gap-3 px-6 py-4 rounded-2xl bg-[#0a0d12] border border-white/5">
+            <div className="inline-flex flex-col sm:flex-row items-center gap-3 px-6 py-4 rounded-2xl bg-[#121417] border border-white/5">
                <ShieldCheck className="w-5 h-5 text-zinc-500" /> 
                <p className="text-zinc-400 text-xs text-center">
                  เครื่องมือที่มีตรา <span className="text-amber-500 font-bold px-1">VIP</span> สงวนสิทธิ์การเข้าถึงเฉพาะสมาชิก Premium ขึ้นไป

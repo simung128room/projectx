@@ -32,7 +32,7 @@ export const RedeemKeyView: React.FC<RedeemKeyViewProps> = ({ redeemKey, userEma
         <div className="flex justify-between items-center mb-8">
           <button 
             onClick={onBack}
-            className="flex items-center gap-2 text-zinc-500 hover:text-white transition-all group font-bold px-4 py-2.5 rounded-xl bg-[#0B0F14] border border-white/10 shadow-sm hover:shadow-md"
+            className="flex items-center gap-2 text-zinc-500 hover:text-white transition-all group font-bold px-4 py-2.5 rounded-xl bg-[#0B0D0F] border border-white/10 shadow-sm hover:shadow-md"
           >
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
             <span className="hidden sm:inline">กลับหน้าหลัก</span>
@@ -45,11 +45,11 @@ export const RedeemKeyView: React.FC<RedeemKeyViewProps> = ({ redeemKey, userEma
           </div>
         </div>
 
-        <div className="bg-[#0B0F14] border border-white/10 rounded-xl overflow-hidden shadow-xl shadow-zinc-200/50">
+        <div className="bg-[#0B0D0F] border border-white/10 rounded-xl overflow-hidden shadow-xl shadow-zinc-200/50">
           <div className="grid grid-cols-1 lg:grid-cols-12 relative z-10">
             
             {/* Left Column: Info & Benefits */}
-            <div className="lg:col-span-12 xl:col-span-5 p-8 md:p-12 border-b lg:border-b-0 lg:border-r border-white/5 bg-[#0a0d12] relative overflow-hidden">
+            <div className="lg:col-span-12 xl:col-span-5 p-8 md:p-12 border-b lg:border-b-0 lg:border-r border-white/5 bg-[#121417] relative overflow-hidden">
               <div className="absolute top-0 right-0 w-64 h-64 bg-[#3B82F6]/20/50  rounded-full pointer-events-none -translate-y-1/2 translate-x-1/4"></div>
               
               <div className="mb-10 relative z-10">
@@ -78,7 +78,7 @@ export const RedeemKeyView: React.FC<RedeemKeyViewProps> = ({ redeemKey, userEma
             </div>
 
             {/* Right Column: Activation Form */}
-            <div className="lg:col-span-12 xl:col-span-7 p-8 md:p-12 lg:p-16 flex flex-col justify-center bg-[#0B0F14] relative">
+            <div className="lg:col-span-12 xl:col-span-7 p-8 md:p-12 lg:p-16 flex flex-col justify-center bg-[#0B0D0F] relative">
               <div className="max-w-md mx-auto w-full relative z-10">
                 <div className="mb-10">
                    <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#121820] border border-white/10 text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-4">
@@ -90,7 +90,7 @@ export const RedeemKeyView: React.FC<RedeemKeyViewProps> = ({ redeemKey, userEma
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div>
-                    <div className={`relative transition-all duration-300 rounded-xl bg-[#0B0F14] border-2 ${isFocused || keyInput ? 'border-[#2563EB] shadow-lg' : 'border-white/10 hover:border-white/20'} ${!isLoggedIn ? 'opacity-50 select-none pointer-events-none' : ''}`}>
+                    <div className={`relative transition-all duration-300 rounded-xl bg-[#0B0D0F] border-2 ${isFocused || keyInput ? 'border-[#2563EB] shadow-lg' : 'border-white/10 hover:border-white/20'} ${!isLoggedIn ? 'opacity-50 select-none pointer-events-none' : ''}`}>
                       <div className="flex items-center gap-4 px-5">
                         <KeyIcon className={`w-6 h-6 transition-colors duration-300 ${isFocused || keyInput ? 'text-[#2563EB]' : 'text-zinc-400'}`} />
                         <input 

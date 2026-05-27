@@ -2007,7 +2007,7 @@ function AppContent() {
 
   if (isIPBlocked)
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center p-4">
+      <div className="min-h-screen bg-[#0B0D0F] flex items-center justify-center p-4">
         <div className="w-full max-w-lg bg-[#3B82F6]/5 border border-[#3B82F6]/20 rounded-xl p-12 text-center relative overflow-hidden">
           <ShieldAlert className="w-20 h-20 text-[#2563EB] mx-auto mb-6 animate-pulse" />
           <h1 className="text-3xl font-bold text-[#2563EB] mb-4 uppercase tracking-tighter">
@@ -2033,7 +2033,7 @@ function AppContent() {
 
   if (!isLoaded)
     return (
-      <div className="min-h-screen bg-black flex flex-col items-center justify-center font-sans overflow-hidden relative">
+      <div className="min-h-screen bg-[#0B0D0F] flex flex-col items-center justify-center font-sans overflow-hidden relative">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(59,130,246,0.05),transparent_70%)] pointer-events-none" />
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
@@ -2097,7 +2097,7 @@ function AppContent() {
     );
 
   return (
-    <div className="min-h-screen w-full bg-black text-white font-sans selection:bg-[#3B82F6]/30 flex flex-col lg:flex-row relative">
+    <div className="min-h-screen w-full bg-[#0B0D0F] text-white font-sans selection:bg-[#3B82F6]/30 flex flex-col lg:flex-row relative">
       <CustomCursor />
       <PopupBanner
         enabled={siteSettings?.popup_enabled ?? false}
@@ -2106,7 +2106,7 @@ function AppContent() {
       />
       {/* Page Transition Overlay */}
       {isPageTransitioning && (
-        <div className="fixed inset-0 z-[200] bg-black/95  flex flex-col items-center justify-center p-4 overflow-hidden animate-in fade-in duration-75">
+        <div className="fixed inset-0 z-[200] bg-[#060709]/95  flex flex-col items-center justify-center p-4 overflow-hidden animate-in fade-in duration-75">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -2121,7 +2121,7 @@ function AppContent() {
       )}
 
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex flex-col w-[280px] shrink-0 bg-[#0B0F14] border-r border-[#3B82F6]/10 h-screen sticky top-0 p-6 z-[60] overflow-y-auto no-scrollbar">
+      <aside className="hidden lg:flex flex-col w-[280px] shrink-0 bg-[#060709] border-r border-white/5 h-screen sticky top-0 p-6 z-[60] overflow-y-auto no-scrollbar">
         <div className="mb-10 w-full flex justify-start">
           <motion.img
             whileHover={{ scale: 1.05 }}
@@ -2344,7 +2344,7 @@ function AppContent() {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-h-screen min-w-0 relative">
         {/* Desktop Top Header */}
-        <header className="hidden lg:flex sticky top-0 z-[50] w-full h-[72px] bg-black/80 backdrop-blur-md border-b border-white/5 items-center justify-between px-8">
+        <header className="hidden lg:flex sticky top-0 z-[50] w-full h-[72px] bg-[#0B0D0F]/80 backdrop-blur-md border-b border-white/5 items-center justify-between px-8">
           <div className="flex items-center gap-4">
             <h1 className="text-xl font-bold bg-gradient-to-r from-white to-zinc-400 bg-clip-text text-transparent">
               {activeView === "home" ? "ภาพรวม" : 
@@ -2375,7 +2375,7 @@ function AppContent() {
                   </span>
                 </div>
                 <div 
-                  className="w-8 h-8 rounded-full overflow-hidden border border-white/20 bg-black cursor-pointer"
+                  className="w-8 h-8 rounded-full overflow-hidden border border-white/20 bg-[#0B0D0F] cursor-pointer"
                   onClick={() => setActiveView("profile")}
                 >
                   <img
@@ -2398,7 +2398,7 @@ function AppContent() {
         </header>
 
         {/* Global Top Navbar (Mobile) */}
-        <nav className="lg:hidden sticky top-0 z-[60] bg-[#111318] border-b border-white/5 w-full flex flex-col shadow-sm">
+        <nav className="lg:hidden sticky top-0 z-[60] bg-[#060709] border-b border-white/5 w-full flex flex-col shadow-sm">
           <div className="flex items-center justify-between px-5 h-[64px] relative">
             <motion.img
               whileHover={{ scale: 1.05 }}

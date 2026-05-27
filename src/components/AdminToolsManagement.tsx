@@ -140,7 +140,7 @@ export const AdminToolsManagement = () => {
           <Gift className="w-6 h-6 text-indigo-400" />
           ระบบหมวดหมู่ / เนื้อหา
         </h2>
-        <div className="flex bg-[#0B0F14] border border-white/10 rounded-xl p-1">
+        <div className="flex bg-[#0B0D0F] border border-white/10 rounded-xl p-1">
           <button onClick={() => setActiveTab('categories')} className={`px-4 py-1.5 rounded-lg text-sm font-bold transition-all ${activeTab === 'categories' ? 'bg-white/10 text-white' : 'text-zinc-500 hover:text-white'}`}>หมวดหมู่</button>
           <button onClick={() => setActiveTab('items')} className={`px-4 py-1.5 rounded-lg text-sm font-bold transition-all ${activeTab === 'items' ? 'bg-white/10 text-white' : 'text-zinc-500 hover:text-white'}`}>เนื้อหา / ไฟล์</button>
         </div>

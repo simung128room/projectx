@@ -130,7 +130,7 @@ export const LogCategoriesView: React.FC<LogCategoriesViewProps> = ({ userPlan, 
               {currentItems.map((item) => {
                  const isLocked = item.type === 'premium' && !isVip;
                  return (
-                   <div key={item.id} onClick={() => handleOpenItem(item)} className={`bg-[#0B0F14] border border-white/10 rounded-xl p-5 cursor-pointer hover:border-[#3B82F6]/30 transition-all ${isLocked ? 'opacity-80' : 'hover:-translate-y-1 hover:shadow-xl hover:shadow-lg/10'}`}>
+                   <div key={item.id} onClick={() => handleOpenItem(item)} className={`bg-[#0B0D0F] border border-white/10 rounded-xl p-5 cursor-pointer hover:border-[#3B82F6]/30 transition-all ${isLocked ? 'opacity-80' : 'hover:-translate-y-1 hover:shadow-xl hover:shadow-lg/10'}`}>
                       <div className="flex justify-between items-start mb-3">
                         <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase ${item.type === 'premium' ? 'bg-amber-500/20 text-amber-400' : 'bg-emerald-500/20 text-emerald-400'}`}>
                           {item.type === 'premium' ? 'Premium' : 'Free'}
@@ -157,7 +157,7 @@ export const LogCategoriesView: React.FC<LogCategoriesViewProps> = ({ userPlan, 
                    animate={{ opacity: 1, y: 0 }}
                    transition={{ delay: i * 0.05 }}
                    onClick={() => { setSelectedCategory(c); setSearch(''); }}
-                   className="bg-[#0B0F14] border border-white/10 hover:border-[#2563EB]/30 hover:shadow-xl hover:shadow-lg/10 rounded-xl overflow-hidden transition-all cursor-pointer group flex flex-col pt-2"
+                   className="bg-[#0B0D0F] border border-white/10 hover:border-[#2563EB]/30 hover:shadow-xl hover:shadow-lg/10 rounded-xl overflow-hidden transition-all cursor-pointer group flex flex-col pt-2"
                  >
                    <div className="p-6 flex-1 flex flex-col">
                       <div className="flex items-center justify-between mb-4">

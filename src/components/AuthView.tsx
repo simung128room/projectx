@@ -49,8 +49,8 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     if (TURNSTILE_SITE_KEY && !turnstileToken) {
-      // Just bypass it since it can hang in preview sometimes
-      // return;
+       Swal.fire({ icon: 'warning', title: 'โปรดยืนยันตัวตน', text: 'กรุณายืนยันว่าคุณไม่ใช่บอท' });
+       return;
     }
     await executeAuth(turnstileToken || 'bypass');
   };
@@ -127,7 +127,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
         initial={{ opacity: 0, y: 20, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="w-full max-w-5xl bg-[#0B0F14]/90 backdrop-blur-xl rounded-2xl border border-white/10 shadow-[0_0_50px_-12px_rgba(0,0,0,0.5)] relative z-10 flex overflow-hidden lg:divide-x lg:divide-white/10"
+        className="w-full max-w-5xl bg-[#0B0D0F]/90 backdrop-blur-xl rounded-2xl border border-white/10 shadow-[0_0_50px_-12px_rgba(0,0,0,0.5)] relative z-10 flex overflow-hidden lg:divide-x lg:divide-white/10"
       >
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-[2px] from-transparent via-[#3B82F6]/40 to-transparent z-20"></div>
 
@@ -169,7 +169,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
         </div>
 
         {/* Right Side: Form */}
-        <div className="w-full lg:w-1/2 bg-[#0B0F14] p-8 sm:p-12 relative flex flex-col justify-center">
+        <div className="w-full lg:w-1/2 bg-[#0B0D0F] p-8 sm:p-12 relative flex flex-col justify-center">
           <div className="absolute top-0 right-0 w-64 h-64 bg-[#3B82F6]/5 rounded-full blur-3xl pointer-events-none"></div>
 
           {/* Header */}
@@ -313,7 +313,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
 
           {TURNSTILE_SITE_KEY && (
             <motion.div layout className="pt-2 mt-2 w-full">
-              <div className="w-full h-[58px] relative overflow-hidden rounded-xl border border-white/5 bg-[#0B0F14]">
+              <div className="w-full h-[58px] relative overflow-hidden rounded-xl border border-white/5 bg-[#0B0D0F]">
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[110%] scale-[0.92] flex justify-center">
                   <Turnstile
                     siteKey={TURNSTILE_SITE_KEY}

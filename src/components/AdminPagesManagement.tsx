@@ -76,7 +76,7 @@ export const AdminPagesManagement: React.FC<AdminPagesManagementProps> = ({ cust
 
   if (isEditing) {
     return (
-      <div className="bg-[#0B0F14] rounded-xl border border-white/10 p-6 sm:p-8">
+      <div className="bg-[#0B0D0F] rounded-xl border border-white/10 p-6 sm:p-8">
         <h3 className="font-black text-xl mb-6">{editingPage ? 'แก้ไขหน้าเพจ' : 'สร้างหน้าเพจใหม่'}</h3>
         <form onSubmit={handleSave} className="space-y-4">
           <div>
@@ -85,7 +85,7 @@ export const AdminPagesManagement: React.FC<AdminPagesManagementProps> = ({ cust
               type="text" 
               value={formData.title}
               onChange={(e) => setFormData({...formData, title: e.target.value})}
-              className="w-full bg-[#0a0d12] border-2 border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[#2563EB] outline-none transition-colors"
+              className="w-full bg-[#121417] border-2 border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[#2563EB] outline-none transition-colors"
               placeholder="e.g. Terms of Service, About Us"
             />
           </div>
@@ -95,7 +95,7 @@ export const AdminPagesManagement: React.FC<AdminPagesManagementProps> = ({ cust
               type="text" 
               value={formData.slug}
               onChange={(e) => setFormData({...formData, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-')})}
-              className="w-full bg-[#0a0d12] border-2 border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[#2563EB] outline-none transition-colors"
+              className="w-full bg-[#121417] border-2 border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[#2563EB] outline-none transition-colors"
               placeholder="e.g. terms, about"
             />
           </div>
@@ -104,7 +104,7 @@ export const AdminPagesManagement: React.FC<AdminPagesManagementProps> = ({ cust
             <textarea 
               value={formData.content}
               onChange={(e) => setFormData({...formData, content: e.target.value})}
-              className="w-full bg-[#0a0d12] border-2 border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[#2563EB] outline-none transition-colors h-64 font-mono"
+              className="w-full bg-[#121417] border-2 border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[#2563EB] outline-none transition-colors h-64 font-mono"
               placeholder="Write markdown here..."
             />
           </div>
@@ -112,7 +112,7 @@ export const AdminPagesManagement: React.FC<AdminPagesManagementProps> = ({ cust
             <button 
               type="button" 
               onClick={() => setIsEditing(false)}
-              className="px-6 py-3 font-bold text-sm rounded-xl border border-white/10 hover:bg-[#0a0d12]"
+              className="px-6 py-3 font-bold text-sm rounded-xl border border-white/10 hover:bg-[#121417]"
             >
               ยกเลิก
             </button>
@@ -143,7 +143,7 @@ export const AdminPagesManagement: React.FC<AdminPagesManagementProps> = ({ cust
         </button>
       </div>
 
-      <div className="bg-[#0B0F14] border border-white/10 rounded-xl overflow-hidden shadow-sm">
+      <div className="bg-[#0B0D0F] border border-white/10 rounded-xl overflow-hidden shadow-sm">
         {customPages.length === 0 ? (
           <div className="p-12 text-center text-zinc-500 font-medium">
             ยังไม่มีหน้าเพจ ข้อมูลที่คุณสร้างจะมาที่นี่
@@ -151,7 +151,7 @@ export const AdminPagesManagement: React.FC<AdminPagesManagementProps> = ({ cust
         ) : (
           <div className="divide-y divide-zinc-100">
             {customPages.map(page => (
-              <div key={page.id} className="p-4 flex items-center justify-between hover:bg-[#0a0d12] transition-colors">
+              <div key={page.id} className="p-4 flex items-center justify-between hover:bg-[#121417] transition-colors">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-[#3B82F6]/10 text-[#3B82F6] rounded-xl flex items-center justify-center">
                     <FileText className="w-5 h-5" />
@@ -162,8 +162,8 @@ export const AdminPagesManagement: React.FC<AdminPagesManagementProps> = ({ cust
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <button onClick={() => handleEdit(page)} className="p-2 text-zinc-500 hover:text-[#3B82F6] bg-[#0B0F14] rounded-xl border border-white/10 shadow-sm transition-all"><Edit className="w-4 h-4"/></button>
-                  <button onClick={() => handleDelete(page)} className="p-2 text-zinc-500 hover:text-red-500 bg-[#0B0F14] rounded-xl border border-white/10 shadow-sm transition-all"><Trash2 className="w-4 h-4"/></button>
+                  <button onClick={() => handleEdit(page)} className="p-2 text-zinc-500 hover:text-[#3B82F6] bg-[#0B0D0F] rounded-xl border border-white/10 shadow-sm transition-all"><Edit className="w-4 h-4"/></button>
+                  <button onClick={() => handleDelete(page)} className="p-2 text-zinc-500 hover:text-red-500 bg-[#0B0D0F] rounded-xl border border-white/10 shadow-sm transition-all"><Trash2 className="w-4 h-4"/></button>
                 </div>
               </div>
             ))}

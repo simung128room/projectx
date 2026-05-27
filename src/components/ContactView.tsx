@@ -21,12 +21,12 @@ export const ContactView: React.FC<ContactViewProps> = ({
     <div className="w-full max-w-5xl mx-auto p-4 md:p-8 animate-in fade-in duration-500 font-sans text-white">
       <button 
         onClick={onBack}
-        className="mb-6 flex items-center gap-2 text-zinc-500 hover:text-white transition-colors font-medium bg-[#0B0F14] px-4 py-2 rounded-xl border border-white/10 shadow-sm w-fit"
+        className="mb-6 flex items-center gap-2 text-zinc-500 hover:text-white transition-colors font-medium bg-[#0B0D0F] px-4 py-2 rounded-xl border border-white/10 shadow-sm w-fit"
       >
         <ArrowLeft className="w-4 h-4" /> ย้อนกลับ
       </button>
 
-      <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-8 bg-[#0B0F14] border border-white/10 shadow-sm rounded-xl p-6">
+      <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-8 bg-[#0B0D0F] border border-white/10 shadow-sm rounded-xl p-6">
         <div className="flex items-center gap-4">
           <div className="bg-blue-50 text-blue-500 p-4 rounded-2xl">
             <MessageSquare className="w-8 h-8" />
@@ -44,7 +44,7 @@ export const ContactView: React.FC<ContactViewProps> = ({
           href={discordLink} 
           target={discordLink !== '#' ? "_blank" : "_self"} 
           rel="noopener noreferrer"
-          className="bg-[#0B0F14] border border-white/10 hover:border-[#5865F2] hover:shadow-md hover:shadow-lg/10 transition-all rounded-xl p-8 flex flex-col items-center justify-center text-center group cursor-pointer"
+          className="bg-[#0B0D0F] border border-white/10 hover:border-[#5865F2] hover:shadow-md hover:shadow-lg/10 transition-all rounded-xl p-8 flex flex-col items-center justify-center text-center group cursor-pointer relative overflow-hidden"
           onClick={(e) => {
             if (discordLink === '#') {
               e.preventDefault();
@@ -73,7 +73,7 @@ export const ContactView: React.FC<ContactViewProps> = ({
           href={facebookLink} 
           target={facebookLink !== '#' ? "_blank" : "_self"} 
           rel="noopener noreferrer"
-          className="bg-[#0B0F14] border border-white/10 hover:border-[#1877F2] hover:shadow-md hover:shadow-lg/10 transition-all rounded-xl p-8 flex flex-col items-center justify-center text-center group cursor-pointer relative overflow-hidden"
+          className="bg-[#0B0D0F] border border-white/10 hover:border-[#1877F2] hover:shadow-md hover:shadow-lg/10 transition-all rounded-xl p-8 flex flex-col items-center justify-center text-center group cursor-pointer relative overflow-hidden"
           onClick={(e) => {
             if (facebookLink === '#') {
               e.preventDefault();
@@ -102,7 +102,7 @@ export const ContactView: React.FC<ContactViewProps> = ({
           href={instagramLink} 
           target={instagramLink !== '#' ? "_blank" : "_self"} 
           rel="noopener noreferrer"
-          className="bg-[#0B0F14] border border-white/10 hover:border-[#E4405F] hover:shadow-md hover:shadow-lg/10 transition-all rounded-xl p-8 flex flex-col items-center justify-center text-center group cursor-pointer relative overflow-hidden"
+          className="bg-[#0B0D0F] border border-white/10 hover:border-[#E4405F] hover:shadow-md hover:shadow-lg/10 transition-all rounded-xl p-8 flex flex-col items-center justify-center text-center group cursor-pointer relative overflow-hidden"
           onClick={(e) => {
             if (instagramLink === '#') {
               e.preventDefault();
@@ -129,7 +129,7 @@ export const ContactView: React.FC<ContactViewProps> = ({
         {/* Email Support */}
         <a 
           href={`mailto:${contactEmail}`} 
-          className="bg-[#0B0F14] border border-white/10 hover:border-zinc-500 hover:shadow-md hover:shadow-white/5 transition-all rounded-xl p-8 flex flex-col items-center justify-center text-center group cursor-pointer relative overflow-hidden"
+          className="bg-[#0B0D0F] border border-white/10 hover:border-zinc-500 hover:shadow-md hover:shadow-white/5 transition-all rounded-xl p-8 flex flex-col items-center justify-center text-center group cursor-pointer relative overflow-hidden"
           onClick={(e) => {
             if (!contactEmail) {
               e.preventDefault();

@@ -55,7 +55,7 @@ export const SearchView: React.FC<SearchViewProps> = ({ products, onBack, onProd
 
       <div className="space-y-4">
         {searchQuery && filteredProducts.length === 0 ? (
-          <div className="text-center py-20 bg-[#0B0F14] border border-white/5 rounded-xl">
+          <div className="text-center py-20 bg-[#0B0D0F] border border-white/5 rounded-xl">
             <Search className="w-12 h-12 text-zinc-600 mx-auto mb-4" />
             <h3 className="text-xl font-bold text-white mb-2">ไม่พบสินค้า</h3>
             <p className="text-zinc-500">ไม่พบสินค้าที่ตรงกับ "{searchQuery}"</p>
@@ -66,11 +66,11 @@ export const SearchView: React.FC<SearchViewProps> = ({ products, onBack, onProd
               <div 
                 key={product.id}
                 onClick={() => onProductClick(product.id)}
-                className="bg-[#0B0F14] border border-white/5 rounded-2xl p-4 cursor-pointer hover:border-white/10 hover:shadow-lg transition-all group overflow-hidden relative flex flex-col h-full"
+                className="bg-[#0B0D0F] border border-white/5 rounded-2xl p-4 cursor-pointer hover:border-white/10 hover:shadow-lg transition-all group overflow-hidden relative flex flex-col h-full"
               >
-                {product.image ? (
+                {product.imageUrl ? (
                   <div className="w-full aspect-video rounded-xl overflow-hidden mb-4 relative bg-zinc-900 border border-white/5">
-                    <img loading="lazy" src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    <img loading="lazy" src={product.imageUrl} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                   </div>
                 ) : (
                   <div className="w-full aspect-video rounded-xl overflow-hidden mb-4 relative bg-zinc-900 flex items-center justify-center border border-white/5 group-hover:border-white/10 transition-colors">

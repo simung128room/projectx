@@ -126,7 +126,7 @@ export function TwoFAGenerator() {
               value={secretsInput}
               onChange={(e) => setSecretsInput(e.target.value)}
               placeholder="กรอก Secret Key หลายตัวได้ โดยแยกบรรทัด"
-              className="w-full h-40 bg-[#0a0d12] border border-white/10 rounded-2xl p-4 text-white focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/30 outline-none resize-none transition-all placeholder:text-zinc-600 font-mono text-sm leading-relaxed"
+              className="w-full h-40 bg-[#121417] border border-white/10 rounded-2xl p-4 text-white focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/30 outline-none resize-none transition-all placeholder:text-zinc-600 font-mono text-sm leading-relaxed"
             />
             <div className="h-px bg-white/5 my-2" />
             <button

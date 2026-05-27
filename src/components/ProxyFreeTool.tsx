@@ -77,7 +77,7 @@ export const ProxyFreeTool: React.FC = () => {
         icon: "error",
         title: "โหลดไม่สำเร็จ",
         text: "ไม่สามารถดึงข้อมูล Proxy จาก Github ได้",
-        background: "#0B0F14",
+        background: "#0B0D0F",
         color: "#fff",
       });
     } finally {
@@ -207,7 +207,7 @@ export const ProxyFreeTool: React.FC = () => {
         ))}
       </div>
 
-      <div className="bg-[#0a0d12] border border-white/5 rounded-xl overflow-hidden flex flex-col">
+      <div className="bg-[#121417] border border-white/5 rounded-xl overflow-hidden flex flex-col">
         <div className="border-b border-white/5 bg-black/50">
           <div className="flex overflow-x-auto hide-scrollbar px-2 pt-2">
             {[

@@ -14,7 +14,7 @@ export const CheckerLogsView: React.FC<CheckerLogsViewProps> = ({ logs, onBack }
       <div className="flex items-center gap-4 mb-8">
         <button 
           onClick={onBack}
-          className="w-10 h-10 bg-[#0B0F14] border border-white/10 rounded-full flex items-center justify-center text-zinc-500 hover:text-white hover:bg-[#0a0d12] transition-all shadow-sm"
+          className="w-10 h-10 bg-[#0B0D0F] border border-white/10 rounded-full flex items-center justify-center text-zinc-500 hover:text-white hover:bg-[#121417] transition-all shadow-sm"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
@@ -27,7 +27,7 @@ export const CheckerLogsView: React.FC<CheckerLogsViewProps> = ({ logs, onBack }
         </div>
       </div>
 
-      <div className="bg-[#0B0F14] border border-white/10 rounded-xl p-6 shadow-sm overflow-hidden flex flex-col h-[70vh]">
+      <div className="bg-[#0B0D0F] border border-white/10 rounded-xl p-6 shadow-sm overflow-hidden flex flex-col h-[70vh]">
         <div className="flex items-center justify-between mb-4 pb-4 border-b border-white/5 shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-[#121820] border border-white/10 flex items-center justify-center">
@@ -40,7 +40,7 @@ export const CheckerLogsView: React.FC<CheckerLogsViewProps> = ({ logs, onBack }
           </div>
         </div>
 
-        <div className="flex-1 bg-[#0a0d12] border border-white/10 p-6 rounded-2xl text-[13px] font-mono overflow-auto scrollbar-thin scrollbar-thumb-zinc-300">
+        <div className="flex-1 bg-[#121417] border border-white/10 p-6 rounded-2xl text-[13px] font-mono overflow-auto scrollbar-thin scrollbar-thumb-zinc-300">
           {logs.length === 0 && (
             <div className="text-zinc-400 flex flex-col items-center justify-center h-full gap-4 opacity-70">
               <Terminal className="w-12 h-12" />

@@ -53,7 +53,7 @@ export const PopupBanner: React.FC<PopupBannerProps> = ({ enabled, imgUrl, linkU
             animate={{ opacity: 1, scale: 1, x: 0 }}
             exit={{ opacity: 0, scale: 0.95, x: 40 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="relative w-[calc(100vw-2rem)] max-w-[340px] sm:max-w-[400px] max-h-[85vh] bg-[#0B0F14] rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col pointer-events-auto border border-white/10"
+            className="relative w-[calc(100vw-2rem)] max-w-[340px] sm:max-w-[400px] max-h-[85vh] bg-[#0B0D0F] rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col pointer-events-auto border border-white/10"
           >
             <button
               onClick={handleClose}
@@ -72,7 +72,7 @@ export const PopupBanner: React.FC<PopupBannerProps> = ({ enabled, imgUrl, linkU
               )}
             </div>
 
-            <div className="p-4 sm:px-6 bg-[#0B0F14] flex-shrink-0 flex flex-wrap items-center justify-between border-t border-white/5 gap-4">
+            <div className="p-4 sm:px-6 bg-[#0B0D0F] flex-shrink-0 flex flex-wrap items-center justify-between border-t border-white/5 gap-4">
               <label className="flex items-center gap-3 cursor-pointer group">
                 <div className="relative flex items-center justify-center">
                   <input 
@@ -81,7 +81,7 @@ export const PopupBanner: React.FC<PopupBannerProps> = ({ enabled, imgUrl, linkU
                     checked={dontShow}
                     onChange={(e) => setDontShow(e.target.checked)}
                   />
-                  <div className={`w-5 h-5 rounded border-2 transition-all duration-300 flex items-center justify-center ${dontShow ? 'bg-[#3B82F6] border-[#3B82F6]' : 'bg-[#0B0F14] border-white/20 group-hover:border-zinc-400'}`}>
+                  <div className={`w-5 h-5 rounded border-2 transition-all duration-300 flex items-center justify-center ${dontShow ? 'bg-[#3B82F6] border-[#3B82F6]' : 'bg-[#0B0D0F] border-white/20 group-hover:border-zinc-400'}`}>
                     {dontShow && <Check className="w-3.5 h-3.5 text-white" />}
                   </div>
                 </div>

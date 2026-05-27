@@ -55,7 +55,7 @@ export const TelegramCatcherTool: React.FC<TelegramCatcherToolProps> = ({ userPl
           icon: 'warning',
           title: 'Missing Details',
           text: 'Please enter both phone numbers',
-          background: '#0B0F14',
+          background: '#0B0D0F',
           color: '#fff'
       });
       return;
@@ -74,7 +74,7 @@ export const TelegramCatcherTool: React.FC<TelegramCatcherToolProps> = ({ userPl
           icon: 'error',
           title: 'Error',
           text: res.data.error,
-          background: '#0B0F14',
+          background: '#0B0D0F',
           color: '#fff'
         });
         setStatus('error');
@@ -86,7 +86,7 @@ export const TelegramCatcherTool: React.FC<TelegramCatcherToolProps> = ({ userPl
         icon: 'error',
         title: 'Error Occurred',
         text: error.response?.data?.error || error.message,
-        background: '#0B0F14',
+        background: '#0B0D0F',
         color: '#fff'
       });
     } finally {
@@ -111,7 +111,7 @@ export const TelegramCatcherTool: React.FC<TelegramCatcherToolProps> = ({ userPl
         icon: 'error',
         title: 'Error Occurred',
         text: error.response?.data?.error || error.message,
-        background: '#0B0F14',
+        background: '#0B0D0F',
         color: '#fff'
       });
     } finally {
@@ -125,7 +125,7 @@ export const TelegramCatcherTool: React.FC<TelegramCatcherToolProps> = ({ userPl
       await axios.post('/api/telegram/catcher/stop', { telegramPhone: telegramPhone.replace(/\s+/g, '') });
       setStatus('none');
       setLogs([]);
-      Swal.fire({ title: 'Stopped Successfully', icon: 'success', toast: true, position: 'top-end', showConfirmButton: false, timer: 1500, background: '#0B0F14', color: '#fff' });
+      Swal.fire({ title: 'Stopped Successfully', icon: 'success', toast: true, position: 'top-end', showConfirmButton: false, timer: 1500, background: '#0B0D0F', color: '#fff' });
     } catch (e) {
       console.error(e);
     }
@@ -158,7 +158,7 @@ export const TelegramCatcherTool: React.FC<TelegramCatcherToolProps> = ({ userPl
                   value={telegramPhone}
                   onChange={e => setTelegramPhone(e.target.value)}
                   placeholder="+66XXXXXXXXX"
-                  className="w-full bg-[#0a0d12] border border-white/10 rounded-xl py-3 pl-10 pr-4 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-[#2AABEE]/50 focus:ring-1 focus:ring-[#2AABEE]/20 transition-all font-mono"
+                  className="w-full bg-[#121417] border border-white/10 rounded-xl py-3 pl-10 pr-4 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-[#2AABEE]/50 focus:ring-1 focus:ring-[#2AABEE]/20 transition-all font-mono"
                   disabled={status !== 'none' && status !== 'error'}
                 />
               </div>
@@ -173,7 +173,7 @@ export const TelegramCatcherTool: React.FC<TelegramCatcherToolProps> = ({ userPl
                   value={truemoneyPhone}
                   onChange={e => setTruemoneyPhone(e.target.value)}
                   placeholder="0XXXXXXXXX"
-                  className="w-full bg-[#0a0d12] border border-white/10 rounded-xl py-3 pl-10 pr-4 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-[#2AABEE]/50 focus:ring-1 focus:ring-[#2AABEE]/20 transition-all font-mono"
+                  className="w-full bg-[#121417] border border-white/10 rounded-xl py-3 pl-10 pr-4 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-[#2AABEE]/50 focus:ring-1 focus:ring-[#2AABEE]/20 transition-all font-mono"
                   disabled={status !== 'none' && status !== 'error'}
                 />
               </div>

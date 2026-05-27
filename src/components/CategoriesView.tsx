@@ -37,7 +37,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({ categories, prod
       <div className="flex items-center gap-4 mb-8">
         <button 
           onClick={onBack}
-          className="p-3 bg-[#0B0F14] hover:bg-[#121820] border border-white/10 rounded-full transition-colors group shadow-sm"
+          className="p-3 bg-[#0B0D0F] hover:bg-[#121820] border border-white/10 rounded-full transition-colors group shadow-sm"
         >
           <ArrowLeft className="w-5 h-5 text-zinc-400 group-hover:text-white" />
         </button>
@@ -60,7 +60,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({ categories, prod
           onClick={() => onSelectCategory('all')}
           accentColor="#3B82F6"
           glowColor="rgba(59,130,246,0.6)"
-          gradientFrom="#0B0F14"
+          gradientFrom="#0B0D0F"
         />
 
         {categories.map((c, i) => (
@@ -75,7 +75,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({ categories, prod
             onClick={() => onSelectCategory(c.name)}
             accentColor="#3B82F6"
             glowColor="rgba(59,130,246,0.6)"
-            gradientFrom="#0B0F14"
+            gradientFrom="#0B0D0F"
           />
         ))}
       </div>

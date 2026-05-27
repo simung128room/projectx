@@ -50,7 +50,7 @@ export const DiscordCatcherTool: React.FC<DiscordCatcherToolProps> = ({ userPlan
           icon: 'warning',
           title: 'Missing Details',
           text: 'Please enter your Discord Token and TrueMoney Phone Number',
-          background: '#0B0F14',
+          background: '#0B0D0F',
           color: '#fff'
       });
       return;
@@ -61,7 +61,7 @@ export const DiscordCatcherTool: React.FC<DiscordCatcherToolProps> = ({ userPlan
             icon: 'warning',
             title: 'Invalid TrueMoney Phone',
             text: 'Please enter a valid 10-digit phone number (e.g. 0812345678)',
-            background: '#0B0F14',
+            background: '#0B0D0F',
             color: '#fff'
         });
         return;
@@ -81,7 +81,7 @@ export const DiscordCatcherTool: React.FC<DiscordCatcherToolProps> = ({ userPlan
             icon: 'error',
             title: 'Error Occurred',
             text: res.data.error,
-            background: '#0B0F14',
+            background: '#0B0D0F',
             color: '#fff'
         });
         setStatus('error');
@@ -93,7 +93,7 @@ export const DiscordCatcherTool: React.FC<DiscordCatcherToolProps> = ({ userPlan
             icon: 'error',
             title: 'Error Occurred',
             text: error.response?.data?.error || error.message,
-            background: '#0B0F14',
+            background: '#0B0D0F',
             color: '#fff'
         });
     } finally {
@@ -107,7 +107,7 @@ export const DiscordCatcherTool: React.FC<DiscordCatcherToolProps> = ({ userPlan
       await axios.post('/api/discord/catcher/stop', { discordToken });
       setStatus('none');
       setLogs([]);
-      Swal.fire({ title: 'Stopped Successfully', icon: 'success', toast: true, position: 'top-end', showConfirmButton: false, timer: 1500, background: '#0B0F14', color: '#fff' });
+      Swal.fire({ title: 'Stopped Successfully', icon: 'success', toast: true, position: 'top-end', showConfirmButton: false, timer: 1500, background: '#0B0D0F', color: '#fff' });
     } catch (e) {
       console.error(e);
     }
@@ -140,7 +140,7 @@ export const DiscordCatcherTool: React.FC<DiscordCatcherToolProps> = ({ userPlan
                   value={discordToken}
                   onChange={e => setDiscordToken(e.target.value)}
                   placeholder="MTA...."
-                  className="w-full bg-[#0a0d12] border border-white/10 rounded-xl py-3 pl-10 pr-4 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-[#5865F2]/50 focus:ring-1 focus:ring-[#5865F2]/20 transition-all font-mono"
+                  className="w-full bg-[#121417] border border-white/10 rounded-xl py-3 pl-10 pr-4 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-[#5865F2]/50 focus:ring-1 focus:ring-[#5865F2]/20 transition-all font-mono"
                   disabled={status !== 'none' && status !== 'error'}
                 />
               </div>
@@ -155,7 +155,7 @@ export const DiscordCatcherTool: React.FC<DiscordCatcherToolProps> = ({ userPlan
                   value={truemoneyPhone}
                   onChange={e => setTruemoneyPhone(e.target.value)}
                   placeholder="08X-XXX-XXXX"
-                  className="w-full bg-[#0a0d12] border border-white/10 rounded-xl py-3 pl-10 pr-4 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-[#5865F2]/50 focus:ring-1 focus:ring-[#5865F2]/20 transition-all font-mono"
+                  className="w-full bg-[#121417] border border-white/10 rounded-xl py-3 pl-10 pr-4 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-[#5865F2]/50 focus:ring-1 focus:ring-[#5865F2]/20 transition-all font-mono"
                   disabled={status !== 'none' && status !== 'error'}
                 />
               </div>

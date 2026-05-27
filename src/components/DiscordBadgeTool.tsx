@@ -21,7 +21,7 @@ export const DiscordBadgeTool: React.FC = () => {
             Swal.fire({
                 icon: 'warning',
                 title: 'Missing User Token',
-                background: '#0B0F14',
+                background: '#0B0D0F',
                 color: '#fff'
             });
             return;
@@ -30,7 +30,7 @@ export const DiscordBadgeTool: React.FC = () => {
             Swal.fire({
                 icon: 'warning',
                 title: 'Please Select a House',
-                background: '#0B0F14',
+                background: '#0B0D0F',
                 color: '#fff'
             });
             return;
@@ -44,7 +44,7 @@ export const DiscordBadgeTool: React.FC = () => {
                    icon: 'success',
                    title: 'Badge Acquired!',
                    text: 'Congratulations! You received the HypeSquad badge.',
-                   background: '#0B0F14',
+                   background: '#0B0D0F',
                    color: '#fff'
                 });
             }
@@ -53,7 +53,7 @@ export const DiscordBadgeTool: React.FC = () => {
                 icon: 'error',
                 title: 'Error Occurred',
                 text: error.response?.data?.error || "Unable to process. Please check your Token.",
-                background: '#0B0F14',
+                background: '#0B0D0F',
                 color: '#fff'
             });
         } finally {
@@ -66,7 +66,7 @@ export const DiscordBadgeTool: React.FC = () => {
             Swal.fire({
                 icon: 'warning',
                 title: 'Missing User Token',
-                background: '#0B0F14',
+                background: '#0B0D0F',
                 color: '#fff'
             });
             return;
@@ -81,7 +81,7 @@ export const DiscordBadgeTool: React.FC = () => {
             cancelButtonColor: '#2b2d31',
             confirmButtonText: 'Remove Badge',
             cancelButtonText: 'Cancel',
-            background: '#0B0F14',
+            background: '#0B0D0F',
             color: '#fff'
         });
 
@@ -94,7 +94,7 @@ export const DiscordBadgeTool: React.FC = () => {
                     Swal.fire({
                        icon: 'success',
                        title: 'Badge Removed!',
-                       background: '#0B0F14',
+                       background: '#0B0D0F',
                        color: '#fff'
                     });
                 }
@@ -103,7 +103,7 @@ export const DiscordBadgeTool: React.FC = () => {
                     icon: 'error',
                     title: 'เกิดข้อผิดพลาด',
                     text: error.response?.data?.error || "ไม่สามารถดำเนินการได้ โปรดตรวจสอบ Token ของคุณ",
-                    background: '#0B0F14',
+                    background: '#0B0D0F',
                     color: '#fff'
                 });
             } finally {
@@ -139,7 +139,7 @@ export const DiscordBadgeTool: React.FC = () => {
                 </div>
             </div>
 
-            <div className="bg-[#0B0F14]/90  border border-white/5 rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden">
+            <div className="bg-[#0B0D0F]/90  border border-white/5 rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-full h-[2px] from-transparent via-[#5865F2]/80 to-transparent"></div>
                 
                 <div className="space-y-8 relative z-10">

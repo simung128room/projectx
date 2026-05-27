@@ -35,9 +35,9 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
         <span className="text-white font-bold truncate">{product.name}</span>
       </div>
 
-      <div className="bg-[#0B0F14] rounded-xl border border-white/10 overflow-hidden shadow-sm flex flex-col md:flex-row">
+      <div className="bg-[#0B0D0F] rounded-xl border border-white/10 overflow-hidden shadow-sm flex flex-col md:flex-row">
         {/* Left Side: Image */}
-        <div className="w-full md:w-5/12 lg:w-1/2 p-6 md:p-8 flex items-center justify-center bg-[#0a0d12]/50">
+        <div className="w-full md:w-5/12 lg:w-1/2 p-6 md:p-8 flex items-center justify-center bg-[#121417]/50">
           <motion.div
             className="w-full aspect-square relative rounded-2xl overflow-hidden group shadow-lg"
             whileHover={{ scale: 1.02 }}
@@ -88,13 +88,13 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
           </div>
 
           <div className="grid grid-cols-2 gap-4 mb-8">
-            <div className="bg-[#0a0d12] border border-white/5 rounded-2xl p-4">
+            <div className="bg-[#121417] border border-white/5 rounded-2xl p-4">
                <div className="text-zinc-500 text-xs font-bold mb-1 flex items-center gap-1"><Box className="w-3.5 h-3.5"/> สถานะสต๊อก</div>
                <div className={`text-xl font-black ${product.stock > 0 ? 'text-white' : 'text-[#2563EB]'}`}>
                  {product.stock >= 999999 ? '∞' : `${product.stock} ชิ้น`}
                </div>
             </div>
-            <div className="bg-[#0a0d12] border border-white/5 rounded-2xl p-4">
+            <div className="bg-[#121417] border border-white/5 rounded-2xl p-4">
                <div className="text-zinc-500 text-xs font-bold mb-1 flex items-center gap-1"><ShoppingCart className="w-3.5 h-3.5"/> สั่งซื้อไปแล้ว</div>
                <div className="text-xl font-black text-white">{product.soldCount || 0} ครั้ง</div>
             </div>
@@ -117,12 +117,12 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
                   link.click();
                   URL.revokeObjectURL(url);
                 }}
-                className="text-[10px] font-bold text-zinc-500 hover:text-[#3B82F6] transition-colors flex items-center gap-1.5 bg-[#0B0F14] border border-white/10 px-3 py-1.5 rounded-xl shadow-sm active:scale-95"
+                className="text-[10px] font-bold text-zinc-500 hover:text-[#3B82F6] transition-colors flex items-center gap-1.5 bg-[#0B0D0F] border border-white/10 px-3 py-1.5 rounded-xl shadow-sm active:scale-95"
               >
                 <Download className="w-3.5 h-3.5" /> DOWNLOAD .TXT
               </button>
             </div>
-            <div className="text-zinc-400 text-sm leading-relaxed whitespace-pre-wrap bg-[#0a0d12]/50 p-5 rounded-2xl border border-white/5 min-h-[120px]">
+            <div className="text-zinc-400 text-sm leading-relaxed whitespace-pre-wrap bg-[#121417]/50 p-5 rounded-2xl border border-white/5 min-h-[120px]">
               {product.description || "ไม่มีรายละเอียดสินค้าระบุไว้"}
             </div>
           </div>
@@ -149,7 +149,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
                         const val = parseInt(e.target.value);
                         if (!isNaN(val)) setPurchaseQuantity(Math.min(product.stock >= 999999 ? 999 : product.stock, Math.max(1, val)));
                       }}
-                      className="flex-1 h-12 bg-[#0B0F14] border-2 border-white/10 rounded-xl text-center font-black text-xl outline-none focus:border-[#2563EB] transition-colors appearance-none m-0"
+                      className="flex-1 h-12 bg-[#0B0D0F] border-2 border-white/10 rounded-xl text-center font-black text-xl outline-none focus:border-[#2563EB] transition-colors appearance-none m-0"
                       style={{ WebkitAppearance: 'none', MozAppearance: 'textfield' }}
                       disabled={product.stock === 0}
                     />
@@ -215,7 +215,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
                 <div className="flex items-center gap-3 w-full">
                    <button 
                      onClick={() => setShowConfirmPurchase(false)}
-                     className="flex-1 py-3 bg-[#0B0F14] border border-[#3B82F6]/30 hover:bg-[#3B82F6]/10 text-[#1D4ED8] font-bold rounded-xl transition-colors text-sm active:scale-95"
+                     className="flex-1 py-3 bg-[#0B0D0F] border border-[#3B82F6]/30 hover:bg-[#3B82F6]/10 text-[#1D4ED8] font-bold rounded-xl transition-colors text-sm active:scale-95"
                    >
                      ยกเลิก
                    </button>

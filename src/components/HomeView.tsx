@@ -148,7 +148,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
     <div className="space-y-6 pb-24 font-sans text-white mt-2 sm:mt-4">
       {/* Banner carousel */}
       <AnimatedScroll>
-        <div className="relative w-full aspect-[4/1] rounded-xl overflow-hidden shadow-sm border border-white/5 bg-[#0a0d12]">
+        <div className="relative w-full aspect-[4/1] rounded-xl overflow-hidden shadow-sm border border-white/5 bg-[#121417]">
           <AnimatePresence>
             <motion.img loading="lazy"
               key={currentBanner}

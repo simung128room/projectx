@@ -66,7 +66,7 @@ export const AdminBotManagement: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Help Panel */}
-        <div className="bg-[#0a0d12] border border-white/5 p-6 rounded-xl relative overflow-hidden flex flex-col space-y-4">
+        <div className="bg-[#121417] border border-white/5 p-6 rounded-xl relative overflow-hidden flex flex-col space-y-4">
             <h3 className="text-white font-bold flex items-center gap-2 text-lg">
                 <HelpCircle className="w-5 h-5 text-indigo-400" />
                 วิธีใช้งาน (How to run)
@@ -86,7 +86,7 @@ export const AdminBotManagement: React.FC = () => {
         </div>
 
         {/* Config Editor */}
-        <div className="lg:col-span-2 bg-[#0a0d12] border border-white/5 p-6 rounded-xl relative overflow-hidden flex flex-col">
+        <div className="lg:col-span-2 bg-[#121417] border border-white/5 p-6 rounded-xl relative overflow-hidden flex flex-col">
             <h3 className="text-white font-bold mb-4 flex items-center gap-2">
                 <Terminal className="w-5 h-5 text-[#3B82F6]" />
                 ตัวจัดการสคริปต์ bot.py

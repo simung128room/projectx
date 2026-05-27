@@ -23,7 +23,7 @@ export const PageView: React.FC<PageViewProps> = ({ page, onBack }) => {
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-[#0B0F14] rounded-xl border border-white/10 overflow-hidden shadow-sm p-8 md:p-12 min-h-[60vh]"
+        className="bg-[#0B0D0F] rounded-xl border border-white/10 overflow-hidden shadow-sm p-8 md:p-12 min-h-[60vh]"
       >
         <h1 className="text-3xl md:text-4xl font-black text-white mb-8 border-b border-white/5 pb-6 flex items-center gap-3">
            <FileText className="w-8 h-8 text-[#2563EB] hidden sm:block" />

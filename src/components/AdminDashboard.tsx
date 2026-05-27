@@ -66,7 +66,7 @@ const ProductManagerModal = ({
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center sm:justify-end p-0 z-[100]" onClick={onClose}>
       <div 
-        className="bg-[#0B0F14] border-none sm:border-l border-white/5 w-full sm:max-w-md h-full relative overflow-y-auto p-6 sm:p-8 animate-in slide-in-from-bottom-full sm:slide-in-from-right-full duration-300 shadow-2xl"
+        className="bg-[#0B0D0F] border-none sm:border-l border-white/5 w-full sm:max-w-md h-full relative overflow-y-auto p-6 sm:p-8 animate-in slide-in-from-bottom-full sm:slide-in-from-right-full duration-300 shadow-2xl"
         onClick={e => e.stopPropagation()}
       >
         <button onClick={onClose} className="absolute top-6 right-6 text-zinc-500 hover:text-white transition-colors bg-white/5 rounded-full p-2">
@@ -380,7 +380,7 @@ const AddStockModal = ({
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-end p-0 z-50">
-      <div className="bg-[#0B0F14] border-l border-white/5 w-full max-w-md h-full relative p-6 sm:p-8 overflow-y-auto animate-in slide-in-from-right-full duration-300">
+      <div className="bg-[#0B0D0F] border-l border-white/5 w-full max-w-md h-full relative p-6 sm:p-8 overflow-y-auto animate-in slide-in-from-right-full duration-300">
         <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
           <Database className="w-5 h-5 text-indigo-400" />
           เพิ่มสต๊อก: {product.name}
@@ -645,7 +645,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         title: 'เกิดข้อผิดพลาด',
         text: 'ไฟล์มีขนาดใหญ่เกินไป (จำกัด 50MB)',
         icon: 'error',
-        background: '#0B0F14',
+        background: '#0B0D0F',
         color: '#fff',
         confirmButtonColor: '#2563EB'
       });
@@ -670,7 +670,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           title: 'สำเร็จ',
           text: 'อัพโหลดเพลงสำเร็จแล้ว',
           icon: 'success',
-          background: '#0B0F14',
+          background: '#0B0D0F',
           color: '#fff',
           timer: 1500,
           showConfirmButton: false
@@ -683,7 +683,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         title: 'เกิดข้อผิดพลาด',
         text: errorMsg,
         icon: 'error',
-        background: '#0B0F14',
+        background: '#0B0D0F',
         color: '#fff',
         confirmButtonColor: '#2563EB'
       });
@@ -720,7 +720,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           text: 'บันทึกการตั้งค่าระบบเรียบร้อยแล้ว', 
           icon: 'success', 
           confirmButtonColor: '#3B82F6',
-          background: '#0B0F14',
+          background: '#0B0D0F',
           color: '#fff'
         });
       }
@@ -731,7 +731,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         title: 'ผิดพลาด',
         text: errorMsg,
         icon: 'error',
-        background: '#0B0F14',
+        background: '#0B0D0F',
         color: '#fff'
       });
     }
@@ -798,7 +798,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   );
 
   return (
-    <div className="min-h-screen bg-[#07090D] flex font-sans text-white">
+    <div className="min-h-screen bg-[#0B0D0F] flex font-sans text-white">
       {/* Mobile Nav Overlay */}
       <AnimatePresence>
         {isNavOpen && (
@@ -932,7 +932,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   { label: 'คำสั่งซื้อที่สำเร็จ', value: totalOrders.toLocaleString(), icon: ShoppingCart, color: 'text-emerald-500', bg: 'bg-emerald-50' },
                   { label: 'รายได้รวม (บาท)', value: totalRevenue.toLocaleString(), icon: Activity, color: 'text-[#3B82F6]', bg: 'bg-[#3B82F6]/10' },
                 ].map((stat, i) => (
-                  <div key={i} className="bg-[#0a0d12] border border-white/5 p-6 rounded-xl relative overflow-hidden group  hover: transition-all">
+                  <div key={i} className="bg-[#121417] border border-white/5 p-6 rounded-xl relative overflow-hidden group  hover: transition-all">
                     <div className={`absolute top-0 right-0 w-24 h-24 ${stat.bg} blur-3xl opacity-50 -mr-8 -mt-8 transition-all group-hover:scale-150`}></div>
                     <div className="flex items-center justify-between relative z-10">
                       <div>
@@ -949,29 +949,29 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2 space-y-6">
-                  <div className="bg-[#0a0d12] border border-white/5 rounded-xl overflow-hidden ">
-                    <div className="p-6 border-b border-white/5 flex justify-between items-center bg-[#0a0d12]/50">
+                  <div className="bg-[#121417] border border-white/5 rounded-xl overflow-hidden ">
+                    <div className="p-6 border-b border-white/5 flex justify-between items-center bg-[#121417]/50">
                       <h3 className="font-bold flex items-center gap-2 text-white">
                         <LineChart className="w-5 h-5 text-[#2563EB]" /> รายงานสรุปยอดขาย (Sales Summary)
                       </h3>
                     </div>
                     <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-                      <div className="bg-[#0a0d12]/50 border border-white/5 rounded-2xl p-6 text-center group hover:bg-[#0d1522] transition-colors">
+                      <div className="bg-[#121417]/50 border border-white/5 rounded-2xl p-6 text-center group hover:bg-[#0d1522] transition-colors">
                         <p className="text-zinc-500 text-[10px] font-black uppercase mb-2 tracking-widest">วันนี้</p>
                         <p className="text-2xl font-black text-[#3B82F6]">{salesToday.toLocaleString()} <span className="text-[10px] font-bold text-zinc-500 uppercase ml-1">THB</span></p>
                       </div>
-                      <div className="bg-[#0a0d12]/50 border border-white/5 rounded-2xl p-6 text-center group hover:bg-[#0d1522] transition-colors">
+                      <div className="bg-[#121417]/50 border border-white/5 rounded-2xl p-6 text-center group hover:bg-[#0d1522] transition-colors">
                         <p className="text-zinc-500 text-[10px] font-black uppercase mb-2 tracking-widest">สัปดาห์นี้</p>
                         <p className="text-2xl font-black text-[#3B82F6]">{salesWeek.toLocaleString()} <span className="text-[10px] font-bold text-zinc-500 uppercase ml-1">THB</span></p>
                       </div>
-                      <div className="bg-[#0a0d12]/50 border border-white/5 rounded-2xl p-6 text-center group hover:bg-[#0d1522] transition-colors">
+                      <div className="bg-[#121417]/50 border border-white/5 rounded-2xl p-6 text-center group hover:bg-[#0d1522] transition-colors">
                         <p className="text-zinc-500 text-[10px] font-black uppercase mb-2 tracking-widest">เดือนนี้</p>
                         <p className="text-2xl font-black text-[#3B82F6]">{salesMonth.toLocaleString()} <span className="text-[10px] font-bold text-zinc-500 uppercase ml-1">THB</span></p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="bg-[#0a0d12] border border-white/5 rounded-xl p-6 ">
+                  <div className="bg-[#121417] border border-white/5 rounded-xl p-6 ">
                     <h3 className="font-bold flex items-center gap-2 mb-6 text-white uppercase text-xs tracking-widest">
                       <Cpu className="w-4 h-4 text-[#2563EB]" /> ระบบจัดการด่วน (Quick Management)
                     </h3>
@@ -985,7 +985,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                            <button 
                              key={i}
                              onClick={() => setAdminTab(item.id)}
-                             className="flex items-center gap-4 p-4 rounded-2xl border border-white/5 bg-[#0a0d12] hover:bg-[#121b2a] transition-all text-left group"
+                             className="flex items-center gap-4 p-4 rounded-2xl border border-white/5 bg-[#121417] hover:bg-[#121b2a] transition-all text-left group"
                            >
                              <div className={`w-12 h-12 rounded-xl ${item.bg} ${item.color} flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform`}>
                                <item.icon className="w-6 h-6" />
@@ -1002,12 +1002,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 </div>
 
                 <div className="space-y-6">
-                  <div className="bg-[#0a0d12] border border-white/5 rounded-xl p-6 ">
+                  <div className="bg-[#121417] border border-white/5 rounded-xl p-6 ">
                     <h3 className="font-bold flex items-center gap-2 mb-6 text-white uppercase text-xs tracking-widest">
                       <Settings className="w-4 h-4 text-[#2563EB]" /> อื่นๆ
                     </h3>
                     <div className="space-y-3">
-                      <button onClick={() => setAdminTab('banners')} className="w-full bg-[#0a0d12] hover:bg-[#121820] border border-white/5 p-4 rounded-2xl flex items-center justify-between group transition-all">
+                      <button onClick={() => setAdminTab('banners')} className="w-full bg-[#121417] hover:bg-[#121820] border border-white/5 p-4 rounded-2xl flex items-center justify-between group transition-all">
                         <div className="flex items-center gap-3">
                           <Image className="w-5 h-5 text-zinc-700" />
                           <div className="text-left">
@@ -1016,7 +1016,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         </div>
                         <ChevronRight className="w-4 h-4 text-zinc-400" />
                       </button>
-                      <button onClick={() => setAdminTab('pages')} className="w-full bg-[#0a0d12] hover:bg-[#121820] border border-white/5 p-4 rounded-2xl flex items-center justify-between group transition-all">
+                      <button onClick={() => setAdminTab('pages')} className="w-full bg-[#121417] hover:bg-[#121820] border border-white/5 p-4 rounded-2xl flex items-center justify-between group transition-all">
                         <div className="flex items-center gap-3">
                           <FileText className="w-5 h-5 text-zinc-700" />
                           <div className="text-left">
@@ -1025,7 +1025,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         </div>
                         <ChevronRight className="w-4 h-4 text-zinc-400" />
                       </button>
-                      <button onClick={() => setAdminTab('history')} className="w-full bg-[#0a0d12] hover:bg-[#121820] border border-white/5 p-4 rounded-2xl flex items-center justify-between group transition-all">
+                      <button onClick={() => setAdminTab('history')} className="w-full bg-[#121417] hover:bg-[#121820] border border-white/5 p-4 rounded-2xl flex items-center justify-between group transition-all">
                         <div className="flex items-center gap-3">
                           <History className="w-5 h-5 text-zinc-700" />
                           <div className="text-left">
@@ -1139,7 +1139,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               className="space-y-6"
             >
               {/* Site Stats */}
-              <div className="bg-[#0a0d12] border border-white/5 rounded-xl p-6  relative overflow-hidden">
+              <div className="bg-[#121417] border border-white/5 rounded-xl p-6  relative overflow-hidden">
                 <div className="flex justify-between items-center mb-6">
                   <h3 className="font-bold text-white flex items-center gap-2"><BarChart3 className="w-5 h-5 text-[#2563EB]" /> ตั้งค่าสถิติหน้าแรก</h3>
                   <button 
@@ -1202,15 +1202,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   </button>
                 </div>
                 <div className="grid grid-cols-3 gap-4">
-                  <div className="bg-[#0a0d12] rounded-2xl p-4 border border-white/5 flex flex-col items-center justify-center">
+                  <div className="bg-[#121417] rounded-2xl p-4 border border-white/5 flex flex-col items-center justify-center">
                     <span className="text-3xl font-black text-white">{(siteStats?.users || 0).toLocaleString()}</span>
                     <span className="text-zinc-500 text-xs font-bold uppercase tracking-wider mt-1">ผู้ใช้งาน</span>
                   </div>
-                  <div className="bg-[#0a0d12] rounded-2xl p-4 border border-white/5 flex flex-col items-center justify-center">
+                  <div className="bg-[#121417] rounded-2xl p-4 border border-white/5 flex flex-col items-center justify-center">
                     <span className="text-3xl font-black text-white">{(siteStats?.stock || 0).toLocaleString()}</span>
                     <span className="text-zinc-500 text-xs font-bold uppercase tracking-wider mt-1">สต๊อกสินค้า</span>
                   </div>
-                  <div className="bg-[#0a0d12] rounded-2xl p-4 border border-white/5 flex flex-col items-center justify-center">
+                  <div className="bg-[#121417] rounded-2xl p-4 border border-white/5 flex flex-col items-center justify-center">
                     <span className="text-3xl font-black text-white">{(siteStats?.sales || 0).toLocaleString()}</span>
                     <span className="text-zinc-500 text-xs font-bold uppercase tracking-wider mt-1">ยอดขาย</span>
                   </div>
@@ -1218,7 +1218,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               </div>
 
               {/* Products List */}
-              <div className="bg-[#0a0d12] border border-white/5 rounded-xl p-6  relative overflow-hidden">
+              <div className="bg-[#121417] border border-white/5 rounded-xl p-6  relative overflow-hidden">
                 <div className="flex justify-between items-center mb-6">
                   <h3 className="font-bold text-white flex items-center gap-2"><Package className="w-5 h-5 text-[#2563EB]" /> จัดการสินค้า</h3>
                   <button 
@@ -1231,7 +1231,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-sm text-zinc-400">
-                    <thead className="text-xs uppercase bg-[#0a0d12] text-zinc-500 font-bold tracking-wider">
+                    <thead className="text-xs uppercase bg-[#121417] text-zinc-500 font-bold tracking-wider">
                       <tr>
                         <th className="px-4 py-3 rounded-l-xl">สินค้า</th>
                         <th className="px-4 py-3">ราคา</th>
@@ -1241,7 +1241,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     </thead>
                     <tbody>
                       {products.map((p, i) => (
-                        <tr key={i} className="border-b border-white/5 hover:bg-[#0a0d12]/50 transition-colors">
+                        <tr key={i} className="border-b border-white/5 hover:bg-[#121417]/50 transition-colors">
                           <td className="px-4 py-4 flex items-center gap-3">
                             <img loading="lazy" src={p.imageUrl || undefined} alt={p.name} className="w-10 h-10 rounded-lg object-cover bg-[#121820]" />
                             <div>
@@ -1310,14 +1310,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                 </button>
                                 <button 
                                   onClick={() => setStockProduct(p)}
-                                  className="p-2 border border-white/5 bg-[#0a0d12] text-zinc-400 hover:bg-[#0a0d12] hover:border-white/20 rounded-lg transition-colors"
+                                  className="p-2 border border-white/5 bg-[#121417] text-zinc-400 hover:bg-[#121417] hover:border-white/20 rounded-lg transition-colors"
                                   title="เพิ่มสต๊อก"
                                 >
                                     <Database className="w-4 h-4" />
                                 </button>
                                 <button 
                                   onClick={() => setEditingProduct(p)}
-                                  className="p-2 border border-white/5 bg-[#0a0d12] text-zinc-400 hover:bg-[#0a0d12] hover:border-white/20 rounded-lg transition-colors"
+                                  className="p-2 border border-white/5 bg-[#121417] text-zinc-400 hover:bg-[#121417] hover:border-white/20 rounded-lg transition-colors"
                                   title="แก้ไขสินค้า"
                                 >
                                     <Settings className="w-4 h-4" />
@@ -1374,9 +1374,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="bg-[#0a0d12] border border-white/5  rounded-xl overflow-hidden"
+              className="bg-[#121417] border border-white/5  rounded-xl overflow-hidden"
             >
-              <div className="p-6 border-b border-white/5 flex justify-between items-center bg-[#0a0d12]/50">
+              <div className="p-6 border-b border-white/5 flex justify-between items-center bg-[#121417]/50">
                 <div>
                   <h3 className="font-bold text-white flex items-center gap-2"><Key className="w-5 h-5 text-[#2563EB]" /> Key Management</h3>
                   <p className="text-zinc-500 text-xs mt-1">จัดการคีย์และสต๊อก</p>
@@ -1407,7 +1407,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm text-zinc-400">
-                  <thead className="text-xs uppercase bg-[#0a0d12] text-zinc-500 font-bold tracking-wider">
+                  <thead className="text-xs uppercase bg-[#121417] text-zinc-500 font-bold tracking-wider">
                     <tr>
                       <th className="p-4">License Key</th>
                       <th className="p-4">Type</th>
@@ -1418,7 +1418,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   </thead>
                   <tbody className="text-xs">
                     {licenseKeys.length > 0 ? licenseKeys.map((key, i) => (
-                      <tr key={i} className="border-b border-white/5 hover:bg-[#0a0d12]/50 transition-colors">
+                      <tr key={i} className="border-b border-white/5 hover:bg-[#121417]/50 transition-colors">
                         <td className="p-4">
                           <div className="flex items-center gap-3">
                              <div className="w-2 h-2 rounded-full bg-cyan-500"></div>
@@ -1465,15 +1465,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="bg-[#0a0d12] border border-white/5  rounded-xl overflow-hidden"
+              className="bg-[#121417] border border-white/5  rounded-xl overflow-hidden"
             >
-               <div className="p-6 border-b border-white/5 bg-[#0a0d12]/50">
+               <div className="p-6 border-b border-white/5 bg-[#121417]/50">
                   <h3 className="font-bold text-white flex items-center gap-2"><History className="w-5 h-5 text-[#2563EB]" /> Redeem Logs</h3>
                   <p className="text-zinc-500 text-xs mt-1">ประวัติการใช้งานคีย์</p>
                </div>
                <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm text-zinc-400">
-                  <thead className="text-xs uppercase bg-[#0a0d12] text-zinc-500 font-bold tracking-wider">
+                  <thead className="text-xs uppercase bg-[#121417] text-zinc-500 font-bold tracking-wider">
                     <tr>
                       <th className="p-4">Key Used</th>
                       <th className="p-4">User IP</th>
@@ -1483,7 +1483,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   </thead>
                   <tbody className="text-xs font-mono">
                     {usedKeysHistory.length > 0 ? usedKeysHistory.map((h, i) => (
-                      <tr key={i} className="border-b border-white/5 hover:bg-[#0a0d12]/50 transition-colors">
+                      <tr key={i} className="border-b border-white/5 hover:bg-[#121417]/50 transition-colors">
                         <td className="p-4">
                           <span className="text-white font-bold">{h.key}</span>
                         </td>
@@ -1508,9 +1508,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="bg-[#0a0d12] border border-white/5  rounded-xl overflow-hidden"
+              className="bg-[#121417] border border-white/5  rounded-xl overflow-hidden"
             >
-               <div className="p-6 border-b border-white/5 flex justify-between items-center bg-[#0a0d12]/50">
+               <div className="p-6 border-b border-white/5 flex justify-between items-center bg-[#121417]/50">
                   <div>
                     <h3 className="font-bold text-white flex items-center gap-2"><Ban className="w-5 h-5 text-[#2563EB]" /> IP Access Control</h3>
                     <p className="text-zinc-500 text-xs mt-1">แบนผู้ใช้งานที่ไม่พึงประสงค์</p>
@@ -1521,7 +1521,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                </div>
                <div className="overflow-x-auto">
                   <table className="w-full text-left text-sm text-zinc-400">
-                    <thead className="text-xs uppercase bg-[#0a0d12] text-zinc-500 font-bold tracking-wider">
+                    <thead className="text-xs uppercase bg-[#121417] text-zinc-500 font-bold tracking-wider">
                       <tr>
                         <th className="p-4">IP Address</th>
                         <th className="p-4">Reason</th>
@@ -1531,7 +1531,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     </thead>
                     <tbody className="font-mono text-xs">
                       {blockedIPs.length > 0 ? blockedIPs.map((ip, i) => (
-                        <tr key={i} className="border-b border-white/5 hover:bg-[#0a0d12]/50 transition-colors">
+                        <tr key={i} className="border-b border-white/5 hover:bg-[#121417]/50 transition-colors">
                           <td className="p-4">
                             <div className="flex items-center gap-2">
                               <span className="text-[#3B82F6] font-bold tracking-tight">{ip.ip}</span>
@@ -1634,13 +1634,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               exit={{ opacity: 0, x: -20 }}
               className="space-y-6"
             >
-              <div className="bg-[#0a0d12] border border-white/5  rounded-xl overflow-hidden">
-                <div className="p-6 border-b border-white/5 bg-[#0a0d12]/50">
+              <div className="bg-[#121417] border border-white/5  rounded-xl overflow-hidden">
+                <div className="p-6 border-b border-white/5 bg-[#121417]/50">
                   <h3 className="font-bold text-white flex items-center gap-2"><Settings className="w-5 h-5 text-zinc-500" /> Site Settings</h3>
                   <p className="text-zinc-500 text-xs mt-1">ตั้งค่าพารามิเตอร์ต่างๆ ของระบบ</p>
                 </div>
                 <div className="p-6 space-y-8">
-                   <div className="p-6 bg-[#0a0d12] border border-white/5 rounded-xl">
+                   <div className="p-6 bg-[#121417] border border-white/5 rounded-xl">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
                       <div className="space-y-4">
                         <label className="block text-sm font-bold text-zinc-700 flex items-center gap-2">
@@ -1650,7 +1650,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           type="text"
                           value={siteSettings.site_name}
                           onChange={(e) => setSiteSettings({ ...siteSettings, site_name: e.target.value })}
-                          className="w-full bg-[#0a0d12] border border-white/5 rounded-2xl px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-indigo-500 shadow-inner"
+                          className="w-full bg-[#121417] border border-white/5 rounded-2xl px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-indigo-500 shadow-inner"
                           placeholder="APEXSTORE"
                         />
                       </div>
@@ -1662,7 +1662,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           type="text"
                           value={siteSettings.truewallet_phone}
                           onChange={(e) => setSiteSettings({ ...siteSettings, truewallet_phone: e.target.value })}
-                          className="w-full bg-[#0a0d12] border border-white/5 rounded-2xl px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-emerald-500 shadow-inner"
+                          className="w-full bg-[#121417] border border-white/5 rounded-2xl px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-emerald-500 shadow-inner"
                           placeholder="095xxxxxxx"
                         />
                       </div>
@@ -1674,7 +1674,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           type="text"
                           value={siteSettings.discord_link}
                           onChange={(e) => setSiteSettings({ ...siteSettings, discord_link: e.target.value })}
-                          className="w-full bg-[#0a0d12] border border-white/5 rounded-2xl px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-indigo-500 shadow-inner"
+                          className="w-full bg-[#121417] border border-white/5 rounded-2xl px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-indigo-500 shadow-inner"
                           placeholder="https://discord.gg/..."
                         />
                       </div>
@@ -1687,7 +1687,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           type="text"
                           value={siteSettings.facebook_link || siteSettings.contact_line}
                           onChange={(e) => setSiteSettings({ ...siteSettings, facebook_link: e.target.value, contact_line: e.target.value })}
-                          className="w-full bg-[#0a0d12] border border-white/5 rounded-2xl px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-blue-500 shadow-inner"
+                          className="w-full bg-[#121417] border border-white/5 rounded-2xl px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-blue-500 shadow-inner"
                           placeholder="https://www.facebook.com/..."
                         />
                       </div>
@@ -1700,7 +1700,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           type="text"
                           value={siteSettings.instagram_link}
                           onChange={(e) => setSiteSettings({ ...siteSettings, instagram_link: e.target.value })}
-                          className="w-full bg-[#0a0d12] border border-white/5 rounded-2xl px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-pink-500 shadow-inner"
+                          className="w-full bg-[#121417] border border-white/5 rounded-2xl px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-pink-500 shadow-inner"
                           placeholder="https://www.instagram.com/..."
                         />
                       </div>
@@ -1713,7 +1713,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           type="email"
                           value={siteSettings.contact_email}
                           onChange={(e) => setSiteSettings({ ...siteSettings, contact_email: e.target.value })}
-                          className="w-full bg-[#0a0d12] border border-white/5 rounded-2xl px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-zinc-500 shadow-inner"
+                          className="w-full bg-[#121417] border border-white/5 rounded-2xl px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-zinc-500 shadow-inner"
                           placeholder="support@example.com"
                         />
                       </div>
@@ -1728,7 +1728,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       </div>
                     </div>
 
-                    <div className="mt-8 p-6 bg-[#0a0d12] border border-white/5 rounded-xl">
+                    <div className="mt-8 p-6 bg-[#121417] border border-white/5 rounded-xl">
                       <div className="mb-6">
                         <h4 className="text-white font-bold flex items-center gap-2"><Globe className="w-5 h-5 text-emerald-500" /> แผงควบคุมเพลงพื้นหลัง (Background Music)</h4>
                         <p className="text-zinc-500 text-sm mt-1">ใส่ลิ้งค์ YouTube, Spotify หรืออัพโหลดไฟล์เสียงโดยตรง (.mp3) เพื่อเปิดเพลงอัตโนมัติเมื่อผู้ใช้เข้าเว็บ</p>
@@ -1762,7 +1762,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                             type="text"
                             value={siteSettings.spotify_url || ''}
                             onChange={(e) => setSiteSettings({ ...siteSettings, spotify_url: e.target.value })}
-                            className="w-full bg-[#0a0d12] border border-white/5 rounded-2xl px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-emerald-500 shadow-inner"
+                            className="w-full bg-[#121417] border border-white/5 rounded-2xl px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-emerald-500 shadow-inner"
                             placeholder="https://... YouTube, Spotify หรือ ไฟล์อัพโหลด"
                           />
                         </div>
@@ -1775,7 +1775,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                 checked={siteSettings.spotify_autoplay}
                                 onChange={(e) => setSiteSettings({ ...siteSettings, spotify_autoplay: e.target.checked })}
                               />
-                              <div className={`w-5 h-5 rounded border-2 transition-all duration-300 flex items-center justify-center ${siteSettings.spotify_autoplay ? 'bg-emerald-500 border-emerald-500' : 'bg-[#0a0d12] border-white/20 group-hover:border-zinc-400'}`}>
+                              <div className={`w-5 h-5 rounded border-2 transition-all duration-300 flex items-center justify-center ${siteSettings.spotify_autoplay ? 'bg-emerald-500 border-emerald-500' : 'bg-[#121417] border-white/20 group-hover:border-zinc-400'}`}>
                                 {siteSettings.spotify_autoplay && <Check className="w-3.5 h-3.5 text-white" />}
                               </div>
                             </div>
@@ -1813,11 +1813,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <div className="p-6 border border-white/5 rounded-xl mt-8">
                     <h4 className="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-4">API Configuration</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-[11px]">
-                      <div className="flex items-center justify-between p-3 bg-[#0a0d12] rounded-xl border border-white/5">
+                      <div className="flex items-center justify-between p-3 bg-[#121417] rounded-xl border border-white/5">
                         <span className="text-zinc-500 font-bold uppercase">Angpao API</span>
                         <span className="text-emerald-600 font-black">ACTIVE</span>
                       </div>
-                      <div className="flex items-center justify-between p-3 bg-[#0a0d12] rounded-xl border border-white/5">
+                      <div className="flex items-center justify-between p-3 bg-[#121417] rounded-xl border border-white/5">
                         <span className="text-zinc-500 font-bold uppercase">Bank Slip API</span>
                         <span className="text-emerald-600 font-black">ACTIVE</span>
                       </div>
@@ -1836,13 +1836,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               exit={{ opacity: 0, x: -20 }}
               className="space-y-6"
             >
-              <div className="bg-[#0a0d12] border border-white/5  rounded-xl overflow-hidden">
-                <div className="p-6 border-b border-white/5 bg-[#0a0d12]/50">
+              <div className="bg-[#121417] border border-white/5  rounded-xl overflow-hidden">
+                <div className="p-6 border-b border-white/5 bg-[#121417]/50">
                   <h3 className="font-bold text-white flex items-center gap-2"><Image className="w-5 h-5 text-zinc-500" /> จัดการป้ายโฆษณา & ป็อปอัพ</h3>
                   <p className="text-zinc-500 text-xs mt-1">ตั้งค่ารูปภาพแบนเนอร์และป็อปอัพประกาศ</p>
                 </div>
                 <div className="p-6 space-y-8">
-                  <div className="p-6 bg-[#0a0d12] border border-white/5 rounded-xl">
+                  <div className="p-6 bg-[#121417] border border-white/5 rounded-xl">
                     <div className="mb-6">
                       <h4 className="text-white font-bold flex items-center gap-2"><Globe className="w-5 h-5 text-zinc-500" /> Popup Banner Announcement</h4>
                       <p className="text-zinc-500 text-sm mt-1">ตั้งค่าป็อปอัพประกาศหน้าแรก แนะนำรูปขนาด 1500x1500px</p>
@@ -1858,7 +1858,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                               checked={siteSettings.popup_enabled}
                               onChange={(e) => setSiteSettings({ ...siteSettings, popup_enabled: e.target.checked })}
                             />
-                            <div className={`w-5 h-5 rounded border-2 transition-all duration-300 flex items-center justify-center ${siteSettings.popup_enabled ? 'bg-[#3B82F6] border-[#3B82F6]' : 'bg-[#0a0d12] border-white/20 group-hover:border-zinc-400'}`}>
+                            <div className={`w-5 h-5 rounded border-2 transition-all duration-300 flex items-center justify-center ${siteSettings.popup_enabled ? 'bg-[#3B82F6] border-[#3B82F6]' : 'bg-[#121417] border-white/20 group-hover:border-zinc-400'}`}>
                               {siteSettings.popup_enabled && <Check className="w-3.5 h-3.5 text-white" />}
                             </div>
                           </div>
@@ -1873,7 +1873,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                             type="text"
                             value={siteSettings.popup_img_url}
                             onChange={(e) => setSiteSettings({ ...siteSettings, popup_img_url: e.target.value })}
-                            className="flex-1 w-full bg-[#0a0d12] border border-white/5 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-[#3B82F6] transition-all"
+                            className="flex-1 w-full bg-[#121417] border border-white/5 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-[#3B82F6] transition-all"
                             placeholder="https://images.unsplash.com/photo-..."
                           />
                           <button
@@ -1913,13 +1913,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                            type="text"
                            value={siteSettings.popup_link}
                            onChange={(e) => setSiteSettings({ ...siteSettings, popup_link: e.target.value })}
-                           className="w-full bg-[#0a0d12] border border-white/5 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-[#3B82F6] transition-all"
+                           className="w-full bg-[#121417] border border-white/5 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-[#3B82F6] transition-all"
                            placeholder="https://facebook.com/..."
                          />
                       </div>
                     </div>
 
-                    <div className="p-6 bg-[#0a0d12] border border-white/5 rounded-xl mt-6">
+                    <div className="p-6 bg-[#121417] border border-white/5 rounded-xl mt-6">
                       <div className="mb-6">
                         <h4 className="text-white font-bold flex items-center gap-2"><Globe className="w-5 h-5 text-indigo-500" /> Proxy Settings</h4>
                         <p className="text-zinc-500 text-xs mt-1">ตั้งค่า Proxy สำหรับระบบเช็คไอดี (หากปล่อยว่าง ระบบจะดึง Free Proxy อัตโนมัติ)</p>
@@ -1939,7 +1939,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                    didOpen: () => {
                                      Swal.showLoading();
                                    },
-                                   background: '#0B0F14',
+                                   background: '#0B0D0F',
                                    color: '#fff'
                                  });
                                  const res = await axios.get('https://raw.githubusercontent.com/proxifly/free-proxy-list/main/proxies/protocols/http/data.txt');
@@ -1951,7 +1951,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                      icon: 'success',
                                      title: 'สำเร็จ',
                                      text: `ดึง Proxy ได้ทั้งหมด ${px.length} รายการ`,
-                                     background: '#0B0F14',
+                                     background: '#0B0D0F',
                                      color: '#fff',
                                      confirmButtonColor: '#3B82F6'
                                    });
@@ -1961,7 +1961,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                    icon: 'error',
                                    title: 'เกิดข้อผิดพลาด',
                                    text: err.message,
-                                   background: '#0B0F14',
+                                   background: '#0B0D0F',
                                    color: '#fff'
                                  });
                                }
@@ -1974,7 +1974,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                          <textarea 
                            value={(siteSettings.proxies || []).join('\n')}
                            onChange={(e) => setSiteSettings({ ...siteSettings, proxies: e.target.value.split('\n') })}
-                           className="w-full bg-[#0a0d12] border border-white/5 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-indigo-500 transition-all h-32 resize-none leading-relaxed"
+                           className="w-full bg-[#121417] border border-white/5 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-indigo-500 transition-all h-32 resize-none leading-relaxed"
                            placeholder="http://user:pass@127.0.0.1:8080&#10;http://user:pass@127.0.0.2:8080"
                            onBlur={(e) => setSiteSettings({ ...siteSettings, proxies: e.target.value.split('\n').map(url => typeof url === 'string' ? url.trim() : '').filter(Boolean) })}
                          />
@@ -1988,7 +1988,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                checked={siteSettings.auto_proxy !== false}
                                onChange={(e) => setSiteSettings({ ...siteSettings, auto_proxy: e.target.checked })}
                              />
-                             <div className={`w-5 h-5 rounded border-2 transition-all duration-300 flex items-center justify-center ${siteSettings.auto_proxy !== false ? 'bg-[#3B82F6] border-[#3B82F6]' : 'bg-[#0a0d12] border-white/20 group-hover:border-zinc-400'}`}>
+                             <div className={`w-5 h-5 rounded border-2 transition-all duration-300 flex items-center justify-center ${siteSettings.auto_proxy !== false ? 'bg-[#3B82F6] border-[#3B82F6]' : 'bg-[#121417] border-white/20 group-hover:border-zinc-400'}`}>
                                {siteSettings.auto_proxy !== false && <Check className="w-3.5 h-3.5 text-white" />}
                              </div>
                            </div>
@@ -2001,7 +2001,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     </div>
                   </div>
 
-                  <div className="p-6 bg-[#0a0d12] border border-white/5 rounded-xl">
+                  <div className="p-6 bg-[#121417] border border-white/5 rounded-xl">
                     <div className="mb-6">
                       <h4 className="text-white font-bold flex items-center gap-2"><Image className="w-5 h-5 text-zinc-500" /> Banners Announcement</h4>
                       <p className="text-zinc-500 text-sm mt-1">ป้ายสไลด์โฆษณาในหน้าแรกของเว็บไซต์</p>
@@ -2013,7 +2013,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                          <textarea 
                            value={(siteSettings.banners || []).join('\n')}
                            onChange={(e) => setSiteSettings({ ...siteSettings, banners: e.target.value.split('\n') })}
-                           className="w-full bg-[#0a0d12] border border-white/5 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-[#3B82F6] transition-all h-32 resize-none leading-relaxed"
+                           className="w-full bg-[#121417] border border-white/5 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-[#3B82F6] transition-all h-32 resize-none leading-relaxed"
                            placeholder="https://img.th/banner1.png&#10;https://img.th/banner2.png"
                            onBlur={(e) => setSiteSettings({ ...siteSettings, banners: e.target.value.split('\n').map(url => url.trim()).filter(Boolean) })}
                          />
@@ -2042,8 +2042,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               exit={{ opacity: 0, x: -20 }}
               className="space-y-6"
             >
-              <div className="bg-[#0a0d12] border border-white/5  rounded-xl overflow-hidden">
-                <div className="p-6 border-b border-white/5 flex justify-between items-center bg-[#0a0d12]/50">
+              <div className="bg-[#121417] border border-white/5  rounded-xl overflow-hidden">
+                <div className="p-6 border-b border-white/5 flex justify-between items-center bg-[#121417]/50">
                   <div>
                     <h3 className="font-bold text-white flex items-center gap-2"><Cpu className="w-5 h-5 text-indigo-500" /> System Monitoring</h3>
                     <p className="text-zinc-500 text-xs mt-1">Realtime node state and resource allocation</p>
@@ -2057,7 +2057,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       { label: "Network IO", value: "24 Mbps", icon: Activity, color: "text-emerald-600", bg: "bg-emerald-50" },
                       { label: "Uptime", value: "94 Days", icon: BarChart3, color: "text-cyan-600", bg: "bg-cyan-50" }
                     ].map((stat, i) => (
-                      <div key={i} className="bg-[#0a0d12] border border-white/5 p-4 rounded-2xl flex items-center gap-4 transition-colors hover:bg-[#121820]/50">
+                      <div key={i} className="bg-[#121417] border border-white/5 p-4 rounded-2xl flex items-center gap-4 transition-colors hover:bg-[#121820]/50">
                         <div className={`p-3 rounded-xl ${stat.bg} ${stat.color}`}>
                           <stat.icon className="w-5 h-5" />
                         </div>
@@ -2073,9 +2073,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     <h4 className="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-4 flex items-center gap-2">
                        <Gift className="w-4 h-4 text-[#2563EB]" /> Third-party Integrations
                     </h4>
-                    <div className="bg-[#0a0d12] border border-white/5 rounded-xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div className="bg-[#121417] border border-white/5 rounded-xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
                        <div className="flex items-center gap-4">
-                         <div className="w-12 h-12 bg-[#0a0d12] rounded-2xl  border border-white/5 flex items-center justify-center">
+                         <div className="w-12 h-12 bg-[#121417] rounded-2xl  border border-white/5 flex items-center justify-center">
                            <Globe className="w-6 h-6 text-zinc-400" />
                          </div>
                          <div className="text-center sm:text-left">
@@ -2083,7 +2083,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                            <p className="text-xs font-medium text-zinc-500 select-all">https://github.com/manybaht/Manybaht-Truewallet-API</p>
                          </div>
                        </div>
-                       <a href="https://github.com/manybaht/Manybaht-Truewallet-API" target="_blank" rel="noopener noreferrer" className="bg-[#0a0d12] border border-white/5 text-zinc-700 px-6 py-2.5 rounded-xl text-xs font-bold hover:bg-[#121820] transition-all flex items-center gap-2">
+                       <a href="https://github.com/manybaht/Manybaht-Truewallet-API" target="_blank" rel="noopener noreferrer" className="bg-[#121417] border border-white/5 text-zinc-700 px-6 py-2.5 rounded-xl text-xs font-bold hover:bg-[#121820] transition-all flex items-center gap-2">
                          <Copy className="w-4 h-4" /> View Source
                        </a>
                     </div>
@@ -2093,7 +2093,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     <h4 className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-4 flex items-center gap-2">
                        <Database className="w-4 h-4" /> Environment Information
                     </h4>
-                    <div className="bg-[#0a0d12] border border-white/5 rounded-2xl p-4 font-mono text-xs space-y-3">
+                    <div className="bg-[#121417] border border-white/5 rounded-2xl p-4 font-mono text-xs space-y-3">
                       <div className="flex justify-between border-b border-white/5/60 pb-2">
                          <span className="text-zinc-500 font-bold">Node JS</span>
                          <span className="text-zinc-700">v22.x.x</span>

@@ -40,7 +40,7 @@ export class GlobalErrorBoundary extends React.Component<ErrorBoundaryProps, Err
     if (this.state.hasError) {
       return (
         <div className="min-h-screen bg-[#06080B] flex items-center justify-center p-6 font-sans">
-          <div className="max-w-md w-full bg-[#0B0F14] border border-white/5 rounded-[2.5rem] p-10 text-center shadow-2xl relative overflow-hidden">
+          <div className="max-w-md w-full bg-[#0B0D0F] border border-white/5 rounded-[2.5rem] p-10 text-center shadow-2xl relative overflow-hidden">
             {/* Background Decoration */}
             <div className="absolute -top-24 -left-24 w-48 h-48 bg-red-500/10  rounded-full"></div>
             <div className="absolute -bottom-24 -right-24 w-48 h-48 bg-[#3B82F6]/10  rounded-full"></div>

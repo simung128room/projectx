@@ -22,7 +22,7 @@ export const AdminApiKeys: React.FC = () => {
         icon: 'error',
         title: 'Error',
         text: err.response?.data?.error || 'Failed to fetch API keys',
-        background: '#0a0d12',
+        background: '#121417',
         color: '#fff',
       });
     } finally {
@@ -48,7 +48,7 @@ export const AdminApiKeys: React.FC = () => {
         icon: 'success',
         timer: 1500,
         showConfirmButton: false,
-        background: '#0a0d12',
+        background: '#121417',
         color: '#fff',
       });
       setIsAdding(false);
@@ -59,7 +59,7 @@ export const AdminApiKeys: React.FC = () => {
         title: 'Error',
         text: err.response?.data?.error || 'Failed to create API key',
         icon: 'error',
-        background: '#0a0d12',
+        background: '#121417',
         color: '#fff',
       });
     }
@@ -76,7 +76,7 @@ export const AdminApiKeys: React.FC = () => {
         title: 'Error',
         text: err.response?.data?.error || 'Failed to update API key',
         icon: 'error',
-        background: '#0a0d12',
+        background: '#121417',
         color: '#fff',
       });
     }
@@ -91,7 +91,7 @@ export const AdminApiKeys: React.FC = () => {
       confirmButtonColor: '#d33',
       cancelButtonColor: '#3085d6',
       confirmButtonText: 'Yes, delete it!',
-      background: '#0a0d12',
+      background: '#121417',
       color: '#fff',
     });
 
@@ -104,7 +104,7 @@ export const AdminApiKeys: React.FC = () => {
           icon: 'success',
           timer: 1500,
           showConfirmButton: false,
-          background: '#0a0d12',
+          background: '#121417',
           color: '#fff',
         });
         fetchKeys();
@@ -113,7 +113,7 @@ export const AdminApiKeys: React.FC = () => {
           title: 'Error',
           text: err.response?.data?.error || 'Failed to delete API key',
           icon: 'error',
-          background: '#0a0d12',
+          background: '#121417',
           color: '#fff',
         });
       }
@@ -142,7 +142,7 @@ export const AdminApiKeys: React.FC = () => {
       </div>
 
       {isAdding && (
-        <form onSubmit={handleAddKey} className="bg-[#0B0F14] border border-white/10 p-6 rounded-2xl flex flex-col gap-4">
+        <form onSubmit={handleAddKey} className="bg-[#0B0D0F] border border-white/10 p-6 rounded-2xl flex flex-col gap-4">
           <div className="flex flex-col gap-2">
             <label className="text-xs font-bold text-zinc-400 uppercase">Key Name / Description</label>
             <input
@@ -183,11 +183,11 @@ export const AdminApiKeys: React.FC = () => {
         </form>
       )}
 
-      <div className="bg-[#0B0F14] border border-white/10 rounded-2xl overflow-hidden">
+      <div className="bg-[#0B0D0F] border border-white/10 rounded-2xl overflow-hidden">
         <div className="overflow-x-auto min-h-[300px]">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-white/5 bg-[#0a0d12]/50 text-xs text-zinc-400 uppercase font-black tracking-widest">
+              <tr className="border-b border-white/5 bg-[#121417]/50 text-xs text-zinc-400 uppercase font-black tracking-widest">
                 <th className="px-6 py-4">Status</th>
                 <th className="px-6 py-4">Name</th>
                 <th className="px-6 py-4">API Key</th>

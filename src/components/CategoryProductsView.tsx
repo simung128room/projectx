@@ -43,7 +43,7 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
         <div className="flex items-center gap-4">
           <button
             onClick={onBack}
-            className="p-3 bg-[#0B0F14] hover:bg-[#121820] border border-white/10 rounded-full transition-colors group shadow-sm shrink-0"
+            className="p-3 bg-[#0B0D0F] hover:bg-[#121820] border border-white/10 rounded-full transition-colors group shadow-sm shrink-0"
           >
             <ArrowLeft className="w-5 h-5 text-zinc-400 group-hover:text-white" />
           </button>
@@ -75,7 +75,7 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
       </div>
 
       {!filteredProducts || filteredProducts.length === 0 ? (
-        <div className="border-2 border-dashed border-white/10 bg-[#0B0F14] rounded-xl p-16 text-center shadow-sm">
+        <div className="border-2 border-dashed border-white/10 bg-[#0B0D0F] rounded-xl p-16 text-center shadow-sm">
           <div className="animate-pulse mb-6 flex justify-center">
             <Package className="w-16 h-16 text-zinc-200" />
           </div>
@@ -95,7 +95,7 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.2, delay: Math.min(i, 10) * 0.03 }}
-              className="bg-[#0B0F14] border border-white/10 rounded-2xl overflow-hidden hover:shadow-xl transition-all h-full flex flex-col group"
+              className="bg-[#0B0D0F] border border-white/10 rounded-2xl overflow-hidden hover:shadow-xl transition-all h-full flex flex-col group"
             >
               <div className="aspect-square bg-zinc-900 relative overflow-hidden">
                 {product.tag && (
@@ -180,7 +180,7 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
             <div className="mt-12 flex justify-center">
               <button
                 onClick={() => setRenderLimit(prev => prev + 20)}
-                className="px-8 py-3 bg-[#0a0d12] border border-white/5 hover:border-white/20 text-white font-bold rounded-2xl transition-all shadow-lg active:scale-95"
+                className="px-8 py-3 bg-[#121417] border border-white/5 hover:border-white/20 text-white font-bold rounded-2xl transition-all shadow-lg active:scale-95"
               >
                 โหลดเพิ่มเติม ({filteredProducts.length - visibleProducts.length} รายการ)
               </button>

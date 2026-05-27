@@ -148,8 +148,8 @@ export const AdminCategoriesManagement: React.FC<AdminCategoriesManagementProps>
       </div>
 
       {(isAdding || editingCategory) && (
-        <div className="bg-[#0B0F14] border rounded-xl overflow-hidden mb-8 shadow-lg transition-all">
-          <div className="bg-[#0a0d12]/50 p-6 sm:p-8 flex items-center justify-between border-b border-white/5">
+        <div className="bg-[#0B0D0F] border rounded-xl overflow-hidden mb-8 shadow-lg transition-all">
+          <div className="bg-[#121417]/50 p-6 sm:p-8 flex items-center justify-between border-b border-white/5">
             <div>
               <h3 className="text-xl font-black text-white tracking-tight">
                 {editingCategory ? 'แก้ไขหมวดหมู่สินค้า' : 'สร้างหมวดหมู่ใหม่'}
@@ -158,7 +158,7 @@ export const AdminCategoriesManagement: React.FC<AdminCategoriesManagementProps>
                 {editingCategory ? 'แก้ไขรายละเอียดหมวดหมู่ที่นี่' : 'เพิ่มรายละเอียดหมวดหมู่สินค้าใหม่ลงในระบบ'}
               </p>
             </div>
-            <div className="p-3 bg-[#0B0F14] shadow-sm border border-white/5 rounded-2xl">
+            <div className="p-3 bg-[#0B0D0F] shadow-sm border border-white/5 rounded-2xl">
               {editingCategory ? <Edit className="w-6 h-6 text-blue-500" /> : <Package className="w-6 h-6 text-[#2563EB]" />}
             </div>
           </div>
@@ -174,7 +174,7 @@ export const AdminCategoriesManagement: React.FC<AdminCategoriesManagementProps>
                     type="text" 
                     value={formData.name || ''} 
                     onChange={e => setFormData({...formData, name: e.target.value})} 
-                    className="w-full bg-[#0a0d12] focus:bg-[#0B0F14] border border-white/10 focus:border-[#3B82F6]/40 focus:ring-4 focus:ring-[#3B82F6]/30 rounded-2xl px-4 py-3 text-sm font-medium transition-all" 
+                    className="w-full bg-[#121417] focus:bg-[#0B0D0F] border border-white/10 focus:border-[#3B82F6]/40 focus:ring-4 focus:ring-[#3B82F6]/30 rounded-2xl px-4 py-3 text-sm font-medium transition-all" 
                     placeholder="เช่น game_accounts (อักษรภาษาอังกฤษ)" 
                   />
                   <p className="text-xs text-zinc-400 mt-2 ml-1">สำหรับใช้ในระบบ โปรดใช้ภาษาอังกฤษ</p>
@@ -188,7 +188,7 @@ export const AdminCategoriesManagement: React.FC<AdminCategoriesManagementProps>
                     type="text" 
                     value={formData.title || ''} 
                     onChange={e => setFormData({...formData, title: e.target.value})} 
-                    className="w-full bg-[#0a0d12] focus:bg-[#0B0F14] border border-white/10 focus:border-[#3B82F6]/40 focus:ring-4 focus:ring-[#3B82F6]/30 rounded-2xl px-4 py-3 text-sm font-medium transition-all" 
+                    className="w-full bg-[#121417] focus:bg-[#0B0D0F] border border-white/10 focus:border-[#3B82F6]/40 focus:ring-4 focus:ring-[#3B82F6]/30 rounded-2xl px-4 py-3 text-sm font-medium transition-all" 
                     placeholder="เช่น บัญชีเกม" 
                   />
                   <p className="text-xs text-zinc-400 mt-2 ml-1">ชื่อหมวดหมู่ที่จะแสดงให้ผู้ใช้งานเห็น</p>
@@ -203,7 +203,7 @@ export const AdminCategoriesManagement: React.FC<AdminCategoriesManagementProps>
                   <textarea 
                     value={formData.subtitle || ''} 
                     onChange={e => setFormData({...formData, subtitle: e.target.value})} 
-                    className="w-full h-[124px] bg-[#0a0d12] focus:bg-[#0B0F14] border border-white/10 focus:border-[#3B82F6]/40 focus:ring-4 focus:ring-[#3B82F6]/30 rounded-2xl px-4 py-3 text-sm font-medium transition-all resize-none" 
+                    className="w-full h-[124px] bg-[#121417] focus:bg-[#0B0D0F] border border-white/10 focus:border-[#3B82F6]/40 focus:ring-4 focus:ring-[#3B82F6]/30 rounded-2xl px-4 py-3 text-sm font-medium transition-all resize-none" 
                     placeholder="เขียนอธิบายเกี่ยวกับสินค้านี้..." 
                   />
                 </div>
@@ -221,7 +221,7 @@ export const AdminCategoriesManagement: React.FC<AdminCategoriesManagementProps>
                         type="text" 
                         value={formData.bannerUrl || ''} 
                         onChange={e => setFormData({...formData, bannerUrl: e.target.value})} 
-                        className="w-full bg-[#0a0d12] focus:bg-[#0B0F14] border border-white/10 focus:border-[#3B82F6]/40 focus:ring-4 focus:ring-[#3B82F6]/30 rounded-2xl pl-11 pr-4 py-3 text-sm font-medium transition-all" 
+                        className="w-full bg-[#121417] focus:bg-[#0B0D0F] border border-white/10 focus:border-[#3B82F6]/40 focus:ring-4 focus:ring-[#3B82F6]/30 rounded-2xl pl-11 pr-4 py-3 text-sm font-medium transition-all" 
                         placeholder="https://example.com/banner.jpg" 
                       />
                     </div>
@@ -238,7 +238,7 @@ export const AdminCategoriesManagement: React.FC<AdminCategoriesManagementProps>
                       </div>
                     </div>
                   ) : (
-                    <div className="w-full md:w-64 h-32 rounded-2xl border-2 border-dashed border-white/10 flex flex-col items-center justify-center text-zinc-400 shrink-0 bg-[#0a0d12]/50">
+                    <div className="w-full md:w-64 h-32 rounded-2xl border-2 border-dashed border-white/10 flex flex-col items-center justify-center text-zinc-400 shrink-0 bg-[#121417]/50">
                       <ImageIcon className="w-8 h-8 mb-2 opacity-50" />
                       <span className="text-xs font-medium">ยังไม่มีรูปภาพ</span>
                     </div>
@@ -248,7 +248,7 @@ export const AdminCategoriesManagement: React.FC<AdminCategoriesManagementProps>
             </div>
             
             <div className="flex gap-3 justify-end pt-6 mb-2 border-t border-white/5">
-              <button onClick={() => { setIsAdding(false); setEditingCategory(null); }} className="px-6 py-3 rounded-2xl font-bold bg-[#0B0F14] border border-white/10 text-zinc-400 hover:bg-[#0a0d12] hover:text-white transition-colors shadow-sm">
+              <button onClick={() => { setIsAdding(false); setEditingCategory(null); }} className="px-6 py-3 rounded-2xl font-bold bg-[#0B0D0F] border border-white/10 text-zinc-400 hover:bg-[#121417] hover:text-white transition-colors shadow-sm">
                 ยกเลิก
               </button>
               <button onClick={saveCategory} className="px-6 py-3 rounded-2xl font-bold bg-[#3B82F6] text-white hover:bg-[#1D4ED8] hover:shadow-lg hover:shadow-lg/20 flex items-center gap-2 transition-all active:scale-95">
@@ -259,10 +259,10 @@ export const AdminCategoriesManagement: React.FC<AdminCategoriesManagementProps>
         </div>
       )}
 
-      <div className="bg-[#0B0F14] border text-sm border-white/10 rounded-xl overflow-hidden shadow-sm">
+      <div className="bg-[#0B0D0F] border text-sm border-white/10 rounded-xl overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
-            <thead className="bg-[#0a0d12] border-b border-white/10 text-zinc-500 uppercase text-xs tracking-wider">
+            <thead className="bg-[#121417] border-b border-white/10 text-zinc-500 uppercase text-xs tracking-wider">
               <tr>
                 <th className="px-6 py-5 font-black whitespace-nowrap">แบนเนอร์</th>
                 <th className="px-6 py-5 font-black whitespace-nowrap">ข้อมูลหมวดหมู่</th>
@@ -272,7 +272,7 @@ export const AdminCategoriesManagement: React.FC<AdminCategoriesManagementProps>
             </thead>
             <tbody className="divide-y divide-zinc-100">
               {categories.map((c) => (
-                <tr key={c.id} className="hover:bg-[#0a0d12]/80 transition-colors group">
+                <tr key={c.id} className="hover:bg-[#121417]/80 transition-colors group">
                   <td className="px-6 py-4">
                     {c.bannerUrl ? (
                       <div className="w-24 h-14 rounded-xl overflow-hidden relative shadow-sm border border-white/10 group-hover:border-[#3B82F6]/30 transition-colors">
@@ -334,7 +334,7 @@ export const AdminCategoriesManagement: React.FC<AdminCategoriesManagementProps>
 
       {managingProductsForCategory && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-end p-0 z-50">
-          <div className="bg-[#0B0F14] border-l border-white/5 w-full max-w-2xl h-full shadow-2xl relative p-6 sm:p-8 flex flex-col overflow-y-auto animate-in slide-in-from-right-full duration-300">
+          <div className="bg-[#0B0D0F] border-l border-white/5 w-full max-w-2xl h-full shadow-2xl relative p-6 sm:p-8 flex flex-col overflow-y-auto animate-in slide-in-from-right-full duration-300">
             <button 
               onClick={() => setManagingProductsForCategory(null)}
               className="absolute top-4 right-4 p-2 text-zinc-500 hover:text-white bg-zinc-900 border border-zinc-800 rounded-full hover:bg-zinc-800 transition-colors"

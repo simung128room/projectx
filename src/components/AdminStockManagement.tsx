@@ -29,7 +29,7 @@ export default function AdminStockManagement({ products, categories, setProducts
           })
           .catch(err => {
              console.error("Failed to load stock data", err);
-             Swal.fire({title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถโหลดข้อมูลสต็อกได้', icon: 'error', background: '#0a0d12', color: '#fff'});
+             Swal.fire({title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถโหลดข้อมูลสต็อกได้', icon: 'error', background: '#121417', color: '#fff'});
           })
           .finally(() => {
              setLoading(false);
@@ -62,11 +62,11 @@ export default function AdminStockManagement({ products, categories, setProducts
            position: 'top-end', 
            showConfirmButton: false, 
            timer: 1500,
-           background: '#0a0d12',
+           background: '#121417',
            color: '#fff'
          });
       } catch (err: any) {
-         Swal.fire({title: 'เกิดข้อผิดพลาด', text: err.message || 'ไม่สามารถบันทึกสต็อกได้', icon: 'error', background: '#0a0d12', color: '#fff'});
+         Swal.fire({title: 'เกิดข้อผิดพลาด', text: err.message || 'ไม่สามารถบันทึกสต็อกได้', icon: 'error', background: '#121417', color: '#fff'});
       } finally {
          setLoading(false);
       }
@@ -80,7 +80,7 @@ export default function AdminStockManagement({ products, categories, setProducts
       showCancelButton: true,
       confirmButtonText: 'ใช่, ลบเลย',
       cancelButtonText: 'ยกเลิก',
-      background: '#0B0F14',
+      background: '#0B0D0F',
       color: '#fff',
       confirmButtonColor: '#ef4444'
     }).then((result) => {
@@ -101,7 +101,7 @@ export default function AdminStockManagement({ products, categories, setProducts
       showCancelButton: true,
       confirmButtonText: 'บันทึก',
       cancelButtonText: 'ยกเลิก',
-      background: '#0B0F14',
+      background: '#0B0D0F',
       color: '#fff',
       confirmButtonColor: '#2563EB'
     }).then((result) => {
@@ -123,7 +123,7 @@ export default function AdminStockManagement({ products, categories, setProducts
       <div className="animate-in fade-in zoom-in-95 duration-200">
          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
             <div className="flex items-center gap-4">
-                <button onClick={() => setSelectedProduct(null)} className="p-2 bg-[#0B0F14] border border-white/10 hover:bg-white/5 rounded-xl transition-colors">
+                <button onClick={() => setSelectedProduct(null)} className="p-2 bg-[#0B0D0F] border border-white/10 hover:bg-white/5 rounded-xl transition-colors">
                     <ArrowLeft className="w-5 h-5 text-white" />
                 </button>
                 <div>
@@ -140,12 +140,12 @@ export default function AdminStockManagement({ products, categories, setProducts
                   placeholder="ค้นหาสต็อก..."
                   value={searchTerm}
                   onChange={e => { setSearchTerm(e.target.value); setPage(1); }}
-                  className="w-full bg-[#0a0d12] border border-white/5 rounded-xl py-2 pl-9 pr-4 text-sm text-white focus:border-[#2563EB] focus:outline-none transition-colors"
+                  className="w-full bg-[#121417] border border-white/5 rounded-xl py-2 pl-9 pr-4 text-sm text-white focus:border-[#2563EB] focus:outline-none transition-colors"
                 />
             </div>
          </div>
          
-         <div className="bg-[#0B0F14] border border-white/5 rounded-xl p-4 overflow-hidden">
+         <div className="bg-[#0B0D0F] border border-white/5 rounded-xl p-4 overflow-hidden">
              {loading ? (
                  <div className="text-center py-20">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2563EB] mx-auto mb-4"></div>
@@ -159,7 +159,7 @@ export default function AdminStockManagement({ products, categories, setProducts
              ) : (
                 <div className="space-y-2">
                     {paginated.map(({item, originalIndex}, idx) => (
-                        <div key={idx} className="flex bg-[#0a0d12] p-4 rounded-xl border border-white/5 items-center justify-between hover:border-white/10 transition-colors group">
+                        <div key={idx} className="flex bg-[#121417] p-4 rounded-xl border border-white/5 items-center justify-between hover:border-white/10 transition-colors group">
                             <span className="text-zinc-300 font-mono text-xs max-w-[80%] truncate select-all">{item}</span>
                             <div className="flex gap-2 opacity-100 sm:opacity-50 sm:group-hover:opacity-100 transition-opacity">
                                 <button onClick={() => handleEdit(originalIndex, item)} className="p-2 bg-zinc-900 border border-zinc-800 hover:border-blue-500/50 hover:bg-blue-500/10 rounded-lg text-zinc-400 hover:text-blue-400 transition-all">
@@ -176,7 +176,7 @@ export default function AdminStockManagement({ products, categories, setProducts
          </div>
 
          {totalPages > 1 && (
-            <div className="flex items-center gap-4 justify-between bg-[#0B0F14] border border-white/5 rounded-2xl p-4 mt-4">
+            <div className="flex items-center gap-4 justify-between bg-[#0B0D0F] border border-white/5 rounded-2xl p-4 mt-4">
                <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="px-5 py-2 bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 rounded-xl text-white text-sm font-bold disabled:opacity-50 disabled:cursor-not-allowed transition-colors">ก่อนหน้า</button>
                <span className="text-zinc-400 text-sm font-bold">หน้า {page} จาก {totalPages}</span>
                <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="px-5 py-2 bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 rounded-xl text-white text-sm font-bold disabled:opacity-50 disabled:cursor-not-allowed transition-colors">ถัดไป</button>
@@ -196,14 +196,14 @@ export default function AdminStockManagement({ products, categories, setProducts
       </div>
 
       {productsByCategory.length === 0 ? (
-          <div className="bg-[#0B0F14] border border-white/5 rounded-xl p-12 text-center">
+          <div className="bg-[#0B0D0F] border border-white/5 rounded-xl p-12 text-center">
               <Package className="w-16 h-16 text-zinc-800 mx-auto mb-4" />
               <p className="text-zinc-500">ยังไม่มีสินค้าในระบบ</p>
           </div>
       ) : (
           <div className="space-y-6">
               {productsByCategory.map((cat: any) => (
-                 <div key={cat.id} className="bg-[#0B0F14] border border-white/5 rounded-xl p-6">
+                 <div key={cat.id} className="bg-[#0B0D0F] border border-white/5 rounded-xl p-6">
                     <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
                         <LayoutGrid className="w-5 h-5 text-[#3B82F6]" /> {cat.name}
                     </h3>
@@ -211,7 +211,7 @@ export default function AdminStockManagement({ products, categories, setProducts
                        {cat.products.map((p: any) => {
                            const stockCount = p.stockData?.length || p.stock || 0;
                            return (
-                               <div key={p.id} onClick={() => setSelectedProduct(p)} className="p-4 bg-[#0a0d12] border border-white/5 hover:border-[#3B82F6]/30 rounded-2xl cursor-pointer hover:bg-[#3B82F6]/5 transition-all flex items-center justify-between group">
+                               <div key={p.id} onClick={() => setSelectedProduct(p)} className="p-4 bg-[#121417] border border-white/5 hover:border-[#3B82F6]/30 rounded-2xl cursor-pointer hover:bg-[#3B82F6]/5 transition-all flex items-center justify-between group">
                                   <div>
                                       <p className="font-bold text-zinc-300 group-hover:text-white transition-colors">{p.name}</p>
                                       <div className="flex items-center gap-2 mt-2">
