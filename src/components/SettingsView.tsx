@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, Key, Trash2, Lock, ShieldAlert } from 'lucide-react';
+import { Shield, Key, Trash2, Lock, ShieldAlert, Settings } from 'lucide-react';
 import Swal from 'sweetalert2';
 import axios from 'axios';
 import { AnimatedScroll } from './AnimatedScroll';
@@ -8,10 +8,12 @@ import { Skeleton } from './ui/Skeleton';
 interface SettingsViewProps {
   user?: any;
   setActiveView: (view: any) => void;
+  useCustomCursor?: boolean;
+  toggleCustomCursor?: () => void;
 }
 
-export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user }) => {
-  const [currentTab, setCurrentTab] = useState<'password' | 'delete'>('password');
+export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user, useCustomCursor, toggleCustomCursor }) => {
+  const [currentTab, setCurrentTab] = useState<'password' | 'delete' | 'preferences'>('password');
   const [isLoading, setIsLoading] = useState(false);
   
   const [oldPassword, setOldPassword] = useState('');
@@ -19,7 +21,9 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user 
   const [confirmPassword, setConfirmPassword] = useState('');
 
   useEffect(() => {
-    // Artificial delay removed for performance
+    setIsLoading(true);
+    const timer = setTimeout(() => setIsLoading(false), 150);
+    return () => clearTimeout(timer);
   }, [currentTab]);
 
   const handleChangePassword = async () => {
@@ -157,6 +161,13 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user 
                   <span className="text-sm font-medium">เปลี่ยนรหัสผ่าน</span>
                 </button>
                 <button 
+                  onClick={() => setCurrentTab('preferences')}
+                  className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all ${currentTab === 'preferences' ? 'bg-[#3B82F6] text-white' : 'text-zinc-400 hover:bg-white/5'}`}
+                >
+                  <Settings className="w-4 h-4" />
+                  <span className="text-sm font-medium">การตั้งค่าเพิ่มเติม</span>
+                </button>
+                <button 
                   onClick={() => setCurrentTab('delete')}
                   className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all ${currentTab === 'delete' ? 'bg-red-500 text-white' : 'text-red-400 hover:bg-red-500/10'}`}
                 >
@@ -231,6 +242,31 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user 
                     >
                       ลบบัญชีถาวร
                     </button>
+                  </div>
+                </div>
+              )}
+
+              {currentTab === 'preferences' && (
+                <div className="animate-in fade-in duration-300">
+                  <h3 className="text-lg font-bold text-white mb-6">ตั้งค่าการแสดงผลทั่วไป</h3>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between p-4 bg-[#121417] border border-white/5 rounded-xl">
+                      <div>
+                        <div className="text-sm font-medium text-white mb-1">Custom Cursor</div>
+                        <div className="text-xs text-zinc-400">เปิด/ปิด เอฟเฟกต์เคอร์เซอร์ของเว็บไซต์ เพื่อลดการกระตุกบนเครื่องสเปกต่ำ</div>
+                      </div>
+                      <div className="flex items-center">
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input 
+                            type="checkbox" 
+                            className="sr-only peer" 
+                            checked={useCustomCursor ?? true} 
+                            onChange={toggleCustomCursor}
+                          />
+                          <div className="w-11 h-6 bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#3B82F6]"></div>
+                        </label>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}

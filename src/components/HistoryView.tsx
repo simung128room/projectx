@@ -20,7 +20,9 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ purchaseHistory = [], 
 
   useEffect(() => {
     if (currentCategory) {
-      // Artificial delay removed for performance
+      setIsLoading(true);
+      const timer = setTimeout(() => setIsLoading(false), 150);
+      return () => clearTimeout(timer);
     }
   }, [currentCategory]);
 

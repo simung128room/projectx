@@ -1133,27 +1133,7 @@ function AppContent() {
 
   // App Init & check IP
   useEffect(() => {
-    let progress = 0;
     let dataReady = false;
-    
-    // Simulate loading progress
-    const interval = setInterval(() => {
-      setLoadingProgress(prev => {
-        let next = prev + Math.floor(Math.random() * 15) + 5;
-        
-        // Capping at 80-90% if initialization is not complete
-        if (!dataReady && next > 85) {
-          next = 85 + Math.floor(Math.random() * 5);
-        }
-        
-        if (next >= 100) {
-          clearInterval(interval);
-          setTimeout(() => setIsLoaded(true), 400); // 400ms delay to see 100%
-          return 100;
-        }
-        return next;
-      });
-    }, 120);
 
     const initApp = async () => {
       // Load local storage data using a static key, independent of IP so VPN works
@@ -1206,10 +1186,9 @@ function AppContent() {
       }
       
       dataReady = true;
+      setIsLoaded(true);
     };
     initApp();
-    
-    return () => clearInterval(interval);
   }, []);
 
   // Sync combo to ref for high-speed access
@@ -2096,9 +2075,36 @@ function AppContent() {
       </div>
     );
 
+  const [useCustomCursor, setUseCustomCursor] = useState(() => {
+    // Disable custom cursor automatically on touch devices (pointer: coarse)
+    if (typeof window !== 'undefined' && window.matchMedia("(pointer: coarse)").matches) {
+      return false;
+    }
+    const saved = localStorage.getItem('apexstore_custom_cursor');
+    return saved !== 'false'; // default to true
+  });
+
+  const toggleCustomCursor = () => {
+    setUseCustomCursor(prev => {
+      const next = !prev;
+      localStorage.setItem('apexstore_custom_cursor', String(next));
+      if (!next) {
+        document.body.style.cursor = 'auto';
+        document.documentElement.style.cursor = 'auto';
+        // Remove style tag if existing
+        const styleId = 'custom-cursor-style-override';
+        const el = document.getElementById(styleId);
+        if (el) el.remove();
+      } else {
+        // We let CustomCursor handle it
+      }
+      return next;
+    });
+  };
+
   return (
     <div className="min-h-screen w-full bg-[#0B0D0F] text-white font-sans selection:bg-[#3B82F6]/30 flex flex-col lg:flex-row relative">
-      <CustomCursor />
+      {useCustomCursor && <CustomCursor />}
       <PopupBanner
         enabled={siteSettings?.popup_enabled ?? false}
         imgUrl={siteSettings?.popup_img_url ?? ""}
@@ -3050,7 +3056,7 @@ function AppContent() {
               />
             )}
             {activeView === "settings" && (
-              <SettingsView setActiveView={setActiveView} user={user} />
+              <SettingsView setActiveView={setActiveView} user={user} useCustomCursor={useCustomCursor} toggleCustomCursor={toggleCustomCursor} />
             )}
             {activeView === "tools" && (
               <ToolsView setActiveView={setActiveView} />

@@ -238,20 +238,38 @@ const AddStockModal = ({
   const singleFileRef = useRef<HTMLInputElement>(null);
   const textRef = useRef<HTMLTextAreaElement>(null);
   const largeTextRef = useRef<string>("");
+  const [uploadProgress, setUploadProgress] = useState(-1);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    setUploadProgress(0);
     const reader = new FileReader();
-    reader.onload = (event) => {
-      const text = event.target?.result as string;
-      if (text) {
-        largeTextRef.current = text;
-        const matches = text.match(/\n/g);
-        const linesCount = matches ? matches.length + 1 : 1;
-        setFileStockPreview(new Array(linesCount)); // Just to keep math accurate
-        setIsBigTextMode(true);
+
+    reader.onprogress = (event) => {
+      if (event.lengthComputable) {
+        const percentLoaded = Math.round((event.loaded / event.total) * 100);
+        setUploadProgress(percentLoaded);
       }
+    };
+
+    reader.onload = (event) => {
+      setUploadProgress(100);
+      setTimeout(() => {
+        const text = event.target?.result as string;
+        if (text) {
+          largeTextRef.current = text;
+          // Optimizing counting further
+          let newlines = 0;
+          for (let i = 0; i < text.length; i++) {
+            if (text[i] === '\n') newlines++;
+          }
+          const linesCount = newlines + 1;
+          setFileStockPreview(new Array(linesCount)); // Just to keep math accurate
+          setIsBigTextMode(true);
+        }
+        setUploadProgress(-1);
+      }, 50);
     };
     reader.readAsText(file);
   };
@@ -424,6 +442,18 @@ const AddStockModal = ({
                 onChange={handleFileUpload}
               />
             </div>
+
+            {uploadProgress >= 0 && (
+              <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 mt-2">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-xs font-bold text-zinc-300">กำลังประมวลผลไฟล์...</span>
+                  <span className="text-xs font-bold text-indigo-400">{uploadProgress}%</span>
+                </div>
+                <div className="w-full bg-zinc-800 rounded-full h-1.5 object-cover overflow-hidden">
+                  <div className="bg-indigo-500 h-1.5 rounded-full transition-all duration-300" style={{ width: `${uploadProgress}%` }}></div>
+                </div>
+              </div>
+            )}
             
             <div className="flex items-center justify-between bg-zinc-900 p-3 rounded-xl border border-zinc-800">
               <label className="text-sm font-bold text-zinc-400">จำนวนบรรทัดต่อ 1 สต๊อก</label>
@@ -1230,7 +1260,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 </div>
 
                 <div className="overflow-x-auto">
-                  <table className="w-full text-left text-sm text-zinc-400">
+                  <table className="w-full min-w-[700px] text-left text-sm text-zinc-400 hidden md:table">
                     <thead className="text-xs uppercase bg-[#121417] text-zinc-500 font-bold tracking-wider">
                       <tr>
                         <th className="px-4 py-3 rounded-l-xl">สินค้า</th>
@@ -1363,6 +1393,120 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       ))}
                     </tbody>
                   </table>
+                  
+                  {/* Mobile Card Layout */}
+                  <div className="grid grid-cols-1 gap-4 md:hidden p-4">
+                    {products.map((p, i) => (
+                      <div key={i} className="bg-[#121417] border border-white/5 rounded-xl p-4 flex flex-col gap-3">
+                        <div className="flex items-center gap-3">
+                          <img loading="lazy" src={p.imageUrl || undefined} alt={p.name} className="w-12 h-12 rounded-lg object-cover bg-[#121820]" />
+                          <div className="flex-1 min-w-0">
+                            <div className="text-white font-bold flex items-center gap-2 truncate">
+                              <span className="truncate">{p.name}</span>
+                              {p.tag && (
+                                <span className="shrink-0 bg-gradient-to-r from-red-500 to-orange-500 text-white text-[9px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-full">
+                                  {p.tag}
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-xs text-zinc-500 truncate">{p.description}</div>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center justify-between mt-2 pt-3 border-t border-white/5">
+                          <div>
+                            <div className="text-xs text-zinc-500">ราคา</div>
+                            <div className="font-bold flex items-center gap-1.5">
+                              {p.originalPrice && p.price && p.originalPrice > p.price && (
+                                <span className="text-[10px] text-zinc-400 line-through">฿{p.originalPrice.toLocaleString()}</span>
+                              )}
+                              <span className="text-emerald-600">฿{(p.price || 0).toLocaleString()}</span>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-xs text-zinc-500">สต๊อก</div>
+                            <span className={`px-2 py-0.5 rounded text-xs font-bold mt-1 inline-block ${p.stock > 0 ? 'bg-emerald-500/10 text-emerald-600' : 'bg-[#3B82F6]/10 text-[#3B82F6]'}`}>
+                              {p.stock}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-4 gap-2 mt-2 pt-3 border-t border-white/5">
+                            <button 
+                              onClick={async () => {
+                                if (p.stock === 0) {
+                                  return Swal.fire('ไม่มีสต๊อก', 'สินค้านี้ยังไม่มีข้อมูลสต๊อกให้ดาวน์โหลด', 'error');
+                                }
+                                try {
+                                  const res = await axios.get(`/api/products/${p.id}/stock`);
+                                  const sd = res.data.stockData;
+                                  if (!sd || sd.length === 0) {
+                                    return Swal.fire('ไม่มีสต๊อก', 'สินค้านี้ยังไม่มีข้อมูลสต๊อกให้ดาวน์โหลด', 'error');
+                                  }
+                                  const text = sd.join('\n');
+                                  const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+                                  const url = URL.createObjectURL(blob);
+                                  const link = document.createElement('a');
+                                  link.href = url;
+                                  link.download = `stock_${p.name}.txt`;
+                                  link.click();
+                                  URL.revokeObjectURL(url);
+                                } catch (err: any) {
+                                  Swal.fire('ข้อผิดพลาด', err.response?.data?.error || err.message, 'error');
+                                }
+                              }}
+                              className="p-2 border border-blue-200 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg flex justify-center items-center"
+                            >
+                                <FileText className="w-4 h-4" />
+                            </button>
+                            <button 
+                              onClick={() => setStockProduct(p)}
+                              className="p-2 border border-white/5 bg-[#121820] text-zinc-400 hover:bg-white/5 hover:border-white/20 rounded-lg flex justify-center items-center"
+                            >
+                                <Database className="w-4 h-4" />
+                            </button>
+                            <button 
+                              onClick={() => setEditingProduct(p)}
+                              className="p-2 border border-white/5 bg-[#121820] text-zinc-400 hover:bg-white/5 hover:border-white/20 rounded-lg flex justify-center items-center"
+                            >
+                                <Settings className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => {
+                                if(setProducts && products.length > 0) {
+                                  Swal.fire({
+                                    title: 'ยืนยันการลบ',
+                                    text: 'คุณต้องการลบสินค้านี้ใช่หรือไม่?',
+                                    icon: 'warning',
+                                    showCancelButton: true,
+                                    confirmButtonColor: '#dc2626',
+                                    cancelButtonColor: '#71717a',
+                                    confirmButtonText: 'ลบ',
+                                    cancelButtonText: 'ยกเลิก',
+                                    background: '#09090b',
+                                    color: '#fff'
+                                  }).then(async (result) => {
+                                    if (result.isConfirmed) {
+                                      try {
+                                        await axios.delete(`/api/products/${p.id}`);
+                                        setProducts(prev => prev.filter(prod => prod.id !== p.id));
+                                        if (onRefreshData) onRefreshData();
+                                        Swal.fire({ title: 'ลบสำเร็จ', icon: 'success', background: '#09090b', color: '#fff', showConfirmButton: false, timer: 1000 });
+                                      } catch (err: any) {
+                                        Swal.fire('Error', 'ไม่สามารถลบสินค้าได้', 'error');
+                                      }
+                                    }
+                                  });
+                                }
+                              }}
+                              className="p-2 border border-red-500/30 bg-red-500/10 text-red-500 hover:bg-red-500/20 rounded-lg flex justify-center items-center"
+                            >
+                                <Trash2 className="w-4 h-4" />
+                            </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </motion.div>
@@ -1406,7 +1550,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 </div>
               </div>
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm text-zinc-400">
+                <table className="w-full min-w-[700px] text-left text-sm text-zinc-400">
                   <thead className="text-xs uppercase bg-[#121417] text-zinc-500 font-bold tracking-wider">
                     <tr>
                       <th className="p-4">License Key</th>
@@ -1472,7 +1616,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <p className="text-zinc-500 text-xs mt-1">ประวัติการใช้งานคีย์</p>
                </div>
                <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm text-zinc-400">
+                <table className="w-full min-w-[700px] text-left text-sm text-zinc-400">
                   <thead className="text-xs uppercase bg-[#121417] text-zinc-500 font-bold tracking-wider">
                     <tr>
                       <th className="p-4">Key Used</th>
@@ -1520,7 +1664,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   </button>
                </div>
                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-sm text-zinc-400">
+                  <table className="w-full min-w-[700px] text-left text-sm text-zinc-400">
                     <thead className="text-xs uppercase bg-[#121417] text-zinc-500 font-bold tracking-wider">
                       <tr>
                         <th className="p-4">IP Address</th>
