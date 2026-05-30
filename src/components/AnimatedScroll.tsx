@@ -16,9 +16,7 @@ export const AnimatedScroll: React.FC<AnimatedScrollProps> = ({
   hideOnScroll = false
 }) => {
   const [isVisible, setIsVisible] = useState(false);
-  const [shouldHideFromScroll, setShouldHideFromScroll] = useState(false);
   const domRef = useRef<HTMLDivElement>(null);
-  const lastScrollY = useRef(0);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -39,34 +37,12 @@ export const AnimatedScroll: React.FC<AnimatedScrollProps> = ({
       observer.observe(currentRef);
     }
 
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      
-      // User request: Scroll Up -> Hide, Scroll Down -> Show
-      if (currentScrollY > lastScrollY.current) {
-        // Scrolling Down
-        setShouldHideFromScroll(false);
-      } else if (currentScrollY < lastScrollY.current && currentScrollY > 10) {
-        // Scrolling Up
-        setShouldHideFromScroll(true);
-      }
-      
-      lastScrollY.current = currentScrollY;
-    };
-
-    if (hideOnScroll) {
-      window.addEventListener('scroll', handleScroll, { passive: true });
-    }
-
     return () => {
       if (currentRef) {
         observer.unobserve(currentRef);
       }
-      if (hideOnScroll) {
-        window.removeEventListener('scroll', handleScroll);
-      }
     };
-  }, [hideOnScroll]);
+  }, []);
 
   const activeVisible = isVisible;
 
