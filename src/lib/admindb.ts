@@ -162,10 +162,6 @@ function extractMissingColumn(errMsg: string): string | null {
   return null;
 }
 
-async function preprocessMetaFields(collection: string, id: string, data: any) {
-  return data;
-}
-
 const isVirtual = (collection: string) => collection === 'product_stock_chunks' || collection.includes('_chunks') || collection === 'idempotency_keys';
 const isVirtualSlug = (slug: string) => slug && (slug.startsWith('v:') || slug.startsWith('_sys_virtual_db_col_::'));
 const getVirtualSlug = (collection: string, id: string) => `_sys_virtual_db_col_::${collection}::${id}`;
@@ -282,7 +278,7 @@ class SupabaseDoc {
         }
         return;
     }
-    const mergedData = await preprocessMetaFields(this.collection, this.id, { ...data });
+    const mergedData = { ...data };
     let retries = 0;
     while (retries < 5) {
       retries++;
@@ -395,7 +391,7 @@ class SupabaseDoc {
         }
         return;
     }
-    const mergedData = await preprocessMetaFields(this.collection, this.id, { ...data });
+    const mergedData = { ...data };
     let retries = 0;
     while (retries < 5) {
       retries++;
@@ -674,7 +670,7 @@ class SupabaseCollection extends SupabaseQuery {
     }
     const pk = this.collection === 'blocked_ips' ? 'ip' : (this.collection === 'settings' ? 'key' : 'id');
     const docId = data[pk] || data.id || crypto.randomUUID();
-    const mergedData = await preprocessMetaFields(this.collection, docId, { ...data, [pk]: docId });
+    const mergedData = { ...data, [pk]: docId };
     const performAdd = async (payload: any) => {
       const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
       if (payload.id && !uuidRegex.test(payload.id)) {
