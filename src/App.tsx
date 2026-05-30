@@ -522,6 +522,7 @@ function AppContent() {
     | "discord_on"
     | "discord_badge"
     | "two_fa_generator"
+    | "proxy_ff_ios"
     | "proxy_free"
     | "admin"
     | "profile"

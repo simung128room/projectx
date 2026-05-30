@@ -2172,10 +2172,10 @@ import { LRUCache } from 'lru-cache';
     }
   });
 
-const upload = multer({ dest: 'uploads/' });
+const diskUpload = multer({ dest: 'uploads/' });
 
   // Stream-based large file stock upload
-  app.post('/api/products/:id/stock-file', requireAdmin, upload.single('file'), async (req, res) => {
+  app.post('/api/products/:id/stock-file', requireAdmin, diskUpload.single('file'), async (req, res) => {
     if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
     try {
       if (!req.file) {
@@ -2246,7 +2246,7 @@ const upload = multer({ dest: 'uploads/' });
       invalidateCache('products');
       invalidateStatsCache();
       
-      await logAdminAction(req, 'ADD_STOCK', `Product ${req.params.id}`, { itemsAdded: chunkedItems.length });
+      await writeAuditLog('ADD_STOCK', (req as any).user?.uid || 'admin', `Product ${req.params.id}`, req, { itemsAdded: chunkedItems.length });
       
       res.json({ success: true, count: chunkedItems.length, product: finalProductData });
     } catch (err: any) {
