@@ -216,6 +216,11 @@ const ProxyFreeTool = lazy(() =>
     default: module.ProxyFreeTool,
   })),
 );
+const ProxyFreeFireIOSTool = lazy(() =>
+  import("./components/ProxyFreeFireIOSTool").then((module) => ({
+    default: module.ProxyFreeFireIOSTool,
+  })),
+);
 const settingsImport = () => import("./components/SettingsView");
 const SettingsView = lazy(() =>
   settingsImport().then((module) => ({
@@ -2950,6 +2955,7 @@ function AppContent() {
             )}
             {activeView === "discord_badge" && <DiscordBadgeTool />}
             {activeView === "two_fa_generator" && <TwoFAGenerator />}
+            {activeView === "proxy_ff_ios" && <ProxyFreeFireIOSTool />}
             {activeView === "proxy_free" && <ProxyFreeTool />}
             {activeView === "logs" && (
               <HistoryLogsView

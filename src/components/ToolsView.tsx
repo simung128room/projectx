@@ -82,6 +82,18 @@ export const ToolsView: React.FC<ToolsViewProps> = ({ setActiveView }) => {
       premium: false
     },
     {
+      id: 'proxy_ff_ios',
+      name: 'PROXY FREE FIRE IOS',
+      desc: 'พร็อกซี่สำหรับใช้งานกับ Free Fire บนระบบ iOS พร้อมไฟล์ Certificate นำไปเชื่อมต่อได้ทันที',
+      category: 'premium',
+      icon: ShieldCheck,
+      gradient: 'from-[#10B981] to-[#34D399]',
+      iconColor: 'text-[#10B981]',
+      glowColor: 'group-hover:shadow-[0_0_40px_-10px_rgba(16,185,129,0.4)]',
+      tag: 'NEW',
+      premium: false
+    },
+    {
       id: 'proxy_free',
       name: 'รายการพร็อกซี่ฟรี',
       desc: 'แหล่งรวม Proxy สดใหม่ อัปเดตรายวัน สำหรับใช้งานทั่วไปแบบฟรีๆ ไม่จำกัด',
