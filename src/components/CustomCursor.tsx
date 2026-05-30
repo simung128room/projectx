@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { motion } from 'motion/react';
+import React, { useEffect, useRef, useState } from 'react';
 
 export const CustomCursor: React.FC = () => {
-  const [mousePosition, setMousePosition] = useState({ x: -100, y: -100 });
-  const [isHovering, setIsHovering] = useState(false);
+  const dotRef = useRef<HTMLDivElement>(null);
+  const ringRef = useRef<HTMLDivElement>(null);
   const [isTouchDevice, setIsTouchDevice] = useState(false);
 
   useEffect(() => {
@@ -13,8 +12,19 @@ export const CustomCursor: React.FC = () => {
       return;
     }
 
+    let isHovering = false;
+    let mouseX = -100;
+    let mouseY = -100;
+    
+    // Smooth trailing effect for ring
+    let ringX = -100;
+    let ringY = -100;
+    
+    let animationFrameId: number;
+
     const updateMousePosition = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
+      mouseX = e.clientX;
+      mouseY = e.clientY;
     };
 
     const handleMouseOver = (e: MouseEvent) => {
@@ -26,18 +36,42 @@ export const CustomCursor: React.FC = () => {
         target.closest('a') ||
         window.getComputedStyle(target).cursor === 'pointer'
       ) {
-        setIsHovering(true);
+        isHovering = true;
       } else {
-        setIsHovering(false);
+        isHovering = false;
       }
+    };
+
+    const render = () => {
+      // Move dot instantly
+      if (dotRef.current) {
+        dotRef.current.style.transform = `translate3d(${mouseX - 4}px, ${mouseY - 4}px, 0) scale(${isHovering ? 0 : 1})`;
+      }
+      
+      // Move ring with lerp
+      ringX += (mouseX - ringX) * 0.15;
+      ringY += (mouseY - ringY) * 0.15;
+      
+      if (ringRef.current) {
+        const size = isHovering ? 60 : 40;
+        const offset = size / 2;
+        ringRef.current.style.transform = `translate3d(${ringX - offset}px, ${ringY - offset}px, 0)`;
+        ringRef.current.style.width = `${size}px`;
+        ringRef.current.style.height = `${size}px`;
+        ringRef.current.style.backgroundColor = isHovering ? "rgba(30, 144, 255, 0.1)" : "transparent";
+      }
+      
+      animationFrameId = requestAnimationFrame(render);
     };
 
     window.addEventListener('mousemove', updateMousePosition);
     window.addEventListener('mouseover', handleMouseOver);
+    animationFrameId = requestAnimationFrame(render);
 
     return () => {
       window.removeEventListener('mousemove', updateMousePosition);
       window.removeEventListener('mouseover', handleMouseOver);
+      cancelAnimationFrame(animationFrameId);
     };
   }, []);
 
@@ -46,35 +80,17 @@ export const CustomCursor: React.FC = () => {
   return (
     <>
       {/* Dot */}
-      <motion.div
+      <div
+        ref={dotRef}
         className="fixed top-0 left-0 w-2 h-2 rounded-full bg-[#3B82F6] pointer-events-none z-[9999]"
-        style={{ originX: 0.5, originY: 0.5 }}
-        animate={{
-          x: mousePosition.x - 4, // center the 8px dot (w-2 h-2)
-          y: mousePosition.y - 4,
-          scale: isHovering ? 0 : 1,
-          opacity: 1
-        }}
-        transition={{ type: "tween", duration: 0, ease: "linear" }}
+        style={{ transition: 'transform 0.1s ease-out', willChange: 'transform' }}
       />
       
       {/* Ring Ring */}
-      <motion.div
+      <div
+        ref={ringRef}
         className="fixed top-0 left-0 rounded-full border border-[#3B82F6]/50 pointer-events-none z-[9998]"
-        animate={{
-          width: isHovering ? 60 : 40,
-          height: isHovering ? 60 : 40,
-          x: isHovering ? mousePosition.x - 30 : mousePosition.x - 20,
-          y: isHovering ? mousePosition.y - 30 : mousePosition.y - 20,
-          backgroundColor: isHovering ? "rgba(30, 144, 255, 0.1)" : "transparent",
-          scale: 1,
-        }}
-        transition={{
-          type: "spring",
-          stiffness: 400,
-          damping: 28,
-          mass: 0.5
-        }}
+        style={{ transition: 'width 0.2s, height 0.2s, background-color 0.2s', willChange: 'transform, width, height' }}
       />
     </>
   );

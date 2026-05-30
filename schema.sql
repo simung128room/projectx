@@ -45,9 +45,14 @@ CREATE TABLE IF NOT EXISTS public.admins (
 CREATE TABLE IF NOT EXISTS public.products (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     name text,
+    title text,
+    subtitle text,
     slug text UNIQUE,
     price numeric,
+    original_price numeric,
     stock integer,
+    sold_count integer DEFAULT 0,
+    is_popular boolean DEFAULT false,
     stock_data text[],
     description text,
     image text,
@@ -78,6 +83,11 @@ CREATE TABLE IF NOT EXISTS public.product_variants (
 CREATE TABLE IF NOT EXISTS public.categories (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     name text UNIQUE,
+    title text,
+    subtitle text,
+    banner_url text,
+    image_url text,
+    is_popular boolean DEFAULT false,
     sort integer DEFAULT 0
 );
 
@@ -148,8 +158,10 @@ CREATE TABLE IF NOT EXISTS public.payments (
 CREATE TABLE IF NOT EXISTS public.topups (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     user_id text,
+    uid text,
     username text,
     amount numeric,
+    method text,
     status text DEFAULT 'pending',
     created_at timestamptz DEFAULT now()
 );
@@ -164,6 +176,12 @@ CREATE TABLE IF NOT EXISTS public.purchases (
     username text,
     product_name text,
     price numeric,
+    secret_data text,
+    bill_number text,
+    is_special boolean DEFAULT false,
+    product_id uuid,
+    discord_claimed boolean DEFAULT false,
+    web_claimed boolean DEFAULT false,
     created_at timestamptz DEFAULT now()
 );
 
@@ -286,6 +304,22 @@ CREATE TABLE IF NOT EXISTS public.security_logs (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     ip text,
     event text,
+    details text,
+    created_at timestamptz DEFAULT now()
+);
+
+-- =====================================
+-- SYSTEM AUDIT LOGS
+-- =====================================
+
+CREATE TABLE IF NOT EXISTS public.sys_audit_logs (
+    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+    timestamp timestamptz DEFAULT now(),
+    action text,
+    actor text,
+    target text,
+    ip text,
+    request_id text,
     details text,
     created_at timestamptz DEFAULT now()
 );

@@ -19,6 +19,7 @@ import WebSocket from 'ws';
 import rateLimit from 'express-rate-limit';
 import multer from 'multer';
 import fs from 'fs';
+import readline from 'readline';
 import os from 'os';
 import zlib from 'zlib';
 import cloudscraper from 'cloudscraper';
@@ -157,8 +158,8 @@ async function writeAuditLog(action: string, actor: string, target: string, req:
       requestId: req.id || 'N/A',
       ...extraContext
     };
-    // Disabled DB writing due to missing table
-    // await admin.firestore().collection('sys_audit_logs').add(logEntry);
+    // Write to sys_audit_logs collection
+    await admin.firestore().collection('sys_audit_logs').add(logEntry);
   } catch (err) {
     console.error('[Audit Log] Failed to write audit log:', err);
   }
@@ -463,7 +464,7 @@ app.set('trust proxy', 1);
   // Add RateLimiting to prevent bot attacks
   const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 10,
+    max: 50,
     standardHeaders: true,
     legacyHeaders: false,
     keyGenerator: userRateLimitKeyGenerator,
@@ -567,13 +568,14 @@ const cleanupTokenCache = () => {
           if (user) {
             userObj = user;
             (userObj as any).uid = user.id; // Map Supabase user.id to Firebase user.uid
-            const adminEmails = [
-              'abopboa.b@gmail.com',
-              'admin_apex@apex-studio.com',
-              'admin@apex-studio.com',
-              'admin@admin.com',
-              'apex@apex.com'
-            ];
+            let adminEmails: string[] = [];
+            if (process.env.ADMIN_EMAILS) {
+              adminEmails = process.env.ADMIN_EMAILS.split(',').map(e => e.trim());
+            } else {
+              adminEmails = [
+                'abopboa.b@gmail.com'
+              ];
+            }
             if (adminEmails.includes(user.email || '')) {
               isAdminObj = true;
             } else {
@@ -627,22 +629,10 @@ const cleanupTokenCache = () => {
     next();
   };
 
+import healthRoute from './src/routes/health.route.js';
+
   // API health check immediately
-  app.get('/api/health', async (req, res) => {
-    const clientIp = (req.headers['x-forwarded-for'] as string)?.split(',')[0] || req.ip || 'Unknown';
-    // Muted for performance
-    
-    // Check if blocked bypassed for performance
-    let isBlocked = false;
-    
-    res.json({ 
-      status: 'ok', 
-      time: new Date().toISOString(),
-      env: process.env.NODE_ENV || 'development',
-      clientIp: clientIp,
-      blocked: isBlocked
-    });
-  });
+  app.use('/api', healthRoute);
 
   app.use(cors());
   app.options('*', cors());
@@ -2179,6 +2169,90 @@ import { LRUCache } from 'lru-cache';
       console.error('Internal server error creating product:', JSON.stringify(err, Object.getOwnPropertyNames(err)));
       const errMsg = err?.message || JSON.stringify(err);
       res.status(500).json({ error: String(errMsg) });
+    }
+  });
+
+const upload = multer({ dest: 'uploads/' });
+
+  // Stream-based large file stock upload
+  app.post('/api/products/:id/stock-file', requireAdmin, upload.single('file'), async (req, res) => {
+    if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: 'No file uploaded' });
+      }
+
+      const linesPerItem = parseInt(req.body.linesPerItem || '1') || 1;
+      const fileStream = fs.createReadStream(req.file.path);
+      
+      const rl = readline.createInterface({
+        input: fileStream,
+        crlfDelay: Infinity
+      });
+
+      let currentLines: string[] = [];
+      const chunkedItems: string[] = [];
+
+      for await (const line of rl) {
+        const trimmed = line.trim();
+        if (trimmed.length > 0) {
+          currentLines.push(trimmed);
+          if (currentLines.length >= linesPerItem) {
+            chunkedItems.push(currentLines.join('\n'));
+            currentLines = [];
+          }
+        }
+      }
+      
+      if (currentLines.length > 0) {
+        chunkedItems.push(currentLines.join('\n'));
+      }
+      
+      // Cleanup temp file
+      fs.unlink(req.file.path, () => {});
+
+      if (chunkedItems.length === 0) {
+         return res.status(400).json({ error: 'No valid data found in file' });
+      }
+
+      const docRef = admin.firestore().collection('products').doc(req.params.id);
+      let finalProductData: any = {};
+      
+      await admin.firestore().runTransaction(async (t) => {
+        const doc = await t.get(docRef);
+        if (!doc.exists) {
+          throw new Error('NOT_FOUND');
+        }
+        const p = doc.data();
+        let existingStock = [];
+        if (p.stockData) {
+          existingStock = await decompressStock(p.stockData);
+        }
+        
+        const mergedStock = [...existingStock, ...chunkedItems];
+        const compressed = await compressStock(mergedStock);
+        
+        const newVersion = (p._version || 0) + 1;
+        
+        t.update(docRef, { 
+          stockData: compressed, 
+          stock: mergedStock.length,
+          _version: newVersion 
+        });
+        
+        finalProductData = { ...p, stockData: undefined, stock: mergedStock.length, _version: newVersion, id: doc.id };
+      });
+
+      invalidateCache('products');
+      invalidateStatsCache();
+      
+      await logAdminAction(req, 'ADD_STOCK', `Product ${req.params.id}`, { itemsAdded: chunkedItems.length });
+      
+      res.json({ success: true, count: chunkedItems.length, product: finalProductData });
+    } catch (err: any) {
+      if (req.file) fs.unlink(req.file.path, () => {});
+      console.error('Error in /api/products/:id/stock-file:', err);
+      res.status(err.message === 'NOT_FOUND' ? 404 : 500).json({ error: String(err.message || err) });
     }
   });
 

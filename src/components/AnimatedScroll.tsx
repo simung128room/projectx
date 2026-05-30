@@ -25,8 +25,7 @@ export const AnimatedScroll: React.FC<AnimatedScrollProps> = ({
       (entries) => {
         if (entries[0].isIntersecting) {
           setIsVisible(true);
-        } else {
-          setIsVisible(false);
+          if (domRef.current) observer.unobserve(domRef.current);
         }
       },
       {
@@ -69,7 +68,7 @@ export const AnimatedScroll: React.FC<AnimatedScrollProps> = ({
     };
   }, [hideOnScroll]);
 
-  const activeVisible = isVisible && !(hideOnScroll && shouldHideFromScroll);
+  const activeVisible = isVisible;
 
   let transformClass = '';
   switch(direction) {

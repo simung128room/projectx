@@ -74,18 +74,36 @@ const camelMap: Record<string, string> = {
   stock_data: 'stockData',
   stockdata: 'stockData',
   image: 'imageUrl',
-  username: 'username'
+  image_url: 'imageUrl',
+  username: 'username',
+  original_price: 'originalPrice',
+  is_popular: 'isPopular',
+  sold_count: 'soldCount',
+  banner_url: 'bannerUrl',
+  secret_data: 'secretData',
+  bill_number: 'billNumber',
+  discord_claimed: 'discordClaimed',
+  web_claimed: 'webClaimed',
+  product_id: 'productId'
 };
 
 const forwardMap: Record<string, string> = {
-  imageUrl: 'image',
+  imageUrl: 'image_url',
+  bannerUrl: 'banner_url',
   createdAt: 'created_at',
-  updatedAt: 'updatedat',
-  isPremium: 'ispremium',
-  productName: 'productname',
-  stockData: 'stockdata',
+  updatedAt: 'updated_at',
+  isPremium: 'is_premium',
+  productName: 'product_name',
+  stockData: 'stock_data',
   userId: 'user_id',
-  username: 'username'
+  originalPrice: 'original_price',
+  isPopular: 'is_popular',
+  soldCount: 'sold_count',
+  secretData: 'secret_data',
+  billNumber: 'bill_number',
+  discordClaimed: 'discord_claimed',
+  webClaimed: 'web_claimed',
+  productId: 'product_id'
 };
 
 const missingColumns = new Set<string>();
@@ -97,89 +115,8 @@ function toDB(data: any, collection?: string): any {
   // Copy data to avoid mutating the original
   const _data = { ...data };
 
-  // Encode purchases metadata into productname
-  if (_data.productName && typeof _data.productName === 'string' && (_data.secretData !== undefined || _data.billNumber !== undefined || _data.is_special !== undefined || _data.productId !== undefined || _data.discordClaimed !== undefined || _data.webClaimed !== undefined)) {
-      if (!_data.productName.startsWith('{"n":')) {
-          _data.productName = JSON.stringify({
-              n: _data.productName,
-              s: _data.secretData,
-              b: _data.billNumber,
-              i: _data.is_special,
-              p: _data.productId,
-              d: _data.discordClaimed,
-              w: _data.webClaimed
-          });
-      } else {
-          try {
-             let meta = JSON.parse(_data.productName);
-             if (_data.discordClaimed !== undefined) meta.d = _data.discordClaimed;
-             if (_data.webClaimed !== undefined) meta.w = _data.webClaimed;
-             if (_data.secretData !== undefined) meta.s = _data.secretData;
-             if (_data.billNumber !== undefined) meta.b = _data.billNumber;
-             if (_data.is_special !== undefined) meta.i = _data.is_special;
-             if (_data.productId !== undefined) meta.p = _data.productId;
-             _data.productName = JSON.stringify(meta);
-          } catch(e) {}
-      }
-      delete _data.secretData;
-      delete _data.billNumber;
-      delete _data.is_special;
-      delete _data.productId;
-      delete _data.discordClaimed;
-      delete _data.webClaimed;
-  }
+  // Remove JSON encoding hack as requested, expect real DB columns
 
-  // Encode topups metadata into username
-  if (_data.amount !== undefined && (_data.method !== undefined || _data.uid !== undefined) && !_data.productName) {
-      const usernameBase = _data.username || _data.userId || 'Unknown';
-      if (typeof usernameBase === 'string' && !usernameBase.startsWith('{"u":')) {
-          _data.username = JSON.stringify({
-              u: usernameBase,
-              uid: _data.uid,
-              m: _data.method
-          });
-      }
-      delete _data.method;
-      delete _data.uid;
-  }
-
-  // Encode category or product metadata directly into name
-  if (_data.name !== undefined && (_data.title !== undefined || _data.subtitle !== undefined || _data.bannerUrl !== undefined || _data.stockData !== undefined || _data.soldCount !== undefined || _data.imageUrl !== undefined || _data.originalPrice !== undefined || _data.isPopular !== undefined)) {
-      if (typeof _data.name === 'string' && !_data.name.startsWith('{"n":')) {
-          _data.name = JSON.stringify({
-              n: _data.name,
-              t: _data.title,
-              s: _data.subtitle,
-              b: _data.bannerUrl,
-              sd: _data.stockData,
-              sc: _data.soldCount,
-              img: _data.imageUrl,
-              op: _data.originalPrice,
-              ip: _data.isPopular
-          });
-      } else if (typeof _data.name === 'string') {
-          try {
-             let meta = JSON.parse(_data.name);
-             if (_data.title !== undefined) meta.t = _data.title;
-             if (_data.subtitle !== undefined) meta.s = _data.subtitle;
-             if (_data.bannerUrl !== undefined) meta.b = _data.bannerUrl;
-             if (_data.stockData !== undefined) meta.sd = _data.stockData;
-             if (_data.soldCount !== undefined) meta.sc = _data.soldCount;
-             if (_data.imageUrl !== undefined) meta.img = _data.imageUrl;
-             if (_data.originalPrice !== undefined) meta.op = _data.originalPrice;
-             if (_data.isPopular !== undefined) meta.ip = _data.isPopular;
-             _data.name = JSON.stringify(meta);
-          } catch(e) {}
-      }
-      delete _data.title;
-      delete _data.subtitle;
-      delete _data.bannerUrl;
-      delete _data.stockData;
-      delete _data.soldCount;
-      delete _data.imageUrl;
-      delete _data.originalPrice;
-      delete _data.isPopular;
-  }
 
   for (const k in _data) {
     let target = k;
@@ -189,9 +126,8 @@ function toDB(data: any, collection?: string): any {
     // Skip known missing columns for this collection
     if (collection && missingColumns.has(`${collection}.${target}`)) continue;
 
-    // Ignore frontend-only or missing schema fields
-    if (k === 'premiumExpireDate' || k === 'fullName' || k === 'avatarUrl' || k === 'rank' || k === 'originalPrice' || k === 'isPopular') continue;
-    if (k === 'method' || k === 'uid' || k === 'secretData' || k === 'billNumber' || k === 'is_special' || k === 'productId') continue;
+    // Ignore frontend-only
+    if (k === 'premiumExpireDate' || k === 'fullName' || k === 'avatarUrl' || k === 'rank') continue;
     
     res[target] = _data[k];
   }
@@ -206,45 +142,8 @@ function fromDB(data: any): any {
     else res[k] = data[k];
   }
 
-  // Decode purchases metadata from productName
-  if (res.productName && typeof res.productName === 'string' && res.productName.startsWith('{"n":')) {
-      try {
-          const meta = JSON.parse(res.productName);
-          res.productName = meta.n;
-          if (meta.s !== undefined) res.secretData = meta.s;
-          if (meta.b !== undefined) res.billNumber = meta.b;
-          if (meta.i !== undefined) res.is_special = meta.i;
-          if (meta.p !== undefined) res.productId = meta.p;
-          if (meta.d !== undefined) res.discordClaimed = meta.d;
-          if (meta.w !== undefined) res.webClaimed = meta.w;
-      } catch (e) {}
-  }
+  // Remove JSON decoding hack as well, expect real DB columns
 
-  // Decode topups metadata from username
-  if (res.username && typeof res.username === 'string' && res.username.startsWith('{"u":')) {
-      try {
-          const meta = JSON.parse(res.username);
-          res.username = meta.u;
-          if (meta.uid !== undefined) res.uid = meta.uid;
-          if (meta.m !== undefined) res.method = meta.m;
-      } catch (e) {}
-  }
-
-  // Decode category or product metadata from name
-  if (res.name && typeof res.name === 'string' && res.name.startsWith('{"n":')) {
-      try {
-          const meta = JSON.parse(res.name);
-          res.name = meta.n;
-          if (meta.t !== undefined) res.title = meta.t;
-          if (meta.s !== undefined) res.subtitle = meta.s;
-          if (meta.b !== undefined) res.bannerUrl = meta.b;
-          if (meta.sd !== undefined) res.stockData = meta.sd;
-          if (meta.sc !== undefined) res.soldCount = meta.sc;
-          if (meta.img !== undefined) res.imageUrl = meta.img;
-          if (meta.op !== undefined) res.originalPrice = meta.op;
-          if (meta.ip !== undefined) res.isPopular = meta.ip;
-      } catch (e) {}
-  }
 
   return res;
 }
