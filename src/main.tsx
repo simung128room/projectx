@@ -4,6 +4,10 @@ import App from './App.tsx';
 import './index.css';
 import { ErrorBoundary } from './components/ErrorBoundary';
 
+if (import.meta.env.MODE !== 'production') {
+  import('eruda').then((eruda) => eruda.default.init()).catch(() => {});
+}
+
 // Remote error logging
 window.onerror = function (message, source, lineno, colno, error) {
   fetch('/api/log_error', {
