@@ -38,9 +38,13 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
             "--glow": glowColor,
           } as any
         }
+        tabIndex={0}
+        role="button"
+        aria-label={title}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
         onClick={onClick}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); } }}
       >
         {/* Banner */}
         <div className="custom-banner">
