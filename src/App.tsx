@@ -2054,30 +2054,30 @@ function AppContent() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3 }}
-          className="relative flex items-center justify-center w-28 h-28 z-10"
+          className="relative flex items-center justify-center w-52 h-52 z-10"
         >
           {/* Spinner 1: Outer Slow Clockwise Spinner (Blue) */}
           <motion.div
             animate={{ rotate: 360 }}
             transition={{ repeat: Infinity, duration: 2.8, ease: "linear" }}
-            className="absolute w-20 h-20 border border-t-[#3B82F6] border-r-transparent border-b-transparent border-l-transparent rounded-full"
+            className="absolute w-40 h-40 border-2 border-t-[#3B82F6] border-r-transparent border-b-transparent border-l-transparent rounded-full"
           />
 
           {/* Spinner 2: Middle Fast Counter-Clockwise Spinner (Blue) */}
           <motion.div
             animate={{ rotate: -360 }}
             transition={{ repeat: Infinity, duration: 1.8, ease: "linear" }}
-            className="absolute w-16 h-16 border border-l-[#3B82F6] border-t-transparent border-r-transparent border-b-transparent rounded-full"
+            className="absolute w-32 h-32 border-2 border-l-[#3B82F6] border-t-transparent border-r-transparent border-b-transparent rounded-full"
           />
 
           {/* Spinner 3: Inner Very Fast Clockwise Spinner (Blue) */}
           <motion.div
             animate={{ rotate: 360 }}
             transition={{ repeat: Infinity, duration: 1.2, ease: "linear" }}
-            className="absolute w-12 h-12 border border-b-[#3B82F6] border-t-transparent border-r-transparent border-l-transparent rounded-full"
+            className="absolute w-24 h-24 border-2 border-b-[#3B82F6] border-t-transparent border-r-transparent border-l-transparent rounded-full"
           />
 
-          {/* Logo Centered inside (Subtle, Minimal, compact) */}
+          {/* Logo Centered inside (Subtle, Minimal, scaled up nicely) */}
           <motion.img
             src="https://img2.pic.in.th/4D8F9A5A-1535-4802-BD86-5FA08F0D3B3D.png"
             alt="Logo"
@@ -2085,7 +2085,7 @@ function AppContent() {
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.05, duration: 0.3, ease: "easeOut" }}
-            className="relative w-7 h-auto z-20 object-contain select-none"
+            className="relative w-14 h-auto z-20 object-contain select-none"
           />
         </motion.div>
       </div>

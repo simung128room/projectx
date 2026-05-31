@@ -148,7 +148,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
     <div className="space-y-6 pb-24 font-sans text-white mt-2 sm:mt-4 max-w-7xl mx-auto">
       {/* Banner carousel */}
       <AnimatedScroll>
-        <div className="relative w-full aspect-[4/1] rounded-xl overflow-hidden shadow-sm border border-[#1e1e1e] bg-[#111111]">
+        <div className="relative w-full aspect-[2.1/1] sm:aspect-[2.5/1] md:aspect-[4/1] rounded-xl overflow-hidden shadow-sm border border-[#1e1e1e] bg-[#111111]">
           <AnimatePresence>
             <motion.img loading="lazy"
               key={currentBanner}
@@ -186,42 +186,42 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
       {/* 4 Cards Dashboard (Mobile First) */}
       <AnimatedScroll delay={200} direction="up">
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
           
           {/* Card 1: Sales */}
-          <div className="bg-[#111111] rounded-xl p-6 transition-all duration-300 flex items-center gap-4 border border-[#1e1e1e] shadow-sm hover:border-[#333333] group">
-             <div className="w-12 h-12 rounded-lg bg-[#161616] flex items-center justify-center shrink-0 border border-[#1e1e1e] group-hover:scale-105 transition-transform">
-              <ShoppingCart className="w-5 h-5 text-[#888888]" />
+          <div className="bg-[#111111] rounded-xl p-4 sm:p-6 transition-all duration-300 flex items-center gap-3 sm:gap-4 border border-[#1e1e1e] shadow-sm hover:border-[#333333] group">
+             <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-[#161616] flex items-center justify-center shrink-0 border border-[#1e1e1e] group-hover:scale-105 transition-transform">
+              <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5 text-[#888888]" />
             </div>
             <div className="flex flex-col justify-center">
-              <span className="text-xs font-medium text-[#888888] mb-1">ยอดขายเว็บของเรา</span>
-              <h2 className="text-2xl font-semibold text-[#ffffff] tracking-tight leading-none">
+              <span className="text-[10px] sm:text-xs font-medium text-[#888888] mb-1">ยอดขายเว็บของเรา</span>
+              <h2 className="text-xl sm:text-2xl font-semibold text-[#ffffff] tracking-tight leading-none">
                 <NumberTicker value={siteSettings?.stats_sales_override !== undefined && siteSettings?.stats_sales_override !== null ? siteSettings.stats_sales_override : (realtimeStats?.sales || 0)} />
               </h2>
             </div>
           </div>
 
           {/* Card 2: Total Stock */}
-          <div className="bg-[#111111] rounded-xl p-6 transition-all duration-300 flex items-center gap-4 border border-[#1e1e1e] shadow-sm hover:border-[#333333] group">
-             <div className="w-12 h-12 rounded-lg bg-[#161616] flex items-center justify-center shrink-0 border border-[#1e1e1e] group-hover:scale-105 transition-transform">
-              <Package className="w-5 h-5 text-[#888888]" />
+          <div className="bg-[#111111] rounded-xl p-4 sm:p-6 transition-all duration-300 flex items-center gap-3 sm:gap-4 border border-[#1e1e1e] shadow-sm hover:border-[#333333] group">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-[#161616] flex items-center justify-center shrink-0 border border-[#1e1e1e] group-hover:scale-105 transition-transform">
+              <Package className="w-4 h-4 sm:w-5 sm:h-5 text-[#888888]" />
             </div>
             <div className="flex flex-col justify-center">
-              <span className="text-xs font-medium text-[#888888] mb-1">พร้อมจำหน่าย</span>
-              <h2 className="text-2xl font-semibold text-[#ffffff] tracking-tight leading-none">
+              <span className="text-[10px] sm:text-xs font-medium text-[#888888] mb-1">พร้อมจำหน่าย</span>
+              <h2 className="text-xl sm:text-2xl font-semibold text-[#ffffff] tracking-tight leading-none">
                 <NumberTicker value={products?.reduce((acc, p) => acc + (Math.max(0, p.stock || 0)), 0) || 0} />
               </h2>
             </div>
           </div>
 
           {/* Card 3: Total Users */}
-          <div className="bg-[#111111] rounded-xl p-6 transition-all duration-300 flex items-center gap-4 border border-[#1e1e1e] shadow-sm hover:border-[#333333] group">
-             <div className="w-12 h-12 rounded-lg bg-[#161616] flex items-center justify-center shrink-0 border border-[#1e1e1e] group-hover:scale-105 transition-transform">
-              <Users className="w-5 h-5 text-[#888888]" />
+          <div className="bg-[#111111] rounded-xl p-4 sm:p-6 transition-all duration-300 flex items-center gap-3 sm:gap-4 border border-[#1e1e1e] shadow-sm hover:border-[#333333] group">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-[#161616] flex items-center justify-center shrink-0 border border-[#1e1e1e] group-hover:scale-105 transition-transform">
+              <Users className="w-4 h-4 sm:w-5 sm:h-5 text-[#888888]" />
             </div>
             <div className="flex flex-col justify-center">
-              <span className="text-xs font-medium text-[#888888] mb-1">ผู้ใช้งานทั้งหมดของเว็บ</span>
-              <h2 className="text-2xl font-semibold text-[#ffffff] tracking-tight leading-none">
+              <span className="text-[10px] sm:text-xs font-medium text-[#888888] mb-1">ผู้ใช้งานทั้งหมดของเว็บ</span>
+              <h2 className="text-xl sm:text-2xl font-semibold text-[#ffffff] tracking-tight leading-none">
                 <NumberTicker value={siteSettings?.stats_users_override !== undefined && siteSettings?.stats_users_override !== null ? siteSettings.stats_users_override : (realtimeStats?.users || 0)} />
               </h2>
             </div>
@@ -230,13 +230,13 @@ export const HomeView: React.FC<HomeViewProps> = ({
           {/* Card 4: Wallet */}
           <div 
              onClick={() => setActiveView("wallet")}
-             className="bg-[#111111] rounded-xl p-6 transition-all duration-300 flex items-center gap-4 border border-[#1e1e1e] shadow-sm hover:border-[#333333] cursor-pointer group">
-             <div className="w-12 h-12 rounded-lg bg-[#161616] flex items-center justify-center shrink-0 border border-[#1e1e1e] group-hover:scale-105 transition-transform">
-              <Wallet className="w-5 h-5 text-[#9b59f5]" />
+             className="bg-[#111111] rounded-xl p-4 sm:p-6 transition-all duration-300 flex items-center gap-3 sm:gap-4 border border-[#1e1e1e] shadow-sm hover:border-[#333333] cursor-pointer group">
+             <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-[#161616] flex items-center justify-center shrink-0 border border-[#1e1e1e] group-hover:scale-105 transition-transform">
+              <Wallet className="w-4 h-4 sm:w-5 sm:h-5 text-[#9b59f5]" />
             </div>
             <div className="flex flex-col justify-center">
-              <span className="text-xs font-medium text-[#888888] mb-1">ยอดเงินคงเหลือของคุณ</span>
-              <h2 className="text-2xl font-semibold text-[#9b59f5] tracking-tight leading-none">
+              <span className="text-[10px] sm:text-xs font-medium text-[#888888] mb-1">ยอดเงินคงเหลือของคุณ</span>
+              <h2 className="text-xl sm:text-2xl font-semibold text-[#9b59f5] tracking-tight leading-none">
                 ฿ {user ? (user.balance || 0).toLocaleString() : 0}
               </h2>
             </div>
@@ -446,7 +446,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             </button>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 relative z-10">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5 relative z-10">
             {products.slice(0, 8).map((product, i) => (
               <motion.div
                 key={product.id}
@@ -459,7 +459,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   <div className="w-full h-full rounded-2xl overflow-hidden relative">
                       {product.tag && (
                         <div className="absolute top-2 right-2 bg-gradient-to-r from-red-500 to-orange-500 text-white font-black text-[10px] px-2 py-0.5 rounded-full z-10 shadow-lg border border-white/20 uppercase tracking-widest">
-                          {product.tag}
+                           {product.tag}
                         </div>
                       )}
                       {product.imageUrl ? (
@@ -499,38 +499,38 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   </div>
                 </div>
 
-                <div className="p-5 flex flex-col flex-1">
-                  <h3 className="font-bold text-white text-[15px] leading-tight line-clamp-2 mb-2 group-hover:text-[#3B82F6] transition-colors">
+                <div className="p-3 sm:p-5 flex flex-col flex-1">
+                  <h3 className="font-bold text-white text-[13px] sm:text-[15px] leading-tight line-clamp-2 mb-2 group-hover:text-[#3B82F6] transition-colors">
                     {product.name}
                   </h3>
-                  <div className="mt-auto pt-4 flex flex-col gap-3">
+                  <div className="mt-auto pt-2 sm:pt-4 flex flex-col gap-2 sm:gap-3">
                     <div className="flex items-end justify-between">
                         <div>
                             {product.originalPrice && product.price && product.originalPrice > product.price && (
-                                <div className="text-[10px] text-zinc-500 line-through mb-0.5">
+                                <div className="text-[9px] sm:text-[10px] text-zinc-500 line-through mb-0.5">
                                 ฿{(product.originalPrice || 0).toLocaleString()}
                                 </div>
                             )}
-                            <div className="text-[#3B82F6] font-black text-lg leading-none">
+                            <div className="text-[#3B82F6] font-black text-base sm:text-lg leading-none">
                                 ฿{(product.price || 0).toLocaleString()}
                             </div>
                         </div>
                         <div className="text-right">
-                           <div className="text-[10px] text-zinc-500 font-medium">คงเหลือ</div>
-                           <div className={`text-xs font-bold ${product.stock > 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                           <div className="text-[9px] sm:text-[10px] text-zinc-500 font-medium">คงเหลือ</div>
+                           <div className={`text-[11px] sm:text-xs font-bold ${product.stock > 0 ? 'text-emerald-400' : 'text-red-400'}`}>
                                {product.stock >= 999999 ? "ไม่จำกัด" : `${product.stock} ชิ้น`}
                            </div>
                         </div>
                     </div>
 
                     {product.stock <= 0 ? (
-                      <button className="w-full bg-zinc-800/50 text-zinc-500 border border-zinc-800 rounded-xl py-3 text-sm font-bold flex items-center justify-center gap-2 cursor-not-allowed">
+                      <button className="w-full bg-zinc-800/50 text-zinc-500 border border-zinc-800 rounded-xl py-2 sm:py-3 text-xs sm:text-sm font-bold flex items-center justify-center gap-2 cursor-not-allowed">
                         <Package className="w-4 h-4" /> สินค้าหมด
                       </button>
                     ) : (
                       <button
                         onClick={() => onProductClick(product.id)}
-                        className="w-full from-[#3B82F6] to-cyan-500 text-white rounded-xl py-3 text-sm font-bold shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2"
+                        className="w-full from-[#3B82F6] to-cyan-500 text-white rounded-xl py-2 sm:py-3 text-xs sm:text-sm font-bold shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2"
                       >
                         <ShoppingCart className="w-4 h-4" /> สั่งซื้อเลย
                       </button>
