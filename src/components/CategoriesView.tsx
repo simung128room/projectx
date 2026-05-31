@@ -37,15 +37,15 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({ categories, prod
       <div className="flex items-center gap-4 mb-8">
         <button 
           onClick={onBack}
-          className="p-3 bg-[#0B0D0F] hover:bg-[#121820] border border-white/10 rounded-full transition-colors group shadow-sm"
+          className="p-3 bg-[#111111] hover:bg-[#161616] border border-[#1e1e1e] rounded-full transition-colors group shadow-sm"
         >
-          <ArrowLeft className="w-5 h-5 text-zinc-400 group-hover:text-white" />
+          <ArrowLeft className="w-5 h-5 text-[#888888] group-hover:text-[#ffffff]" />
         </button>
         <div>
-          <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight flex items-center gap-3">
-             <Package className="w-8 h-8 text-[#2563EB]" /> หมวดหมู่สินค้า
+          <h1 className="text-3xl sm:text-4xl font-medium text-[#ffffff] tracking-tight flex items-center gap-3">
+             <Package className="w-8 h-8 text-[#9b59f5]" /> หมวดหมู่สินค้า
           </h1>
-          <p className="text-sm font-medium text-zinc-500 mt-2">เลือกหมวดหมู่ที่ต้องการดูสินค้า</p>
+          <p className="text-sm font-medium text-[#888888] mt-2">เลือกหมวดหมู่ที่ต้องการดูสินค้า</p>
         </div>
       </div>
 
@@ -58,9 +58,9 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({ categories, prod
           bgImage={siteSettings?.banners?.[0] || "https://img2.pic.in.th/-71_20260516210303.png"}
           index={0}
           onClick={() => onSelectCategory('all')}
-          accentColor="#3B82F6"
-          glowColor="rgba(59,130,246,0.6)"
-          gradientFrom="#0B0D0F"
+          accentColor="#9b59f5"
+          glowColor="transparent"
+          gradientFrom="#0a0a0a"
         />
 
         {categories.map((c, i) => (
@@ -73,9 +73,9 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({ categories, prod
             bgImage={c.bannerUrl || undefined}
             index={i + 1}
             onClick={() => onSelectCategory(c.name)}
-            accentColor="#3B82F6"
-            glowColor="rgba(59,130,246,0.6)"
-            gradientFrom="#0B0D0F"
+            accentColor="#9b59f5"
+            glowColor="transparent"
+            gradientFrom="#0a0a0a"
           />
         ))}
       </div>
