@@ -148,7 +148,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
     <div className="space-y-6 pb-24 font-sans text-white mt-2 sm:mt-4 max-w-7xl mx-auto">
       {/* Banner carousel */}
       <AnimatedScroll>
-        <div className="relative w-full aspect-[21/9] sm:aspect-[25/9] md:aspect-[4/1] rounded-xl overflow-hidden shadow-sm border border-[#1e1e1e] bg-[#111111]">
+        {/* แก้ไข: เปลี่ยน aspect-[21/9] → aspect-[16/6] สำหรับ mobile ไม่ให้แบนเนอร์สูงเกินไป */}
+        <div className="relative w-full aspect-[16/6] sm:aspect-[25/9] md:aspect-[4/1] rounded-xl overflow-hidden shadow-sm border border-[#1e1e1e] bg-[#111111]">
           <AnimatePresence>
             <motion.img loading="lazy"
               key={currentBanner}

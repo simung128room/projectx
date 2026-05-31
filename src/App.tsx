@@ -2050,43 +2050,47 @@ function AppContent() {
   if (!isLoaded)
     return (
       <div className="min-h-screen bg-[#0a0a0a] flex flex-col items-center justify-center font-sans overflow-hidden relative">
+        {/* Subtle radial glow background */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div className="w-[400px] h-[400px] rounded-full bg-[#3B82F6]/5 blur-[80px]" />
+        </div>
+
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.3 }}
-          className="relative flex items-center justify-center w-52 h-52 z-10"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="relative flex flex-col items-center gap-8 z-10"
         >
-          {/* Spinner 1: Outer Slow Clockwise Spinner (Blue) */}
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ repeat: Infinity, duration: 2.8, ease: "linear" }}
-            className="absolute w-40 h-40 border-2 border-t-[#3B82F6] border-r-transparent border-b-transparent border-l-transparent rounded-full"
-          />
-
-          {/* Spinner 2: Middle Fast Counter-Clockwise Spinner (Blue) */}
-          <motion.div
-            animate={{ rotate: -360 }}
-            transition={{ repeat: Infinity, duration: 1.8, ease: "linear" }}
-            className="absolute w-32 h-32 border-2 border-l-[#3B82F6] border-t-transparent border-r-transparent border-b-transparent rounded-full"
-          />
-
-          {/* Spinner 3: Inner Very Fast Clockwise Spinner (Blue) */}
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ repeat: Infinity, duration: 1.2, ease: "linear" }}
-            className="absolute w-24 h-24 border-2 border-b-[#3B82F6] border-t-transparent border-r-transparent border-l-transparent rounded-full"
-          />
-
-          {/* Logo Centered inside (Subtle, Minimal, scaled up nicely) */}
+          {/* Logo */}
           <motion.img
             src="https://img2.pic.in.th/4D8F9A5A-1535-4802-BD86-5FA08F0D3B3D.png"
             alt="Logo"
             referrerPolicy="no-referrer"
-            initial={{ scale: 0.95, opacity: 0 }}
+            initial={{ scale: 0.85, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.05, duration: 0.3, ease: "easeOut" }}
-            className="relative w-14 h-auto z-20 object-contain select-none"
+            transition={{ delay: 0.1, duration: 0.4, ease: "easeOut" }}
+            className="w-20 h-auto object-contain select-none drop-shadow-[0_0_20px_rgba(59,130,246,0.4)]"
           />
+
+          {/* Loading bar */}
+          <div className="w-48 h-[2px] bg-white/10 rounded-full overflow-hidden">
+            <motion.div
+              className="h-full bg-gradient-to-r from-[#3B82F6] to-cyan-400 rounded-full"
+              initial={{ x: "-100%" }}
+              animate={{ x: "100%" }}
+              transition={{ repeat: Infinity, duration: 1.4, ease: "easeInOut" }}
+            />
+          </div>
+
+          {/* Loading text */}
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: [0.4, 1, 0.4] }}
+            transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+            className="text-[11px] font-bold text-zinc-500 tracking-[0.2em] uppercase"
+          >
+            กำลังโหลด...
+          </motion.p>
         </motion.div>
       </div>
     );
