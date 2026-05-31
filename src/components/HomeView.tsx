@@ -421,7 +421,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
       {/* Featured Products */}
       <AnimatedScroll delay={250} direction="right">
-        <div id="products" className="pt-12 relative">
+        <div id="products" className="pt-12 relative overflow-hidden">
           <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[800px] h-[300px] bg-[#3B82F6]/10 rounded-full  pointer-events-none mix-blend-screen"></div>
           
           <div className="flex items-center justify-between mb-8 pb-4 border-b border-white/5 relative z-10">

@@ -2050,64 +2050,52 @@ function AppContent() {
   if (!isLoaded)
     return (
       <div className="min-h-screen bg-[#0B0D0F] flex flex-col items-center justify-center font-sans overflow-hidden relative">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(59,130,246,0.05),transparent_70%)] pointer-events-none" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(59,130,246,0.08),transparent_70%)] pointer-events-none" />
+        
         <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="flex flex-col items-center justify-center z-10"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+          className="relative flex items-center justify-center w-80 h-80 z-10"
         >
-          <div className="relative mb-6">
-            <motion.div
-              animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0.8, 0.5] }}
-              transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-              className="absolute inset-0 bg-[#3B82F6]/30 rounded-full blur-2xl"
-            />
-            <div className="w-20 h-20 rounded-2xl bg-[#3B82F6]/10 border border-[#3B82F6]/30 flex items-center justify-center relative overflow-hidden  shadow-lg">
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
-                className="absolute inset-[-100%] bg-[conic-gradient(from_90deg_at_50%_50%,transparent_40%,#3B82F6_100%)] opacity-70"
-              />
-              <div className="absolute inset-[2px] bg-black rounded-[14px]" />
-              <motion.div
-                animate={{ rotate: -360 }}
-                transition={{ repeat: Infinity, duration: 4, ease: "linear" }}
-              >
-                <Loader
-                  className="w-8 h-8 text-[#3B82F6] relative z-10 drop-shadow-lg"
-                  strokeWidth={2.5}
-                />
-              </motion.div>
-            </div>
-          </div>
+          {/* Spinner 1: Outer Slow Clockwise Spinner */}
           <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.5 }}
-            className="flex flex-col items-center gap-2"
-          >
-            <motion.img
-              src="https://img2.pic.in.th/4D8F9A5A-1535-4802-BD86-5FA08F0D3B3D.png"
-              alt="Logo"
-              referrerPolicy="no-referrer"
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.5, ease: "easeOut" }}
-              className="w-32 h-auto mb-6 drop-shadow-lg"
-            />
-            <span className="text-[#3B82F6] text-[10px] font-bold tracking-[0.3em] uppercase bg-[#3B82F6]/10 px-3 py-1 rounded-full border border-[#3B82F6]/20">
-              Loading System... {loadingProgress}%
-            </span>
-            <div className="w-48 h-1 bg-zinc-900 rounded-full mt-3 overflow-hidden relative">
-              <motion.div 
-                className="absolute inset-y-0 left-0 bg-[#3B82F6] rounded-full shadow-[0_0_10px_#3B82F6]"
-                initial={{ width: 0 }}
-                animate={{ width: `${loadingProgress}%` }}
-                transition={{ ease: "easeOut", duration: 0.2 }}
-              />
-            </div>
-          </motion.div>
+            animate={{ rotate: 360 }}
+            transition={{ repeat: Infinity, duration: 4, ease: "linear" }}
+            className="absolute w-64 h-64 border-4 border-t-[#9b59f5] border-r-transparent border-b-[#9b59f5]/20 border-l-transparent rounded-full opacity-60"
+          />
+
+          {/* Spinner 2: Middle Fast Counter-Clockwise Spinner */}
+          <motion.div
+            animate={{ rotate: -360 }}
+            transition={{ repeat: Infinity, duration: 2.2, ease: "linear" }}
+            className="absolute w-52 h-52 border-[3px] border-l-blue-400 border-t-transparent border-r-blue-400/20 border-b-transparent border-dashed rounded-full opacity-80"
+          />
+
+          {/* Spinner 3: Inner Very Fast Clockwise Spinner */}
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ repeat: Infinity, duration: 1.3, ease: "linear" }}
+            className="absolute w-40 h-40 border-2 border-r-purple-400 border-t-transparent border-l-transparent border-b-transparent rounded-full shadow-[0_0_15px_rgba(155,89,245,0.4)]"
+          />
+
+          {/* Glowing Ambient Behind the Logo */}
+          <motion.div
+            animate={{ scale: [1, 1.15, 1], opacity: [0.3, 0.6, 0.3] }}
+            transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+            className="absolute w-32 h-32 bg-blue-500/20 rounded-full blur-2xl"
+          />
+
+          {/* Logo Centered inside */}
+          <motion.img
+            src="https://img2.pic.in.th/4D8F9A5A-1535-4802-BD86-5FA08F0D3B3D.png"
+            alt="Logo"
+            referrerPolicy="no-referrer"
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.1, duration: 0.6, ease: "easeOut" }}
+            className="relative w-28 h-auto z-20 drop-shadow-[0_0_15px_rgba(59,130,246,0.3)] object-contain select-none"
+          />
         </motion.div>
       </div>
     );
@@ -2362,7 +2350,7 @@ function AppContent() {
       </aside>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-h-screen min-w-0 relative">
+      <div className="flex-1 flex flex-col min-h-screen min-w-0 relative overflow-x-hidden">
         {/* Desktop Top Header */}
         <header className="hidden lg:flex sticky top-0 z-[50] w-full h-[60px] bg-[#0a0a0a]/80 backdrop-blur-md border-b border-[#1e1e1e] items-center justify-between px-8">
           <div className="flex items-center gap-4">
