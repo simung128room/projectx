@@ -145,7 +145,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
   }, [bannersToUse.length]);
 
   return (
-    <div className="space-y-6 pb-24 font-sans text-white mt-2 sm:mt-4 max-w-7xl mx-auto">
+    <div className="w-full overflow-hidden space-y-6 pb-24 font-sans text-white mt-2 sm:mt-4 max-w-7xl mx-auto px-1">
       {/* Banner carousel */}
       <AnimatedScroll>
         {/* แก้ไข: เปลี่ยน aspect-[21/9] → aspect-[16/6] สำหรับ mobile ไม่ให้แบนเนอร์สูงเกินไป */}
@@ -187,42 +187,42 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
       {/* 4 Cards Dashboard (Mobile First - 2 Columns) */}
       <AnimatedScroll delay={200} direction="up">
-        <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4 mb-8">
+        <div className="grid grid-cols-2 xl:grid-cols-4 gap-2 xs:gap-3 sm:gap-4 mb-8">
           
           {/* Card 1: Sales */}
-          <div className="bg-[#111111] rounded-xl p-4 sm:p-6 transition-all duration-300 flex items-center gap-3 sm:gap-4 border border-[#1e1e1e] shadow-sm hover:border-[#333333] group">
-             <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-[#161616] flex items-center justify-center shrink-0 border border-[#1e1e1e] group-hover:scale-105 transition-transform">
-              <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5 text-[#888888]" />
+          <div className="bg-[#111111] rounded-xl p-3 xs:p-4 sm:p-6 transition-all duration-300 flex items-center gap-2 xs:gap-3 sm:gap-4 border border-[#1e1e1e] shadow-sm hover:border-[#333333] group min-w-0 overflow-hidden">
+             <div className="w-9 h-9 xs:w-10 xs:h-10 sm:w-12 sm:h-12 rounded-lg bg-[#161616] flex items-center justify-center shrink-0 border border-[#1e1e1e] group-hover:scale-105 transition-transform">
+              <ShoppingCart className="w-3.5 h-3.5 xs:w-4 xs:h-4 sm:w-5 sm:h-5 text-[#888888]" />
             </div>
-            <div className="flex flex-col justify-center">
-              <span className="text-[10px] sm:text-xs font-medium text-[#888888] mb-1">ยอดขายเว็บของเรา</span>
-              <h2 className="text-xl sm:text-2xl font-semibold text-[#ffffff] tracking-tight leading-none">
+            <div className="flex flex-col justify-center min-w-0 w-full overflow-hidden">
+              <span className="text-[9px] xs:text-[10px] sm:text-xs font-medium text-[#888888] mb-0.5 truncate w-full">ยอดขายเว็บของเรา</span>
+              <h2 className="text-base xs:text-lg sm:text-2xl font-semibold text-[#ffffff] tracking-tight leading-none truncate w-full">
                 <NumberTicker value={siteSettings?.stats_sales_override !== undefined && siteSettings?.stats_sales_override !== null ? siteSettings.stats_sales_override : (realtimeStats?.sales || 0)} />
               </h2>
             </div>
           </div>
 
           {/* Card 2: Total Stock */}
-          <div className="bg-[#111111] rounded-xl p-4 sm:p-6 transition-all duration-300 flex items-center gap-3 sm:gap-4 border border-[#1e1e1e] shadow-sm hover:border-[#333333] group">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-[#161616] flex items-center justify-center shrink-0 border border-[#1e1e1e] group-hover:scale-105 transition-transform">
-              <Package className="w-4 h-4 sm:w-5 sm:h-5 text-[#888888]" />
+          <div className="bg-[#111111] rounded-xl p-3 xs:p-4 sm:p-6 transition-all duration-300 flex items-center gap-2 xs:gap-3 sm:gap-4 border border-[#1e1e1e] shadow-sm hover:border-[#333333] group min-w-0 overflow-hidden">
+              <div className="w-9 h-9 xs:w-10 xs:h-10 sm:w-12 sm:h-12 rounded-lg bg-[#161616] flex items-center justify-center shrink-0 border border-[#1e1e1e] group-hover:scale-105 transition-transform">
+              <Package className="w-3.5 h-3.5 xs:w-4 xs:h-4 sm:w-5 sm:h-5 text-[#888888]" />
             </div>
-            <div className="flex flex-col justify-center">
-              <span className="text-[10px] sm:text-xs font-medium text-[#888888] mb-1">พร้อมจำหน่าย</span>
-              <h2 className="text-xl sm:text-2xl font-semibold text-[#ffffff] tracking-tight leading-none">
+            <div className="flex flex-col justify-center min-w-0 w-full overflow-hidden">
+              <span className="text-[9px] xs:text-[10px] sm:text-xs font-medium text-[#888888] mb-0.5 truncate w-full">พร้อมจำหน่าย</span>
+              <h2 className="text-base xs:text-lg sm:text-2xl font-semibold text-[#ffffff] tracking-tight leading-none truncate w-full">
                 <NumberTicker value={products?.reduce((acc, p) => acc + (Math.max(0, p.stock || 0)), 0) || 0} />
               </h2>
             </div>
           </div>
 
           {/* Card 3: Total Users */}
-          <div className="bg-[#111111] rounded-xl p-4 sm:p-6 transition-all duration-300 flex items-center gap-3 sm:gap-4 border border-[#1e1e1e] shadow-sm hover:border-[#333333] group">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-[#161616] flex items-center justify-center shrink-0 border border-[#1e1e1e] group-hover:scale-105 transition-transform">
-              <Users className="w-4 h-4 sm:w-5 sm:h-5 text-[#888888]" />
+          <div className="bg-[#111111] rounded-xl p-3 xs:p-4 sm:p-6 transition-all duration-300 flex items-center gap-2 xs:gap-3 sm:gap-4 border border-[#1e1e1e] shadow-sm hover:border-[#333333] group min-w-0 overflow-hidden">
+              <div className="w-9 h-9 xs:w-10 xs:h-10 sm:w-12 sm:h-12 rounded-lg bg-[#161616] flex items-center justify-center shrink-0 border border-[#1e1e1e] group-hover:scale-105 transition-transform">
+              <Users className="w-3.5 h-3.5 xs:w-4 xs:h-4 sm:w-5 sm:h-5 text-[#888888]" />
             </div>
-            <div className="flex flex-col justify-center">
-              <span className="text-[10px] sm:text-xs font-medium text-[#888888] mb-1">ผู้ใช้งานทั้งหมดของเว็บ</span>
-              <h2 className="text-xl sm:text-2xl font-semibold text-[#ffffff] tracking-tight leading-none">
+            <div className="flex flex-col justify-center min-w-0 w-full overflow-hidden">
+              <span className="text-[9px] xs:text-[10px] sm:text-xs font-medium text-[#888888] mb-0.5 truncate w-full">ผู้ใช้งานทั้งหมดของเว็บ</span>
+              <h2 className="text-base xs:text-lg sm:text-2xl font-semibold text-[#ffffff] tracking-tight leading-none truncate w-full">
                 <NumberTicker value={siteSettings?.stats_users_override !== undefined && siteSettings?.stats_users_override !== null ? siteSettings.stats_users_override : (realtimeStats?.users || 0)} />
               </h2>
             </div>
@@ -231,13 +231,13 @@ export const HomeView: React.FC<HomeViewProps> = ({
           {/* Card 4: Wallet */}
           <div 
              onClick={() => setActiveView("wallet")}
-             className="bg-[#111111] rounded-xl p-4 sm:p-6 transition-all duration-300 flex items-center gap-3 sm:gap-4 border border-[#1e1e1e] shadow-sm hover:border-[#333333] cursor-pointer group">
-             <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-[#161616] flex items-center justify-center shrink-0 border border-[#1e1e1e] group-hover:scale-105 transition-transform">
-              <Wallet className="w-4 h-4 sm:w-5 sm:h-5 text-[#9b59f5]" />
+             className="bg-[#111111] rounded-xl p-3 xs:p-4 sm:p-6 transition-all duration-300 flex items-center gap-2 xs:gap-3 sm:gap-4 border border-[#1e1e1e] shadow-sm hover:border-[#333333] cursor-pointer group min-w-0 overflow-hidden">
+             <div className="w-9 h-9 xs:w-10 xs:h-10 sm:w-12 sm:h-12 rounded-lg bg-[#161616] flex items-center justify-center shrink-0 border border-[#1e1e1e] group-hover:scale-105 transition-transform">
+              <Wallet className="w-3.5 h-3.5 xs:w-4 xs:h-4 sm:w-5 sm:h-5 text-[#9b59f5]" />
             </div>
-            <div className="flex flex-col justify-center">
-              <span className="text-[10px] sm:text-xs font-medium text-[#888888] mb-1">ยอดเงินคงเหลือของคุณ</span>
-              <h2 className="text-xl sm:text-2xl font-semibold text-[#9b59f5] tracking-tight leading-none">
+            <div className="flex flex-col justify-center min-w-0 w-full overflow-hidden">
+              <span className="text-[9px] xs:text-[10px] sm:text-xs font-medium text-[#888888] mb-0.5 truncate w-full">ยอดเงินคงเหลือของคุณ</span>
+              <h2 className="text-base xs:text-lg sm:text-2xl font-semibold text-[#9b59f5] tracking-tight leading-none truncate w-full">
                 ฿ {user ? (user.balance || 0).toLocaleString() : 0}
               </h2>
             </div>
@@ -505,20 +505,20 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     {product.name}
                   </h3>
                   <div className="mt-auto pt-2 sm:pt-4 flex flex-col gap-2 sm:gap-3">
-                    <div className="flex items-end justify-between">
-                        <div>
+                    <div className="flex flex-wrap items-end justify-between gap-1 w-full overflow-hidden">
+                        <div className="min-w-0">
                             {product.originalPrice && product.price && product.originalPrice > product.price && (
                                 <div className="text-[9px] sm:text-[10px] text-zinc-500 line-through mb-0.5">
                                 ฿{(product.originalPrice || 0).toLocaleString()}
                                 </div>
                             )}
-                            <div className="text-[#3B82F6] font-black text-base sm:text-lg leading-none">
+                            <div className="text-[#3B82F6] font-black text-sm sm:text-lg leading-none truncate">
                                 ฿{(product.price || 0).toLocaleString()}
                             </div>
                         </div>
-                        <div className="text-right">
-                           <div className="text-[9px] sm:text-[10px] text-zinc-500 font-medium">คงเหลือ</div>
-                           <div className={`text-[11px] sm:text-xs font-bold ${product.stock > 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                        <div className="text-right shrink-0">
+                           <div className="text-[9px] sm:text-[10px] text-zinc-500 font-medium leading-none mb-1">คงเหลือ</div>
+                           <div className={`text-[10px] sm:text-xs font-bold leading-none ${product.stock > 0 ? 'text-emerald-400' : 'text-red-400'}`}>
                                {product.stock >= 999999 ? "ไม่จำกัด" : `${product.stock} ชิ้น`}
                            </div>
                         </div>

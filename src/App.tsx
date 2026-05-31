@@ -91,6 +91,7 @@ import jsQR from "jsqr";
 type SupabaseUser = any;
 import { Turnstile } from "@marsidev/react-turnstile";
 import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 import { useToastStore } from "./lib/toastStore";
 import { ToastContainer } from "./components/ui/Toast";
 import { GlobalErrorBoundary } from "./components/GlobalErrorBoundary";
@@ -3992,6 +3993,7 @@ export default function App() {
         </Routes>
       </BrowserRouter>
       <Analytics />
+      <SpeedInsights />
       <ToastContainer />
     </GlobalErrorBoundary>
   );
