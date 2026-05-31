@@ -227,5 +227,118 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+
+  /* Custom Category Card styling and layout */
+  .custom-category-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    border-radius: 16px;
+    background-color: #111111;
+    border: 1px solid #1e1e1e;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+
+  .custom-category-card:hover {
+    border-color: var(--accent, #9b59f5);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.6), 0 0 20px -3px var(--glow, rgba(155, 89, 245, 0.25));
+  }
+
+  .custom-banner {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 21 / 9;
+    overflow: hidden;
+    background-color: #161616;
+    border-bottom: 1px solid #1e1e1e;
+  }
+
+  .custom-banner-bg {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    transition: transform 0.60s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .custom-category-card:hover .custom-banner-bg {
+    transform: scale(1.08);
+  }
+
+  .custom-info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px;
+    background-color: #111111;
+    z-index: 10;
+  }
+
+  .custom-info-left {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .custom-cat-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: #ffffff;
+    line-height: 1.2;
+  }
+
+  .custom-item-count {
+    font-size: 11px;
+    color: #888888;
+    font-weight: 500;
+  }
+
+  .custom-price-badge {
+    font-size: 11px;
+    font-weight: 750;
+    padding: 4px 8px;
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+  }
+
+  /* Responsive styling via standard media queries */
+  @media (min-width: 640px) {
+    .custom-info-row {
+      padding: 16px;
+    }
+    .custom-info-left {
+      gap: 4px;
+    }
+    .custom-cat-name {
+      font-size: 16px;
+    }
+    .custom-item-count {
+      font-size: 12px;
+    }
+    .custom-price-badge {
+      font-size: 13px;
+      padding: 4px 10px;
+      border-radius: 8px;
+    }
+  }
+
+  .custom-card-glow {
+    position: absolute;
+    inset: 0;
+    border-radius: 16px;
+    pointer-events: none;
+    border: 1px solid transparent;
+    transition: all 0.3s ease;
+  }
+
+  .custom-card-glow.active {
+    border-color: var(--accent, #9b59f5);
+    box-shadow: inset 0 0 12px var(--glow, rgba(155, 89, 245, 0.2));
+  }
 }
 

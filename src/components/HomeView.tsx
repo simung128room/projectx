@@ -148,7 +148,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
     <div className="space-y-6 pb-24 font-sans text-white mt-2 sm:mt-4 max-w-7xl mx-auto">
       {/* Banner carousel */}
       <AnimatedScroll>
-        <div className="relative w-full aspect-[2.1/1] sm:aspect-[2.5/1] md:aspect-[4/1] rounded-xl overflow-hidden shadow-sm border border-[#1e1e1e] bg-[#111111]">
+        <div className="relative w-full aspect-[21/9] sm:aspect-[25/9] md:aspect-[4/1] rounded-xl overflow-hidden shadow-sm border border-[#1e1e1e] bg-[#111111]">
           <AnimatePresence>
             <motion.img loading="lazy"
               key={currentBanner}
@@ -160,7 +160,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.5 }}
-              className="absolute inset-0 w-full h-full object-cover"
+              className="absolute inset-0 w-full h-full object-cover object-center"
             />
           </AnimatePresence>
         </div>
@@ -184,9 +184,9 @@ export const HomeView: React.FC<HomeViewProps> = ({
         </div>
       </AnimatedScroll>
 
-      {/* 4 Cards Dashboard (Mobile First) */}
+      {/* 4 Cards Dashboard (Mobile First - 2 Columns) */}
       <AnimatedScroll delay={200} direction="up">
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4 mb-8">
           
           {/* Card 1: Sales */}
           <div className="bg-[#111111] rounded-xl p-4 sm:p-6 transition-all duration-300 flex items-center gap-3 sm:gap-4 border border-[#1e1e1e] shadow-sm hover:border-[#333333] group">
