@@ -274,7 +274,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
             {categories &&
               categories.slice(0, 3).map((cat, i) => {
                 const catProducts = products.filter(
-                  (p) => p.category === cat.name,
+                  (p) => 
+                    p.category === cat.id || 
+                    p.category === cat.name || 
+                    p.category === cat.title,
                 );
                 let priceRangeStr = "ไม่ทราบราคา";
                 let itemCountDesc = `${catProducts.length} รายการ`;

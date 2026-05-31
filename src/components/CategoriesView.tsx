@@ -13,8 +13,8 @@ interface CategoriesViewProps {
 }
 
 export const CategoriesView: React.FC<CategoriesViewProps> = ({ categories, products, siteSettings, onBack, onSelectCategory }) => {
-  const getCategoryPriceInfo = (categoryName: string) => {
-    const catProducts = categoryName === 'all' ? products : products.filter(p => p.category === categoryName);
+  const getCategoryPriceInfo = (cat: any) => {
+    const catProducts = cat === 'all' ? products : products.filter(p => p.category === cat.id || p.category === cat.name || p.category === cat.title);
     if (catProducts.length === 0) return null;
     const prices = catProducts.map(p => p.price);
     const minPrice = Math.min(...prices);
@@ -26,8 +26,8 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({ categories, prod
     return `฿${minPrice.toLocaleString()} - ฿${maxPrice.toLocaleString()}`;
   };
 
-  const getProductCountText = (categoryName: string) => {
-    const catProducts = categoryName === 'all' ? products : products.filter(p => p.category === categoryName);
+  const getProductCountText = (cat: any) => {
+    const catProducts = cat === 'all' ? products : products.filter(p => p.category === cat.id || p.category === cat.name || p.category === cat.title);
     return `${catProducts.length} สินค้า`;
   };
 
@@ -68,8 +68,8 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({ categories, prod
             key={c.id}
             title={c.title}
             label={c.subtitle || "หมวดหมู่"}
-            itemCountDesc={`${getProductCountText(c.name)}`}
-            priceRangeStr={getCategoryPriceInfo(c.name) || undefined}
+            itemCountDesc={`${getProductCountText(c)}`}
+            priceRangeStr={getCategoryPriceInfo(c) || undefined}
             bgImage={c.bannerUrl || undefined}
             index={i + 1}
             onClick={() => onSelectCategory(c.name)}

@@ -78,18 +78,19 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
         }
         
         try {
+          const topup = response.data.topup;
           const historyEntry = {
-            id: Math.random().toString(36).substr(2, 9),
-            username: userPlan?.username || 'Unknown',
+            id: topup ? topup.id : Math.random().toString(36).substr(2, 9),
+            username: topup?.userId || userPlan?.username || 'Unknown',
             type: 'topup',
             method: 'ซองของขวัญ (Gift Link)',
-            amount,
+            amount: topup ? topup.amount : amount,
             status: 'success',
-            date: new Date().toISOString(),
-            billNumber: 'T-' + Math.floor(Math.random()*1000000).toString().padStart(6, '0'),
-            money: amount,
-            title: 'เติมเงินสำเร็จ',
-            image: 'https://img1.pic.in.th/images/IMG_6162.png'
+            date: topup ? topup.date : new Date().toISOString(),
+            billNumber: topup ? 'T-' + topup.id.split('-')[0].toUpperCase() : 'T-' + Math.floor(Math.random()*1000000).toString().padStart(6, '0'),
+            money: topup ? topup.amount : amount,
+            title: topup ? topup.title : 'เติมเงินสำเร็จ',
+            image: topup ? topup.image : 'https://img1.pic.in.th/images/IMG_6162.png'
           };
           if (onTopupSuccess) onTopupSuccess(historyEntry);
         } catch(e) {}
@@ -166,18 +167,19 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
           }
           
           try {
+            const topup = response.data.topup;
             const historyEntry = {
-              id: Math.random().toString(36).substr(2, 9),
+              id: topup ? topup.id : Math.random().toString(36).substr(2, 9),
               type: 'topup',
               method: 'สแกนสลิป (SlipOK)',
-              amount,
-              username: userPlan?.username || 'Unknown',
+              amount: topup ? topup.amount : amount,
+              username: topup?.userId || userPlan?.username || 'Unknown',
               status: 'success',
-              date: new Date().toISOString(),
-              billNumber: 'T-' + Math.floor(Math.random()*1000000).toString().padStart(6, '0'),
-              money: amount,
-              title: 'เติมเงินสำเร็จ',
-              image: 'https://img2.pic.in.th/IMG_6166.png'
+              date: topup ? topup.date : new Date().toISOString(),
+              billNumber: topup ? 'T-' + topup.id.split('-')[0].toUpperCase() : 'T-' + Math.floor(Math.random()*1000000).toString().padStart(6, '0'),
+              money: topup ? topup.amount : amount,
+              title: topup ? topup.title : 'เติมเงินสำเร็จ',
+              image: topup ? topup.image : 'https://img2.pic.in.th/IMG_6166.png'
             };
             if (onTopupSuccess) onTopupSuccess(historyEntry);
           } catch(e) {}

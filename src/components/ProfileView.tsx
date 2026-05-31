@@ -6,6 +6,7 @@ import { User as SupabaseUser } from '@supabase/supabase-js';
 import { getAvatarUrl } from '../lib/avatar';
 import { getUserRank } from '../lib/rank';
 import { AnimatedScroll } from './AnimatedScroll';
+import axios from 'axios';
 
 interface ProfileViewProps {
   user: SupabaseUser | null;
@@ -128,14 +129,40 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             </h2>
           </div>
 
-          <form onSubmit={(e) => {
+          <form onSubmit={async (e) => {
             e.preventDefault();
             const formData = new FormData(e.currentTarget);
             const newFullName = formData.get('fullName') as string;
-            const newPlan = { ...userPlan, fullName: newFullName, username: userPlan?.username || username, isPremium: userPlan?.isPremium || false, premiumExpireDate: userPlan?.premiumExpireDate || null };
-            setUserPlan(newPlan);
-            if (clientIp) localStorage.setItem(`checker_userplan_${clientIp}`, JSON.stringify(newPlan));
-            Swal.fire({ icon: 'success', title: 'อัพเดทสำเร็จ', timer: 1500, showConfirmButton: false });
+            
+            if (!user) {
+              Swal.fire({ icon: 'error', title: 'ไม่พบข้อมูลผู้ใช้', text: 'กรุณาเข้าสู่ระบบก่อนอัพเดทโปรไฟล์', background: '#09090b', color: '#fff' });
+              return;
+            }
+
+            // Display loading state
+            Swal.fire({
+              title: 'กำลังบันทึกข้อมูล...',
+              allowOutsideClick: false,
+              didOpen: () => { Swal.showLoading(); }
+            });
+
+            try {
+              // API call to database
+              await axios.post(`/api/users/${user.id}`, { fullName: newFullName });
+              const newPlan = { ...userPlan, fullName: newFullName, username: userPlan?.username || username, isPremium: userPlan?.isPremium || false, premiumExpireDate: userPlan?.premiumExpireDate || null };
+              setUserPlan(newPlan);
+              if (clientIp) localStorage.setItem(`checker_userplan_${clientIp}`, JSON.stringify(newPlan));
+              Swal.fire({ icon: 'success', title: 'อัพเดทสำเร็จ', timer: 1500, showConfirmButton: false, background: '#09090b', color: '#fff' });
+            } catch (err: any) {
+              console.error('Error updating profile:', err);
+              Swal.fire({
+                icon: 'error',
+                title: 'อัพเดทไม่สำเร็จ',
+                text: err.response?.data?.error || err.message || 'เกิดข้อผิดพลาดในการบันทึกข้อมูล',
+                background: '#09090b',
+                color: '#fff'
+              });
+            }
           }} className="space-y-4 mb-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>

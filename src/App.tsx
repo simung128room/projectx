@@ -2943,7 +2943,7 @@ function AppContent() {
               />
             )}
             {activeView === "free_website" && (
-              <FreeWebsiteTool userPlan={userPlan} onBack={() => setActiveView("tools")} />
+              <FreeWebsiteTool userPlan={userPlan} products={products} onBack={() => setActiveView("tools")} />
             )}
             {activeView === "telegram_catcher" && (
               <TelegramCatcherTool userPlan={userPlan} />

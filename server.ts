@@ -1052,7 +1052,7 @@ import healthRoute from './src/routes/health.route.js';
                 console.log(`[TrueWallet] Updated balance for user ${uid} (+฿${amount})`);
                 
                 // Add to topups history
-                await admin.firestore().collection('topups').add({
+                const topupDoc = {
                   id: crypto.randomUUID(),
                   userId: userDoc.data().username || 'Unknown',
                   uid: uid,
@@ -1062,12 +1062,23 @@ import healthRoute from './src/routes/health.route.js';
                   money: amount,
                   title: 'เติมเงินสำเร็จ',
                   image: 'https://img1.pic.in.th/images/IMG_6162.png'
-                });
+                };
+                await admin.firestore().collection('topups').add(topupDoc);
                 
                 await voucherRef.update({
                   status: 'completed',
                   amount: amount
                 });
+                
+                return res.json({ 
+                  success: true, 
+                  amount,
+                  message: result.message || 'รับเงินสำเร็จ',
+                  topup: topupDoc
+                });
+              } else {
+                await voucherRef.delete().catch(() => {});
+                return res.json({ success: false, error: 'ข้อมูลสมาชิกไม่ถูกต้อง' });
               }
             } catch (syncErr) {
               console.error(`[TrueWallet] Balance sync error:`, syncErr);
@@ -1207,7 +1218,7 @@ import healthRoute from './src/routes/health.route.js';
               console.log(`[Slip] Updated balance for user ${uid} (+฿${amount})`);
               
               // Add to topups history
-              await admin.firestore().collection('topups').add({
+              const topupDoc = {
                 id: crypto.randomUUID(),
                 userId: userDoc.data().username || 'Unknown',
                 uid: uid,
@@ -1217,7 +1228,12 @@ import healthRoute from './src/routes/health.route.js';
                 money: amount,
                 title: 'เติมเงินสำเร็จ',
                 image: 'https://img2.pic.in.th/IMG_6166.png'
-              });
+              };
+              await admin.firestore().collection('topups').add(topupDoc);
+              
+              return res.json({ success: true, amount, topup: topupDoc });
+            } else {
+              return res.json({ success: false, error: 'ข้อมูลสมาชิกไม่ถูกต้อง' });
             }
           } catch (syncErr) {
             console.error(`[Slip] Balance sync error:`, syncErr);
@@ -3402,9 +3418,12 @@ const diskUpload = multer({ dest: 'uploads/' });
     }
   });
 
-  app.delete('/api/users/:uid', requireAdmin, async (req: any, res: any) => {
+  app.delete('/api/users/:uid', requireAuth, async (req: any, res: any) => {
     try {
       const { uid } = req.params;
+      if (req.user.uid !== uid && !req.isAdmin) {
+        return res.status(403).json({ error: 'Forbidden' });
+      }
       await supabaseAdmin.auth.admin.deleteUser(uid).catch(() => {});
       await admin.firestore().collection('users').doc(uid).delete();
       res.json({ success: true });
