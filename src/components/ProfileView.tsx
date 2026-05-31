@@ -114,7 +114,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               onClick={() => {
                 setActiveView('wallet');
               }}
-              className="mt-3 w-full bg-emerald-500/10 hover:bg-emerald-100 text-emerald-600 border border-emerald-100 py-2 rounded-xl text-xs font-bold transition-all"
+              className="mt-3 w-full bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 py-2 rounded-xl text-xs font-bold transition-all"
             >
               + เติมเงิน
             </button>
