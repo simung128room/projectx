@@ -14,26 +14,43 @@ export const DiscordCatcherTool: React.FC<DiscordCatcherToolProps> = ({ userPlan
   const [status, setStatus] = useState<string>('none');
   const [logs, setLogs] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [sessionId, setSessionId] = useState<string | null>(() => localStorage.getItem('dc_session_id'));
   
   const logsEndRef = useRef<HTMLDivElement>(null);
   
   const isPremium = userPlan?.isPremium || false;
 
   useEffect(() => {
+    if (sessionId) {
+      localStorage.setItem('dc_session_id', sessionId);
+    } else {
+      localStorage.removeItem('dc_session_id');
+    }
+  }, [sessionId]);
+
+  useEffect(() => {
     let interval: NodeJS.Timeout;
-    if (status !== 'none' && discordToken) {
+    if (status !== 'none' && sessionId) {
       interval = setInterval(fetchStatus, 1500);
     }
     return () => clearInterval(interval);
-  }, [status, discordToken]);
+  }, [status, sessionId]);
+
+  useEffect(() => {
+    if (sessionId) {
+      fetchStatus();
+    }
+  }, []);
 
   useEffect(() => {
     logsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [logs]);
 
   const fetchStatus = async () => {
+    const curSessionId = sessionId || localStorage.getItem('dc_session_id');
+    if (!curSessionId) return;
     try {
-      const res = await axios.get(`/api/discord/catcher/status?token=${encodeURIComponent(discordToken)}`);
+      const res = await axios.post('/api/discord/catcher/status', { sessionId: curSessionId });
       if (res.data) {
         setStatus(res.data.status);
         setLogs(res.data.logs);
@@ -86,6 +103,7 @@ export const DiscordCatcherTool: React.FC<DiscordCatcherToolProps> = ({ userPlan
         });
         setStatus('error');
       } else {
+        setSessionId(res.data.sessionId);
         setStatus(res.data.status);
       }
     } catch (error: any) {
@@ -98,13 +116,14 @@ export const DiscordCatcherTool: React.FC<DiscordCatcherToolProps> = ({ userPlan
         });
     } finally {
       setIsLoading(false);
-      fetchStatus();
     }
   };
 
   const stopCatcher = async () => {
+    const curSessionId = sessionId || localStorage.getItem('dc_session_id');
     try {
-      await axios.post('/api/discord/catcher/stop', { discordToken });
+      await axios.post('/api/discord/catcher/stop', { sessionId: curSessionId });
+      setSessionId(null);
       setStatus('none');
       setLogs([]);
       Swal.fire({ title: 'Stopped Successfully', icon: 'success', toast: true, position: 'top-end', showConfirmButton: false, timer: 1500, background: '#0B0D0F', color: '#fff' });

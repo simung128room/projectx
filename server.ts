@@ -96,7 +96,7 @@ fetchFreeProxies();
 setInterval(fetchFreeProxies, 15 * 60 * 1000);
 
 import { adminDb as admin, supabaseAdmin } from './src/lib/admindb.js';
-import { getMD5, encryptPassword, getCodmInfo, getGameConnections } from './src/services/garena.ts';
+import { getMD5, encryptPassword, getCodmInfo, getGameConnections, encrypt, decrypt } from './src/services/garena.ts';
 
 const _dirname = typeof __dirname !== 'undefined' ? __dirname : process.cwd();
 
@@ -3560,14 +3560,17 @@ const diskUpload = multer({ dest: 'uploads/' });
   const tgSessions = new Map<string, {
       client: any,
       status: 'idle' | 'pending_otp' | 'pending_password' | 'connected' | 'error',
+      encryptedPhone: string,
       truemoneyPhone: string,
       resolveOtp?: (code: string) => void,
       resolvePassword?: (pwd: string) => void,
       logs: string[]
   }>();
 
-  function pushTgLog(phone: string, msg: string) {
-      const sess = tgSessions.get(phone);
+  const tgPhoneHashToSessionId = new Map<string, string>();
+
+  function pushTgLog(sessionId: string, msg: string) {
+      const sess = tgSessions.get(sessionId);
       if (sess) {
           sess.logs.push(`[${new Date().toLocaleTimeString()}] ${msg}`);
           if (sess.logs.length > 50) sess.logs.shift();
@@ -3604,10 +3607,17 @@ const diskUpload = multer({ dest: 'uploads/' });
       }
 
       try {
-          let sess = tgSessions.get(telegramPhone);
+          const phoneHash = crypto.createHash('sha256').update(telegramPhone).digest('hex');
+          let sessionId = tgPhoneHashToSessionId.get(phoneHash);
+          let sess = sessionId ? tgSessions.get(sessionId) : null;
           if (sess && sess.status === 'connected') {
              // Already running?
-             return res.json({ status: 'connected' });
+             return res.json({ status: 'connected', sessionId });
+          }
+
+          if (!sessionId) {
+              sessionId = crypto.randomUUID();
+              tgPhoneHashToSessionId.set(phoneHash, sessionId);
           }
 
           const client = new TelegramClient(new StringSession(''), 2040, 'b18441a1ff607e10a989891a5462e627', { connectionRetries: 3 });
@@ -3615,16 +3625,17 @@ const diskUpload = multer({ dest: 'uploads/' });
           sess = { 
               client, 
               status: 'idle', 
+              encryptedPhone: encrypt(telegramPhone),
               truemoneyPhone,
               logs: ['เริ่มเชื่อมต่อเข้าสู่ระบบ Telegram...']
           };
-          tgSessions.set(telegramPhone, sess);
+          tgSessions.set(sessionId, sess);
 
           // Asynchronous start
           client.start({
               phoneNumber: telegramPhone,
               phoneCode: async () => {
-                  const sessData = tgSessions.get(telegramPhone)!;
+                  const sessData = tgSessions.get(sessionId!)!;
                   sessData.status = 'pending_otp';
                   sessData.logs.push('รอรหัส OTP จาก Telegram ของคุณ...');
                   const { promise, resolve } = createResolver();
@@ -3632,7 +3643,7 @@ const diskUpload = multer({ dest: 'uploads/' });
                   return await promise as string;
               },
               password: async () => {
-                   const sessData = tgSessions.get(telegramPhone)!;
+                   const sessData = tgSessions.get(sessionId!)!;
                    sessData.status = 'pending_password';
                    sessData.logs.push('ต้องการรหัส 2FA Password...');
                    const { promise, resolve } = createResolver();
@@ -3640,14 +3651,14 @@ const diskUpload = multer({ dest: 'uploads/' });
                    return await promise as string;
               },
               onError: (err: any) => {
-                  const sessData = tgSessions.get(telegramPhone);
+                  const sessData = tgSessions.get(sessionId!);
                   if (sessData) {
                       sessData.status = 'error';
                       sessData.logs.push(`ข้อผิดพลาด: ${err.message}`);
                   }
               }
           }).then(() => {
-              const sessData = tgSessions.get(telegramPhone)!;
+              const sessData = tgSessions.get(sessionId!)!;
               sessData.status = 'connected';
               sessData.logs.push('เชื่อมต่อบัญชีสำเร็จ! บอทกำลังดักซองในพื้นหลัง (คุณสามารถปิดหน้านี้ได้)');
               
@@ -3662,14 +3673,14 @@ const diskUpload = multer({ dest: 'uploads/' });
                       if (matches && matches.length > 0) {
                           for (const vurl of matches) {
                               const startTime = Date.now();
-                              pushTgLog(telegramPhone, `🎯 เจอซอง! ${vurl}`);
+                              pushTgLog(sessionId!, `🎯 เจอซอง! ${vurl}`);
                               
                               try {
                                   const result = await topup.redeemVoucher(vurl);
                                   
                                   if (result.success) {
                                       const speed = Date.now() - startTime;
-                                      pushTgLog(telegramPhone, `✅ รับซองสำเร็จ! +${result.amount} บาท | ${speed}ms`);
+                                      pushTgLog(sessionId!, `✅ รับซองสำเร็จ! +${result.amount} บาท | ${speed}ms`);
                                       
                                       const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
                                       if (webhookUrl) {
@@ -3688,10 +3699,10 @@ const diskUpload = multer({ dest: 'uploads/' });
                                           }).catch(() => {});
                                       }
                                   } else {
-                                      pushTgLog(telegramPhone, `❌ ${result.message}`);
+                                      pushTgLog(sessionId!, `❌ ${result.message}`);
                                   }
                               } catch(e) {
-                                  pushTgLog(telegramPhone, `❌ ข้อผิดพลาดในการรับซอง`);
+                                  pushTgLog(sessionId!, `❌ ข้อผิดพลาดในการรับซอง`);
                               }
                           }
                       }
@@ -3699,7 +3710,7 @@ const diskUpload = multer({ dest: 'uploads/' });
               }, new NewMessage({}));
               
           }).catch((e: any) => {
-              const sessData = tgSessions.get(telegramPhone);
+              const sessData = tgSessions.get(sessionId!);
               if (sessData) {
                   sessData.status = 'error';
                   sessData.logs.push(`ข้อผิดพลาดการเชื่อมต่อ: ${e.message}`);
@@ -3707,7 +3718,7 @@ const diskUpload = multer({ dest: 'uploads/' });
           });
 
           // Respond immediately
-          res.json({ success: true, status: 'idle' });
+          res.json({ success: true, status: 'idle', sessionId });
           
       } catch (err: any) {
           res.status(500).json({ error: String(err) });
@@ -3715,8 +3726,8 @@ const diskUpload = multer({ dest: 'uploads/' });
   });
 
   app.post('/api/telegram/catcher/submit', async (req, res) => {
-      const { telegramPhone, type, value } = req.body;
-      const sess = tgSessions.get(telegramPhone);
+      const { sessionId, type, value } = req.body;
+      const sess = tgSessions.get(sessionId);
       if (!sess) return res.status(400).json({ error: 'ไม่พบเซสชั่น' });
 
       if (type === 'otp' && sess.resolveOtp) {
@@ -3730,19 +3741,25 @@ const diskUpload = multer({ dest: 'uploads/' });
       res.json({ success: true });
   });
 
-  app.get('/api/telegram/catcher/status', async (req, res) => {
-      const phone = req.query.phone as string;
-      const sess = tgSessions.get(phone);
+  app.post('/api/telegram/catcher/status', async (req, res) => {
+      const { sessionId } = req.body;
+      const sess = tgSessions.get(sessionId);
       if (!sess) return res.json({ status: 'none', logs: [] });
       res.json({ status: sess.status, logs: sess.logs });
   });
 
   app.post('/api/telegram/catcher/stop', requireAuth, async (req: any, res: any) => {
-      const { telegramPhone } = req.body;
-      const sess = tgSessions.get(telegramPhone);
+      const { sessionId } = req.body;
+      const sess = tgSessions.get(sessionId);
       if (sess) {
           try { await sess.client.disconnect(); } catch (e) {}
-          tgSessions.delete(telegramPhone);
+          tgSessions.delete(sessionId);
+          for (const [hash, sid] of tgPhoneHashToSessionId.entries()) {
+              if (sid === sessionId) {
+                  tgPhoneHashToSessionId.delete(hash);
+                  break;
+              }
+          }
       }
       res.json({ success: true });
   });
@@ -3903,12 +3920,15 @@ const diskUpload = multer({ dest: 'uploads/' });
   const discordSessions = new Map<string, {
       ws: WebSocket,
       status: 'idle' | 'connected' | 'error',
+      encryptedToken: string,
       truemoneyPhone: string,
       logs: string[]
   }>();
 
-  function pushDiscordLog(token: string, msg: string) {
-      const sess = discordSessions.get(token);
+  const discordTokenHashToSessionId = new Map<string, string>();
+
+  function pushDiscordLog(sessionId: string, msg: string) {
+      const sess = discordSessions.get(sessionId);
       if (sess) {
           sess.logs.push(`[${new Date().toLocaleTimeString()}] ${msg}`);
           if (sess.logs.length > 50) sess.logs.shift();
@@ -3942,9 +3962,16 @@ const diskUpload = multer({ dest: 'uploads/' });
           if (discordSessions.size >= 50) {
               return res.status(503).json({ error: 'Server reached maximum concurrent bot capacity. Please try again later.' });
           }
-          let sess = discordSessions.get(discordToken);
+          const tokenHash = crypto.createHash('sha256').update(discordToken).digest('hex');
+          let sessionId = discordTokenHashToSessionId.get(tokenHash);
+          let sess = sessionId ? discordSessions.get(sessionId) : null;
           if (sess && sess.status === 'connected') {
-             return res.json({ status: 'connected' });
+             return res.json({ status: 'connected', sessionId });
+          }
+
+          if (!sessionId) {
+              sessionId = crypto.randomUUID();
+              discordTokenHashToSessionId.set(tokenHash, sessionId);
           }
 
           const ws = new WebSocket('wss://gateway.discord.gg/?encoding=json&v=9&compress=json');
@@ -3952,16 +3979,18 @@ const diskUpload = multer({ dest: 'uploads/' });
           sess = { 
               ws, 
               status: 'idle', 
+              encryptedToken: encrypt(discordToken),
               truemoneyPhone,
               logs: ['เริ่มเชื่อมต่อเข้าสู่ระบบ Discord (WebSocket)...']
           };
-          discordSessions.set(discordToken, sess);
+          discordSessions.set(sessionId, sess);
 
           let hbInterval: NodeJS.Timeout | null = null;
 
           ws.on('open', () => {
-              sess!.status = 'connected';
-              pushDiscordLog(discordToken, 'เชื่อมต่อ Gateway สำเร็จ กำลังรอรับข้อความซอง...');
+              const curSess = discordSessions.get(sessionId!);
+              if (curSess) curSess.status = 'connected';
+              pushDiscordLog(sessionId!, 'เชื่อมต่อ Gateway สำเร็จ กำลังรอรับข้อความซอง...');
               // Identify Payload
               ws.send(JSON.stringify({
                   "op": 2,
@@ -3998,18 +4027,18 @@ const diskUpload = multer({ dest: 'uploads/' });
                       const matches = message.match(voucherRegex);
                       
                       if (matches && matches.length > 0) {
-                          pushDiscordLog(discordToken, `🎯 เจอซอง! เริ่มการรับเครดิตเข้าเบอร์ ${truemoneyPhone}`);
+                          pushDiscordLog(sessionId!, `🎯 เจอซอง! เริ่มการรับเครดิตเข้าเบอร์ ${truemoneyPhone}`);
                           for (const vurl of matches) {
                               try {
                                   const result = await twApi(vurl, truemoneyPhone);
                                   if (result?.status?.code === 'SUCCESS') {
-                                      pushDiscordLog(discordToken, `✅ รับซองสำเร็จ! +${result.data.my_ticket.amount_baht} บาท`);
+                                      pushDiscordLog(sessionId!, `✅ รับซองสำเร็จ! +${result.data.my_ticket.amount_baht} บาท`);
                                   } else {
                                       // @ts-ignore
-                                      pushDiscordLog(discordToken, `❌ ${result?.status?.message || 'ไม่สามารถรับได้'}`);
+                                      pushDiscordLog(sessionId!, `❌ ${result?.status?.message || 'ไม่สามารถรับได้'}`);
                                   }
                               } catch(e) {
-                                  pushDiscordLog(discordToken, `❌ ข้อผิดพลาดในการรับซอง`);
+                                  pushDiscordLog(sessionId!, `❌ ข้อผิดพลาดในการรับซอง`);
                               }
                           }
                       }
@@ -4028,42 +4057,48 @@ const diskUpload = multer({ dest: 'uploads/' });
 
           ws.on('close', () => {
               if (hbInterval) clearInterval(hbInterval);
-              const curSess = discordSessions.get(discordToken);
+              const curSess = discordSessions.get(sessionId!);
               if (curSess) {
                  curSess.status = 'error';
-                 pushDiscordLog(discordToken, '❌ ตัดการเชื่อมต่อจาก Discord Gateway แล้ว');
+                 pushDiscordLog(sessionId!, '❌ ตัดการเชื่อมต่อจาก Discord Gateway แล้ว');
               }
           });
 
           ws.on('error', (err: any) => {
-              const curSess = discordSessions.get(discordToken);
+              const curSess = discordSessions.get(sessionId!);
               if (curSess) {
                   curSess.status = 'error';
-                  pushDiscordLog(discordToken, `❌ ข้อผิดพลาด WebSocket: ${err.message}`);
+                  pushDiscordLog(sessionId!, `❌ ข้อผิดพลาด WebSocket: ${err.message}`);
               }
           });
 
           // Respond immediately
-          res.json({ success: true, status: 'idle' });
+          res.json({ success: true, status: 'idle', sessionId });
           
       } catch (err: any) {
           res.status(500).json({ error: String(err) });
       }
   });
 
-  app.get('/api/discord/catcher/status', async (req, res) => {
-      const token = req.query.token as string;
-      const sess = discordSessions.get(token);
+  app.post('/api/discord/catcher/status', async (req, res) => {
+      const { sessionId } = req.body;
+      const sess = discordSessions.get(sessionId);
       if (!sess) return res.json({ status: 'none', logs: [] });
       res.json({ status: sess.status, logs: sess.logs });
   });
 
   app.post('/api/discord/catcher/stop', requireAuth, async (req: any, res: any) => {
-      const { discordToken } = req.body;
-      const sess = discordSessions.get(discordToken);
+      const { sessionId } = req.body;
+      const sess = discordSessions.get(sessionId);
       if (sess) {
           try { sess.ws.close(); } catch (e) {}
-          discordSessions.delete(discordToken);
+          discordSessions.delete(sessionId);
+          for (const [hash, sid] of discordTokenHashToSessionId.entries()) {
+              if (sid === sessionId) {
+                  discordTokenHashToSessionId.delete(hash);
+                  break;
+              }
+          }
       }
       res.json({ success: true });
   });

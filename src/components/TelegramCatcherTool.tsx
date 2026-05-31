@@ -16,26 +16,43 @@ export const TelegramCatcherTool: React.FC<TelegramCatcherToolProps> = ({ userPl
   const [otp, setOtp] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [sessionId, setSessionId] = useState<string | null>(() => localStorage.getItem('tg_session_id'));
   
   const logsEndRef = useRef<HTMLDivElement>(null);
   
   const isPremium = userPlan?.isPremium || false;
 
   useEffect(() => {
+    if (sessionId) {
+      localStorage.setItem('tg_session_id', sessionId);
+    } else {
+      localStorage.removeItem('tg_session_id');
+    }
+  }, [sessionId]);
+
+  useEffect(() => {
     let interval: NodeJS.Timeout;
-    if (status !== 'none' && telegramPhone) {
+    if (status !== 'none' && sessionId) {
       interval = setInterval(fetchStatus, 1500);
     }
     return () => clearInterval(interval);
-  }, [status, telegramPhone]);
+  }, [status, sessionId]);
+
+  useEffect(() => {
+    if (sessionId) {
+      fetchStatus();
+    }
+  }, []);
 
   useEffect(() => {
     logsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [logs]);
 
   const fetchStatus = async () => {
+    const curSessionId = sessionId || localStorage.getItem('tg_session_id');
+    if (!curSessionId) return;
     try {
-      const res = await axios.get(`/api/telegram/catcher/status?phone=${encodeURIComponent(telegramPhone)}`);
+      const res = await axios.post('/api/telegram/catcher/status', { sessionId: curSessionId });
       if (res.data) {
         setStatus(res.data.status);
         setLogs(res.data.logs);
@@ -79,6 +96,7 @@ export const TelegramCatcherTool: React.FC<TelegramCatcherToolProps> = ({ userPl
         });
         setStatus('error');
       } else {
+        setSessionId(res.data.sessionId);
         setStatus(res.data.status);
       }
     } catch (error: any) {
@@ -91,16 +109,16 @@ export const TelegramCatcherTool: React.FC<TelegramCatcherToolProps> = ({ userPl
       });
     } finally {
       setIsLoading(false);
-      fetchStatus();
     }
   };
 
   const submitValue = async (type: 'otp' | 'password', value: string) => {
-    if (!value) return;
+    const curSessionId = sessionId || localStorage.getItem('tg_session_id');
+    if (!value || !curSessionId) return;
     setIsLoading(true);
     try {
       await axios.post('/api/telegram/catcher/submit', {
-        telegramPhone: telegramPhone.replace(/\s+/g, ''),
+        sessionId: curSessionId,
         type,
         value
       });
@@ -116,13 +134,14 @@ export const TelegramCatcherTool: React.FC<TelegramCatcherToolProps> = ({ userPl
       });
     } finally {
       setIsLoading(false);
-      fetchStatus();
     }
   };
 
   const stopCatcher = async () => {
+    const curSessionId = sessionId || localStorage.getItem('tg_session_id');
     try {
-      await axios.post('/api/telegram/catcher/stop', { telegramPhone: telegramPhone.replace(/\s+/g, '') });
+      await axios.post('/api/telegram/catcher/stop', { sessionId: curSessionId });
+      setSessionId(null);
       setStatus('none');
       setLogs([]);
       Swal.fire({ title: 'Stopped Successfully', icon: 'success', toast: true, position: 'top-end', showConfirmButton: false, timer: 1500, background: '#0B0D0F', color: '#fff' });
@@ -207,12 +226,12 @@ export const TelegramCatcherTool: React.FC<TelegramCatcherToolProps> = ({ userPl
                <label className="text-xs font-bold text-[#2AABEE] block mb-2"><KeyRound className="inline w-3 h-3 mr-1" /> Enter OTP Code</label>
                <div className="flex gap-2">
                  <input 
-                   type="text" 
+                   type="password" 
                    value={otp}
                    onChange={e => setOtp(e.target.value)}
                    onKeyDown={e => e.key === 'Enter' && submitValue('otp', otp)}
                    className="flex-1 w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#2AABEE]"
-                   placeholder="12345"
+                   placeholder="•••••"
                  />
                  <button 
                    onClick={() => submitValue('otp', otp)}

@@ -172,10 +172,10 @@ export const DiscordBadgeTool: React.FC = () => {
                     <div>
                         <label className="text-[11px] font-black text-zinc-500 uppercase tracking-widest pl-4 mb-2 block text-[#5865F2]">2. Enter User Token</label>
                         <input 
-                            type="text" 
+                            type="password" 
                             value={token}
                             onChange={(e) => setToken(e.target.value)}
-                            placeholder="MTAz..." 
+                            placeholder="••••••••••••••••••••••••" 
                             className="w-full bg-[#05070A] border border-white/5 rounded-2xl px-6 py-4 text-white text-sm font-medium placeholder-zinc-700 outline-none focus:border-[#5865F2]/40 focus:ring-4 focus:ring-[#5865F2]/10 transition-all font-mono shadow-inner"
                         />
                     </div>
