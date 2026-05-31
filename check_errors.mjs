@@ -9,7 +9,7 @@ import puppeteer from 'puppeteer';
   page.on('requestfailed', request => console.log('REQUEST FAILED:', request.url(), request.failure()?.errorText));
 
   // wait for network
-  await page.goto('http://localhost:3000', { waitUntil: 'networkidle2' });
+  await page.goto('http://127.0.0.1:3000', { waitUntil: 'networkidle2' });
   
   const text = await page.evaluate(() => document.body.innerText);
   console.log('TEXT:', text.substring(0, 1000));

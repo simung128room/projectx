@@ -748,17 +748,22 @@ import healthRoute from './src/routes/health.route.js';
   };
 
   // Load from DB (HIGH-05: blocking start until loaded to prevent race conditions)
-  try {
-    const docName = process.env.NODE_ENV === 'production' ? 'sys_site' : 'sys_site_dev';
-    const { data } = await supabaseAdmin.from('custom_pages').select('*').eq('slug', docName).single();
-    if (data && data.content) {
-      let parsed = {};
-      try { parsed = JSON.parse(data.content); } catch(e) {}
-      siteSettings = { ...siteSettings, ...parsed };
-      console.log("Loaded initial site settings from DB", siteSettings);
+  const isSupabaseConfigured = !!(process.env.SUPABASE_URL && process.env.SUPABASE_URL.startsWith('http') && (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY));
+  if (isSupabaseConfigured) {
+    try {
+      const docName = process.env.NODE_ENV === 'production' ? 'sys_site' : 'sys_site_dev';
+      const { data } = await supabaseAdmin.from('custom_pages').select('*').eq('slug', docName).single();
+      if (data && data.content) {
+        let parsed = {};
+        try { parsed = JSON.parse(data.content); } catch(e) {}
+        siteSettings = { ...siteSettings, ...parsed };
+        console.log("Loaded initial site settings from DB", siteSettings);
+      }
+    } catch (err: any) {
+      console.warn("Could not load initial site settings from DB (might not exist yet).", err.message || err);
     }
-  } catch (err: any) {
-    console.warn("Could not load initial site settings from DB (might not exist yet).", err.message || err);
+  } else {
+    console.log("Skipping site settings loading from Supabase: Supabase is not configured.");
   }
 
   app.get('/api/settings', (req, res) => {
@@ -885,6 +890,7 @@ import healthRoute from './src/routes/health.route.js';
   });
 
   app.post('/api/topup/truemoney', mutationLimiter, requireAuth, async (req: any, res: any) => {
+    let voucherRef: any = null;
     try {
       const { voucherCode } = req.body;
       const uid = (req as any).user.uid;
@@ -916,7 +922,7 @@ import healthRoute from './src/routes/health.route.js';
       console.log(`[TrueWallet] Attempting to redeem via XPLUEM: "${voucherHash}" for phone: ${phone}`);
 
       // Transaction protection for duplicates (HIGH-02)
-      const voucherRef = admin.firestore().collection('vouchers').doc(voucherHash);
+      voucherRef = admin.firestore().collection('vouchers').doc(voucherHash);
       try {
         await admin.firestore().runTransaction(async (t) => {
            const doc = await t.get(voucherRef);
@@ -1006,12 +1012,16 @@ import healthRoute from './src/routes/health.route.js';
       } else {
           const errorMsg = result.message || 'ไม่สามารถรับเงินได้ (สถานะไม่สำเร็จ)';
           console.warn(`[TrueWallet] Failed: ${errorMsg}`);
-          await voucherRef.delete();
+          if (voucherRef) {
+             await voucherRef.delete().catch(() => {});
+          }
           return res.json({ success: false, error: errorMsg });
       }
     } catch (error: any) {
         console.error("[TrueWallet] Gateway Error:", error.message);
-        await voucherRef.delete();
+        if (voucherRef) {
+            await voucherRef.delete().catch(() => {});
+        }
         if (error.response) {
             const result = error.response.data;
             return res.json({ success: false, error: result?.message || 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์ API' });
@@ -1951,8 +1961,6 @@ if (process.env.REDIS_URL) {
     console.error('Failed to initialize Redis:', e);
   }
 }
-
-import { LRUCache } from 'lru-cache';
 
   const memoryCache = new LRUCache<string, { data: any, timestamp: number, revision: number }>({
     max: 100, // Safe bound to prevent OOM
