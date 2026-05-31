@@ -1,5 +1,6 @@
 import express from 'express';
 import dotenv from 'dotenv';
+import { LRUCache } from 'lru-cache';
 dotenv.config({ override: true });
 
 import path from 'path';
@@ -83,22 +84,10 @@ const decompressStock = async (data: any) => {
 let freeProxies: string[] = [];
 let lastFreeProxyFetch = 0;
 
+// ฟังก์ชันนี้ถูกปิดการใช้งานเพื่อความปลอดภัย (CRITICAL-06)
 async function fetchFreeProxies() {
-  const now = Date.now();
-  // Fetch every 15 minutes to avoid rate limits
-  if (now - lastFreeProxyFetch < 15 * 60 * 1000 && freeProxies.length > 0) return;
-  lastFreeProxyFetch = now;
-  try {
-    const res = await axios.get('https://raw.githubusercontent.com/proxifly/free-proxy-list/main/proxies/protocols/http/data.txt', { timeout: 10000 });
-    if (typeof res.data === 'string') {
-      const proxies = res.data.split('\n').map(p => p.trim()).filter(p => p.length > 5);
-      if (proxies.length > 0) {
-        freeProxies = proxies.map(p => p.startsWith('http') ? p : `http://${p}`);
-        console.log(`[Proxy] Fetched ${freeProxies.length} free proxies automatically.`);
-      }
-    }
-  } catch (err: any) {
-    console.error('[Proxy] Failed to fetch free proxies:', err.message);
+  if (process.env.PROXY_URL && !freeProxies.includes(process.env.PROXY_URL)) {
+     freeProxies = [process.env.PROXY_URL];
   }
 }
 
@@ -175,8 +164,7 @@ process.on('uncaughtException', (err) => {
   } catch(e) {}
 
   sendAlert('Uncaught Exception 🔥', `**Error**: ${err.message}`, 16711680)
-    .catch(() => {})
-    .finally(() => process.exit(1));
+    .catch(() => {});
 });
 
 process.on('unhandledRejection', (reason, promise) => {
@@ -514,24 +502,10 @@ app.set('trust proxy', 1);
 
   app.use('/api/', globalLimiter);
 
-const userTokenCache = new Map<string, { user: any, isAdmin: boolean, timestamp: number } | Promise<{ user: any, isAdmin: boolean, timestamp: number }>>();
+const userTokenCache = new LRUCache<string, { user: any, isAdmin: boolean, timestamp: number } | Promise<{ user: any, isAdmin: boolean, timestamp: number }>>({ max: 1000, ttl: 60000 });
 
 const cleanupTokenCache = () => {
-  if (userTokenCache.size > 1000) {
-    const now = Date.now();
-    for (const [key, value] of userTokenCache.entries()) {
-      if (!(value instanceof Promise) && now - value.timestamp > 60000) {
-        userTokenCache.delete(key);
-      }
-    }
-    // If still too large after expiry sweep, remove oldest
-    if (userTokenCache.size > 1000) {
-      const keysToDelete = Array.from(userTokenCache.keys()).slice(0, userTokenCache.size - 1000);
-      for (const key of keysToDelete) {
-        userTokenCache.delete(key);
-      }
-    }
-  }
+  // LRUCache handles cleanup automatically
 };
 
   const injectUser = async (req: any, res: any, next: any) => {
@@ -571,10 +545,6 @@ const cleanupTokenCache = () => {
             let adminEmails: string[] = [];
             if (process.env.ADMIN_EMAILS) {
               adminEmails = process.env.ADMIN_EMAILS.split(',').map(e => e.trim());
-            } else {
-              adminEmails = [
-                'abopboa.b@gmail.com'
-              ];
             }
             if (adminEmails.includes(user.email || '')) {
               isAdminObj = true;
@@ -634,8 +604,17 @@ import healthRoute from './src/routes/health.route.js';
   // API health check immediately
   app.use('/api', healthRoute);
 
-  app.use(cors());
-  app.options('*', cors());
+  const corsOptions = {
+    origin: [
+      'https://projectx-rosy-phi.vercel.app',
+      'http://localhost:3000',
+      'https://ais-dev-yqcwrqpfmcv3f3k4u45xxa-109803326919.asia-east1.run.app',
+      'https://ais-pre-yqcwrqpfmcv3f3k4u45xxa-109803326919.asia-east1.run.app'
+    ],
+    credentials: true,
+  };
+  app.use(cors(corsOptions));
+  app.options('*', cors(corsOptions));
   app.use(express.json({ limit: '50mb' }));
   
   app.use((req, res, next) => {
@@ -768,21 +747,19 @@ import healthRoute from './src/routes/health.route.js';
     auto_proxy: true
   };
 
-  // Load from DB
-  (async () => {
-    try {
-      const docName = process.env.NODE_ENV === 'production' ? 'sys_site' : 'sys_site_dev';
-      const { data } = await supabaseAdmin.from('custom_pages').select('*').eq('slug', docName).single();
-      if (data && data.content) {
-        let parsed = {};
-        try { parsed = JSON.parse(data.content); } catch(e) {}
-        siteSettings = { ...siteSettings, ...parsed };
-        console.log("Loaded initial site settings from DB", siteSettings);
-      }
-    } catch (err: any) {
-      console.warn("Could not load initial site settings from DB (might not exist yet).", err.message || err);
+  // Load from DB (HIGH-05: blocking start until loaded to prevent race conditions)
+  try {
+    const docName = process.env.NODE_ENV === 'production' ? 'sys_site' : 'sys_site_dev';
+    const { data } = await supabaseAdmin.from('custom_pages').select('*').eq('slug', docName).single();
+    if (data && data.content) {
+      let parsed = {};
+      try { parsed = JSON.parse(data.content); } catch(e) {}
+      siteSettings = { ...siteSettings, ...parsed };
+      console.log("Loaded initial site settings from DB", siteSettings);
     }
-  })();
+  } catch (err: any) {
+    console.warn("Could not load initial site settings from DB (might not exist yet).", err.message || err);
+  }
 
   app.get('/api/settings', (req, res) => {
     res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=300, stale-while-revalidate=86400');
@@ -938,6 +915,27 @@ import healthRoute from './src/routes/health.route.js';
 
       console.log(`[TrueWallet] Attempting to redeem via XPLUEM: "${voucherHash}" for phone: ${phone}`);
 
+      // Transaction protection for duplicates (HIGH-02)
+      const voucherRef = admin.firestore().collection('vouchers').doc(voucherHash);
+      try {
+        await admin.firestore().runTransaction(async (t) => {
+           const doc = await t.get(voucherRef);
+           if (doc.exists) {
+               throw new Error('DUPLICATE_VOUCHER');
+           }
+           t.set(voucherRef, {
+               usedAt: new Date().toISOString(),
+               uid,
+               status: 'pending'
+           });
+        });
+      } catch (err: any) {
+        if (err.message === 'DUPLICATE_VOUCHER') {
+           return res.json({ success: false, error: 'ซองของขวัญนี้ถูกใช้งานไปแล้วในระบบของเรา' });
+        }
+        throw err;
+      }
+
       // Using the new API: https://api.xpluem.com/:link/:phone
       const fetchTopup = async (vHash: string, pPhone: string) => {
         return await axios.get(`https://api.xpluem.com/${vHash}/${pPhone}`, {
@@ -957,6 +955,7 @@ import healthRoute from './src/routes/health.route.js';
         response = await topupBreaker.fire(voucherHash, phone);
       } catch (err: any) {
         console.error(`[TrueWallet] XPLUEM Circuit Breaker Error:`, err.message);
+        await voucherRef.delete();
         return res.status(503).json({ error: 'ระบบเติมเงินขัดข้อง (Circuit Breaker Open) กรุณาลองใหม่ภายหลัง', isProxyError: true });
       }
 
@@ -988,6 +987,11 @@ import healthRoute from './src/routes/health.route.js';
                   title: 'เติมเงินสำเร็จ',
                   image: 'https://img1.pic.in.th/images/IMG_6162.png'
                 });
+                
+                await voucherRef.update({
+                  status: 'completed',
+                  amount: amount
+                });
               }
             } catch (syncErr) {
               console.error(`[TrueWallet] Balance sync error:`, syncErr);
@@ -1002,10 +1006,12 @@ import healthRoute from './src/routes/health.route.js';
       } else {
           const errorMsg = result.message || 'ไม่สามารถรับเงินได้ (สถานะไม่สำเร็จ)';
           console.warn(`[TrueWallet] Failed: ${errorMsg}`);
+          await voucherRef.delete();
           return res.json({ success: false, error: errorMsg });
       }
     } catch (error: any) {
         console.error("[TrueWallet] Gateway Error:", error.message);
+        await voucherRef.delete();
         if (error.response) {
             const result = error.response.data;
             return res.json({ success: false, error: result?.message || 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์ API' });
@@ -1051,7 +1057,7 @@ import healthRoute from './src/routes/health.route.js';
         form,
         {
           headers: {
-            'x-authorization': 'SLIPOKA9ZEE71'
+            'x-authorization': process.env.SLIPOK_API_KEY || ''
           }
         }
       );
@@ -1063,13 +1069,20 @@ import healthRoute from './src/routes/health.route.js';
         const receiverProxy = response.data.data?.receiver?.proxy?.value || '';
         const receiverName = response.data.data?.receiver?.displayName || response.data.data?.receiver?.name || '';
         
-        const EXPECTED_SHOP_NAME_1 = "ด.ช. กรวิชญ์ มาตขาว";
-        const EXPECTED_SHOP_NAME_2 = "Master Korawit Makthaw";
+        const EXPECTED_NAME_TH = process.env.SHOP_ACCOUNT_NAME_TH || "NO_NAME_TH";
+        const EXPECTED_NAME_EN = process.env.SHOP_ACCOUNT_NAME_EN || "NO_NAME_EN";
+        const EXPECTED_PROMPTPAY = process.env.SHOP_PROMPTPAY_NUMBER || "";
         
-        // ตรวจสอบชื่อบัญชีร้าน
-        const isMatch = receiverName.includes(EXPECTED_SHOP_NAME_1) || 
-                        receiverName.toUpperCase().includes(EXPECTED_SHOP_NAME_2.toUpperCase()) ||
-                        receiverName.includes("กรวิชญ์");
+        let isMatch = false;
+        
+        // ถ้ามีการตั้งค่า SHOP_PROMPTPAY_NUMBER ไว้ ให้ตรวจ proxy ก่อนเสมอ (ป้องกันชื่อปลอม)
+        if (EXPECTED_PROMPTPAY) {
+           isMatch = receiverProxy.includes(EXPECTED_PROMPTPAY) || receiverProxy.replace(/-/g, '').includes(EXPECTED_PROMPTPAY);
+        } else {
+           // Fallback ไปเช็คชื่อ (ไม่ปลอดภัยเท่าเช็ค proxy)
+           isMatch = receiverName.includes(EXPECTED_NAME_TH) || 
+                     (EXPECTED_NAME_EN !== "NO_NAME_EN" && receiverName.toUpperCase().includes(EXPECTED_NAME_EN.toUpperCase()));
+        }
         
         if (!isMatch) {
             return res.json({ 
@@ -1454,6 +1467,14 @@ import healthRoute from './src/routes/health.route.js';
     const password = req.body.password?.toString().trim();
     const turnstileToken = req.body.turnstileToken; // Optional turnstile token
     const apiKey = req.headers['x-api-key']?.toString().trim() || req.body.apiKey?.toString().trim();
+
+    // HIGH-06: Strict Input Validation
+    if (!account || typeof account !== 'string' || account.length > 64 || !/^[a-zA-Z0-9_\-@.]+$/.test(account)) {
+       return res.status(400).json({ error: 'บัญชีผู้ใช้ไม่ถูกต้อง (ความยาว 1-64 ตัวอักษร, อนุญาตเฉพาะ a-z, 0-9, _, -, @, .)' });
+    }
+    if (!password || typeof password !== 'string' || password.length > 64) {
+       return res.status(400).json({ error: 'รหัสผ่านไม่ถูกต้อง (ความยาว 1-64 ตัวอักษร)' });
+    }
 
     if (!account || !password) return res.status(400).json({ error: 'Missing credentials' });
 

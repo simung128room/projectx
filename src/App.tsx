@@ -1009,8 +1009,12 @@ function AppContent() {
       const publicAxios = axios.create();
       publicAxios.interceptors.request.use(config => {
         if (config.headers) {
-          delete config.headers.common["Authorization"];
-          delete config.headers["Authorization"];
+          if ('common' in config.headers && typeof config.headers.common === 'object' && config.headers.common !== null) {
+             delete (config.headers.common as any)["Authorization"];
+          }
+          if ('Authorization' in config.headers) {
+             delete config.headers["Authorization"];
+          }
         }
         return config;
       });
