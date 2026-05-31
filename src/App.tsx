@@ -2049,52 +2049,43 @@ function AppContent() {
 
   if (!isLoaded)
     return (
-      <div className="min-h-screen bg-[#0B0D0F] flex flex-col items-center justify-center font-sans overflow-hidden relative">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(59,130,246,0.08),transparent_70%)] pointer-events-none" />
-        
+      <div className="min-h-screen bg-[#0a0a0a] flex flex-col items-center justify-center font-sans overflow-hidden relative">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
-          className="relative flex items-center justify-center w-80 h-80 z-10"
+          transition={{ duration: 0.3 }}
+          className="relative flex items-center justify-center w-28 h-28 z-10"
         >
-          {/* Spinner 1: Outer Slow Clockwise Spinner */}
+          {/* Spinner 1: Outer Slow Clockwise Spinner (Blue) */}
           <motion.div
             animate={{ rotate: 360 }}
-            transition={{ repeat: Infinity, duration: 4, ease: "linear" }}
-            className="absolute w-64 h-64 border-4 border-t-[#9b59f5] border-r-transparent border-b-[#9b59f5]/20 border-l-transparent rounded-full opacity-60"
+            transition={{ repeat: Infinity, duration: 2.8, ease: "linear" }}
+            className="absolute w-20 h-20 border border-t-[#3B82F6] border-r-transparent border-b-transparent border-l-transparent rounded-full"
           />
 
-          {/* Spinner 2: Middle Fast Counter-Clockwise Spinner */}
+          {/* Spinner 2: Middle Fast Counter-Clockwise Spinner (Blue) */}
           <motion.div
             animate={{ rotate: -360 }}
-            transition={{ repeat: Infinity, duration: 2.2, ease: "linear" }}
-            className="absolute w-52 h-52 border-[3px] border-l-blue-400 border-t-transparent border-r-blue-400/20 border-b-transparent border-dashed rounded-full opacity-80"
+            transition={{ repeat: Infinity, duration: 1.8, ease: "linear" }}
+            className="absolute w-16 h-16 border border-l-[#3B82F6] border-t-transparent border-r-transparent border-b-transparent rounded-full"
           />
 
-          {/* Spinner 3: Inner Very Fast Clockwise Spinner */}
+          {/* Spinner 3: Inner Very Fast Clockwise Spinner (Blue) */}
           <motion.div
             animate={{ rotate: 360 }}
-            transition={{ repeat: Infinity, duration: 1.3, ease: "linear" }}
-            className="absolute w-40 h-40 border-2 border-r-purple-400 border-t-transparent border-l-transparent border-b-transparent rounded-full shadow-[0_0_15px_rgba(155,89,245,0.4)]"
+            transition={{ repeat: Infinity, duration: 1.2, ease: "linear" }}
+            className="absolute w-12 h-12 border border-b-[#3B82F6] border-t-transparent border-r-transparent border-l-transparent rounded-full"
           />
 
-          {/* Glowing Ambient Behind the Logo */}
-          <motion.div
-            animate={{ scale: [1, 1.15, 1], opacity: [0.3, 0.6, 0.3] }}
-            transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-            className="absolute w-32 h-32 bg-blue-500/20 rounded-full blur-2xl"
-          />
-
-          {/* Logo Centered inside */}
+          {/* Logo Centered inside (Subtle, Minimal, compact) */}
           <motion.img
             src="https://img2.pic.in.th/4D8F9A5A-1535-4802-BD86-5FA08F0D3B3D.png"
             alt="Logo"
             referrerPolicy="no-referrer"
-            initial={{ scale: 0.8, opacity: 0 }}
+            initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.1, duration: 0.6, ease: "easeOut" }}
-            className="relative w-28 h-auto z-20 drop-shadow-[0_0_15px_rgba(59,130,246,0.3)] object-contain select-none"
+            transition={{ delay: 0.05, duration: 0.3, ease: "easeOut" }}
+            className="relative w-7 h-auto z-20 object-contain select-none"
           />
         </motion.div>
       </div>
