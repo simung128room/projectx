@@ -1,34 +1,40 @@
 import crypto from 'crypto';
 
-const ENCRYPTION_KEY = process.env.BACKEND_ENCRYPTION_KEY || 'apExSt0re_bAckEnd_EnCrYptI0n_kEy_2026';
-const IV_LENGTH = 16;
+const ENCRYPTION_KEY = process.env.BACKEND_ENCRYPTION_KEY;
+if (!ENCRYPTION_KEY) {
+  throw new Error('BACKEND_ENCRYPTION_KEY not set in environment variables');
+}
+const IV_LENGTH = 16; // For GCM it should ideally be 12, but we'll use 16
 
 export function encrypt(text: string): string {
   try {
     const key = crypto.createHash('sha256').update(ENCRYPTION_KEY).digest();
     const iv = crypto.randomBytes(IV_LENGTH);
-    const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
-    let encrypted = cipher.update(text);
-    encrypted = Buffer.concat([encrypted, cipher.final()]);
-    return iv.toString('hex') + ':' + encrypted.toString('hex');
+    const cipher = crypto.createCipheriv('aes-256-gcm', key, iv);
+    let encrypted = cipher.update(text, 'utf8', 'hex');
+    encrypted += cipher.final('hex');
+    const authTag = cipher.getAuthTag();
+    return iv.toString('hex') + ':' + encrypted + ':' + authTag.toString('hex');
   } catch (e) {
-    return text;
+    throw new Error('Encryption failed');
   }
 }
 
 export function decrypt(text: string): string {
   try {
     const textParts = text.split(':');
-    if (textParts.length < 2) return text;
-    const iv = Buffer.from(textParts.shift()!, 'hex');
-    const encryptedText = Buffer.from(textParts.join(':'), 'hex');
+    if (textParts.length < 3) throw new Error('Invalid encrypted format');
+    const iv = Buffer.from(textParts[0], 'hex');
+    const encryptedText = textParts[1];
+    const authTag = Buffer.from(textParts[2], 'hex');
     const key = crypto.createHash('sha256').update(ENCRYPTION_KEY).digest();
-    const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
-    let decrypted = decipher.update(encryptedText);
-    decrypted = Buffer.concat([decrypted, decipher.final()]);
-    return decrypted.toString();
+    const decipher = crypto.createDecipheriv('aes-256-gcm', key, iv);
+    decipher.setAuthTag(authTag);
+    let decrypted = decipher.update(encryptedText, 'hex', 'utf8');
+    decrypted += decipher.final('utf8');
+    return decrypted;
   } catch (e) {
-    return text;
+    throw new Error('Decryption failed');
   }
 }
 

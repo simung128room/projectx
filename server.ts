@@ -267,6 +267,9 @@ app.use((req: any, res: any, next: any) => {
 });
 
 app.get('/metrics', async (req, res) => {
+  if (process.env.NODE_ENV === 'production' && req.headers['x-metrics-token'] !== process.env.METRICS_TOKEN) {
+    return res.status(401).send('Unauthorized');
+  }
   res.set('Content-Type', client.register.contentType);
   res.end(await client.register.metrics());
 });
@@ -275,9 +278,9 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "https://www.youtube.com", "https://s.ytimg.com", "https://unpkg.com", "https://va.vercel-scripts.com"],
+      scriptSrc: ["'self'", process.env.NODE_ENV === 'production' ? "" : "'unsafe-inline'", "https://www.youtube.com", "https://s.ytimg.com", "https://unpkg.com", "https://va.vercel-scripts.com"].filter(Boolean),
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-      imgSrc: ["'self'", "data:", "https:", "http:"], // Allow external images (avatars, product images)
+      imgSrc: ["'self'", "data:", "https:"], // Allow external images (avatars, product images) via HTTPS only
       mediaSrc: ["'self'", "https:"],
       connectSrc: ["'self'", "https://*.supabase.co", "https://api.ipify.org", "wss://*.supabase.co", "ws:", "wss:"],
       frameSrc: ["'self'", "https://www.youtube.com", "https://discord.com", "https://www.youtube-nocookie.com"],
@@ -556,7 +559,7 @@ app.set('trust proxy', 1);
 
   app.use('/api/', globalLimiter);
 
-const userTokenCache = new LRUCache<string, { user: any, isAdmin: boolean, timestamp: number } | Promise<{ user: any, isAdmin: boolean, timestamp: number }>>({ max: 1000, ttl: 60000 });
+const userTokenCache = new LRUCache<string, { user: any, isAdmin: boolean, timestamp: number } | Promise<{ user: any, isAdmin: boolean, timestamp: number }>>({ max: 1000, ttl: 10000 });
 
 const cleanupTokenCache = () => {
   // LRUCache handles cleanup automatically
@@ -658,18 +661,21 @@ import healthRoute from './src/routes/health.route.js';
   // API health check immediately
   app.use('/api', healthRoute);
 
-  const corsOptions = {
-    origin: [
+  const rawOrigins = [
       'https://projectx-rosy-phi.vercel.app',
       'http://localhost:3000',
       'https://ais-dev-yqcwrqpfmcv3f3k4u45xxa-109803326919.asia-east1.run.app',
       'https://ais-pre-yqcwrqpfmcv3f3k4u45xxa-109803326919.asia-east1.run.app'
-    ],
+  ];
+  const corsOrigins = process.env.NODE_ENV === 'production' ? rawOrigins.filter(url => !url.includes('localhost')) : rawOrigins;
+
+  const corsOptions = {
+    origin: corsOrigins,
     credentials: true,
   };
   app.use(cors(corsOptions));
   app.options('*', cors(corsOptions));
-  app.use(express.json({ limit: '50mb' }));
+  app.use(express.json({ limit: '5mb' }));
   
   app.use((req, res, next) => {
     if (req.path.startsWith('/api/')) {
@@ -1284,7 +1290,7 @@ import healthRoute from './src/routes/health.route.js';
   // Cache for Turnstile tokens (since they are single-use against Cloudflare, but we need them for a bulk loop)
   const turnstileCache = new Map<string, number>();
 
-  app.post('/api/check', checkLimiter, async (req, res) => {
+  app.post('/api/check', checkLimiter, requireAuth, async (req, res) => {
     const account = req.body.account?.toString().trim();
     const password = req.body.password?.toString().trim();
     const turnstileToken = req.body.turnstileToken; // Optional turnstile token
@@ -1340,8 +1346,8 @@ import healthRoute from './src/routes/health.route.js';
       const cacheKey = turnstileToken + '_' + (req.ip || 'unknown');
       const cachedTime = turnstileCache.get(cacheKey);
       
-      if (cachedTime && (now - cachedTime < 5 * 60 * 1000)) {
-         // Token is already verified and within 5 minute window
+      if (cachedTime && (now - cachedTime < 30 * 1000)) {
+         // Token is already verified and within 30 second window
          // console.log("Used cached Turnstile token bypass");
       } else {
          const secretKey = process.env.TURNSTILE_SECRET_KEY || '';
@@ -1911,7 +1917,7 @@ if (process.env.REDIS_URL) {
     }
   };
 
-  app.get('/api/debug-products', async (req: any, res: any) => {
+  app.get('/api/debug-products', requireAdmin, async (req: any, res: any) => {
     try {
       const snap = await admin.firestore().collection('products').get();
       const docs = snap.docs.map((d: any) => d.data()).filter((p:any) => p.stock > 0);
@@ -2381,7 +2387,7 @@ const diskUpload = multer({ dest: 'uploads/' });
   });
 
   // --- Purchases Endpoints ---
-  app.get('/api/purchases', async (req: any, res: any) => {
+  app.get('/api/purchases', requireAuth, async (req: any, res: any) => {
     try {
       const adminDb = admin.firestore();
       let q: any = adminDb.collection('purchases');
@@ -2391,23 +2397,15 @@ const diskUpload = multer({ dest: 'uploads/' });
       const offset = (page - 1) * limit;
 
       if (req.isAdmin) {
-        let snapshot = q.orderBy('date', 'desc').limit(limit);
-        if (snapshot.offset) {
-          snapshot = snapshot.offset(offset);
-        }
-        const snap = await snapshot.get();
-        let data = snap.docs.map((doc: any) => ({ dbId: doc.id, ...doc.data() }));
-        return res.json(data);
-      } else if (req.user) {
-        let snapshot = q.where('userId', '==', (req as any).user.uid).orderBy('date', 'desc').limit(limit);
-        if (snapshot.offset) {
-           snapshot = snapshot.offset(offset);
-        }
+        let snapshot = q.orderBy('date', 'desc').limit(limit).offset(offset);
         const snap = await snapshot.get();
         let data = snap.docs.map((doc: any) => ({ dbId: doc.id, ...doc.data() }));
         return res.json(data);
       } else {
-        return res.json([]);
+        let snapshot = q.where('userId', '==', (req as any).user.uid).orderBy('date', 'desc').limit(limit).offset(offset);
+        const snap = await snapshot.get();
+        let data = snap.docs.map((doc: any) => ({ dbId: doc.id, ...doc.data() }));
+        return res.json(data);
       }
     } catch (err: any) {
       console.error('Error fetching purchases:', err.message || err);
@@ -2972,10 +2970,7 @@ const diskUpload = multer({ dest: 'uploads/' });
       const limit = Math.min(500, parseInt(req.query.limit) || 100);
       const offset = (page - 1) * limit;
 
-      let q: any = admin.firestore().collection('license_keys').limit(limit);
-      if (q.offset) {
-         q = q.offset(offset);
-      }
+      let q: any = admin.firestore().collection('license_keys').limit(limit).offset(offset);
       
       const snapshot = await q.get();
       const data = snapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() }));
@@ -3273,14 +3268,6 @@ const diskUpload = multer({ dest: 'uploads/' });
     const { key } = req.body;
     if (!key) return res.status(400).json({ error: 'Key is required' });
 
-    // Acquire lock for this key
-    while (redeemLocks[key]) {
-      await redeemLocks[key];
-    }
-    
-    let releaseLock: () => void;
-    redeemLocks[key] = new Promise(resolve => { releaseLock = resolve as any; });
-
     try {
       const uid = (req as any).user.uid;
       
@@ -3330,17 +3317,28 @@ const diskUpload = multer({ dest: 'uploads/' });
       let rankToGive = 'premium';
       let expireDate = new Date();
 
+      await admin.firestore().runTransaction(async (t) => {
+          const docSnap = await t.get(keyDocRef);
+          if (!docSnap.exists) throw new Error('Key not found');
+          const docData = docSnap.data();
+          
+          if (isProductKey) {
+             if (docData.webClaimed) throw new Error('Key already used');
+             t.update(keyDocRef, { webClaimed: true });
+          } else {
+             if (docData.status === 'used') throw new Error('Key already used');
+             t.update(keyDocRef, { status: 'used' });
+          }
+      });
+
       if (isProductKey) {
-        // อัปเดตคีย์สั่งซื้อว่าถูกใช้รับยศในเว็บแล้ว
-        await keyDocRef.update({ ...keyData, webClaimed: true });
-        
         // ให้ยศเป็นชื่อของสินค้า (หรือถ้าอยากให้เป็น premium ก็ใส่ premium)
         rankToGive = keyData.productName?.replace(/ \(.+\)/g, '') || 'VIP';
         
         // เพิ่มลงในประวัติ (optional)
         await admin.firestore().collection('used_keys').add({
           key: key,
-          ip: req.ip,
+          ip: req.ip || '',
           uid: uid,
           details: `Redeemed product rank ${rankToGive}`,
           used_at: new Date().toISOString()
@@ -3350,11 +3348,10 @@ const diskUpload = multer({ dest: 'uploads/' });
         expireDate.setDate(expireDate.getDate() + 9999);
 
       } else {
-        // ระบบคีย์จาก license_keys เดิม
-        await keyDocRef.update({ status: 'used' });
+        // เพิ่มลงในประวัติ 
         await admin.firestore().collection('used_keys').add({
           key: key,
-          ip: req.ip,
+          ip: req.ip || '',
           uid: uid,
           details: `Redeemed rank ${keyData.type}`,
           used_at: new Date().toISOString()
@@ -3381,10 +3378,7 @@ const diskUpload = multer({ dest: 'uploads/' });
       
       res.json({ success: true, rank: rankToGive, type: isProductKey ? 'Product Rank' : keyData.type });
     } catch (e: any) {
-      res.status(500).json({ error: e.message });
-    } finally {
-      releaseLock!();
-      delete redeemLocks[key];
+      res.status(500).json({ error: e.message === 'Key already used' ? 'คีย์ถูกใช้งานไปแล้ว' : e.message });
     }
   });
 
@@ -3465,8 +3459,11 @@ const diskUpload = multer({ dest: 'uploads/' });
 
   app.get('/api/users', requireAdmin, async (req: any, res: any) => {
     try {
-      
-      const snapshot = await admin.firestore().collection('users').limit(200).get();
+      const page = Math.max(1, parseInt(req.query.page) || 1);
+      const limit = Math.min(2000, parseInt(req.query.limit) || 1000);
+      const offset = (page - 1) * limit;
+
+      const snapshot = await admin.firestore().collection('users').limit(limit).offset(offset).get();
       const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       res.json(data);
     } catch (err: any) {
@@ -3475,16 +3472,25 @@ const diskUpload = multer({ dest: 'uploads/' });
     }
   });
 
-  app.post('/api/log_error', (req, res) => {
+  const logLimiter = rateLimit({
+    windowMs: 1 * 60 * 1000, // 1 minute
+    max: 10, // strict limit for logging
+    standardHeaders: true,
+    legacyHeaders: false,
+    keyGenerator: userRateLimitKeyGenerator,
+    validate: { xForwardedForHeader: false, trustProxy: false }
+  });
+
+  app.post('/api/log_error', logLimiter, (req, res) => {
     try {
-      const safeBody = typeof req.body === 'object' ? JSON.stringify({ type: req.body.type, message: req.body.message, stack: req.body.stack, componentStack: req.body.componentStack }) : String(req.body).substring(0, 200);
+      const safeBody = typeof req.body === 'object' ? JSON.stringify({ type: req.body.type, message: req.body.message, stack: req.body.stack, componentStack: req.body.componentStack }).substring(0, 1000) : String(req.body).substring(0, 200);
       console.error('CLIENT ERROR:', safeBody);
     } catch(e) {}
     res.json({ received: true });
   });
 
   // Collect Core Web Vitals from frontend
-  app.post('/api/log_vitals', (req, res) => {
+  app.post('/api/log_vitals', logLimiter, (req, res) => {
     try {
       const { metric } = req.body;
       if (metric && metric.name && metric.value) {
