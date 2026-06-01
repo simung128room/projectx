@@ -2063,7 +2063,7 @@ function AppContent() {
     );
 
   return (
-    <div className="min-h-screen w-full bg-[#0a0a0a] text-[#ffffff] font-sans selection:bg-[#9b59f5]/30 flex flex-col lg:flex-row relative">
+    <div className="min-h-screen w-full bg-[#0a0a0a] text-[#ffffff] font-sans selection:bg-[#0066ff]/30 flex flex-col lg:flex-row relative">
       {useCustomCursor && <CustomCursor />}
       <PopupBanner
         enabled={siteSettings?.popup_enabled ?? false}
@@ -2134,7 +2134,7 @@ function AppContent() {
                   title: "กรุณาเข้าสู่ระบบ",
                   text: "คุณต้องเข้าสู่ระบบก่อนใช้งานฟีเจอร์นี้",
                   confirmButtonText: "ไปหน้าเข้าสู่ระบบ",
-                  confirmButtonColor: "#9b59f5",
+                  confirmButtonColor: "#0066ff",
                   background: "#111",
                   color: "#fff"
                 }).then(() => setActiveView("login"));
@@ -2143,7 +2143,7 @@ function AppContent() {
               setActiveView("free_website");
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${activeView === "free_website" ? "bg-[#161616] text-[#9b59f5] border border-[#1e1e1e] shadow-sm" : "text-[#888888] hover:bg-[#111111] hover:text-[#ffffff] border border-transparent"}`}
+            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${activeView === "free_website" ? "bg-[#161616] text-[#0066ff] border border-[#1e1e1e] shadow-sm" : "text-[#888888] hover:bg-[#111111] hover:text-[#ffffff] border border-transparent"}`}
           >
             <Globe className="w-[18px] h-[18px]" /> เปิดเว็บไซต์ฟรี
           </button>
@@ -2155,7 +2155,7 @@ function AppContent() {
                   title: "กรุณาเข้าสู่ระบบ",
                   text: "คุณต้องเข้าสู่ระบบก่อนใช้งานบรรดาเครื่องมือ",
                   confirmButtonText: "ไปหน้าเข้าสู่ระบบ",
-                  confirmButtonColor: "#9b59f5",
+                  confirmButtonColor: "#0066ff",
                   background: "#111",
                   color: "#fff"
                 }).then(() => setActiveView("login"));
@@ -2340,7 +2340,7 @@ function AppContent() {
                   <span className="text-[13px] font-medium text-[#ffffff] leading-tight">
                     {userPlan?.username || user.email?.split("@")[0] || "User"}
                   </span>
-                  <span className="text-[11px] text-[#9b59f5] font-medium">
+                  <span className="text-[11px] text-[#0066ff] font-medium">
                     ฿ {userPlan?.balance?.toLocaleString(undefined, { minimumFractionDigits: 2 }) || "0.00"}
                   </span>
                 </div>
@@ -2475,7 +2475,7 @@ function AppContent() {
                     <span className="text-[13px] font-medium">เติมเงิน</span>
                   </div>
                   <div
-                    className={`nav-row flex items-center gap-[13px] border rounded-lg p-[10px] px-[14px] cursor-pointer transition-all ${activeView === "free_website" ? "border-[#1e1e1e] bg-[#161616] text-[#9b59f5]" : "border-transparent text-[#888888] hover:bg-[#111111] hover:text-[#ffffff]"}`}
+                    className={`nav-row flex items-center gap-[13px] border rounded-lg p-[10px] px-[14px] cursor-pointer transition-all ${activeView === "free_website" ? "border-[#1e1e1e] bg-[#161616] text-[#0066ff]" : "border-transparent text-[#888888] hover:bg-[#111111] hover:text-[#ffffff]"}`}
                     onClick={() => {
                       if (!user) {
                         Swal.fire({
@@ -2483,7 +2483,7 @@ function AppContent() {
                           title: "กรุณาเข้าสู่ระบบ",
                           text: "คุณต้องเข้าสู่ระบบก่อนใช้งานตัวเลือกนี้",
                           confirmButtonText: "ไปหน้าเข้าสู่ระบบ",
-                          confirmButtonColor: "#9b59f5",
+                          confirmButtonColor: "#0066ff",
                           background: "#111",
                           color: "#fff"
                         }).then(() => {
@@ -2508,7 +2508,7 @@ function AppContent() {
                           title: "กรุณาเข้าสู่ระบบ",
                           text: "คุณต้องเข้าสู่ระบบก่อนใช้งานตัวเลือกนี้",
                           confirmButtonText: "ไปหน้าเข้าสู่ระบบ",
-                          confirmButtonColor: "#9b59f5",
+                          confirmButtonColor: "#0066ff",
                           background: "#111",
                           color: "#fff"
                         }).then(() => {
@@ -2576,7 +2576,7 @@ function AppContent() {
                           </div>
                           <div className="flex items-center gap-2 mt-0.5">
                             {userPlan?.isPremium ? (
-                              <div className="flex items-center gap-1.5 px-2 py-0.5 bg-[#9b59f5]/10 text-[#9b59f5] border border-[#9b59f5]/20 text-[10px] font-medium rounded-md uppercase tracking-wider shadow-sm">
+                              <div className="flex items-center gap-1.5 px-2 py-0.5 bg-[#0066ff]/10 text-[#0066ff] border border-[#0066ff]/20 text-[10px] font-medium rounded-md uppercase tracking-wider shadow-sm">
                                 <Crown className="w-3 h-3" />
                                 Premium
                               </div>
@@ -2609,7 +2609,7 @@ function AppContent() {
                                     ? Math.floor(userPlan.balance).toLocaleString()
                                     : "0"}
                                 </span>
-                                <span className="text-[12px] font-medium text-[#9b59f5]">
+                                <span className="text-[12px] font-medium text-[#0066ff]">
                                   ฿
                                 </span>
                               </div>
@@ -2688,7 +2688,7 @@ function AppContent() {
                       </div>
                       {isAdmin && (
                         <div
-                          className={`dd-row flex items-center gap-3 p-3 px-4 text-[13px] font-medium text-[#9b59f5] border-b border-[#1e1e1e] cursor-pointer transition-colors bg-[#161616]`}
+                          className={`dd-row flex items-center gap-3 p-3 px-4 text-[13px] font-medium text-[#0066ff] border-b border-[#1e1e1e] cursor-pointer transition-colors bg-[#161616]`}
                           onClick={() => {
                             setActiveView("admin");
                             setIsMobileMenuOpen(false);

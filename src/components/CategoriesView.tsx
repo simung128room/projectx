@@ -43,7 +43,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({ categories, prod
         </button>
         <div>
           <h1 className="text-3xl sm:text-4xl font-medium text-[#ffffff] tracking-tight flex items-center gap-3">
-             <Package className="w-8 h-8 text-[#9b59f5]" /> หมวดหมู่สินค้า
+             <Package className="w-8 h-8 text-[#0066ff]" /> หมวดหมู่สินค้า
           </h1>
           <p className="text-sm font-medium text-[#888888] mt-2">เลือกหมวดหมู่ที่ต้องการดูสินค้า</p>
         </div>
@@ -55,10 +55,10 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({ categories, prod
           label="ทุกหมวดหมู่"
           itemCountDesc={`ทั้งหมด ${getProductCountText('all')}`}
           priceRangeStr={allPriceInfo || undefined}
-          bgImage={siteSettings?.banners?.[0] || "https://img2.pic.in.th/-71_20260516210303.png"}
+          bgImage={siteSettings?.banners?.[0] || "https://img1.pic.in.th/images/-81_20260601213128.png"}
           index={0}
           onClick={() => onSelectCategory('all')}
-          accentColor="#9b59f5"
+          accentColor="#0066ff"
           glowColor="transparent"
           gradientFrom="#0a0a0a"
         />
@@ -73,7 +73,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({ categories, prod
             bgImage={c.bannerUrl || undefined}
             index={i + 1}
             onClick={() => onSelectCategory(c.name)}
-            accentColor="#9b59f5"
+            accentColor="#0066ff"
             glowColor="transparent"
             gradientFrom="#0a0a0a"
           />

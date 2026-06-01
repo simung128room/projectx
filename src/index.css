@@ -10,7 +10,7 @@
   --color-border: #1e1e1e;
   --color-text-primary: #ffffff;
   --color-text-secondary: #888888;
-  --color-accent: #9b59f5;
+  --color-accent: #0066ff;
   --color-user-bubble: #1a1a2e;
   --color-input-bg: #161616;
 }
@@ -243,9 +243,9 @@
   }
 
   .custom-category-card:hover {
-    border-color: var(--accent, #9b59f5);
+    border-color: var(--accent, #0066ff);
     transform: translateY(-4px);
-    box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.6), 0 0 20px -3px var(--glow, rgba(155, 89, 245, 0.25));
+    box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.6), 0 0 20px -3px var(--glow, rgba(0, 102, 255, 0.25));
   }
 
   .custom-banner {
@@ -340,8 +340,8 @@
   }
 
   .custom-card-glow.active {
-    border-color: var(--accent, #9b59f5);
-    box-shadow: inset 0 0 12px var(--glow, rgba(155, 89, 245, 0.2));
+    border-color: var(--accent, #0066ff);
+    box-shadow: inset 0 0 12px var(--glow, rgba(0, 102, 255, 0.2));
   }
 }
 

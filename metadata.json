@@ -2,5 +2,5 @@
   "name": "STORETH Check",
   "description": "Professional automated game account checker tool.",
   "requestFramePermissions": [],
-  "majorCapabilities": []
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

@@ -47,7 +47,7 @@ interface HomeViewProps {
   onSelectCategory: (categoryId: string) => void;
 }
 
-const DEFAULT_BANNERS = ["https://img2.pic.in.th/-71_20260516210303.png"];
+const DEFAULT_BANNERS = ["https://img1.pic.in.th/images/-81_20260601213128.png"];
 
 const NumberTicker = ({ value }: { value: number }) => {
   const [displayValue, setDisplayValue] = useState(0);
@@ -194,7 +194,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
       
       {/* 1. Elegant Banner Carousel with dynamic navigation overlay */}
       <AnimatedScroll>
-        <div className="relative w-full aspect-[16/7] md:aspect-[25/8] rounded-2xl overflow-hidden group border border-white/5 bg-zinc-950/60 shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
+        <div className="relative w-full aspect-[21/9] md:aspect-[21/5] rounded-2xl overflow-hidden group border border-white/5 bg-zinc-950/60 shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
           <AnimatePresence mode="wait">
             <motion.div
               key={currentBanner}
@@ -244,7 +244,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   onClick={() => setCurrentBanner(idx)}
                   className={`h-1.5 rounded-full transition-all duration-300 ${
                     currentBanner % bannersToUse.length === idx 
-                      ? "bg-[#9b59f5] w-6 shadow-[0_0_8px_#9b59f5]" 
+                      ? "bg-[#0066ff] w-6 shadow-[0_0_8px_#0066ff]" 
                       : "bg-white/30 hover:bg-white/50 w-1.5"
                   }`}
                   aria-label={`Go to slide ${idx + 1}`}
@@ -258,11 +258,11 @@ export const HomeView: React.FC<HomeViewProps> = ({
       {/* 2. Announcement Marquee Bar with gradient glow */}
       <AnimatedScroll delay={50} direction="up">
         <div className="bg-zinc-900/40 backdrop-blur-md rounded-xl border border-white/5 py-3 px-5 flex items-center gap-4 relative overflow-hidden shadow-lg">
-          <div className="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-[#9b59f5] to-cyan-500" />
-          <div className="flex items-center gap-2.5 shrink-0 z-10 text-[#9b59f5]">
+          <div className="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-[#0066ff] to-cyan-500" />
+          <div className="flex items-center gap-2.5 shrink-0 z-10 text-[#0066ff]">
             <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#9b59f5] opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#9b59f5]"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#0066ff] opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#0066ff]"></span>
             </span>
             <Bell className="w-4.5 h-4.5 text-white/90" />
             <span className="font-bold text-white text-xs uppercase tracking-wider bg-white/10 px-2 py-0.5 rounded">
@@ -344,21 +344,21 @@ export const HomeView: React.FC<HomeViewProps> = ({
           {/* Card 4: Wallet Balance (Interactive to wallet trigger) */}
           <div 
             onClick={() => setActiveView("wallet")}
-            className="cursor-pointer relative overflow-hidden bg-zinc-900/60 rounded-2xl p-4 sm:p-5 border border-purple-500/20 hover:border-purple-500/40 shadow-md hover:shadow-[0_0_15px_rgba(155,89,245,0.15)] group transition-all duration-300 flex items-center gap-4"
+            className="cursor-pointer relative overflow-hidden bg-zinc-900/60 rounded-2xl p-4 sm:p-5 border border-blue-500/20 hover:border-blue-500/40 shadow-md hover:shadow-[0_0_15px_rgba(0,102,255,0.15)] group transition-all duration-300 flex items-center gap-4"
           >
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#9b59f5]/15 border border-[#9b59f5]/35 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-300">
-              <Wallet className="w-5 h-5 text-[#ae7bf7]" />
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#0066ff]/15 border border-[#0066ff]/35 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-300">
+              <Wallet className="w-5 h-5 text-[#66a3ff]" />
             </div>
             <div className="min-w-0 w-full">
-              <p className="text-[10px] sm:text-xs font-semibold text-purple-300 uppercase tracking-wider mb-0.5">กระเป๋าเงินของคุณ</p>
+              <p className="text-[10px] sm:text-xs font-semibold text-blue-300 uppercase tracking-wider mb-0.5">กระเป๋าเงินของคุณ</p>
               <div className="flex items-baseline gap-1 flex-wrap">
-                <span className="text-sm sm:text-base font-bold text-purple-300 leading-none mr-0.5">฿</span>
+                <span className="text-sm sm:text-base font-bold text-blue-300 leading-none mr-0.5">฿</span>
                 <span className="text-lg sm:text-2xl font-black text-white leading-none">
                   {user ? (user.balance || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0.00"}
                 </span>
               </div>
             </div>
-            <div className="absolute right-3 top-3 bg-[#9b59f5]/10 text-[#ae7bf7] rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <div className="absolute right-3 top-3 bg-[#0066ff]/10 text-[#66a3ff] rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
               <ChevronRight className="w-3.5 h-3.5" />
             </div>
           </div>
@@ -370,7 +370,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
       <AnimatedScroll delay={150} direction="up">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-5 bg-zinc-900/35 border border-white/5 rounded-2xl">
           <div className="flex items-start gap-3.5">
-            <div className="p-2.5 rounded-xl bg-[#9b59f5]/10 border border-[#9b59f5]/20 text-[#ae7bf7]">
+            <div className="p-2.5 rounded-xl bg-[#0066ff]/10 border border-[#0066ff]/20 text-[#66a3ff]">
               <Zap className="w-5 h-5" />
             </div>
             <div>
@@ -405,7 +405,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
           <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-zinc-900 border border-zinc-800 rounded-xl flex items-center justify-center">
-                <Layers className="w-5 h-5 text-purple-400" />
+                <Layers className="w-5 h-5 text-blue-400" />
               </div>
               <div>
                 <h2 className="text-lg font-bold text-white tracking-tight">หมวดหมู่แนะนํา</h2>
@@ -453,8 +453,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     bgImage={cat.bannerUrl || undefined}
                     index={i}
                     onClick={() => onSelectCategory(cat.name)}
-                    accentColor="#9b59f5"
-                    glowColor="rgba(155, 89, 245, 0.2)"
+                    accentColor="#0066ff"
+                    glowColor="rgba(0, 102, 255, 0.2)"
                     gradientFrom="#111111"
                   />
                 );
@@ -539,7 +539,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 return (
                   <div
                     key={index}
-                    className="shrink-0 w-[260px] sm:w-[300px] bg-zinc-900/40 border border-white/5 p-3 rounded-2xl flex gap-3 transition-colors duration-300 hover:border-[#9b59f5]/20 hover:bg-zinc-900/60 shadow-sm"
+                    className="shrink-0 w-[260px] sm:w-[300px] bg-zinc-900/40 border border-white/5 p-3 rounded-2xl flex gap-3 transition-colors duration-300 hover:border-[#0066ff]/20 hover:bg-zinc-900/60 shadow-sm"
                   >
                     <div className="w-12 h-12 rounded-xl bg-zinc-950 border border-zinc-800/80 shrink-0 overflow-hidden relative">
                       {imageUrl ? (
@@ -557,8 +557,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     </div>
                     <div className="flex-1 min-w-0 flex flex-col justify-center">
                       <div className="text-xs font-bold text-white flex items-center gap-1.5 justify-between">
-                        <span className="truncate text-purple-300">{clientUsername}</span>
-                        <span className="text-[9px] text-[#ae7bf7] bg-[#9b59f5]/10 px-1.5 py-0.2 rounded font-mono shrink-0">SUCCESS</span>
+                        <span className="truncate text-blue-300">{clientUsername}</span>
+                        <span className="text-[9px] text-[#66a3ff] bg-[#0066ff]/10 px-1.5 py-0.2 rounded font-mono shrink-0">SUCCESS</span>
                       </div>
                       <div className="text-[11px] text-zinc-300 truncate font-semibold mt-0.5">
                         {displayedProductName}
@@ -588,7 +588,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
               </div>
               <div>
                 <h2 className="text-lg font-black text-white leading-tight">คลังเก็บสินค้าดิจิทัล</h2>
-                <span className="text-[10px] uppercase font-bold tracking-widest text-[#9b59f5]">Premium Selection Products</span>
+                <span className="text-[10px] uppercase font-bold tracking-widest text-[#0066ff]">Premium Selection Products</span>
               </div>
             </div>
 
@@ -601,7 +601,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   onChange={(e) => setInStockOnly(e.target.checked)} 
                   className="sr-only peer" 
                 />
-                <div className="w-9 h-5 bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-zinc-400 after:border-zinc-300 after:border after:rounded-full after:h-3 w-3 after:w-3 after:transition-all peer-checked:bg-[#9b59f5] peer-checked:after:bg-white"></div>
+                <div className="w-9 h-5 bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-zinc-400 after:border-zinc-300 after:border after:rounded-full after:h-3 w-3 after:w-3 after:transition-all peer-checked:bg-[#0066ff] peer-checked:after:bg-white"></div>
                 <span className="ml-2 text-xs font-bold text-zinc-400 select-none">
                   แสดงเฉพาะที่มีของ
                 </span>
@@ -625,7 +625,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
               onClick={() => setActiveTab("popular")}
               className={`px-4 py-2 rounded-xl text-xs font-bold shrink-0 transition-all border flex items-center gap-1.5 ${
                 activeTab === "popular"
-                  ? "bg-[#9b59f5] text-white border-[#9b59f5] shadow-[0_4px_12px_rgba(155,89,245,0.25)]"
+                  ? "bg-[#0066ff] text-white border-[#0066ff] shadow-[0_4px_12px_rgba(0,102,255,0.25)]"
                   : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-white"
               }`}
             >
@@ -649,7 +649,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 onClick={() => setActiveTab(cat.name)}
                 className={`px-4 py-2 rounded-xl text-xs font-bold shrink-0 transition-all border ${
                   activeTab === cat.name
-                    ? "bg-[#9b59f5] text-white border-[#9b59f5]"
+                    ? "bg-[#0066ff] text-white border-[#0066ff]"
                     : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-white"
                 }`}
               >
@@ -686,7 +686,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     initial={{ opacity: 0, scale: 0.97, y: 15 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     transition={{ duration: 0.35, delay: Math.min(i * 0.04, 0.4), ease: "easeOut" }}
-                    className="flex flex-col bg-zinc-900/60 border border-white/5 rounded-2xl overflow-hidden hover:scale-[1.02] hover:border-[#9b59f5]/30 hover:shadow-[0_8px_25px_rgba(0,0,0,0.45)] group transition-all duration-300 h-full"
+                    className="flex flex-col bg-zinc-900/60 border border-white/5 rounded-2xl overflow-hidden hover:scale-[1.02] hover:border-[#0066ff]/30 hover:shadow-[0_8px_25px_rgba(0,0,0,0.45)] group transition-all duration-300 h-full"
                   >
                     
                     {/* Thumbnail & Badges Container */}
@@ -701,7 +701,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                             </span>
                           )}
                           {product.tag && !isSpecialHot && (
-                            <span className="bg-[#9b59f5] text-white font-bold text-[9px] px-2 py-0.5 rounded shadow-sm uppercase tracking-wide">
+                            <span className="bg-[#0066ff] text-white font-bold text-[9px] px-2 py-0.5 rounded shadow-sm uppercase tracking-wide">
                               {product.tag}
                             </span>
                           )}
@@ -761,7 +761,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                         <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-wider block mb-0.5">
                           {product.category || "General Digital"}
                         </span>
-                        <h3 className="font-bold text-zinc-100 text-xs sm:text-sm leading-snug line-clamp-2 h-9 sm:h-10 group-hover:text-purple-300 transition-colors duration-200">
+                        <h3 className="font-bold text-zinc-100 text-xs sm:text-sm leading-snug line-clamp-2 h-9 sm:h-10 group-hover:text-blue-300 transition-colors duration-200">
                           {product.name}
                         </h3>
                       </div>
@@ -779,7 +779,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                             <span className="text-[10px] text-transparent leading-none mb-1">.</span>
                           )}
                           <span className="text-white font-extrabold text-sm sm:text-base leading-none tracking-tight flex items-baseline gap-0.5 font-mono">
-                            <span className="text-xs text-purple-400">฿</span>
+                            <span className="text-xs text-blue-400">฿</span>
                             {(product.price || 0).toLocaleString()}
                           </span>
                         </div>
@@ -805,7 +805,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                         ) : (
                           <button
                             onClick={() => onProductClick(product.id)}
-                            className="w-full bg-zinc-800 hover:bg-[#9b59f5] border border-white/5 hover:border-[#9b59f5] text-white hover:text-white rounded-xl py-2.5 text-xs font-extrabold transition-all active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer shadow-sm hover:shadow-[0_4px_12px_rgba(155,89,245,0.25)]"
+                            className="w-full bg-zinc-800 hover:bg-[#0066ff] border border-white/5 hover:border-[#0066ff] text-white hover:text-white rounded-xl py-2.5 text-xs font-extrabold transition-all active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer shadow-sm hover:shadow-[0_4px_12px_rgba(0,102,255,0.25)]"
                           >
                             <ShoppingCart className="w-3.5 h-3.5" /> สั่งซื้อด่วน
                           </button>
