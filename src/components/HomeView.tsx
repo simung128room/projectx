@@ -1,5 +1,5 @@
 import Swal from "sweetalert2";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { CategoryCard } from "./CategoryCard";
 import {
@@ -25,6 +25,11 @@ import {
   Box,
   CreditCard,
   Headset,
+  Shield,
+  Zap,
+  Sparkles,
+  Filter,
+  Check,
 } from "lucide-react";
 import { Product, SiteStats, Category } from "../types";
 import { AnimatedScroll } from "./AnimatedScroll";
@@ -68,7 +73,7 @@ const NumberTicker = ({ value }: { value: number }) => {
     }
 
     let startTimestamp: number;
-    const duration = 2000;
+    const duration = 1500;
     const step = (timestamp: number) => {
       if (!startTimestamp) startTimestamp = timestamp;
       const progress = Math.min((timestamp - startTimestamp) / duration, 1);
@@ -99,317 +104,468 @@ const NumberTicker = ({ value }: { value: number }) => {
 };
 
 export const HomeView: React.FC<HomeViewProps> = ({
-  products,
-  categories,
+  products = [],
+  categories = [],
   stats,
   user,
   siteSettings,
-  purchaseHistory,
+  purchaseHistory = [],
   setActiveView,
   onProductClick,
   onSelectCategory,
 }) => {
   const [currentBanner, setCurrentBanner] = useState(0);
   const [realtimeStats, setRealtimeStats] = useState(stats);
-  const [isProductLoading, setIsProductLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState<string>("all");
+  const [inStockOnly, setInStockOnly] = useState<boolean>(false);
 
-  const bannersToUse =
-    siteSettings?.banners && siteSettings.banners.length > 0
+  // Fallback checks to prevent array mapping crashes
+  const safeProducts = useMemo(() => (Array.isArray(products) ? products : []), [products]);
+  const safeCategories = useMemo(() => (Array.isArray(categories) ? categories : []), [categories]);
+  const safePurchaseHistory = useMemo(() => (Array.isArray(purchaseHistory) ? purchaseHistory : []), [purchaseHistory]);
+
+  const bannersToUse = useMemo(() => {
+    return siteSettings?.banners && siteSettings.banners.length > 0
       ? siteSettings.banners
       : DEFAULT_BANNERS;
+  }, [siteSettings?.banners]);
 
-  const handleProductSelect = (product: Product | null) => {
-    if (product) {
-      onProductClick(product.id);
-    }
-  };
-
-  // Sync with props
+  // Sync with props stats safely
   useEffect(() => {
-    setRealtimeStats(stats);
+    if (stats) {
+      setRealtimeStats(stats);
+    }
   }, [stats]);
 
-  const stockOverride = siteSettings?.stats_stock_override;
-  const totalStock =
-    stockOverride !== undefined && stockOverride !== null
-      ? Number(stockOverride)
-      : (realtimeStats?.stock || 0) + (siteSettings?.stats_stock_offset || 0);
+  const totalSales = siteSettings?.stats_sales_override !== undefined && siteSettings?.stats_sales_override !== null 
+    ? Number(siteSettings.stats_sales_override) 
+    : (realtimeStats?.sales || 0);
 
+  const totalMembers = siteSettings?.stats_users_override !== undefined && siteSettings?.stats_users_override !== null
+    ? Number(siteSettings.stats_users_override)
+    : (realtimeStats?.users || 0);
+
+  const totalStockAvailable = useMemo(() => {
+    return safeProducts.reduce((acc, p) => acc + (Math.max(0, p.stock || 0)), 0);
+  }, [safeProducts]);
+
+  // Automated Banner Carousel transition
   useEffect(() => {
     if (bannersToUse.length > 1) {
       const timer = setInterval(() => {
         setCurrentBanner((prev) => (prev + 1) % bannersToUse.length);
-      }, 5000);
+      }, 6000);
       return () => clearInterval(timer);
     }
   }, [bannersToUse.length]);
 
+  const handleNextBanner = () => {
+    setCurrentBanner((prev) => (prev + 1) % bannersToUse.length);
+  };
+
+  const handlePrevBanner = () => {
+    setCurrentBanner((prev) => (prev - 1 + bannersToUse.length) % bannersToUse.length);
+  };
+
+  // Filtered products list
+  const filteredProducts = useMemo(() => {
+    let result = [...safeProducts];
+
+    // Filter by stock state
+    if (inStockOnly) {
+      result = result.filter(p => p.stock > 0);
+    }
+
+    // Filter by categories / tag pills
+    if (activeTab === "all") {
+      return result;
+    } else if (activeTab === "sale") {
+      return result.filter(p => p.originalPrice && p.originalPrice > p.price);
+    } else if (activeTab === "popular") {
+      return result.filter(p => p.isPopular || p.tag?.toLowerCase().includes("hot") || p.tag?.toLowerCase().includes("best"));
+    } else {
+      // Find matching category ID or Title
+      return result.filter(p => p.category === activeTab);
+    }
+  }, [safeProducts, activeTab, inStockOnly]);
+
   return (
-    <div className="w-full overflow-hidden space-y-6 pb-24 font-sans text-white mt-2 sm:mt-4 max-w-7xl mx-auto px-1">
-      {/* Banner carousel */}
+    <div className="w-full overflow-hidden space-y-8 pb-32 font-sans text-white mt-1 sm:mt-2 max-w-7xl mx-auto px-4 md:px-6">
+      
+      {/* 1. Elegant Banner Carousel with dynamic navigation overlay */}
       <AnimatedScroll>
-        {/* แก้ไข: เปลี่ยน aspect-[21/9] → aspect-[16/6] สำหรับ mobile ไม่ให้แบนเนอร์สูงเกินไป */}
-        <div className="relative w-full aspect-[16/6] sm:aspect-[25/9] md:aspect-[4/1] rounded-xl overflow-hidden shadow-sm border border-[#1e1e1e] bg-[#111111]">
-          <AnimatePresence>
-            <motion.img loading="lazy"
+        <div className="relative w-full aspect-[16/7] md:aspect-[25/8] rounded-2xl overflow-hidden group border border-white/5 bg-zinc-950/60 shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
+          <AnimatePresence mode="wait">
+            <motion.div
               key={currentBanner}
-              src={
-                bannersToUse[currentBanner % (bannersToUse.length || 1)] ||
-                undefined
-              }
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.5 }}
-              className="absolute inset-0 w-full h-full object-cover object-center"
-            />
+              initial={{ opacity: 0, scale: 1.01 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.99 }}
+              transition={{ duration: 0.5, ease: "easeInOut" }}
+              className="absolute inset-0 w-full h-full"
+            >
+              <img
+                loading="lazy"
+                src={bannersToUse[currentBanner % bannersToUse.length]}
+                alt="Highlight banner"
+                className="w-full h-full object-cover object-center"
+              />
+              {/* Subtle top edge and bottom title fade gradient */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-black/20" />
+            </motion.div>
           </AnimatePresence>
+
+          {/* Interactive Arrow Controls */}
+          {bannersToUse.length > 1 && (
+            <>
+              <button
+                onClick={handlePrevBanner}
+                className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/60 border border-white/10 flex items-center justify-center text-white/70 hover:text-white hover:bg-black/90 hover:border-white/20 hover:scale-105 transition-all opacity-0 group-hover:opacity-100 z-20"
+                aria-label="Previous banner"
+              >
+                <ArrowLeft className="w-5 h-5 pointer-events-none" />
+              </button>
+              <button
+                onClick={handleNextBanner}
+                className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/60 border border-white/10 flex items-center justify-center text-white/70 hover:text-white hover:bg-black/90 hover:border-white/20 hover:scale-105 transition-all opacity-0 group-hover:opacity-100 z-20"
+                aria-label="Next banner"
+              >
+                <ChevronRight className="w-5 h-5 pointer-events-none" />
+              </button>
+            </>
+          )}
+
+          {/* Dot Pagination indicators */}
+          {bannersToUse.length > 1 && (
+            <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-2 z-20">
+              {bannersToUse.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setCurrentBanner(idx)}
+                  className={`h-1.5 rounded-full transition-all duration-300 ${
+                    currentBanner % bannersToUse.length === idx 
+                      ? "bg-[#9b59f5] w-6 shadow-[0_0_8px_#9b59f5]" 
+                      : "bg-white/30 hover:bg-white/50 w-1.5"
+                  }`}
+                  aria-label={`Go to slide ${idx + 1}`}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </AnimatedScroll>
 
-      {/* Admin Announcement */}
-      <AnimatedScroll delay={100} direction="right">
-        <div className="border border-[#1e1e1e] bg-[#111111] rounded-lg py-2.5 px-4 flex items-center gap-2 relative overflow-hidden">
-          <div className="flex items-center gap-2 shrink-0 z-10">
-            <Bell className="w-[16px] h-[16px] text-[#9b59f5]" />
-            <span className="font-medium text-[#ffffff] text-sm">ประกาศ</span>
-            <span className="text-[#1e1e1e] text-sm mx-1">|</span>
+      {/* 2. Announcement Marquee Bar with gradient glow */}
+      <AnimatedScroll delay={50} direction="up">
+        <div className="bg-zinc-900/40 backdrop-blur-md rounded-xl border border-white/5 py-3 px-5 flex items-center gap-4 relative overflow-hidden shadow-lg">
+          <div className="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-[#9b59f5] to-cyan-500" />
+          <div className="flex items-center gap-2.5 shrink-0 z-10 text-[#9b59f5]">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#9b59f5] opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#9b59f5]"></span>
+            </span>
+            <Bell className="w-4.5 h-4.5 text-white/90" />
+            <span className="font-bold text-white text-xs uppercase tracking-wider bg-white/10 px-2 py-0.5 rounded">
+              ANNOUNCEMENT
+            </span>
           </div>
-          <div className="flex-1 relative z-10 overflow-hidden min-w-0">
+          <span className="text-zinc-600 font-light select-none">|</span>
+          <div className="flex-1 overflow-hidden min-w-0 z-10">
             <Marquee
-              text="ยินดีต้อนรับสู่ระบบอัตโนมัติ 24 ชม. | สมัครสมาชิกวันนี้รับโปรพิเศษ"
-              speed={15}
-              className="text-[#888888] text-sm font-medium"
+              text="🎉 ยินดีต้อนรับสู่ระบบสั่งซื้ออัตโนมัติจัดส่งทันที 24 ชั่วโมง | ระบบเติมเงิน TrueMoney & TrueWallet ปลอดภัย มั่นใจได้ 100% | พบปัญหาการใช้งานติดต่อฝ่ายสนับสนุนได้ตลอดเวลา"
+              speed={16}
+              className="text-zinc-300 font-medium text-xs sm:text-sm"
             />
           </div>
         </div>
       </AnimatedScroll>
 
-      {/* 4 Cards Dashboard (Mobile First - 2 Columns) */}
-      <AnimatedScroll delay={200} direction="up">
-        <div className="grid grid-cols-2 xl:grid-cols-4 gap-2 xs:gap-3 sm:gap-4 mb-8">
+      {/* 3. High-Contrast Gamer Stats Cluster */}
+      <AnimatedScroll delay={100} direction="up">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5">
           
-          {/* Card 1: Sales */}
-          <div className="bg-[#111111] rounded-xl p-3 xs:p-4 sm:p-6 transition-all duration-300 flex items-center gap-2 xs:gap-3 sm:gap-4 border border-[#1e1e1e] shadow-sm hover:border-[#333333] group min-w-0 overflow-hidden">
-             <div className="w-9 h-9 xs:w-10 xs:h-10 sm:w-12 sm:h-12 rounded-lg bg-[#161616] flex items-center justify-center shrink-0 border border-[#1e1e1e] group-hover:scale-105 transition-transform">
-              <ShoppingCart className="w-3.5 h-3.5 xs:w-4 xs:h-4 sm:w-5 sm:h-5 text-[#888888]" />
+          {/* Card 1: Total Sales */}
+          <div className="relative overflow-hidden bg-zinc-900/60 rounded-2xl p-4 sm:p-5 border border-white/5 shadow-md hover:border-white/10 hover:shadow-lg group transition-all duration-300 flex items-center gap-4">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-300">
+              <ShoppingCart className="w-5 h-5 text-emerald-400" />
             </div>
-            <div className="flex flex-col justify-center min-w-0 w-full overflow-hidden">
-              <span className="text-[9px] xs:text-[10px] sm:text-xs font-medium text-[#888888] mb-0.5 truncate w-full">ยอดขายเว็บของเรา</span>
-              <h2 className="text-base xs:text-lg sm:text-2xl font-semibold text-[#ffffff] tracking-tight leading-none truncate w-full">
-                <NumberTicker value={siteSettings?.stats_sales_override !== undefined && siteSettings?.stats_sales_override !== null ? siteSettings.stats_sales_override : (realtimeStats?.sales || 0)} />
-              </h2>
+            <div className="min-w-0 w-full">
+              <p className="text-[10px] sm:text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-0.5">ยอดสั่งซื้อทั้งหมด</p>
+              <div className="flex items-baseline gap-1.5 flex-wrap">
+                <span className="text-lg sm:text-2xl font-black text-white leading-none">
+                  <NumberTicker value={totalSales} />
+                </span>
+                <span className="text-[9px] font-bold text-emerald-400 leading-none">ครั้ง</span>
+              </div>
+            </div>
+            <div className="absolute right-0 bottom-0 translate-x-3 translate-y-3 opacity-[0.02] text-white">
+              <ShoppingCart className="w-24 h-24" />
             </div>
           </div>
 
           {/* Card 2: Total Stock */}
-          <div className="bg-[#111111] rounded-xl p-3 xs:p-4 sm:p-6 transition-all duration-300 flex items-center gap-2 xs:gap-3 sm:gap-4 border border-[#1e1e1e] shadow-sm hover:border-[#333333] group min-w-0 overflow-hidden">
-              <div className="w-9 h-9 xs:w-10 xs:h-10 sm:w-12 sm:h-12 rounded-lg bg-[#161616] flex items-center justify-center shrink-0 border border-[#1e1e1e] group-hover:scale-105 transition-transform">
-              <Package className="w-3.5 h-3.5 xs:w-4 xs:h-4 sm:w-5 sm:h-5 text-[#888888]" />
+          <div className="relative overflow-hidden bg-zinc-900/60 rounded-2xl p-4 sm:p-5 border border-white/5 shadow-md hover:border-white/10 hover:shadow-lg group transition-all duration-300 flex items-center gap-4">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-300">
+              <Package className="w-5 h-5 text-cyan-400" />
             </div>
-            <div className="flex flex-col justify-center min-w-0 w-full overflow-hidden">
-              <span className="text-[9px] xs:text-[10px] sm:text-xs font-medium text-[#888888] mb-0.5 truncate w-full">พร้อมจำหน่าย</span>
-              <h2 className="text-base xs:text-lg sm:text-2xl font-semibold text-[#ffffff] tracking-tight leading-none truncate w-full">
-                <NumberTicker value={products?.reduce((acc, p) => acc + (Math.max(0, p.stock || 0)), 0) || 0} />
-              </h2>
+            <div className="min-w-0 w-full">
+              <p className="text-[10px] sm:text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-0.5">พร้อมจำหน่าย</p>
+              <div className="flex items-baseline gap-1.5 flex-wrap">
+                <span className="text-lg sm:text-2xl font-black text-white leading-none">
+                  <NumberTicker value={totalStockAvailable} />
+                </span>
+                <span className="text-[9px] font-bold text-cyan-400 leading-none">รายการ</span>
+              </div>
             </div>
-          </div>
-
-          {/* Card 3: Total Users */}
-          <div className="bg-[#111111] rounded-xl p-3 xs:p-4 sm:p-6 transition-all duration-300 flex items-center gap-2 xs:gap-3 sm:gap-4 border border-[#1e1e1e] shadow-sm hover:border-[#333333] group min-w-0 overflow-hidden">
-              <div className="w-9 h-9 xs:w-10 xs:h-10 sm:w-12 sm:h-12 rounded-lg bg-[#161616] flex items-center justify-center shrink-0 border border-[#1e1e1e] group-hover:scale-105 transition-transform">
-              <Users className="w-3.5 h-3.5 xs:w-4 xs:h-4 sm:w-5 sm:h-5 text-[#888888]" />
-            </div>
-            <div className="flex flex-col justify-center min-w-0 w-full overflow-hidden">
-              <span className="text-[9px] xs:text-[10px] sm:text-xs font-medium text-[#888888] mb-0.5 truncate w-full">ผู้ใช้งานทั้งหมดของเว็บ</span>
-              <h2 className="text-base xs:text-lg sm:text-2xl font-semibold text-[#ffffff] tracking-tight leading-none truncate w-full">
-                <NumberTicker value={siteSettings?.stats_users_override !== undefined && siteSettings?.stats_users_override !== null ? siteSettings.stats_users_override : (realtimeStats?.users || 0)} />
-              </h2>
+            <div className="absolute right-0 bottom-0 translate-x-3 translate-y-3 opacity-[0.02] text-white">
+              <Package className="w-24 h-24" />
             </div>
           </div>
 
-          {/* Card 4: Wallet */}
+          {/* Card 3: Total Members */}
+          <div className="relative overflow-hidden bg-zinc-900/60 rounded-2xl p-4 sm:p-5 border border-white/5 shadow-md hover:border-white/10 hover:shadow-lg group transition-all duration-300 flex items-center gap-4">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-300">
+              <Users className="w-5 h-5 text-amber-400" />
+            </div>
+            <div className="min-w-0 w-full">
+              <p className="text-[10px] sm:text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-0.5">ครอบครัวสมาชิก</p>
+              <div className="flex items-baseline gap-1.5 flex-wrap">
+                <span className="text-lg sm:text-2xl font-black text-white leading-none">
+                  <NumberTicker value={totalMembers} />
+                </span>
+                <span className="text-[9px] font-bold text-amber-400 leading-none">ผู้ใช้</span>
+              </div>
+            </div>
+            <div className="absolute right-0 bottom-0 translate-x-3 translate-y-3 opacity-[0.02] text-white">
+              <Users className="w-24 h-24" />
+            </div>
+          </div>
+
+          {/* Card 4: Wallet Balance (Interactive to wallet trigger) */}
           <div 
-             onClick={() => setActiveView("wallet")}
-             className="bg-[#111111] rounded-xl p-3 xs:p-4 sm:p-6 transition-all duration-300 flex items-center gap-2 xs:gap-3 sm:gap-4 border border-[#1e1e1e] shadow-sm hover:border-[#333333] cursor-pointer group min-w-0 overflow-hidden">
-             <div className="w-9 h-9 xs:w-10 xs:h-10 sm:w-12 sm:h-12 rounded-lg bg-[#161616] flex items-center justify-center shrink-0 border border-[#1e1e1e] group-hover:scale-105 transition-transform">
-              <Wallet className="w-3.5 h-3.5 xs:w-4 xs:h-4 sm:w-5 sm:h-5 text-[#9b59f5]" />
+            onClick={() => setActiveView("wallet")}
+            className="cursor-pointer relative overflow-hidden bg-zinc-900/60 rounded-2xl p-4 sm:p-5 border border-purple-500/20 hover:border-purple-500/40 shadow-md hover:shadow-[0_0_15px_rgba(155,89,245,0.15)] group transition-all duration-300 flex items-center gap-4"
+          >
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#9b59f5]/15 border border-[#9b59f5]/35 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-300">
+              <Wallet className="w-5 h-5 text-[#ae7bf7]" />
             </div>
-            <div className="flex flex-col justify-center min-w-0 w-full overflow-hidden">
-              <span className="text-[9px] xs:text-[10px] sm:text-xs font-medium text-[#888888] mb-0.5 truncate w-full">ยอดเงินคงเหลือของคุณ</span>
-              <h2 className="text-base xs:text-lg sm:text-2xl font-semibold text-[#9b59f5] tracking-tight leading-none truncate w-full">
-                ฿ {user ? (user.balance || 0).toLocaleString() : 0}
-              </h2>
+            <div className="min-w-0 w-full">
+              <p className="text-[10px] sm:text-xs font-semibold text-purple-300 uppercase tracking-wider mb-0.5">กระเป๋าเงินของคุณ</p>
+              <div className="flex items-baseline gap-1 flex-wrap">
+                <span className="text-sm sm:text-base font-bold text-purple-300 leading-none mr-0.5">฿</span>
+                <span className="text-lg sm:text-2xl font-black text-white leading-none">
+                  {user ? (user.balance || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0.00"}
+                </span>
+              </div>
+            </div>
+            <div className="absolute right-3 top-3 bg-[#9b59f5]/10 text-[#ae7bf7] rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              <ChevronRight className="w-3.5 h-3.5" />
             </div>
           </div>
 
         </div>
       </AnimatedScroll>
 
-      {/* Categories Section */}
-      <AnimatedScroll delay={220} direction="left">
-        <div className="pt-8">
-          <div className="flex items-center justify-between mb-6 pb-3 border-b border-[#1e1e1e]">
+      {/* 4. Service Advantage Section */}
+      <AnimatedScroll delay={150} direction="up">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-5 bg-zinc-900/35 border border-white/5 rounded-2xl">
+          <div className="flex items-start gap-3.5">
+            <div className="p-2.5 rounded-xl bg-[#9b59f5]/10 border border-[#9b59f5]/20 text-[#ae7bf7]">
+              <Zap className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="text-sm font-bold text-white mb-0.5">ระบบจัดส่งด่วนอัตโนมัติ</h4>
+              <p className="text-xs text-zinc-400 leading-relaxed">ได้รับสินค้า คีย์ ใบเสร็จ ทันทีผ่านหน้าเว็บและประวัติส่วนตัว ตลอด 24 ชม.</p>
+            </div>
+          </div>
+          <div className="flex items-start gap-3.5 border-t md:border-t-0 md:border-x border-zinc-800/80 pt-4 md:pt-0 md:px-5">
+            <div className="p-2.5 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400">
+              <Shield className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="text-sm font-bold text-white mb-0.5">ธรรมาภิบาลและความปลอดภัย</h4>
+              <p className="text-xs text-zinc-400 leading-relaxed">ข้อมูลและสิทธิ์ของสมาชิกถูกปกป้องด้วยฐานข้อมูลที่มีความปลอดภัยสูงสุด</p>
+            </div>
+          </div>
+          <div className="flex items-start gap-3.5 border-t md:border-t-0 border-zinc-800/80 pt-4 md:pt-0">
+            <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+              <Sparkles className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="text-sm font-bold text-white mb-0.5">รับประกันสินค้าทุกรายการ</h4>
+              <p className="text-xs text-zinc-400 leading-relaxed">สินค้าทุกคีย์ใช้งานได้จริง มีปัญหาเครมได้รวดเร็วผ่านเจ้าหน้าที่เทคนิค</p>
+            </div>
+          </div>
+        </div>
+      </AnimatedScroll>
+
+      {/* 5. Recommended Categories Grid */}
+      <AnimatedScroll delay={200} direction="left">
+        <div className="space-y-5">
+          <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-[#161616] border border-[#1e1e1e] rounded-xl flex items-center justify-center shadow-sm">
-                <Package className="w-5 h-5 text-[#888888]" />
+              <div className="w-10 h-10 bg-zinc-900 border border-zinc-800 rounded-xl flex items-center justify-center">
+                <Layers className="w-5 h-5 text-purple-400" />
               </div>
               <div>
-                <h2 className="text-lg font-medium text-[#ffffff] leading-tight">
-                  หมวดหมู่แนะนำ
-                </h2>
-                <p className="text-[11px] text-[#888888] font-medium mt-0.5">
-                  สินค้าแนะนำสำหรับคุณ
-                </p>
+                <h2 className="text-lg font-bold text-white tracking-tight">หมวดหมู่แนะนํา</h2>
+                <p className="text-xs text-zinc-400 font-medium">แยกประเภทสินค้าตามแพลตฟอร์มของคุณ</p>
               </div>
             </div>
             <button
               onClick={() => setActiveView("categories")}
-              className="bg-[#161616] text-[#ffffff] px-4 py-2 border border-[#1e1e1e] rounded-lg text-xs font-medium hover:bg-[#111111] transition-all active:scale-95 flex items-center gap-2"
+              className="bg-zinc-900/60 hover:bg-zinc-800 text-zinc-300 hover:text-white px-4 py-2 border border-zinc-800 rounded-xl text-xs font-bold transition-all active:scale-95 flex items-center gap-1.5"
             >
-              ดูเพิ่มเติม <ChevronRight className="w-3.5 h-3.5" />
+              ดูหมวดหมู่ทั้งหมด <ChevronRight className="w-4 h-4" />
             </button>
           </div>
 
-          <div className="flex flex-col gap-4">
-            {categories &&
-              categories.slice(0, 3).map((cat, i) => {
-                const catProducts = products.filter(
-                  (p) => 
-                    p.category === cat.id || 
-                    p.category === cat.name || 
-                    p.category === cat.title,
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {safeCategories.length === 0 ? (
+              <div className="col-span-full py-12 text-center text-zinc-500 text-xs border border-dashed border-zinc-800 rounded-2xl">
+                ไม่พบหมวดหมู่สินค้าในขณะนี้
+              </div>
+            ) : (
+              safeCategories.slice(0, 3).map((cat, i) => {
+                const catProducts = safeProducts.filter(
+                  p => p.category === cat.id || p.category === cat.name || p.category === cat.title
                 );
+                
                 let priceRangeStr = "ไม่ทราบราคา";
-                let itemCountDesc = `${catProducts.length} รายการ`;
+                let itemCountDesc = `${catProducts.length} รายการในร้าน`;
 
                 if (catProducts.length > 0) {
-                  const prices = catProducts.map((p) => p.price);
+                  const prices = catProducts.map(p => p.price);
                   const minP = Math.min(...prices);
                   const maxP = Math.max(...prices);
-                  priceRangeStr =
-                    minP === maxP
-                      ? `฿${minP.toLocaleString()}`
-                      : `฿${minP.toLocaleString()} - ฿${maxP.toLocaleString()}`;
+                  priceRangeStr = minP === maxP
+                    ? `฿${minP.toLocaleString()}`
+                    : `฿${minP.toLocaleString()} - ฿${maxP.toLocaleString()}`;
                 }
 
                 return (
                   <CategoryCard
                     key={cat.id}
                     title={cat.title}
-                    label="หมวดหมู่"
+                    label="STORETH"
                     itemCountDesc={itemCountDesc}
-                    priceRangeStr={
-                      catProducts.length > 0 ? priceRangeStr : undefined
-                    }
+                    priceRangeStr={catProducts.length > 0 ? priceRangeStr : undefined}
                     bgImage={cat.bannerUrl || undefined}
                     index={i}
                     onClick={() => onSelectCategory(cat.name)}
                     accentColor="#9b59f5"
-                    glowColor="transparent"
+                    glowColor="rgba(155, 89, 245, 0.2)"
                     gradientFrom="#111111"
                   />
                 );
-              })}
+              })
+            )}
           </div>
         </div>
       </AnimatedScroll>
 
-      {/* Latest Products Feed */}
-      <AnimatedScroll delay={235} direction="left">
-        <div className="pt-8 w-full overflow-hidden">
-          <div className="flex items-center gap-3 mb-6 pb-3 border-b border-[#1e1e1e]">
-            <div>
-              <h2 className="text-lg font-medium text-[#ffffff] leading-tight">
-                รายการสั่งชื้อสินค้าล่าสุด
-              </h2>
-              <p className="text-[11px] text-[#888888] font-medium mt-0.5">
-                สินค้าที่ลูกค้าเพิ่งซื้อ 10 รายการล่าสุด
-              </p>
-            </div>
+      {/* 6. Live Purchase Activity Ticker */}
+      <AnimatedScroll delay={220} direction="right">
+        <div className="space-y-4">
+          <div className="flex items-center gap-2.5">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            </span>
+            <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">
+              Live Order Stream (คำสั่งซื้อล่าสุด)
+            </span>
           </div>
 
-          <div className="flex overflow-hidden relative w-full translate-z-0">
+          <div className="flex overflow-hidden relative w-full select-none">
+            {/* Soft left/right blur overlays */}
+            <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-zinc-950 to-transparent z-10 pointer-events-none" />
+            <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-zinc-950 to-transparent z-10 pointer-events-none" />
+
+            {/* Seamless Horizontal Flow */}
             <motion.div
               className="flex gap-4 pr-4 w-max shrink-0 hover:[animation-play-state:paused]"
               animate={{ x: ["0%", "-50%"] }}
               transition={{
                 ease: "linear",
-                duration: 40,
+                duration: 35,
                 repeat: Infinity,
                 repeatType: "loop",
               }}
             >
               {[
-                ...(purchaseHistory && purchaseHistory.length > 0
-                  ? purchaseHistory.slice(0, 10)
+                ...(safePurchaseHistory.length > 0
+                  ? safePurchaseHistory.slice(0, 8)
                   : [1, 2, 3, 4, 5]),
-                ...(purchaseHistory && purchaseHistory.length > 0
-                  ? purchaseHistory.slice(0, 10)
+                ...(safePurchaseHistory.length > 0
+                  ? safePurchaseHistory.slice(0, 8)
                   : [1, 2, 3, 4, 5]),
               ].map((purchase: any, index) => {
-                const i = index % 10;
-                let isDummy = typeof purchase === "number";
+                const isDummy = typeof purchase === "number";
+                const i = index % 8;
                 const dummyProduct = isDummy
-                  ? products[i % (products.length || 1)]
+                  ? safeProducts[i % (safeProducts.length || 1)]
                   : null;
                 const matchedProduct = !isDummy
-                  ? products.find((p) => p.name === purchase.productName)
+                  ? safeProducts.find(p => p.name === purchase.productName)
                   : null;
 
-                let minsAgo = Math.floor(Math.random() * 5) + i * 2 + 1;
+                let minsAgo = i * 3 + 2;
                 if (!isDummy && purchase.date) {
                   const diffMinutes = Math.floor(
-                    (Date.now() - new Date(purchase.date).getTime()) / 60000,
+                    (Date.now() - new Date(purchase.date).getTime()) / 60000
                   );
                   if (diffMinutes >= 0) minsAgo = diffMinutes;
                 }
                 let timeStr = `${minsAgo} นาทีที่แล้ว`;
                 if (!isDummy && purchase.date && minsAgo >= 60) {
                   if (minsAgo < 1440)
-                    timeStr = `${Math.floor(minsAgo / 60)} ชั่วโมงที่แล้ว`;
+                    timeStr = `${Math.floor(minsAgo / 60)} ชม.ที่แล้ว`;
                   else timeStr = `${Math.floor(minsAgo / 1440)} วันที่แล้ว`;
                 }
+
+                const displayedProductName = !isDummy
+                  ? purchase.productName
+                  : (dummyProduct?.name || "Premium Game License Key");
+
+                const clientUsername = !isDummy && purchase.username
+                  ? purchase.username.length > 4
+                    ? purchase.username.substring(0, 3) + "***"
+                    : purchase.username + "***"
+                  : "Member***";
+
+                const imageUrl = matchedProduct?.imageUrl || dummyProduct?.imageUrl;
 
                 return (
                   <div
                     key={index}
-                    className="shrink-0 w-[240px] sm:w-[280px] bg-[#111111] border border-[#1e1e1e] p-3 rounded-xl flex gap-4 transition-all cursor-default hover:border-[#333333] shadow-sm"
+                    className="shrink-0 w-[260px] sm:w-[300px] bg-zinc-900/40 border border-white/5 p-3 rounded-2xl flex gap-3 transition-colors duration-300 hover:border-[#9b59f5]/20 hover:bg-zinc-900/60 shadow-sm"
                   >
-                    <div className="w-16 h-16 rounded-lg bg-[#161616] border border-[#1e1e1e] shrink-0 overflow-hidden relative">
-                      {matchedProduct?.imageUrl || dummyProduct?.imageUrl ? (
-                        <img loading="lazy"
-                          src={
-                            matchedProduct?.imageUrl || dummyProduct?.imageUrl
-                          }
-                          alt="Product"
+                    <div className="w-12 h-12 rounded-xl bg-zinc-950 border border-zinc-800/80 shrink-0 overflow-hidden relative">
+                      {imageUrl ? (
+                        <img 
+                          loading="lazy"
+                          src={imageUrl}
+                          alt="Product thumbnail"
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center text-[#888888]">
-                          <ShoppingCart className="w-5 h-5" />
+                        <div className="w-full h-full flex items-center justify-center text-zinc-600">
+                          <ShoppingCart className="w-4 h-4" />
                         </div>
                       )}
                     </div>
                     <div className="flex-1 min-w-0 flex flex-col justify-center">
-                      <div className="text-[13px] font-medium text-[#ffffff] truncate">
-                        {!isDummy && purchase.username
-                          ? purchase.username.substring(0, 2) + "***"
-                          : "Us***"}{" "}
-                        ซื้อแล้ว
+                      <div className="text-xs font-bold text-white flex items-center gap-1.5 justify-between">
+                        <span className="truncate text-purple-300">{clientUsername}</span>
+                        <span className="text-[9px] text-[#ae7bf7] bg-[#9b59f5]/10 px-1.5 py-0.2 rounded font-mono shrink-0">SUCCESS</span>
                       </div>
-                      <div className="text-xs text-[#888888] truncate mt-0.5">
-                        {!isDummy
-                          ? purchase.productName
-                          : dummyProduct?.name || "สินค้าพรีเมียม"}
+                      <div className="text-[11px] text-zinc-300 truncate font-semibold mt-0.5">
+                        {displayedProductName}
                       </div>
-                      <div className="flex items-center justify-between mt-1.5">
-                        <span className="text-sm font-bold text-[#e5e7eb]">
-                          {!isDummy ? purchase.amount || 1 : 1} ชิ้น
-                        </span>
-                        <span className="text-[10px] text-[#6b7280] font-medium">
-                          {timeStr}
-                        </span>
+                      <div className="flex items-center justify-between mt-1 text-[10px]">
+                        <span className="text-zinc-500 text-[10px] font-medium">สั่งซื้อเสร็จสิ้น</span>
+                        <span className="text-zinc-500 font-mono text-[9px]">{timeStr}</span>
                       </div>
                     </div>
                   </div>
@@ -420,129 +576,251 @@ export const HomeView: React.FC<HomeViewProps> = ({
         </div>
       </AnimatedScroll>
 
-      {/* Featured Products */}
-      <AnimatedScroll delay={250} direction="right">
-        <div id="products" className="pt-12 relative overflow-hidden">
-          <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[800px] h-[300px] bg-[#3B82F6]/10 rounded-full  pointer-events-none mix-blend-screen"></div>
+      {/* 7. Featured Products Grid (with interactive filter tabs) */}
+      <AnimatedScroll delay={250} direction="up">
+        <div id="products-showcase" className="pt-6 relative">
           
-          <div className="flex items-center justify-between mb-8 pb-4 border-b border-white/5 relative z-10">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 from-[#3B82F6] to-cyan-400 rounded-2xl flex items-center justify-center shadow-lg">
-                <Star className="w-6 h-6 text-white fill-white/20" />
+          {/* Header Action Section */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-zinc-800 mb-6">
+            <div className="flex items-center gap-3.5">
+              <div className="w-11 h-11 bg-zinc-900 border border-zinc-800 rounded-xl flex items-center justify-center text-amber-500 shadow-md">
+                <Star className="w-5.5 h-5.5 fill-amber-500/20" />
               </div>
               <div>
-                <h2 className="text-xl sm:text-2xl font-black text-white leading-tight">
-                  สินค้าแนะนำสำหรับคุณ
-                </h2>
-                <p className="text-xs text-[#3B82F6] font-medium tracking-wide uppercase mt-1">
-                  Premium & Highly Recommended
-                </p>
+                <h2 className="text-lg font-black text-white leading-tight">คลังเก็บสินค้าดิจิทัล</h2>
+                <span className="text-[10px] uppercase font-bold tracking-widest text-[#9b59f5]">Premium Selection Products</span>
               </div>
             </div>
-            <button
-              onClick={() => setActiveView("categories")}
-              className="bg-white/5 hover:bg-white/10 border border-white/10 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all active:scale-95 flex items-center gap-2 "
-            >
-              ดูทั้งหมด <ChevronRight className="w-3.5 h-3.5" />
-            </button>
+
+            {/* In-Stock Filter Checkbox */}
+            <div className="flex items-center gap-2">
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input 
+                  type="checkbox" 
+                  checked={inStockOnly} 
+                  onChange={(e) => setInStockOnly(e.target.checked)} 
+                  className="sr-only peer" 
+                />
+                <div className="w-9 h-5 bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-zinc-400 after:border-zinc-300 after:border after:rounded-full after:h-3 w-3 after:w-3 after:transition-all peer-checked:bg-[#9b59f5] peer-checked:after:bg-white"></div>
+                <span className="ml-2 text-xs font-bold text-zinc-400 select-none">
+                  แสดงเฉพาะที่มีของ
+                </span>
+              </label>
+            </div>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5 relative z-10">
-            {products.slice(0, 8).map((product, i) => (
-              <motion.div
-                key={product.id}
-                initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: i * 0.05, ease: "easeOut" }}
-                className="bg-[#0A0D12]/80  border border-white/10 rounded-xl overflow-hidden hover:shadow-lg/40 transition-all duration-300 h-full flex flex-col group"
+          {/* Interactive filter pills row */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-4 no-scrollbar">
+            <button
+              onClick={() => setActiveTab("all")}
+              className={`px-4 py-2 rounded-xl text-xs font-bold shrink-0 transition-all border flex items-center gap-1.5 ${
+                activeTab === "all"
+                  ? "bg-white text-black border-white"
+                  : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-white"
+              }`}
+            >
+              <Filter className="w-3.5 h-3.5" /> ทั้งหมด
+            </button>
+            <button
+              onClick={() => setActiveTab("popular")}
+              className={`px-4 py-2 rounded-xl text-xs font-bold shrink-0 transition-all border flex items-center gap-1.5 ${
+                activeTab === "popular"
+                  ? "bg-[#9b59f5] text-white border-[#9b59f5] shadow-[0_4px_12px_rgba(155,89,245,0.25)]"
+                  : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-white"
+              }`}
+            >
+              🔥 แนะนำยอดฮิต
+            </button>
+            <button
+              onClick={() => setActiveTab("sale")}
+              className={`px-4 py-2 rounded-xl text-xs font-bold shrink-0 transition-all border flex items-center gap-1.5 ${
+                activeTab === "sale"
+                  ? "bg-emerald-500 text-white border-emerald-500 shadow-[0_4px_12px_rgba(16,185,129,0.25)]"
+                  : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-white"
+              }`}
+            >
+              🏷️ ลดคุ้มแนะนํา
+            </button>
+
+            {/* Categories filter pills */}
+            {safeCategories.map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => setActiveTab(cat.name)}
+                className={`px-4 py-2 rounded-xl text-xs font-bold shrink-0 transition-all border ${
+                  activeTab === cat.name
+                    ? "bg-[#9b59f5] text-white border-[#9b59f5]"
+                    : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-white"
+                }`}
               >
-                <div className="aspect-square bg-zinc-900 relative overflow-hidden p-2">
-                  <div className="w-full h-full rounded-2xl overflow-hidden relative">
-                      {product.tag && (
-                        <div className="absolute top-2 right-2 bg-gradient-to-r from-red-500 to-orange-500 text-white font-black text-[10px] px-2 py-0.5 rounded-full z-10 shadow-lg border border-white/20 uppercase tracking-widest">
-                           {product.tag}
-                        </div>
-                      )}
-                      {product.imageUrl ? (
-                        <img loading="lazy"
-                          src={product.imageUrl}
-                          alt={product.name}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center from-zinc-800 to-zinc-900 border border-white/5">
-                          <div className="text-center">
-                            <div className="text-[10px] font-black text-[#3B82F6] tracking-tighter mb-1">APEXSTORE</div>
-                            <div className="text-white text-xs font-bold leading-tight">NO<br/>IMAGE</div>
-                          </div>
-                        </div>
-                      )}
-                  </div>
-                  <div
-                    className="absolute inset-0 bg-[#0A0D12]/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop- cursor-pointer rounded-2xl m-2"
-                    onClick={() => onProductClick(product.id)}
-                  >
-                    <div className="bg-[#3B82F6] text-white shadow-lg p-3 rounded-full scale-50 opacity-0 group-hover:scale-100 group-hover:opacity-100 transition-all duration-300 transform">
-                      <ShoppingCart className="w-5 h-5 fill-current" />
-                    </div>
-                  </div>
-                  {product.stock <= 0 && (
-                    <div className="absolute inset-2 bg-black/60  flex items-center justify-center z-10 rounded-2xl">
-                      <span className="bg-red-500 text-white font-bold rounded-lg px-4 py-1.5 text-xs tracking-wider shadow-lg">
-                        SOLD OUT
-                      </span>
-                    </div>
-                  )}
-                  {/* Premium Badge */}
-                  <div className="absolute top-4 left-4 z-10 px-2.5 py-1 bg-black/60  rounded-lg border border-white/10 flex items-center gap-1.5">
-                    <Star className="w-3 h-3 text-amber-400 fill-amber-400" />
-                    <span className="text-[9px] font-bold text-white tracking-widest uppercase">แนะนำ</span>
-                  </div>
-                </div>
-
-                <div className="p-3 sm:p-5 flex flex-col flex-1">
-                  <h3 className="font-bold text-white text-[13px] sm:text-[15px] leading-tight line-clamp-2 mb-2 group-hover:text-[#3B82F6] transition-colors">
-                    {product.name}
-                  </h3>
-                  <div className="mt-auto pt-2 sm:pt-4 flex flex-col gap-2 sm:gap-3">
-                    <div className="flex flex-wrap items-end justify-between gap-1 w-full overflow-hidden">
-                        <div className="min-w-0">
-                            {product.originalPrice && product.price && product.originalPrice > product.price && (
-                                <div className="text-[9px] sm:text-[10px] text-zinc-500 line-through mb-0.5">
-                                ฿{(product.originalPrice || 0).toLocaleString()}
-                                </div>
-                            )}
-                            <div className="text-[#3B82F6] font-black text-sm sm:text-lg leading-none truncate">
-                                ฿{(product.price || 0).toLocaleString()}
-                            </div>
-                        </div>
-                        <div className="text-right shrink-0">
-                           <div className="text-[9px] sm:text-[10px] text-zinc-500 font-medium leading-none mb-1">คงเหลือ</div>
-                           <div className={`text-[10px] sm:text-xs font-bold leading-none ${product.stock > 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-                               {product.stock >= 999999 ? "ไม่จำกัด" : `${product.stock} ชิ้น`}
-                           </div>
-                        </div>
-                    </div>
-
-                    {product.stock <= 0 ? (
-                      <button className="w-full bg-zinc-800/50 text-zinc-500 border border-zinc-800 rounded-xl py-2 sm:py-3 text-xs sm:text-sm font-bold flex items-center justify-center gap-2 cursor-not-allowed">
-                        <Package className="w-4 h-4" /> สินค้าหมด
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => onProductClick(product.id)}
-                        className="w-full from-[#3B82F6] to-cyan-500 text-white rounded-xl py-2 sm:py-3 text-xs sm:text-sm font-bold shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2"
-                      >
-                        <ShoppingCart className="w-4 h-4" /> สั่งซื้อเลย
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </motion.div>
+                {cat.title}
+              </button>
             ))}
+          </div>
+
+          {/* Product Items Display Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-5 mt-4">
+            {filteredProducts.length === 0 ? (
+              <div className="col-span-full py-16 text-center border border-dashed border-zinc-800 rounded-3xl bg-zinc-950/20">
+                <Package className="w-10 h-10 text-zinc-650 mx-auto mb-3" />
+                <p className="text-zinc-400 font-bold text-sm">ไม่พบรายการสินค้าที่ค้นหา</p>
+                <p className="text-zinc-550 text-xs mt-1">กรุณาลองเปลี่ยนแถบประเภทหรือเปิดเมนูตัวเลือกอื่น</p>
+                <button
+                  onClick={() => { setActiveTab("all"); setInStockOnly(false); }}
+                  className="mt-4 px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-xl text-xs font-bold hover:text-white"
+                >
+                  คืนค่าเริ่มต้น
+                </button>
+              </div>
+            ) : (
+              filteredProducts.map((product, i) => {
+                const discountPct = product.originalPrice && product.originalPrice > product.price
+                  ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
+                  : 0;
+                
+                const isSpecialHot = product.isPopular || product.tag?.toLowerCase().includes("hot") || product.tag?.toLowerCase().includes("best");
+
+                return (
+                  <motion.div
+                    key={product.id}
+                    initial={{ opacity: 0, scale: 0.97, y: 15 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    transition={{ duration: 0.35, delay: Math.min(i * 0.04, 0.4), ease: "easeOut" }}
+                    className="flex flex-col bg-zinc-900/60 border border-white/5 rounded-2xl overflow-hidden hover:scale-[1.02] hover:border-[#9b59f5]/30 hover:shadow-[0_8px_25px_rgba(0,0,0,0.45)] group transition-all duration-300 h-full"
+                  >
+                    
+                    {/* Thumbnail & Badges Container */}
+                    <div className="aspect-square bg-zinc-950 relative overflow-hidden p-2 group-hover:bg-zinc-900/35 transition-colors duration-300">
+                      
+                      {/* Interactive Tags Row */}
+                      <div className="absolute top-4 left-4 right-4 z-10 flex items-start justify-between gap-2 pointer-events-none">
+                        <div className="flex flex-col gap-1 items-start">
+                          {isSpecialHot && (
+                            <span className="bg-gradient-to-r from-red-500 to-orange-500 text-white font-black text-[9px] px-2 py-0.5 rounded shadow-md uppercase tracking-wider">
+                              POPULAR
+                            </span>
+                          )}
+                          {product.tag && !isSpecialHot && (
+                            <span className="bg-[#9b59f5] text-white font-bold text-[9px] px-2 py-0.5 rounded shadow-sm uppercase tracking-wide">
+                              {product.tag}
+                            </span>
+                          )}
+                        </div>
+
+                        {discountPct > 0 && (
+                          <div className="bg-emerald-500 text-white font-black text-xs px-2 py-0.5 rounded shadow-lg uppercase tracking-wider flex items-center">
+                            -{discountPct}%
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Sold Out / Out Of Stock Mask */}
+                      {product.stock <= 0 && (
+                        <div className="absolute inset-0 bg-black/75 flex flex-col items-center justify-center z-10">
+                          <span className="bg-red-500 text-white font-black rounded-xl px-4 py-1.5 text-[10px] tracking-widest shadow-xl border border-red-400/20 animate-pulse">
+                            OUT OF STOCK
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Product Visual */}
+                      <div className="w-full h-full rounded-xl overflow-hidden relative bg-zinc-950">
+                        {product.imageUrl ? (
+                          <img
+                            loading="lazy"
+                            src={product.imageUrl}
+                            alt={product.name}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex flex-col items-center justify-center border border-white/5 opacity-50 bg-zinc-900">
+                            <Box className="w-8 h-8 text-zinc-500 mb-1" />
+                            <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">STORETH</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Hover action button overlay */}
+                      {product.stock > 0 && (
+                        <div 
+                          onClick={() => onProductClick(product.id)}
+                          className="cursor-pointer absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center z-10"
+                        >
+                          <span className="bg-white text-black font-extrabold text-[11px] uppercase tracking-wider px-4 py-2 rounded-xl shadow-lg hover:scale-105 transition-transform">
+                            รายละเอียดสินค้า
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Meta/Description Text */}
+                    <div className="p-4 sm:p-5 flex flex-col flex-1 bg-zinc-900/30">
+                      
+                      {/* Name / Category */}
+                      <div className="mb-2">
+                        <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-wider block mb-0.5">
+                          {product.category || "General Digital"}
+                        </span>
+                        <h3 className="font-bold text-zinc-100 text-xs sm:text-sm leading-snug line-clamp-2 h-9 sm:h-10 group-hover:text-purple-300 transition-colors duration-200">
+                          {product.name}
+                        </h3>
+                      </div>
+
+                      {/* Price Grid representation */}
+                      <div className="mt-auto pt-4 flex items-end justify-between border-t border-white/5">
+                        
+                        {/* Prices block */}
+                        <div className="min-w-0 flex flex-col">
+                          {product.originalPrice && product.originalPrice > product.price ? (
+                            <span className="text-[10px] text-zinc-550 line-through leading-none mb-1">
+                              ฿{(product.originalPrice || 0).toLocaleString()}
+                            </span>
+                          ) : (
+                            <span className="text-[10px] text-transparent leading-none mb-1">.</span>
+                          )}
+                          <span className="text-white font-extrabold text-sm sm:text-base leading-none tracking-tight flex items-baseline gap-0.5 font-mono">
+                            <span className="text-xs text-purple-400">฿</span>
+                            {(product.price || 0).toLocaleString()}
+                          </span>
+                        </div>
+
+                        {/* Stock Balance bar status */}
+                        <div className="text-right shrink-0">
+                          <span className="text-[9px] text-zinc-500 font-bold block leading-none mb-1 uppercase tracking-wider">คงเหลือ</span>
+                          <span className={`text-[10px] font-black leading-none ${product.stock > 0 ? 'text-cyan-400' : 'text-red-400'}`}>
+                            {product.stock >= 999999 ? "INFINITE" : `${product.stock} ชิ้น`}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Full-width Instant Action Trigger */}
+                      <div className="mt-4">
+                        {product.stock <= 0 ? (
+                          <button
+                            disabled
+                            className="w-full bg-zinc-800 text-zinc-600 rounded-xl py-2.5 text-xs font-bold cursor-not-allowed flex items-center justify-center gap-1.5"
+                          >
+                            <Package className="w-3.5 h-3.5" /> สินค้าหมด
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => onProductClick(product.id)}
+                            className="w-full bg-zinc-800 hover:bg-[#9b59f5] border border-white/5 hover:border-[#9b59f5] text-white hover:text-white rounded-xl py-2.5 text-xs font-extrabold transition-all active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer shadow-sm hover:shadow-[0_4px_12px_rgba(155,89,245,0.25)]"
+                          >
+                            <ShoppingCart className="w-3.5 h-3.5" /> สั่งซื้อด่วน
+                          </button>
+                        )}
+                      </div>
+
+                    </div>
+                  </motion.div>
+                );
+              })
+            )}
           </div>
         </div>
       </AnimatedScroll>
+
     </div>
   );
 };
