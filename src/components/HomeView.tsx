@@ -47,6 +47,45 @@ interface HomeViewProps {
   onSelectCategory: (categoryId: string) => void;
 }
 
+interface SmoothScrollSectionProps {
+  children: React.ReactNode;
+  direction?: "left" | "right" | "up" | "down";
+  delay?: number;
+  className?: string;
+}
+
+const SmoothScrollSection: React.FC<SmoothScrollSectionProps> = ({
+  children,
+  direction = "up",
+  delay = 0,
+  className = "",
+}) => {
+  let initialX = 0;
+  let initialY = 0;
+
+  if (direction === "left") initialX = -45;
+  else if (direction === "right") initialX = 45;
+  else if (direction === "up") initialY = 35;
+  else if (direction === "down") initialY = -35;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: initialX, y: initialY, filter: "blur(3px)", scale: 0.98 }}
+      whileInView={{ opacity: 1, x: 0, y: 0, filter: "blur(0px)", scale: 1 }}
+      viewport={{ once: false, amount: 0.05, margin: "0px 0px -40px 0px" }}
+      transition={{
+        type: "spring",
+        stiffness: 95,
+        damping: 18,
+        delay: delay / 1000,
+      }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+};
+
 const DEFAULT_BANNERS = ["https://img1.pic.in.th/images/-81_20260601213128.png"];
 
 const NumberTicker = ({ value }: { value: number }) => {
@@ -193,7 +232,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
     <div className="w-full overflow-hidden space-y-8 pb-32 font-sans text-white mt-1 sm:mt-2 max-w-7xl mx-auto px-4 md:px-6">
       
       {/* 1. Elegant Banner Carousel with dynamic navigation overlay */}
-      <AnimatedScroll>
+      <SmoothScrollSection direction="left" delay={50} className="w-full">
         <div className="relative w-full aspect-[21/9] md:aspect-[21/5] rounded-2xl overflow-hidden group border border-white/5 bg-zinc-950/60 shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
           <AnimatePresence mode="wait">
             <motion.div
@@ -253,10 +292,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
             </div>
           )}
         </div>
-      </AnimatedScroll>
+      </SmoothScrollSection>
 
       {/* 2. Announcement Marquee Bar with gradient glow */}
-      <AnimatedScroll delay={50} direction="up">
+      <SmoothScrollSection delay={50} direction="right" className="w-full">
         <div className="bg-zinc-900/40 backdrop-blur-md rounded-xl border border-white/5 py-3 px-5 flex items-center gap-4 relative overflow-hidden shadow-lg">
           <div className="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-[#0066ff] to-cyan-500" />
           <div className="flex items-center gap-2.5 shrink-0 z-10 text-[#0066ff]">
@@ -278,14 +317,14 @@ export const HomeView: React.FC<HomeViewProps> = ({
             />
           </div>
         </div>
-      </AnimatedScroll>
+      </SmoothScrollSection>
 
       {/* 3. High-Contrast Gamer Stats Cluster */}
-      <AnimatedScroll delay={100} direction="up">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5">
-          
-          {/* Card 1: Total Sales */}
-          <div className="relative overflow-hidden bg-zinc-900/60 rounded-2xl p-4 sm:p-5 border border-white/5 shadow-md hover:border-white/10 hover:shadow-lg group transition-all duration-300 flex items-center gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5">
+        
+        {/* Card 1: Total Sales */}
+        <SmoothScrollSection direction="left" delay={50} className="w-full">
+          <div className="relative overflow-hidden bg-zinc-900/60 rounded-2xl p-4 sm:p-5 border border-white/5 shadow-md hover:border-white/10 hover:shadow-lg group transition-all duration-300 flex items-center gap-4 h-full">
             <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-300">
               <ShoppingCart className="w-5 h-5 text-emerald-400" />
             </div>
@@ -302,9 +341,11 @@ export const HomeView: React.FC<HomeViewProps> = ({
               <ShoppingCart className="w-24 h-24" />
             </div>
           </div>
+        </SmoothScrollSection>
 
-          {/* Card 2: Total Stock */}
-          <div className="relative overflow-hidden bg-zinc-900/60 rounded-2xl p-4 sm:p-5 border border-white/5 shadow-md hover:border-white/10 hover:shadow-lg group transition-all duration-300 flex items-center gap-4">
+        {/* Card 2: Total Stock */}
+        <SmoothScrollSection direction="right" delay={100} className="w-full">
+          <div className="relative overflow-hidden bg-zinc-900/60 rounded-2xl p-4 sm:p-5 border border-white/5 shadow-md hover:border-white/10 hover:shadow-lg group transition-all duration-300 flex items-center gap-4 h-full">
             <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-300">
               <Package className="w-5 h-5 text-cyan-400" />
             </div>
@@ -321,9 +362,11 @@ export const HomeView: React.FC<HomeViewProps> = ({
               <Package className="w-24 h-24" />
             </div>
           </div>
+        </SmoothScrollSection>
 
-          {/* Card 3: Total Members */}
-          <div className="relative overflow-hidden bg-zinc-900/60 rounded-2xl p-4 sm:p-5 border border-white/5 shadow-md hover:border-white/10 hover:shadow-lg group transition-all duration-300 flex items-center gap-4">
+        {/* Card 3: Total Members */}
+        <SmoothScrollSection direction="left" delay={150} className="w-full">
+          <div className="relative overflow-hidden bg-zinc-900/60 rounded-2xl p-4 sm:p-5 border border-white/5 shadow-md hover:border-white/10 hover:shadow-lg group transition-all duration-300 flex items-center gap-4 h-full">
             <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-300">
               <Users className="w-5 h-5 text-amber-400" />
             </div>
@@ -340,11 +383,13 @@ export const HomeView: React.FC<HomeViewProps> = ({
               <Users className="w-24 h-24" />
             </div>
           </div>
+        </SmoothScrollSection>
 
-          {/* Card 4: Wallet Balance (Interactive to wallet trigger) */}
+        {/* Card 4: Wallet Balance (Interactive to wallet trigger) */}
+        <SmoothScrollSection direction="right" delay={200} className="w-full">
           <div 
             onClick={() => setActiveView("wallet")}
-            className="cursor-pointer relative overflow-hidden bg-zinc-900/60 rounded-2xl p-4 sm:p-5 border border-blue-500/20 hover:border-blue-500/40 shadow-md hover:shadow-[0_0_15px_rgba(0,102,255,0.15)] group transition-all duration-300 flex items-center gap-4"
+            className="cursor-pointer relative overflow-hidden bg-zinc-900/60 rounded-2xl p-4 sm:p-5 border border-blue-500/20 hover:border-blue-500/40 shadow-md hover:shadow-[0_0_15px_rgba(0,102,255,0.15)] group transition-all duration-300 flex items-center gap-4 h-full"
           >
             <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#0066ff]/15 border border-[#0066ff]/35 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-300">
               <Wallet className="w-5 h-5 text-[#66a3ff]" />
@@ -362,14 +407,14 @@ export const HomeView: React.FC<HomeViewProps> = ({
               <ChevronRight className="w-3.5 h-3.5" />
             </div>
           </div>
+        </SmoothScrollSection>
 
-        </div>
-      </AnimatedScroll>
+      </div>
 
       {/* 4. Service Advantage Section */}
-      <AnimatedScroll delay={150} direction="up">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-5 bg-zinc-900/35 border border-white/5 rounded-2xl">
-          <div className="flex items-start gap-3.5">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <SmoothScrollSection direction="left" delay={50} className="w-full">
+          <div className="flex items-start gap-3.5 p-5 bg-zinc-900/35 border border-white/5 rounded-2xl h-full mb-0">
             <div className="p-2.5 rounded-xl bg-[#0066ff]/10 border border-[#0066ff]/20 text-[#66a3ff]">
               <Zap className="w-5 h-5" />
             </div>
@@ -378,7 +423,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
               <p className="text-xs text-zinc-400 leading-relaxed">ได้รับสินค้า คีย์ ใบเสร็จ ทันทีผ่านหน้าเว็บและประวัติส่วนตัว ตลอด 24 ชม.</p>
             </div>
           </div>
-          <div className="flex items-start gap-3.5 border-t md:border-t-0 md:border-x border-zinc-800/80 pt-4 md:pt-0 md:px-5">
+        </SmoothScrollSection>
+
+        <SmoothScrollSection direction="up" delay={100} className="w-full">
+          <div className="flex items-start gap-3.5 p-5 bg-zinc-900/35 border border-white/5 rounded-2xl h-full mb-0">
             <div className="p-2.5 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400">
               <Shield className="w-5 h-5" />
             </div>
@@ -387,7 +435,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
               <p className="text-xs text-zinc-400 leading-relaxed">ข้อมูลและสิทธิ์ของสมาชิกถูกปกป้องด้วยฐานข้อมูลที่มีความปลอดภัยสูงสุด</p>
             </div>
           </div>
-          <div className="flex items-start gap-3.5 border-t md:border-t-0 border-zinc-800/80 pt-4 md:pt-0">
+        </SmoothScrollSection>
+
+        <SmoothScrollSection direction="right" delay={150} className="w-full">
+          <div className="flex items-start gap-3.5 p-5 bg-zinc-900/35 border border-white/5 rounded-2xl h-full mb-0">
             <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
               <Sparkles className="w-5 h-5" />
             </div>
@@ -396,12 +447,12 @@ export const HomeView: React.FC<HomeViewProps> = ({
               <p className="text-xs text-zinc-400 leading-relaxed">สินค้าทุกคีย์ใช้งานได้จริง มีปัญหาเครมได้รวดเร็วผ่านเจ้าหน้าที่เทคนิค</p>
             </div>
           </div>
-        </div>
-      </AnimatedScroll>
+        </SmoothScrollSection>
+      </div>
 
       {/* 5. Recommended Categories Grid */}
-      <AnimatedScroll delay={200} direction="left">
-        <div className="space-y-5">
+      <div className="space-y-5">
+        <SmoothScrollSection direction="left" delay={50} className="w-full">
           <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-zinc-900 border border-zinc-800 rounded-xl flex items-center justify-center">
@@ -419,33 +470,41 @@ export const HomeView: React.FC<HomeViewProps> = ({
               ดูหมวดหมู่ทั้งหมด <ChevronRight className="w-4 h-4" />
             </button>
           </div>
+        </SmoothScrollSection>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {safeCategories.length === 0 ? (
-              <div className="col-span-full py-12 text-center text-zinc-500 text-xs border border-dashed border-zinc-800 rounded-2xl">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {safeCategories.length === 0 ? (
+            <SmoothScrollSection direction="up" delay={100} className="col-span-full">
+              <div className="py-12 text-center text-zinc-500 text-xs border border-dashed border-zinc-800 rounded-2xl">
                 ไม่พบหมวดหมู่สินค้าในขณะนี้
               </div>
-            ) : (
-              safeCategories.slice(0, 3).map((cat, i) => {
-                const catProducts = safeProducts.filter(
-                  p => p.category === cat.id || p.category === cat.name || p.category === cat.title
-                );
-                
-                let priceRangeStr = "ไม่ทราบราคา";
-                let itemCountDesc = `${catProducts.length} รายการในร้าน`;
+            </SmoothScrollSection>
+          ) : (
+            safeCategories.slice(0, 3).map((cat, i) => {
+              const catProducts = safeProducts.filter(
+                p => p.category === cat.id || p.category === cat.name || p.category === cat.title
+              );
+              
+              let priceRangeStr = "ไม่ทราบราคา";
+              let itemCountDesc = `${catProducts.length} รายการในร้าน`;
 
-                if (catProducts.length > 0) {
-                  const prices = catProducts.map(p => p.price);
-                  const minP = Math.min(...prices);
-                  const maxP = Math.max(...prices);
-                  priceRangeStr = minP === maxP
-                    ? `฿${minP.toLocaleString()}`
-                    : `฿${minP.toLocaleString()} - ฿${maxP.toLocaleString()}`;
-                }
+              if (catProducts.length > 0) {
+                const prices = catProducts.map(p => p.price);
+                const minP = Math.min(...prices);
+                const maxP = Math.max(...prices);
+                priceRangeStr = minP === maxP
+                  ? `฿${minP.toLocaleString()}`
+                  : `฿${minP.toLocaleString()} - ฿${maxP.toLocaleString()}`;
+              }
 
-                return (
+              return (
+                <SmoothScrollSection 
+                  key={cat.id} 
+                  direction={i % 2 === 0 ? "left" : "right"} 
+                  delay={i * 100} 
+                  className="w-full"
+                >
                   <CategoryCard
-                    key={cat.id}
                     title={cat.title}
                     label="STORETH"
                     itemCountDesc={itemCountDesc}
@@ -457,15 +516,15 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     glowColor="rgba(0, 102, 255, 0.2)"
                     gradientFrom="#111111"
                   />
-                );
-              })
-            )}
-          </div>
+                </SmoothScrollSection>
+              );
+            })
+          )}
         </div>
-      </AnimatedScroll>
+      </div>
 
       {/* 6. Live Purchase Activity Ticker */}
-      <AnimatedScroll delay={220} direction="right">
+      <SmoothScrollSection delay={50} direction="right" className="w-full">
         <div className="space-y-4">
           <div className="flex items-center gap-2.5">
             <span className="relative flex h-2 w-2">
@@ -574,13 +633,13 @@ export const HomeView: React.FC<HomeViewProps> = ({
             </motion.div>
           </div>
         </div>
-      </AnimatedScroll>
+      </SmoothScrollSection>
 
       {/* 7. Featured Products Grid (with interactive filter tabs) */}
-      <AnimatedScroll delay={250} direction="up">
-        <div id="products-showcase" className="pt-6 relative">
-          
-          {/* Header Action Section */}
+      <div id="products-showcase" className="pt-6 relative">
+        
+        {/* Header Action Section */}
+        <SmoothScrollSection direction="left" delay={50} className="w-full">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-zinc-800 mb-6">
             <div className="flex items-center gap-3.5">
               <div className="w-11 h-11 bg-zinc-900 border border-zinc-800 rounded-xl flex items-center justify-center text-amber-500 shadow-md">
@@ -608,8 +667,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
               </label>
             </div>
           </div>
+        </SmoothScrollSection>
 
-          {/* Interactive filter pills row */}
+        {/* Interactive filter pills row */}
+        <SmoothScrollSection direction="right" delay={100} className="w-full">
           <div className="flex items-center gap-1.5 overflow-x-auto pb-4 no-scrollbar">
             <button
               onClick={() => setActiveTab("all")}
@@ -657,8 +718,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
               </button>
             ))}
           </div>
+        </SmoothScrollSection>
 
-          {/* Product Items Display Grid */}
+        {/* Product Items Display Grid */}
+        <SmoothScrollSection direction="up" delay={150} className="w-full">
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-5 mt-4">
             {filteredProducts.length === 0 ? (
               <div className="col-span-full py-16 text-center border border-dashed border-zinc-800 rounded-3xl bg-zinc-950/20">
@@ -798,7 +861,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                         {product.stock <= 0 ? (
                           <button
                             disabled
-                            className="w-full bg-zinc-800 text-zinc-600 rounded-xl py-2.5 text-xs font-bold cursor-not-allowed flex items-center justify-center gap-1.5"
+                            className="w-full bg-zinc-800 text-zinc-650 rounded-xl py-2.5 text-xs font-bold cursor-not-allowed flex items-center justify-center gap-1.5"
                           >
                             <Package className="w-3.5 h-3.5" /> สินค้าหมด
                           </button>
@@ -818,9 +881,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
               })
             )}
           </div>
-        </div>
-      </AnimatedScroll>
-
+        </SmoothScrollSection>
+      </div>
     </div>
   );
 };
