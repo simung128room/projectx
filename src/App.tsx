@@ -2073,14 +2073,9 @@ function AppContent() {
             className="w-20 h-auto object-contain select-none drop-shadow-[0_0_20px_rgba(59,130,246,0.4)]"
           />
 
-          {/* Loading bar */}
-          <div className="w-48 h-[2px] bg-white/10 rounded-full overflow-hidden">
-            <motion.div
-              className="h-full bg-gradient-to-r from-[#3B82F6] to-cyan-400 rounded-full"
-              initial={{ x: "-100%" }}
-              animate={{ x: "100%" }}
-              transition={{ repeat: Infinity, duration: 1.4, ease: "easeInOut" }}
-            />
+          {/* Custom White 3D Fold Loader */}
+          <div className="flex items-center justify-center p-4">
+            <div className="page-loader-cube" />
           </div>
 
           {/* Loading text */}
@@ -2112,10 +2107,7 @@ function AppContent() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.1 }}
           >
-            <Loader
-              className="w-12 h-12 text-[#9b59f5] animate-spin"
-              strokeWidth={2}
-            />
+            <div className="page-loader-cube scale-75" />
           </motion.div>
         </div>
       )}
