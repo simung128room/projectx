@@ -109,8 +109,8 @@ async function uploadToSupabaseStorage(buffer: Buffer, originalName: string, mim
     throw new Error('Supabase is not configured');
   }
 
-  const fileExt = originalName.split('.').pop() || 'webp';
-  const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 11)}.${fileExt}`;
+  const safeBaseName = path.basename(originalName).replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 80) || 'upload';
+  const fileName = `${Date.now()}-${crypto.randomBytes(8).toString('hex')}-${safeBaseName.replace(/\.[^.]*$/, '')}.webp`;
   const bucketName = 'uploads';
 
   const { data, error } = await supabaseAdmin.storage
@@ -267,6 +267,18 @@ app.use((req: any, res: any, next: any) => {
 });
 
 app.get('/metrics', async (req, res) => {
+  const expectedToken = process.env.METRICS_TOKEN;
+  if (expectedToken) {
+    const authHeader = req.headers.authorization || '';
+    const suppliedToken = authHeader.startsWith('Bearer ')
+      ? authHeader.slice('Bearer '.length).trim()
+      : String(req.query.token || '');
+    const supplied = Buffer.from(suppliedToken);
+    const expected = Buffer.from(expectedToken);
+    if (supplied.length !== expected.length || !crypto.timingSafeEqual(supplied, expected)) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+  }
   res.set('Content-Type', client.register.contentType);
   res.end(await client.register.metrics());
 });
@@ -704,7 +716,7 @@ import healthRoute from './src/routes/health.route.js';
     upload.single('file')(req, res, (err) => {
       if (err) {
         console.error('Multer error:', err);
-        return res.status(500).json({ error: 'Upload failed: ' + err.message });
+        return res.status(err.code === 'LIMIT_FILE_SIZE' ? 413 : 400).json({ error: 'Upload failed: ' + err.message });
       }
       next();
     });
@@ -716,10 +728,13 @@ import healthRoute from './src/routes/health.route.js';
     }
     
     try {
-      const image = sharp(req.file.buffer);
+      const image = sharp(req.file.buffer, { limitInputPixels: 25_000_000 });
       const metadata = await image.metadata();
+      if (!metadata.width || !metadata.height || metadata.width > 8000 || metadata.height > 8000) {
+        return res.status(400).json({ error: 'Image dimensions are too large or invalid.' });
+      }
       
-      const sanitizedBuffer = await image.webp({ quality: 80 }).toBuffer();
+      const sanitizedBuffer = await image.rotate().webp({ quality: 80 }).toBuffer();
       const mimeType = 'image/webp';
       
       // Limit to 5MB after process
@@ -747,7 +762,7 @@ import healthRoute from './src/routes/health.route.js';
     communityUpload.single('file')(req, res, (err) => {
       if (err) {
         console.error('Multer error:', err);
-        return res.status(500).json({ error: 'Upload failed: ' + err.message });
+        return res.status(err.code === 'LIMIT_FILE_SIZE' ? 413 : 400).json({ error: 'Upload failed: ' + err.message });
       }
       next();
     });
@@ -759,10 +774,13 @@ import healthRoute from './src/routes/health.route.js';
     }
     
     try {
-      const image = sharp(req.file.buffer);
+      const image = sharp(req.file.buffer, { limitInputPixels: 25_000_000 });
       const metadata = await image.metadata();
+      if (!metadata.width || !metadata.height || metadata.width > 8000 || metadata.height > 8000) {
+        return res.status(400).json({ error: 'Image dimensions are too large or invalid.' });
+      }
       
-      const sanitizedBuffer = await image.webp({ quality: 80 }).toBuffer();
+      const sanitizedBuffer = await image.rotate().webp({ quality: 80 }).toBuffer();
       const mimeType = 'image/webp';
       
       // Limit to 5MB after process
@@ -813,8 +831,8 @@ import healthRoute from './src/routes/health.route.js';
     banners: ["https://img2.pic.in.th/-71_20260516210303.png"],
     spotify_url: 'https://youtu.be/WczSfh3gJaU?si=PI1i4X0p0FGbdEfq',
     spotify_autoplay: true,
-    proxies: ['http://e7221fa7-20b7-43a7-9f76-c69fbc35cdef@lv3.gen5.netmld.shop:8080'],
-    auto_proxy: true
+    proxies: process.env.PROXY_URL ? [process.env.PROXY_URL] : [],
+    auto_proxy: false
   };
 
   // Load from DB (HIGH-05: blocking start until loaded to prevent race conditions)
@@ -836,14 +854,68 @@ import healthRoute from './src/routes/health.route.js';
     console.log("Skipping site settings loading from Supabase: Supabase is not configured.");
   }
 
-  app.get('/api/settings', (req, res) => {
+  const isValidEmail = (value: unknown): value is string => {
+    return typeof value === 'string' && value.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+  };
+
+  const isStrongEnoughPassword = (value: unknown): value is string => {
+    return typeof value === 'string' && value.length >= 8 && value.length <= 128;
+  };
+
+  const isSafePublicUrl = (value: unknown): value is string => {
+    if (typeof value !== 'string') return false;
+    if (value.trim() === '') return true;
+    try {
+      const parsed = new URL(value);
+      return parsed.protocol === 'https:' || (process.env.NODE_ENV !== 'production' && parsed.protocol === 'http:');
+    } catch {
+      return false;
+    }
+  };
+
+  const normalizePublicUrls = (values: unknown): string[] => {
+    if (!Array.isArray(values)) return [];
+    return values
+      .map((value) => typeof value === 'string' ? value.trim() : '')
+      .filter((value) => value && isSafePublicUrl(value))
+      .slice(0, 20);
+  };
+
+  const toPublicSettings = (settings: any) => {
+    const {
+      truewallet_phone,
+      proxies,
+      auto_proxy,
+      ...publicSettings
+    } = settings || {};
+    return {
+      ...publicSettings,
+      banners: normalizePublicUrls(publicSettings.banners),
+      popup_img_url: isSafePublicUrl(publicSettings.popup_img_url) ? publicSettings.popup_img_url : '',
+      popup_link: isSafePublicUrl(publicSettings.popup_link) ? publicSettings.popup_link : '',
+      spotify_url: isSafePublicUrl(publicSettings.spotify_url) ? publicSettings.spotify_url : '',
+      discord_link: isSafePublicUrl(publicSettings.discord_link) ? publicSettings.discord_link : '',
+      facebook_link: isSafePublicUrl(publicSettings.facebook_link) ? publicSettings.facebook_link : '',
+      instagram_link: isSafePublicUrl(publicSettings.instagram_link) ? publicSettings.instagram_link : '',
+      contact_line: isSafePublicUrl(publicSettings.contact_line) ? publicSettings.contact_line : '',
+    };
+  };
+
+  app.get('/api/settings', (req: any, res) => {
+    if (req.isAdmin) {
+      res.setHeader('Cache-Control', 'no-store');
+      return res.json(siteSettings);
+    }
     res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=300, stale-while-revalidate=86400');
-    res.json(siteSettings);
+    res.json(toPublicSettings(siteSettings));
   });
 
   app.post('/api/reset-password', authLimiter, async (req, res) => {
     const { username, email, newPassword } = req.body;
     try {
+      if (typeof username !== 'string' || !username.trim() || username.length > 64 || !isValidEmail(email) || !isStrongEnoughPassword(newPassword)) {
+        return res.status(400).json({ error: 'ข้อมูลไม่ถูกต้องหรือรหัสผ่านสั้นเกินไป' });
+      }
       const generatedEmail = `${username.toLowerCase().replace(/\s+/g, '')}@apex-studio.com`;
       const usersSnapshot = await admin.firestore().collection('users')
         .where('email', '==', generatedEmail)
@@ -873,6 +945,9 @@ import healthRoute from './src/routes/health.route.js';
   app.post('/api/signup', authLimiter, async (req, res) => {
     const { email, password, recoveryEmail } = req.body;
     try {
+      if (!isValidEmail(email) || !isStrongEnoughPassword(password) || (recoveryEmail && !isValidEmail(recoveryEmail))) {
+        return res.status(400).json({ error: 'อีเมลหรือรหัสผ่านไม่ถูกต้อง' });
+      }
       const { data, error } = await supabaseAdmin.auth.admin.createUser({
         email,
         password,
@@ -907,10 +982,14 @@ import healthRoute from './src/routes/health.route.js';
 
   app.post('/api/settings', requireAdmin, async (req: any, res: any) => {
     console.log("=== POST /api/settings REACHED ===", req.body);
-    const { truewallet_phone, site_name, contact_line, stats_users_offset, stats_sales_offset, stats_categories_offset, stats_stock_offset, stats_users_override, stats_stock_override, stats_sales_override, stats_categories_override, popup_img_url, popup_enabled, popup_link, banners, proxies, auto_proxy, spotify_url, spotify_autoplay } = req.body;
-    if (truewallet_phone !== undefined) siteSettings.truewallet_phone = truewallet_phone;
-    if (site_name !== undefined) siteSettings.site_name = site_name;
-    if (contact_line !== undefined) siteSettings.contact_line = contact_line;
+    const { truewallet_phone, site_name, contact_line, discord_link, facebook_link, instagram_link, contact_email, stats_users_offset, stats_sales_offset, stats_categories_offset, stats_stock_offset, stats_users_override, stats_stock_override, stats_sales_override, stats_categories_override, popup_img_url, popup_enabled, popup_link, banners, proxies, auto_proxy, spotify_url, spotify_autoplay } = req.body;
+    if (truewallet_phone !== undefined) siteSettings.truewallet_phone = String(truewallet_phone).replace(/[^0-9+]/g, '').slice(0, 20);
+    if (site_name !== undefined) siteSettings.site_name = String(site_name).trim().slice(0, 80);
+    if (contact_line !== undefined) siteSettings.contact_line = isSafePublicUrl(contact_line) ? contact_line : '';
+    if (discord_link !== undefined) siteSettings.discord_link = isSafePublicUrl(discord_link) ? discord_link : '';
+    if (facebook_link !== undefined) siteSettings.facebook_link = isSafePublicUrl(facebook_link) ? facebook_link : '';
+    if (instagram_link !== undefined) siteSettings.instagram_link = isSafePublicUrl(instagram_link) ? instagram_link : '';
+    if (contact_email !== undefined && isValidEmail(contact_email)) siteSettings.contact_email = contact_email;
     if (stats_users_offset !== undefined) siteSettings.stats_users_offset = parseInt(stats_users_offset) || 0;
     if (stats_sales_offset !== undefined) siteSettings.stats_sales_offset = parseInt(stats_sales_offset) || 0;
     if (stats_categories_offset !== undefined) siteSettings.stats_categories_offset = parseInt(stats_categories_offset) || 0;
@@ -919,13 +998,13 @@ import healthRoute from './src/routes/health.route.js';
     if (stats_stock_override !== undefined) siteSettings.stats_stock_override = stats_stock_override === null || isNaN(parseInt(stats_stock_override)) ? null : parseInt(stats_stock_override);
     if (stats_sales_override !== undefined) siteSettings.stats_sales_override = stats_sales_override === null || isNaN(parseInt(stats_sales_override)) ? null : parseInt(stats_sales_override);
     if (stats_categories_override !== undefined) siteSettings.stats_categories_override = stats_categories_override === null || isNaN(parseInt(stats_categories_override)) ? null : parseInt(stats_categories_override);
-    if (popup_img_url !== undefined) siteSettings.popup_img_url = popup_img_url;
+    if (popup_img_url !== undefined) siteSettings.popup_img_url = isSafePublicUrl(popup_img_url) ? popup_img_url : '';
     if (popup_enabled !== undefined) siteSettings.popup_enabled = popup_enabled === true || popup_enabled === 'true';
-    if (popup_link !== undefined) siteSettings.popup_link = popup_link;
-    if (spotify_url !== undefined) siteSettings.spotify_url = spotify_url;
+    if (popup_link !== undefined) siteSettings.popup_link = isSafePublicUrl(popup_link) ? popup_link : '';
+    if (spotify_url !== undefined) siteSettings.spotify_url = isSafePublicUrl(spotify_url) ? spotify_url : '';
     if (spotify_autoplay !== undefined) siteSettings.spotify_autoplay = spotify_autoplay === true || spotify_autoplay === 'true';
-    if (banners !== undefined && Array.isArray(banners)) siteSettings.banners = banners;
-    if (proxies !== undefined && Array.isArray(proxies)) siteSettings.proxies = proxies;
+    if (banners !== undefined && Array.isArray(banners)) siteSettings.banners = normalizePublicUrls(banners);
+    if (proxies !== undefined && Array.isArray(proxies)) siteSettings.proxies = proxies.map((p: unknown) => typeof p === 'string' ? p.trim() : '').filter(Boolean).slice(0, 100);
     if (auto_proxy !== undefined) siteSettings.auto_proxy = auto_proxy === true || auto_proxy === 'true';
     
     // Clear cached stats so they refresh next time someone calls /api/stats
@@ -3410,7 +3489,7 @@ const diskUpload = multer({ dest: 'uploads/' });
     try {
       const { uid } = req.params;
       const { password } = req.body;
-      if (!password) return res.status(400).json({ error: 'Missing password' });
+      if (!isStrongEnoughPassword(password)) return res.status(400).json({ error: 'Password must be 8-128 characters' });
       await supabaseAdmin.auth.admin.updateUserById(uid, { password });
       res.json({ success: true });
     } catch (err: any) {
@@ -3474,7 +3553,7 @@ const diskUpload = multer({ dest: 'uploads/' });
 
   // /api/bot/status and globalBot variables removed
 
-  app.get('/bot-code', (req, res) => {
+  app.get('/bot-code', requireAdmin, (req, res) => {
     try {
         const cfgPath = path.join(os.tmpdir(), 'bot.py');
         if (fs.existsSync(cfgPath)) {
@@ -3744,7 +3823,7 @@ const diskUpload = multer({ dest: 'uploads/' });
       }
   });
 
-  app.post('/api/telegram/catcher/submit', async (req, res) => {
+  app.post('/api/telegram/catcher/submit', requireAuth, async (req, res) => {
       const { sessionId, type, value } = req.body;
       const sess = tgSessions.get(sessionId);
       if (!sess) return res.status(400).json({ error: 'ไม่พบเซสชั่น' });
@@ -3760,7 +3839,7 @@ const diskUpload = multer({ dest: 'uploads/' });
       res.json({ success: true });
   });
 
-  app.post('/api/telegram/catcher/status', async (req, res) => {
+  app.post('/api/telegram/catcher/status', requireAuth, async (req, res) => {
       const { sessionId } = req.body;
       const sess = tgSessions.get(sessionId);
       if (!sess) return res.json({ status: 'none', logs: [] });
@@ -3918,7 +3997,7 @@ const diskUpload = multer({ dest: 'uploads/' });
       }
   });
 
-  app.get('/api/discord/token-on/status', async (req, res) => {
+  app.get('/api/discord/token-on/status', requireAuth, async (req, res) => {
       const token = req.query.token as string;
       const sess = discordTokenOnSessions.get(token);
       if (!sess) return res.json({ status: 'none', logs: [] });
@@ -4099,7 +4178,7 @@ const diskUpload = multer({ dest: 'uploads/' });
       }
   });
 
-  app.post('/api/discord/catcher/status', async (req, res) => {
+  app.post('/api/discord/catcher/status', requireAuth, async (req, res) => {
       const { sessionId } = req.body;
       const sess = discordSessions.get(sessionId);
       if (!sess) return res.json({ status: 'none', logs: [] });

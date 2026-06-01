@@ -1022,7 +1022,7 @@ function AppContent() {
 
       const fetchApi = async (url: string) => {
         try {
-          const res = await axios.get(url, { signal: controller.signal });
+          const res = await publicAxios.get(url, { signal: controller.signal });
           
           if (currentRequestId !== fetchRequestId.current) {
             console.log(`Aborting stale response for ${url}`);
