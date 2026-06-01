@@ -1045,42 +1045,51 @@ import healthRoute from './src/routes/health.route.js';
           if (uid) {
             try {
               const userRef = admin.firestore().collection('users').doc(uid);
-              const userDoc = await userRef.get();
-              if (userDoc.exists) {
-                const currentBalance = userDoc.data().balance || 0;
-                await userRef.update({ balance: currentBalance + amount });
-                console.log(`[TrueWallet] Updated balance for user ${uid} (+฿${amount})`);
-                
-                // Add to topups history
-                const topupDoc = {
-                  id: crypto.randomUUID(),
-                  userId: userDoc.data().username || 'Unknown',
-                  uid: uid,
-                  amount: amount,
-                  date: new Date().toISOString(),
-                  type: 'truewallet',
-                  money: amount,
-                  title: 'เติมเงินสำเร็จ',
-                  image: 'https://img1.pic.in.th/images/IMG_6162.png'
-                };
-                await admin.firestore().collection('topups').add(topupDoc);
-                
-                await voucherRef.update({
-                  status: 'completed',
-                  amount: amount
-                });
-                
-                return res.json({ 
-                  success: true, 
-                  amount,
-                  message: result.message || 'รับเงินสำเร็จ',
-                  topup: topupDoc
-                });
-              } else {
-                await voucherRef.delete().catch(() => {});
-                return res.json({ success: false, error: 'ข้อมูลสมาชิกไม่ถูกต้อง' });
+              let finalBalance = 0;
+              let topupDoc: any = null;
+              await admin.firestore().runTransaction(async (t) => {
+                 const uDoc = await t.get(userRef);
+                 if (uDoc.exists) {
+                    const currentBalance = uDoc.data().balance || 0;
+                    finalBalance = currentBalance + amount;
+                    t.update(userRef, { balance: finalBalance });
+                    
+                    topupDoc = {
+                      id: crypto.randomUUID(),
+                      userId: uDoc.data().username || 'Unknown',
+                      uid: uid,
+                      amount: amount,
+                      date: new Date().toISOString(),
+                      type: 'truewallet',
+                      money: amount,
+                      title: 'เติมเงินสำเร็จ',
+                      image: 'https://img1.pic.in.th/images/IMG_6162.png'
+                    };
+                    const topupRef = admin.firestore().collection('topups').doc(topupDoc.id);
+                    t.set(topupRef, topupDoc);
+                    
+                    t.update(voucherRef, {
+                      status: 'completed',
+                      amount: amount
+                    });
+                 } else {
+                     throw new Error('USER_NOT_FOUND');
+                 }
+              });
+
+              console.log(`[TrueWallet] Updated balance for user ${uid} (+฿${amount})`);
+              
+              return res.json({ 
+                success: true, 
+                amount,
+                message: result.message || 'รับเงินสำเร็จ',
+                topup: topupDoc
+              });
+            } catch (syncErr: any) {
+              if (syncErr.message === 'USER_NOT_FOUND') {
+                 await voucherRef.delete().catch(() => {});
+                 return res.json({ success: false, error: 'ข้อมูลสมาชิกไม่ถูกต้อง' });
               }
-            } catch (syncErr) {
               console.error(`[TrueWallet] Balance sync error:`, syncErr);
             }
           }
@@ -1188,19 +1197,25 @@ import healthRoute from './src/routes/health.route.js';
         }
         
         if (transRef) {
-          // Check if used in DB
+          // Check if used in DB using a transaction to prevent race conditions
           try {
-             const existingRef = await admin.firestore().collection('slips').doc(transRef).get();
-             if (existingRef.exists) {
+             await admin.firestore().runTransaction(async (t) => {
+               const docRef = admin.firestore().collection('slips').doc(transRef);
+               const existingRef = await t.get(docRef);
+               if (existingRef.exists) {
+                  throw new Error('SLIP_USED');
+               }
+               t.set(docRef, {
+                 uid,
+                 amount,
+                 used_at: new Date().toISOString()
+               });
+             });
+          } catch(e: any) {
+             if (e.message === 'SLIP_USED') {
                 return res.json({ success: false, error: 'สลิปนี้ถูกใช้งานไปแล้ว (ตรวจสอบจากระบบ)' });
              }
-             await admin.firestore().collection('slips').doc(transRef).set({
-               uid,
-               amount,
-               used_at: new Date().toISOString()
-             });
-          } catch(e) {
-             // Fallback to local memory if DB fails
+             // Fallback to local memory if DB fails (not 100% safe but better than nothing)
              if (usedSlips.has(transRef)) {
                return res.json({ success: false, error: 'สลิปนี้ถูกใช้งานไปแล้ว (local)' });
              }
@@ -1211,31 +1226,39 @@ import healthRoute from './src/routes/health.route.js';
         if (uid) {
           try {
             const userRef = admin.firestore().collection('users').doc(uid);
-            const userDoc = await userRef.get();
-            if (userDoc.exists) {
-              const currentBalance = userDoc.data().balance || 0;
-              await userRef.update({ balance: currentBalance + amount });
-              console.log(`[Slip] Updated balance for user ${uid} (+฿${amount})`);
-              
-              // Add to topups history
-              const topupDoc = {
-                id: crypto.randomUUID(),
-                userId: userDoc.data().username || 'Unknown',
-                uid: uid,
-                amount: amount,
-                date: new Date().toISOString(),
-                type: 'slip',
-                money: amount,
-                title: 'เติมเงินสำเร็จ',
-                image: 'https://img2.pic.in.th/IMG_6166.png'
-              };
-              await admin.firestore().collection('topups').add(topupDoc);
-              
-              return res.json({ success: true, amount, topup: topupDoc });
-            } else {
-              return res.json({ success: false, error: 'ข้อมูลสมาชิกไม่ถูกต้อง' });
-            }
-          } catch (syncErr) {
+            let finalBalance = 0;
+            let topupDoc: any = null;
+            await admin.firestore().runTransaction(async (t) => {
+               const uDoc = await t.get(userRef);
+               if (uDoc.exists) {
+                  const currentBalance = uDoc.data().balance || 0;
+                  finalBalance = currentBalance + amount;
+                  t.update(userRef, { balance: finalBalance });
+                  
+                  topupDoc = {
+                    id: crypto.randomUUID(),
+                    userId: uDoc.data().username || 'Unknown',
+                    uid: uid,
+                    amount: amount,
+                    date: new Date().toISOString(),
+                    type: 'slip',
+                    money: amount,
+                    title: 'เติมเงินสำเร็จ',
+                    image: 'https://img2.pic.in.th/IMG_6166.png'
+                  };
+                  const topupRef = admin.firestore().collection('topups').doc(topupDoc.id);
+                  t.set(topupRef, topupDoc);
+               } else {
+                  throw new Error('USER_NOT_FOUND');
+               }
+            });
+
+            console.log(`[Slip] Updated balance for user ${uid} (+฿${amount})`);
+            return res.json({ success: true, amount, topup: topupDoc });
+          } catch (syncErr: any) {
+             if (syncErr.message === 'USER_NOT_FOUND') {
+                 return res.json({ success: false, error: 'ข้อมูลสมาชิกไม่ถูกต้อง' });
+             }
             console.error(`[Slip] Balance sync error:`, syncErr);
           }
         }
@@ -1314,7 +1337,8 @@ import healthRoute from './src/routes/health.route.js';
 
       // Since a batch check loop uses the same token, we cache verified tokens for 5 minutes
       const now = Date.now();
-      const cachedTime = turnstileCache.get(turnstileToken);
+      const cacheKey = turnstileToken + '_' + (req.ip || 'unknown');
+      const cachedTime = turnstileCache.get(cacheKey);
       
       if (cachedTime && (now - cachedTime < 5 * 60 * 1000)) {
          // Token is already verified and within 5 minute window
@@ -1323,12 +1347,13 @@ import healthRoute from './src/routes/health.route.js';
          const secretKey = process.env.TURNSTILE_SECRET_KEY || '';
          
          if (!secretKey) {
-             turnstileCache.set(turnstileToken, now);
+             turnstileCache.set(cacheKey, now);
          } else {
              try {
                const params = new URLSearchParams();
                params.append('secret', secretKey);
                params.append('response', turnstileToken);
+               if (req.ip) params.append('remoteip', req.ip);
   
            const turnstileResponse = await axios.post(
              'https://challenges.cloudflare.com/turnstile/v0/siteverify',
@@ -1346,7 +1371,7 @@ import healthRoute from './src/routes/health.route.js';
            }
   
            // Cache the successfully verified token
-           turnstileCache.set(turnstileToken, now);
+           turnstileCache.set(cacheKey, now);
            
            // Clean up old entries from cache every once in a while
            if (turnstileCache.size > 1000) {
@@ -2427,7 +2452,10 @@ const diskUpload = multer({ dest: 'uploads/' });
 
   app.post('/api/discord-rekey', async (req: any, res: any) => {
     const { key, secret, plan } = req.body;
-    const expectedSecret = process.env.DISCORD_BOT_SECRET || 'MY_SECRET_DISCORD_TOKEN_1234';
+    const expectedSecret = process.env.DISCORD_BOT_SECRET;
+    if (!expectedSecret) {
+      return res.status(500).json({ error: 'DISCORD_BOT_SECRET is not configured' });
+    }
     if (secret !== expectedSecret) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
@@ -2443,7 +2471,10 @@ const diskUpload = multer({ dest: 'uploads/' });
   app.post('/api/discord-redeem', async (req: any, res: any) => {
     const { key, secret } = req.body;
     // ตั้งค่ารหัสลับให้ตรงกันระหว่างเว็บกับบอท
-    const expectedSecret = process.env.DISCORD_BOT_SECRET || 'MY_SECRET_DISCORD_TOKEN_1234';
+    const expectedSecret = process.env.DISCORD_BOT_SECRET;
+    if (!expectedSecret) {
+      return res.status(500).json({ error: 'DISCORD_BOT_SECRET is not configured' });
+    }
     if (secret !== expectedSecret) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
@@ -3474,7 +3505,7 @@ const diskUpload = multer({ dest: 'uploads/' });
 
   // /api/bot/status and globalBot variables removed
 
-  app.get('/bot-code', (req, res) => {
+  app.get('/bot-code', requireAdmin, (req, res) => {
     try {
         const cfgPath = path.join(os.tmpdir(), 'bot.py');
         if (fs.existsSync(cfgPath)) {
