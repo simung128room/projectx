@@ -2023,7 +2023,11 @@ if (process.env.REDIS_URL) {
     }
   });
 
-const diskUpload = multer({ dest: 'uploads/' });
+const uploadDir = path.join(os.tmpdir(), 'uploads');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+const diskUpload = multer({ dest: uploadDir });
 
   // Stream-based large file stock upload
   app.post('/api/products/:id/stock-file', requireAdmin, diskUpload.single('file'), async (req, res) => {
