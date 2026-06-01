@@ -63,20 +63,21 @@ const SmoothScrollSection: React.FC<SmoothScrollSectionProps> = ({
   let initialX = 0;
   let initialY = 0;
 
-  if (direction === "left") initialX = -45;
-  else if (direction === "right") initialX = 45;
-  else if (direction === "up") initialY = 35;
-  else if (direction === "down") initialY = -35;
+  if (direction === "left") initialX = -60;
+  else if (direction === "right") initialX = 60;
+  else if (direction === "up") initialY = 40;
+  else if (direction === "down") initialY = -40;
 
   return (
     <motion.div
-      initial={{ opacity: 0, x: initialX, y: initialY, filter: "blur(3px)", scale: 0.98 }}
+      initial={{ opacity: 0, x: initialX, y: initialY, filter: "blur(4px)", scale: 0.95 }}
       whileInView={{ opacity: 1, x: 0, y: 0, filter: "blur(0px)", scale: 1 }}
-      viewport={{ once: false, amount: 0.05, margin: "0px 0px -40px 0px" }}
+      exit={{ opacity: 0, x: initialX, y: initialY, filter: "blur(4px)", scale: 0.95 }}
+      viewport={{ once: false, amount: 0.02, margin: "0px 0px -100px 0px" }}
       transition={{
         type: "spring",
-        stiffness: 95,
-        damping: 18,
+        stiffness: 85,
+        damping: 14,
         delay: delay / 1000,
       }}
       className={className}
@@ -345,20 +346,20 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
         {/* Card 2: Total Stock */}
         <SmoothScrollSection direction="right" delay={100} className="w-full">
-          <div className="relative overflow-hidden bg-zinc-900/60 rounded-2xl p-4 sm:p-5 border border-white/5 shadow-md hover:border-white/10 hover:shadow-lg group transition-all duration-300 flex items-center gap-4 h-full">
+          <div className="relative overflow-hidden bg-zinc-900/60 rounded-2xl p-4 sm:p-5 border border-white/5 shadow-md hover:border-white/10 hover:shadow-lg group transition-all duration-300 flex items-center gap-4 flex-row-reverse text-right justify-between h-full">
             <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-300">
               <Package className="w-5 h-5 text-cyan-400" />
             </div>
-            <div className="min-w-0 w-full">
+            <div className="min-w-0">
               <p className="text-[10px] sm:text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-0.5">พร้อมจำหน่าย</p>
-              <div className="flex items-baseline gap-1.5 flex-wrap">
+              <div className="flex items-baseline gap-1.5 flex-wrap justify-end">
                 <span className="text-lg sm:text-2xl font-black text-white leading-none">
                   <NumberTicker value={totalStockAvailable} />
                 </span>
                 <span className="text-[9px] font-bold text-cyan-400 leading-none">รายการ</span>
               </div>
             </div>
-            <div className="absolute right-0 bottom-0 translate-x-3 translate-y-3 opacity-[0.02] text-white">
+            <div className="absolute left-0 bottom-0 -translate-x-3 translate-y-3 opacity-[0.02] text-white">
               <Package className="w-24 h-24" />
             </div>
           </div>
@@ -389,22 +390,22 @@ export const HomeView: React.FC<HomeViewProps> = ({
         <SmoothScrollSection direction="right" delay={200} className="w-full">
           <div 
             onClick={() => setActiveView("wallet")}
-            className="cursor-pointer relative overflow-hidden bg-zinc-900/60 rounded-2xl p-4 sm:p-5 border border-blue-500/20 hover:border-blue-500/40 shadow-md hover:shadow-[0_0_15px_rgba(0,102,255,0.15)] group transition-all duration-300 flex items-center gap-4 h-full"
+            className="cursor-pointer relative overflow-hidden bg-zinc-900/60 rounded-2xl p-4 sm:p-5 border border-blue-500/20 hover:border-blue-500/40 shadow-md hover:shadow-[0_0_15px_rgba(0,102,255,0.15)] group transition-all duration-300 flex items-center gap-4 flex-row-reverse text-right justify-between h-full"
           >
             <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#0066ff]/15 border border-[#0066ff]/35 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-300">
               <Wallet className="w-5 h-5 text-[#66a3ff]" />
             </div>
-            <div className="min-w-0 w-full">
+            <div className="min-w-0">
               <p className="text-[10px] sm:text-xs font-semibold text-blue-300 uppercase tracking-wider mb-0.5">กระเป๋าเงินของคุณ</p>
-              <div className="flex items-baseline gap-1 flex-wrap">
+              <div className="flex items-baseline gap-1 flex-wrap justify-end">
                 <span className="text-sm sm:text-base font-bold text-blue-300 leading-none mr-0.5">฿</span>
                 <span className="text-lg sm:text-2xl font-black text-white leading-none">
                   {user ? (user.balance || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0.00"}
                 </span>
               </div>
             </div>
-            <div className="absolute right-3 top-3 bg-[#0066ff]/10 text-[#66a3ff] rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              <ChevronRight className="w-3.5 h-3.5" />
+            <div className="absolute left-3 top-3 bg-[#0066ff]/10 text-[#66a3ff] rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              <ChevronRight className="w-3.5 h-3.5 rotate-180" />
             </div>
           </div>
         </SmoothScrollSection>
@@ -425,19 +426,19 @@ export const HomeView: React.FC<HomeViewProps> = ({
           </div>
         </SmoothScrollSection>
 
-        <SmoothScrollSection direction="up" delay={100} className="w-full">
-          <div className="flex items-start gap-3.5 p-5 bg-zinc-900/35 border border-white/5 rounded-2xl h-full mb-0">
+        <SmoothScrollSection direction="right" delay={100} className="w-full">
+          <div className="flex items-start gap-3.5 p-5 bg-zinc-900/35 border border-white/5 rounded-2xl h-full mb-0 flex-row-reverse text-right">
             <div className="p-2.5 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400">
               <Shield className="w-5 h-5" />
             </div>
-            <div>
+            <div className="flex-1">
               <h4 className="text-sm font-bold text-white mb-0.5">ธรรมาภิบาลและความปลอดภัย</h4>
               <p className="text-xs text-zinc-400 leading-relaxed">ข้อมูลและสิทธิ์ของสมาชิกถูกปกป้องด้วยฐานข้อมูลที่มีความปลอดภัยสูงสุด</p>
             </div>
           </div>
         </SmoothScrollSection>
 
-        <SmoothScrollSection direction="right" delay={150} className="w-full">
+        <SmoothScrollSection direction="left" delay={150} className="w-full">
           <div className="flex items-start gap-3.5 p-5 bg-zinc-900/35 border border-white/5 rounded-2xl h-full mb-0">
             <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
               <Sparkles className="w-5 h-5" />
@@ -721,10 +722,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
         </SmoothScrollSection>
 
         {/* Product Items Display Grid */}
-        <SmoothScrollSection direction="up" delay={150} className="w-full">
+        <div className="w-full">
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-5 mt-4">
             {filteredProducts.length === 0 ? (
-              <div className="col-span-full py-16 text-center border border-dashed border-zinc-800 rounded-3xl bg-zinc-950/20">
+              <div className="col-span-full py-16 text-center border border-dashed border-zinc-800 rounded-3xl bg-zinc-950/20 w-full">
                 <Package className="w-10 h-10 text-zinc-650 mx-auto mb-3" />
                 <p className="text-zinc-400 font-bold text-sm">ไม่พบรายการสินค้าที่ค้นหา</p>
                 <p className="text-zinc-550 text-xs mt-1">กรุณาลองเปลี่ยนแถบประเภทหรือเปิดเมนูตัวเลือกอื่น</p>
@@ -744,144 +745,151 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 const isSpecialHot = product.isPopular || product.tag?.toLowerCase().includes("hot") || product.tag?.toLowerCase().includes("best");
 
                 return (
-                  <motion.div
+                  <SmoothScrollSection
                     key={product.id}
-                    initial={{ opacity: 0, scale: 0.97, y: 15 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    transition={{ duration: 0.35, delay: Math.min(i * 0.04, 0.4), ease: "easeOut" }}
-                    className="flex flex-col bg-zinc-900/60 border border-white/5 rounded-2xl overflow-hidden hover:scale-[1.02] hover:border-[#0066ff]/30 hover:shadow-[0_8px_25px_rgba(0,0,0,0.45)] group transition-all duration-300 h-full"
+                    direction={i % 2 === 0 ? "left" : "right"}
+                    delay={(i % 4) * 60}
+                    className="h-full"
                   >
-                    
-                    {/* Thumbnail & Badges Container */}
-                    <div className="aspect-square bg-zinc-950 relative overflow-hidden p-2 group-hover:bg-zinc-900/35 transition-colors duration-300">
+                    <div className="flex flex-col bg-zinc-900/60 border border-white/5 rounded-2xl overflow-hidden hover:scale-[1.02] hover:border-[#0066ff]/30 hover:shadow-[0_8px_25px_rgba(0,0,0,0.45)] group transition-all duration-300 h-full">
                       
-                      {/* Interactive Tags Row */}
-                      <div className="absolute top-4 left-4 right-4 z-10 flex items-start justify-between gap-2 pointer-events-none">
-                        <div className="flex flex-col gap-1 items-start">
-                          {isSpecialHot && (
-                            <span className="bg-gradient-to-r from-red-500 to-orange-500 text-white font-black text-[9px] px-2 py-0.5 rounded shadow-md uppercase tracking-wider">
-                              POPULAR
-                            </span>
-                          )}
-                          {product.tag && !isSpecialHot && (
-                            <span className="bg-[#0066ff] text-white font-bold text-[9px] px-2 py-0.5 rounded shadow-sm uppercase tracking-wide">
-                              {product.tag}
-                            </span>
-                          )}
-                        </div>
-
-                        {discountPct > 0 && (
-                          <div className="bg-emerald-500 text-white font-black text-xs px-2 py-0.5 rounded shadow-lg uppercase tracking-wider flex items-center">
-                            -{discountPct}%
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Sold Out / Out Of Stock Mask */}
-                      {product.stock <= 0 && (
-                        <div className="absolute inset-0 bg-black/75 flex flex-col items-center justify-center z-10">
-                          <span className="bg-red-500 text-white font-black rounded-xl px-4 py-1.5 text-[10px] tracking-widest shadow-xl border border-red-400/20 animate-pulse">
-                            OUT OF STOCK
-                          </span>
-                        </div>
-                      )}
-
-                      {/* Product Visual */}
-                      <div className="w-full h-full rounded-xl overflow-hidden relative bg-zinc-950">
-                        {product.imageUrl ? (
-                          <img
-                            loading="lazy"
-                            src={product.imageUrl}
-                            alt={product.name}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex flex-col items-center justify-center border border-white/5 opacity-50 bg-zinc-900">
-                            <Box className="w-8 h-8 text-zinc-500 mb-1" />
-                            <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">STORETH</span>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Hover action button overlay */}
-                      {product.stock > 0 && (
-                        <div 
-                          onClick={() => onProductClick(product.id)}
-                          className="cursor-pointer absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center z-10"
-                        >
-                          <span className="bg-white text-black font-extrabold text-[11px] uppercase tracking-wider px-4 py-2 rounded-xl shadow-lg hover:scale-105 transition-transform">
-                            รายละเอียดสินค้า
-                          </span>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Meta/Description Text */}
-                    <div className="p-4 sm:p-5 flex flex-col flex-1 bg-zinc-900/30">
-                      
-                      {/* Name / Category */}
-                      <div className="mb-2">
-                        <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-wider block mb-0.5">
-                          {product.category || "General Digital"}
-                        </span>
-                        <h3 className="font-bold text-zinc-100 text-xs sm:text-sm leading-snug line-clamp-2 h-9 sm:h-10 group-hover:text-blue-300 transition-colors duration-200">
-                          {product.name}
-                        </h3>
-                      </div>
-
-                      {/* Price Grid representation */}
-                      <div className="mt-auto pt-4 flex items-end justify-between border-t border-white/5">
+                      {/* Thumbnail & Badges Container */}
+                      <div className="aspect-square bg-zinc-950 relative overflow-hidden p-2 group-hover:bg-zinc-900/35 transition-colors duration-300">
                         
-                        {/* Prices block */}
-                        <div className="min-w-0 flex flex-col">
-                          {product.originalPrice && product.originalPrice > product.price ? (
-                            <span className="text-[10px] text-zinc-550 line-through leading-none mb-1">
-                              ฿{(product.originalPrice || 0).toLocaleString()}
-                            </span>
-                          ) : (
-                            <span className="text-[10px] text-transparent leading-none mb-1">.</span>
+                        {/* Interactive Tags Row (Alternated) */}
+                        <div className={`absolute top-4 left-4 right-4 z-10 flex items-start justify-between gap-2 pointer-events-none ${
+                          i % 2 === 0 ? "flex-row" : "flex-row-reverse"
+                        }`}>
+                          <div className={`flex flex-col gap-1 ${i % 2 === 0 ? "items-start" : "items-end"}`}>
+                            {isSpecialHot && (
+                              <span className="bg-gradient-to-r from-red-500 to-orange-500 text-white font-black text-[9px] px-2 py-0.5 rounded shadow-md uppercase tracking-wider">
+                                POPULAR
+                              </span>
+                            )}
+                            {product.tag && !isSpecialHot && (
+                              <span className="bg-[#0066ff] text-white font-bold text-[9px] px-2 py-0.5 rounded shadow-sm uppercase tracking-wide">
+                                {product.tag}
+                              </span>
+                            )}
+                          </div>
+
+                          {discountPct > 0 && (
+                            <div className="bg-emerald-500 text-white font-black text-xs px-2 py-0.5 rounded shadow-lg uppercase tracking-wider flex items-center">
+                              -{discountPct}%
+                            </div>
                           )}
-                          <span className="text-white font-extrabold text-sm sm:text-base leading-none tracking-tight flex items-baseline gap-0.5 font-mono">
-                            <span className="text-xs text-blue-400">฿</span>
-                            {(product.price || 0).toLocaleString()}
-                          </span>
                         </div>
 
-                        {/* Stock Balance bar status */}
-                        <div className="text-right shrink-0">
-                          <span className="text-[9px] text-zinc-500 font-bold block leading-none mb-1 uppercase tracking-wider">คงเหลือ</span>
-                          <span className={`text-[10px] font-black leading-none ${product.stock > 0 ? 'text-cyan-400' : 'text-red-400'}`}>
-                            {product.stock >= 999999 ? "INFINITE" : `${product.stock} ชิ้น`}
-                          </span>
-                        </div>
-                      </div>
+                        {/* Sold Out / Out Of Stock Mask */}
+                        {product.stock <= 0 && (
+                          <div className="absolute inset-0 bg-black/75 flex flex-col items-center justify-center z-10">
+                            <span className="bg-red-500 text-white font-black rounded-xl px-4 py-1.5 text-[10px] tracking-widest shadow-xl border border-red-400/20 animate-pulse">
+                              OUT OF STOCK
+                            </span>
+                          </div>
+                        )}
 
-                      {/* Full-width Instant Action Trigger */}
-                      <div className="mt-4">
-                        {product.stock <= 0 ? (
-                          <button
-                            disabled
-                            className="w-full bg-zinc-800 text-zinc-650 rounded-xl py-2.5 text-xs font-bold cursor-not-allowed flex items-center justify-center gap-1.5"
-                          >
-                            <Package className="w-3.5 h-3.5" /> สินค้าหมด
-                          </button>
-                        ) : (
-                          <button
+                        {/* Product Visual */}
+                        <div className="w-full h-full rounded-xl overflow-hidden relative bg-zinc-950">
+                          {product.imageUrl ? (
+                            <img
+                              loading="lazy"
+                              src={product.imageUrl}
+                              alt={product.name}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex flex-col items-center justify-center border border-white/5 opacity-50 bg-zinc-900">
+                              <Box className="w-8 h-8 text-zinc-500 mb-1" />
+                              <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">STORETH</span>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Hover action button overlay */}
+                        {product.stock > 0 && (
+                          <div 
                             onClick={() => onProductClick(product.id)}
-                            className="w-full bg-zinc-800 hover:bg-[#0066ff] border border-white/5 hover:border-[#0066ff] text-white hover:text-white rounded-xl py-2.5 text-xs font-extrabold transition-all active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer shadow-sm hover:shadow-[0_4px_12px_rgba(0,102,255,0.25)]"
+                            className="cursor-pointer absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center z-10"
                           >
-                            <ShoppingCart className="w-3.5 h-3.5" /> สั่งซื้อด่วน
-                          </button>
+                            <span className="bg-white text-black font-extrabold text-[11px] uppercase tracking-wider px-4 py-2 rounded-xl shadow-lg hover:scale-105 transition-transform">
+                              รายละเอียดสินค้า
+                            </span>
+                          </div>
                         )}
                       </div>
 
+                      {/* Meta/Description Text */}
+                      <div className="p-4 sm:p-5 flex flex-col flex-1 bg-zinc-900/30">
+                        
+                        {/* Name / Category */}
+                        <div className="mb-2">
+                          <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-wider block mb-0.5">
+                            {product.category || "General Digital"}
+                          </span>
+                          <h3 className="font-bold text-zinc-100 text-xs sm:text-sm leading-snug line-clamp-2 h-9 sm:h-10 group-hover:text-blue-300 transition-colors duration-200">
+                            {product.name}
+                          </h3>
+                        </div>
+
+                        {/* Price Grid representation (Alternated) */}
+                        <div className={`mt-auto pt-4 flex items-end justify-between border-t border-white/5 ${
+                          i % 2 === 0 ? "flex-row" : "flex-row-reverse text-right"
+                        }`}>
+                          
+                          {/* Prices block */}
+                          <div className={`min-w-0 flex flex-col ${i % 2 === 0 ? "" : "items-end"}`}>
+                            {product.originalPrice && product.originalPrice > product.price ? (
+                              <span className="text-[10px] text-zinc-550 line-through leading-none mb-1">
+                                ฿{(product.originalPrice || 0).toLocaleString()}
+                              </span>
+                            ) : (
+                              <span className="text-[10px] text-transparent leading-none mb-1">.</span>
+                            )}
+                            <span className="text-white font-extrabold text-sm sm:text-base leading-none tracking-tight flex items-baseline gap-0.5 font-mono">
+                              <span className="text-xs text-blue-400">฿</span>
+                              {(product.price || 0).toLocaleString()}
+                            </span>
+                          </div>
+
+                          {/* Stock Balance bar status */}
+                          <div className={`shrink-0 ${i % 2 === 0 ? "text-right" : "text-left"}`}>
+                            <span className="text-[9px] text-zinc-500 font-bold block leading-none mb-1 uppercase tracking-wider">คงเหลือ</span>
+                            <span className={`text-[10px] font-black leading-none ${product.stock > 0 ? "text-cyan-400" : "text-red-400"}`}>
+                              {product.stock >= 999999 ? "INFINITE" : `${product.stock} ชิ้น`}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Full-width Instant Action Trigger (Alternated Shopping Cart Placement) */}
+                        <div className="mt-4">
+                          {product.stock <= 0 ? (
+                            <button
+                              disabled
+                              className="w-full bg-zinc-800 text-zinc-650 rounded-xl py-2.5 text-xs font-bold cursor-not-allowed flex items-center justify-center gap-1.5"
+                            >
+                              <Package className="w-3.5 h-3.5" /> สินค้าหมด
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => onProductClick(product.id)}
+                              className={`w-full bg-zinc-800 hover:bg-[#0066ff] border border-white/5 hover:border-[#0066ff] text-white hover:text-white rounded-xl py-2.5 text-xs font-extrabold transition-all active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer shadow-sm hover:shadow-[0_4px_12px_rgba(0,102,255,0.25)] ${
+                                i % 2 === 0 ? "flex-row" : "flex-row-reverse"
+                              }`}
+                            >
+                              <ShoppingCart className="w-3.5 h-3.5" /> <span>สั่งซื้อด่วน</span>
+                            </button>
+                          )}
+                        </div>
+
+                      </div>
                     </div>
-                  </motion.div>
+                  </SmoothScrollSection>
                 );
               })
             )}
           </div>
-        </SmoothScrollSection>
+        </div>
       </div>
     </div>
   );
