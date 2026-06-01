@@ -59,10 +59,11 @@ export const AnimatedScroll: React.FC<AnimatedScrollProps> = ({
   return (
     <div
       ref={domRef}
-      className={`transition-all duration-300 ease-out ${activeVisible ? 'opacity-100' : 'opacity-0'} ${transformClass} ${className}`}
+      className={`transition-all duration-300 ${activeVisible ? 'opacity-100 ease-out' : 'opacity-0'} ${transformClass} ${className}`}
       style={{ transitionDelay: `${delay}ms`, willChange: 'opacity, transform' }}
     >
       {children}
     </div>
   );
 };
+
