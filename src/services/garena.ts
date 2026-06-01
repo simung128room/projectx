@@ -48,6 +48,9 @@ export const getMD5 = (text: string): string => {
   return crypto.createHash('md5').update(raw).digest('hex');
 };
 
+// NOTE: This function matches Garena login OAuth protocol signature exactly.
+// It uses AES-256-ECB. Since this matches Garena's mandated proprietary login interface requirements,
+// we must retain ECB mode here to maintain compatibility with external Garena APIs.
 export const encryptPassword = (password: string, v1: string, v2: string): string => {
   const passMd5 = getMD5(password);
   const innerHash = crypto.createHash('sha256').update(passMd5 + v1).digest('hex');

@@ -266,13 +266,14 @@ app.use((req: any, res: any, next: any) => {
   next();
 });
 
-app.get('/metrics', async (req, res) => {
-  if (process.env.NODE_ENV === 'production' && req.headers['x-metrics-token'] !== process.env.METRICS_TOKEN) {
-    return res.status(401).send('Unauthorized');
-  }
-  res.set('Content-Type', client.register.contentType);
-  res.end(await client.register.metrics());
-});
+  app.get('/metrics', async (req, res) => {
+    const metricsToken = process.env.METRICS_TOKEN;
+    if (!metricsToken || req.headers['x-metrics-token'] !== metricsToken) {
+      return res.status(401).send('Unauthorized');
+    }
+    res.set('Content-Type', client.register.contentType);
+    res.end(await client.register.metrics());
+  });
 
 app.use(helmet({
   contentSecurityPolicy: {
@@ -1288,7 +1289,7 @@ import healthRoute from './src/routes/health.route.js';
   // Garena helpers and game checkers are imported from /src/services/garena.ts
 
   // Cache for Turnstile tokens (since they are single-use against Cloudflare, but we need them for a bulk loop)
-  const turnstileCache = new Map<string, number>();
+  const turnstileCache = new Map<string, { time: number; uses: number }>();
 
   app.post('/api/check', checkLimiter, requireAuth, async (req, res) => {
     const account = req.body.account?.toString().trim();
@@ -1341,19 +1342,20 @@ import healthRoute from './src/routes/health.route.js';
          return res.status(403).json({ error: 'Missing Captcha token. Please refresh the page and verify you are human. (Or provide valid API Key)' });
       }
 
-      // Since a batch check loop uses the same token, we cache verified tokens for 5 minutes
+      // Since a batch check loop uses the same token, we cache verified tokens for 30 seconds with max 3 reuses
       const now = Date.now();
       const cacheKey = turnstileToken + '_' + (req.ip || 'unknown');
-      const cachedTime = turnstileCache.get(cacheKey);
+      const cacheEntry = turnstileCache.get(cacheKey);
       
-      if (cachedTime && (now - cachedTime < 30 * 1000)) {
-         // Token is already verified and within 30 second window
+      if (cacheEntry && (now - cacheEntry.time < 30 * 1000) && cacheEntry.uses < 3) {
+         // Token is already verified and within 30 second window with less than 3 uses
+         cacheEntry.uses++;
          // console.log("Used cached Turnstile token bypass");
       } else {
          const secretKey = process.env.TURNSTILE_SECRET_KEY || '';
          
          if (!secretKey) {
-             turnstileCache.set(cacheKey, now);
+             turnstileCache.set(cacheKey, { time: now, uses: 1 });
          } else {
              try {
                const params = new URLSearchParams();
@@ -1377,12 +1379,12 @@ import healthRoute from './src/routes/health.route.js';
            }
   
            // Cache the successfully verified token
-           turnstileCache.set(cacheKey, now);
+           turnstileCache.set(cacheKey, { time: now, uses: 1 });
            
            // Clean up old entries from cache every once in a while
            if (turnstileCache.size > 1000) {
-             for (const [key, time] of turnstileCache.entries()) {
-               if (now - time > 5 * 60 * 1000) {
+             for (const [key, val] of turnstileCache.entries()) {
+               if (now - val.time > 5 * 60 * 1000) {
                  turnstileCache.delete(key);
                }
              }
@@ -2477,8 +2479,8 @@ const diskUpload = multer({ dest: 'uploads/' });
       return res.status(401).json({ error: 'Unauthorized' });
     }
     
-    if (!key) {
-      return res.status(400).json({ error: 'กรุณาระบุคีย์' });
+    if (!key || typeof key !== 'string' || key.trim().length < 8) {
+      return res.status(400).json({ error: 'กรุณาระบุคีย์ที่ถูกต้อง (ความยาวอย่างน้อย 8 ตัวอักษร)' });
     }
 
     try {
@@ -3226,6 +3228,7 @@ const diskUpload = multer({ dest: 'uploads/' });
       const newDoc = { username, role, granted_at: new Date().toISOString() };
       const docRef = admin.firestore().collection('admins').doc(username);
       await docRef.set(newDoc);
+      userTokenCache.clear();
       res.json({ id: username, ...newDoc });
     } catch (err) {
       console.error('Internal server error upserting admin:', err);
@@ -3261,12 +3264,13 @@ const diskUpload = multer({ dest: 'uploads/' });
 
   // Community endpoints removed
 
-  // Mutex for key redemption
-  const redeemLocks: Record<string, Promise<any>> = {};
+// Mutex for key redemption (removed as standard Firestore transactions handle this natively)
 
   app.post('/api/redeem', mutationLimiter, requireAuth, async (req: any, res: any) => {
     const { key } = req.body;
-    if (!key) return res.status(400).json({ error: 'Key is required' });
+    if (!key || typeof key !== 'string' || key.trim().length < 8) {
+      return res.status(400).json({ error: 'รูปแบบคีย์ไม่ถูกต้องหรือสั้นเกินไป (ความยาวอย่างน้อย 8 ตัวอักษร)' });
+    }
 
     try {
       const uid = (req as any).user.uid;
@@ -3424,6 +3428,7 @@ const diskUpload = multer({ dest: 'uploads/' });
       
       const docRef = admin.firestore().collection('users').doc(uid);
       await docRef.set({ ...dataToUpdate, updatedAt: new Date().toISOString() }, { merge: true });
+      userTokenCache.clear();
       res.json({ success: true });
     } catch (err: any) {
       console.error('Error saving user:', err.message || JSON.stringify(err));
@@ -3437,6 +3442,7 @@ const diskUpload = multer({ dest: 'uploads/' });
       const { password } = req.body;
       if (!password) return res.status(400).json({ error: 'Missing password' });
       await supabaseAdmin.auth.admin.updateUserById(uid, { password });
+      userTokenCache.clear();
       res.json({ success: true });
     } catch (err: any) {
       res.status(500).json({ error: String(err && err.message ? err.message : err) });
@@ -3451,6 +3457,7 @@ const diskUpload = multer({ dest: 'uploads/' });
       }
       await supabaseAdmin.auth.admin.deleteUser(uid).catch(() => {});
       await admin.firestore().collection('users').doc(uid).delete();
+      userTokenCache.clear();
       res.json({ success: true });
     } catch (err: any) {
       res.status(500).json({ error: String(err && err.message ? err.message : err) });
