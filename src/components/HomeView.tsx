@@ -124,14 +124,17 @@ export const HomeView: React.FC<HomeViewProps> = ({
   // Retrieve products for a category object
   const getProductsForCategory = useMemo(() => {
     return (cat: any) => {
-      const list1 = productsByCategory.get(cat.id) || [];
-      const list2 = productsByCategory.get(cat.name) || [];
-      const list3 = productsByCategory.get(cat.title) || [];
+      if (!cat) return [];
+      const list1 = cat.id ? (productsByCategory.get(cat.id.toString()) || []) : [];
+      const list2 = cat.name ? (productsByCategory.get(cat.name.toString()) || []) : [];
+      const list3 = cat.title ? (productsByCategory.get(cat.title.toString()) || []) : [];
       const combined = [...list1, ...list2, ...list3];
       if (combined.length === 0) return [];
       const uniqueMap = new Map<string, any>();
       for (const p of combined) {
-        uniqueMap.set(p.id, p);
+        if (p && p.id) {
+          uniqueMap.set(p.id.toString(), p);
+        }
       }
       return Array.from(uniqueMap.values());
     };
