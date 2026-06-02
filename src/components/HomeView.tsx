@@ -226,10 +226,14 @@ export const HomeView: React.FC<HomeViewProps> = ({
     } else if (activeTab === "popular") {
       return result.filter(p => p.isPopular || p.tag?.toLowerCase().includes("hot") || p.tag?.toLowerCase().includes("best"));
     } else {
-      // Find matching category ID or Title
-      return result.filter(p => p.category === activeTab);
+      // Find matching category ID, Name or Title robustly
+      const catInfo = safeCategories.find(c => c.name === activeTab || c.title === activeTab || c.id === activeTab);
+      return result.filter(p => 
+        p.category === activeTab || 
+        (catInfo && (p.category === catInfo.title || p.category === catInfo.name || p.category === catInfo.id))
+      );
     }
-  }, [safeProducts, activeTab, inStockOnly]);
+  }, [safeProducts, activeTab, inStockOnly, safeCategories]);
 
   return (
     <div className="w-full overflow-hidden space-y-8 pb-32 font-sans text-white bg-[#05070d] mt-1 sm:mt-2 max-w-[2100px] mx-auto px-4 md:px-6">
@@ -415,49 +419,190 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
       </div>
 
-      {/* 4. Service Advantage Section */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {/* 4. Service Shortcut Section (1000 x 500 equivalent style) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
+        
+        {/* Button 1: สินค้า */}
         <SmoothScrollSection direction="left" delay={50} className="w-full">
-          <div className="flex items-start gap-3.5 p-5 bg-[#0b1020]/40 backdrop-blur-md border border-white/5 rounded-2xl h-full mb-0 shadow-sm">
-            <div className="p-2.5 rounded-xl bg-[#0066ff]/10 border border-[#0066ff]/20 text-[#66a3ff]">
-              <Zap className="w-5 h-5" />
+          <div 
+            onClick={() => {
+              const el = document.getElementById("products-showcase");
+              if (el) {
+                el.scrollIntoView({ behavior: "smooth" });
+              } else {
+                setActiveView("categories");
+              }
+            }}
+            className="cursor-pointer relative overflow-hidden rounded-2xl border border-blue-500/30 hover:border-blue-400 group transition-all duration-300 aspect-[2/1] shadow-[0_8px_24px_rgba(0,0,0,0.6)] hover:shadow-[0_0_30px_rgba(0,102,255,0.32)]"
+          >
+            {/* Background image filled with deep overlay */}
+            <img 
+              src="https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1000&q=80" 
+              alt="Products Bg" 
+              className="absolute inset-0 w-full h-full object-cover opacity-35 group-hover:opacity-55 transition-opacity duration-300 pointer-events-none"
+            />
+            {/* Blue tech grid/glow patterns */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-blue-950/20 pointer-events-none" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_40%,_rgba(0,0,0,0.85))] pointer-events-none" />
+
+            {/* Content Container */}
+            <div className="relative z-10 w-full h-full flex items-center justify-between p-5 pr-6">
+              {/* Tilted Diamond containing Icon */}
+              <div className="relative shrink-0 flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16">
+                <div className="absolute inset-0 bg-white/10 group-hover:bg-[#0066ff]/25 border border-white/20 group-hover:border-cyan-400/50 rounded-xl rotate-45 transform transition-all duration-300 shadow-[0_0_15px_rgba(255,255,255,0.05)] group-hover:shadow-[0_0_20px_rgba(0,102,255,0.3)]" />
+                <ShoppingCart className="w-6 h-6 sm:w-7 sm:h-7 text-white relative z-10 drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)] group-hover:scale-110 transition-transform duration-300" />
+              </div>
+
+              {/* Title & Badge */}
+              <div className="flex flex-col items-end text-right">
+                <span className="text-[9px] font-black uppercase tracking-widest text-[#0066ff]/80 group-hover:text-cyan-400 transition-colors mb-1 shadow-sm">
+                  PRODUCTS LIST
+                </span>
+                <h3 className="text-lg sm:text-xl font-bold font-sans text-white leading-none tracking-wide drop-shadow-[0_2px_5px_rgba(0,0,0,0.9)] transition-all group-hover:text-cyan-300">
+                  สั่งซื้อสินค้า
+                </h3>
+              </div>
             </div>
-            <div>
-              <h4 className="text-sm font-bold text-white mb-0.5">ระบบจัดส่งด่วนอัตโนมัติ</h4>
-              <p className="text-xs text-blue-100/70 leading-relaxed">ได้รับสินค้า คีย์ ใบเสร็จ ทันทีผ่านหน้าเว็บและประวัติส่วนตัว ตลอด 24 ชม.</p>
+
+            {/* Bottom clickable indicator pill */}
+            <div className="absolute bottom-3 right-4 bg-white/95 border border-cyan-400/20 px-3 py-1 rounded-full text-[10px] font-black text-black leading-none flex items-center gap-1 shadow-[0_3px_10px_rgba(0,0,0,0.5)] group-hover:scale-105 transition-all">
+              <span>คลิก</span> <ChevronRight className="w-3 h-3 text-[#0066ff] animate-pulse" />
             </div>
           </div>
         </SmoothScrollSection>
 
+        {/* Button 2: ประวัติ */}
         <SmoothScrollSection direction="up" delay={100} className="w-full">
-          <div className="flex items-start gap-3.5 p-5 bg-[#0b1020]/40 backdrop-blur-md border border-white/5 rounded-2xl h-full mb-0 shadow-sm">
-            <div className="p-2.5 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400">
-              <Shield className="w-5 h-5" />
+          <div 
+            onClick={() => setActiveView("history")}
+            className="cursor-pointer relative overflow-hidden rounded-2xl border border-blue-500/30 hover:border-blue-400 group transition-all duration-300 aspect-[2/1] shadow-[0_8px_24px_rgba(0,0,0,0.6)] hover:shadow-[0_0_30px_rgba(0,102,255,0.32)]"
+          >
+            {/* Background image filled with deep overlay */}
+            <img 
+              src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1000&q=80" 
+              alt="History Bg" 
+              className="absolute inset-0 w-full h-full object-cover opacity-35 group-hover:opacity-55 transition-opacity duration-300 pointer-events-none"
+            />
+            {/* Blue tech grid/glow patterns */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-blue-950/20 pointer-events-none" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_40%,_rgba(0,0,0,0.85))] pointer-events-none" />
+
+            {/* Content Container */}
+            <div className="relative z-10 w-full h-full flex items-center justify-between p-5 pr-6">
+              {/* Tilted Diamond containing Icon */}
+              <div className="relative shrink-0 flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16">
+                <div className="absolute inset-0 bg-white/10 group-hover:bg-[#0066ff]/25 border border-white/20 group-hover:border-cyan-400/50 rounded-xl rotate-45 transform transition-all duration-300 shadow-[0_0_15px_rgba(255,255,255,0.05)] group-hover:shadow-[0_0_20px_rgba(0,102,255,0.3)]" />
+                <History className="w-6 h-6 sm:w-7 sm:h-7 text-white relative z-10 drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)] group-hover:scale-110 transition-transform duration-300" />
+              </div>
+
+              {/* Title & Badge */}
+              <div className="flex flex-col items-end text-right">
+                <span className="text-[9px] font-black uppercase tracking-widest text-[#0066ff]/80 group-hover:text-cyan-400 transition-colors mb-1 shadow-sm">
+                  ORDER HISTORY
+                </span>
+                <h3 className="text-lg sm:text-xl font-bold font-sans text-white leading-none tracking-wide drop-shadow-[0_2px_5px_rgba(0,0,0,0.9)] transition-all group-hover:text-cyan-300">
+                  ประวัติการซื้อ
+                </h3>
+              </div>
             </div>
-            <div>
-              <h4 className="text-sm font-bold text-white mb-0.5">ธรรมาภิบาลและความปลอดภัย</h4>
-              <p className="text-xs text-blue-100/70 leading-relaxed">ข้อมูลและสิทธิ์ของสมาชิกถูกปกป้องด้วยฐานข้อมูลที่มีความปลอดภัยสูงสุด</p>
+
+            {/* Bottom clickable indicator pill */}
+            <div className="absolute bottom-3 right-4 bg-white/95 border border-cyan-400/20 px-3 py-1 rounded-full text-[10px] font-black text-black leading-none flex items-center gap-1 shadow-[0_3px_10px_rgba(0,0,0,0.5)] group-hover:scale-105 transition-all">
+              <span>คลิก</span> <ChevronRight className="w-3 h-3 text-[#0066ff] animate-pulse" />
             </div>
           </div>
         </SmoothScrollSection>
 
-        <SmoothScrollSection direction="right" delay={150} className="w-full">
-          <div className="flex items-start gap-3.5 p-5 bg-[#0b1020]/40 backdrop-blur-md border border-white/5 rounded-2xl h-full mb-0 shadow-sm">
-            <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
-              <Sparkles className="w-5 h-5" />
+        {/* Button 3: เติมเงิน */}
+        <SmoothScrollSection direction="up" delay={150} className="w-full">
+          <div 
+            onClick={() => setActiveView("wallet")}
+            className="cursor-pointer relative overflow-hidden rounded-2xl border border-blue-500/30 hover:border-blue-400 group transition-all duration-300 aspect-[2/1] shadow-[0_8px_24px_rgba(0,0,0,0.6)] hover:shadow-[0_0_30px_rgba(0,102,255,0.32)]"
+          >
+            {/* Background image filled with deep overlay */}
+            <img 
+              src="https://images.unsplash.com/photo-1621761191319-c6fb62004040?auto=format&fit=crop&w=1000&q=80" 
+              alt="Wallet Bg" 
+              className="absolute inset-0 w-full h-full object-cover opacity-35 group-hover:opacity-55 transition-opacity duration-300 pointer-events-none"
+            />
+            {/* Blue tech grid/glow patterns */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-blue-950/20 pointer-events-none" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_40%,_rgba(0,0,0,0.85))] pointer-events-none" />
+
+            {/* Content Container */}
+            <div className="relative z-10 w-full h-full flex items-center justify-between p-5 pr-6">
+              {/* Tilted Diamond containing Icon */}
+              <div className="relative shrink-0 flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16">
+                <div className="absolute inset-0 bg-white/10 group-hover:bg-[#0066ff]/25 border border-white/20 group-hover:border-cyan-400/50 rounded-xl rotate-45 transform transition-all duration-300 shadow-[0_0_15px_rgba(255,255,255,0.05)] group-hover:shadow-[0_0_20px_rgba(0,102,255,0.3)]" />
+                <CreditCard className="w-6 h-6 sm:w-7 sm:h-7 text-white relative z-10 drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)] group-hover:scale-110 transition-transform duration-300" />
+              </div>
+
+              {/* Title & Badge */}
+              <div className="flex flex-col items-end text-right">
+                <span className="text-[9px] font-black uppercase tracking-widest text-[#0066ff]/80 group-hover:text-cyan-400 transition-colors mb-1 shadow-sm">
+                  TOPUP WALLET
+                </span>
+                <h3 className="text-lg sm:text-xl font-bold font-sans text-white leading-none tracking-wide drop-shadow-[0_2px_5px_rgba(0,0,0,0.9)] transition-all group-hover:text-cyan-300">
+                  เติมเงินเข้าระบบ
+                </h3>
+              </div>
             </div>
-            <div>
-              <h4 className="text-sm font-bold text-white mb-0.5">รับประกันสินค้าทุกรายการ</h4>
-              <p className="text-xs text-blue-100/70 leading-relaxed">สินค้าทุกคีย์ใช้งานได้จริง มีปัญหาเครมได้รวดเร็วผ่านเจ้าหน้าที่เทคนิค</p>
+
+            {/* Bottom clickable indicator pill */}
+            <div className="absolute bottom-3 right-4 bg-white/95 border border-cyan-400/20 px-3 py-1 rounded-full text-[10px] font-black text-black leading-none flex items-center gap-1 shadow-[0_3px_10px_rgba(0,0,0,0.5)] group-hover:scale-105 transition-all">
+              <span>คลิก</span> <ChevronRight className="w-3 h-3 text-[#0066ff] animate-pulse" />
             </div>
           </div>
         </SmoothScrollSection>
+
+        {/* Button 4: ติดต่อ */}
+        <SmoothScrollSection direction="right" delay={200} className="w-full">
+          <div 
+            onClick={() => setActiveView("contact")}
+            className="cursor-pointer relative overflow-hidden rounded-2xl border border-blue-500/30 hover:border-blue-400 group transition-all duration-300 aspect-[2/1] shadow-[0_8px_24px_rgba(0,0,0,0.6)] hover:shadow-[0_0_30px_rgba(0,102,255,0.32)]"
+          >
+            {/* Background image filled with deep overlay */}
+            <img 
+              src="https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=1000&q=80" 
+              alt="Contact Bg" 
+              className="absolute inset-0 w-full h-full object-cover opacity-35 group-hover:opacity-55 transition-opacity duration-300 pointer-events-none"
+            />
+            {/* Blue tech grid/glow patterns */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-blue-950/20 pointer-events-none" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_40%,_rgba(0,0,0,0.85))] pointer-events-none" />
+
+            {/* Content Container */}
+            <div className="relative z-10 w-full h-full flex items-center justify-between p-5 pr-6">
+              {/* Tilted Diamond containing Icon */}
+              <div className="relative shrink-0 flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16">
+                <div className="absolute inset-0 bg-white/10 group-hover:bg-[#0066ff]/25 border border-white/20 group-hover:border-cyan-400/50 rounded-xl rotate-45 transform transition-all duration-300 shadow-[0_0_15px_rgba(255,255,255,0.05)] group-hover:shadow-[0_0_20px_rgba(0,102,255,0.3)]" />
+                <Phone className="w-6 h-6 sm:w-7 sm:h-7 text-white relative z-10 drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)] group-hover:scale-110 transition-transform duration-300" />
+              </div>
+
+              {/* Title & Badge */}
+              <div className="flex flex-col items-end text-right">
+                <span className="text-[9px] font-black uppercase tracking-widest text-[#0066ff]/80 group-hover:text-cyan-400 transition-colors mb-1 shadow-sm">
+                  SUPPORT TICKET
+                </span>
+                <h3 className="text-lg sm:text-xl font-bold font-sans text-white leading-none tracking-wide drop-shadow-[0_2px_5px_rgba(0,0,0,0.9)] transition-all group-hover:text-cyan-300">
+                  ติดต่อสอบถาม
+                </h3>
+              </div>
+            </div>
+
+            {/* Bottom clickable indicator pill */}
+            <div className="absolute bottom-3 right-4 bg-white/95 border border-cyan-400/20 px-3 py-1 rounded-full text-[10px] font-black text-black leading-none flex items-center gap-1 shadow-[0_3px_10px_rgba(0,0,0,0.5)] group-hover:scale-105 transition-all">
+              <span>คลิก</span> <ChevronRight className="w-3 h-3 text-[#0066ff] animate-pulse" />
+            </div>
+          </div>
+        </SmoothScrollSection>
+
       </div>
 
       {/* 5. Recommended Categories Grid */}
       <div className="space-y-5">
         <SmoothScrollSection direction="left" delay={50} className="w-full">
-          <div className="flex items-center justify-between pb-3 border-b border-zinc-855">
+          <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-zinc-900 border border-blue-500/20 rounded-xl flex items-center justify-center">
                 <Layers className="w-5 h-5 text-blue-400" />
@@ -515,7 +660,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     priceRangeStr={catProducts.length > 0 ? priceRangeStr : undefined}
                     bgImage={cat.bannerUrl || undefined}
                     index={i}
-                    onClick={() => onSelectCategory(cat.name)}
+                    onClick={() => onSelectCategory(cat.id || cat.name || cat.title)}
                     accentColor="#0066ff"
                     glowColor="rgba(0, 102, 255, 0.2)"
                     gradientFrom="transparent"
@@ -621,7 +766,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     <div className="flex-1 min-w-0 flex flex-col justify-center">
                       <div className="text-xs font-bold text-white flex items-center gap-1.5 justify-between">
                         <span className="truncate text-blue-300">{clientUsername}</span>
-                        <span className="text-[9px] text-[#66a3ff] bg-[#0066ff]/10 px-1.5 py-0.2 rounded font-mono shrink-0">SUCCESS</span>
+                        <span className="text-[9px] text-[#66a3ff] bg-[#0066ff]/10 px-1.5 py-0.5 rounded font-mono shrink-0">SUCCESS</span>
                       </div>
                       <div className="text-[11px] text-zinc-100 truncate font-semibold mt-0.5">
                         {displayedProductName}
@@ -665,7 +810,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   className="sr-only peer" 
                 />
                 <div className="w-9 h-5 bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-zinc-400 after:border-zinc-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-[#0066ff] peer-checked:after:bg-white"></div>
-                <span className="ml-2 text-xs font-bold text-zinc-450 select-none">
+                <span className="ml-2 text-xs font-bold text-zinc-400 select-none">
                   แสดงเฉพาะที่มีของ
                 </span>
               </label>
@@ -708,19 +853,22 @@ export const HomeView: React.FC<HomeViewProps> = ({
             </button>
 
             {/* Categories filter pills */}
-            {safeCategories.map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => setActiveTab(cat.name)}
-                className={`px-4 py-2 rounded-xl text-xs font-bold shrink-0 transition-all border ${
-                  activeTab === cat.name
-                    ? "bg-[#0066ff] text-white border-[#0066ff]"
-                    : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-white"
-                }`}
-              >
-                {cat.title}
-              </button>
-            ))}
+            {safeCategories.map((cat) => {
+              const catKey = cat.id || cat.name || cat.title;
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => setActiveTab(catKey)}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold shrink-0 transition-all border ${
+                    activeTab === catKey
+                      ? "bg-[#0066ff] text-white border-[#0066ff]"
+                      : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-white"
+                  }`}
+                >
+                  {cat.title}
+                </button>
+              );
+            })}
           </div>
         </SmoothScrollSection>
 
@@ -730,8 +878,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
             {filteredProducts.length === 0 ? (
               <div className="col-span-full py-16 text-center border border-dashed border-zinc-800 rounded-3xl bg-zinc-950/20 w-full">
                 <Box className="w-10 h-10 text-zinc-500 mx-auto mb-3" />
-                <p className="text-zinc-450 font-bold text-sm">ไม่พบรายการสินค้าที่ค้นหา</p>
-                <p className="text-zinc-650 text-xs mt-1">กรุณาลองเปลี่ยนแถบประเภทหรือเปิดเมนูตัวเลือกอื่น</p>
+                <p className="text-zinc-400 font-bold text-sm">ไม่พบรายการสินค้าที่ค้นหา</p>
+                <p className="text-zinc-500 text-xs mt-1">กรุณาลองเปลี่ยนแถบประเภทหรือเปิดเมนูตัวเลือกอื่น</p>
                 <button
                   onClick={() => { setActiveTab("all"); setInStockOnly(false); }}
                   className="mt-4 px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-xl text-xs font-bold text-white hover:bg-zinc-800"
@@ -754,7 +902,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     delay={(i % 4) * 60}
                     className="h-full"
                   >
-                    <div className="flex flex-col bg-zinc-900/60 border border-white/5 rounded-2xl overflow-hidden hover:scale-[1.02] hover:border-[#0066ff]/35 hover:shadow-[0_8px_30px_rgba(0,102,255,0.15)] group transition-all duration-300 h-full">
+                    <div 
+                      onClick={() => onProductClick(product.id)}
+                      className="cursor-pointer flex flex-col bg-zinc-900/60 border border-white/5 rounded-2xl overflow-hidden hover:scale-[1.02] hover:border-[#0066ff]/35 hover:shadow-[0_8px_30px_rgba(0,102,255,0.15)] group transition-all duration-300 h-full"
+                    >
                       
                       {/* Thumbnail & Badges Container */}
                       <div className="aspect-square bg-zinc-950 relative overflow-hidden p-2 group-hover:bg-zinc-900/35 transition-colors duration-300">
@@ -853,9 +1004,9 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
                           {/* Stock Balance bar status */}
                           <div className="shrink-0 text-right">
-                            <span className="text-[9px] text-zinc-550 font-bold block leading-none mb-1 uppercase tracking-wider">คงเหลือ</span>
+                            <span className="text-[9px] text-zinc-500 font-bold block leading-none mb-1 uppercase tracking-wider">คงเหลือ</span>
                             <span className={`text-[10px] font-black leading-none ${product.stock > 0 ? "text-cyan-400" : "text-red-400"}`}>
-                              {product.stock >= 999999 ? "INFINITE" : `${product.stock} ชิ้น`}
+                              {product.stock >= 999999 ? "ไม่จำกัด" : `${product.stock} ชิ้น`}
                             </span>
                           </div>
                         </div>
@@ -865,14 +1016,17 @@ export const HomeView: React.FC<HomeViewProps> = ({
                           {product.stock <= 0 ? (
                             <button
                               disabled
-                              className="w-full bg-zinc-800 text-zinc-650 rounded-xl py-2.5 text-xs font-bold cursor-not-allowed flex items-center justify-center gap-1.5"
+                              className="w-full bg-zinc-800 text-zinc-500 rounded-xl py-2.5 text-xs font-bold cursor-not-allowed flex items-center justify-center gap-1.5"
                             >
                               <Package className="w-3.5 h-3.5" /> สินค้าหมด
                             </button>
                           ) : (
                             <button
-                              onClick={() => onProductClick(product.id)}
-                              className="w-full bg-zinc-850 hover:bg-[#0066ff] border border-white/5 hover:border-[#0066ff] text-white hover:text-white rounded-xl py-2.5 text-xs font-extrabold transition-all active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer shadow-sm hover:shadow-[0_4px_12px_rgba(0,102,255,0.25)]"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onProductClick(product.id);
+                              }}
+                              className="w-full bg-zinc-800 hover:bg-[#0066ff] border border-white/5 hover:border-[#0066ff] text-white hover:text-white rounded-xl py-2.5 text-xs font-extrabold transition-all active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer shadow-sm hover:shadow-[0_4px_12px_rgba(0,102,255,0.25)]"
                             >
                               <ShoppingCart className="w-3.5 h-3.5" /> <span>สั่งซื้อด่วน</span>
                             </button>

@@ -72,7 +72,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({ categories, prod
             priceRangeStr={getCategoryPriceInfo(c) || undefined}
             bgImage={c.bannerUrl || undefined}
             index={i + 1}
-            onClick={() => onSelectCategory(c.name)}
+            onClick={() => onSelectCategory(c.id || c.name || c.title)}
             accentColor="#0066ff"
             glowColor="transparent"
             gradientFrom="#0a0a0a"
