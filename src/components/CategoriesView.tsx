@@ -65,7 +65,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({ categories, prod
 
         {categories.map((c, i) => (
           <CategoryCard
-            key={c.id}
+            key={c.id || c.name || `category-${i}`}
             title={c.title}
             label={c.subtitle || "หมวดหมู่"}
             itemCountDesc={`${getProductCountText(c)}`}
