@@ -63,22 +63,20 @@ const SmoothScrollSection: React.FC<SmoothScrollSectionProps> = ({
   let initialX = 0;
   let initialY = 0;
 
-  if (direction === "left") initialX = -60;
-  else if (direction === "right") initialX = 60;
-  else if (direction === "up") initialY = 40;
-  else if (direction === "down") initialY = -40;
+  if (direction === "left") initialX = -30;
+  else if (direction === "right") initialX = 30;
+  else if (direction === "up") initialY = 20;
+  else if (direction === "down") initialY = -20;
 
   return (
     <motion.div
-      initial={{ opacity: 0, x: initialX, y: initialY, filter: "blur(4px)", scale: 0.95 }}
-      whileInView={{ opacity: 1, x: 0, y: 0, filter: "blur(0px)", scale: 1 }}
-      exit={{ opacity: 0, x: initialX, y: initialY, filter: "blur(4px)", scale: 0.95 }}
-      viewport={{ once: false, amount: 0.02, margin: "0px 0px -100px 0px" }}
+      initial={{ opacity: 0, x: initialX, y: initialY }}
+      whileInView={{ opacity: 1, x: 0, y: 0 }}
+      viewport={{ once: true, amount: 0.05 }}
       transition={{
-        type: "spring",
-        stiffness: 85,
-        damping: 14,
+        duration: 0.4,
         delay: delay / 1000,
+        ease: [0.21, 0.47, 0.32, 0.98]
       }}
       className={className}
     >
