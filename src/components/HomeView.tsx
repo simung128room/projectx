@@ -416,7 +416,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
       {/* 4. Service Advantage Section */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <SmoothScrollSection direction="left" delay={50} className="w-full">
-          <div className="flex items-start gap-3.5 p-5 bg-white/70 border border-zinc-200 rounded-2xl h-full mb-0">
+          <div className="flex items-start gap-3.5 p-5 bg-[#0b1020]/90 border border-blue-500/20 rounded-2xl h-full mb-0">
             <div className="p-2.5 rounded-xl bg-[#0066ff]/10 border border-[#0066ff]/20 text-[#66a3ff]">
               <Zap className="w-5 h-5" />
             </div>
@@ -428,7 +428,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
         </SmoothScrollSection>
 
         <SmoothScrollSection direction="up" delay={100} className="w-full">
-          <div className="flex items-start gap-3.5 p-5 bg-white/70 border border-zinc-200 rounded-2xl h-full mb-0">
+          <div className="flex items-start gap-3.5 p-5 bg-[#0b1020]/90 border border-blue-500/20 rounded-2xl h-full mb-0">
             <div className="p-2.5 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400">
               <Shield className="w-5 h-5" />
             </div>
@@ -440,7 +440,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
         </SmoothScrollSection>
 
         <SmoothScrollSection direction="right" delay={150} className="w-full">
-          <div className="flex items-start gap-3.5 p-5 bg-white/70 border border-zinc-200 rounded-2xl h-full mb-0">
+          <div className="flex items-start gap-3.5 p-5 bg-[#0b1020]/90 border border-blue-500/20 rounded-2xl h-full mb-0">
             <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
               <Sparkles className="w-5 h-5" />
             </div>
@@ -457,7 +457,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
         <SmoothScrollSection direction="left" delay={50} className="w-full">
           <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-zinc-100 border border-zinc-300 rounded-xl flex items-center justify-center">
+              <div className="w-10 h-10 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center">
                 <Layers className="w-5 h-5 text-blue-400" />
               </div>
               <div>
@@ -467,7 +467,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             </div>
             <button
               onClick={() => setActiveView("categories")}
-              className="bg-zinc-100 hover:bg-zinc-200 text-zinc-600 hover:text-white px-4 py-2 border border-zinc-300 rounded-xl text-xs font-bold transition-all active:scale-95 flex items-center gap-1.5"
+              className="bg-white/5 hover:bg-white/10 text-white px-4 py-2 border border-white/10 rounded-xl text-xs font-bold transition-all active:scale-95 flex items-center gap-1.5"
             >
               ดูหมวดหมู่ทั้งหมด <ChevronRight className="w-4 h-4" />
             </button>
@@ -539,8 +539,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
           </div>
 
           <div className="flex overflow-hidden relative w-full select-none">
-            <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
-            <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
+            <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-[#05070d] to-transparent z-10 pointer-events-none" />
+            <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-[#05070d] to-transparent z-10 pointer-events-none" />
 
             {/* Seamless Horizontal Flow */}
             <motion.div
@@ -599,9 +599,9 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 return (
                   <div
                     key={index}
-                    className="shrink-0 w-[260px] sm:w-[300px] bg-white/70 border border-zinc-200 p-3 rounded-2xl flex gap-3 transition-colors duration-300 hover:border-[#0066ff]/20 hover:bg-white/90 shadow-sm"
+                    className="shrink-0 w-[260px] sm:w-[300px] bg-white/5 border border-white/10 p-3 rounded-2xl flex gap-3 transition-colors duration-300 hover:border-blue-500/30 hover:bg-white/10 shadow-sm"
                   >
-                    <div className="w-12 h-12 rounded-xl bg-zinc-50 border border-zinc-200 shrink-0 overflow-hidden relative">
+                    <div className="w-12 h-12 rounded-xl bg-zinc-900 border border-white/10 shrink-0 overflow-hidden relative">
                       {imageUrl ? (
                         <img 
                           loading="lazy"
@@ -617,7 +617,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     </div>
                     <div className="flex-1 min-w-0 flex flex-col justify-center">
                       <div className="text-xs font-bold text-white flex items-center gap-1.5 justify-between">
-                        <span className="truncate text-blue-600">{clientUsername}</span>
+                        <span className="truncate text-blue-400">{clientUsername}</span>
                         <span className="text-[9px] text-[#66a3ff] bg-[#0066ff]/10 px-1.5 py-0.2 rounded font-mono shrink-0">SUCCESS</span>
                       </div>
                       <div className="text-[11px] text-white truncate font-semibold mt-0.5">
@@ -643,7 +643,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
         <SmoothScrollSection direction="left" delay={50} className="w-full">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-zinc-300 mb-6">
             <div className="flex items-center gap-3.5">
-              <div className="w-11 h-11 bg-zinc-100 border border-zinc-300 rounded-xl flex items-center justify-center text-amber-500 shadow-md">
+              <div className="w-11 h-11 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-center justify-center text-amber-500 shadow-md">
                 <Star className="w-5.5 h-5.5 fill-amber-500/20" />
               </div>
               <div>
@@ -662,7 +662,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   className="sr-only peer" 
                 />
                 <div className="w-9 h-5 bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-zinc-400 after:border-zinc-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-[#0066ff] peer-checked:after:bg-white"></div>
-                <span className="ml-2 text-xs font-bold text-blue-200/60 select-none">
+                <span className="ml-2 text-xs font-bold text-zinc-400 select-none">
                   แสดงเฉพาะที่มีของ
                 </span>
               </label>
@@ -677,8 +677,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
               onClick={() => setActiveTab("all")}
               className={`px-4 py-2 rounded-xl text-xs font-bold shrink-0 transition-all border flex items-center gap-1.5 ${
                 activeTab === "all"
-                  ? "bg-zinc-800 text-white border-zinc-800"
-                  : "bg-zinc-100 border-zinc-300 text-zinc-600 hover:text-white"
+                  ? "bg-zinc-800 text-white border-zinc-700"
+                  : "bg-white/5 border-white/10 text-zinc-400 hover:text-white"
               }`}
             >
               <Filter className="w-3.5 h-3.5" /> ทั้งหมด
@@ -688,7 +688,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
               className={`px-4 py-2 rounded-xl text-xs font-bold shrink-0 transition-all border flex items-center gap-1.5 ${
                 activeTab === "popular"
                   ? "bg-[#0066ff] text-white border-[#0066ff] shadow-[0_4px_12px_rgba(0,102,255,0.25)]"
-                  : "bg-zinc-100 border-zinc-300 text-zinc-600 hover:text-white"
+                  : "bg-white/5 border-white/10 text-zinc-400 hover:text-white"
               }`}
             >
               🔥 แนะนำยอดฮิต
@@ -698,7 +698,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
               className={`px-4 py-2 rounded-xl text-xs font-bold shrink-0 transition-all border flex items-center gap-1.5 ${
                 activeTab === "sale"
                   ? "bg-emerald-500 text-white border-emerald-500 shadow-[0_4px_12px_rgba(16,185,129,0.25)]"
-                  : "bg-zinc-100 border-zinc-300 text-zinc-600 hover:text-white"
+                  : "bg-white/5 border-white/10 text-zinc-400 hover:text-white"
               }`}
             >
               🏷️ ลดคุ้มแนะนํา
@@ -712,7 +712,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 className={`px-4 py-2 rounded-xl text-xs font-bold shrink-0 transition-all border ${
                   activeTab === cat.name
                     ? "bg-[#0066ff] text-white border-[#0066ff]"
-                    : "bg-zinc-100 border-zinc-300 text-zinc-600 hover:text-white"
+                    : "bg-white/5 border-white/10 text-zinc-400 hover:text-white"
                 }`}
               >
                 {cat.title}
@@ -725,13 +725,13 @@ export const HomeView: React.FC<HomeViewProps> = ({
         <SmoothScrollSection direction="up" delay={150} className="w-full">
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-5 mt-4">
             {filteredProducts.length === 0 ? (
-              <div className="col-span-full py-16 text-center border border-dashed border-zinc-800 rounded-3xl bg-zinc-50">
-                <Package className="w-10 h-10 text-zinc-450 mx-auto mb-3" />
-                <p className="text-blue-200/60 font-bold text-sm">ไม่พบรายการสินค้าที่ค้นหา</p>
-                <p className="text-blue-100/70 text-xs mt-1">กรุณาลองเปลี่ยนแถบประเภทหรือเปิดเมนูตัวเลือกอื่น</p>
+              <div className="col-span-full py-16 text-center border border-dashed border-white/10 rounded-3xl bg-zinc-900/50">
+                <Package className="w-10 h-10 text-zinc-600 mx-auto mb-3" />
+                <p className="text-zinc-400 font-bold text-sm">ไม่พบรายการสินค้าที่ค้นหา</p>
+                <p className="text-zinc-500 text-xs mt-1">กรุณาลองเปลี่ยนแถบประเภทหรือเปิดเมนูตัวเลือกอื่น</p>
                 <button
                   onClick={() => { setActiveTab("all"); setInStockOnly(false); }}
-                  className="mt-4 px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-xl text-xs font-bold text-white hover:bg-zinc-800"
+                  className="mt-4 px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-xl text-xs font-bold text-white hover:bg-zinc-700"
                 >
                   คืนค่าเริ่มต้น
                 </button>
@@ -750,11 +750,11 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     initial={{ opacity: 0, scale: 0.97, y: 15 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     transition={{ duration: 0.35, delay: Math.min(i * 0.04, 0.4), ease: "easeOut" }}
-                    className="flex flex-col bg-white/70 border border-zinc-200 rounded-2xl overflow-hidden hover:scale-[1.02] hover:border-[#0066ff]/30 hover:shadow-md group transition-all duration-300 h-full"
+                    className="flex flex-col bg-[#0A0D12]/80 border border-white/10 rounded-2xl overflow-hidden hover:scale-[1.02] hover:border-blue-500/30 hover:shadow-md group transition-all duration-300 h-full"
                   >
                     
                     {/* Thumbnail & Badges Container */}
-                    <div className="aspect-square bg-zinc-50 relative overflow-hidden p-2 group-hover:bg-zinc-100 transition-colors duration-300">
+                    <div className="aspect-square bg-black/20 relative overflow-hidden p-2 group-hover:bg-zinc-900/40 transition-colors duration-300">
                       
                       {/* Interactive Tags Row */}
                       <div className="absolute top-4 left-4 right-4 z-10 flex items-start justify-between gap-2 pointer-events-none">
@@ -788,7 +788,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                       )}
 
                       {/* Product Visual */}
-                      <div className="w-full h-full rounded-xl overflow-hidden relative bg-zinc-50">
+                      <div className="w-full h-full rounded-xl overflow-hidden relative bg-zinc-900/50">
                         {product.imageUrl ? (
                           <img
                             loading="lazy"
@@ -797,9 +797,9 @@ export const HomeView: React.FC<HomeViewProps> = ({
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
                           />
                         ) : (
-                          <div className="w-full h-full flex flex-col items-center justify-center border border-zinc-200 opacity-50 bg-zinc-100">
-                            <Box className="w-8 h-8 text-blue-100/70 mb-1" />
-                            <span className="text-[10px] font-bold text-blue-100/70 uppercase tracking-widest">STORETH</span>
+                          <div className="w-full h-full flex flex-col items-center justify-center border border-white/5 opacity-50 bg-zinc-900">
+                            <Box className="w-8 h-8 text-zinc-500 mb-1" />
+                            <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">STORETH</span>
                           </div>
                         )}
                       </div>
@@ -808,7 +808,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                       {product.stock > 0 && (
                         <div 
                           onClick={() => onProductClick(product.id)}
-                          className="cursor-pointer absolute inset-0 bg-white/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center z-10"
+                          className="cursor-pointer absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center z-10"
                         >
                           <span className="bg-white text-black font-extrabold text-[11px] uppercase tracking-wider px-4 py-2 rounded-xl shadow-lg hover:scale-105 transition-transform">
                             รายละเอียดสินค้า
@@ -818,14 +818,14 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     </div>
 
                     {/* Meta/Description Text */}
-                    <div className="p-4 sm:p-5 flex flex-col flex-1 bg-white/70">
+                    <div className="p-4 sm:p-5 flex flex-col flex-1 bg-transparent">
                       
                       {/* Name / Category */}
                       <div className="mb-2">
-                        <span className="text-[9px] font-bold text-blue-100/70 uppercase tracking-wider block mb-0.5">
+                        <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-wider block mb-0.5">
                           {product.category || "General Digital"}
                         </span>
-                        <h3 className="font-bold text-white text-xs sm:text-sm leading-snug line-clamp-2 h-9 sm:h-10 group-hover:text-blue-600 transition-colors duration-200">
+                        <h3 className="font-bold text-white text-xs sm:text-sm leading-snug line-clamp-2 h-9 sm:h-10 group-hover:text-blue-400 transition-colors duration-200">
                           {product.name}
                         </h3>
                       </div>
@@ -836,7 +836,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                         {/* Prices block */}
                         <div className="min-w-0 flex flex-col">
                           {product.originalPrice && product.originalPrice > product.price ? (
-                            <span className="text-[10px] text-blue-200/60 line-through leading-none mb-1">
+                            <span className="text-[10px] text-zinc-500 line-through leading-none mb-1">
                               ฿{(product.originalPrice || 0).toLocaleString()}
                             </span>
                           ) : (
@@ -850,7 +850,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
                         {/* Stock Balance bar status */}
                         <div className="text-right shrink-0">
-                          <span className="text-[9px] text-blue-100/70 font-bold block leading-none mb-1 uppercase tracking-wider">คงเหลือ</span>
+                          <span className="text-[9px] text-zinc-500 font-bold block leading-none mb-1 uppercase tracking-wider">คงเหลือ</span>
                           <span className={`text-[10px] font-black leading-none ${product.stock > 0 ? 'text-cyan-400' : 'text-red-400'}`}>
                             {product.stock >= 999999 ? "INFINITE" : `${product.stock} ชิ้น`}
                           </span>
@@ -862,14 +862,14 @@ export const HomeView: React.FC<HomeViewProps> = ({
                         {product.stock <= 0 ? (
                           <button
                             disabled
-                            className="w-full bg-zinc-200 text-blue-100/70 rounded-xl py-2.5 text-xs font-bold cursor-not-allowed flex items-center justify-center gap-1.5"
+                            className="w-full bg-white/5 text-zinc-500 rounded-xl py-2.5 text-xs font-bold cursor-not-allowed flex items-center justify-center gap-1.5"
                           >
                             <Package className="w-3.5 h-3.5" /> สินค้าหมด
                           </button>
                         ) : (
                           <button
                             onClick={() => onProductClick(product.id)}
-                            className="w-full bg-zinc-800 hover:bg-[#0066ff] border border-zinc-300 hover:border-[#0066ff] text-white hover:text-white rounded-xl py-2.5 text-xs font-extrabold transition-all active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer shadow-sm hover:shadow-[0_4px_12px_rgba(0,102,255,0.25)]"
+                            className="w-full bg-white/10 hover:bg-[#0066ff] border border-white/10 hover:border-[#0066ff] text-white hover:text-white rounded-xl py-2.5 text-xs font-extrabold transition-all active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer shadow-sm hover:shadow-[0_4px_12px_rgba(0,102,255,0.25)]"
                           >
                             <ShoppingCart className="w-3.5 h-3.5" /> สั่งซื้อด่วน
                           </button>
