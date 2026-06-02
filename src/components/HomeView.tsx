@@ -234,7 +234,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
       
       {/* 1. Elegant Banner Carousel with dynamic navigation overlay */}
       <SmoothScrollSection direction="left" delay={50} className="w-full">
-        <div className="relative w-full aspect-[21/9] md:aspect-[21/5] rounded-2xl overflow-hidden group border border-white/5 bg-zinc-950/60 shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
+        <div className="relative w-full rounded-2xl overflow-hidden group border border-white/5 bg-zinc-950/60 shadow-[0_8px_32px_rgba(0,0,0,0.4)]" style={{ aspectRatio: "21 / 5" }}>
           <AnimatePresence mode="wait">
             <motion.div
               key={currentBanner}
@@ -346,20 +346,20 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
         {/* Card 2: Total Stock */}
         <SmoothScrollSection direction="right" delay={100} className="w-full">
-          <div className="relative overflow-hidden bg-zinc-900/60 rounded-2xl p-4 sm:p-5 border border-white/5 shadow-md hover:border-white/10 hover:shadow-lg group transition-all duration-300 flex items-center gap-4 flex-row-reverse text-right justify-between h-full">
+          <div className="relative overflow-hidden bg-zinc-900/60 rounded-2xl p-4 sm:p-5 border border-white/5 shadow-md hover:border-white/10 hover:shadow-lg group transition-all duration-300 flex items-center gap-4 h-full">
             <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-300">
               <Package className="w-5 h-5 text-cyan-400" />
             </div>
-            <div className="min-w-0">
+            <div className="min-w-0 w-full">
               <p className="text-[10px] sm:text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-0.5">พร้อมจำหน่าย</p>
-              <div className="flex items-baseline gap-1.5 flex-wrap justify-end">
+              <div className="flex items-baseline gap-1.5 flex-wrap">
                 <span className="text-lg sm:text-2xl font-black text-white leading-none">
                   <NumberTicker value={totalStockAvailable} />
                 </span>
                 <span className="text-[9px] font-bold text-cyan-400 leading-none">รายการ</span>
               </div>
             </div>
-            <div className="absolute left-0 bottom-0 -translate-x-3 translate-y-3 opacity-[0.02] text-white">
+            <div className="absolute right-0 bottom-0 translate-x-3 translate-y-3 opacity-[0.02] text-white">
               <Package className="w-24 h-24" />
             </div>
           </div>
@@ -390,22 +390,22 @@ export const HomeView: React.FC<HomeViewProps> = ({
         <SmoothScrollSection direction="right" delay={200} className="w-full">
           <div 
             onClick={() => setActiveView("wallet")}
-            className="cursor-pointer relative overflow-hidden bg-zinc-900/60 rounded-2xl p-4 sm:p-5 border border-blue-500/20 hover:border-blue-500/40 shadow-md hover:shadow-[0_0_15px_rgba(0,102,255,0.15)] group transition-all duration-300 flex items-center gap-4 flex-row-reverse text-right justify-between h-full"
+            className="cursor-pointer relative overflow-hidden bg-zinc-900/60 rounded-2xl p-4 sm:p-5 border border-blue-500/20 hover:border-blue-500/40 shadow-md hover:shadow-[0_0_15px_rgba(0,102,255,0.15)] group transition-all duration-300 flex items-center gap-4 h-full"
           >
             <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#0066ff]/15 border border-[#0066ff]/35 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-300">
               <Wallet className="w-5 h-5 text-[#66a3ff]" />
             </div>
-            <div className="min-w-0">
+            <div className="min-w-0 w-full">
               <p className="text-[10px] sm:text-xs font-semibold text-blue-300 uppercase tracking-wider mb-0.5">กระเป๋าเงินของคุณ</p>
-              <div className="flex items-baseline gap-1 flex-wrap justify-end">
+              <div className="flex items-baseline gap-1 flex-wrap">
                 <span className="text-sm sm:text-base font-bold text-blue-300 leading-none mr-0.5">฿</span>
                 <span className="text-lg sm:text-2xl font-black text-white leading-none">
                   {user ? (user.balance || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0.00"}
                 </span>
               </div>
             </div>
-            <div className="absolute left-3 top-3 bg-[#0066ff]/10 text-[#66a3ff] rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              <ChevronRight className="w-3.5 h-3.5 rotate-180" />
+            <div className="absolute right-3 top-3 bg-[#0066ff]/10 text-[#66a3ff] rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              <ChevronRight className="w-3.5 h-3.5" />
             </div>
           </div>
         </SmoothScrollSection>
@@ -427,11 +427,11 @@ export const HomeView: React.FC<HomeViewProps> = ({
         </SmoothScrollSection>
 
         <SmoothScrollSection direction="right" delay={100} className="w-full">
-          <div className="flex items-start gap-3.5 p-5 bg-zinc-900/35 border border-white/5 rounded-2xl h-full mb-0 flex-row-reverse text-right">
+          <div className="flex items-start gap-3.5 p-5 bg-zinc-900/35 border border-white/5 rounded-2xl h-full mb-0">
             <div className="p-2.5 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400">
               <Shield className="w-5 h-5" />
             </div>
-            <div className="flex-1">
+            <div>
               <h4 className="text-sm font-bold text-white mb-0.5">ธรรมาภิบาลและความปลอดภัย</h4>
               <p className="text-xs text-zinc-400 leading-relaxed">ข้อมูลและสิทธิ์ของสมาชิกถูกปกป้องด้วยฐานข้อมูลที่มีความปลอดภัยสูงสุด</p>
             </div>
@@ -756,11 +756,9 @@ export const HomeView: React.FC<HomeViewProps> = ({
                       {/* Thumbnail & Badges Container */}
                       <div className="aspect-square bg-zinc-950 relative overflow-hidden p-2 group-hover:bg-zinc-900/35 transition-colors duration-300">
                         
-                        {/* Interactive Tags Row (Alternated) */}
-                        <div className={`absolute top-4 left-4 right-4 z-10 flex items-start justify-between gap-2 pointer-events-none ${
-                          i % 2 === 0 ? "flex-row" : "flex-row-reverse"
-                        }`}>
-                          <div className={`flex flex-col gap-1 ${i % 2 === 0 ? "items-start" : "items-end"}`}>
+                        {/* Interactive Tags Row */}
+                        <div className="absolute top-4 left-4 right-4 z-10 flex items-start justify-between gap-2 pointer-events-none">
+                          <div className="flex flex-col gap-1 items-start">
                             {isSpecialHot && (
                               <span className="bg-gradient-to-r from-red-500 to-orange-500 text-white font-black text-[9px] px-2 py-0.5 rounded shadow-md uppercase tracking-wider">
                                 POPULAR
@@ -832,13 +830,11 @@ export const HomeView: React.FC<HomeViewProps> = ({
                           </h3>
                         </div>
 
-                        {/* Price Grid representation (Alternated) */}
-                        <div className={`mt-auto pt-4 flex items-end justify-between border-t border-white/5 ${
-                          i % 2 === 0 ? "flex-row" : "flex-row-reverse text-right"
-                        }`}>
+                        {/* Price Grid representation */}
+                        <div className="mt-auto pt-4 flex items-end justify-between border-t border-white/5">
                           
                           {/* Prices block */}
-                          <div className={`min-w-0 flex flex-col ${i % 2 === 0 ? "" : "items-end"}`}>
+                          <div className="min-w-0 flex flex-col">
                             {product.originalPrice && product.originalPrice > product.price ? (
                               <span className="text-[10px] text-zinc-550 line-through leading-none mb-1">
                                 ฿{(product.originalPrice || 0).toLocaleString()}
@@ -853,7 +849,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                           </div>
 
                           {/* Stock Balance bar status */}
-                          <div className={`shrink-0 ${i % 2 === 0 ? "text-right" : "text-left"}`}>
+                          <div className="shrink-0 text-right">
                             <span className="text-[9px] text-zinc-500 font-bold block leading-none mb-1 uppercase tracking-wider">คงเหลือ</span>
                             <span className={`text-[10px] font-black leading-none ${product.stock > 0 ? "text-cyan-400" : "text-red-400"}`}>
                               {product.stock >= 999999 ? "INFINITE" : `${product.stock} ชิ้น`}
@@ -861,7 +857,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                           </div>
                         </div>
 
-                        {/* Full-width Instant Action Trigger (Alternated Shopping Cart Placement) */}
+                        {/* Full-width Instant Action Trigger */}
                         <div className="mt-4">
                           {product.stock <= 0 ? (
                             <button
@@ -873,9 +869,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                           ) : (
                             <button
                               onClick={() => onProductClick(product.id)}
-                              className={`w-full bg-zinc-800 hover:bg-[#0066ff] border border-white/5 hover:border-[#0066ff] text-white hover:text-white rounded-xl py-2.5 text-xs font-extrabold transition-all active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer shadow-sm hover:shadow-[0_4px_12px_rgba(0,102,255,0.25)] ${
-                                i % 2 === 0 ? "flex-row" : "flex-row-reverse"
-                              }`}
+                              className="w-full bg-zinc-800 hover:bg-[#0066ff] border border-white/5 hover:border-[#0066ff] text-white hover:text-white rounded-xl py-2.5 text-xs font-extrabold transition-all active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer shadow-sm hover:shadow-[0_4px_12px_rgba(0,102,255,0.25)]"
                             >
                               <ShoppingCart className="w-3.5 h-3.5" /> <span>สั่งซื้อด่วน</span>
                             </button>
