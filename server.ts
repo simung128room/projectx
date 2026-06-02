@@ -23,6 +23,7 @@ import fs from 'fs';
 import readline from 'readline';
 import os from 'os';
 import zlib from 'zlib';
+import cloudscraper from 'cloudscraper';
 
 import { promisify } from 'util';
 const gzipAsync = promisify(zlib.gzip);
@@ -99,19 +100,8 @@ import { getMD5, encryptPassword, getCodmInfo, getGameConnections, encrypt, decr
 
 const _dirname = typeof __dirname !== 'undefined' ? __dirname : process.cwd();
 
-const allowedImageMimeTypes = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
-const createSafeUpload = (maxFileSize: number) => multer({
-  storage: multer.memoryStorage(),
-  limits: { fileSize: maxFileSize, files: 1 },
-  fileFilter: (req, file, cb) => {
-    if (!allowedImageMimeTypes.has(file.mimetype)) {
-      return cb(new Error('Unsupported file type'));
-    }
-    cb(null, true);
-  }
-});
-const upload = createSafeUpload(50 * 1024 * 1024); // 50MB limit
-const communityUpload = createSafeUpload(5 * 1024 * 1024); // 5MB limit
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 50 * 1024 * 1024 } }); // 50MB limit
+const communityUpload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } }); // 5MB limit
 
 async function uploadToSupabaseStorage(buffer: Buffer, originalName: string, mimeType: string): Promise<string> {
   const isSupabaseConfigured = !!(process.env.SUPABASE_URL && process.env.SUPABASE_URL.startsWith('http') && (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY));
@@ -119,14 +109,8 @@ async function uploadToSupabaseStorage(buffer: Buffer, originalName: string, mim
     throw new Error('Supabase is not configured');
   }
 
-  const safeMimeToExt: Record<string, string> = {
-    'image/jpeg': 'jpg',
-    'image/png': 'png',
-    'image/webp': 'webp',
-    'image/gif': 'gif'
-  };
-  const fileExt = safeMimeToExt[mimeType] || 'webp';
-  const fileName = `${Date.now()}-${crypto.randomUUID()}.${fileExt}`;
+  const fileExt = originalName.split('.').pop() || 'webp';
+  const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 11)}.${fileExt}`;
   const bucketName = 'uploads';
 
   const { data, error } = await supabaseAdmin.storage
@@ -311,7 +295,7 @@ app.use(helmet({
 }));
 app.use(compression());
 app.set('trust proxy', 1);
-  const PORT = Number(process.env.PORT || 3000);
+  const PORT = 3000;
   
   import { pinoHttp } from 'pino-http';
   import pino from 'pino';
@@ -587,9 +571,6 @@ const cleanupTokenCache = () => {
     const authHeader = req.headers.authorization;
     if (authHeader && authHeader.startsWith('Bearer ')) {
       const token = authHeader.split('Bearer ')[1]?.trim();
-      if (token && token.length > 4096) {
-        return res.status(401).json({ error: 'Invalid token', requestId: req.id });
-      }
       if (token && token !== 'null' && token !== 'undefined') {
         const now = Date.now();
         const cached = userTokenCache.get(token);
@@ -3584,64 +3565,7 @@ const diskUpload = multer({ dest: uploadDir });
   let TelegramClient: any;
   let StringSession: any;
   let NewMessage: any;
-
-  const TRUE_MONEY_HOST = 'gift.truemoney.com';
-  const phoneRegex = /^0[689]\d{8}$/;
-  const voucherRegex = /^[A-Za-z0-9]{10,64}$/;
-
-  function extractTrueMoneyVoucherCode(giftLink: string): string | null {
-      try {
-          const parsed = new URL(giftLink);
-          if (parsed.protocol !== 'https:' || parsed.hostname !== TRUE_MONEY_HOST) return null;
-          const voucherCode = parsed.searchParams.get('v')?.trim() || '';
-          return voucherRegex.test(voucherCode) ? voucherCode : null;
-      } catch {
-          return null;
-      }
-  }
-
-  async function redeemTrueMoneyVoucher(giftLink: string, phoneNumber: string) {
-      const voucherCode = extractTrueMoneyVoucherCode(giftLink);
-      if (!voucherCode) return { success: false, status: { code: 'INVALID_CODE', message: 'INVALID_CODE' }, message: 'INVALID_CODE' };
-      if (!phoneRegex.test(String(phoneNumber || '').trim())) {
-          return { success: false, status: { code: 'INVALID_PHONE', message: 'INVALID_PHONE' }, message: 'INVALID_PHONE' };
-      }
-
-      try {
-          const response = await axios.post(
-              `https://${TRUE_MONEY_HOST}/campaign/vouchers/${voucherCode}/redeem`,
-              { mobile: phoneNumber.trim(), voucher_hash: voucherCode },
-              {
-                  timeout: 10000,
-                  maxRedirects: 0,
-                  maxBodyLength: 16 * 1024,
-                  maxContentLength: 256 * 1024,
-                  headers: {
-                      'Content-Type': 'application/json',
-                      'Referer': `https://${TRUE_MONEY_HOST}/campaign/?v=${voucherCode}`,
-                      'Origin': `https://${TRUE_MONEY_HOST}`,
-                      'User-Agent': 'Mozilla/5.0'
-                  },
-                  validateStatus: () => true,
-              }
-          );
-
-          const data: any = response.data;
-          if (data?.status?.code === 'SUCCESS') {
-              return {
-                  ...data,
-                  success: true,
-                  amount: data.data?.my_ticket?.amount_baht,
-                  ownerName: data.data?.owner_profile?.full_name,
-                  voucherCode,
-              };
-          }
-          return { ...data, success: false, message: data?.status?.message || 'FAILED' };
-      } catch (error: any) {
-          const data = error?.response?.data;
-          return { success: false, status: data?.status || { code: 'REQUEST_ERROR', message: 'RATE_LIMIT/ERROR' }, message: data?.status?.message || 'RATE_LIMIT/ERROR' };
-      }
-  }
+  let twApi: any;
 
   class TopupSystem {
       phoneNumber: string;
@@ -3650,7 +3574,39 @@ const diskUpload = multer({ dest: uploadDir });
       }
 
       async redeemVoucher(giftLink: string) {
-          return redeemTrueMoneyVoucher(giftLink, this.phoneNumber);
+          try {
+              const voucherCode = giftLink.split('v=')[1]?.split('&')[0];
+              if (!voucherCode) return { success: false, message: 'INVALID_CODE' };
+
+              const response: any = await (cloudscraper as any).post(
+                  `https://gift.truemoney.com/campaign/vouchers/${voucherCode}/redeem`,
+                  {
+                      json: { mobile: this.phoneNumber, voucher_hash: voucherCode },
+                      headers: {
+                          'Referer': `https://gift.truemoney.com/campaign/?v=${voucherCode}`,
+                          'Origin': 'https://gift.truemoney.com'
+                      }
+                  }
+              );
+
+              if (response?.status?.code === 'SUCCESS') {
+                  return {
+                      success: true,
+                      amount: response.data.my_ticket.amount_baht,
+                      ownerName: response.data.owner_profile.full_name,
+                      voucherCode: voucherCode
+                  };
+              }
+              return { success: false, message: response?.status?.message || 'FAILED' };
+          } catch (error: any) {
+              if (error.response?.body) {
+                  try {
+                      const errData = typeof error.response.body === 'string' ? JSON.parse(error.response.body) : error.response.body;
+                      return { success: false, message: errData.status?.message || 'FAILED' };
+                  } catch (e) {}
+              }
+              return { success: false, message: 'RATE_LIMIT/ERROR' };
+          }
       }
   }
 
@@ -3661,6 +3617,8 @@ const diskUpload = multer({ dest: uploadDir });
     StringSession = ts.StringSession;
     const te = await import('telegram/events/index.js');
     NewMessage = te.NewMessage;
+    const tw = await import('@opecgame/twapi');
+    twApi = tw.default;
   })();
 
   let tgDailyCount = 0;
@@ -3671,7 +3629,6 @@ const diskUpload = multer({ dest: uploadDir });
       status: 'idle' | 'pending_otp' | 'pending_password' | 'connected' | 'error',
       encryptedPhone: string,
       truemoneyPhone: string,
-      ownerUid: string,
       resolveOtp?: (code: string) => void,
       resolvePassword?: (pwd: string) => void,
       logs: string[]
@@ -3696,7 +3653,6 @@ const diskUpload = multer({ dest: uploadDir });
   app.post('/api/telegram/catcher/request', requireAuth, async (req: any, res: any) => {
       const { telegramPhone, truemoneyPhone } = req.body;
       if (!telegramPhone || !truemoneyPhone) return res.status(400).json({ error: 'Missing phone numbers' });
-      if (!phoneRegex.test(String(truemoneyPhone).trim())) return res.status(400).json({ error: 'Invalid TrueMoney phone number' });
 
       // Verify Premium
       const userRef = admin.firestore().collection('users').doc((req as any).user.uid);
@@ -3737,8 +3693,7 @@ const diskUpload = multer({ dest: uploadDir });
               client, 
               status: 'idle', 
               encryptedPhone: encrypt(telegramPhone),
-              truemoneyPhone: String(truemoneyPhone).trim(),
-              ownerUid: (req as any).user.uid,
+              truemoneyPhone,
               logs: ['เริ่มเชื่อมต่อเข้าสู่ระบบ Telegram...']
           };
           tgSessions.set(sessionId, sess);
@@ -3837,11 +3792,10 @@ const diskUpload = multer({ dest: uploadDir });
       }
   });
 
-  app.post('/api/telegram/catcher/submit', requireAuth, async (req: any, res: any) => {
+  app.post('/api/telegram/catcher/submit', async (req, res) => {
       const { sessionId, type, value } = req.body;
       const sess = tgSessions.get(sessionId);
       if (!sess) return res.status(400).json({ error: 'ไม่พบเซสชั่น' });
-      if (!req.isAdmin && sess.ownerUid !== (req as any).user.uid) return res.status(403).json({ error: 'Forbidden' });
 
       if (type === 'otp' && sess.resolveOtp) {
           sess.resolveOtp(value);
@@ -3854,11 +3808,10 @@ const diskUpload = multer({ dest: uploadDir });
       res.json({ success: true });
   });
 
-  app.post('/api/telegram/catcher/status', requireAuth, async (req: any, res: any) => {
+  app.post('/api/telegram/catcher/status', async (req, res) => {
       const { sessionId } = req.body;
       const sess = tgSessions.get(sessionId);
       if (!sess) return res.json({ status: 'none', logs: [] });
-      if (!req.isAdmin && sess.ownerUid !== (req as any).user.uid) return res.status(403).json({ error: 'Forbidden' });
       res.json({ status: sess.status, logs: sess.logs });
   });
 
@@ -3866,7 +3819,6 @@ const diskUpload = multer({ dest: uploadDir });
       const { sessionId } = req.body;
       const sess = tgSessions.get(sessionId);
       if (sess) {
-          if (!req.isAdmin && sess.ownerUid !== (req as any).user.uid) return res.status(403).json({ error: 'Forbidden' });
           try { await sess.client.disconnect(); } catch (e) {}
           tgSessions.delete(sessionId);
           for (const [hash, sid] of tgPhoneHashToSessionId.entries()) {
@@ -3883,8 +3835,7 @@ const diskUpload = multer({ dest: uploadDir });
     try {
       const { url, phone } = req.body;
       if (!url || !phone) return res.status(400).json({ error: 'Missing parameters' });
-      if (!phoneRegex.test(String(phone).trim())) return res.status(400).json({ error: 'Invalid phone number' });
-      const result = await redeemTrueMoneyVoucher(String(url), String(phone));
+      const result = await twApi(url, phone);
       res.json(result);
     } catch (err: any) {
       res.status(500).json({ error: err.message || String(err) });
@@ -3895,8 +3846,7 @@ const diskUpload = multer({ dest: uploadDir });
   const discordTokenOnSessions = new Map<string, {
       ws: WebSocket,
       status: 'idle' | 'connected' | 'error',
-      logs: string[],
-      ownerUid: string
+      logs: string[]
   }>();
 
   function pushDiscordOnLog(token: string, msg: string) {
@@ -3932,8 +3882,7 @@ const diskUpload = multer({ dest: uploadDir });
           sess = { 
               ws, 
               status: 'idle', 
-              logs: ['🎯 เริ่มระบบ Token On (24/7)...'],
-              ownerUid: (req as any).user.uid
+              logs: ['🎯 เริ่มระบบ Token On (24/7)...']
           };
           discordTokenOnSessions.set(discordToken, sess);
 
@@ -4017,11 +3966,10 @@ const diskUpload = multer({ dest: uploadDir });
       }
   });
 
-  app.get('/api/discord/token-on/status', requireAuth, async (req: any, res: any) => {
+  app.get('/api/discord/token-on/status', async (req, res) => {
       const token = req.query.token as string;
       const sess = discordTokenOnSessions.get(token);
       if (!sess) return res.json({ status: 'none', logs: [] });
-      if (!req.isAdmin && sess.ownerUid !== (req as any).user.uid) return res.status(403).json({ error: 'Forbidden' });
       res.json({ status: sess.status, logs: sess.logs });
   });
 
@@ -4029,7 +3977,6 @@ const diskUpload = multer({ dest: uploadDir });
       const { discordToken } = req.body;
       const sess = discordTokenOnSessions.get(discordToken);
       if (sess) {
-          if (!req.isAdmin && sess.ownerUid !== (req as any).user.uid) return res.status(403).json({ error: 'Forbidden' });
           try { sess.ws.close(); } catch (e) {}
           discordTokenOnSessions.delete(discordToken);
       }
@@ -4042,8 +3989,7 @@ const diskUpload = multer({ dest: uploadDir });
       status: 'idle' | 'connected' | 'error',
       encryptedToken: string,
       truemoneyPhone: string,
-      logs: string[],
-      ownerUid: string
+      logs: string[]
   }>();
 
   const discordTokenHashToSessionId = new Map<string, string>();
@@ -4059,7 +4005,6 @@ const diskUpload = multer({ dest: uploadDir });
   app.post('/api/discord/catcher/request', requireAuth, async (req: any, res: any) => {
       const { discordToken, truemoneyPhone } = req.body;
       if (!discordToken || !truemoneyPhone) return res.status(400).json({ error: 'Missing token or phone number' });
-      if (!phoneRegex.test(String(truemoneyPhone).trim())) return res.status(400).json({ error: 'Invalid TrueMoney phone number' });
 
       // Verify Premium
       const userRef = admin.firestore().collection('users').doc((req as any).user.uid);
@@ -4102,8 +4047,7 @@ const diskUpload = multer({ dest: uploadDir });
               ws, 
               status: 'idle', 
               encryptedToken: encrypt(discordToken),
-              truemoneyPhone: String(truemoneyPhone).trim(),
-              ownerUid: (req as any).user.uid,
+              truemoneyPhone,
               logs: ['เริ่มเชื่อมต่อเข้าสู่ระบบ Discord (WebSocket)...']
           };
           discordSessions.set(sessionId, sess);
@@ -4153,7 +4097,7 @@ const diskUpload = multer({ dest: uploadDir });
                           pushDiscordLog(sessionId!, `🎯 เจอซอง! เริ่มการรับเครดิตเข้าเบอร์ ${truemoneyPhone}`);
                           for (const vurl of matches) {
                               try {
-                                  const result = await redeemTrueMoneyVoucher(vurl, truemoneyPhone);
+                                  const result = await twApi(vurl, truemoneyPhone);
                                   if (result?.status?.code === 'SUCCESS') {
                                       pushDiscordLog(sessionId!, `✅ รับซองสำเร็จ! +${result.data.my_ticket.amount_baht} บาท`);
                                   } else {
@@ -4203,11 +4147,10 @@ const diskUpload = multer({ dest: uploadDir });
       }
   });
 
-  app.post('/api/discord/catcher/status', requireAuth, async (req: any, res: any) => {
+  app.post('/api/discord/catcher/status', async (req, res) => {
       const { sessionId } = req.body;
       const sess = discordSessions.get(sessionId);
       if (!sess) return res.json({ status: 'none', logs: [] });
-      if (!req.isAdmin && sess.ownerUid !== (req as any).user.uid) return res.status(403).json({ error: 'Forbidden' });
       res.json({ status: sess.status, logs: sess.logs });
   });
 
@@ -4215,7 +4158,6 @@ const diskUpload = multer({ dest: uploadDir });
       const { sessionId } = req.body;
       const sess = discordSessions.get(sessionId);
       if (sess) {
-          if (!req.isAdmin && sess.ownerUid !== (req as any).user.uid) return res.status(403).json({ error: 'Forbidden' });
           try { sess.ws.close(); } catch (e) {}
           discordSessions.delete(sessionId);
           for (const [hash, sid] of discordTokenHashToSessionId.entries()) {
