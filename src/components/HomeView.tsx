@@ -306,96 +306,90 @@ export const HomeView: React.FC<HomeViewProps> = ({
         </div>
       </SmoothScrollSection>
 
-      {/* 3. High-Contrast Gamer Stats Cluster */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5">
+      {/* 3. High-Contrast User & Stats Cluster */}
+      <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
         
-        {/* Card 1: Total Sales */}
-        <SmoothScrollSection direction="left" delay={50} className="w-full">
-          <div className="relative overflow-hidden bg-[#0b1020]/90 rounded-2xl p-4 sm:p-5 border border-blue-500/20 shadow-sm hover:border-blue-400/60 hover:shadow-[0_0_22px_rgba(0,102,255,0.18)] group transition-all duration-300 flex items-center gap-4 h-full">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-300">
-              <ShoppingCart className="w-5 h-5 text-emerald-400" />
-            </div>
-            <div className="min-w-0 w-full">
-              <p className="text-[10px] sm:text-xs font-semibold text-blue-100/70 uppercase tracking-wider mb-0.5">ยอดสั่งซื้อทั้งหมด</p>
-              <div className="flex items-baseline gap-1.5 flex-wrap">
-                <span className="text-lg sm:text-2xl font-black text-white leading-none">
-                  <NumberTicker value={totalSales} />
-                </span>
-                <span className="text-[9px] font-bold text-emerald-400 leading-none">ครั้ง</span>
-              </div>
-            </div>
-            <div className="absolute right-0 bottom-0 translate-x-3 translate-y-3 opacity-[0.04] text-blue-200">
-              <ShoppingCart className="w-24 h-24" />
-            </div>
-          </div>
-        </SmoothScrollSection>
-
-        {/* Card 2: Total Stock */}
-        <SmoothScrollSection direction="right" delay={100} className="w-full">
-          <div className="relative overflow-hidden bg-[#0b1020]/90 rounded-2xl p-4 sm:p-5 border border-blue-500/20 shadow-sm hover:border-blue-400/60 hover:shadow-[0_0_22px_rgba(0,102,255,0.18)] group transition-all duration-300 flex items-center gap-4 h-full">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-300">
-              <Package className="w-5 h-5 text-cyan-400" />
-            </div>
-            <div className="min-w-0 w-full">
-              <p className="text-[10px] sm:text-xs font-semibold text-blue-100/70 uppercase tracking-wider mb-0.5">พร้อมจำหน่าย</p>
-              <div className="flex items-baseline gap-1.5 flex-wrap">
-                <span className="text-lg sm:text-2xl font-black text-white leading-none">
-                  <NumberTicker value={totalStockAvailable} />
-                </span>
-                <span className="text-[9px] font-bold text-cyan-400 leading-none">รายการ</span>
-              </div>
-            </div>
-            <div className="absolute right-0 bottom-0 translate-x-3 translate-y-3 opacity-[0.04] text-blue-200">
-              <Package className="w-24 h-24" />
-            </div>
-          </div>
-        </SmoothScrollSection>
-
-        {/* Card 3: Total Members */}
-        <SmoothScrollSection direction="left" delay={150} className="w-full">
-          <div className="relative overflow-hidden bg-[#0b1020]/90 rounded-2xl p-4 sm:p-5 border border-blue-500/20 shadow-sm hover:border-blue-400/60 hover:shadow-[0_0_22px_rgba(0,102,255,0.18)] group transition-all duration-300 flex items-center gap-4 h-full">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-300">
-              <Users className="w-5 h-5 text-amber-400" />
-            </div>
-            <div className="min-w-0 w-full">
-              <p className="text-[10px] sm:text-xs font-semibold text-blue-100/70 uppercase tracking-wider mb-0.5">ครอบครัวสมาชิก</p>
-              <div className="flex items-baseline gap-1.5 flex-wrap">
-                <span className="text-lg sm:text-2xl font-black text-white leading-none">
-                  <NumberTicker value={totalMembers} />
-                </span>
-                <span className="text-[9px] font-bold text-amber-400 leading-none">ผู้ใช้</span>
-              </div>
-            </div>
-            <div className="absolute right-0 bottom-0 translate-x-3 translate-y-3 opacity-[0.04] text-blue-200">
-              <Users className="w-24 h-24" />
-            </div>
-          </div>
-        </SmoothScrollSection>
-
-        {/* Card 4: Wallet Balance (Interactive to wallet trigger) */}
-        <SmoothScrollSection direction="right" delay={200} className="w-full">
+        {/* Priority User Wallet Card */}
+        <div className="w-full lg:w-[35%] shrink-0">
           <div 
             onClick={() => setActiveView("wallet")}
-            className="cursor-pointer relative overflow-hidden bg-[#0b1020]/90 rounded-2xl p-4 sm:p-5 border border-blue-500/20 hover:border-blue-500/40 shadow-sm hover:shadow-[0_0_15px_rgba(0,102,255,0.15)] group transition-all duration-300 flex items-center gap-4 h-full"
+            className="cursor-pointer relative overflow-hidden bg-gradient-to-br from-blue-900/20 via-[#0b1020]/90 to-[#0b1020] rounded-3xl p-6 sm:p-8 border border-blue-500/30 shadow-[0_0_30px_rgba(0,102,255,0.1)] hover:shadow-[0_0_40px_rgba(0,102,255,0.2)] hover:border-blue-400 group transition-all duration-300 h-full flex flex-col justify-center animate-in slide-in-from-left-4 fade-in duration-500"
           >
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#0066ff]/15 border border-[#0066ff]/35 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-300">
-              <Wallet className="w-5 h-5 text-[#66a3ff]" />
-            </div>
-            <div className="min-w-0 w-full">
-              <p className="text-[10px] sm:text-xs font-semibold text-blue-300 uppercase tracking-wider mb-0.5">กระเป๋าเงินของคุณ</p>
-              <div className="flex items-baseline gap-1 flex-wrap">
-                <span className="text-sm sm:text-base font-bold text-blue-300 leading-none mr-0.5">฿</span>
-                <span className="text-lg sm:text-2xl font-black text-white leading-none">
-                  {user ? (user.balance || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0.00"}
-                </span>
+            {/* Background Glow */}
+            <div className="absolute -top-12 -right-12 w-32 h-32 bg-blue-500/20 blur-3xl rounded-full pointer-events-none group-hover:bg-blue-400/30 transition-colors" />
+            
+            <div className="flex items-center gap-4 mb-4 relative z-10">
+              <div className="w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-300 shadow-[0_0_15px_rgba(0,102,255,0.2)]">
+                <Wallet className="w-6 h-6 text-blue-400" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-blue-200 uppercase tracking-widest">กระเป๋าเงินของคุณ</h3>
+                <p className="text-xs text-blue-100/50 mt-0.5">คลิกเพื่อเติมเงินหรือตรวจสอบยอด</p>
               </div>
             </div>
-            <div className="absolute right-3 top-3 bg-[#0066ff]/10 text-[#66a3ff] rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              <ChevronRight className="w-3.5 h-3.5" />
+            
+            <div className="flex items-end gap-2 relative z-10 mt-2">
+              <span className="text-4xl sm:text-5xl font-black text-white tracking-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
+                <NumberTicker value={user?.balance || 0} />
+              </span>
+              <span className="text-sm font-bold text-blue-400 mb-1.5 uppercase tracking-widest">บาท</span>
+            </div>
+            <div className="absolute right-0 bottom-0 translate-x-6 translate-y-6 opacity-[0.03] text-blue-300 group-hover:opacity-[0.05] transition-opacity pointer-events-none">
+              <Wallet className="w-40 h-40" />
             </div>
           </div>
-        </SmoothScrollSection>
+        </div>
 
+        {/* Secondary Store Analytics Group */}
+        <div className="w-full lg:w-[65%] grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 animate-in slide-in-from-right-4 fade-in duration-500">
+          {/* Card 1: Total Sales */}
+          <div className="relative overflow-hidden bg-zinc-900/50 rounded-2xl p-5 border border-white/5 hover:bg-zinc-900/80 hover:border-white/10 group transition-all duration-300 h-full flex flex-col justify-center">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-9 h-9 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0">
+                <ShoppingCart className="w-4 h-4 text-emerald-400" />
+              </div>
+              <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">ยอดสั่งซื้อทั้งหมด</p>
+            </div>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-xl sm:text-2xl font-bold text-white">
+                <NumberTicker value={totalSales} />
+              </span>
+              <span className="text-[10px] font-bold text-emerald-600">ครั้ง</span>
+            </div>
+          </div>
+
+          {/* Card 2: Total Stock */}
+          <div className="relative overflow-hidden bg-zinc-900/50 rounded-2xl p-5 border border-white/5 hover:bg-zinc-900/80 hover:border-white/10 group transition-all duration-300 h-full flex flex-col justify-center">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-9 h-9 rounded-xl bg-cyan-500/10 flex items-center justify-center shrink-0">
+                <Package className="w-4 h-4 text-cyan-400" />
+              </div>
+              <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">พร้อมจำหน่าย</p>
+            </div>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-xl sm:text-2xl font-bold text-white">
+                <NumberTicker value={totalStockAvailable} />
+              </span>
+              <span className="text-[10px] font-bold text-cyan-700">รายการ</span>
+            </div>
+          </div>
+
+          {/* Card 3: Total Members */}
+          <div className="relative overflow-hidden bg-zinc-900/50 rounded-2xl p-5 border border-white/5 hover:bg-zinc-900/80 hover:border-white/10 group transition-all duration-300 h-full flex flex-col justify-center">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-9 h-9 rounded-xl bg-amber-500/10 flex items-center justify-center shrink-0">
+                <Users className="w-4 h-4 text-amber-400" />
+              </div>
+              <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">ครอบครัวสมาชิก</p>
+            </div>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-xl sm:text-2xl font-bold text-white">
+                <NumberTicker value={totalMembers} />
+              </span>
+              <span className="text-[10px] font-bold text-amber-600">คน</span>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* 4. Service Advantage Section */}

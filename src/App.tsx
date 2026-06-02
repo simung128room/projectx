@@ -581,18 +581,13 @@ function AppContent() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(
     "all",
   );
-  const [isPageTransitioning, setIsPageTransitioning] = useState(false);
   const [usersList, setUsersList] = useState<any[]>([]);
 
   const setActiveView = useCallback(
     (view: any) => {
       if (activeView === view) return;
-      setIsPageTransitioning(true);
-      setTimeout(() => {
-        window.history.pushState(null, "", "/" + view);
-        setRawActiveView(view);
-        setIsPageTransitioning(false);
-      }, 50);
+      window.history.pushState(null, "", "/" + view);
+      setRawActiveView(view);
     },
     [activeView],
   );
@@ -2101,18 +2096,6 @@ function AppContent() {
           linkUrl={siteSettings?.popup_link ?? ""}
         />
       </Suspense>
-      {/* Page Transition Overlay */}
-      {isPageTransitioning && (
-        <div className="fixed inset-0 z-[200] bg-[#0a0a0a]/95 flex flex-col items-center justify-center p-4 overflow-hidden animate-in fade-in duration-75">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.1 }}
-          >
-            <div className="page-loader-cube scale-75" />
-          </motion.div>
-        </div>
-      )}
 
       {/* Desktop Sidebar */}
       <aside className="hidden lg:flex flex-col w-[280px] shrink-0 bg-[#0a0a0a] border-r border-[#1e1e1e] h-screen sticky top-0 p-6 z-[60] overflow-y-auto no-scrollbar">
@@ -2812,8 +2795,32 @@ function AppContent() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-0 sm:pt-2 pb-6 lg:pb-0 w-full flex-1 flex flex-col">
           <Suspense
             fallback={
-              <div className="flex items-center justify-center p-10">
-                <div className="w-8 h-8 border-4 border-[#3B82F6] border-t-transparent flex-shrink-0 animate-spin rounded-full"></div>
+              <div className="flex-1 w-full p-4 sm:p-6 space-y-6 bg-[#05070d] min-h-screen">
+                <div className="w-full max-w-[2100px] mx-auto space-y-8">
+                  {/* Banner Skeleton */}
+                  <div className="w-full h-[200px] sm:h-[350px] bg-white/5 animate-pulse rounded-2xl border border-white/5" />
+                  
+                  {/* Stats Skeleton */}
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                     <div className="h-24 bg-white/5 animate-pulse rounded-2xl border border-white/5" />
+                     <div className="h-24 bg-white/5 animate-pulse rounded-2xl border border-white/5" />
+                     <div className="h-24 bg-white/5 animate-pulse rounded-2xl border border-white/5" />
+                     <div className="h-24 bg-white/5 animate-pulse rounded-2xl border border-white/5" />
+                  </div>
+
+                  {/* Filter Skeleton */}
+                  <div className="flex gap-4">
+                    <div className="h-12 w-32 bg-white/5 animate-pulse rounded-full border border-white/5" />
+                    <div className="h-12 w-32 bg-white/5 animate-pulse rounded-full border border-white/5" />
+                  </div>
+
+                  {/* Grid Skeleton */}
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
+                    {[1,2,3,4,5,6,7,8].map(i => (
+                      <div key={i} className="flex flex-col bg-white/5 animate-pulse border border-white/5 rounded-2xl h-64" />
+                    ))}
+                  </div>
+                </div>
               </div>
             }
           >
