@@ -1110,8 +1110,8 @@ function AppContent() {
           setDbErrorDetail(`Backend API ไม่ตอบสนอง (Offline): ${errorMsg}`);
         });
 
-      // Await all critical promises to ensure data load is complete!
-      await Promise.all([mainFetchPromise, logsPromise, healthPromise, ...userAndAdminPromises]);
+      // Await only the critical home view endpoints + backend health check to reveal the home UI instantly
+      await Promise.all([mainFetchPromise, healthPromise]);
       console.timeEnd(`fetchAllData-${currentRequestId}`);
     } catch (err: any) {
       console.error("Critical fetch error in fetchAllData:", err);
@@ -2046,25 +2046,14 @@ function AppContent() {
   if (!isLoaded)
     return (
       <div className="min-h-screen bg-[#05070d] flex flex-col items-center justify-center font-sans overflow-hidden relative">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(0,102,255,0.15),rgba(0,0,0,0))] pointer-events-none" />
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
           className="relative flex flex-col items-center justify-center z-10 max-w-sm px-6 text-center"
         >
-          {/* Branded Header */}
-          <div className="mb-8">
-            <img
-              src="https://i.postimg.cc/66R1V03P/mi-m-ch-x-80-20260601204138.png"
-              alt="APEXSTORE Logo"
-              referrerPolicy="no-referrer"
-              className="h-16 w-auto drop-shadow-[0_0_20px_rgba(0,102,255,0.35)] rounded-xl mx-auto"
-            />
-          </div>
-
-          {/* Loader animation cube */}
-          <div className="relative mb-6 flex justify-center">
+          {/* Loader animation cube - perfectly centered */}
+          <div className="relative mb-8 flex justify-center">
             <div className="page-loader-cube" />
           </div>
 
