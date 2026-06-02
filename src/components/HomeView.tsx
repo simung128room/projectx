@@ -138,11 +138,17 @@ export const HomeView: React.FC<HomeViewProps> = ({
   const [realtimeStats, setRealtimeStats] = useState(stats);
   const [activeTab, setActiveTab] = useState<string>("all");
   const [inStockOnly, setInStockOnly] = useState<boolean>(false);
+  const [displayedCount, setDisplayedCount] = useState<number>(20);
 
   // Fallback checks to prevent array mapping crashes
   const safeProducts = useMemo(() => (Array.isArray(products) ? products : []), [products]);
   const safeCategories = useMemo(() => (Array.isArray(categories) ? categories : []), [categories]);
   const safePurchaseHistory = useMemo(() => (Array.isArray(purchaseHistory) ? purchaseHistory : []), [purchaseHistory]);
+
+  // Reset pagination when filter changes
+  useEffect(() => {
+    setDisplayedCount(20);
+  }, [activeTab, inStockOnly]);
 
   const bannersToUse = useMemo(() => {
     return siteSettings?.banners && siteSettings.banners.length > 0
@@ -716,27 +722,28 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 </button>
               </div>
             ) : (
-              filteredProducts.map((product, i) => {
-                const discountPct = product.originalPrice && product.originalPrice > product.price
-                  ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
-                  : 0;
-                
-                const isSpecialHot = product.isPopular || product.tag?.toLowerCase().includes("hot") || product.tag?.toLowerCase().includes("best");
+              <React.Fragment>
+                {filteredProducts.slice(0, displayedCount).map((product, i) => {
+                  const discountPct = product.originalPrice && product.originalPrice > product.price
+                    ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
+                    : 0;
+                  
+                  const isSpecialHot = product.isPopular || product.tag?.toLowerCase().includes("hot") || product.tag?.toLowerCase().includes("best");
 
-                return (
-                  <div
-                    key={product.id}
-                    className="flex flex-col bg-[#0A0D12]/80 border border-white/10 rounded-2xl overflow-hidden hover:scale-[1.02] hover:border-blue-500/30 hover:shadow-md group transition-all duration-300 h-full animate-in fade-in zoom-in duration-300"
-                  >
-                    
-                    {/* Thumbnail & Badges Container */}
-                    <div className="aspect-square bg-black/20 relative overflow-hidden p-2 group-hover:bg-zinc-900/40 transition-colors duration-300">
+                  return (
+                    <div
+                      key={product.id}
+                      className="flex flex-col bg-[#0A0D12]/80 border border-white/10 rounded-2xl overflow-hidden hover:scale-[1.02] hover:border-blue-500/30 hover:shadow-md group transition-all duration-300 h-full animate-in fade-in zoom-in duration-300"
+                    >
                       
-                      {/* Interactive Tags Row */}
-                      <div className="absolute top-4 left-4 right-4 z-10 flex items-start justify-between gap-2 pointer-events-none">
-                        <div className="flex flex-col gap-1 items-start">
-                          {isSpecialHot && (
-                            <span className="bg-gradient-to-r from-red-500 to-orange-500 text-white font-black text-[9px] px-2 py-0.5 rounded shadow-md uppercase tracking-wider">
+                      {/* Thumbnail & Badges Container */}
+                      <div className="aspect-square bg-black/20 relative overflow-hidden p-2 group-hover:bg-zinc-900/40 transition-colors duration-300">
+                        
+                        {/* Interactive Tags Row */}
+                        <div className="absolute top-4 left-4 right-4 z-10 flex items-start justify-between gap-2 pointer-events-none">
+                          <div className="flex flex-col gap-1 items-start">
+                            {isSpecialHot && (
+                              <span className="bg-gradient-to-r from-red-500 to-orange-500 text-white font-black text-[9px] px-2 py-0.5 rounded shadow-md uppercase tracking-wider">
                               POPULAR
                             </span>
                           )}
@@ -855,9 +862,21 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     </div>
                   </div>
                 );
-              })
+              })}
+              </React.Fragment>
             )}
           </div>
+          
+          {filteredProducts.length > displayedCount && (
+            <div className="flex justify-center mt-10">
+              <button
+                onClick={() => setDisplayedCount(prev => prev + 20)}
+                className="bg-white/5 hover:bg-white/10 text-white font-bold py-3 px-8 rounded-xl border border-white/10 transition-all hover:border-blue-500/30 flex items-center gap-2"
+              >
+                โหลดสินค้าเพิ่มเติม <ChevronRight className="w-5 h-5" />
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
