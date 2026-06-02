@@ -2089,10 +2089,10 @@ function AppContent() {
           <motion.img
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            src="https://img2.pic.in.th/4D8F9A5A-1535-4802-BD86-5FA08F0D3B3D.png"
+            src="https://i.postimg.cc/66R1V03P/mi-m-ch-x-80-20260601204138.png"
             alt="Logo"
             referrerPolicy="no-referrer"
-            className="h-14 w-auto cursor-pointer drop-shadow-md"
+            className="h-14 w-auto cursor-pointer drop-shadow-md rounded-xl"
             onClick={handleLogoClick}
           />
         </div>
@@ -2311,91 +2311,95 @@ function AppContent() {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-h-screen min-w-0 relative overflow-x-hidden">
         {/* Desktop Top Header */}
-        <header className="hidden lg:flex sticky top-0 z-[50] w-full h-[60px] bg-[#0a0a0a]/80 backdrop-blur-md border-b border-[#1e1e1e] items-center justify-between px-8">
-          <div className="flex items-center gap-4">
-            <h1 className="text-sm font-medium text-[#ffffff]">
-              {activeView === "home" ? "ภาพรวม" : 
-               activeView === "categories" ? "หมวดหมู่สินค้า" : 
-               activeView === "category_products" ? "รายการสินค้า" : 
-               activeView === "wallet" ? "เติมเงิน" : 
-               activeView === "profile" ? "ตั้งค่าโปรไฟล์" : 
-               activeView === "history" ? "ประวัติการใช้งาน" : 
-               activeView === "admin" ? "ระบบจัดการหลังบ้าน" : "แดชบอร์ด"}
-            </h1>
-          </div>
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => setActiveView("search")}
-              className="w-8 h-8 rounded-md flex items-center justify-center text-[#888888] hover:text-[#ffffff] hover:bg-[#111111] transition-colors"
-              aria-label="Search"
-            >
-              <Search className="w-[18px] h-[18px]" />
-            </button>
-            {user ? (
-              <div
-                className="flex items-center gap-3 px-3 py-1.5 rounded-full border border-[#1e1e1e] hover:border-[#333333] transition-colors cursor-pointer bg-[#161616]"
-                onClick={() => setActiveView("profile")}
-              >
-                <div className="flex flex-col text-right">
-                  <span className="text-[13px] font-medium text-[#ffffff] leading-tight">
-                    {userPlan?.username || user.email?.split("@")[0] || "User"}
-                  </span>
-                  <span className="text-[11px] text-[#0066ff] font-medium">
-                    ฿ {userPlan?.balance?.toLocaleString(undefined, { minimumFractionDigits: 2 }) || "0.00"}
-                  </span>
-                </div>
-                <div className="w-7 h-7 rounded-full overflow-hidden bg-[#0a0a0a]">
-                  <img
-                    src={getAvatarUrl(user?.id || userPlan?.username || user?.email?.split("@")[0] || "guest")}
-                    alt="avatar"
-                    className="w-full h-full object-cover"
-                    referrerPolicy="no-referrer"
-                  />
-                </div>
-              </div>
-            ) : (
-              <button
-                onClick={() => setActiveView("login")}
-                className="px-4 py-1.5 bg-[#ffffff] hover:bg-[#e0e0e0] text-[#0a0a0a] text-[13px] font-medium rounded-full transition-colors shadow-sm"
-              >
-                เข้าสู่ระบบ
-              </button>
-            )}
-          </div>
-        </header>
-
-        {/* Global Top Navbar (Mobile) */}
-        <nav className="lg:hidden sticky top-0 z-[60] bg-[#0a0a0a] border-b border-[#1e1e1e] w-full flex flex-col shadow-sm">
-          <div className="flex items-center justify-between px-5 h-[60px] relative">
-            <motion.img
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              src="https://img2.pic.in.th/4D8F9A5A-1535-4802-BD86-5FA08F0D3B3D.png"
-              alt="Logo"
-              referrerPolicy="no-referrer"
-              className="h-8 w-auto cursor-pointer"
-              onClick={() => setActiveView("home")}
-            />
-
-            <div className="flex items-center gap-2">
+        <div className="hidden lg:block sticky top-3 px-8 z-[50] w-full pointer-events-none mt-3">
+          <header className="pointer-events-auto bg-[#0a0a0a]/90 backdrop-blur-md border border-white/10 rounded-2xl w-full h-[56px] flex items-center justify-between px-6 shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
+            <div className="flex items-center gap-4">
+              <h1 className="text-sm font-medium text-[#ffffff]">
+                {activeView === "home" ? "ภาพรวม" : 
+                 activeView === "categories" ? "หมวดหมู่สินค้า" : 
+                 activeView === "category_products" ? "รายการสินค้า" : 
+                 activeView === "wallet" ? "เติมเงิน" : 
+                 activeView === "profile" ? "ตั้งค่าโปรไฟล์" : 
+                 activeView === "history" ? "ประวัติการใช้งาน" : 
+                 activeView === "admin" ? "ระบบจัดการหลังบ้าน" : "แดชบอร์ด"}
+              </h1>
+            </div>
+            <div className="flex items-center gap-4">
               <button
                 onClick={() => setActiveView("search")}
-                className="w-10 h-10 rounded-md flex items-center justify-center text-[#888888] hover:text-[#ffffff] transition-colors"
+                className="w-8 h-8 rounded-md flex items-center justify-center text-[#888888] hover:text-[#ffffff] hover:bg-[#111111] transition-colors"
                 aria-label="Search"
               >
-                <Search className="w-5 h-5" />
+                <Search className="w-[18px] h-[18px]" />
               </button>
-              <motion.button
-                whileTap={{ scale: 0.9 }}
-                onClick={() => setIsMobileMenuOpen(true)}
-                className="w-10 h-10 rounded-md flex items-center justify-center text-[#888888] hover:text-[#ffffff] active:scale-95 transition-all"
-                aria-label="Menu"
-              >
-                <Menu className="w-5 h-5" />
-              </motion.button>
+              {user ? (
+                <div
+                  className="flex items-center gap-3 px-3 py-1.5 rounded-full border border-[#1e1e1e] hover:border-[#333333] transition-colors cursor-pointer bg-[#161616]"
+                  onClick={() => setActiveView("profile")}
+                >
+                  <div className="flex flex-col text-right">
+                    <span className="text-[13px] font-medium text-[#ffffff] leading-tight">
+                      {userPlan?.username || user.email?.split("@")[0] || "User"}
+                    </span>
+                    <span className="text-[11px] text-[#0066ff] font-medium">
+                      ฿ {userPlan?.balance?.toLocaleString(undefined, { minimumFractionDigits: 2 }) || "0.00"}
+                    </span>
+                  </div>
+                  <div className="w-7 h-7 rounded-full overflow-hidden bg-[#0a0a0a]">
+                    <img
+                      src={getAvatarUrl(user?.id || userPlan?.username || user?.email?.split("@")[0] || "guest")}
+                      alt="avatar"
+                      className="w-full h-full object-cover"
+                      referrerPolicy="no-referrer"
+                    />
+                  </div>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setActiveView("login")}
+                  className="px-4 py-1.5 bg-[#ffffff] hover:bg-[#e0e0e0] text-[#0a0a0a] text-[13px] font-medium rounded-full transition-colors shadow-sm"
+                >
+                  เข้าสู่ระบบ
+                </button>
+              )}
             </div>
-          </div>
-        </nav>
+          </header>
+        </div>
+
+        {/* Global Top Navbar (Mobile) */}
+        <div className="lg:hidden sticky top-3 px-4 z-[65] w-full pointer-events-none mt-3">
+          <nav className="pointer-events-auto bg-[#0a0a0a]/90 backdrop-blur-md border border-white/10 rounded-2xl w-full flex flex-col shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
+            <div className="flex items-center justify-between px-5 h-[56px] relative">
+              <motion.img
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                src="https://i.postimg.cc/66R1V03P/mi-m-ch-x-80-20260601204138.png"
+                alt="Logo"
+                referrerPolicy="no-referrer"
+                className="h-8 w-auto cursor-pointer rounded-lg"
+                onClick={() => setActiveView("home")}
+              />
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setActiveView("search")}
+                  className="w-10 h-10 rounded-md flex items-center justify-center text-[#888888] hover:text-[#ffffff] transition-colors"
+                  aria-label="Search"
+                >
+                  <Search className="w-5 h-5" />
+                </button>
+                <motion.button
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => setIsMobileMenuOpen(true)}
+                  className="w-10 h-10 rounded-md flex items-center justify-center text-[#888888] hover:text-[#ffffff] active:scale-95 transition-all"
+                  aria-label="Menu"
+                >
+                  <Menu className="w-5 h-5" />
+                </motion.button>
+              </div>
+            </div>
+          </nav>
+        </div>
 
         {/* Mobile Menu Dropdown */}
         <AnimatePresence>
@@ -2426,10 +2430,10 @@ function AppContent() {
                 {/* Header / Logo */}
                 <div className="flex items-center justify-start px-[24px] pt-[24px] pb-[16px] shrink-0 relative z-[70]">
                   <img 
-                    src="https://img2.pic.in.th/4D8F9A5A-1535-4802-BD86-5FA08F0D3B3D.png" 
+                    src="https://i.postimg.cc/66R1V03P/mi-m-ch-x-80-20260601204138.png" 
                     alt="Logo" 
                     referrerPolicy="no-referrer"
-                    className="h-8 w-auto"
+                    className="h-10 w-auto rounded-lg"
                   />
                 </div>
 
@@ -3072,10 +3076,10 @@ function AppContent() {
               {/* Brand & Intro */}
               <div className="col-span-1 md:col-span-1 flex flex-col items-center">
                 <img 
-                  src="https://img2.pic.in.th/4D8F9A5A-1535-4802-BD86-5FA08F0D3B3D.png" 
+                  src="https://i.postimg.cc/66R1V03P/mi-m-ch-x-80-20260601204138.png" 
                   alt="Logo" 
                   referrerPolicy="no-referrer"
-                  className="h-14 w-auto mb-4"
+                  className="h-16 w-auto mb-4 rounded-xl shadow-md"
                 />
                 <p
                   className="leading-relaxed mb-6 text-zinc-400 select-all cursor-text hover:text-white transition-colors"

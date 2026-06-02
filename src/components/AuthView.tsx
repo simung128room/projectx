@@ -141,7 +141,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.2, duration: 0.6 }}
                 >
-                    <img loading="lazy" src="https://img2.pic.in.th/4D8F9A5A-1535-4802-BD86-5FA08F0D3B3D.png" alt="Logo" className="w-20 h-20 mb-8 drop-shadow-xl" />
+                    <img loading="lazy" src="https://i.postimg.cc/66R1V03P/mi-m-ch-x-80-20260601204138.png" alt="Logo" className="w-20 h-20 mb-8 drop-shadow-xl rounded-2xl" />
                     <h1 className="text-4xl lg:text-5xl font-black text-white mb-4 leading-tight tracking-tight">
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#3B82F6] to-cyan-400 drop-shadow-sm">APEXSTORE</span><br/>
                         ระบบบริหาร<br/>ร้านค้าอันดับหนึ่ง
@@ -185,10 +185,10 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
             </div>
             <div className="w-12 h-12 shrink-0 lg:hidden flex items-center justify-center">
               <motion.img loading="lazy" 
-                src="https://img2.pic.in.th/4D8F9A5A-1535-4802-BD86-5FA08F0D3B3D.png" 
+                src="https://i.postimg.cc/66R1V03P/mi-m-ch-x-80-20260601204138.png" 
                 alt="Logo" 
                 referrerPolicy="no-referrer"
-                className="w-full h-full object-contain drop-shadow-md" 
+                className="w-full h-full object-contain drop-shadow-md rounded-xl" 
                 animate={{ 
                   y: [0, -4, 0],
                   rotate: [0, 4, -4, 0]
