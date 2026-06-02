@@ -1021,7 +1021,7 @@ function AppContent() {
           const status = e.response?.status;
           const errorMsg = e.response?.data?.error || e.message;
           if (status !== 401 && status !== 403 && status !== 404) {
-            console.error(`Fetch ERROR for ${url}:`, errorMsg);
+             console.error(`Fetch ERROR for ${url}:`, errorMsg);
           }
           return { data: null, error: errorMsg };
         }
@@ -1036,7 +1036,7 @@ function AppContent() {
         "/api/pages"
       ];
 
-      Promise.all(
+      const mainFetchPromise = Promise.all(
         publicEndpoints.map(url =>
           publicAxios.get(url, { signal: controller.signal })
             .then(res => ({ url, data: res.data, isCanceled: false }))
@@ -1076,29 +1076,28 @@ function AppContent() {
       });
 
       // 2. Secondary Data & User Data
-      fetchApi("/api/logs-system").then(res => {
+      const logsPromise = fetchApi("/api/logs-system").then(res => {
         if (res.data && Array.isArray(res.data.categories)) {
           setLogCategories(res.data.categories.filter((c: any) => c.isVisible));
         }
       });
 
       // 3. User & Admin Specific Data
+      const userAndAdminPromises: Promise<any>[] = [];
       if (user) {
-        fetchApi("/api/used_keys").then(res => { if (res.data) setUsedKeysHistory(res.data); });
-        fetchApi("/api/purchases").then(res => { if (res.data && Array.isArray(res.data)) setPurchaseHistory(res.data); });
-        fetchApi("/api/topups").then(res => { if (res.data && Array.isArray(res.data)) setTopupHistory(res.data); });
+        userAndAdminPromises.push(fetchApi("/api/used_keys").then(res => { if (res.data) setUsedKeysHistory(res.data); }));
+        userAndAdminPromises.push(fetchApi("/api/purchases").then(res => { if (res.data && Array.isArray(res.data)) setPurchaseHistory(res.data); }));
+        userAndAdminPromises.push(fetchApi("/api/topups").then(res => { if (res.data && Array.isArray(res.data)) setTopupHistory(res.data); }));
       }
 
       if (isAdmin) {
-        fetchApi("/api/license_keys").then(res => { if (res.data) setLicenseKeys(res.data); });
-        fetchApi("/api/blocked_ips").then(res => { if (res.data) setBlockedIPs(res.data); });
-        fetchApi("/api/users").then(res => { if (res.data && Array.isArray(res.data)) setUsersList(res.data); });
+        userAndAdminPromises.push(fetchApi("/api/license_keys").then(res => { if (res.data) setLicenseKeys(res.data); }));
+        userAndAdminPromises.push(fetchApi("/api/blocked_ips").then(res => { if (res.data) setBlockedIPs(res.data); }));
+        userAndAdminPromises.push(fetchApi("/api/users").then(res => { if (res.data && Array.isArray(res.data)) setUsersList(res.data); }));
       }
 
-      console.timeEnd("fetchAllData");
-
       // Health check for DB readiness
-      axios
+      const healthPromise = axios
         .get("/api/health")
         .then(() => {
           setIsDBReady(true);
@@ -1110,8 +1109,12 @@ function AppContent() {
             e.response?.data?.error || e.message || "Unknown Error";
           setDbErrorDetail(`Backend API ไม่ตอบสนอง (Offline): ${errorMsg}`);
         });
+
+      // Await all critical promises to ensure data load is complete!
+      await Promise.all([mainFetchPromise, logsPromise, healthPromise, ...userAndAdminPromises]);
+      console.timeEnd(`fetchAllData-${currentRequestId}`);
     } catch (err: any) {
-      console.error("Critical fetch error:", err);
+      console.error("Critical fetch error in fetchAllData:", err);
     }
   }, [isAdmin, user]);
 
@@ -1180,12 +1183,19 @@ function AppContent() {
         setClientIp("offline_local");
         console.error("IP Check Failed", err);
       }
+
+      // Ensure all critical dashboard/landing page data is loaded completely before dismissing splash screen
+      try {
+        await fetchAllData();
+      } catch (err) {
+        console.error("Initial data fetch failed:", err);
+      }
       
       dataReady = true;
       setIsLoaded(true);
     };
     initApp();
-  }, []);
+  }, [fetchAllData]);
 
   // Sync combo to ref for high-speed access
   useEffect(() => {
@@ -2035,14 +2045,38 @@ function AppContent() {
 
   if (!isLoaded)
     return (
-      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center font-sans overflow-hidden relative">
+      <div className="min-h-screen bg-[#05070d] flex flex-col items-center justify-center font-sans overflow-hidden relative">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(0,102,255,0.15),rgba(0,0,0,0))] pointer-events-none" />
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.4, ease: "easeOut" }}
-          className="relative flex items-center justify-center z-10"
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="relative flex flex-col items-center justify-center z-10 max-w-sm px-6 text-center"
         >
-          <div className="page-loader-cube" />
+          {/* Branded Header */}
+          <div className="mb-8">
+            <img
+              src="https://i.postimg.cc/66R1V03P/mi-m-ch-x-80-20260601204138.png"
+              alt="APEXSTORE Logo"
+              referrerPolicy="no-referrer"
+              className="h-16 w-auto drop-shadow-[0_0_20px_rgba(0,102,255,0.35)] rounded-xl mx-auto"
+            />
+          </div>
+
+          {/* Loader animation cube */}
+          <div className="relative mb-6 flex justify-center">
+            <div className="page-loader-cube" />
+          </div>
+
+          {/* Animated Thai descriptive status */}
+          <div className="space-y-2 mt-2">
+            <p className="text-sm font-bold text-white tracking-widest animate-pulse">
+              กำลังดาวน์โหลดข้อมูลสินค้าและสถิติล่าสุด...
+            </p>
+            <p className="text-xs text-zinc-500 font-medium">
+              กรุณารอสักครู่ ระบบกำลังจัดเตรียมข้อมูลให้มีความเสถียร 100%
+            </p>
+          </div>
         </motion.div>
       </div>
     );
