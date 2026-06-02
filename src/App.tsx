@@ -560,7 +560,8 @@ function AppContent() {
   const setActiveView = useCallback(
     (view: any) => {
       if (activeView === view) return;
-      window.history.pushState(null, "", "/" + view);
+      const pathSuffix = view === "home" ? "" : view;
+      window.history.pushState(null, "", "/" + pathSuffix);
       setRawActiveView(view);
     },
     [activeView],
@@ -990,7 +991,7 @@ function AppContent() {
       fetchRequestId.current += 1;
       const currentRequestId = fetchRequestId.current;
       
-      console.log("Fetching all data from backend...", { reqId: currentRequestId });
+      console.log("Fetching public data from backend...", { reqId: currentRequestId });
       console.time(`fetchAllData-${currentRequestId}`);
 
       const publicAxios = axios.create();
@@ -1083,20 +1084,6 @@ function AppContent() {
         }
       });
 
-      // 3. User & Admin Specific Data
-      const userAndAdminPromises: Promise<any>[] = [];
-      if (user) {
-        userAndAdminPromises.push(fetchApi("/api/used_keys").then(res => { if (res.data) setUsedKeysHistory(res.data); }));
-        userAndAdminPromises.push(fetchApi("/api/purchases").then(res => { if (res.data && Array.isArray(res.data)) setPurchaseHistory(res.data); }));
-        userAndAdminPromises.push(fetchApi("/api/topups").then(res => { if (res.data && Array.isArray(res.data)) setTopupHistory(res.data); }));
-      }
-
-      if (isAdmin) {
-        userAndAdminPromises.push(fetchApi("/api/license_keys").then(res => { if (res.data) setLicenseKeys(res.data); }));
-        userAndAdminPromises.push(fetchApi("/api/blocked_ips").then(res => { if (res.data) setBlockedIPs(res.data); }));
-        userAndAdminPromises.push(fetchApi("/api/users").then(res => { if (res.data && Array.isArray(res.data)) setUsersList(res.data); }));
-      }
-
       // Health check for DB readiness
       const healthPromise = axios
         .get("/api/health")
@@ -1117,9 +1104,55 @@ function AppContent() {
     } catch (err: any) {
       console.error("Critical fetch error in fetchAllData:", err);
     }
-  }, [isAdmin, user]);
+  }, []);
 
-  // Backend API Listeners
+  // Dedicated user-session data retriever (decoupled from the landing page loop)
+  const fetchUserData = useCallback(async () => {
+    if (!user) return;
+    try {
+      console.log("Fetching user-specific data from backend...");
+      const [usedKeysRes, purchasesRes, topupsRes] = await Promise.all([
+        axios.get("/api/used_keys").catch(() => null),
+        axios.get("/api/purchases").catch(() => null),
+        axios.get("/api/topups").catch(() => null)
+      ]);
+      if (usedKeysRes?.data) setUsedKeysHistory(usedKeysRes.data);
+      if (purchasesRes?.data && Array.isArray(purchasesRes.data)) setPurchaseHistory(purchasesRes.data);
+      if (topupsRes?.data && Array.isArray(topupsRes.data)) setTopupHistory(topupsRes.data);
+    } catch (err) {
+      console.error("Failed to fetch user-specific data:", err);
+    }
+  }, [user]);
+
+  // Dedicated admin logs/entities data retriever (decoupled from the landing page loop)
+  const fetchAdminData = useCallback(async () => {
+    if (!isAdmin) return;
+    try {
+      console.log("Fetching admin-specific data from backend...");
+      const [licensesRes, blockedIpsRes, usersRes] = await Promise.all([
+        axios.get("/api/license_keys").catch(() => null),
+        axios.get("/api/blocked_ips").catch(() => null),
+        axios.get("/api/users").catch(() => null)
+      ]);
+      if (licensesRes?.data) setLicenseKeys(licensesRes.data);
+      if (blockedIpsRes?.data) setBlockedIPs(blockedIpsRes.data);
+      if (usersRes?.data && Array.isArray(usersRes.data)) setUsersList(usersRes.data);
+    } catch (err) {
+      console.error("Failed to fetch admin-specific data:", err);
+    }
+  }, [isAdmin]);
+
+  // Combined system-wide data refresh function for user/admin actions
+  const refreshAllSystemData = useCallback(async () => {
+    console.log("Executing manual refresh of all relevant system data...");
+    await Promise.all([
+      fetchAllData(),
+      user ? fetchUserData() : Promise.resolve(),
+      isAdmin ? fetchAdminData() : Promise.resolve()
+    ]);
+  }, [fetchAllData, fetchUserData, fetchAdminData, user, isAdmin]);
+
+  // Backend API Listeners - Public static endpoints refreshed every 60 seconds
   useEffect(() => {
     fetchAllData();
     const timer = setInterval(fetchAllData, 60000);
@@ -1130,6 +1163,28 @@ function AppContent() {
       }
     };
   }, [fetchAllData]);
+
+  // Trigger user private data load on session changes
+  useEffect(() => {
+    if (user) {
+      fetchUserData();
+    } else {
+      setUsedKeysHistory([]);
+      setPurchaseHistory([]);
+      setTopupHistory([]);
+    }
+  }, [user, fetchUserData]);
+
+  // Trigger admin private data load on status changes
+  useEffect(() => {
+    if (isAdmin) {
+      fetchAdminData();
+    } else {
+      setLicenseKeys([]);
+      setBlockedIPs([]);
+      setUsersList([]);
+    }
+  }, [isAdmin, fetchAdminData]);
 
   // App Init & check IP
   useEffect(() => {
@@ -1182,29 +1237,31 @@ function AppContent() {
         setIsLoaded(true);
       }, 8000);
 
-      try {
-        const res = await axios.get("/api/health");
-        const ip = res.data.clientIp || "Unknown";
-        setClientIp(ip);
-      } catch (err) {
-        setClientIp("offline_local");
-        console.error("IP Check Failed", err);
-      }
-
-      // Ensure all critical dashboard/landing page data is loaded completely before dismissing splash screen
-      try {
-        await fetchAllData();
-      } catch (err) {
-        console.error("Initial data fetch failed:", err);
-      } finally {
-        clearTimeout(timeoutId);
-      }
-      
-      dataReady = true;
-      setIsLoaded(true);
-    };
-    initApp();
-  }, [fetchAllData]);
+       // Concurrent parallel boot loading of metadata, pages, settings, stats, and client configuration
+       try {
+         await Promise.all([
+           axios.get("/api/health")
+             .then(res => {
+               const ip = res.data.clientIp || "Unknown";
+               setClientIp(ip);
+             })
+             .catch(err => {
+               setClientIp("offline_local");
+               console.error("IP Check Failed", err);
+             }),
+           fetchAllData()
+         ]);
+       } catch (err) {
+         console.error("Initial system parallel data fetch failed:", err);
+       } finally {
+         clearTimeout(timeoutId);
+       }
+       
+       dataReady = true;
+       setIsLoaded(true);
+     };
+     initApp();
+   }, [fetchAllData]);
 
   // Sync combo to ref for high-speed access
   useEffect(() => {
@@ -3069,7 +3126,7 @@ function AppContent() {
                 categories={categories}
                 setCategories={setCategories}
                 usersList={usersList}
-                onRefreshData={fetchAllData}
+                onRefreshData={refreshAllSystemData}
               />
             )}{" "}
           </Suspense>

@@ -1,4 +1,3 @@
-import Swal from "sweetalert2";
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { CategoryCard } from "./CategoryCard";
@@ -6,33 +5,19 @@ import {
   ShoppingCart,
   Package,
   Wallet,
-  Phone,
-  History,
   ChevronRight,
   Bell,
   Users,
-  Activity,
   Star,
   ArrowLeft,
-  Key,
-  LogIn,
-  UserPlus,
-  TrendingUp,
-  Globe,
   Layers,
-  BarChart3,
-  User,
   Box,
-  CreditCard,
-  Headset,
   Shield,
   Zap,
   Sparkles,
   Filter,
-  Check,
 } from "lucide-react";
 import { Product, SiteStats, Category } from "../types";
-import { AnimatedScroll } from "./AnimatedScroll";
 import { Marquee } from "./Marquee";
 
 interface HomeViewProps {
@@ -121,24 +106,38 @@ export const HomeView: React.FC<HomeViewProps> = ({
     return map;
   }, [safeProducts]);
 
-  // Retrieve products for a category object
-  const getProductsForCategory = useMemo(() => {
-    return (cat: any) => {
-      if (!cat) return [];
+  // Retrieve products for a category object - optimized pre-computed cache lookup
+  const categoryProductsMap = useMemo(() => {
+    const map = new Map<string, any[]>();
+    for (const cat of safeCategories) {
+      if (!cat) continue;
+      const key = cat.id?.toString() || cat.name || cat.title || "";
       const list1 = cat.id ? (productsByCategory.get(cat.id.toString()) || []) : [];
       const list2 = cat.name ? (productsByCategory.get(cat.name.toString()) || []) : [];
       const list3 = cat.title ? (productsByCategory.get(cat.title.toString()) || []) : [];
       const combined = [...list1, ...list2, ...list3];
-      if (combined.length === 0) return [];
+      if (combined.length === 0) {
+        map.set(key, []);
+        continue;
+      }
       const uniqueMap = new Map<string, any>();
       for (const p of combined) {
         if (p && p.id) {
           uniqueMap.set(p.id.toString(), p);
         }
       }
-      return Array.from(uniqueMap.values());
+      map.set(key, Array.from(uniqueMap.values()));
+    }
+    return map;
+  }, [safeCategories, productsByCategory]);
+
+  const getProductsForCategory = useMemo(() => {
+    return (cat: any) => {
+      if (!cat) return [];
+      const key = cat.id?.toString() || cat.name || cat.title || "";
+      return categoryProductsMap.get(key) || [];
     };
-  }, [productsByCategory]);
+  }, [categoryProductsMap]);
 
   // Reset pagination when filter changes
   useEffect(() => {
@@ -151,13 +150,17 @@ export const HomeView: React.FC<HomeViewProps> = ({
       : DEFAULT_BANNERS;
   }, [siteSettings?.banners]);
 
-  const totalSales = siteSettings?.stats_sales_override !== undefined && siteSettings?.stats_sales_override !== null 
-    ? Number(siteSettings.stats_sales_override) 
-    : (stats?.sales || 0);
+  const totalSales = useMemo(() => {
+    return siteSettings?.stats_sales_override !== undefined && siteSettings?.stats_sales_override !== null 
+      ? Number(siteSettings.stats_sales_override) 
+      : (stats?.sales || 0);
+  }, [siteSettings?.stats_sales_override, stats?.sales]);
 
-  const totalMembers = siteSettings?.stats_users_override !== undefined && siteSettings?.stats_users_override !== null
-    ? Number(siteSettings.stats_users_override)
-    : (stats?.users || 0);
+  const totalMembers = useMemo(() => {
+    return siteSettings?.stats_users_override !== undefined && siteSettings?.stats_users_override !== null
+      ? Number(siteSettings.stats_users_override)
+      : (stats?.users || 0);
+  }, [siteSettings?.stats_users_override, stats?.users]);
 
   const totalStockAvailable = useMemo(() => {
     return safeProducts.reduce((acc, p) => acc + (Math.max(0, p.stock || 0)), 0);
@@ -198,7 +201,9 @@ export const HomeView: React.FC<HomeViewProps> = ({
     } else if (activeTab === "popular") {
       return result.filter(p => p.isPopular || p.tag?.toLowerCase().includes("hot") || p.tag?.toLowerCase().includes("best"));
     } else {
-      const matchCat = safeCategories.find(c => c.name === activeTab || c.id === activeTab || c.title === activeTab);
+      const matchCat = safeCategories.find(
+        c => c.name === activeTab || c.id?.toString() === activeTab || c.title === activeTab
+      );
       if (matchCat) {
         return result.filter(p => p.category === matchCat.id || p.category === matchCat.name || p.category === matchCat.title);
       }
@@ -482,7 +487,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     priceRangeStr={catProducts.length > 0 ? priceRangeStr : undefined}
                     bgImage={cat.bannerUrl || undefined}
                     index={i}
-                    onClick={() => onSelectCategory(cat.id?.toString() || cat.name)}
+                    onClick={() => onSelectCategory(cat.name)}
                     accentColor="#0066ff"
                     glowColor="rgba(0, 102, 255, 0.2)"
                     gradientFrom="transparent"
@@ -496,6 +501,21 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
       {/* 6. Live Purchase Activity Ticker */}
       <SmoothScrollSection delay={50} direction="right" className="w-full">
+        <style>
+          {`
+            @keyframes live-ticker-scroll {
+              0% { transform: translate3d(0, 0, 0); }
+              100% { transform: translate3d(-50%, 0, 0); }
+            }
+            .animate-live-ticker {
+              animation: live-ticker-scroll 35s linear infinite;
+              will-change: transform;
+            }
+            .animate-live-ticker:hover {
+              animation-play-state: paused;
+            }
+          `}
+        </style>
         <div className="space-y-4">
           <div className="flex items-center gap-2.5">
             <span className="relative flex h-2 w-2">
@@ -512,16 +532,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-[#05070d] to-transparent z-10 pointer-events-none" />
 
             {/* Seamless Horizontal Flow */}
-            <motion.div
-              className="flex gap-4 pr-4 w-max shrink-0 hover:[animation-play-state:paused]"
-              animate={{ x: ["0%", "-50%"] }}
-              transition={{
-                ease: "linear",
-                duration: 35,
-                repeat: Infinity,
-                repeatType: "loop",
-              }}
-            >
+            <div className="flex gap-4 pr-4 w-max shrink-0 animate-live-ticker">
               {(() => {
                 const listToUse = safePurchaseHistory.length > 0 ? safePurchaseHistory.slice(0, 8) : [1, 2, 3, 4, 5];
                 const doubledList = [...listToUse, ...listToUse];
@@ -565,7 +576,14 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   return (
                     <div
                       key={index}
-                      className="shrink-0 w-[260px] sm:w-[300px] bg-white/5 border border-white/10 p-3 rounded-2xl flex gap-3 transition-colors duration-300 hover:border-blue-500/30 hover:bg-white/10 shadow-sm"
+                      className="shrink-0 w-[260px] sm:w-[300px] bg-white/5 border border-white/10 p-3 rounded-2xl flex gap-3 transition-colors duration-300 hover:border-blue-500/30 hover:bg-white/10 shadow-sm cursor-pointer"
+                      onClick={() => {
+                        if (matchedProduct) {
+                          onProductClick(matchedProduct.id);
+                        } else if (dummyProduct) {
+                          onProductClick(dummyProduct.id);
+                        }
+                      }}
                     >
                       <div className="w-12 h-12 rounded-xl bg-zinc-900 border border-white/10 shrink-0 overflow-hidden relative">
                         {imageUrl ? (
@@ -598,7 +616,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   );
                 });
               })()}
-            </motion.div>
+            </div>
           </div>
         </div>
       </SmoothScrollSection>
@@ -608,7 +626,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
         
         {/* Header Action Section */}
         <SmoothScrollSection direction="left" delay={50} className="w-full">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-zinc-300 mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-zinc-800 mb-6">
             <div className="flex items-center gap-3.5">
               <div className="w-11 h-11 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-center justify-center text-amber-500 shadow-md">
                 <Star className="w-[22px] h-[22px] fill-amber-500/20" />
@@ -627,7 +645,6 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   checked={inStockOnly} 
                   onChange={(e) => {
                     setInStockOnly(e.target.checked);
-                    setDisplayedCount(20);
                   }} 
                   className="sr-only peer" 
                 />
@@ -644,7 +661,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
         <SmoothScrollSection direction="right" delay={100} className="w-full">
           <div className="flex items-center gap-1.5 overflow-x-auto pb-4 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
             <button
-              onClick={() => { setActiveTab("all"); setDisplayedCount(20); }}
+              onClick={() => { setActiveTab("all"); }}
               className={`px-4 py-2 rounded-xl text-xs font-bold shrink-0 transition-all border flex items-center gap-1.5 ${
                 activeTab === "all"
                   ? "bg-zinc-800 text-white border-zinc-700"
@@ -654,17 +671,17 @@ export const HomeView: React.FC<HomeViewProps> = ({
               <Filter className="w-3.5 h-3.5" /> ทั้งหมด
             </button>
             <button
-              onClick={() => { setActiveTab("popular"); setDisplayedCount(20); }}
+              onClick={() => { setActiveTab("popular"); }}
               className={`px-4 py-2 rounded-xl text-xs font-bold shrink-0 transition-all border flex items-center gap-1.5 ${
                 activeTab === "popular"
-                  ? "bg-[#0066ff] text-white border-[#0066ff] shadow-[0_4px_12px_rgba(0,102,255,0.25)]"
+                  ? "bg-[#0066ff] text-[#ffffff] border-[#0066ff] shadow-[0_4px_12px_rgba(0,102,255,0.25)]"
                   : "bg-white/5 border-white/10 text-zinc-400 hover:text-white"
               }`}
             >
               🔥 แนะนำยอดฮิต
             </button>
             <button
-              onClick={() => { setActiveTab("sale"); setDisplayedCount(20); }}
+              onClick={() => { setActiveTab("sale"); }}
               className={`px-4 py-2 rounded-xl text-xs font-bold shrink-0 transition-all border flex items-center gap-1.5 ${
                 activeTab === "sale"
                   ? "bg-emerald-500 text-white border-emerald-500 shadow-[0_4px_12px_rgba(16,185,129,0.25)]"
@@ -678,7 +695,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             {safeCategories.map((cat) => (
               <button
                 key={cat.id}
-                onClick={() => { setActiveTab(cat.name); setDisplayedCount(20); }}
+                onClick={() => { setActiveTab(cat.name); }}
                 className={`px-4 py-2 rounded-xl text-xs font-bold shrink-0 transition-all border ${
                   activeTab === cat.name
                     ? "bg-[#0066ff] text-white border-[#0066ff]"
