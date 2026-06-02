@@ -1928,10 +1928,12 @@ if (process.env.REDIS_URL) {
   });
 
   app.get('/api/products', async (req: any, res: any) => {
-    res.setHeader('Cache-Control', 'public, max-age=15, s-maxage=30, stale-while-revalidate=59');
+    // Increase edge caching to handle traffic spikes naturally
+    res.setHeader('Cache-Control', 'public, max-age=30, s-maxage=120, stale-while-revalidate=59');
     try {
-      // Opt-in for public caching of products (Server-side firestoreCache only)
-      const data = await getCachedCollection('products', 20000, res, req);
+      // Opt-in for public caching of products with up to 5 minutes (300000ms) Redis TTL
+      // Cache remains fresh because any mutation (buy/update) instantly calls invalidateCache('products')
+      const data = await getCachedCollection('products', 300000, res, req);
       if (data) {
         const processedData = data.map((item: any) => {
           // ALWAYS strip stockData to prevent RAM blowout (both for admin and public)
@@ -2310,7 +2312,7 @@ const diskUpload = multer({ dest: uploadDir });
       
       let totalStock = 0;
       try {
-        const data = await getCachedCollection('products', 20000);
+        const data = await getCachedCollection('products', 300000);
         data.forEach((p: any) => {
           if (p.stock > 0 && p.stock < 999999) totalStock += Number(p.stock);
         });

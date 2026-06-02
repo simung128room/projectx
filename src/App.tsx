@@ -86,6 +86,31 @@ axiosRetry(axios, {
 });
 import { supabase as auth } from "./lib/supabase"; // auth here refers to supabase
 
+// Add JWT refresh interceptor for 401 Unauthorized
+axios.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+    // If error is 401 and we haven't retried yet
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      try {
+        // Automatically refresh Supabase JWT Token
+        const { data: { session }, error: refreshError } = await auth.auth.getSession();
+        if (session?.access_token && !refreshError) {
+          axios.defaults.headers.common["Authorization"] = `Bearer ${session.access_token}`;
+          originalRequest.headers["Authorization"] = `Bearer ${session.access_token}`;
+          // Retry the request with the new token
+          return axios(originalRequest);
+        }
+      } catch (refreshErr) {
+        console.error("JWT Refresh failed:", refreshErr);
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
 import jsQR from "jsqr";
 
 type SupabaseUser = any;
@@ -96,9 +121,9 @@ import { useToastStore } from "./lib/toastStore";
 import { ToastContainer } from "./components/ui/Toast";
 import { GlobalErrorBoundary } from "./components/GlobalErrorBoundary";
 import { AccountResult, LogEntry, UserPlan } from "./types";
-import { KeyModal } from "./components/modals/KeyModal";
-import { ReceiptModal } from "./components/modals/ReceiptModal";
-import { PopupBanner } from "./components/PopupBanner";
+const KeyModal = lazy(() => import("./components/modals/KeyModal").then(m => ({ default: m.KeyModal })));
+const ReceiptModal = lazy(() => import("./components/modals/ReceiptModal").then(m => ({ default: m.ReceiptModal })));
+const PopupBanner = lazy(() => import("./components/PopupBanner").then(m => ({ default: m.PopupBanner })));
 import { Product, SiteStats, Category } from "./types";
 import { getAvatarUrl } from "./lib/avatar";
 import { getUserRank } from "./lib/rank";
@@ -135,7 +160,11 @@ const AdminDashboard = lazy(() =>
     default: module.AdminDashboard,
   })),
 );
-import { HomeView } from "./components/HomeView";
+const HomeView = lazy(() =>
+  import("./components/HomeView").then((module) => ({
+    default: module.HomeView,
+  }))
+);
 const ProductDetailView = lazy(() =>
   import("./components/ProductDetailView").then((module) => ({
     default: module.ProductDetailView,
@@ -2065,11 +2094,13 @@ function AppContent() {
   return (
     <div className="min-h-screen w-full bg-[#0a0a0a] text-[#ffffff] font-sans selection:bg-[#0066ff]/30 flex flex-col lg:flex-row relative">
       {useCustomCursor && <CustomCursor />}
-      <PopupBanner
-        enabled={siteSettings?.popup_enabled ?? false}
-        imgUrl={siteSettings?.popup_img_url ?? ""}
-        linkUrl={siteSettings?.popup_link ?? ""}
-      />
+      <Suspense fallback={null}>
+        <PopupBanner
+          enabled={siteSettings?.popup_enabled ?? false}
+          imgUrl={siteSettings?.popup_img_url ?? ""}
+          linkUrl={siteSettings?.popup_link ?? ""}
+        />
+      </Suspense>
       {/* Page Transition Overlay */}
       {isPageTransitioning && (
         <div className="fixed inset-0 z-[200] bg-[#0a0a0a]/95 flex flex-col items-center justify-center p-4 overflow-hidden animate-in fade-in duration-75">
@@ -3739,13 +3770,15 @@ function AppContent() {
           )}
         </AnimatePresence>
 
-        <KeyModal
-          show={showKeyModal}
-          onClose={() => setShowKeyModal(false)}
-          vipTab={vipTab}
-          redeemKey={redeemKey}
-          userEmail={user?.email}
-        />
+        <Suspense fallback={null}>
+          <KeyModal
+            show={showKeyModal}
+            onClose={() => setShowKeyModal(false)}
+            vipTab={vipTab}
+            redeemKey={redeemKey}
+            userEmail={user?.email}
+          />
+        </Suspense>
 
         {/* Turnstile Modal */}
         {showTurnstileModal && (
@@ -3797,18 +3830,20 @@ function AppContent() {
         )}
 
         {/* Modals */}
-        {purchasedItemReceipt && (
-          <ReceiptModal
-            selectedItem={purchasedItemReceipt}
-            setSelectedItem={(item) => {
-              setPurchasedItemReceipt(item);
-              // When modal is manually closed
-              if (!item) {
-                setActiveView("history");
-              }
-            }}
-          />
-        )}
+        <Suspense fallback={null}>
+          {purchasedItemReceipt && (
+            <ReceiptModal
+              selectedItem={purchasedItemReceipt}
+              setSelectedItem={(item) => {
+                setPurchasedItemReceipt(item);
+                // When modal is manually closed
+                if (!item) {
+                  setActiveView("history");
+                }
+              }}
+            />
+          )}
+        </Suspense>
 
         {/* Global Audio Provider */}
         {!deferMedia && siteSettings.spotify_url && (
