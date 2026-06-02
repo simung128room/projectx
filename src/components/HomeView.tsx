@@ -282,7 +282,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#0066ff] opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-[#0066ff]"></span>
             </span>
-            <Bell className="w-4.5 h-4.5 text-white" />
+            <Bell className="w-[18px] h-[18px] text-white" />
             <span className="font-bold text-white text-xs uppercase tracking-wider bg-blue-950/80 px-2 py-0.5 rounded">
               ANNOUNCEMENT
             </span>
@@ -482,7 +482,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     priceRangeStr={catProducts.length > 0 ? priceRangeStr : undefined}
                     bgImage={cat.bannerUrl || undefined}
                     index={i}
-                    onClick={() => onSelectCategory(cat.name)}
+                    onClick={() => onSelectCategory(cat.id?.toString() || cat.name)}
                     accentColor="#0066ff"
                     glowColor="rgba(0, 102, 255, 0.2)"
                     gradientFrom="transparent"
@@ -522,84 +522,82 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 repeatType: "loop",
               }}
             >
-              {[
-                ...(safePurchaseHistory.length > 0
-                  ? safePurchaseHistory.slice(0, 8)
-                  : [1, 2, 3, 4, 5]),
-                ...(safePurchaseHistory.length > 0
-                  ? safePurchaseHistory.slice(0, 8)
-                  : [1, 2, 3, 4, 5]),
-              ].map((purchase: any, index) => {
-                const isDummy = typeof purchase === "number";
-                const i = index % 8;
-                const dummyProduct = isDummy && safeProducts.length > 0
-                  ? safeProducts[i % safeProducts.length]
-                  : null;
-                const matchedProduct = !isDummy
-                  ? productsByName.get(purchase.productName)
-                  : null;
+              {(() => {
+                const listToUse = safePurchaseHistory.length > 0 ? safePurchaseHistory.slice(0, 8) : [1, 2, 3, 4, 5];
+                const doubledList = [...listToUse, ...listToUse];
+                return doubledList.map((purchase: any, index) => {
+                  const isDummy = typeof purchase === "number";
+                  const listLen = listToUse.length;
+                  const sourceIndex = index % listLen;
+                  const dummyProduct = isDummy && safeProducts.length > 0
+                    ? safeProducts[sourceIndex % safeProducts.length]
+                    : null;
+                  const matchedProduct = !isDummy
+                    ? productsByName.get(purchase.productName)
+                    : null;
 
-                let minsAgo = i * 3 + 2;
-                if (!isDummy && purchase.date) {
-                  const diffMinutes = Math.floor(
-                    (Date.now() - new Date(purchase.date).getTime()) / 60000
-                  );
-                  if (diffMinutes >= 0) minsAgo = diffMinutes;
-                }
-                let timeStr = `${minsAgo} นาทีที่แล้ว`;
-                if (!isDummy && purchase.date && minsAgo >= 60) {
-                  if (minsAgo < 1440)
-                    timeStr = `${Math.floor(minsAgo / 60)} ชม.ที่แล้ว`;
-                  else timeStr = `${Math.floor(minsAgo / 1440)} วันที่แล้ว`;
-                }
+                  let minsAgo = sourceIndex * 3 + 2;
+                  if (!isDummy && purchase.date) {
+                    const diffMinutes = Math.floor(
+                      (Date.now() - new Date(purchase.date).getTime()) / 60000
+                    );
+                    if (diffMinutes >= 0) minsAgo = diffMinutes;
+                  }
+                  let timeStr = `${minsAgo} นาทีที่แล้ว`;
+                  if (!isDummy && purchase.date && minsAgo >= 60) {
+                    if (minsAgo < 1440)
+                      timeStr = `${Math.floor(minsAgo / 60)} ชม.ที่แล้ว`;
+                    else timeStr = `${Math.floor(minsAgo / 1440)} วันที่แล้ว`;
+                  }
 
-                const displayedProductName = !isDummy
-                  ? purchase.productName
-                  : (dummyProduct?.name || "Premium Game License Key");
+                  const displayedProductName = !isDummy
+                    ? purchase.productName
+                    : (dummyProduct?.name || "Premium Game License Key");
 
-                const clientUsername = !isDummy && purchase.username
-                  ? purchase.username.length > 4
-                    ? purchase.username.substring(0, 3) + "***"
-                    : purchase.username + "***"
-                  : "Member***";
+                  const clientUsername = !isDummy && purchase.username
+                    ? purchase.username.length > 4
+                      ? purchase.username.substring(0, 3) + "***"
+                      : purchase.username + "***"
+                    : "Member***";
 
-                const imageUrl = matchedProduct?.imageUrl || dummyProduct?.imageUrl;
+                  const imageUrl = matchedProduct?.imageUrl || dummyProduct?.imageUrl;
 
-                return (
-                  <div
-                    key={index}
-                    className="shrink-0 w-[260px] sm:w-[300px] bg-white/5 border border-white/10 p-3 rounded-2xl flex gap-3 transition-colors duration-300 hover:border-blue-500/30 hover:bg-white/10 shadow-sm"
-                  >
-                    <div className="w-12 h-12 rounded-xl bg-zinc-900 border border-white/10 shrink-0 overflow-hidden relative">
-                      {imageUrl ? (
-                        <img 
-                          loading="lazy"
-                          src={imageUrl}
-                          alt="Product thumbnail"
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-blue-200/60">
-                          <ShoppingCart className="w-4 h-4" />
+                  return (
+                    <div
+                      key={index}
+                      className="shrink-0 w-[260px] sm:w-[300px] bg-white/5 border border-white/10 p-3 rounded-2xl flex gap-3 transition-colors duration-300 hover:border-blue-500/30 hover:bg-white/10 shadow-sm"
+                    >
+                      <div className="w-12 h-12 rounded-xl bg-zinc-900 border border-white/10 shrink-0 overflow-hidden relative">
+                        {imageUrl ? (
+                          <img 
+                            loading="lazy"
+                            src={imageUrl}
+                            alt="Product thumbnail"
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-blue-200/60">
+                            <ShoppingCart className="w-4 h-4" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0 flex flex-col justify-center">
+                        <div className="text-xs font-bold text-white flex items-center gap-1.5 justify-between">
+                          <span className="truncate text-blue-400">{clientUsername}</span>
+                          <span className="text-[9px] text-[#66a3ff] bg-[#0066ff]/10 px-1.5 py-0.2 rounded font-mono shrink-0">SUCCESS</span>
                         </div>
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0 flex flex-col justify-center">
-                      <div className="text-xs font-bold text-white flex items-center gap-1.5 justify-between">
-                        <span className="truncate text-blue-400">{clientUsername}</span>
-                        <span className="text-[9px] text-[#66a3ff] bg-[#0066ff]/10 px-1.5 py-0.2 rounded font-mono shrink-0">SUCCESS</span>
-                      </div>
-                      <div className="text-[11px] text-white truncate font-semibold mt-0.5">
-                        {displayedProductName}
-                      </div>
-                      <div className="flex items-center justify-between mt-1 text-[10px]">
-                        <span className="text-blue-100/70 text-[10px] font-medium">สั่งซื้อเสร็จสิ้น</span>
-                        <span className="text-blue-100/70 font-mono text-[9px]">{timeStr}</span>
+                        <div className="text-[11px] text-white truncate font-semibold mt-0.5">
+                          {displayedProductName}
+                        </div>
+                        <div className="flex items-center justify-between mt-1 text-[10px]">
+                          <span className="text-blue-100/70 text-[10px] font-medium">สั่งซื้อเสร็จสิ้น</span>
+                          <span className="text-blue-100/70 font-mono text-[9px]">{timeStr}</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                });
+              })()}
             </motion.div>
           </div>
         </div>
@@ -613,7 +611,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-zinc-300 mb-6">
             <div className="flex items-center gap-3.5">
               <div className="w-11 h-11 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-center justify-center text-amber-500 shadow-md">
-                <Star className="w-5.5 h-5.5 fill-amber-500/20" />
+                <Star className="w-[22px] h-[22px] fill-amber-500/20" />
               </div>
               <div>
                 <h2 className="text-lg font-black text-white leading-tight">คลังเก็บสินค้าดิจิทัล</h2>
@@ -627,7 +625,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 <input 
                   type="checkbox" 
                   checked={inStockOnly} 
-                  onChange={(e) => setInStockOnly(e.target.checked)} 
+                  onChange={(e) => {
+                    setInStockOnly(e.target.checked);
+                    setDisplayedCount(20);
+                  }} 
                   className="sr-only peer" 
                 />
                 <div className="w-9 h-5 bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-zinc-400 after:border-zinc-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-[#0066ff] peer-checked:after:bg-white"></div>
@@ -643,7 +644,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
         <SmoothScrollSection direction="right" delay={100} className="w-full">
           <div className="flex items-center gap-1.5 overflow-x-auto pb-4 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
             <button
-              onClick={() => setActiveTab("all")}
+              onClick={() => { setActiveTab("all"); setDisplayedCount(20); }}
               className={`px-4 py-2 rounded-xl text-xs font-bold shrink-0 transition-all border flex items-center gap-1.5 ${
                 activeTab === "all"
                   ? "bg-zinc-800 text-white border-zinc-700"
@@ -653,7 +654,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
               <Filter className="w-3.5 h-3.5" /> ทั้งหมด
             </button>
             <button
-              onClick={() => setActiveTab("popular")}
+              onClick={() => { setActiveTab("popular"); setDisplayedCount(20); }}
               className={`px-4 py-2 rounded-xl text-xs font-bold shrink-0 transition-all border flex items-center gap-1.5 ${
                 activeTab === "popular"
                   ? "bg-[#0066ff] text-white border-[#0066ff] shadow-[0_4px_12px_rgba(0,102,255,0.25)]"
@@ -663,7 +664,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
               🔥 แนะนำยอดฮิต
             </button>
             <button
-              onClick={() => setActiveTab("sale")}
+              onClick={() => { setActiveTab("sale"); setDisplayedCount(20); }}
               className={`px-4 py-2 rounded-xl text-xs font-bold shrink-0 transition-all border flex items-center gap-1.5 ${
                 activeTab === "sale"
                   ? "bg-emerald-500 text-white border-emerald-500 shadow-[0_4px_12px_rgba(16,185,129,0.25)]"
@@ -677,7 +678,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             {safeCategories.map((cat) => (
               <button
                 key={cat.id}
-                onClick={() => setActiveTab(cat.name)}
+                onClick={() => { setActiveTab(cat.name); setDisplayedCount(20); }}
                 className={`px-4 py-2 rounded-xl text-xs font-bold shrink-0 transition-all border ${
                   activeTab === cat.name
                     ? "bg-[#0066ff] text-white border-[#0066ff]"
@@ -721,132 +722,131 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     >
                       
                       {/* Thumbnail & Badges Container */}
-                      <div className="aspect-square bg-black/20 relative overflow-hidden p-2 group-hover:bg-zinc-900/40 transition-colors duration-300">
-                        
+                      <div className="aspect-square bg-black/20 relative overflow-hidden group-hover:bg-zinc-900/40 transition-colors duration-300">
+                        {/* Product Visual */}
+                        <div className="w-full h-full relative bg-zinc-900/50">
+                          {product.imageUrl ? (
+                            <img
+                              loading="lazy"
+                              src={product.imageUrl}
+                              alt={product.name}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex flex-col items-center justify-center border border-white/5 opacity-50 bg-zinc-900">
+                              <Box className="w-8 h-8 text-zinc-500 mb-1" />
+                              <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">STORETH</span>
+                            </div>
+                          )}
+                        </div>
+
                         {/* Interactive Tags Row */}
                         <div className="absolute top-4 left-4 right-4 z-10 flex items-start justify-between gap-2 pointer-events-none">
                           <div className="flex flex-col gap-1 items-start">
                             {isSpecialHot && (
                               <span className="bg-gradient-to-r from-red-500 to-orange-500 text-white font-black text-[9px] px-2 py-0.5 rounded shadow-md uppercase tracking-wider">
-                              POPULAR
-                            </span>
-                          )}
-                          {product.tag && !isSpecialHot && (
-                            <span className="bg-[#0066ff] text-white font-bold text-[9px] px-2 py-0.5 rounded shadow-sm uppercase tracking-wide">
-                              {product.tag}
-                            </span>
+                                POPULAR
+                              </span>
+                            )}
+                            {product.tag && !isSpecialHot && (
+                              <span className="bg-[#0066ff] text-white font-bold text-[9px] px-2 py-0.5 rounded shadow-sm uppercase tracking-wide">
+                                {product.tag}
+                              </span>
+                            )}
+                          </div>
+
+                          {discountPct > 0 && (
+                            <div className="bg-emerald-500 text-white font-black text-xs px-2 py-0.5 rounded shadow-lg uppercase tracking-wider flex items-center">
+                              -{discountPct}%
+                            </div>
                           )}
                         </div>
 
-                        {discountPct > 0 && (
-                          <div className="bg-emerald-500 text-white font-black text-xs px-2 py-0.5 rounded shadow-lg uppercase tracking-wider flex items-center">
-                            -{discountPct}%
+                        {/* Sold Out / Out Of Stock Mask */}
+                        {product.stock <= 0 && (
+                          <div className="absolute inset-0 bg-black/75 flex flex-col items-center justify-center z-10">
+                            <span className="bg-red-500 text-white font-black rounded-xl px-4 py-1.5 text-[10px] tracking-widest shadow-xl border border-red-400/20 animate-pulse">
+                              OUT OF STOCK
+                            </span>
                           </div>
                         )}
-                      </div>
 
-                      {/* Sold Out / Out Of Stock Mask */}
-                      {product.stock <= 0 && (
-                        <div className="absolute inset-0 bg-black/75 flex flex-col items-center justify-center z-10">
-                          <span className="bg-red-500 text-white font-black rounded-xl px-4 py-1.5 text-[10px] tracking-widest shadow-xl border border-red-400/20 animate-pulse">
-                            OUT OF STOCK
-                          </span>
-                        </div>
-                      )}
-
-                      {/* Product Visual */}
-                      <div className="w-full h-full rounded-xl overflow-hidden relative bg-zinc-900/50">
-                        {product.imageUrl ? (
-                          <img
-                            loading="lazy"
-                            src={product.imageUrl}
-                            alt={product.name}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex flex-col items-center justify-center border border-white/5 opacity-50 bg-zinc-900">
-                            <Box className="w-8 h-8 text-zinc-500 mb-1" />
-                            <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">STORETH</span>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Hover action button overlay */}
-                      {product.stock > 0 && (
-                        <div 
-                          onClick={() => onProductClick(product.id)}
-                          className="cursor-pointer absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center z-10"
-                        >
-                          <span className="bg-white text-black font-extrabold text-[11px] uppercase tracking-wider px-4 py-2 rounded-xl shadow-lg hover:scale-105 transition-transform">
-                            รายละเอียดสินค้า
-                          </span>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Meta/Description Text */}
-                    <div className="p-4 sm:p-5 flex flex-col flex-1 bg-transparent">
-                      
-                      {/* Name / Category */}
-                      <div className="mb-2">
-                        <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-wider block mb-0.5">
-                          {product.category || "General Digital"}
-                        </span>
-                        <h3 className="font-bold text-white text-xs sm:text-sm leading-snug line-clamp-2 h-9 sm:h-10 group-hover:text-blue-400 transition-colors duration-200">
-                          {product.name}
-                        </h3>
-                      </div>
-
-                      {/* Price Grid representation */}
-                      <div className="mt-auto pt-4 flex items-end justify-between border-t border-white/5">
-                        
-                        {/* Prices block */}
-                        <div className="min-w-0 flex flex-col">
-                          {product.originalPrice && product.originalPrice > product.price ? (
-                            <span className="text-[10px] text-zinc-500 line-through leading-none mb-1">
-                              ฿{(product.originalPrice || 0).toLocaleString()}
-                            </span>
-                          ) : (
-                            <span className="text-[10px] text-transparent leading-none mb-1">.</span>
-                          )}
-                          <span className="text-white font-extrabold text-sm sm:text-base leading-none tracking-tight flex items-baseline gap-0.5 font-mono">
-                            <span className="text-xs text-blue-400">฿</span>
-                            {(product.price || 0).toLocaleString()}
-                          </span>
-                        </div>
-
-                        {/* Stock Balance bar status */}
-                        <div className="text-right shrink-0">
-                          <span className="text-[9px] text-zinc-500 font-bold block leading-none mb-1 uppercase tracking-wider">คงเหลือ</span>
-                          <span className={`text-[10px] font-black leading-none ${product.stock > 0 ? 'text-cyan-400' : 'text-red-400'}`}>
-                            {product.stock >= 999999 ? "INFINITE" : `${product.stock} ชิ้น`}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Full-width Instant Action Trigger */}
-                      <div className="mt-4">
-                        {product.stock <= 0 ? (
-                          <button
-                            disabled
-                            className="w-full bg-white/5 text-zinc-500 rounded-xl py-2.5 text-xs font-bold cursor-not-allowed flex items-center justify-center gap-1.5"
-                          >
-                            <Package className="w-3.5 h-3.5" /> สินค้าหมด
-                          </button>
-                        ) : (
-                          <button
+                        {/* Hover action button overlay */}
+                        {product.stock > 0 && (
+                          <div 
                             onClick={() => onProductClick(product.id)}
-                            className="w-full bg-white/10 hover:bg-[#0066ff] border border-white/10 hover:border-[#0066ff] text-white hover:text-white rounded-xl py-2.5 text-xs font-extrabold transition-all active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer shadow-sm hover:shadow-[0_4px_12px_rgba(0,102,255,0.25)]"
+                            className="cursor-pointer absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center z-20"
                           >
-                            <ShoppingCart className="w-3.5 h-3.5" /> สั่งซื้อด่วน
-                          </button>
+                            <span className="bg-white text-black font-extrabold text-[11px] uppercase tracking-wider px-4 py-2 rounded-xl shadow-lg hover:scale-105 transition-transform">
+                              รายละเอียดสินค้า
+                            </span>
+                          </div>
                         )}
-                      </div>
+                      </div> {/* Close thumbnail aspect-square cleanly */}
 
+                      {/* Meta/Description Text - Inside card, outside aspect-square */}
+                      <div className="p-4 sm:p-5 flex flex-col flex-1 bg-transparent">
+                        
+                        {/* Name / Category */}
+                        <div className="mb-2">
+                          <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-wider block mb-0.5">
+                            {product.category || "General Digital"}
+                          </span>
+                          <h3 className="font-bold text-white text-xs sm:text-sm leading-snug line-clamp-2 h-9 sm:h-10 group-hover:text-blue-400 transition-colors duration-200">
+                            {product.name}
+                          </h3>
+                        </div>
+
+                        {/* Price Grid representation */}
+                        <div className="mt-auto pt-4 flex items-end justify-between border-t border-white/5">
+                          
+                          {/* Prices block */}
+                          <div className="min-w-0 flex flex-col">
+                            {product.originalPrice && product.originalPrice > product.price ? (
+                              <span className="text-[10px] text-zinc-500 line-through leading-none mb-1">
+                                ฿{(product.originalPrice || 0).toLocaleString()}
+                              </span>
+                            ) : (
+                              <span className="text-[10px] text-transparent leading-none mb-1">.</span>
+                            )}
+                            <span className="text-white font-extrabold text-sm sm:text-base leading-none tracking-tight flex items-baseline gap-0.5 font-mono">
+                              <span className="text-xs text-blue-400">฿</span>
+                              {(product.price || 0).toLocaleString()}
+                            </span>
+                          </div>
+
+                          {/* Stock Balance bar status */}
+                          <div className="text-right shrink-0">
+                            <span className="text-[9px] text-zinc-500 font-bold block leading-none mb-1 uppercase tracking-wider">คงเหลือ</span>
+                            <span className={`text-[10px] font-black leading-none ${product.stock > 0 ? 'text-[#3ecf8e]' : 'text-[#ef4444]'}`}>
+                              {product.stock >= 999999 ? "INFINITE" : `${product.stock} ชิ้น`}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Full-width Instant Action Trigger */}
+                        <div className="mt-4">
+                          {product.stock <= 0 ? (
+                            <button
+                              disabled
+                              className="w-full bg-white/5 text-zinc-500 rounded-xl py-2.5 text-xs font-bold cursor-not-allowed flex items-center justify-center gap-1.5"
+                            >
+                              <Package className="w-3.5 h-3.5" /> สินค้าหมด
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => onProductClick(product.id)}
+                              className="w-full bg-white/10 hover:bg-[#0066ff] border border-white/10 hover:border-[#0066ff] text-white hover:text-white rounded-xl py-2.5 text-xs font-extrabold transition-all active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer shadow-sm hover:shadow-[0_4px_12px_rgba(0,102,255,0.25)]"
+                            >
+                              <ShoppingCart className="w-3.5 h-3.5" /> สั่งซื้อด่วน
+                            </button>
+                          )}
+                        </div>
+
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
               </React.Fragment>
             )}
           </div>
