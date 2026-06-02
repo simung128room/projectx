@@ -56,33 +56,12 @@ interface SmoothScrollSectionProps {
 
 const SmoothScrollSection: React.FC<SmoothScrollSectionProps> = ({
   children,
-  direction = "up",
-  delay = 0,
   className = "",
 }) => {
-  let initialX = 0;
-  let initialY = 0;
-
-  if (direction === "left") initialX = -45;
-  else if (direction === "right") initialX = 45;
-  else if (direction === "up") initialY = 35;
-  else if (direction === "down") initialY = -35;
-
   return (
-    <motion.div
-      initial={{ opacity: 0, x: initialX, y: initialY, filter: "blur(3px)", scale: 0.98 }}
-      whileInView={{ opacity: 1, x: 0, y: 0, filter: "blur(0px)", scale: 1 }}
-      viewport={{ once: false, amount: 0.05, margin: "0px 0px -40px 0px" }}
-      transition={{
-        type: "spring",
-        stiffness: 95,
-        damping: 18,
-        delay: delay / 1000,
-      }}
-      className={className}
-    >
+    <div className={`${className} animate-in fade-in duration-500`}>
       {children}
-    </motion.div>
+    </div>
   );
 };
 
@@ -230,7 +209,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
   }, [safeProducts, activeTab, inStockOnly]);
 
   return (
-    <div className="w-full overflow-hidden space-y-8 pb-32 font-sans text-white bg-[#05070d] mt-1 sm:mt-2 max-w-[2100px] mx-auto px-4 md:px-6">
+    <div className="w-full space-y-8 pb-32 font-sans text-white bg-[#05070d] mt-1 sm:mt-2 max-w-[2100px] mx-auto px-4 md:px-6">
       
       {/* 1. Elegant Banner Carousel with dynamic navigation overlay */}
       <SmoothScrollSection direction="left" delay={50} className="w-full">
@@ -722,7 +701,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
         </SmoothScrollSection>
 
         {/* Product Items Display Grid */}
-        <SmoothScrollSection direction="up" delay={150} className="w-full">
+        <div className="w-full">
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-5 mt-4">
             {filteredProducts.length === 0 ? (
               <div className="col-span-full py-16 text-center border border-dashed border-white/10 rounded-3xl bg-zinc-900/50">
@@ -745,12 +724,9 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 const isSpecialHot = product.isPopular || product.tag?.toLowerCase().includes("hot") || product.tag?.toLowerCase().includes("best");
 
                 return (
-                  <motion.div
+                  <div
                     key={product.id}
-                    initial={{ opacity: 0, scale: 0.97, y: 15 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    transition={{ duration: 0.35, delay: Math.min(i * 0.04, 0.4), ease: "easeOut" }}
-                    className="flex flex-col bg-[#0A0D12]/80 border border-white/10 rounded-2xl overflow-hidden hover:scale-[1.02] hover:border-blue-500/30 hover:shadow-md group transition-all duration-300 h-full"
+                    className="flex flex-col bg-[#0A0D12]/80 border border-white/10 rounded-2xl overflow-hidden hover:scale-[1.02] hover:border-blue-500/30 hover:shadow-md group transition-all duration-300 h-full animate-in fade-in zoom-in duration-300"
                   >
                     
                     {/* Thumbnail & Badges Container */}
@@ -877,12 +853,12 @@ export const HomeView: React.FC<HomeViewProps> = ({
                       </div>
 
                     </div>
-                  </motion.div>
+                  </div>
                 );
               })
             )}
           </div>
-        </SmoothScrollSection>
+        </div>
       </div>
     </div>
   );
