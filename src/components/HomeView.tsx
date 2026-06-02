@@ -70,57 +70,7 @@ const BANNER_WIDTH = 2100;
 const BANNER_HEIGHT = 500;
 
 const NumberTicker = ({ value }: { value: number }) => {
-  const [displayValue, setDisplayValue] = useState(0);
-  const prevValue = useRef(0);
-  const currentDisplay = useRef(0);
-  const rafRef = useRef<number | null>(null);
-
-  useEffect(() => {
-    if (value === prevValue.current) return;
-
-    if (rafRef.current) {
-      cancelAnimationFrame(rafRef.current);
-    }
-
-    const startValue = currentDisplay.current;
-    const targetValue = value || 0;
-
-    if (targetValue <= 0) {
-      setDisplayValue(0);
-      currentDisplay.current = 0;
-      prevValue.current = 0;
-      return;
-    }
-
-    let startTimestamp: number;
-    const duration = 1500;
-    const step = (timestamp: number) => {
-      if (!startTimestamp) startTimestamp = timestamp;
-      const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-      const easeProgress = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
-
-      const nextValue = Math.floor(
-        startValue + easeProgress * (targetValue - startValue),
-      );
-      setDisplayValue(nextValue);
-      currentDisplay.current = nextValue;
-
-      if (progress < 1) {
-        rafRef.current = window.requestAnimationFrame(step);
-      } else {
-        prevValue.current = targetValue;
-      }
-    };
-    rafRef.current = window.requestAnimationFrame(step);
-
-    return () => {
-      if (rafRef.current) {
-        cancelAnimationFrame(rafRef.current);
-      }
-    };
-  }, [value]);
-
-  return <>{displayValue.toLocaleString()}</>;
+  return <>{value.toLocaleString()}</>;
 };
 
 export const HomeView: React.FC<HomeViewProps> = ({
@@ -135,7 +85,6 @@ export const HomeView: React.FC<HomeViewProps> = ({
   onSelectCategory,
 }) => {
   const [currentBanner, setCurrentBanner] = useState(0);
-  const [realtimeStats, setRealtimeStats] = useState(stats);
   const [activeTab, setActiveTab] = useState<string>("all");
   const [inStockOnly, setInStockOnly] = useState<boolean>(false);
   const [displayedCount, setDisplayedCount] = useState<number>(20);
@@ -156,20 +105,13 @@ export const HomeView: React.FC<HomeViewProps> = ({
       : DEFAULT_BANNERS;
   }, [siteSettings?.banners]);
 
-  // Sync with props stats safely
-  useEffect(() => {
-    if (stats) {
-      setRealtimeStats(stats);
-    }
-  }, [stats]);
-
   const totalSales = siteSettings?.stats_sales_override !== undefined && siteSettings?.stats_sales_override !== null 
     ? Number(siteSettings.stats_sales_override) 
-    : (realtimeStats?.sales || 0);
+    : (stats?.sales || 0);
 
   const totalMembers = siteSettings?.stats_users_override !== undefined && siteSettings?.stats_users_override !== null
     ? Number(siteSettings.stats_users_override)
-    : (realtimeStats?.users || 0);
+    : (stats?.users || 0);
 
   const totalStockAvailable = useMemo(() => {
     return safeProducts.reduce((acc, p) => acc + (Math.max(0, p.stock || 0)), 0);

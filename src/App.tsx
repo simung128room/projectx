@@ -140,34 +140,17 @@ import {
   SunnyBuxLogo,
 } from "./components/SunnyComponents";
 
-const ProfileView = lazy(() =>
-  import("./components/ProfileView").then((module) => ({
-    default: module.ProfileView,
-  })),
-);
-const CategoriesView = lazy(() =>
-  import("./components/CategoriesView").then((module) => ({
-    default: module.CategoriesView,
-  })),
-);
-const AuthView = lazy(() =>
-  import("./components/AuthView").then((module) => ({
-    default: module.AuthView,
-  })),
-);
+import { ProfileView } from "./components/ProfileView";
+import { CategoriesView } from "./components/CategoriesView";
+import { AuthView } from "./components/AuthView";
+import { HomeView } from "./components/HomeView";
+import { ProductDetailView } from "./components/ProductDetailView";
+import { CategoryProductsView } from "./components/CategoryProductsView";
+import { SearchView } from "./components/SearchView";
+
 const AdminDashboard = lazy(() =>
   import("./components/AdminDashboard").then((module) => ({
     default: module.AdminDashboard,
-  })),
-);
-const HomeView = lazy(() =>
-  import("./components/HomeView").then((module) => ({
-    default: module.HomeView,
-  }))
-);
-const ProductDetailView = lazy(() =>
-  import("./components/ProductDetailView").then((module) => ({
-    default: module.ProductDetailView,
   })),
 );
 const PageView = lazy(() =>
@@ -216,16 +199,7 @@ const CheckerLogsView = lazy(() =>
     default: module.CheckerLogsView,
   })),
 );
-const CategoryProductsView = lazy(() =>
-  import("./components/CategoryProductsView").then((module) => ({
-    default: module.CategoryProductsView,
-  })),
-);
-const SearchView = lazy(() =>
-  import("./components/SearchView").then((module) => ({
-    default: module.SearchView,
-  })),
-);
+
 const ContactView = lazy(() =>
   import("./components/ContactView").then((module) => ({
     default: module.ContactView,
@@ -646,19 +620,6 @@ function AppContent() {
 
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
-  }, [activeView]);
-
-  const prevViewRef = useRef(activeView);
-
-  useEffect(() => {
-    if (prevViewRef.current !== activeView) {
-      setIsPageTransitioning(true);
-      const timer = setTimeout(() => {
-        setIsPageTransitioning(false);
-      }, 50);
-      prevViewRef.current = activeView;
-      return () => clearTimeout(timer);
-    }
   }, [activeView]);
 
   useEffect(() => {
@@ -2795,32 +2756,8 @@ function AppContent() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-0 sm:pt-2 pb-6 lg:pb-0 w-full flex-1 flex flex-col">
           <Suspense
             fallback={
-              <div className="flex-1 w-full p-4 sm:p-6 space-y-6 bg-[#05070d] min-h-screen">
-                <div className="w-full max-w-[2100px] mx-auto space-y-8">
-                  {/* Banner Skeleton */}
-                  <div className="w-full h-[200px] sm:h-[350px] bg-white/5 animate-pulse rounded-2xl border border-white/5" />
-                  
-                  {/* Stats Skeleton */}
-                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                     <div className="h-24 bg-white/5 animate-pulse rounded-2xl border border-white/5" />
-                     <div className="h-24 bg-white/5 animate-pulse rounded-2xl border border-white/5" />
-                     <div className="h-24 bg-white/5 animate-pulse rounded-2xl border border-white/5" />
-                     <div className="h-24 bg-white/5 animate-pulse rounded-2xl border border-white/5" />
-                  </div>
-
-                  {/* Filter Skeleton */}
-                  <div className="flex gap-4">
-                    <div className="h-12 w-32 bg-white/5 animate-pulse rounded-full border border-white/5" />
-                    <div className="h-12 w-32 bg-white/5 animate-pulse rounded-full border border-white/5" />
-                  </div>
-
-                  {/* Grid Skeleton */}
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
-                    {[1,2,3,4,5,6,7,8].map(i => (
-                      <div key={i} className="flex flex-col bg-white/5 animate-pulse border border-white/5 rounded-2xl h-64" />
-                    ))}
-                  </div>
-                </div>
+              <div className="flex-1 w-full flex items-center justify-center min-h-[50vh]">
+                <div className="w-8 h-8 rounded-full border-2 border-blue-500 border-t-transparent flex items-center justify-center animate-spin" />
               </div>
             }
           >
