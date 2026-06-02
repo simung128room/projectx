@@ -2312,7 +2312,7 @@ function AppContent() {
       <div className="flex-1 flex flex-col min-h-screen min-w-0 relative overflow-x-hidden">
         {/* Desktop Top Header */}
         <div className="hidden lg:block sticky top-3 px-8 z-[50] w-full pointer-events-none mt-3">
-          <header className="pointer-events-auto bg-[#0a0a0a]/90 backdrop-blur-md border border-white/10 rounded-2xl w-full h-[56px] flex items-center justify-between px-6 shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
+          <header className="pointer-events-auto bg-[#0a0a0a]/90 backdrop-blur-md border border-[#0066ff]/30 rounded-2xl w-full h-[56px] flex items-center justify-between px-6 shadow-[0_8px_32px_rgba(0,0,0,0.6),0_0_15px_rgba(0,102,255,0.1)]">
             <div className="flex items-center gap-4">
               <h1 className="text-sm font-medium text-[#ffffff]">
                 {activeView === "home" ? "ภาพรวม" : 
@@ -2368,7 +2368,7 @@ function AppContent() {
 
         {/* Global Top Navbar (Mobile) */}
         <div className="lg:hidden sticky top-3 px-4 z-[65] w-full pointer-events-none mt-3">
-          <nav className="pointer-events-auto bg-[#0a0a0a]/90 backdrop-blur-md border border-white/10 rounded-2xl w-full flex flex-col shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
+          <nav className="pointer-events-auto bg-[#0a0a0a]/90 backdrop-blur-md border border-[#0066ff]/30 rounded-2xl w-full flex flex-col shadow-[0_8px_32px_rgba(0,0,0,0.6),0_0_15px_rgba(0,102,255,0.1)]">
             <div className="flex items-center justify-between px-5 h-[56px] relative">
               <motion.img
                 whileHover={{ scale: 1.05 }}
