@@ -648,6 +648,7 @@ function AppContent() {
   const [showContactUs, setShowContactUs] = useState(false);
   const [clientIp, setClientIp] = useState<string | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [forceReveal, setForceReveal] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
 
   const [logoClicks, setLogoClicks] = useState(0);
@@ -1175,6 +1176,12 @@ function AppContent() {
         ]);
       }
 
+      let timeoutId: any = setTimeout(() => {
+        console.warn("Loading timeout 8s exceeded. Force revealing portal.");
+        setForceReveal(true);
+        setIsLoaded(true);
+      }, 8000);
+
       try {
         const res = await axios.get("/api/health");
         const ip = res.data.clientIp || "Unknown";
@@ -1189,6 +1196,8 @@ function AppContent() {
         await fetchAllData();
       } catch (err) {
         console.error("Initial data fetch failed:", err);
+      } finally {
+        clearTimeout(timeoutId);
       }
       
       dataReady = true;
@@ -2043,7 +2052,8 @@ function AppContent() {
       </div>
     );
 
-  if (!isLoaded)
+  const isHomeViewReady = (products.length > 0 && categories.length > 0 && siteSettings !== null) || forceReveal;
+  if (!isLoaded || (!isHomeViewReady && !dbErrorDetail))
     return (
       <div className="min-h-screen bg-[#05070d] flex flex-col items-center justify-center font-sans overflow-hidden relative">
         <motion.div

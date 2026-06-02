@@ -94,6 +94,49 @@ export const HomeView: React.FC<HomeViewProps> = ({
   const safeCategories = useMemo(() => (Array.isArray(categories) ? categories : []), [categories]);
   const safePurchaseHistory = useMemo(() => (Array.isArray(purchaseHistory) ? purchaseHistory : []), [purchaseHistory]);
 
+  // Index products by name for fast lookup in Live Activity Ticker
+  const productsByName = useMemo(() => {
+    const map = new Map<string, any>();
+    for (const p of safeProducts) {
+      if (p.name) {
+        map.set(p.name, p);
+      }
+    }
+    return map;
+  }, [safeProducts]);
+
+  // Group products by category key for fast retrieval
+  const productsByCategory = useMemo(() => {
+    const map = new Map<string, any[]>();
+    for (const p of safeProducts) {
+      if (!p.category) continue;
+      const key = p.category.toString();
+      let list = map.get(key);
+      if (!list) {
+        list = [];
+        map.set(key, list);
+      }
+      list.push(p);
+    }
+    return map;
+  }, [safeProducts]);
+
+  // Retrieve products for a category object
+  const getProductsForCategory = useMemo(() => {
+    return (cat: any) => {
+      const list1 = productsByCategory.get(cat.id) || [];
+      const list2 = productsByCategory.get(cat.name) || [];
+      const list3 = productsByCategory.get(cat.title) || [];
+      const combined = [...list1, ...list2, ...list3];
+      if (combined.length === 0) return [];
+      const uniqueMap = new Map<string, any>();
+      for (const p of combined) {
+        uniqueMap.set(p.id, p);
+      }
+      return Array.from(uniqueMap.values());
+    };
+  }, [productsByCategory]);
+
   // Reset pagination when filter changes
   useEffect(() => {
     setDisplayedCount(20);
@@ -152,9 +195,13 @@ export const HomeView: React.FC<HomeViewProps> = ({
     } else if (activeTab === "popular") {
       return result.filter(p => p.isPopular || p.tag?.toLowerCase().includes("hot") || p.tag?.toLowerCase().includes("best"));
     } else {
+      const matchCat = safeCategories.find(c => c.name === activeTab || c.id === activeTab || c.title === activeTab);
+      if (matchCat) {
+        return result.filter(p => p.category === matchCat.id || p.category === matchCat.name || p.category === matchCat.title);
+      }
       return result.filter(p => p.category === activeTab);
     }
-  }, [safeProducts, activeTab, inStockOnly]);
+  }, [safeProducts, safeCategories, activeTab, inStockOnly]);
 
   return (
     <div className="w-full space-y-8 pb-32 font-sans text-white bg-[#05070d] mt-1 sm:mt-2 max-w-[2100px] mx-auto px-4 md:px-6">
@@ -404,9 +451,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             </SmoothScrollSection>
           ) : (
             safeCategories.slice(0, 3).map((cat, i) => {
-              const catProducts = safeProducts.filter(
-                p => p.category === cat.id || p.category === cat.name || p.category === cat.title
-              );
+              const catProducts = getProductsForCategory(cat);
               
               let priceRangeStr = "ไม่ทราบราคา";
               let itemCountDesc = `${catProducts.length} รายการในร้าน`;
@@ -488,7 +533,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   ? safeProducts[i % safeProducts.length]
                   : null;
                 const matchedProduct = !isDummy
-                  ? safeProducts.find(p => p.name === purchase.productName)
+                  ? productsByName.get(purchase.productName)
                   : null;
 
                 let minsAgo = i * 3 + 2;
