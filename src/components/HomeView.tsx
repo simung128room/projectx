@@ -99,12 +99,12 @@ const NumberTicker = ({ value }: { value: number }) => {
 };
 
 export const HomeView: React.FC<HomeViewProps> = ({
-  products,
-  categories,
+  products = [],
+  categories = [],
   stats,
   user,
   siteSettings,
-  purchaseHistory,
+  purchaseHistory = [],
   setActiveView,
   onProductClick,
   onSelectCategory,

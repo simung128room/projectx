@@ -14,8 +14,8 @@ interface CategoryProductsViewProps {
 
 export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
   category,
-  categories,
-  products,
+  categories = [],
+  products = [],
   onBack,
   onProductClick,
 }) => {

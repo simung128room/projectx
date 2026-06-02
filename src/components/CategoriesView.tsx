@@ -12,7 +12,7 @@ interface CategoriesViewProps {
   onSelectCategory: (categoryId: string) => void;
 }
 
-export const CategoriesView: React.FC<CategoriesViewProps> = ({ categories, products, siteSettings, onBack, onSelectCategory }) => {
+export const CategoriesView: React.FC<CategoriesViewProps> = ({ categories = [], products = [], siteSettings, onBack, onSelectCategory }) => {
   const getCategoryPriceInfo = (cat: any) => {
     const catProducts = cat === 'all' ? products : products.filter(p => p.category === cat.id || p.category === cat.name || p.category === cat.title);
     if (catProducts.length === 0) return null;
