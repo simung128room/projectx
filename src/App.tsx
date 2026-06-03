@@ -2138,7 +2138,7 @@ function AppContent() {
     );
 
   return (
-    <div className="min-h-screen w-full bg-[#0a0a0a] text-[#ffffff] font-sans selection:bg-[#0066ff]/30 flex flex-col lg:flex-row relative">
+    <div className="min-h-screen w-full bg-[#050505] text-[#ffffff] font-sans selection:bg-white/20 flex flex-col lg:flex-row relative">
       {useCustomCursor && <CustomCursor />}
       <Suspense fallback={null}>
         <PopupBanner
@@ -2199,7 +2199,7 @@ function AppContent() {
                   title: "กรุณาเข้าสู่ระบบ",
                   text: "คุณต้องเข้าสู่ระบบก่อนใช้งานฟีเจอร์นี้",
                   confirmButtonText: "ไปหน้าเข้าสู่ระบบ",
-                  confirmButtonColor: "#0066ff",
+                  confirmButtonColor: "#ffffff",
                   background: "#111",
                   color: "#fff"
                 }).then(() => setActiveView("login"));
@@ -2208,7 +2208,7 @@ function AppContent() {
               setActiveView("free_website");
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${activeView === "free_website" ? "bg-[#161616] text-[#0066ff] border border-[#1e1e1e] shadow-sm" : "text-[#888888] hover:bg-[#111111] hover:text-[#ffffff] border border-transparent"}`}
+            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${activeView === "free_website" ? "bg-[#161616] text-[#ffffff] border border-[#1e1e1e] shadow-sm" : "text-[#888888] hover:bg-[#111111] hover:text-[#ffffff] border border-transparent"}`}
           >
             <Globe className="w-[18px] h-[18px]" /> เปิดเว็บไซต์ฟรี
           </button>
@@ -2220,7 +2220,7 @@ function AppContent() {
                   title: "กรุณาเข้าสู่ระบบ",
                   text: "คุณต้องเข้าสู่ระบบก่อนใช้งานบรรดาเครื่องมือ",
                   confirmButtonText: "ไปหน้าเข้าสู่ระบบ",
-                  confirmButtonColor: "#0066ff",
+                  confirmButtonColor: "#ffffff",
                   background: "#111",
                   color: "#fff"
                 }).then(() => setActiveView("login"));
@@ -2377,7 +2377,7 @@ function AppContent() {
       <div className="flex-1 flex flex-col min-h-screen min-w-0 relative overflow-x-hidden">
         {/* Desktop Top Header */}
         <div className="hidden lg:block sticky top-3 px-8 z-[50] w-full pointer-events-none mt-3">
-          <header className="pointer-events-auto bg-[#0a0a0a]/90 backdrop-blur-md border border-[#0066ff]/30 rounded-2xl w-full h-[56px] flex items-center justify-between px-6 shadow-[0_8px_32px_rgba(0,0,0,0.6),0_0_15px_rgba(0,102,255,0.1)]">
+          <header className="pointer-events-auto bg-[#050505]/90 backdrop-blur-md border border-zinc-900 rounded-2xl w-full h-[56px] flex items-center justify-between px-6 shadow-[0_8px_32px_rgba(0,0,0,0.8)]">
             <div className="flex items-center gap-4">
               <h1 className="text-sm font-medium text-[#ffffff]">
                 {activeView === "home" ? "ภาพรวม" : 
@@ -2406,7 +2406,7 @@ function AppContent() {
                     <span className="text-[13px] font-medium text-[#ffffff] leading-tight">
                       {userPlan?.username || user.email?.split("@")[0] || "User"}
                     </span>
-                    <span className="text-[11px] text-[#0066ff] font-medium">
+                    <span className="text-[11px] text-white font-medium">
                       ฿ {userPlan?.balance?.toLocaleString(undefined, { minimumFractionDigits: 2 }) || "0.00"}
                     </span>
                   </div>
@@ -2433,7 +2433,7 @@ function AppContent() {
 
         {/* Global Top Navbar (Mobile) */}
         <div className="lg:hidden sticky top-3 px-4 z-[65] w-full pointer-events-none mt-3">
-          <nav className="pointer-events-auto bg-[#0a0a0a]/90 backdrop-blur-md border border-[#0066ff]/30 rounded-2xl w-full flex flex-col shadow-[0_8px_32px_rgba(0,0,0,0.6),0_0_15px_rgba(0,102,255,0.1)]">
+          <nav className="pointer-events-auto bg-[#050505]/90 backdrop-blur-md border border-zinc-900 rounded-2xl w-full flex flex-col shadow-[0_8px_32px_rgba(0,0,0,0.8)]">
             <div className="flex items-center justify-between px-5 h-[56px] relative">
               <motion.img
                 whileHover={{ scale: 1.05 }}
@@ -2482,7 +2482,7 @@ function AppContent() {
                 animate={{ x: 0 }}
                 exit={{ x: "100%" }}
                 transition={{ type: "tween", ease: [0.32, 0.72, 0, 1], duration: 0.3 }}
-                className="fixed top-0 right-0 bottom-0 w-[80%] max-w-[300px] bg-[#0a0a0a] shadow-2xl z-[71] flex flex-col lg:hidden overflow-y-auto no-scrollbar border-l border-[#1e1e1e]"
+                className="fixed top-0 right-0 bottom-0 w-[80%] max-w-[300px] bg-[#050505] shadow-2xl z-[71] flex flex-col lg:hidden overflow-y-auto no-scrollbar border-l border-[#1e1e1e]"
               >
                 {/* Close button */}
                 <button
@@ -2645,7 +2645,7 @@ function AppContent() {
                           </div>
                           <div className="flex items-center gap-2 mt-0.5">
                             {userPlan?.isPremium ? (
-                              <div className="flex items-center gap-1.5 px-2 py-0.5 bg-[#0066ff]/10 text-[#0066ff] border border-[#0066ff]/20 text-[10px] font-medium rounded-md uppercase tracking-wider shadow-sm">
+                              <div className="flex items-center gap-1.5 px-2 py-0.5 bg-white text-black border border-white text-[10px] font-black rounded-md uppercase tracking-wider shadow-sm">
                                 <Crown className="w-3 h-3" />
                                 Premium
                               </div>
@@ -2678,7 +2678,7 @@ function AppContent() {
                                     ? Math.floor(userPlan.balance).toLocaleString()
                                     : "0"}
                                 </span>
-                                <span className="text-[12px] font-medium text-[#0066ff]">
+                                <span className="text-[12px] font-bold text-[#ffffff]">
                                   ฿
                                 </span>
                               </div>
@@ -2757,7 +2757,7 @@ function AppContent() {
                       </div>
                       {isAdmin && (
                         <div
-                          className={`dd-row flex items-center gap-3 p-3 px-4 text-[13px] font-medium text-[#0066ff] border-b border-[#1e1e1e] cursor-pointer transition-colors bg-[#161616]`}
+                          className={`dd-row flex items-center gap-3 p-3 px-4 text-[13px] font-bold text-white border-b border-[#1e1e1e] cursor-pointer transition-colors bg-[#161616]`}
                           onClick={() => {
                             setActiveView("admin");
                             setIsMobileMenuOpen(false);

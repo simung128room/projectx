@@ -5,14 +5,14 @@
   --font-sans: "Kanit", "Inter", "Geist", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", monospace;
   
-  --color-background: #0a0a0a;
-  --color-surface: #111111;
-  --color-border: #1e1e1e;
+  --color-background: #050505;
+  --color-surface: #121212;
+  --color-border: #222222;
   --color-text-primary: #ffffff;
-  --color-text-secondary: #888888;
-  --color-accent: #0066ff;
-  --color-user-bubble: #1a1a2e;
-  --color-input-bg: #161616;
+  --color-text-secondary: #a0a0a0;
+  --color-accent: #ffffff;
+  --color-user-bubble: #1c1c1c;
+  --color-input-bg: #101010;
 }
 
 @layer base {
