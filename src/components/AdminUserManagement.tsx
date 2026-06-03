@@ -117,11 +117,11 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
   return (
     <div className="space-y-6">
       {!selectedUser ? (
-        <div className="bg-[#0B0D0F] border border-white/10 rounded-xl p-6 shadow-sm relative overflow-hidden flex flex-col min-h-[500px]">
+        <div className="bg-[#0B0D0F] border border-gray-200 rounded-xl p-6 shadow-sm relative overflow-hidden flex flex-col min-h-[500px]">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-            <h3 className="font-bold text-white flex items-center gap-2"><Users className="w-5 h-5 text-[#2563EB]" /> จัดการผู้ใช้ (User Management)</h3>
-            <div className="flex bg-[#121417] border border-white/10 rounded-2xl p-1 overflow-hidden shrink-0 w-full sm:w-64 relative">
-              <Search className="w-4 h-4 text-zinc-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <h3 className="font-bold text-gray-900 flex items-center gap-2"><Users className="w-5 h-5 text-[#2563EB]" /> จัดการผู้ใช้ (User Management)</h3>
+            <div className="flex bg-gray-100 border border-gray-200 rounded-2xl p-1 overflow-hidden shrink-0 w-full sm:w-64 relative">
+              <Search className="w-4 h-4 text-gray-600 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input 
                 type="text" 
                 placeholder="ค้นหาอีเมล, บทบาท..."
@@ -132,22 +132,22 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
             </div>
           </div>
 
-          <div className="overflow-x-auto rounded-2xl border border-white/5 flex-1">
-            <table className="w-full text-left text-sm text-zinc-400">
-              <thead className="text-xs uppercase bg-[#121417] text-zinc-500 font-bold tracking-wider">
+          <div className="overflow-x-auto rounded-2xl border border-gray-200 flex-1">
+            <table className="w-full text-left text-sm text-gray-600">
+              <thead className="text-xs uppercase bg-gray-100 text-gray-500 font-bold tracking-wider">
                 <tr>
-                  <th className="px-4 py-3 border-b border-white/5">อีเมล/ผู้ใช้</th>
-                  <th className="px-4 py-3 border-b border-white/5 text-center">ไอพีล่าสุด</th>
-                  <th className="px-4 py-3 border-b border-white/5">บทบาท</th>
-                  <th className="px-4 py-3 border-b border-white/5">สถานะ</th>
-                  <th className="px-4 py-3 border-b border-white/5 text-right">ยอดเงิน (บาท)</th>
-                  <th className="px-4 py-3 border-b border-white/5 text-right">จัดการ</th>
+                  <th className="px-4 py-3 border-b border-gray-200">อีเมล/ผู้ใช้</th>
+                  <th className="px-4 py-3 border-b border-gray-200 text-center">ไอพีล่าสุด</th>
+                  <th className="px-4 py-3 border-b border-gray-200">บทบาท</th>
+                  <th className="px-4 py-3 border-b border-gray-200">สถานะ</th>
+                  <th className="px-4 py-3 border-b border-gray-200 text-right">ยอดเงิน (บาท)</th>
+                  <th className="px-4 py-3 border-b border-gray-200 text-right">จัดการ</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredUsers.length > 0 ? filteredUsers.map((u, i) => (
-                  <tr key={i} className="border-b border-white/5 hover:bg-[#121417]/50 transition-colors">
-                    <td className="px-4 py-4 font-bold text-white flex items-center gap-2">
+                  <tr key={i} className="border-b border-gray-200 hover:bg-gray-100/50 transition-colors">
+                    <td className="px-4 py-4 font-bold text-gray-900 flex items-center gap-2">
                       {u.email}
                       <button 
                          onClick={(e) => {
@@ -155,36 +155,36 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
                            navigator.clipboard.writeText(u.email);
                            Swal.fire({ title: 'Copied!', text: 'คัดลอกอีเมลแล้ว', icon: 'success', timer: 1000, showConfirmButton: false, background: '#09090b', color: '#fff' });
                          }}
-                         className="text-zinc-300 hover:text-zinc-500 transition-colors"
+                         className="text-gray-700 hover:text-gray-500 transition-colors"
                       >
                          <Copy className="w-3 h-3" />
                       </button>
                     </td>
                     <td className="px-4 py-4 text-center">
-                       <span className="font-mono text-xs text-zinc-400 bg-[#121820] px-2 py-1 rounded-md border border-white/5">{u.lastLoginIp || u.last_login_ip || 'ไม่ทราบ'}</span>
+                       <span className="font-mono text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded-md border border-gray-200">{u.lastLoginIp || u.last_login_ip || 'ไม่ทราบ'}</span>
                     </td>
                     <td className="px-4 py-4">
-                      <span className={`px-2 py-1 rounded-full text-[10px] uppercase tracking-widest font-bold ${u.role === 'Admin' ? 'bg-purple-600/10 text-purple-500 border border-white/10' : u.role === 'Premium' ? 'bg-amber-500/10 text-amber-600 border border-amber-100' : 'bg-[#121820] text-zinc-400 border border-white/10'}`}>
+                      <span className={`px-2 py-1 rounded-full text-[10px] uppercase tracking-widest font-bold ${u.role === 'Admin' ? 'bg-purple-600/10 text-blue-600 border border-gray-200' : u.role === 'Premium' ? 'bg-amber-500/10 text-amber-600 border border-amber-100' : 'bg-gray-100 text-gray-600 border border-gray-200'}`}>
                         {u.role}
                       </span>
                     </td>
                     <td className="px-4 py-4">
                       {u.status === 'banned' ? (
-                         <span className="px-2 py-1 rounded-full text-[10px] uppercase font-bold bg-[#121820] text-zinc-500 flex items-center gap-1 w-max"><Ban className="w-3 h-3"/> ระงับห้ามใช้</span>
+                         <span className="px-2 py-1 rounded-full text-[10px] uppercase font-bold bg-gray-100 text-gray-500 flex items-center gap-1 w-max"><Ban className="w-3 h-3"/> ระงับห้ามใช้</span>
                       ) : (
-                         <span className="px-2 py-1 rounded-full text-[10px] uppercase font-bold bg-emerald-500/10 text-emerald-600 flex items-center gap-1 w-max"><CheckCircle className="w-3 h-3"/> ปกติ</span>
+                         <span className="px-2 py-1 rounded-full text-[10px] uppercase font-bold bg-blue-600/10 text-emerald-600 flex items-center gap-1 w-max"><CheckCircle className="w-3 h-3"/> ปกติ</span>
                       )}
                     </td>
                     <td className="px-4 py-4 font-bold font-mono text-emerald-600 text-right">{(u.balance || 0).toLocaleString()}</td>
                     <td className="px-4 py-4 text-right">
-                       <button onClick={() => setSelectedUser(u)} className="px-3 py-1.5 bg-zinc-900 hover:bg-gray-200 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1 ml-auto shadow-sm active:scale-95">
+                       <button onClick={() => setSelectedUser(u)} className="px-3 py-1.5 bg-gray-50 hover:bg-gray-200 text-gray-900 rounded-xl text-xs font-bold transition-all flex items-center gap-1 ml-auto shadow-sm active:scale-95">
                           <Eye className="w-3 h-3" /> ดูข้อมูล
                        </button>
                     </td>
                   </tr>
                 )) : (
                   <tr>
-                    <td colSpan={5} className="text-center py-12 text-zinc-500 font-medium text-xs">ไม่พบข้อมูลผู้ใช้</td>
+                    <td colSpan={5} className="text-center py-12 text-gray-500 font-medium text-xs">ไม่พบข้อมูลผู้ใช้</td>
                   </tr>
                 )}
               </tbody>
@@ -198,22 +198,22 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.98 }}
-            className="bg-[#0B0D0F] border border-white/10 rounded-xl overflow-hidden shadow-sm flex flex-col"
+            className="bg-[#0B0D0F] border border-gray-200 rounded-xl overflow-hidden shadow-sm flex flex-col"
           >
-            <div className="p-6 md:p-8 bg-[#121417]/50 border-b border-white/5 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div className="p-6 md:p-8 bg-gray-100/50 border-b border-gray-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
               <div className="flex items-center gap-4">
-                <div className="w-16 h-16 bg-[#0B0D0F] border border-white/10 rounded-2xl flex items-center justify-center p-1 shrink-0 relative overflow-hidden shadow-sm">
-                   <div className="bg-[#121820] w-full h-full rounded-xl flex items-center justify-center text-zinc-400">
+                <div className="w-16 h-16 bg-[#0B0D0F] border border-gray-200 rounded-2xl flex items-center justify-center p-1 shrink-0 relative overflow-hidden shadow-sm">
+                   <div className="bg-gray-100 w-full h-full rounded-xl flex items-center justify-center text-gray-600">
                      <Users className="w-6 h-6" />
                    </div>
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold text-white mb-1">{selectedUser.email}</h2>
+                  <h2 className="text-xl font-bold text-gray-900 mb-1">{selectedUser.email}</h2>
                   <div className="flex items-center gap-2 text-xs font-bold">
-                    <span className={`px-2 py-0.5 rounded uppercase tracking-widest ${selectedUser.role === 'Admin' ? 'bg-purple-600/20 text-purple-500' : selectedUser.role === 'Premium' ? 'bg-amber-100 text-amber-600' : 'bg-zinc-200 text-zinc-400'}`}>
+                    <span className={`px-2 py-0.5 rounded uppercase tracking-widest ${selectedUser.role === 'Admin' ? 'bg-purple-600/20 text-blue-600' : selectedUser.role === 'Premium' ? 'bg-amber-100 text-amber-600' : 'bg-zinc-200 text-gray-600'}`}>
                       {selectedUser.role}
                     </span>
-                    <span className={`px-2 py-0.5 rounded uppercase tracking-widest flex items-center gap-1 ${selectedUser.status === 'banned' ? 'bg-zinc-200 text-zinc-400' : 'bg-emerald-100 text-emerald-600'}`}>
+                    <span className={`px-2 py-0.5 rounded uppercase tracking-widest flex items-center gap-1 ${selectedUser.status === 'banned' ? 'bg-zinc-200 text-gray-600' : 'bg-emerald-100 text-emerald-600'}`}>
                       {selectedUser.status === 'banned' ? <><Ban className="w-3 h-3"/> Banned</> : <><CheckCircle className="w-3 h-3"/> Active</>}
                     </span>
                   </div>
@@ -221,11 +221,11 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
               </div>
               
               <div className="flex flex-wrap gap-2">
-                <button onClick={() => setSelectedUser(null)} className="px-4 py-2 border border-white/10 bg-[#0B0D0F] hover:bg-[#121417] text-zinc-400 rounded-xl text-xs font-bold transition-all shadow-sm">กลับไปหน้ารายชื่อ</button>
+                <button onClick={() => setSelectedUser(null)} className="px-4 py-2 border border-gray-200 bg-[#0B0D0F] hover:bg-gray-100 text-gray-600 rounded-xl text-xs font-bold transition-all shadow-sm">กลับไปหน้ารายชื่อ</button>
               </div>
             </div>
 
-            <div className="border-b border-white/5 bg-[#0B0D0F] px-6 overflow-x-auto no-scrollbar">
+            <div className="border-b border-gray-200 bg-[#0B0D0F] px-6 overflow-x-auto no-scrollbar">
               <div className="flex items-center gap-2 py-4 w-max">
                 {[
                   { id: 'info', label: 'ข้อมูลทั่วไป & จัดการ' },
@@ -238,8 +238,8 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
                     onClick={() => setActionTab(tab.id as any)}
                     className={`px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
                       actionTab === tab.id 
-                        ? 'bg-zinc-900 text-white shadow-sm ring-1 ring-zinc-900' 
-                        : 'bg-[#121417] text-zinc-500 hover:bg-[#121820] hover:text-zinc-700'
+                        ? 'bg-gray-50 text-gray-900 shadow-sm ring-1 ring-zinc-900' 
+                        : 'bg-gray-100 text-gray-500 hover:bg-gray-100 hover:text-gray-600'
                     }`}
                   >
                     {tab.label}
@@ -253,45 +253,45 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   {/* Info */}
                   <div className="space-y-6">
-                    <div className="bg-[#121417] border border-white/5 rounded-2xl p-6">
-                      <h4 className="text-xs font-bold uppercase tracking-widest text-zinc-400 mb-4 flex items-center gap-2"><Wallet className="w-4 h-4"/> ข้อมูลการเงิน</h4>
+                    <div className="bg-gray-100 border border-gray-200 rounded-2xl p-6">
+                      <h4 className="text-xs font-bold uppercase tracking-widest text-gray-600 mb-4 flex items-center gap-2"><Wallet className="w-4 h-4"/> ข้อมูลการเงิน</h4>
                       <div className="flex items-end justify-between mb-6">
                         <div>
-                           <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-1">ยอดเงินคงเหลือ</p>
-                           <p className="text-3xl font-black font-mono text-emerald-500">฿{(selectedUser.balance || 0).toLocaleString()}</p>
+                           <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">ยอดเงินคงเหลือ</p>
+                           <p className="text-3xl font-black font-mono text-blue-500">฿{(selectedUser.balance || 0).toLocaleString()}</p>
                         </div>
                       </div>
                       <div className="flex gap-2">
-                        <button onClick={() => handleUpdateBalance(selectedUser, 'add')} className="flex-1 py-2.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 hover:bg-emerald-100 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 outline-none">
+                        <button onClick={() => handleUpdateBalance(selectedUser, 'add')} className="flex-1 py-2.5 bg-blue-600/10 border border-emerald-500/30 text-emerald-600 hover:bg-emerald-100 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 outline-none">
                           <HandCoins className="w-4 h-4" /> เพิ่มเงิน
                         </button>
-                        <button onClick={() => handleUpdateBalance(selectedUser, 'deduct')} className="flex-1 py-2.5 bg-purple-600/10 border border-[#3B82F6]/30 text-purple-500 hover:bg-purple-600/20 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 outline-none">
+                        <button onClick={() => handleUpdateBalance(selectedUser, 'deduct')} className="flex-1 py-2.5 bg-purple-600/10 border border-[#3B82F6]/30 text-blue-600 hover:bg-purple-600/20 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 outline-none">
                           <ArrowRightLeft className="w-4 h-4" /> หักเงิน
                         </button>
                       </div>
                     </div>
 
-                    <div className="p-4 rounded-xl border border-white/5 flex justify-between items-center bg-[#121417]/50">
+                    <div className="p-4 rounded-xl border border-gray-200 flex justify-between items-center bg-gray-100/50">
                       <div>
-                        <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">วันที่ลงทะเบียน</p>
-                        <p className="text-sm font-bold text-zinc-200 mt-0.5">{new Date(selectedUser.registered).toLocaleString('th-TH')}</p>
+                        <p className="text-[10px] font-bold text-gray-600 uppercase tracking-widest">วันที่ลงทะเบียน</p>
+                        <p className="text-sm font-bold text-gray-800 mt-0.5">{new Date(selectedUser.registered).toLocaleString('th-TH')}</p>
                       </div>
-                      <CalendarIcon className="w-5 h-5 text-zinc-300" />
+                      <CalendarIcon className="w-5 h-5 text-gray-700" />
                     </div>
 
-                    <div className="p-4 rounded-xl border border-white/5 bg-[#121417]/50 space-y-3">
+                    <div className="p-4 rounded-xl border border-gray-200 bg-gray-100/50 space-y-3">
                       <div>
-                        <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1">ไอพีล่าสุด</p>
-                        <p className="text-sm font-mono text-white bg-[#121820] w-max px-2 py-1 rounded border border-white/5">{selectedUser.lastLoginIp || selectedUser.last_login_ip || 'ไม่ทราบ'}</p>
+                        <p className="text-[10px] font-bold text-gray-600 uppercase tracking-widest mb-1">ไอพีล่าสุด</p>
+                        <p className="text-sm font-mono text-gray-900 bg-gray-100 w-max px-2 py-1 rounded border border-gray-200">{selectedUser.lastLoginIp || selectedUser.last_login_ip || 'ไม่ทราบ'}</p>
                       </div>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                           <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1">อุปกรณ์</p>
-                           <p className="text-xs font-bold text-zinc-300">{selectedUser.lastLoginSource || selectedUser.last_login_source || 'ไม่ทราบ'}</p>
+                           <p className="text-[10px] font-bold text-gray-600 uppercase tracking-widest mb-1">อุปกรณ์</p>
+                           <p className="text-xs font-bold text-gray-700">{selectedUser.lastLoginSource || selectedUser.last_login_source || 'ไม่ทราบ'}</p>
                         </div>
                         <div>
-                           <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1">ประเทศ</p>
-                           <p className="text-xs font-bold text-zinc-300 flex items-center gap-1">
+                           <p className="text-[10px] font-bold text-gray-600 uppercase tracking-widest mb-1">ประเทศ</p>
+                           <p className="text-xs font-bold text-gray-700 flex items-center gap-1">
                              {selectedUser.lastLoginCountry || selectedUser.last_login_country || 'ไม่ทราบ'}
                            </p>
                         </div>
@@ -301,16 +301,16 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
 
                   {/* Actions */}
                   <div className="space-y-6">
-                    <div className="bg-[#121417] border border-white/5 rounded-2xl p-6">
-                      <h4 className="text-xs font-bold uppercase tracking-widest text-zinc-400 mb-4">การจัดการบัญชี</h4>
+                    <div className="bg-gray-100 border border-gray-200 rounded-2xl p-6">
+                      <h4 className="text-xs font-bold uppercase tracking-widest text-gray-600 mb-4">การจัดการบัญชี</h4>
                       
                       <div className="space-y-3">
-                        <button onClick={() => handleEditUser(selectedUser)} className="w-full flex items-center justify-between p-3.5 bg-[#0B0D0F] border border-white/10 hover:border-white/20 rounded-xl transition-all group">
+                        <button onClick={() => handleEditUser(selectedUser)} className="w-full flex items-center justify-between p-3.5 bg-[#0B0D0F] border border-gray-200 hover:border-gray-300 rounded-xl transition-all group">
                            <div className="flex items-center gap-3">
-                             <div className="p-2 bg-[#121417] rounded-lg group-hover:bg-[#121820] transition-colors"><Edit className="w-4 h-4 text-zinc-400" /></div>
+                             <div className="p-2 bg-gray-100 rounded-lg group-hover:bg-gray-100 transition-colors"><Edit className="w-4 h-4 text-gray-600" /></div>
                              <div className="flex flex-col items-start leading-tight">
-                                <span className="text-sm font-bold text-white">แก้ไขข้อมูลบทบาท</span>
-                                <span className="text-[10px] text-zinc-500 font-medium mt-0.5">เปลี่ยนสิทธิ์ Member / Premium</span>
+                                <span className="text-sm font-bold text-gray-900">แก้ไขข้อมูลบทบาท</span>
+                                <span className="text-[10px] text-gray-500 font-medium mt-0.5">เปลี่ยนสิทธิ์ Member / Premium</span>
                              </div>
                            </div>
                         </button>
@@ -333,24 +333,24 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
                               Swal.fire('Error', err.response?.data?.error || 'ไม่สามารถเปลี่ยนรหัสผ่านได้', 'error');
                             }
                           }
-                        }} className="w-full flex items-center justify-between p-3.5 bg-[#0B0D0F] border border-white/10 hover:border-white/20 rounded-xl transition-all group">
+                        }} className="w-full flex items-center justify-between p-3.5 bg-[#0B0D0F] border border-gray-200 hover:border-gray-300 rounded-xl transition-all group">
                            <div className="flex items-center gap-3">
-                             <div className="p-2 bg-[#121417] rounded-lg group-hover:bg-[#121820] transition-colors"><RefreshCw className="w-4 h-4 text-zinc-400" /></div>
+                             <div className="p-2 bg-gray-100 rounded-lg group-hover:bg-gray-100 transition-colors"><RefreshCw className="w-4 h-4 text-gray-600" /></div>
                              <div className="flex flex-col items-start leading-tight">
-                                <span className="text-sm font-bold text-white">เปลี่ยนรหัสผ่าน</span>
-                                <span className="text-[10px] text-zinc-500 font-medium mt-0.5">Force reset password</span>
+                                <span className="text-sm font-bold text-gray-900">เปลี่ยนรหัสผ่าน</span>
+                                <span className="text-[10px] text-gray-500 font-medium mt-0.5">Force reset password</span>
                              </div>
                            </div>
                         </button>
 
                         <button onClick={() => handleToggleBan(selectedUser)} className={`w-full flex items-center justify-between p-3.5 bg-[#0B0D0F] border ${selectedUser.status === 'banned' ? 'border-emerald-500/30 hover:border-emerald-500/50' : 'border-[#3B82F6]/30 hover:border-[#3B82F6]/40'} rounded-xl transition-all group`}>
                            <div className="flex items-center gap-3">
-                             <div className={`p-2 rounded-lg transition-colors ${selectedUser.status === 'banned' ? 'bg-emerald-500/10 group-hover:bg-emerald-100' : 'bg-purple-600/10 group-hover:bg-purple-600/20'}`}>
-                                {selectedUser.status === 'banned' ? <CheckCircle className="w-4 h-4 text-emerald-600" /> : <Ban className="w-4 h-4 text-purple-500" />}
+                             <div className={`p-2 rounded-lg transition-colors ${selectedUser.status === 'banned' ? 'bg-blue-600/10 group-hover:bg-emerald-100' : 'bg-purple-600/10 group-hover:bg-purple-600/20'}`}>
+                                {selectedUser.status === 'banned' ? <CheckCircle className="w-4 h-4 text-emerald-600" /> : <Ban className="w-4 h-4 text-blue-600" />}
                              </div>
                              <div className="flex flex-col items-start leading-tight">
                                 <span className={`text-sm font-bold ${selectedUser.status === 'banned' ? 'text-emerald-700' : 'text-[#1D4ED8]'}`}>{selectedUser.status === 'banned' ? 'ปลดแบนผู้ใช้นี้' : 'ระงับ/แบนผู้ใช้นี้'}</span>
-                                <span className={`text-[10px] font-medium mt-0.5 ${selectedUser.status === 'banned' ? 'text-emerald-600/70' : 'text-purple-500/70'}`}>{selectedUser.status === 'banned' ? 'ผู้ใช้จะสามารถล็อกอินได้' : 'ป้องกันการเข้าสู่ระบบ'}</span>
+                                <span className={`text-[10px] font-medium mt-0.5 ${selectedUser.status === 'banned' ? 'text-emerald-600/70' : 'text-blue-600/70'}`}>{selectedUser.status === 'banned' ? 'ผู้ใช้จะสามารถล็อกอินได้' : 'ป้องกันการเข้าสู่ระบบ'}</span>
                              </div>
                            </div>
                         </button>
@@ -392,42 +392,42 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
               {actionTab === 'purchase' && (
                 <div className="space-y-3">
                   {userPurchaseHistory.length > 0 ? userPurchaseHistory.map((h, i) => (
-                    <div key={i} className="flex justify-between items-center p-4 border border-white/5 rounded-2xl">
+                    <div key={i} className="flex justify-between items-center p-4 border border-gray-200 rounded-2xl">
                       <div>
                         <p className="text-sm font-bold">{h.productName}</p>
-                        <p className="text-xs text-zinc-500">{new Date(h.date).toLocaleString('th-TH')}</p>
+                        <p className="text-xs text-gray-500">{new Date(h.date).toLocaleString('th-TH')}</p>
                       </div>
                       <p className="font-bold text-[#2563EB] font-mono">-฿{h.price}</p>
                     </div>
-                  )) : <p className="text-center text-sm font-bold text-zinc-400 py-10">ไม่พบประวัติการซื้อ</p>}
+                  )) : <p className="text-center text-sm font-bold text-gray-600 py-10">ไม่พบประวัติการซื้อ</p>}
                 </div>
               )}
 
               {actionTab === 'topup' && (
                 <div className="space-y-3">
                   {userTopupHistory.length > 0 ? userTopupHistory.map((h, i) => (
-                    <div key={i} className="flex justify-between items-center p-4 border border-white/5 rounded-2xl">
+                    <div key={i} className="flex justify-between items-center p-4 border border-gray-200 rounded-2xl">
                       <div>
                         <p className="text-sm font-bold">เติมเงิน ({h.method})</p>
-                        <p className="text-xs text-zinc-500">{new Date(h.date).toLocaleString('th-TH')}</p>
+                        <p className="text-xs text-gray-500">{new Date(h.date).toLocaleString('th-TH')}</p>
                       </div>
-                      <p className="font-bold text-emerald-500 font-mono">+฿{h.amount}</p>
+                      <p className="font-bold text-blue-500 font-mono">+฿{h.amount}</p>
                     </div>
-                  )) : <p className="text-center text-sm font-bold text-zinc-400 py-10">ไม่พบประวัติการเติมเงิน</p>}
+                  )) : <p className="text-center text-sm font-bold text-gray-600 py-10">ไม่พบประวัติการเติมเงิน</p>}
                 </div>
               )}
 
               {actionTab === 'keys' && (
                 <div className="space-y-3">
                   {userKeysHistory.length > 0 ? userKeysHistory.map((k, i) => (
-                    <div key={i} className="flex justify-between items-center p-4 border border-white/5 rounded-2xl">
+                    <div key={i} className="flex justify-between items-center p-4 border border-gray-200 rounded-2xl">
                       <div>
                         <p className="text-sm font-bold font-mono">{k.key || k.code || k.name || 'Key-' + i}</p>
-                        <p className="text-xs text-zinc-500">{new Date(k.used_at || k.date || new Date()).toLocaleString('th-TH')}</p>
+                        <p className="text-xs text-gray-500">{new Date(k.used_at || k.date || new Date()).toLocaleString('th-TH')}</p>
                       </div>
-                      <p className="font-bold text-emerald-500 text-xs px-2 py-1 bg-emerald-500/10 rounded uppercase">Used</p>
+                      <p className="font-bold text-blue-500 text-xs px-2 py-1 bg-blue-600/10 rounded uppercase">Used</p>
                     </div>
-                  )) : <p className="text-center text-sm font-bold text-zinc-400 py-10">ไม่พบประวัติใช้คีย์</p>}
+                  )) : <p className="text-center text-sm font-bold text-gray-600 py-10">ไม่พบประวัติใช้คีย์</p>}
                 </div>
               )}
             </div>

@@ -12,19 +12,19 @@ const Toast: React.FC<{ toast: ToastType; onClose: (id: string) => void }> = ({ 
   }, [toast, onClose]);
 
   const icons = {
-    success: <CheckCircle2 className="w-5 h-5 text-emerald-500" />,
+    success: <CheckCircle2 className="w-5 h-5 text-blue-500" />,
     error: <AlertCircle className="w-5 h-5 text-red-500" />,
     warning: <AlertTriangle className="w-5 h-5 text-amber-500" />,
-    info: <Info className="w-5 h-5 text-purple-500" />,
-    payment: <ShoppingBag className="w-5 h-5 text-purple-500" />
+    info: <Info className="w-5 h-5 text-blue-600" />,
+    payment: <ShoppingBag className="w-5 h-5 text-blue-600" />
   };
 
   const bgColors = {
-    success: 'bg-[#050505] border-emerald-500/20 shadow-emerald-500/5',
-    error: 'bg-[#050505] border-red-500/20 shadow-red-500/5',
-    warning: 'bg-[#050505] border-amber-500/20 shadow-amber-500/5',
-    info: 'bg-[#050505] border-[#3B82F6]/20 shadow-lg/5',
-    payment: 'bg-[#050505] border-purple-500/20 shadow-purple-500/5'
+    success: 'bg-white border-emerald-500/20 shadow-emerald-500/5',
+    error: 'bg-white border-red-500/20 shadow-red-500/5',
+    warning: 'bg-white border-amber-500/20 shadow-amber-500/5',
+    info: 'bg-white border-[#3B82F6]/20 shadow-lg/5',
+    payment: 'bg-white border-purple-500/20 shadow-purple-500/5'
   };
 
   return (
@@ -39,12 +39,12 @@ const Toast: React.FC<{ toast: ToastType; onClose: (id: string) => void }> = ({ 
         {icons[toast.type]}
       </div>
       <div className="flex flex-col">
-        {toast.title && <span className="text-[13px] font-black text-white leading-tight mb-0.5 uppercase tracking-wide">{toast.title}</span>}
-        <p className="text-zinc-400 text-xs sm:text-[13px] font-medium leading-relaxed">{toast.message}</p>
+        {toast.title && <span className="text-[13px] font-black text-gray-900 leading-tight mb-0.5 uppercase tracking-wide">{toast.title}</span>}
+        <p className="text-gray-600 text-xs sm:text-[13px] font-medium leading-relaxed">{toast.message}</p>
       </div>
       <button 
         onClick={() => onClose(toast.id)}
-        className="absolute right-3 top-3 text-zinc-600 hover:text-white transition-colors"
+        className="absolute right-3 top-3 text-gray-500 hover:text-gray-900 transition-colors"
       >
         <X className="w-4 h-4" />
       </button>

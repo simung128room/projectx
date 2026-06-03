@@ -49,7 +49,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ purchaseHistory = [], 
       subtitle: 'Key Usage History',
       icon: Key,
       bg: 'bg-purple-50',
-      color: 'text-purple-500'
+      color: 'text-blue-600'
     },
     {
       id: 'topup_gift',
@@ -65,20 +65,20 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ purchaseHistory = [], 
       subtitle: 'Bank Slip History',
       icon: CreditCard,
       bg: 'bg-emerald-50',
-      color: 'text-emerald-500'
+      color: 'text-blue-500'
     }
   ];
 
   const getStatusBadge = (status: string) => {
     switch(status?.toLowerCase()) {
       case 'success':
-        return <span className="bg-emerald-500/10 text-emerald-600 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-emerald-100 flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>สำเร็จ</span>;
+        return <span className="bg-blue-600/10 text-emerald-600 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-emerald-100 flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-blue-600"></div>สำเร็จ</span>;
       case 'pending':
         return <span className="bg-amber-500/10 text-amber-600 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-amber-100 flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-amber-500"></div>รอดำเนินการ</span>;
       case 'failed':
-        return <span className="bg-purple-600/10 text-purple-500 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-white/10 flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-[#2563EB]"></div>ล้มเหลว</span>;
+        return <span className="bg-purple-600/10 text-blue-600 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-gray-200 flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-[#2563EB]"></div>ล้มเหลว</span>;
       default:
-        return <span className="bg-[#121820] text-zinc-500 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-white/10 flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-zinc-400"></div>{status || 'สำเร็จ'}</span>;
+        return <span className="bg-gray-100 text-gray-500 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-gray-200 flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-zinc-400"></div>{status || 'สำเร็จ'}</span>;
     }
   };
 
@@ -91,9 +91,9 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ purchaseHistory = [], 
       case 'topup_gift':
         return topupHistory.filter(t => t.method?.toLowerCase().includes('gift') || t.method?.toLowerCase().includes('อั่งเปา')).map(t => ({ ...t, type: 'topup_gift', title: 'TrueMoney Wallet (อังเปา)', icon: Gift, color: 'text-[#2563EB]', bg: 'bg-purple-600/10', money: t.amount, date: t.date || t.timestamp }));
       case 'topup_slip':
-        return topupHistory.filter(t => !t.method?.toLowerCase().includes('gift') && !t.method?.toLowerCase().includes('อั่งเปา')).map(t => ({ ...t, type: 'topup_slip', title: 'ธนาคาร เช็คสลิป', icon: CreditCard, color: 'text-emerald-500', bg: 'bg-emerald-50', money: t.amount, date: t.date || t.timestamp }));
+        return topupHistory.filter(t => !t.method?.toLowerCase().includes('gift') && !t.method?.toLowerCase().includes('อั่งเปา')).map(t => ({ ...t, type: 'topup_slip', title: 'ธนาคาร เช็คสลิป', icon: CreditCard, color: 'text-blue-500', bg: 'bg-emerald-50', money: t.amount, date: t.date || t.timestamp }));
       case 'key_usage':
-        return usedKeysHistory.map(k => ({ ...k, type: 'key_usage', title: 'ใช้งานคีย์', icon: Key, color: 'text-purple-500', bg: 'bg-purple-50', money: 0, date: k.used_at || k.date || new Date().toISOString(), productName: k.key || k.code }));
+        return usedKeysHistory.map(k => ({ ...k, type: 'key_usage', title: 'ใช้งานคีย์', icon: Key, color: 'text-blue-600', bg: 'bg-purple-50', money: 0, date: k.used_at || k.date || new Date().toISOString(), productName: k.key || k.code }));
       default:
         return [];
     }
@@ -108,34 +108,34 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ purchaseHistory = [], 
     
     return (
       <div style={{ ...style, paddingTop: '12px' }}>
-        <div className="bg-[#0B0D0F] rounded-xl border border-white/10 p-4 transition-all hover:border-white/20 hover:shadow-md hover:shadow-black/5 flex flex-col gap-4 mx-1">
+        <div className="bg-[#0B0D0F] rounded-xl border border-gray-200 p-4 transition-all hover:border-gray-300 hover:shadow-md hover:shadow-black/5 flex flex-col gap-4 mx-1">
           <div className="flex gap-4 items-center w-full">
             <div className={`w-14 h-14 shrink-0 rounded-[1.25rem] flex items-center justify-center ${item.bg} ${item.color} shadow-inner`}>
               <item.icon className="w-6 h-6" />
             </div>
             
             <div className="flex flex-col flex-1 min-w-0 justify-center">
-              <h3 className="text-white font-bold text-sm sm:text-base truncate">{item.title}</h3>
+              <h3 className="text-gray-900 font-bold text-sm sm:text-base truncate">{item.title}</h3>
               <div className="flex items-center justify-between mt-1">
-                <span className="text-xs font-medium text-zinc-500">{new Date(item.date).toLocaleDateString('th-TH')}</span>
+                <span className="text-xs font-medium text-gray-500">{new Date(item.date).toLocaleDateString('th-TH')}</span>
                 {item.money !== 0 ? (
-                  <span className={`font-bold font-mono text-xs sm:text-sm ${item.money > 0 ? 'text-emerald-500' : 'text-[#2563EB]'}`}>
+                  <span className={`font-bold font-mono text-xs sm:text-sm ${item.money > 0 ? 'text-blue-500' : 'text-[#2563EB]'}`}>
                     {item.money > 0 ? '+' : ''}{item.money} ฿
                   </span>
                 ) : (
-                  <span className="font-bold text-xs text-zinc-400">0 ฿</span>
+                  <span className="font-bold text-xs text-gray-600">0 ฿</span>
                 )}
               </div>
             </div>
           </div>
           
-          <div className="flex items-center justify-between border-t border-white/5/80 pt-3">
+          <div className="flex items-center justify-between border-t border-gray-200/80 pt-3">
             <div className="flex items-center">
               {getStatusBadge(item.status || 'success')}
             </div>
             <button 
               onClick={() => setSelectedItem(item)}
-              className="text-[11px] sm:text-xs font-bold text-zinc-700 bg-[#121820] px-4 py-2 rounded-xl hover:bg-zinc-200 transition-colors flex items-center gap-1 active:scale-95"
+              className="text-[11px] sm:text-xs font-bold text-gray-600 bg-gray-100 px-4 py-2 rounded-xl hover:bg-zinc-200 transition-colors flex items-center gap-1 active:scale-95"
             >
               ดูรายละเอียด <ChevronRight className="w-3 h-3" />
             </button>
@@ -157,37 +157,37 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ purchaseHistory = [], 
             exit={{ opacity: 0, y: -10 }}
             className="space-y-4"
           >
-            <div className="bg-[#0B0D0F] rounded-xl border border-white/10 shadow-sm overflow-hidden mb-6">
-              <div className="p-6 md:p-8 border-b border-white/5 bg-[#121417]/50">
+            <div className="bg-[#0B0D0F] rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-6">
+              <div className="p-6 md:p-8 border-b border-gray-200 bg-gray-100/50">
                 <div className="flex items-center gap-3">
-                  <div className="p-2.5 bg-purple-600/20 text-purple-500 rounded-xl">
+                  <div className="p-2.5 bg-purple-600/20 text-blue-600 rounded-xl">
                     <History className="w-6 h-6" />
                   </div>
                   <div>
-                    <h2 className="text-xl font-bold text-white leading-none mb-1">ประวัติสั่งซื้อ</h2>
-                    <p className="text-xs font-medium text-zinc-500">เลือกหมวดหมู่ที่ต้องการตรวจสอบ</p>
+                    <h2 className="text-xl font-bold text-gray-900 leading-none mb-1">ประวัติสั่งซื้อ</h2>
+                    <p className="text-xs font-medium text-gray-500">เลือกหมวดหมู่ที่ต้องการตรวจสอบ</p>
                   </div>
                 </div>
               </div>
 
-              <div className="p-4 md:p-6 bg-[#121417]/20">
+              <div className="p-4 md:p-6 bg-gray-100/20">
                 <div className="grid grid-cols-1 gap-3">
                   {categories.map((cat) => (
                     <button
                       key={cat.id}
                       onClick={() => setCurrentCategory(cat.id)}
-                      className="group flex items-center justify-between p-4 bg-[#0B0D0F] border border-white/10 rounded-xl hover:border-[#3B82F6]/30 hover:shadow-md hover:shadow-lg"
+                      className="group flex items-center justify-between p-4 bg-[#0B0D0F] border border-gray-200 rounded-xl hover:border-[#3B82F6]/30 hover:shadow-md hover:shadow-lg"
                     >
                       <div className="flex items-center gap-4">
                         <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${cat.bg} ${cat.color} group-hover:scale-110 transition-transform`}>
                           <cat.icon className="w-6 h-6" />
                         </div>
                         <div>
-                          <h3 className="text-sm font-bold text-white">{cat.title}</h3>
-                          <p className="text-[10px] sm:text-xs font-medium text-zinc-400 uppercase tracking-tight">{cat.subtitle}</p>
+                          <h3 className="text-sm font-bold text-gray-900">{cat.title}</h3>
+                          <p className="text-[10px] sm:text-xs font-medium text-gray-600 uppercase tracking-tight">{cat.subtitle}</p>
                         </div>
                       </div>
-                      <ChevronRight className="w-5 h-5 text-zinc-300 group-hover:text-[#2563EB] transition-colors" />
+                      <ChevronRight className="w-5 h-5 text-gray-700 group-hover:text-[#2563EB] transition-colors" />
                     </button>
                   ))}
                 </div>
@@ -202,12 +202,12 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ purchaseHistory = [], 
             exit={{ opacity: 0, x: -20 }}
             className="space-y-4"
           >
-            <div className="bg-[#0B0D0F] rounded-xl border border-white/10 shadow-sm overflow-hidden">
-              <div className="p-6 md:p-8 border-b border-white/5 bg-[#121417]/50 flex items-center justify-between">
+            <div className="bg-[#0B0D0F] rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+              <div className="p-6 md:p-8 border-b border-gray-200 bg-gray-100/50 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <button 
                     onClick={() => setCurrentCategory(null)}
-                    className="p-2.5 bg-[#0B0D0F] border border-white/10 text-zinc-500 rounded-xl hover:bg-[#121820] hover:text-white transition-colors mr-2"
+                    className="p-2.5 bg-[#0B0D0F] border border-gray-200 text-gray-500 rounded-xl hover:bg-gray-100 hover:text-gray-900 transition-colors mr-2"
                   >
                     <ChevronLeft className="w-5 h-5" />
                   </button>
@@ -215,17 +215,17 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ purchaseHistory = [], 
                     {currentCategoryInfo && <currentCategoryInfo.icon className="w-6 h-6" />}
                   </div>
                   <div>
-                    <h2 className="text-lg font-bold text-white leading-none mb-1">{currentCategoryInfo?.title}</h2>
-                    <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-tight">{currentCategoryInfo?.subtitle}</p>
+                    <h2 className="text-lg font-bold text-gray-900 leading-none mb-1">{currentCategoryInfo?.title}</h2>
+                    <p className="text-[10px] font-bold text-gray-600 uppercase tracking-tight">{currentCategoryInfo?.subtitle}</p>
                   </div>
                 </div>
               </div>
 
-              <div className="p-4 md:p-6 bg-[#121417]/30 min-h-[400px]">
+              <div className="p-4 md:p-6 bg-gray-100/30 min-h-[400px]">
                 {isLoading ? (
                   <div className="space-y-3">
                     {[1, 2, 3].map((i) => (
-                      <div key={i} className="bg-[#0B0D0F] rounded-xl border border-white/10 p-4 flex flex-col gap-4">
+                      <div key={i} className="bg-[#0B0D0F] rounded-xl border border-gray-200 p-4 flex flex-col gap-4">
                         <div className="flex gap-4 items-center">
                           <Skeleton className="w-14 h-14 rounded-[1.25rem]" />
                           <div className="flex-1 space-y-2">
@@ -233,7 +233,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ purchaseHistory = [], 
                             <Skeleton className="h-4 w-1/4" />
                           </div>
                         </div>
-                        <div className="pt-3 border-t border-white/5 flex justify-between">
+                        <div className="pt-3 border-t border-gray-200 flex justify-between">
                           <Skeleton className="h-6 w-20 rounded-full" />
                           <Skeleton className="h-8 w-24 rounded-xl" />
                         </div>
@@ -254,14 +254,14 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ purchaseHistory = [], 
                   </div>
                 ) : (
                   <div className="py-20 flex flex-col items-center justify-center text-center">
-                    <div className="w-16 h-16 bg-[#0B0D0F] border border-white/10 shadow-sm rounded-xl flex items-center justify-center mb-4">
-                      <History className="w-8 h-8 text-zinc-200" />
+                    <div className="w-16 h-16 bg-[#0B0D0F] border border-gray-200 shadow-sm rounded-xl flex items-center justify-center mb-4">
+                      <History className="w-8 h-8 text-gray-800" />
                     </div>
-                    <h3 className="text-base font-bold text-white mb-1">ยังไม่มีประวัติ</h3>
-                    <p className="text-xs font-medium text-zinc-500">ยังไม่พบข้อมูลในหมวดหมู่นี้</p>
+                    <h3 className="text-base font-bold text-gray-900 mb-1">ยังไม่มีประวัติ</h3>
+                    <p className="text-xs font-medium text-gray-500">ยังไม่พบข้อมูลในหมวดหมู่นี้</p>
                     <button 
                       onClick={() => setCurrentCategory(null)}
-                      className="mt-6 px-6 py-2 bg-zinc-900 text-white rounded-xl text-xs font-bold hover:bg-gray-200 transition-colors"
+                      className="mt-6 px-6 py-2 bg-gray-50 text-gray-900 rounded-xl text-xs font-bold hover:bg-gray-200 transition-colors"
                     >
                       ย้อนกลับ
                     </button>

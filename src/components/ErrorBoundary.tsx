@@ -38,23 +38,23 @@ export class ErrorBoundary extends Component<Props, State> {
   public render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen bg-[#09090b] text-white flex flex-col items-center justify-center p-6 text-center">
+        <div className="min-h-screen bg-[#09090b] text-gray-900 flex flex-col items-center justify-center p-6 text-center">
           <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mb-6">
             <AlertTriangle className="w-10 h-10 text-red-500" />
           </div>
           <h1 className="text-3xl font-black mb-4">ระบบเกิดข้อผิดพลาด</h1>
-          <p className="text-zinc-400 mb-8 max-w-md">
+          <p className="text-gray-600 mb-8 max-w-md">
             ขออภัย มีบางอย่างผิดปกติที่ฝั่งไคลเอนต์
             กรุณาลองรีเฟรชหน้าเว็บอีกครั้ง
           </p>
-          <div className="bg-zinc-900/50 p-4 rounded-xl border border-zinc-800 text-left w-full max-w-2xl mb-8 overflow-auto">
+          <div className="bg-gray-50/50 p-4 rounded-xl border border-gray-200 text-left w-full max-w-2xl mb-8 overflow-auto">
             <code className="text-sm text-red-400 font-mono">
               {this.state.error?.message}
             </code>
           </div>
           <button
             onClick={this.handleReset}
-            className="flex items-center gap-2 bg-[#050505] text-white px-6 py-3 rounded-full font-bold hover:bg-zinc-200 transition-colors"
+            className="flex items-center gap-2 bg-white text-gray-900 px-6 py-3 rounded-full font-bold hover:bg-zinc-200 transition-colors"
           >
             <RefreshCw className="w-5 h-5" />
             รีเฟรชหน้าเว็บ

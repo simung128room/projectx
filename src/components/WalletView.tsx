@@ -219,13 +219,13 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
 
   return (
     <AnimatedScroll direction="up" hideOnScroll={true}>
-      <div className="w-full max-w-5xl mx-auto p-4 md:p-8 font-sans text-white min-h-screen">
+      <div className="w-full max-w-5xl mx-auto p-4 md:p-8 font-sans text-gray-900 min-h-screen">
         {activeView === 'main' && (
         <>
           <div className="mb-10 flex flex-col items-start gap-4">
             <div>
               <h1 className="text-3xl font-black mb-2 tracking-tight">ช่องทางการชำระเงิน</h1>
-              <p className="text-zinc-500 font-medium text-left">เลือกช่องทางการเติมเงินที่คุณสะดวกที่สุด</p>
+              <p className="text-gray-500 font-medium text-left">เลือกช่องทางการเติมเงินที่คุณสะดวกที่สุด</p>
             </div>
           </div>
 
@@ -236,14 +236,14 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.1 }}
               whileHover={{ y: -5, boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)' }}
-              className="bg-[#0B0D0F] border border-white/10 rounded-xl p-6 sm:p-8 flex flex-col items-center text-center shadow-sm transition-all group relative overflow-hidden cursor-pointer"
+              className="bg-[#0B0D0F] border border-gray-200 rounded-xl p-6 sm:p-8 flex flex-col items-center text-center shadow-sm transition-all group relative overflow-hidden cursor-pointer"
               onClick={() => setActiveView('truemoney')}
             >
               <div className="w-24 h-24 mb-6 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6">
                 <img loading="lazy" src="https://img1.pic.in.th/images/IMG_6172.png" alt="TrueMoney Wallet" className="w-full h-full object-contain drop-shadow-sm" />
               </div>
-              <h2 className="text-2xl font-black text-white mb-3">TrueMoney Wallet (อังเปา)</h2>
-              <p className="text-zinc-500 text-sm mb-3 leading-relaxed px-4">
+              <h2 className="text-2xl font-black text-gray-900 mb-3">TrueMoney Wallet (อังเปา)</h2>
+              <p className="text-gray-500 text-sm mb-3 leading-relaxed px-4">
                 เติมเงินผ่านคิวอาร์โค้ดหรือลิงก์ซองของขวัญ TrueMoney Wallet สะดวก รวดเร็ว ไม่มีค่าธรรมเนียม
               </p>
             </motion.div>
@@ -254,14 +254,14 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.2 }}
               whileHover={{ y: -5, boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)' }}
-              className="bg-[#0B0D0F] border border-white/10 rounded-xl p-6 sm:p-8 flex flex-col items-center text-center shadow-sm transition-all group relative overflow-hidden cursor-pointer"
+              className="bg-[#0B0D0F] border border-gray-200 rounded-xl p-6 sm:p-8 flex flex-col items-center text-center shadow-sm transition-all group relative overflow-hidden cursor-pointer"
               onClick={() => setActiveView('bank')}
             >
               <div className="w-24 h-24 mb-6 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6">
                 <img loading="lazy" src="https://img1.pic.in.th/images/IMG_6164.png" alt="Bank Transfer" className="w-full h-full object-contain drop-shadow-sm" />
               </div>
-              <h2 className="text-2xl font-black text-white mb-3">ธนาคาร เช็คสลิป</h2>
-              <p className="text-zinc-500 text-sm mb-3 leading-relaxed px-4">
+              <h2 className="text-2xl font-black text-gray-900 mb-3">ธนาคาร เช็คสลิป</h2>
+              <p className="text-gray-500 text-sm mb-3 leading-relaxed px-4">
                 อัพโหลดสลิปธนาคารกสิกรไทย เพื่อเติมเงินเข้าระบบอัตโนมัติ ไม่มีค่าธรรมเนียม
               </p>
             </motion.div>
@@ -273,11 +273,11 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
         <motion.div 
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="max-w-xl mx-auto bg-[#0B0D0F] rounded-xl overflow-hidden shadow-sm border border-white/10 p-6 sm:p-8"
+          className="max-w-xl mx-auto bg-[#0B0D0F] rounded-xl overflow-hidden shadow-sm border border-gray-200 p-6 sm:p-8"
         >
           <button 
             onClick={() => setActiveView('main')}
-            className="mb-8 flex items-center gap-2 text-zinc-500 hover:text-white transition-colors font-bold text-sm active:scale-95"
+            className="mb-8 flex items-center gap-2 text-gray-500 hover:text-gray-900 transition-colors font-bold text-sm active:scale-95"
           >
             <ArrowLeft className="w-4 h-4" /> ย้อนกลับ
           </button>
@@ -289,30 +289,30 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
           </div>
 
           <div className="space-y-4">
-            <div className="bg-[#121417] border border-white/10 rounded-2xl p-4 flex items-center gap-3 text-zinc-400">
-              <ShieldCheck className="w-5 h-5 text-emerald-500" />
+            <div className="bg-gray-100 border border-gray-200 rounded-2xl p-4 flex items-center gap-3 text-gray-600">
+              <ShieldCheck className="w-5 h-5 text-blue-500" />
               <span className="text-sm font-bold">ไม่มีค่าธรรมเนียม / ระบบอัตโนมัติ</span>
             </div>
 
-            <div className="bg-[#121417] border border-white/5 rounded-2xl p-4 px-5 text-center">
-              <p className="text-xs text-zinc-500 font-bold leading-relaxed">โปรดตรวจสอบลิงก์ให้ถูกต้องก่อนกดยันยืน (ไม่คืนเงินทุกกรณี)</p>
+            <div className="bg-gray-100 border border-gray-200 rounded-2xl p-4 px-5 text-center">
+              <p className="text-xs text-gray-500 font-bold leading-relaxed">โปรดตรวจสอบลิงก์ให้ถูกต้องก่อนกดยันยืน (ไม่คืนเงินทุกกรณี)</p>
             </div>
 
             <form onSubmit={handleTruemoneyTopup} className="mt-6 space-y-4">
               <div>
-                <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2 ml-1">ลิงค์อังเปา / Share link</label>
+                <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 ml-1">ลิงค์อังเปา / Share link</label>
                 <input
                   type="text"
                   value={truemoneyLink}
                   onChange={(e) => setTruemoneyLink(e.target.value)}
                   placeholder="กรอกลิงค์"
-                  className="w-full bg-[#121417] border-2 border-white/10 rounded-2xl p-4 text-white placeholder:text-zinc-400 focus:outline-none focus:border-[#2563EB] focus:bg-[#0B0D0F] transition-all font-sans font-bold"
+                  className="w-full bg-gray-100 border-2 border-gray-200 rounded-2xl p-4 text-gray-900 placeholder:text-gray-600 focus:outline-none focus:border-[#2563EB] focus:bg-[#0B0D0F] transition-all font-sans font-bold"
                   required
                 />
               </div>
               <button
                 type="submit"
-                className="w-full py-4 bg-purple-600 hover:bg-[#2563EB] text-white font-black rounded-2xl transition-all shadow-lg shadow-lg"
+                className="w-full py-4 bg-purple-600 hover:bg-[#2563EB] text-gray-900 font-black rounded-2xl transition-all shadow-lg shadow-lg"
               >
                 เติมเงิน
               </button>
@@ -325,11 +325,11 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
         <motion.div 
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="max-w-xl mx-auto bg-[#0B0D0F] rounded-xl overflow-hidden shadow-sm border border-white/10 p-6 sm:p-8"
+          className="max-w-xl mx-auto bg-[#0B0D0F] rounded-xl overflow-hidden shadow-sm border border-gray-200 p-6 sm:p-8"
         >
           <button 
             onClick={() => setActiveView('main')}
-            className="mb-8 flex items-center gap-2 text-zinc-500 hover:text-white transition-colors font-bold text-sm"
+            className="mb-8 flex items-center gap-2 text-gray-500 hover:text-gray-900 transition-colors font-bold text-sm"
           >
             <ArrowLeft className="w-4 h-4" /> ย้อนกลับ
           </button>
@@ -337,63 +337,63 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
 
 
           <div className="space-y-6">
-            <div className="bg-[#0B0D0F] border-2 border-white/5 rounded-xl p-6 text-center space-y-4 shadow-xl">
-                <div className="flex bg-purple-600 text-white rounded-full px-6 py-2 gap-3 items-center w-fit mx-auto shadow-sm">
+            <div className="bg-[#0B0D0F] border-2 border-gray-200 rounded-xl p-6 text-center space-y-4 shadow-xl">
+                <div className="flex bg-purple-600 text-gray-900 rounded-full px-6 py-2 gap-3 items-center w-fit mx-auto shadow-sm">
                   <span className="font-black text-sm tracking-wide">ธนาคารกสิกรไทย</span>
                 </div>
                 
                 <div className="pt-2">
-                   <p className="text-[11px] text-zinc-400 font-bold uppercase tracking-widest mb-1.5">Account Number</p>
+                   <p className="text-[11px] text-gray-600 font-bold uppercase tracking-widest mb-1.5">Account Number</p>
                    <div className="flex items-center justify-center gap-4">
-                      <span className="text-4xl font-black text-white font-mono tracking-tighter select-all">1963870325</span>
+                      <span className="text-4xl font-black text-gray-900 font-mono tracking-tighter select-all">1963870325</span>
                       <button 
                         onClick={() => {
                           navigator.clipboard.writeText('1963870325');
                           Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'คัดลอกเลขบัญชีแล้ว', showConfirmButton: false, timer: 1500 });
                         }}
-                        className="p-3 bg-purple-600 text-white rounded-2xl shadow-lg hover:bg-[#2563EB] transition-all active:scale-95"
+                        className="p-3 bg-purple-600 text-gray-900 rounded-2xl shadow-lg hover:bg-[#2563EB] transition-all active:scale-95"
                       >
                         <Copy className="w-5 h-5" />
                       </button>
                    </div>
                 </div>
 
-                <div className="pt-5 border-t border-white/5 flex flex-col items-center">
-                   <p className="text-[11px] text-zinc-400 font-bold uppercase tracking-widest mb-1">Account Name</p>
-                   <p className="text-2xl font-black text-white">กรวิชญ์</p>
+                <div className="pt-5 border-t border-gray-200 flex flex-col items-center">
+                   <p className="text-[11px] text-gray-600 font-bold uppercase tracking-widest mb-1">Account Name</p>
+                   <p className="text-2xl font-black text-gray-900">กรวิชญ์</p>
                 </div>
             </div>
 
-            <div className="bg-[#121417] border border-white/10 rounded-2xl p-4 text-center">
-                <p className="text-xs text-zinc-500 font-bold leading-relaxed">ใช้แอปธนาคารโอนเงินเข้าบัญชีด้านบน แล้วแนบสลิปเพื่อตรวจสอบ</p>
+            <div className="bg-gray-100 border border-gray-200 rounded-2xl p-4 text-center">
+                <p className="text-xs text-gray-500 font-bold leading-relaxed">ใช้แอปธนาคารโอนเงินเข้าบัญชีด้านบน แล้วแนบสลิปเพื่อตรวจสอบ</p>
             </div>
 
             <div className="pt-4 flex flex-col items-center w-full">
-              <label className="flex flex-col items-center justify-center w-full py-10 bg-[#121417] hover:bg-[#121820] transition-all border-2 border-dashed border-white/20 hover:border-[#3B82F6] rounded-xl cursor-pointer group active:scale-[0.98] relative z-10">
+              <label className="flex flex-col items-center justify-center w-full py-10 bg-gray-100 hover:bg-gray-100 transition-all border-2 border-dashed border-gray-300 hover:border-[#3B82F6] rounded-xl cursor-pointer group active:scale-[0.98] relative z-10">
                   <input type="file" className="hidden" accept="image/png, image/jpeg" onChange={handleSlipUpload} />
                   <div className="w-28 h-28 mb-4 group-hover:scale-110 transition-transform">
                      <img loading="lazy" src="https://img1.pic.in.th/images/IMG_6164.png" alt="KBank" className="w-full h-full object-contain" />
                   </div>
                   <div className="text-center">
-                     <span className="text-lg font-black text-white block leading-none">อัปโหลดรูปสลิปได้ที่นี่</span>
-                     <span className="text-sm text-zinc-400 font-bold mt-2 block">รองรับ PNG, JPEG</span>
+                     <span className="text-lg font-black text-gray-900 block leading-none">อัปโหลดรูปสลิปได้ที่นี่</span>
+                     <span className="text-sm text-gray-600 font-bold mt-2 block">รองรับ PNG, JPEG</span>
                   </div>
               </label>
             </div>
 
-            <div className="bg-purple-600/10 border-2 border-white/10 rounded-2xl p-5 flex gap-4 items-center">
+            <div className="bg-purple-600/10 border-2 border-gray-200 rounded-2xl p-5 flex gap-4 items-center">
                 <div className="w-12 h-12 bg-purple-600 rounded-2xl flex items-center justify-center shrink-0 shadow-lg shadow-lg/20">
-                  <AlertTriangle className="w-6 h-6 text-white" />
+                  <AlertTriangle className="w-6 h-6 text-gray-900" />
                 </div>
                 <div>
-                  <p className="text-sm font-black text-purple-500 uppercase tracking-wide leading-tight">สลิปต้องมี QR Code เท่านั้น</p>
+                  <p className="text-sm font-black text-blue-600 uppercase tracking-wide leading-tight">สลิปต้องมี QR Code เท่านั้น</p>
                   <p className="text-[11px] text-[#2563EB]/80 font-bold mt-1 leading-relaxed">ระบบไม่รองรับ Wallet หรือสลิปที่ไม่มี QR Code ทุกกรณี หากโอนผิดไม่คืนเงิน</p>
                 </div>
             </div>
 
             <div className="pt-4 flex items-center justify-center gap-2.5 opacity-40">
-              <ShieldCheck className="w-5 h-5 text-white" />
-              <span className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em]">No Topup Fees / ไม่มีค่าธรรมเนียม</span>
+              <ShieldCheck className="w-5 h-5 text-gray-900" />
+              <span className="text-[10px] font-black text-gray-500 uppercase tracking-[0.3em]">No Topup Fees / ไม่มีค่าธรรมเนียม</span>
             </div>
           </div>
         </motion.div>
