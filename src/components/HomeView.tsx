@@ -70,33 +70,12 @@ export const HomeView: React.FC<HomeViewProps> = ({
       <div className="max-w-4xl mx-auto px-4 md:px-6 pt-4">
         
         {/* Banner */}
-        <div className="rounded-2xl overflow-hidden p-5 sm:p-6 relative min-h-[120px] mb-4 shadow-xl border border-white/10"
-             style={{ background: "linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 40%, #050505 100%)" }}>
-          <div className="absolute right-0 top-0 bottom-0 w-[40%] bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.1)_0%,transparent_70%)]" />
-          <div className="text-[10px] sm:text-xs text-white/50 tracking-widest mb-1 font-mono">● WELCOME TO STORE</div>
-          <div className="text-2xl sm:text-3xl font-black text-white tracking-widest leading-[1.1]"
-               style={{ textShadow: "0 0 20px rgba(255,255,255,0.2)" }}>
-            APEX STORE
-          </div>
-          <div className="text-[10px] sm:text-xs text-white/70 mt-1.5 font-medium">
-            จำหน่ายสินค้าเกมออนไลน์ ไอดีเกม สคริปต์
-          </div>
-          <div className="flex gap-1.5 mt-3 flex-wrap relative z-10">
-            {["PREMIUM APP", "ROV ID", "PROXY", "LICENSE KEY"].map((t) => (
-              <span key={t} className="bg-[#050505]/10 border border-white/20 text-white text-[9px] px-1.5 py-0.5 rounded-[4px] font-bold">
-                {t}
-              </span>
-            ))}
-          </div>
-          <div className="absolute right-4 sm:right-8 top-1/2 -translate-y-1/2 z-0">
-            <div className="text-[50px] sm:text-[70px] text-white/5 font-black -rotate-12 blur-[1px]">
-              APEX
-            </div>
-          </div>
+        <div className="rounded-3xl overflow-hidden relative min-h-[180px] sm:min-h-[220px] mb-6 shadow-xl border border-white/10">
+          <img src="https://i.postimg.cc/pVnngYLx/apex-storeth-v4-resized.png" alt="APEX STORE" className="w-full h-full object-cover" />
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-4">
           <div className="bg-[#121212] border border-white/10 rounded-2xl p-4 sm:p-5 relative overflow-hidden group hover:border-white/10 transition-colors">
             <div className="text-[13px] text-zinc-400 mb-1 font-medium">จำนวนสมาชิก</div>
             <div className="text-2xl sm:text-3xl font-black text-white">{totalMembers.toLocaleString()}</div>
@@ -111,52 +90,38 @@ export const HomeView: React.FC<HomeViewProps> = ({
           </div>
         </div>
 
-        {/* Sales Stat */}
-        <div className="bg-[#121212] border border-white/10 rounded-2xl p-5 mb-4 relative overflow-hidden shadow-lg group hover:border-white/10 transition-colors">
-          <div className="text-[13px] text-zinc-400 mb-1 font-medium">ยอดขายรวม</div>
-          <div className="text-3xl sm:text-4xl font-black text-white">{totalSales.toLocaleString()}</div>
-          <div className="text-xs text-zinc-500 mt-1">รายการสั่งซื้อ</div>
-          <div className="absolute right-4 bottom-2 text-6xl opacity-[0.03] text-white group-hover:scale-110 transition-transform duration-500">🛒</div>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-5">
-          <button onClick={() => setActiveView(user ? "wallet" : "login")} className="bg-gradient-to-br from-[#121212] to-[#161616] rounded-2xl p-4 border border-white/10 flex items-center gap-3 text-left active:scale-95 transition-all hover:border-white/10 hover:shadow-lg">
-            <div className="w-12 h-12 bg-[#050505]/5 rounded-xl flex items-center justify-center shrink-0 border border-white/10">
-              <Wallet className="w-5 h-5 text-zinc-300" />
+        {/* Featured Categories */}
+        <div className="mb-8">
+            <div className="flex items-center justify-between mb-4">
+                <div className="text-xl font-black text-white tracking-tight">หมวดหมู่แนะนำ</div>
             </div>
-            <div>
-              <div className="text-[11px] font-black text-white tracking-wider">TOPUP</div>
-              <div className="text-[13px] font-bold text-zinc-400 leading-tight">เติมเงิน</div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {categories.slice(0, 4).map(cat => (
+                    <div key={cat.id} 
+                        onClick={() => onSelectCategory(cat.id)}
+                        className="cursor-pointer group relative overflow-hidden rounded-2xl aspect-[21/5] border border-white/10 hover:border-white/20 transition-all">
+                        {cat.imageUrl && <img src={cat.imageUrl} alt={cat.name} className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-all duration-500" />}
+                        <div className="absolute inset-0 flex items-center justify-center font-bold text-white tracking-widest">{cat.name}</div>
+                    </div>
+                ))}
             </div>
-          </button>
-          <button onClick={() => setActiveView(user ? "history" : "login")} className="bg-gradient-to-br from-[#121212] to-[#161616] rounded-2xl p-4 border border-white/10 flex items-center gap-3 text-left active:scale-95 transition-all hover:border-white/10 hover:shadow-lg">
-            <div className="w-12 h-12 bg-[#050505]/5 rounded-xl flex items-center justify-center shrink-0 border border-white/10">
-              <Star className="w-5 h-5 text-zinc-300" />
-            </div>
-            <div>
-              <div className="text-[11px] font-black text-white tracking-wider">HISTORY</div>
-              <div className="text-[13px] font-bold text-zinc-400 leading-tight">ประวัติสั่งซื้อ</div>
-            </div>
-          </button>
         </div>
 
         {/* Recent Sales Ticker */}
         <div className="bg-[#121212] border border-white/10 rounded-2xl p-4 sm:p-5 mb-5 sm:mb-6">
           <div className="text-[15px] font-bold text-white mb-0.5">รายการสินค้าล่าสุด</div>
           <div className="text-xs text-zinc-500 mb-4">สินค้าที่ลูกค้าเพิ่งซื้อไปเมื่อสักครู่</div>
-          <div className="flex flex-col gap-2.5">
+          <div className="flex overflow-x-auto gap-3 pb-2 scrollbar-thin scrollbar-thumb-zinc-700">
             {recentSales.map((s, i) => (
-              <div key={i} className="flex items-center gap-3 bg-[#0a0a0a] rounded-xl p-2.5 border border-white/10 hover:bg-[#111] transition-colors">
-                <div className="w-12 h-12 sm:w-14 sm:h-14 shrink-0">
+              <div key={i} className="flex-none flex items-center gap-3 bg-[#0a0a0a] rounded-xl p-3 border border-white/10 hover:bg-[#111] transition-colors w-[220px]">
+                <div className="w-12 h-12 shrink-0">
                   <ROVCard label={String(s.price) + " ฿"} color="#555555" title={s.product.substring(0, 3)} />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="text-[11px] text-zinc-500 font-medium">{s.user}</div>
-                  <div className="text-[13px] font-bold text-zinc-200 truncate">{s.product}</div>
+                  <div className="text-[12px] font-bold text-zinc-200 truncate">{s.product}</div>
                   <div className="text-[10px] text-zinc-500 mt-0.5">{s.time}</div>
                 </div>
-                <div className="text-[13px] font-black text-white pl-2">฿{s.price}</div>
               </div>
             ))}
           </div>
@@ -171,12 +136,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 <div className="text-base sm:text-lg font-black text-white leading-[1.2]">
                   สินค้าทั้งหมด <br /> ของดีมีจำกัด
                 </div>
-                <div className="text-[11px] sm:text-xs text-zinc-500 mt-1 font-medium">เลือกซื้อสินค้าที่ต้องการได้เลย</div>
               </div>
             </div>
-            <button onClick={() => setActiveView("categories")} className="border border-white/10 rounded-xl px-3 py-1.5 flex items-center gap-1.5 text-[11px] sm:text-xs text-zinc-300 hover:bg-[#121212] hover:text-white transition-colors text-right leading-tight whitespace-nowrap active:scale-95">
-              ดูหมวดหมู่<br />ทั้งหมด
-            </button>
           </div>
 
           {/* Product Grid */}
@@ -241,16 +202,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="mt-8 mb-8 rounded-2xl p-5 text-center border border-white/10" style={{ background: "linear-gradient(135deg, #0a0a0a, #111111)" }}>
-          <div className="text-lg font-black text-white tracking-[0.2em] opacity-90">APEX STORE</div>
-          <div className="text-[11px] text-zinc-500 mt-1.5">ขายสินค้าคุณภาพ ส่งมอบทันใจแบบอัตโนมัติ</div>
-          <div className="flex justify-center gap-3 mt-4">
-            {["LINE", "DISCORD", "FB", "IG"].map((s) => (
-              <button key={s} className="bg-[#050505]/5 border border-white/10 text-zinc-400 rounded-lg px-3 py-1.5 text-[10px] font-black hover:bg-[#050505] hover:text-black transition-all active:scale-95">
-                {s}
-              </button>
-            ))}
-          </div>
+        <div className="mt-8 mb-8 text-center text-xs text-zinc-500">
+           © {new Date().getFullYear()} เอเพ็กซ์สโตร์ — สงวนลิขสิทธิ์
         </div>
 
       </div>
