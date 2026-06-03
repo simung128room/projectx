@@ -519,7 +519,12 @@ function AppContent() {
     | "tools"
     | "vip_logs"
     | "free_logs";
-  const [activeView, setRawActiveView] = useState<ViewType>("home");
+  const [activeView, setRawActiveView] = useState<ViewType>(() => {
+    const hostname = window.location.hostname;
+    if (hostname.startsWith("account.")) return "login";
+    if (hostname.startsWith("dash.")) return "dashboard";
+    return "home";
+  });
   const [selectedProductId, setSelectedProductId] = useState<string | null>(
     null,
   );
@@ -542,7 +547,12 @@ function AppContent() {
   useEffect(() => {
     const handlePopState = () => {
       let path = window.location.pathname.replace("/", "");
-      if (path === "") path = "home";
+      if (path === "") {
+        const hostname = window.location.hostname;
+        if (hostname.startsWith("account.")) path = "login";
+        else if (hostname.startsWith("dash.")) path = "dashboard";
+        else path = "home";
+      }
 
       // Routing aliases
       if (path === "register") path = "signup";
