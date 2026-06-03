@@ -13,6 +13,7 @@ import React, {
   Suspense,
   lazy,
 } from "react";
+import { sanitizeCategories } from "./utils";
 import {
   Loader,
   Gamepad2,
@@ -455,14 +456,14 @@ function AppContent() {
       const saved = localStorage.getItem("apex_categories_cache");
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed) && parsed.length > 0) return sanitizeCategories(parsed);
       }
     } catch (e) {}
     return [
-      { id: "premium_app", name: "แอปพรีเมียม / บันเทิง" },
-      { id: "gaming_id", name: "ไอดีเกมส์ยอดนิยม" },
-      { id: "license_key", name: "คีย์ใบอนุญาต / โปรแกรม" },
-      { id: "proxy", name: "พร็อกซีเซสชั่นขั้นสูง" }
+      { id: "premium_app", name: "แอปพรีเมียม / บันเทิง", title: "แอปพรีเมียม / บันเทิง" },
+      { id: "gaming_id", name: "ไอดีเกมส์ยอดนิยม", title: "ไอดีเกมส์ยอดนิยม" },
+      { id: "license_key", name: "คีย์ใบอนุญาต / โปรแกรม", title: "คีย์ใบอนุญาต / โปรแกรม" },
+      { id: "proxy", name: "พร็อกซีเซสชั่นขั้นสูง", title: "พร็อกซีเซสชั่นขั้นสูง" }
     ];
   });
 
@@ -586,6 +587,21 @@ function AppContent() {
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
   }, [activeView]);
+
+  useEffect(() => {
+    if (products.length > 0) {
+      const params = new URLSearchParams(window.location.search);
+      const pid = params.get("product");
+      if (pid) {
+        const p = products.find(prod => prod.id === pid);
+        if (p && activeView !== "product_detail") {
+          setSelectedProductId(pid);
+          setRawActiveView("product_detail");
+          window.history.replaceState(null, "", "/product_detail?product=" + pid);
+        }
+      }
+    }
+  }, [products, activeView]);
 
   useEffect(() => {
     if (isAdmin) {
@@ -1028,8 +1044,9 @@ function AppContent() {
             setProducts(finalProds);
             try { localStorage.setItem("apex_products_cache", JSON.stringify(finalProds)); } catch (e) {}
           } else if (res.url === "/api/categories" && res.data && Array.isArray(res.data)) {
-            setCategories(res.data);
-            try { localStorage.setItem("apex_categories_cache", JSON.stringify(res.data)); } catch (e) {}
+            const sanitized = sanitizeCategories(res.data);
+            setCategories(sanitized);
+            try { localStorage.setItem("apex_categories_cache", JSON.stringify(sanitized)); } catch (e) {}
           } else if (res.url === "/api/stats" && res.data) {
             const statsObj = {
               users: res.data.users,
@@ -2123,7 +2140,7 @@ function AppContent() {
       </Suspense>
 
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex flex-col w-[280px] shrink-0 bg-[#121212] border-r border-zinc-800 h-screen sticky top-0 p-6 z-[60] overflow-y-auto no-scrollbar">
+      <aside className="hidden lg:flex flex-col w-[300px] shrink-0 bg-[#121212] border-r border-zinc-800 h-screen sticky top-0 p-8 z-[60] overflow-y-auto no-scrollbar">
         <div className="mb-10 w-full flex justify-start">
           <span 
             className="font-changa text-3xl font-black italic tracking-wider text-purple-500 drop-shadow-md hover:scale-105 active:scale-95 transition-all duration-205 cursor-pointer select-none"
@@ -2165,15 +2182,9 @@ function AppContent() {
           <button
             onClick={() => {
               if (!user) {
-                Swal.fire({
-                  icon: "warning",
-                  title: "กรุณาเข้าสู่ระบบ",
-                  text: "คุณต้องเข้าสู่ระบบก่อนใช้งานฟีเจอร์นี้",
-                  confirmButtonText: "ไปหน้าเข้าสู่ระบบ",
-                  confirmButtonColor: "#ffffff",
-                  background: "#111",
-                  color: "#fff"
-                }).then(() => setActiveView("login"));
+                addToast({ title: "ระบบแจ้งเตือน", message: "คุณต้องเข้าสู่ระบบก่อนใช้งานฟีเจอร์นี้", type: "warning" });
+                setActiveView("login");
+                window.scrollTo({ top: 0, behavior: "smooth" });
                 return;
               }
               setActiveView("free_website");
@@ -2186,15 +2197,9 @@ function AppContent() {
           <button
             onClick={() => {
               if (!user) {
-                Swal.fire({
-                  icon: "warning",
-                  title: "กรุณาเข้าสู่ระบบ",
-                  text: "คุณต้องเข้าสู่ระบบก่อนใช้งานบรรดาเครื่องมือ",
-                  confirmButtonText: "ไปหน้าเข้าสู่ระบบ",
-                  confirmButtonColor: "#ffffff",
-                  background: "#111",
-                  color: "#fff"
-                }).then(() => setActiveView("login"));
+                addToast({ title: "ระบบแจ้งเตือน", message: "คุณต้องเข้าสู่ระบบก่อนใช้งานบรรดาเครื่องมือ", type: "warning" });
+                setActiveView("login");
+                window.scrollTo({ top: 0, behavior: "smooth" });
                 return;
               }
               setActiveView("tools");
@@ -2515,21 +2520,13 @@ function AppContent() {
                     <span className="text-[13px] font-medium">เติมเงิน</span>
                   </div>
                   <div
-                    className={`nav-row flex items-center gap-[13px] border rounded-lg p-[10px] px-[14px] cursor-pointer transition-all ${activeView === "free_website" ? "border-zinc-800 bg-[#161616] text-[#0066ff]" : "border-transparent text-[#888888] hover:bg-[#111111] hover:text-white"}`}
+                    className={`nav-row flex items-center gap-[13px] border rounded-lg p-[10px] px-[14px] cursor-pointer transition-all ${activeView === "free_website" ? "border-zinc-800 bg-[#161616] text-purple-500" : "border-transparent text-[#888888] hover:bg-[#111111] hover:text-white"}`}
                     onClick={() => {
                       if (!user) {
-                        Swal.fire({
-                          icon: "warning",
-                          title: "กรุณาเข้าสู่ระบบ",
-                          text: "คุณต้องเข้าสู่ระบบก่อนใช้งานตัวเลือกนี้",
-                          confirmButtonText: "ไปหน้าเข้าสู่ระบบ",
-                          confirmButtonColor: "#0066ff",
-                          background: "#111",
-                          color: "#fff"
-                        }).then(() => {
-                           setActiveView("login");
-                           setIsMobileMenuOpen(false);
-                        });
+                        addToast({ title: "ระบบแจ้งเตือน", message: "คุณต้องเข้าสู่ระบบก่อนใช้งานตัวเลือกนี้", type: "warning" });
+                        setActiveView("login");
+                        setIsMobileMenuOpen(false);
+                        window.scrollTo({ top: 0, behavior: "smooth" });
                         return;
                       }
                       setActiveView("free_website");
@@ -2543,18 +2540,10 @@ function AppContent() {
                     className={`nav-row flex items-center gap-[13px] border rounded-lg p-[10px] px-[14px] cursor-pointer transition-all ${activeView === "tools" ? "border-zinc-800 bg-[#161616] text-white" : "border-transparent text-[#888888] hover:bg-[#111111] hover:text-white"}`}
                     onClick={() => {
                       if (!user) {
-                        Swal.fire({
-                          icon: "warning",
-                          title: "กรุณาเข้าสู่ระบบ",
-                          text: "คุณต้องเข้าสู่ระบบก่อนใช้งานตัวเลือกนี้",
-                          confirmButtonText: "ไปหน้าเข้าสู่ระบบ",
-                          confirmButtonColor: "#0066ff",
-                          background: "#111",
-                          color: "#fff"
-                        }).then(() => {
-                           setActiveView("login");
-                           setIsMobileMenuOpen(false);
-                        });
+                        addToast({ title: "ระบบแจ้งเตือน", message: "คุณต้องเข้าสู่ระบบก่อนใช้งานตัวเลือกนี้", type: "warning" });
+                        setActiveView("login");
+                        setIsMobileMenuOpen(false);
+                        window.scrollTo({ top: 0, behavior: "smooth" });
                         return;
                       }
                       setActiveView("tools");

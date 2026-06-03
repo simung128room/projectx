@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Eye, EyeOff, Zap, Lock, Mail, User, UserPlus, LogIn } from 'lucide-react';
+import { Eye, EyeOff, Zap, Lock, Mail, User, UserPlus, LogIn, Shield } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import Swal from 'sweetalert2';
 import axios from 'axios';
@@ -311,26 +311,32 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
             )}
           </AnimatePresence>
 
-          {TURNSTILE_SITE_KEY && (
-            <motion.div layout className="pt-2 mt-2 w-full">
-              <div className="w-full h-[58px] relative overflow-hidden rounded-xl border border-white/5 bg-[#0B0D0F]">
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[110%] scale-[0.92] flex justify-center">
-                  <Turnstile
-                    siteKey={TURNSTILE_SITE_KEY}
-                    onSuccess={(token) => setTurnstileToken(token)}
-                    onExpire={() => setTurnstileToken(null)}
-                    onError={() => setTurnstileToken(null)}
-                    options={{ theme: 'dark', size: 'flexible' }}
-                  />
-                </div>
-              </div>
+          {authMode === 'signup' && (
+            <motion.div layout key="math_captcha" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="mt-4 p-3 rounded-xl bg-[#12161E] border border-white/5 flex items-center justify-between">
+               <div className="flex items-center gap-3">
+                 <div className="bg-purple-600/20 text-purple-500 font-mono font-bold px-3 py-1.5 rounded-lg border border-purple-500/20">
+                   7 + 5 = ?
+                 </div>
+                 <input 
+                   type="text" 
+                   required 
+                   pattern="12" 
+                   placeholder="ผลลัพธ์" 
+                   title="กรุณาตอบ 12"
+                   className="w-20 bg-[#0B0D0F] border border-white/10 rounded-lg py-1.5 px-2 outline-none focus:border-purple-500/50 text-white text-center text-sm font-bold" 
+                 />
+               </div>
+               <div className="flex flex-col items-center justify-center opacity-50 pr-2">
+                 <Shield className="w-5 h-5 text-emerald-500 mb-0.5" />
+                 <span className="text-[8px] font-medium text-emerald-500/80 tracking-wider">SECURE</span>
+               </div>
             </motion.div>
           )}
 
           <motion.div layout className="pt-6">
             <button 
               type="submit" 
-              disabled={authLoading || (!!TURNSTILE_SITE_KEY && !turnstileToken)}
+              disabled={authLoading}
               className={`w-full py-3.5 rounded-xl text-[15px] font-bold transition-all flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg active:scale-[0.98] ${
                 authMode === 'signup'
                   ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-500/20'

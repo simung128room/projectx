@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, ArrowLeft, ShoppingCart } from 'lucide-react';
 import { motion } from 'motion/react';
+import { generateGradient } from '../utils';
 
 interface SearchViewProps {
   products: any[];
@@ -68,13 +69,36 @@ export const SearchView: React.FC<SearchViewProps> = ({ products, onBack, onProd
                 onClick={() => onProductClick(product.id)}
                 className="bg-[#0B0D0F] border border-white/5 rounded-2xl p-4 cursor-pointer hover:border-white/10 hover:shadow-lg transition-all group overflow-hidden relative flex flex-col h-full"
               >
-                {product.imageUrl ? (
+                {product.imageUrl && product.imageUrl.trim() !== "" ? (
                   <div className="w-full aspect-video rounded-xl overflow-hidden mb-4 relative bg-zinc-900 border border-white/5">
-                    <img loading="lazy" src={product.imageUrl} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    <img loading="lazy" src={product.imageUrl} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                        if (e.currentTarget.nextElementSibling) {
+                          (e.currentTarget.nextElementSibling as HTMLElement).style.display = 'flex';
+                        }
+                      }}
+                    />
+                    <div 
+                      className="w-full h-full flex items-center justify-center absolute inset-0 opacity-80"
+                      style={{ 
+                        display: 'none',
+                        background: generateGradient(product.name || product.id)
+                      }}
+                    >
+                      <span className="text-5xl font-black text-white mix-blend-overlay opacity-60">
+                        {(product.name || "P")[0].toUpperCase()}
+                      </span>
+                    </div>
                   </div>
                 ) : (
-                  <div className="w-full aspect-video rounded-xl overflow-hidden mb-4 relative bg-zinc-900 flex items-center justify-center border border-white/5 group-hover:border-white/10 transition-colors">
-                     <ShoppingCart className="w-8 h-8 text-zinc-700" />
+                  <div 
+                    className="w-full aspect-video rounded-xl overflow-hidden mb-4 relative bg-zinc-900 flex items-center justify-center border border-white/5 group-hover:border-white/10 opacity-80 transition-all"
+                    style={{ background: generateGradient(product.name || product.id) }}
+                  >
+                     <span className="text-5xl font-black text-white mix-blend-overlay opacity-60">
+                        {(product.name || "P")[0].toUpperCase()}
+                     </span>
                   </div>
                 )}
                 

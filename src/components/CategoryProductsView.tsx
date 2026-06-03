@@ -3,6 +3,7 @@ import { motion } from "motion/react";
 import { Package, ArrowLeft, Star, ShoppingCart } from "lucide-react";
 import { Product, Category } from "../types";
 import { AnimatedScroll } from "./AnimatedScroll";
+import { generateGradient } from "../utils";
 
 interface CategoryProductsViewProps {
   category: string;
@@ -103,26 +104,31 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
                     {product.tag}
                   </div>
                 )}
-                {product.imageUrl ? (
+                {product.imageUrl && product.imageUrl.trim() !== "" ? (
                   <img loading="lazy"
                     src={product.imageUrl}
                     alt={product.name}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                      if (e.currentTarget.nextElementSibling) {
+                        (e.currentTarget.nextElementSibling as HTMLElement).style.display = 'flex';
+                      }
+                    }}
                   />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <div className="text-center">
-                      <div className="text-[10px] font-black text-purple-500 tracking-tighter mb-1">
-                        APEXSTORE
-                      </div>
-                      <div className="text-white text-xs font-bold leading-tight">
-                        PREVIEW
-                        <br />
-                        1500×1500
-                      </div>
-                    </div>
-                  </div>
-                )}
+                ) : null}
+                <div 
+                  className="w-full h-full flex flex-col items-center justify-center opacity-80"
+                  style={{ 
+                    display: product.imageUrl && product.imageUrl.trim() !== "" ? 'none' : 'flex',
+                    background: generateGradient(product.name || product.id)
+                  }}
+                >
+                  <span className="text-5xl font-black text-white mix-blend-overlay opacity-60">
+                    {(product.name || "P")[0].toUpperCase()}
+                  </span>
+                  <span className="text-xs font-bold text-white/60 uppercase tracking-widest mt-2">{product.category || "STORETH"}</span>
+                </div>
                 {product.stock <= 0 && (
                   <div className="absolute inset-0 bg-black/40 backdrop-blur-sm backdrop- flex items-center justify-center z-10 transition-opacity opacity-0 group-hover:opacity-100">
                     <span className="bg-purple-600 text-white font-bold rounded-full px-4 py-1.5 text-xs">

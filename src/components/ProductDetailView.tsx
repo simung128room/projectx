@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { Product } from '../types';
-import { ArrowLeft, Box, CheckCircle2, ChevronRight, FileText, ShoppingCart, AlertCircle, Download } from 'lucide-react';
+import { ArrowLeft, Box, CheckCircle2, ChevronRight, FileText, ShoppingCart, AlertCircle, Download, Share2 } from 'lucide-react';
 import Swal from 'sweetalert2';
+import { useToastStore } from '../lib/toastStore';
 
 interface ProductDetailViewProps {
   product: Product;
@@ -15,6 +16,7 @@ interface ProductDetailViewProps {
 export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, user, onBack, handlePurchase, setActiveView }) => {
   const [purchaseQuantity, setPurchaseQuantity] = useState(1);
   const [showConfirmPurchase, setShowConfirmPurchase] = useState(false);
+  const { addToast } = useToastStore();
 
   const calculateDiscount = (originalPrice?: number, price?: number) => {
     if (!originalPrice || !price || originalPrice <= price) return null;
@@ -106,21 +108,34 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
                 <FileText className="w-5 h-5 text-[#2563EB]" />
                 รายละเอียดสินค้า
               </h4>
-              <button 
-                onClick={() => {
-                  const content = `[PRODUCT INFORMATION]\nProduct Name: ${product.name}\nPrice: ฿${product.price}\nStock: ${product.stock >= 999999 ? 'Unlimited' : product.stock}\n\n[DESCRIPTION]\n${product.description || 'No description available.'}`;
-                  const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
-                  const url = URL.createObjectURL(blob);
-                  const link = document.createElement('a');
-                  link.href = url;
-                  link.download = `${product.name.replace(/[^\wก-๙]/g, '_')}_details.txt`;
-                  link.click();
-                  URL.revokeObjectURL(url);
-                }}
-                className="text-[10px] font-bold text-zinc-500 hover:text-purple-500 transition-colors flex items-center gap-1.5 bg-[#0B0D0F] border border-white/10 px-3 py-1.5 rounded-xl shadow-sm active:scale-95"
-              >
-                <Download className="w-3.5 h-3.5" /> DOWNLOAD .TXT
-              </button>
+              <div className="flex gap-2">
+                <button 
+                  onClick={() => {
+                    const shareUrl = `${window.location.origin}/?product=${product.id}`;
+                    navigator.clipboard.writeText(shareUrl).then(() => {
+                      addToast({ title: "คัดลอกลิงก์แล้ว", message: "แชร์ลิงก์ให้เพื่อนได้เลย!", type: "success" });
+                    });
+                  }}
+                  className="text-[10px] font-bold text-zinc-500 hover:text-emerald-500 transition-colors flex items-center gap-1.5 bg-[#0B0D0F] border border-white/10 px-3 py-1.5 rounded-xl shadow-sm active:scale-95"
+                >
+                  <Share2 className="w-3.5 h-3.5" /> แชร์สินค้า
+                </button>
+                <button 
+                  onClick={() => {
+                    const content = `[PRODUCT INFORMATION]\nProduct Name: ${product.name}\nPrice: ฿${product.price}\nStock: ${product.stock >= 999999 ? 'Unlimited' : product.stock}\n\n[DESCRIPTION]\n${product.description || 'No description available.'}`;
+                    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `${product.name.replace(/[^\wก-๙]/g, '_')}_details.txt`;
+                    link.click();
+                    URL.revokeObjectURL(url);
+                  }}
+                  className="text-[10px] font-bold text-zinc-500 hover:text-purple-500 transition-colors flex items-center gap-1.5 bg-[#0B0D0F] border border-white/10 px-3 py-1.5 rounded-xl shadow-sm active:scale-95"
+                >
+                  <Download className="w-3.5 h-3.5" /> DOWNLOAD .TXT
+                </button>
+              </div>
             </div>
             <div className="text-zinc-400 text-sm leading-relaxed whitespace-pre-wrap bg-[#121417]/50 p-5 rounded-2xl border border-white/5 min-h-[120px]">
               {product.description || "ไม่มีรายละเอียดสินค้าระบุไว้"}
