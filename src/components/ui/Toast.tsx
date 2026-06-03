@@ -15,16 +15,16 @@ const Toast: React.FC<{ toast: ToastType; onClose: (id: string) => void }> = ({ 
     success: <CheckCircle2 className="w-5 h-5 text-emerald-500" />,
     error: <AlertCircle className="w-5 h-5 text-red-500" />,
     warning: <AlertTriangle className="w-5 h-5 text-amber-500" />,
-    info: <Info className="w-5 h-5 text-[#3B82F6]" />,
+    info: <Info className="w-5 h-5 text-purple-500" />,
     payment: <ShoppingBag className="w-5 h-5 text-purple-500" />
   };
 
   const bgColors = {
-    success: 'bg-[#0B0F14] border-emerald-500/20 shadow-emerald-500/5',
-    error: 'bg-[#0B0F14] border-red-500/20 shadow-red-500/5',
-    warning: 'bg-[#0B0F14] border-amber-500/20 shadow-amber-500/5',
-    info: 'bg-[#0B0F14] border-[#3B82F6]/20 shadow-lg/5',
-    payment: 'bg-[#0B0F14] border-purple-500/20 shadow-purple-500/5'
+    success: 'bg-[#050505] border-emerald-500/20 shadow-emerald-500/5',
+    error: 'bg-[#050505] border-red-500/20 shadow-red-500/5',
+    warning: 'bg-[#050505] border-amber-500/20 shadow-amber-500/5',
+    info: 'bg-[#050505] border-[#3B82F6]/20 shadow-lg/5',
+    payment: 'bg-[#050505] border-purple-500/20 shadow-purple-500/5'
   };
 
   return (

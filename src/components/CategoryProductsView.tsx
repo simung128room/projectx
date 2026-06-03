@@ -51,7 +51,7 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
             <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight flex items-center gap-3">
               {category === "all" ? (
                 <div className="flex items-center gap-3 uppercase">
-                  <div className="w-12 h-12 bg-[#3B82F6] rounded-2xl flex items-center justify-center shadow-lg shadow-lg/20">
+                  <div className="w-12 h-12 bg-purple-600 rounded-2xl flex items-center justify-center shadow-lg shadow-lg/20">
                     <Package className="w-7 h-7 text-white" />
                   </div>
                   สินค้าทั้งหมด
@@ -112,7 +112,7 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
                     <div className="text-center">
-                      <div className="text-[10px] font-black text-[#3B82F6] tracking-tighter mb-1">
+                      <div className="text-[10px] font-black text-purple-500 tracking-tighter mb-1">
                         APEXSTORE
                       </div>
                       <div className="text-white text-xs font-bold leading-tight">
@@ -124,8 +124,8 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
                   </div>
                 )}
                 {product.stock <= 0 && (
-                  <div className="absolute inset-0 bg-black/40 backdrop- flex items-center justify-center z-10 transition-opacity opacity-0 group-hover:opacity-100">
-                    <span className="bg-[#3B82F6] text-white font-bold rounded-full px-4 py-1.5 text-xs">
+                  <div className="absolute inset-0 bg-black/40 backdrop-blur-sm backdrop- flex items-center justify-center z-10 transition-opacity opacity-0 group-hover:opacity-100">
+                    <span className="bg-purple-600 text-white font-bold rounded-full px-4 py-1.5 text-xs">
                       สินค้าหมด
                     </span>
                   </div>
@@ -144,19 +144,19 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
                         ฿{(product.originalPrice || 0).toLocaleString()}
                       </span>
                     )}
-                  <div className="text-[#3B82F6] font-bold text-sm">
+                  <div className="text-purple-500 font-bold text-sm">
                     ฿{(product.price || 0).toLocaleString()}
                   </div>
                 </div>
 
                 {product.stock <= 0 ? (
-                  <button className="w-full mt-3 bg-[#3B82F6]/20 text-[#3B82F6] rounded-xl py-2.5 text-xs font-bold flex items-center justify-center gap-1.5 cursor-default">
+                  <button className="w-full mt-3 bg-purple-600/20 text-purple-500 rounded-xl py-2.5 text-xs font-bold flex items-center justify-center gap-1.5 cursor-default">
                     <Package className="w-3.5 h-3.5" /> สินค้าหมด
                   </button>
                 ) : (
                   <button
                     onClick={() => onProductClick(product.id)}
-                    className="w-full mt-3 bg-zinc-900 text-white hover:bg-zinc-800 rounded-xl py-2.5 text-xs font-bold transition-colors active:scale-95 flex items-center justify-center gap-2"
+                    className="w-full mt-3 bg-zinc-900 text-white hover:bg-gray-200 rounded-xl py-2.5 text-xs font-bold transition-colors active:scale-95 flex items-center justify-center gap-2"
                   >
                     <ShoppingCart className="w-3.5 h-3.5" /> สั่งซื้อสินค้า
                   </button>

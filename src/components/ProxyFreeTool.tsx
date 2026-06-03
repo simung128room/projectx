@@ -132,7 +132,7 @@ export const ProxyFreeTool: React.FC = () => {
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-black text-white flex items-center gap-3">
-            <Globe className="w-8 h-8 text-[#3B82F6]" />
+            <Globe className="w-8 h-8 text-purple-500" />
             Free Proxy List
           </h2>
           <p className="text-zinc-400 mt-2 flex items-center gap-2">
@@ -147,7 +147,7 @@ export const ProxyFreeTool: React.FC = () => {
           <button
             onClick={fetchProxies}
             disabled={loading}
-            className="bg-[#3B82F6]/10 text-[#3B82F6] border border-[#3B82F6]/20 hover:bg-[#3B82F6]/20 px-5 py-3 rounded-2xl font-bold flex items-center gap-2 transition-all disabled:opacity-50"
+            className="bg-purple-600/10 text-purple-500 border border-[#3B82F6]/20 hover:bg-purple-600/20 px-5 py-3 rounded-2xl font-bold flex items-center gap-2 transition-all disabled:opacity-50"
           >
             <RefreshCcw
               className={`w-5 h-5 ${loading ? "animate-spin" : ""}`}
@@ -208,7 +208,7 @@ export const ProxyFreeTool: React.FC = () => {
       </div>
 
       <div className="bg-[#121417] border border-white/5 rounded-xl overflow-hidden flex flex-col">
-        <div className="border-b border-white/5 bg-black/50">
+        <div className="border-b border-white/5 bg-white/50">
           <div className="flex overflow-x-auto hide-scrollbar px-2 pt-2">
             {[
               { id: "all", label: "ทั้งหมด (All)" },
@@ -221,7 +221,7 @@ export const ProxyFreeTool: React.FC = () => {
                 onClick={() => setActiveTab(tab.id as any)}
                 className={`flex-shrink-0 px-6 py-4 text-sm font-bold border-b-2 transition-all ${
                   activeTab === tab.id
-                    ? "border-[#3B82F6] text-[#3B82F6]"
+                    ? "border-[#3B82F6] text-purple-500"
                     : "border-transparent text-zinc-500 hover:text-zinc-300 hover:bg-white/5"
                 } rounded-t-xl`}
               >
@@ -232,12 +232,12 @@ export const ProxyFreeTool: React.FC = () => {
         </div>
 
         <div className="p-4 sm:p-6 flex-1 flex flex-col gap-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-black/40 p-4 rounded-2xl border border-white/5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-black/40 backdrop-blur-sm p-4 rounded-2xl border border-white/5">
             <div className="flex items-center gap-3">
               <Shield className="w-5 h-5 text-zinc-400" />
               <span className="text-sm font-bold text-white">
                 พร้อมใช้งาน:{" "}
-                <span className="text-[#3B82F6]">
+                <span className="text-purple-500">
                   {currentList.length.toLocaleString()}
                 </span>{" "}
                 รายการ
@@ -247,14 +247,14 @@ export const ProxyFreeTool: React.FC = () => {
               <button
                 onClick={downloadFile}
                 disabled={currentList.length === 0}
-                className="flex-1 sm:flex-none justify-center bg-zinc-800 hover:bg-zinc-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all disabled:opacity-50"
+                className="flex-1 sm:flex-none justify-center bg-zinc-800 hover:bg-gray-200 text-white px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all disabled:opacity-50"
               >
                 <Download className="w-4 h-4" /> บันทึกไฟล์ (.txt)
               </button>
               <button
                 onClick={copyToClipboard}
                 disabled={currentList.length === 0}
-                className="flex-1 sm:flex-none justify-center bg-[#3B82F6] hover:bg-[#166BCC] text-white px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all disabled:opacity-50 shadow-lg shadow-lg/25"
+                className="flex-1 sm:flex-none justify-center bg-purple-600 hover:bg-[#166BCC] text-white px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all disabled:opacity-50 shadow-lg shadow-lg/25"
               >
                 <Copy className="w-4 h-4" /> คัดลอกทั้งหมด
               </button>
@@ -263,8 +263,8 @@ export const ProxyFreeTool: React.FC = () => {
 
           <div className="flex-1 min-h-[400px] h-[500px] bg-black border border-white/10 rounded-2xl p-4 overflow-hidden relative">
             {loading ? (
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-zinc-500 bg-black/50 z-10">
-                <RefreshCcw className="w-10 h-10 animate-spin mb-4 text-[#3B82F6]" />
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-zinc-500 bg-white/50 z-10">
+                <RefreshCcw className="w-10 h-10 animate-spin mb-4 text-purple-500" />
                 <p className="font-bold tracking-wide">กำลังรวบรวม IP...</p>
               </div>
             ) : currentList.length === 0 ? (

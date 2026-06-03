@@ -64,7 +64,7 @@ const ProductManagerModal = ({
   });
 
   return (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center sm:justify-end p-0 z-[100]" onClick={onClose}>
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center sm:justify-end p-0 z-[100]" onClick={onClose}>
       <div 
         className="bg-[#0B0D0F] border-none sm:border-l border-white/5 w-full sm:max-w-md h-full relative overflow-y-auto p-6 sm:p-8 animate-in slide-in-from-bottom-full sm:slide-in-from-right-full duration-300 shadow-2xl"
         onClick={e => e.stopPropagation()}
@@ -73,7 +73,7 @@ const ProductManagerModal = ({
           <X className="w-5 h-5" />
         </button>
         <h2 className="text-xl font-black text-white mb-6 flex items-center gap-2">
-          <Package className="w-5 h-5 text-[#3B82F6]" />
+          <Package className="w-5 h-5 text-purple-500" />
           {isEdit ? 'แก้ไขสินค้า' : 'เพิ่มสินค้าใหม่'}
         </h2>
         
@@ -169,7 +169,7 @@ const ProductManagerModal = ({
             />
           </div>
           {formData.imageUrl && (
-            <div className="mt-2 rounded-xl overflow-hidden border border-white/10 aspect-video bg-black/50 relative flex items-center justify-center">
+            <div className="mt-2 rounded-xl overflow-hidden border border-white/10 aspect-video bg-white/50 relative flex items-center justify-center">
                <img src={formData.imageUrl} alt="Preview" className="max-w-full max-h-full object-contain" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
             </div>
           )}
@@ -178,7 +178,7 @@ const ProductManagerModal = ({
         <div className="mt-8 flex items-center gap-3">
           <button 
             onClick={onClose}
-            className="flex-1 px-4 py-3 bg-zinc-800 hover:bg-zinc-700 text-white rounded-xl text-sm font-bold transition-all active:scale-95"
+            className="flex-1 px-4 py-3 bg-zinc-800 hover:bg-gray-200 text-white rounded-xl text-sm font-bold transition-all active:scale-95"
           >
             ยกเลิก
           </button>
@@ -208,7 +208,7 @@ const ProductManagerModal = ({
                 onSave(p as Product);
               }
             }}
-            className="flex-1 px-4 py-3 bg-[#3B82F6] hover:bg-[#2563EB] text-white rounded-xl text-sm font-bold shadow-lg shadow-blue-500/20 transition-all active:scale-95 flex items-center justify-center gap-2"
+            className="flex-1 px-4 py-3 bg-purple-600 hover:bg-[#2563EB] text-white rounded-xl text-sm font-bold shadow-lg shadow-blue-500/20 transition-all active:scale-95 flex items-center justify-center gap-2"
           >
              <Check className="w-4 h-4" />
             บันทึกสินค้า
@@ -397,7 +397,7 @@ const AddStockModal = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-end p-0 z-50">
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-end p-0 z-50">
       <div className="bg-[#0B0D0F] border-l border-white/5 w-full max-w-md h-full relative p-6 sm:p-8 overflow-y-auto animate-in slide-in-from-right-full duration-300">
         <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
           <Database className="w-5 h-5 text-indigo-400" />
@@ -552,7 +552,7 @@ const AddStockModal = ({
         <div className="mt-8 flex items-center gap-3">
           <button 
             onClick={onClose}
-            className="flex-1 px-4 py-3 bg-zinc-900 hover:bg-zinc-800 text-white rounded-xl text-sm font-bold transition-colors"
+            className="flex-1 px-4 py-3 bg-zinc-900 hover:bg-gray-200 text-white rounded-xl text-sm font-bold transition-colors"
           >
             ยกเลิก
           </button>
@@ -582,17 +582,17 @@ const DatabaseSetupGuide = ({ dbErrorDetail }: { dbErrorDetail?: string | null }
     </div>
     
     {dbErrorDetail && (
-      <div className="mb-8 p-4 bg-[#3B82F6]/10 border border-[#3B82F6]/20 rounded-2xl">
+      <div className="mb-8 p-4 bg-purple-600/10 border border-[#3B82F6]/20 rounded-2xl">
         <div className="flex items-center gap-2 mb-2">
           <ShieldAlert className="w-4 h-4 text-[#2563EB]" />
           <h4 className="text-[#2563EB] text-[10px] font-black uppercase tracking-widest">สถานะปัจจุบัน (Status):</h4>
         </div>
-        <p className="text-zinc-400 text-xs font-mono break-all bg-black/40 p-3 rounded-xl border border-white/5">{dbErrorDetail}</p>
+        <p className="text-zinc-400 text-xs font-mono break-all bg-black/40 backdrop-blur-sm p-3 rounded-xl border border-white/5">{dbErrorDetail}</p>
       </div>
     )}
     
     <div className="space-y-4">
-      <div className="bg-black/40 border border-white/5 rounded-2xl p-6">
+      <div className="bg-black/40 backdrop-blur-sm border border-white/5 rounded-2xl p-6">
         <h3 className="text-white font-bold mb-2">Troubleshooting Steps</h3>
         <ul className="list-disc list-inside text-sm text-zinc-400 space-y-2">
           <li>Ensure the backend server is running correctly.</li>
@@ -815,11 +815,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       }}
       className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${
         adminTab === id 
-        ? 'bg-[#3B82F6]/10 border border-[#3B82F6]/20 text-[#3B82F6] font-bold' 
+        ? 'bg-purple-600/10 border border-[#3B82F6]/20 text-purple-500 font-bold' 
         : 'text-zinc-400 hover:bg-white/5 hover:text-white border border-transparent'
       }`}
     >
-      <Icon className={`w-5 h-5 ${adminTab === id ? 'text-[#3B82F6]' : 'text-zinc-500'}`} />
+      <Icon className={`w-5 h-5 ${adminTab === id ? 'text-purple-500' : 'text-zinc-500'}`} />
       <span className="text-xs font-semibold tracking-wide">{label}</span>
       {adminTab === id && (
         <ChevronRight className="w-4 h-4 ml-auto opacity-50" />
@@ -837,7 +837,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setIsNavOpen(false)}
-            className="fixed inset-0 bg-black/60 z-40 lg:hidden"
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 lg:hidden"
           />
         )}
       </AnimatePresence>
@@ -847,12 +847,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         {/* Brand/Logo Area */}
         <div className="p-6 flex items-center justify-between border-b border-white/5 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-[#3B82F6] rounded-xl flex items-center justify-center flex-shrink-0">
+            <div className="w-10 h-10 bg-purple-600 rounded-xl flex items-center justify-center flex-shrink-0">
               <Crown className="w-6 h-6 text-white" />
             </div>
             <div>
               <h2 className="text-white font-black tracking-tight leading-none text-lg uppercase">APEXSTORE</h2>
-              <p className="text-[9px] text-[#3B82F6] font-bold uppercase tracking-widest mt-1">Admin Console</p>
+              <p className="text-[9px] text-purple-500 font-bold uppercase tracking-widest mt-1">Admin Console</p>
             </div>
           </div>
           <button onClick={() => setIsNavOpen(false)} className="lg:hidden p-2 text-zinc-500 hover:text-white bg-white/5 rounded-lg">
@@ -928,7 +928,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <Menu className="w-5 h-5" />
             </button>
             <h1 className="text-lg font-bold text-white flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-[#3B82F6] animate-pulse hidden sm:block"></span>
+              <span className="w-2 h-2 rounded-full bg-purple-600 animate-pulse hidden sm:block"></span>
               {getTabLabel(adminTab)}
             </h1>
           </div>
@@ -958,9 +958,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {[
                   { label: 'ผู้ใช้งานทั้งหมด', value: (siteStats?.users || 0).toLocaleString(), icon: Users, color: 'text-white', bg: 'bg-[#121820]' },
-                  { label: 'ยอดขายทั้งหมด (สินค้า)', value: totalOrders.toLocaleString(), icon: Package, color: 'text-[#2563EB]', bg: 'bg-[#3B82F6]/10' },
+                  { label: 'ยอดขายทั้งหมด (สินค้า)', value: totalOrders.toLocaleString(), icon: Package, color: 'text-[#2563EB]', bg: 'bg-purple-600/10' },
                   { label: 'คำสั่งซื้อที่สำเร็จ', value: totalOrders.toLocaleString(), icon: ShoppingCart, color: 'text-emerald-500', bg: 'bg-emerald-50' },
-                  { label: 'รายได้รวม (บาท)', value: totalRevenue.toLocaleString(), icon: Activity, color: 'text-[#3B82F6]', bg: 'bg-[#3B82F6]/10' },
+                  { label: 'รายได้รวม (บาท)', value: totalRevenue.toLocaleString(), icon: Activity, color: 'text-purple-500', bg: 'bg-purple-600/10' },
                 ].map((stat, i) => (
                   <div key={i} className="bg-[#121417] border border-white/5 p-6 rounded-xl relative overflow-hidden group  hover: transition-all">
                     <div className={`absolute top-0 right-0 w-24 h-24 ${stat.bg} blur-3xl opacity-50 -mr-8 -mt-8 transition-all group-hover:scale-150`}></div>
@@ -988,15 +988,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
                       <div className="bg-[#121417]/50 border border-white/5 rounded-2xl p-6 text-center group hover:bg-[#0d1522] transition-colors">
                         <p className="text-zinc-500 text-[10px] font-black uppercase mb-2 tracking-widest">วันนี้</p>
-                        <p className="text-2xl font-black text-[#3B82F6]">{salesToday.toLocaleString()} <span className="text-[10px] font-bold text-zinc-500 uppercase ml-1">THB</span></p>
+                        <p className="text-2xl font-black text-purple-500">{salesToday.toLocaleString()} <span className="text-[10px] font-bold text-zinc-500 uppercase ml-1">THB</span></p>
                       </div>
                       <div className="bg-[#121417]/50 border border-white/5 rounded-2xl p-6 text-center group hover:bg-[#0d1522] transition-colors">
                         <p className="text-zinc-500 text-[10px] font-black uppercase mb-2 tracking-widest">สัปดาห์นี้</p>
-                        <p className="text-2xl font-black text-[#3B82F6]">{salesWeek.toLocaleString()} <span className="text-[10px] font-bold text-zinc-500 uppercase ml-1">THB</span></p>
+                        <p className="text-2xl font-black text-purple-500">{salesWeek.toLocaleString()} <span className="text-[10px] font-bold text-zinc-500 uppercase ml-1">THB</span></p>
                       </div>
                       <div className="bg-[#121417]/50 border border-white/5 rounded-2xl p-6 text-center group hover:bg-[#0d1522] transition-colors">
                         <p className="text-zinc-500 text-[10px] font-black uppercase mb-2 tracking-widest">เดือนนี้</p>
-                        <p className="text-2xl font-black text-[#3B82F6]">{salesMonth.toLocaleString()} <span className="text-[10px] font-bold text-zinc-500 uppercase ml-1">THB</span></p>
+                        <p className="text-2xl font-black text-purple-500">{salesMonth.toLocaleString()} <span className="text-[10px] font-bold text-zinc-500 uppercase ml-1">THB</span></p>
                       </div>
                     </div>
                   </div>
@@ -1008,7 +1008,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {[
                             { id: 'store', label: 'จัดการสินค้า', desc: 'เพิ่ม ลบ แก้ไข สินค้าในร้าน', icon: Package, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
-                            { id: 'keys', label: 'จัดการ License', desc: 'เพิ่มคีย์และดูประวัติ', icon: Key, color: 'text-[#3B82F6]', bg: 'bg-[#3B82F6]/10' },
+                            { id: 'keys', label: 'จัดการ License', desc: 'เพิ่มคีย์และดูประวัติ', icon: Key, color: 'text-purple-500', bg: 'bg-purple-600/10' },
                             { id: 'users', label: 'จัดการสมาชิก', desc: 'ดูรายชื่อและแก้ไขยอดเงิน', icon: Users, color: 'text-purple-500', bg: 'bg-purple-500/10' },
                             { id: 'settings', label: 'ตั้งค่าเว็บไซต์', desc: 'แก้ไขชื่อเว็บ ช่องทางติดต่อ', icon: Settings, color: 'text-amber-500', bg: 'bg-amber-500/10' },
                         ].map((item, i) => (
@@ -1226,7 +1226,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                             }
                         });
                     }}
-                    className="bg-[#3B82F6]/10 hover:bg-[#3B82F6]/20 text-[#3B82F6] font-bold py-2 px-4 rounded-xl text-xs transition-colors"
+                    className="bg-purple-600/10 hover:bg-purple-600/20 text-purple-500 font-bold py-2 px-4 rounded-xl text-xs transition-colors"
                   >
                     แก้ไขสถิติ
                   </button>
@@ -1253,7 +1253,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <h3 className="font-bold text-white flex items-center gap-2"><Package className="w-5 h-5 text-[#2563EB]" /> จัดการสินค้า</h3>
                   <button 
                     onClick={() => setIsAddingProduct(true)}
-                    className="bg-[#3B82F6] hover:bg-[#1D4ED8] text-white font-bold py-2 px-4 rounded-xl text-xs transition-colors flex items-center gap-2"
+                    className="bg-purple-600 hover:bg-[#1D4ED8] text-white font-bold py-2 px-4 rounded-xl text-xs transition-colors flex items-center gap-2"
                   >
                     <Plus className="w-4 h-4"/> เพิ่มสินค้า
                   </button>
@@ -1304,7 +1304,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                             </div>
                           </td>
                           <td className="px-4 py-4">
-                            <span className={`px-2 py-1 rounded text-xs font-bold ${p.stock > 0 ? 'bg-emerald-500/10 text-emerald-600' : 'bg-[#3B82F6]/10 text-[#3B82F6]'}`}>
+                            <span className={`px-2 py-1 rounded text-xs font-bold ${p.stock > 0 ? 'bg-emerald-500/10 text-emerald-600' : 'bg-purple-600/10 text-purple-500'}`}>
                               {p.stock}
                             </span>
                           </td>
@@ -1333,7 +1333,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                       Swal.fire('ข้อผิดพลาด', err.response?.data?.error || err.message, 'error');
                                     }
                                   }}
-                                  className="p-2 border border-blue-200 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
+                                  className="p-2 border border-blue-200 bg-blue-50 text-purple-500 hover:bg-blue-100 rounded-lg transition-colors"
                                   title="โหลดสต๊อก TXT เพื่อดูรายบรรทัด"
                                 >
                                     <FileText className="w-4 h-4" />
@@ -1425,7 +1425,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           </div>
                           <div className="text-right">
                             <div className="text-xs text-zinc-500">สต๊อก</div>
-                            <span className={`px-2 py-0.5 rounded text-xs font-bold mt-1 inline-block ${p.stock > 0 ? 'bg-emerald-500/10 text-emerald-600' : 'bg-[#3B82F6]/10 text-[#3B82F6]'}`}>
+                            <span className={`px-2 py-0.5 rounded text-xs font-bold mt-1 inline-block ${p.stock > 0 ? 'bg-emerald-500/10 text-emerald-600' : 'bg-purple-600/10 text-purple-500'}`}>
                               {p.stock}
                             </span>
                           </div>
@@ -1455,7 +1455,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                   Swal.fire('ข้อผิดพลาด', err.response?.data?.error || err.message, 'error');
                                 }
                               }}
-                              className="p-2 border border-blue-200 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg flex justify-center items-center"
+                              className="p-2 border border-blue-200 bg-blue-50 text-purple-500 hover:bg-blue-100 rounded-lg flex justify-center items-center"
                             >
                                 <FileText className="w-4 h-4" />
                             </button>
@@ -1544,7 +1544,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <button onClick={bulkDeleteKeys} className="bg-red-500 hover:bg-red-600 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ">
                     <Trash2 className="w-4 h-4" /> ลบคีย์หลายรายการ
                   </button>
-                  <button onClick={addLicenseKey} className="bg-[#3B82F6] hover:bg-[#1D4ED8] text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ">
+                  <button onClick={addLicenseKey} className="bg-purple-600 hover:bg-[#1D4ED8] text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ">
                     <Plus className="w-4 h-4" /> สร้างคีย์เพิ่ม
                   </button>
                 </div>
@@ -1659,7 +1659,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     <h3 className="font-bold text-white flex items-center gap-2"><Ban className="w-5 h-5 text-[#2563EB]" /> IP Access Control</h3>
                     <p className="text-zinc-500 text-xs mt-1">แบนผู้ใช้งานที่ไม่พึงประสงค์</p>
                   </div>
-                  <button onClick={blockIP} className="bg-[#3B82F6] hover:bg-[#1D4ED8] text-white px-6 py-2.5 rounded-2xl text-xs font-bold transition-all flex items-center gap-2 ">
+                  <button onClick={blockIP} className="bg-purple-600 hover:bg-[#1D4ED8] text-white px-6 py-2.5 rounded-2xl text-xs font-bold transition-all flex items-center gap-2 ">
                      <Ban className="w-4 h-4" /> แบน IP ใหม่
                   </button>
                </div>
@@ -1678,8 +1678,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         <tr key={i} className="border-b border-white/5 hover:bg-[#121417]/50 transition-colors">
                           <td className="p-4">
                             <div className="flex items-center gap-2">
-                              <span className="text-[#3B82F6] font-bold tracking-tight">{ip.ip}</span>
-                              <button onClick={() => { navigator.clipboard.writeText(ip.ip); Swal.fire({ title: 'Copied!', text: 'คัดลอก IP สำเร็จ', icon: 'success', timer: 1000, showConfirmButton: false, confirmButtonColor: '#16a34a' }); }} className="text-zinc-400 hover:text-[#3B82F6]"><Copy className="w-3 h-3" /></button>
+                              <span className="text-purple-500 font-bold tracking-tight">{ip.ip}</span>
+                              <button onClick={() => { navigator.clipboard.writeText(ip.ip); Swal.fire({ title: 'Copied!', text: 'คัดลอก IP สำเร็จ', icon: 'success', timer: 1000, showConfirmButton: false, confirmButtonColor: '#16a34a' }); }} className="text-zinc-400 hover:text-purple-500"><Copy className="w-3 h-3" /></button>
                             </div>
                           </td>
                           <td className="p-4 text-zinc-500 italic">"{ip.reason}"</td>
@@ -1851,7 +1851,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
                       <div className="space-y-4">
                         <label className="block text-sm font-bold text-zinc-700 flex items-center gap-2">
-                           <Users className="w-4 h-4 text-gray-500" /> อีเมลติดต่อ (Support)
+                           <Users className="w-4 h-4 text-zinc-500" /> อีเมลติดต่อ (Support)
                         </label>
                         <input 
                           type="email"
@@ -1865,7 +1865,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       <div className="flex items-end">
                         <button 
                           onClick={handleSaveSettings}
-                          className="w-full bg-zinc-900 text-white px-8 py-5 rounded-2xl text-sm font-black hover:bg-zinc-800 transition-all active:scale-[0.98]  shadow-black/10 uppercase tracking-widest flex items-center justify-center gap-3"
+                          className="w-full bg-zinc-900 text-white px-8 py-5 rounded-2xl text-sm font-black hover:bg-gray-200 transition-all active:scale-[0.98]  shadow-black/10 uppercase tracking-widest flex items-center justify-center gap-3"
                         >
                           <Settings className="w-5 h-5" /> บันทึกการตั้งค่า
                         </button>
@@ -1888,7 +1888,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                               <button 
                                 onClick={() => musicFileRef.current?.click()}
                                 disabled={uploadingMusic}
-                                className="flex items-center gap-2 text-xs font-bold text-[#3B82F6] hover:text-[#3B82F6]/80 transition-colors disabled:opacity-50"
+                                className="flex items-center gap-2 text-xs font-bold text-purple-500 hover:text-purple-500/80 transition-colors disabled:opacity-50"
                               >
                                 {uploadingMusic ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5" />}
                                 อัพโหลดไฟล์เสียง
@@ -2002,7 +2002,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                               checked={siteSettings.popup_enabled}
                               onChange={(e) => setSiteSettings({ ...siteSettings, popup_enabled: e.target.checked })}
                             />
-                            <div className={`w-5 h-5 rounded border-2 transition-all duration-300 flex items-center justify-center ${siteSettings.popup_enabled ? 'bg-[#3B82F6] border-[#3B82F6]' : 'bg-[#121417] border-white/20 group-hover:border-zinc-400'}`}>
+                            <div className={`w-5 h-5 rounded border-2 transition-all duration-300 flex items-center justify-center ${siteSettings.popup_enabled ? 'bg-purple-600 border-[#3B82F6]' : 'bg-[#121417] border-white/20 group-hover:border-zinc-400'}`}>
                               {siteSettings.popup_enabled && <Check className="w-3.5 h-3.5 text-white" />}
                             </div>
                           </div>
@@ -2044,7 +2044,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                               };
                               input.click();
                             }}
-                            className="px-6 bg-[#3B82F6]/10 text-[#3B82F6] rounded-xl font-bold hover:bg-[#3B82F6]/20 flex items-center justify-center whitespace-nowrap gap-2 transition-all"
+                            className="px-6 bg-purple-600/10 text-purple-500 rounded-xl font-bold hover:bg-purple-600/20 flex items-center justify-center whitespace-nowrap gap-2 transition-all"
                           >
                             <Upload className="w-4 h-4"/> อัพโหลดภาพ
                           </button>
@@ -2110,7 +2110,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                  });
                                }
                              }}
-                             className="text-xs font-bold text-[#3B82F6] hover:text-[#3B82F6]/80 flex items-center gap-1.5"
+                             className="text-xs font-bold text-purple-500 hover:text-purple-500/80 flex items-center gap-1.5"
                            >
                              <Globe className="w-4 h-4" /> ดึง Proxy ล่าสุด (Proxifly)
                            </button>
@@ -2132,7 +2132,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                checked={siteSettings.auto_proxy !== false}
                                onChange={(e) => setSiteSettings({ ...siteSettings, auto_proxy: e.target.checked })}
                              />
-                             <div className={`w-5 h-5 rounded border-2 transition-all duration-300 flex items-center justify-center ${siteSettings.auto_proxy !== false ? 'bg-[#3B82F6] border-[#3B82F6]' : 'bg-[#121417] border-white/20 group-hover:border-zinc-400'}`}>
+                             <div className={`w-5 h-5 rounded border-2 transition-all duration-300 flex items-center justify-center ${siteSettings.auto_proxy !== false ? 'bg-purple-600 border-[#3B82F6]' : 'bg-[#121417] border-white/20 group-hover:border-zinc-400'}`}>
                                {siteSettings.auto_proxy !== false && <Check className="w-3.5 h-3.5 text-white" />}
                              </div>
                            </div>
@@ -2168,7 +2168,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <div className="flex items-end pt-4">
                     <button 
                       onClick={handleSaveSettings}
-                      className="w-full bg-[#3B82F6] text-white px-8 py-4 rounded-2xl text-sm font-black hover:bg-[#3B82F6]/80 transition-all flex items-center justify-center gap-3  "
+                      className="w-full bg-purple-600 text-white px-8 py-4 rounded-2xl text-sm font-black hover:bg-purple-600/80 transition-all flex items-center justify-center gap-3  "
                     >
                       <Image className="w-5 h-5" /> บันทึกการตั้งค่าป้ายโฆษณา
                     </button>

@@ -158,7 +158,7 @@ export const ToolsView: React.FC<ToolsViewProps> = ({ setActiveView }) => {
                   placeholder="ค้นหาเครื่องมือ..." 
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-black/40 backdrop-blur-md border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all font-medium placeholder:text-zinc-600 shadow-inner"
+                  className="w-full bg-black/40 backdrop-blur-sm backdrop-blur-md border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all font-medium placeholder:text-zinc-600 shadow-inner"
                 />
               </div>
             </div>
@@ -177,7 +177,7 @@ export const ToolsView: React.FC<ToolsViewProps> = ({ setActiveView }) => {
               onClick={() => setActiveCategory(cat.id)}
               className={`px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-300 ${
                 activeCategory === cat.id 
-                  ? 'bg-blue-600 text-white shadow-[0_0_20px_-5px_rgba(37,99,235,0.4)] border border-blue-500' 
+                  ? 'bg-purple-600 text-white shadow-[0_0_20px_-5px_rgba(37,99,235,0.4)] border border-blue-500' 
                   : 'bg-[#121417] text-zinc-400 border border-white/5 hover:bg-white/5 hover:text-white'
               }`}
             >
@@ -251,7 +251,7 @@ export const ToolsView: React.FC<ToolsViewProps> = ({ setActiveView }) => {
 
                   {/* Content Area */}
                   <div className="flex-1 flex flex-col relative z-10">
-                    <h3 className="text-xl font-black text-white mb-3 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-zinc-400 transition-all">
+                    <h3 className="text-xl font-black text-white mb-3 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-purple-600 group-hover:to-blue-600 transition-all">
                       {tool.name}
                     </h3>
                     <p className="text-zinc-500 text-sm leading-relaxed mb-8 font-medium">

@@ -57,7 +57,7 @@ export const AdminBotManagement: React.FC = () => {
             <button
                 onClick={handleSave}
                 disabled={isSaving}
-                className="bg-[#3B82F6] text-white hover:bg-[#1D4ED8] px-6 py-3 rounded-2xl font-bold flex items-center gap-2 transition-all shadow-md shadow-lg/20"
+                className="bg-purple-600 text-white hover:bg-[#1D4ED8] px-6 py-3 rounded-2xl font-bold flex items-center gap-2 transition-all shadow-md shadow-lg/20"
             >
                 <Save className="w-5 h-5" /> {isSaving ? "Saving..." : "บันทึกสคริปต์"}
             </button>
@@ -88,7 +88,7 @@ export const AdminBotManagement: React.FC = () => {
         {/* Config Editor */}
         <div className="lg:col-span-2 bg-[#121417] border border-white/5 p-6 rounded-xl relative overflow-hidden flex flex-col">
             <h3 className="text-white font-bold mb-4 flex items-center gap-2">
-                <Terminal className="w-5 h-5 text-[#3B82F6]" />
+                <Terminal className="w-5 h-5 text-purple-500" />
                 ตัวจัดการสคริปต์ bot.py
             </h3>
             <textarea

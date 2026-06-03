@@ -15,11 +15,11 @@ export const KeyModal: React.FC<KeyModalProps> = ({ show, onClose, vipTab, redee
   return (
     <div className="fixed inset-0 bg-zinc-950/90 flex items-center justify-center p-4 z-[70]  font-sans animate-in zoom-in-95 duration-200 overflow-y-auto">
       <div className="bg-zinc-900 border-zinc-800 border border-[#3B82F6]/25 rounded-2xl p-6 sm:p-8 max-w-lg w-full shadow-lg relative overflow-hidden my-8">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-[#3B82F6]/5  rounded-full pointer-events-none"></div>
+        <div className="absolute top-0 right-0 w-64 h-64 bg-purple-600/5  rounded-full pointer-events-none"></div>
 
         <div className="text-center mb-6 relative z-10">
-            <div className="w-16 h-16 bg-[#3B82F6]/10 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-[#3B82F6]/20">
-              <Crown className="w-8 h-8 text-[#3B82F6] drop-shadow-lg" />
+            <div className="w-16 h-16 bg-purple-600/10 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-[#3B82F6]/20">
+              <Crown className="w-8 h-8 text-purple-500 drop-shadow-lg" />
             </div>
             <h2 className="text-2xl font-bold text-white mb-2 tracking-tight">VIP MEMBER</h2>
             <div className="text-sm text-zinc-400 mb-6 space-y-2">
@@ -58,7 +58,7 @@ export const KeyModal: React.FC<KeyModalProps> = ({ show, onClose, vipTab, redee
           )}
         </div>
 
-        <button onClick={onClose} className="absolute top-6 right-6 text-zinc-500 hover:text-white transition-colors bg-zinc-800/50 hover:bg-zinc-800 p-2 rounded-full z-20">
+        <button onClick={onClose} className="absolute top-6 right-6 text-zinc-500 hover:text-white transition-colors bg-gray-100 hover:bg-gray-200 p-2 rounded-full z-20">
           <X className="w-4 h-4" />
         </button>
       </div>

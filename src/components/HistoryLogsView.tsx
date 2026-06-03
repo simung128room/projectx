@@ -58,13 +58,13 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({ usedKeysHistor
 
     if (isPurchase) {
       return (
-        <div className="fixed inset-0 bg-black/60  z-50 flex items-center justify-center p-4 animate-in fade-in duration-200" onClick={() => setSelectedItem(null)}>
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm  z-50 flex items-center justify-center p-4 animate-in fade-in duration-200" onClick={() => setSelectedItem(null)}>
           <div className="bg-[#0B0D0F] rounded-xl w-full max-w-md overflow-hidden relative shadow-2xl" onClick={e => e.stopPropagation()}>
             <div className="p-6 pb-4 relative">
               <button onClick={() => setSelectedItem(null)} className="absolute top-4 right-4 text-zinc-400 hover:text-zinc-400 transition-colors">
                 <X className="w-6 h-6" />
               </button>
-              <h3 className="text-2xl font-black text-[#3B82F6] mb-1">รายละเอียดการซื้อ</h3>
+              <h3 className="text-2xl font-black text-purple-500 mb-1">รายละเอียดการซื้อ</h3>
               <p className="text-zinc-500 text-sm font-medium">หมายเลขบิล: <span className="font-mono text-white bg-[#121820] px-2 py-0.5 rounded-md">BILL-{item.id?.toUpperCase()}</span></p>
             </div>
 
@@ -121,7 +121,7 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({ usedKeysHistor
             <div className="p-6 mt-2">
               <button 
                 onClick={() => setSelectedItem(null)}
-                className="w-full py-4 bg-[#3B82F6] hover:bg-[#1D4ED8] text-white rounded-2xl text-base font-black transition-all shadow-md shadow-lg/20"
+                className="w-full py-4 bg-purple-600 hover:bg-[#1D4ED8] text-white rounded-2xl text-base font-black transition-all shadow-md shadow-lg/20"
               >
                 ปิด
               </button>
@@ -132,7 +132,7 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({ usedKeysHistor
     }
 
     return (
-      <div className="fixed inset-0 bg-black/40  z-50 flex items-center justify-center p-4 animate-in fade-in duration-200" onClick={() => setSelectedItem(null)}>
+      <div className="fixed inset-0 bg-black/40 backdrop-blur-sm  z-50 flex items-center justify-center p-4 animate-in fade-in duration-200" onClick={() => setSelectedItem(null)}>
         <div className="bg-[#0B0D0F] rounded-xl w-full max-w-md overflow-hidden shadow-2xl relative" onClick={e => e.stopPropagation()}>
           <div className="flex justify-between items-center p-6 border-b border-white/5">
             <h3 className="font-bold text-lg text-white">รายละเอียดรายการ</h3>
@@ -164,7 +164,7 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({ usedKeysHistor
                 </div>
                 <div className="flex justify-between items-center mt-2">
                    <span className="text-zinc-500 text-sm font-medium">จำนวนเงิน</span>
-                   <span className="text-xl font-black text-blue-600">+{item.amount?.toLocaleString() || 0} ฿</span>
+                   <span className="text-xl font-black text-purple-500">+{item.amount?.toLocaleString() || 0} ฿</span>
                 </div>
               </>
             )}
@@ -186,7 +186,7 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({ usedKeysHistor
           <div className="p-4 bg-[#121417] border-t border-white/5 flex justify-end">
              <button 
                onClick={() => setSelectedItem(null)}
-               className="px-6 py-3 bg-zinc-900 hover:bg-zinc-800 text-white rounded-xl text-sm font-bold transition-colors w-full"
+               className="px-6 py-3 bg-zinc-900 hover:bg-gray-200 text-white rounded-xl text-sm font-bold transition-colors w-full"
              >
                ปิดหน้าต่าง
              </button>
@@ -204,7 +204,7 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({ usedKeysHistor
 
     if (type === 'topup') {
       title = `เติมเงินเข้าระบบ (${item.type || 'ผ่านระบบ'})`;
-      amountNode = <span className="font-black text-blue-600 text-base md:text-lg">+{(item.amount || 0).toLocaleString()} ฿</span>;
+      amountNode = <span className="font-black text-purple-500 text-base md:text-lg">+{(item.amount || 0).toLocaleString()} ฿</span>;
     } else if (type === 'key_use') {
       title = "ใช้งานคีย์ (Redeem)";
       amountNode = <span className="font-black text-emerald-600 text-base md:text-lg">-</span>;
@@ -266,7 +266,7 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({ usedKeysHistor
       {/* Header */}
       <div className="mb-8 pl-2">
         <h1 className="text-3xl font-black mb-2 flex items-center gap-3 tracking-tight">
-            <History className="w-8 h-8 text-[#3B82F6]" /> 
+            <History className="w-8 h-8 text-purple-500" /> 
             ประวัติสั่งซื้อ
         </h1>
         <p className="text-sm font-medium text-zinc-500">History / Logs ประวัติการทำรายการต่างๆ ของคุณในระบบ</p>
@@ -288,7 +288,7 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({ usedKeysHistor
                 key={tab.id}
                 onClick={() => setFilter(tab.id as any)}
                 className={`flex items-center gap-2 px-4 py-2.5 font-bold text-xs sm:text-sm rounded-xl transition-all border ${
-                  active ? 'bg-[#3B82F6] text-white border-[#3B82F6] shadow-md shadow-lg' : 'text-zinc-500 border-transparent hover:text-[#3B82F6] hover:bg-[#121417] hover:border-white/10'
+                  active ? 'bg-purple-600 text-white border-[#3B82F6] shadow-md shadow-lg' : 'text-zinc-500 border-transparent hover:text-purple-500 hover:bg-[#121417] hover:border-white/10'
                 }`}
               >
                 <tab.icon className="w-4 h-4 shrink-0" />
@@ -321,7 +321,7 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({ usedKeysHistor
         {filter === 'topup' && (
           <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-right-8 duration-300">
             <h2 className="text-xl font-bold flex items-center gap-2 text-white mb-2 pl-2">
-              <Wallet className="w-5 h-5 text-blue-600" /> ประวัติการเติมเงิน
+              <Wallet className="w-5 h-5 text-purple-500" /> ประวัติการเติมเงิน
             </h2>
             {topupHistory.length === 0 ? (
               <div className="py-16 flex flex-col items-center justify-center text-zinc-400 border border-dashed border-white/20 rounded-xl bg-[#121417]">

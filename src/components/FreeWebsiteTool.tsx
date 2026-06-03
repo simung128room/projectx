@@ -36,7 +36,7 @@ const THEMES: ThemeConfig[] = [
     name: 'Lime Cyber',
     bgClass: 'bg-[#040804]',
     accentClass: 'text-lime-400',
-    btnClass: 'bg-lime-500 hover:bg-lime-400 text-black shadow-lime-500/10',
+    btnClass: 'bg-lime-500 hover:bg-lime-400 text-white shadow-lime-500/10',
     borderClass: 'border-lime-500/20',
     textColor: 'text-lime-200',
     accentGlow: 'from-lime-500/25 to-transparent'
@@ -56,7 +56,7 @@ const THEMES: ThemeConfig[] = [
     name: 'Onyx Slate',
     bgClass: 'bg-[#090D12]',
     accentClass: 'text-zinc-300',
-    btnClass: 'bg-zinc-100 hover:bg-white text-black shadow-zinc-500/10',
+    btnClass: 'bg-zinc-100 hover:bg-[#050505] text-white shadow-zinc-500/10',
     borderClass: 'border-zinc-500/20',
     textColor: 'text-zinc-400',
     accentGlow: 'from-zinc-500/15 to-transparent'
@@ -330,7 +330,7 @@ export const FreeWebsiteTool: React.FC<FreeWebsiteToolProps> = ({ userPlan, prod
                               <span className="text-xs font-bold text-white">{theme.name}</span>
                             </div>
                             <div className="flex gap-1">
-                              <span className="w-4 h-1.5 rounded-full bg-zinc-700"></span>
+                              <span className="w-4 h-1.5 rounded-full bg-gray-200"></span>
                               <span className={`w-5 h-1.5 rounded-full ${isSelected ? 'bg-purple-400' : 'bg-zinc-500'}`}></span>
                             </div>
                           </div>
@@ -533,7 +533,7 @@ export const FreeWebsiteTool: React.FC<FreeWebsiteToolProps> = ({ userPlan, prod
                       {/* Simulated Home Button of Phone */}
                       {previewDevice === 'mobile' && (
                         <div className="absolute bottom-1 inset-x-0 flex justify-center">
-                          <div className="w-24 h-1 bg-zinc-700 rounded-full"></div>
+                          <div className="w-24 h-1 bg-gray-200 rounded-full"></div>
                         </div>
                       )}
                     </motion.div>

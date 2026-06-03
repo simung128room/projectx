@@ -177,9 +177,9 @@ export default function AdminStockManagement({ products, categories, setProducts
 
          {totalPages > 1 && (
             <div className="flex items-center gap-4 justify-between bg-[#0B0D0F] border border-white/5 rounded-2xl p-4 mt-4">
-               <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="px-5 py-2 bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 rounded-xl text-white text-sm font-bold disabled:opacity-50 disabled:cursor-not-allowed transition-colors">ก่อนหน้า</button>
+               <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="px-5 py-2 bg-zinc-900 border border-zinc-800 hover:bg-gray-200 rounded-xl text-white text-sm font-bold disabled:opacity-50 disabled:cursor-not-allowed transition-colors">ก่อนหน้า</button>
                <span className="text-zinc-400 text-sm font-bold">หน้า {page} จาก {totalPages}</span>
-               <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="px-5 py-2 bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 rounded-xl text-white text-sm font-bold disabled:opacity-50 disabled:cursor-not-allowed transition-colors">ถัดไป</button>
+               <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="px-5 py-2 bg-zinc-900 border border-zinc-800 hover:bg-gray-200 rounded-xl text-white text-sm font-bold disabled:opacity-50 disabled:cursor-not-allowed transition-colors">ถัดไป</button>
             </div>
          )}
       </div>
@@ -205,13 +205,13 @@ export default function AdminStockManagement({ products, categories, setProducts
               {productsByCategory.map((cat: any) => (
                  <div key={cat.id} className="bg-[#0B0D0F] border border-white/5 rounded-xl p-6">
                     <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                        <LayoutGrid className="w-5 h-5 text-[#3B82F6]" /> {cat.name}
+                        <LayoutGrid className="w-5 h-5 text-purple-500" /> {cat.name}
                     </h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                        {cat.products.map((p: any) => {
                            const stockCount = p.stockData?.length || p.stock || 0;
                            return (
-                               <div key={p.id} onClick={() => setSelectedProduct(p)} className="p-4 bg-[#121417] border border-white/5 hover:border-[#3B82F6]/30 rounded-2xl cursor-pointer hover:bg-[#3B82F6]/5 transition-all flex items-center justify-between group">
+                               <div key={p.id} onClick={() => setSelectedProduct(p)} className="p-4 bg-[#121417] border border-white/5 hover:border-[#3B82F6]/30 rounded-2xl cursor-pointer hover:bg-purple-600/5 transition-all flex items-center justify-between group">
                                   <div>
                                       <p className="font-bold text-zinc-300 group-hover:text-white transition-colors">{p.name}</p>
                                       <div className="flex items-center gap-2 mt-2">
@@ -220,7 +220,7 @@ export default function AdminStockManagement({ products, categories, setProducts
                                           </span>
                                       </div>
                                   </div>
-                                  <div className="w-8 h-8 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center opacity-50 group-hover:opacity-100 group-hover:bg-[#3B82F6] group-hover:border-[#3B82F6] transition-all">
+                                  <div className="w-8 h-8 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center opacity-50 group-hover:opacity-100 group-hover:bg-purple-600 group-hover:border-[#3B82F6] transition-all">
                                       <Edit2 className="w-3 h-3 text-zinc-400 group-hover:text-white" />
                                   </div>
                                </div>

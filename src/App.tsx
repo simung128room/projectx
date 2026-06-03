@@ -299,7 +299,7 @@ function ElapsedTimeDisplay({
 
   if (elapsedTime === "00:00:00.000") return null;
   return (
-    <div className="px-3 py-1 bg-[#0a0d12] rounded-full border border-white/10 text-xs font-mono text-zinc-400 font-bold">
+    <div className="px-3 py-1 bg-[#121212] rounded-full border border-white/10 text-xs font-mono text-zinc-400 font-bold">
       {elapsedTime}
     </div>
   );
@@ -376,10 +376,6 @@ function AppContent() {
     }
   });
 
-  const [isMusicExpanded, setIsMusicExpanded] = useState(false);
-  const audioRef = useRef<HTMLAudioElement>(null);
-  const ytIframeRef = useRef<HTMLIFrameElement>(null);
-  const [ytPlaying, setYtPlaying] = useState(false);
   const [deferMedia, setDeferMedia] = useState(true);
 
   useEffect(() => {
@@ -389,114 +385,7 @@ function AppContent() {
     return () => clearTimeout(timer);
   }, []);
 
-  const formatSpotifyEmbedUrl = (url: string, autoplay: boolean) => {
-    if (!url) return "";
-    let embedUrl = url;
-
-    // Check if it's a direct audio file
-    if (
-      url.match(/\.(mp3|wav|ogg|m4a)$/) ||
-      url.includes("drive.google.com/uc") ||
-      url.startsWith("data:audio")
-    ) {
-      return url;
-    }
-
-    // Handle YouTube
-    if (url.includes("youtube.com") || url.includes("youtu.be")) {
-      let videoId = "";
-      if (url.includes("v=")) {
-        videoId = url.split("v=")[1].split("&")[0];
-      } else if (url.includes("youtu.be/")) {
-        videoId = url.split("youtu.be/")[1].split("?")[0];
-      } else if (url.includes("embed/")) {
-        videoId = url.split("embed/")[1].split("?")[0];
-      }
-
-      if (videoId) {
-        // Use youtube-nocookie for better privacy and reliability
-        let yUrl = `https://www.youtube-nocookie.com/embed/${videoId}?rel=0&showinfo=0&controls=0&enablejsapi=1&loop=1&playlist=${videoId}&origin=${encodeURIComponent(window.location.origin)}&playsinline=1`;
-        if (autoplay) {
-          yUrl += "&autoplay=1&mute=1";
-        }
-        return yUrl;
-      }
-    }
-
-    // Convert regular link to embed link
-    if (url.includes("spotify.com") && !url.includes("spotify.com/embed")) {
-      const segments = url.split("spotify.com/")[1]?.split("?")[0];
-      if (segments) {
-        embedUrl = `https://open.spotify.com/embed/${segments}`;
-      }
-    }
-
-    // Ensure it starts with https
-    if (embedUrl.startsWith("open.spotify.com")) {
-      embedUrl = "https://" + embedUrl;
-    }
-
-    // Add autoplay parameter
-    if (autoplay) {
-      embedUrl += embedUrl.includes("?") ? "&autoplay=1" : "?autoplay=1";
-    }
-    return embedUrl;
-  };
-
-  useEffect(() => {
-    if (
-      siteSettings.spotify_autoplay &&
-      siteSettings.spotify_url &&
-      (siteSettings.spotify_url.match(/\.(mp3|wav|ogg|m4a)$/) ||
-        siteSettings.spotify_url.includes("drive.google.com/uc") ||
-        siteSettings.spotify_url.startsWith("data:audio"))
-    ) {
-      const playAudio = () => {
-        if (audioRef.current) {
-          audioRef.current.play().catch(() => {
-            console.log("Autoplay blocked, waiting for user interaction");
-          });
-        }
-        window.removeEventListener("click", playAudio);
-      };
-      window.addEventListener("click", playAudio);
-    }
-  }, [siteSettings.spotify_autoplay, siteSettings.spotify_url]);
-
-  useEffect(() => {
-    if (
-      siteSettings.spotify_url &&
-      (siteSettings.spotify_url.includes("youtube.com") ||
-        siteSettings.spotify_url.includes("youtu.be"))
-    ) {
-      const handleFirstInteraction = () => {
-        if (ytIframeRef.current && ytIframeRef.current.contentWindow) {
-          ytIframeRef.current.contentWindow.postMessage(
-            JSON.stringify({ event: "command", func: "unMute", args: [] }),
-            "*",
-          );
-          if (siteSettings.spotify_autoplay) {
-            ytIframeRef.current.contentWindow.postMessage(
-              JSON.stringify({ event: "command", func: "playVideo", args: [] }),
-              "*",
-            );
-            setYtPlaying(true);
-          }
-        }
-        window.removeEventListener("click", handleFirstInteraction);
-        window.removeEventListener("keydown", handleFirstInteraction);
-        window.removeEventListener("scroll", handleFirstInteraction);
-      };
-      window.addEventListener("click", handleFirstInteraction);
-      window.addEventListener("keydown", handleFirstInteraction);
-      window.addEventListener("scroll", handleFirstInteraction);
-      return () => {
-        window.removeEventListener("click", handleFirstInteraction);
-        window.removeEventListener("keydown", handleFirstInteraction);
-        window.removeEventListener("scroll", handleFirstInteraction);
-      };
-    }
-  }, [siteSettings.spotify_url, siteSettings.spotify_autoplay]);
+  // Removed music state and useEffects
 
   // Home Store State (Moved up to prevent TDZ)
   const defaultProducts: Product[] = [
@@ -1402,7 +1291,7 @@ function AppContent() {
   const addLog = (
     text: string,
     iconName: string,
-    colorClass: string = "text-gray-300",
+    colorClass: string = "text-zinc-300",
   ) => {
     setLogs((prev) => {
       const nextLogs = [
@@ -1526,7 +1415,7 @@ function AppContent() {
     const { value: formValues } = await Swal.fire({
       title: "สร้างคีย์ใหม่",
       html:
-        '<select id="swal-input1" class="swal2-input bg-[#0B0F14] border-white/10 text-white w-full">' +
+        '<select id="swal-input1" class="swal2-input bg-[#050505] border-white/10 text-white w-full">' +
         '<option value="Day">1 วัน (Day)</option>' +
         '<option value="Week">7 วัน (Week)</option>' +
         '<option value="Month">1 เดือน (Month)</option>' +
@@ -1534,7 +1423,7 @@ function AppContent() {
         '<option value="Year">1 ปี (Year)</option>' +
         '<option value="Lifetime">ถาวร (Lifetime)</option>' +
         "</select>" +
-        '<input id="swal-input2" class="swal2-input bg-[#0B0F14] border-white/10 text-white w-full" placeholder="จำนวนคีย์ (1-50)" type="number" value="1">',
+        '<input id="swal-input2" class="swal2-input bg-[#050505] border-white/10 text-white w-full" placeholder="จำนวนคีย์ (1-50)" type="number" value="1">',
       focusConfirm: false,
       background: "#ffffff",
       color: "#18181b",
@@ -1582,8 +1471,8 @@ function AppContent() {
     const { value: ipData } = await Swal.fire({
       title: "บล็อค IP ผู้ใช้",
       html:
-        '<input id="swal-ip" class="swal2-input bg-[#0B0F14] border-white/10 text-white w-full" placeholder="IP Address เช่น 1.1.1.1">' +
-        '<input id="swal-reason" class="swal2-input bg-[#0B0F14] border-white/10 text-white w-full" placeholder="เหตุผลการบล็อค">',
+        '<input id="swal-ip" class="swal2-input bg-[#050505] border-white/10 text-white w-full" placeholder="IP Address เช่น 1.1.1.1">' +
+        '<input id="swal-reason" class="swal2-input bg-[#050505] border-white/10 text-white w-full" placeholder="เหตุผลการบล็อค">',
       focusConfirm: false,
       background: "#ffffff",
       color: "#18181b",
@@ -1653,7 +1542,7 @@ function AppContent() {
       title: "ลบคีย์หลายรายการ",
       html: `
         <div class="text-left text-sm space-y-2 mb-4">
-          <div><span class="text-zinc-500">คีย์ทั้งหมด:</span> <span class="font-bold text-[#3B82F6]">${totalAll}</span> รายการ</div>
+          <div><span class="text-zinc-500">คีย์ทั้งหมด:</span> <span class="font-bold text-purple-500">${totalAll}</span> รายการ</div>
           <div><span class="text-zinc-500">ยังไม่ได้ใช้:</span> <span class="font-bold text-emerald-500">${totalActive}</span> รายการ</div>
           <div><span class="text-zinc-500">ใช้แล้ว:</span> <span class="font-bold text-amber-500">${totalUsed}</span> รายการ</div>
         </div>
@@ -2181,7 +2070,7 @@ function AppContent() {
   if (isIPBlocked)
     return (
       <div className="min-h-screen bg-[#0B0D0F] flex items-center justify-center p-4">
-        <div className="w-full max-w-lg bg-[#3B82F6]/5 border border-[#3B82F6]/20 rounded-xl p-12 text-center relative overflow-hidden">
+        <div className="w-full max-w-lg bg-purple-600/5 border border-[#3B82F6]/20 rounded-xl p-12 text-center relative overflow-hidden">
           <ShieldAlert className="w-20 h-20 text-[#2563EB] mx-auto mb-6 animate-pulse" />
           <h1 className="text-3xl font-bold text-[#2563EB] mb-4 uppercase tracking-tighter">
             Access Revoked
@@ -2191,12 +2080,12 @@ function AppContent() {
             ถูกระงับการเข้าถึงระบบเนื่องจากละเมิดข้อตกลงการใช้งานหรือพบพฤติกรรมที่น่าสงสัย
             หากคุณคิดว่าเป็นความผิดพลาด กรุณาติดต่อผู้ดูแลระบบ APEXSTORE
           </p>
-          <div className="bg-black/50 rounded-2xl p-4 text-[10px] text-zinc-500 font-mono mb-8">
+          <div className="bg-white/50 rounded-2xl p-4 text-[10px] text-zinc-500 font-mono mb-8">
             Error Code: APEXSTORE_SECURITY_BLOCK_L4
           </div>
           <button
             onClick={() => window.location.reload()}
-            className="bg-[#3B82F6] hover:bg-[#2563EB] text-white px-8 py-3 rounded-2xl text-xs font-bold transition-all"
+            className="bg-purple-600 hover:bg-[#2563EB] text-white px-8 py-3 rounded-2xl text-xs font-bold transition-all"
           >
             TRY RECONNECTING
           </button>
@@ -2223,7 +2112,7 @@ function AppContent() {
     );
 
   return (
-    <div className="min-h-screen w-full bg-[#050505] text-[#ffffff] font-sans selection:bg-white/20 flex flex-col lg:flex-row relative">
+    <div className="min-h-screen w-full bg-[#050505] text-white font-sans selection:bg-black/20 flex flex-col lg:flex-row relative">
       {useCustomCursor && <CustomCursor />}
       <Suspense fallback={null}>
         <PopupBanner
@@ -2234,10 +2123,10 @@ function AppContent() {
       </Suspense>
 
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex flex-col w-[280px] shrink-0 bg-[#0a0a0a] border-r border-[#1e1e1e] h-screen sticky top-0 p-6 z-[60] overflow-y-auto no-scrollbar">
+      <aside className="hidden lg:flex flex-col w-[280px] shrink-0 bg-[#121212] border-r border-zinc-800 h-screen sticky top-0 p-6 z-[60] overflow-y-auto no-scrollbar">
         <div className="mb-10 w-full flex justify-start">
           <span 
-            className="font-changa text-3xl font-black italic tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-white via-zinc-200 to-zinc-400 drop-shadow-md hover:scale-105 active:scale-95 transition-all duration-205 cursor-pointer select-none"
+            className="font-changa text-3xl font-black italic tracking-wider text-purple-500 drop-shadow-md hover:scale-105 active:scale-95 transition-all duration-205 cursor-pointer select-none"
             onClick={handleLogoClick}
           >
             APEXSTORE
@@ -2245,13 +2134,13 @@ function AppContent() {
         </div>
         <div className="flex-1 space-y-1">
           <div className="flex items-center py-[8px] my-1">
-            <div className="flex-grow border-t border-[#1e1e1e]"></div>
+            <div className="flex-grow border-t border-zinc-800"></div>
             <span className="shrink-0 px-3 text-[10px] font-medium text-[#888888] uppercase tracking-[0.2em]">เมนู</span>
-            <div className="flex-grow border-t border-[#1e1e1e]"></div>
+            <div className="flex-grow border-t border-zinc-800"></div>
           </div>
           <button
             onClick={() => setActiveView("home")}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${activeView === "home" ? "bg-[#161616] text-[#ffffff] border border-[#1e1e1e] shadow-sm" : "text-[#888888] hover:bg-[#111111] hover:text-[#ffffff] border border-transparent"}`}
+            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${activeView === "home" ? "bg-[#161616] text-white border border-zinc-800 shadow-sm" : "text-[#888888] hover:bg-[#111111] hover:text-white border border-transparent"}`}
           >
             <Home className="w-[18px] h-[18px]" /> หน้าแรก
           </button>
@@ -2260,7 +2149,7 @@ function AppContent() {
               setActiveView("categories");
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${activeView === "categories" ? "bg-[#161616] text-[#ffffff] border border-[#1e1e1e] shadow-sm" : "text-[#888888] hover:bg-[#111111] hover:text-[#ffffff] border border-transparent"}`}
+            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${activeView === "categories" ? "bg-[#161616] text-white border border-zinc-800 shadow-sm" : "text-[#888888] hover:bg-[#111111] hover:text-white border border-transparent"}`}
           >
             <ShoppingCart className="w-[18px] h-[18px]" /> สินค้าทั้งหมด
           </button>
@@ -2269,7 +2158,7 @@ function AppContent() {
               setActiveView(user ? "wallet" : "login");
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${activeView === "wallet" ? "bg-[#161616] text-[#ffffff] border border-[#1e1e1e] shadow-sm" : "text-[#888888] hover:bg-[#111111] hover:text-[#ffffff] border border-transparent"}`}
+            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${activeView === "wallet" ? "bg-[#161616] text-white border border-zinc-800 shadow-sm" : "text-[#888888] hover:bg-[#111111] hover:text-white border border-transparent"}`}
           >
             <Wallet className="w-[18px] h-[18px]" /> เติมเงิน
           </button>
@@ -2290,7 +2179,7 @@ function AppContent() {
               setActiveView("free_website");
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${activeView === "free_website" ? "bg-[#161616] text-[#ffffff] border border-[#1e1e1e] shadow-sm" : "text-[#888888] hover:bg-[#111111] hover:text-[#ffffff] border border-transparent"}`}
+            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${activeView === "free_website" ? "bg-[#161616] text-white border border-zinc-800 shadow-sm" : "text-[#888888] hover:bg-[#111111] hover:text-white border border-transparent"}`}
           >
             <Globe className="w-[18px] h-[18px]" /> เปิดเว็บไซต์ฟรี
           </button>
@@ -2312,7 +2201,7 @@ function AppContent() {
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
             onMouseEnter={() => toolsImport()}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${activeView === "tools" ? "bg-[#161616] text-[#ffffff] border border-[#1e1e1e] shadow-sm" : "text-[#888888] hover:bg-[#111111] hover:text-[#ffffff] border border-transparent"}`}
+            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${activeView === "tools" ? "bg-[#161616] text-white border border-zinc-800 shadow-sm" : "text-[#888888] hover:bg-[#111111] hover:text-white border border-transparent"}`}
           >
             <Bot className="w-[18px] h-[18px]" /> เครื่องมือฟรี
           </button>
@@ -2326,7 +2215,7 @@ function AppContent() {
                     setActiveView("login");
                     window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
-                  className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all shadow-sm active:scale-95 ${activeView === "login" ? "bg-[#ffffff] text-[#0a0a0a]" : "bg-[#1e1e1e] hover:bg-[#ffffff] hover:text-[#0a0a0a] text-[#ffffff]"}`}
+                  className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all shadow-sm active:scale-95 ${activeView === "login" ? "bg-[#ffffff] text-[#0a0a0a]" : "bg-[#1e1e1e] hover:bg-[#ffffff] hover:text-[#0a0a0a] text-white"}`}
                 >
                   <LogIn className="w-[18px] h-[18px]" /> เข้าสู่ระบบ
                 </button>
@@ -2340,7 +2229,7 @@ function AppContent() {
                     setActiveView("signup");
                     window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
-                  className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all active:scale-95 border ${activeView === "signup" ? "bg-[#161616] text-[#ffffff] border-[#333333]" : "bg-transparent hover:bg-[#111111] text-[#888888] border-[#1e1e1e] hover:text-[#ffffff]"}`}
+                  className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all active:scale-95 border ${activeView === "signup" ? "bg-[#161616] text-white border-[#333333]" : "bg-transparent hover:bg-[#111111] text-[#888888] border-zinc-800 hover:text-white"}`}
                 >
                   <UserPlus className="w-[18px] h-[18px]" /> สมัครสมาชิก
                 </button>
@@ -2352,7 +2241,7 @@ function AppContent() {
             <>
               <button
                 onClick={() => setIsDesktopToolsOpen(!isDesktopToolsOpen)}
-                className="w-full flex items-center justify-between px-4 py-2.5 rounded-lg text-sm font-medium text-[#888888] hover:bg-[#111111] hover:text-[#ffffff] transition-all group mt-2"
+                className="w-full flex items-center justify-between px-4 py-2.5 rounded-lg text-sm font-medium text-[#888888] hover:bg-[#111111] hover:text-white transition-all group mt-2"
               >
                 <div className="flex items-center gap-3">
                   <Bot className="w-[18px] h-[18px]" /> เครื่องมือย่อย
@@ -2364,40 +2253,40 @@ function AppContent() {
               <div
                 className={`overflow-hidden transition-all duration-300 ease-in-out ${isDesktopToolsOpen ? "max-h-[800px] opacity-100" : "max-h-0 opacity-0"}`}
               >
-                <div className="flex flex-col gap-1 mt-1 pl-3 border-l border-[#1e1e1e] ml-6">
+                <div className="flex flex-col gap-1 mt-1 pl-3 border-l border-zinc-800 ml-6">
                   <button
                     onClick={() => setActiveView("telegram_catcher")}
-                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-md text-xs font-medium transition-all ${activeView === "telegram_catcher" ? "bg-[#161616] text-[#ffffff]" : "text-[#888888] hover:bg-[#111111] hover:text-[#ffffff]"}`}
+                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-md text-xs font-medium transition-all ${activeView === "telegram_catcher" ? "bg-[#161616] text-white" : "text-[#888888] hover:bg-[#111111] hover:text-white"}`}
                   >
                     <ArrowUpRight className="w-[14px] h-[14px]" /> ดักซองเทเลแกรม
                   </button>
                   <button
                     onClick={() => setActiveView("discord_catcher")}
-                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-md text-xs font-medium transition-all ${activeView === "discord_catcher" ? "bg-[#161616] text-[#ffffff]" : "text-[#888888] hover:bg-[#111111] hover:text-[#ffffff]"}`}
+                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-md text-xs font-medium transition-all ${activeView === "discord_catcher" ? "bg-[#161616] text-white" : "text-[#888888] hover:bg-[#111111] hover:text-white"}`}
                   >
                     <ArrowUpRight className="w-[14px] h-[14px]" /> ดักซองดิสคอร์ด
                   </button>
                   <button
                     onClick={() => setActiveView("discord_on")}
-                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-md text-xs font-medium transition-all ${activeView === "discord_on" ? "bg-[#161616] text-[#ffffff]" : "text-[#888888] hover:bg-[#111111] hover:text-[#ffffff]"}`}
+                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-md text-xs font-medium transition-all ${activeView === "discord_on" ? "bg-[#161616] text-white" : "text-[#888888] hover:bg-[#111111] hover:text-white"}`}
                   >
                     <ArrowUpRight className="w-[14px] h-[14px]" /> รันโทเค่นดิสคอร์ด
                   </button>
                   <button
                     onClick={() => setActiveView("discord_badge")}
-                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-md text-xs font-medium transition-all ${activeView === "discord_badge" ? "bg-[#161616] text-[#ffffff]" : "text-[#888888] hover:bg-[#111111] hover:text-[#ffffff]"}`}
+                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-md text-xs font-medium transition-all ${activeView === "discord_badge" ? "bg-[#161616] text-white" : "text-[#888888] hover:bg-[#111111] hover:text-white"}`}
                   >
                     <ArrowUpRight className="w-[14px] h-[14px]" /> รับตราอัตโนมัติ
                   </button>
                   <button
                     onClick={() => setActiveView("two_fa_generator")}
-                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-md text-xs font-medium transition-all ${activeView === "two_fa_generator" ? "bg-[#161616] text-[#ffffff]" : "text-[#888888] hover:bg-[#111111] hover:text-[#ffffff]"}`}
+                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-md text-xs font-medium transition-all ${activeView === "two_fa_generator" ? "bg-[#161616] text-white" : "text-[#888888] hover:bg-[#111111] hover:text-white"}`}
                   >
                     <ArrowUpRight className="w-[14px] h-[14px]" /> สร้างรหัส 2FA
                   </button>
                   <button
                     onClick={() => setActiveView("proxy_free")}
-                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-md text-xs font-medium transition-all ${activeView === "proxy_free" ? "bg-[#161616] text-[#ffffff]" : "text-[#888888] hover:bg-[#111111] hover:text-[#ffffff]"}`}
+                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-md text-xs font-medium transition-all ${activeView === "proxy_free" ? "bg-[#161616] text-white" : "text-[#888888] hover:bg-[#111111] hover:text-white"}`}
                   >
                     <ArrowUpRight className="w-[14px] h-[14px]" /> พร็อกซี่ฟรี (Proxy)
                   </button>
@@ -2411,7 +2300,7 @@ function AppContent() {
               setActiveView(user ? "history" : "login");
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${activeView === "history" ? "bg-[#161616] text-[#ffffff] border border-[#1e1e1e] shadow-sm" : "text-[#888888] hover:bg-[#111111] hover:text-[#ffffff] border border-transparent"}`}
+            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${activeView === "history" ? "bg-[#161616] text-white border border-zinc-800 shadow-sm" : "text-[#888888] hover:bg-[#111111] hover:text-white border border-transparent"}`}
           >
             <History className="w-[18px] h-[18px]" /> ประวัติสั่งซื้อ
           </button>
@@ -2419,7 +2308,7 @@ function AppContent() {
             onClick={() => {
               setShowContactUs(true);
             }}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all text-[#888888] hover:bg-[#111111] hover:text-[#ffffff] border border-transparent`}
+            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all text-[#888888] hover:bg-[#111111] hover:text-white border border-transparent`}
           >
             <Phone className="w-[18px] h-[18px]" /> ติดต่อแอดมิน
           </button>
@@ -2444,7 +2333,7 @@ function AppContent() {
                     setSelectedPage(page);
                     setActiveView("custom_page");
                   }}
-                  className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${activeView === "custom_page" && selectedPage?.id === page.id ? "bg-[#161616] text-[#ffffff] border border-[#1e1e1e] shadow-sm" : "text-[#888888] hover:bg-[#111111] hover:text-[#ffffff] border border-transparent"}`}
+                  className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${activeView === "custom_page" && selectedPage?.id === page.id ? "bg-[#161616] text-white border border-zinc-800 shadow-sm" : "text-[#888888] hover:bg-[#111111] hover:text-white border border-transparent"}`}
                 >
                   <FileText className="w-[18px] h-[18px]" />{" "}
                   {page.title.replace(/^#+\s*/, "")}
@@ -2458,10 +2347,10 @@ function AppContent() {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-h-screen min-w-0 relative overflow-x-hidden">
         {/* Desktop Top Header */}
-        <div className="hidden lg:block sticky top-0 z-[50] w-full bg-[#050505]/95 backdrop-blur-md border-b border-zinc-900/80 shadow-md">
+        <div className="hidden lg:block sticky top-0 z-[50] w-full bg-[#050505]/95 backdrop-blur-md border-b border-zinc-800/80 shadow-md">
           <header className="w-full h-[64px] flex items-center justify-between px-8">
             <div className="flex items-center gap-4">
-              <h1 className="text-sm font-medium text-[#ffffff]">
+              <h1 className="text-sm font-medium text-white">
                 {activeView === "home" ? "ภาพรวม" : 
                  activeView === "categories" ? "หมวดหมู่สินค้า" : 
                  activeView === "category_products" ? "รายการสินค้า" : 
@@ -2474,25 +2363,25 @@ function AppContent() {
             <div className="flex items-center gap-4">
               <button
                 onClick={() => setActiveView("search")}
-                className="w-8 h-8 rounded-md flex items-center justify-center text-[#888888] hover:text-[#ffffff] hover:bg-[#111111] transition-colors"
+                className="w-8 h-8 rounded-md flex items-center justify-center text-[#888888] hover:text-white hover:bg-[#111111] transition-colors"
                 aria-label="Search"
               >
                 <Search className="w-[18px] h-[18px]" />
               </button>
               {user ? (
                 <div
-                  className="flex items-center gap-3 px-3 py-1.5 rounded-full border border-[#1e1e1e] hover:border-[#333333] transition-colors cursor-pointer bg-[#161616]"
+                  className="flex items-center gap-3 px-3 py-1.5 rounded-full border border-zinc-800 hover:border-[#333333] transition-colors cursor-pointer bg-[#161616]"
                   onClick={() => setActiveView("profile")}
                 >
                   <div className="flex flex-col text-right">
-                    <span className="text-[13px] font-medium text-[#ffffff] leading-tight">
+                    <span className="text-[13px] font-medium text-white leading-tight">
                       {userPlan?.username || user.email?.split("@")[0] || "User"}
                     </span>
                     <span className="text-[11px] text-white font-medium">
                       ฿ {userPlan?.balance?.toLocaleString(undefined, { minimumFractionDigits: 2 }) || "0.00"}
                     </span>
                   </div>
-                  <div className="w-7 h-7 rounded-full overflow-hidden bg-[#0a0a0a]">
+                  <div className="w-7 h-7 rounded-full overflow-hidden bg-[#121212]">
                     <img
                       src={getAvatarUrl(user?.id || userPlan?.username || user?.email?.split("@")[0] || "guest")}
                       alt="avatar"
@@ -2514,11 +2403,11 @@ function AppContent() {
         </div>
 
         {/* Global Top Navbar (Mobile) */}
-        <div className="lg:hidden sticky top-0 z-[65] w-full bg-[#050505]/95 backdrop-blur-md border-b border-zinc-900/80 shadow-md">
+        <div className="lg:hidden sticky top-0 z-[65] w-full bg-[#050505]/95 backdrop-blur-md border-b border-zinc-800/80 shadow-md">
           <nav className="w-full flex flex-col">
             <div className="flex items-center justify-between px-5 h-[64px] relative">
               <span 
-                className="font-changa text-2xl font-black italic tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-white via-zinc-200 to-zinc-400 cursor-pointer select-none"
+                className="font-changa text-2xl font-black italic tracking-wider text-white cursor-pointer select-none"
                 onClick={() => setActiveView("home")}
               >
                 APEXSTORE
@@ -2527,7 +2416,7 @@ function AppContent() {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setActiveView("search")}
-                  className="w-10 h-10 rounded-md flex items-center justify-center text-[#888888] hover:text-[#ffffff] transition-colors"
+                  className="w-10 h-10 rounded-md flex items-center justify-center text-[#888888] hover:text-white transition-colors"
                   aria-label="Search"
                 >
                   <Search className="w-5 h-5" />
@@ -2535,7 +2424,7 @@ function AppContent() {
                 <motion.button
                   whileTap={{ scale: 0.9 }}
                   onClick={() => setIsMobileMenuOpen(true)}
-                  className="w-10 h-10 rounded-md flex items-center justify-center text-[#888888] hover:text-[#ffffff] active:scale-95 transition-all"
+                  className="w-10 h-10 rounded-md flex items-center justify-center text-[#888888] hover:text-white active:scale-95 transition-all"
                   aria-label="Menu"
                 >
                   <Menu className="w-5 h-5" />
@@ -2554,19 +2443,19 @@ function AppContent() {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="fixed inset-0 bg-black/60 z-[70] lg:hidden"
+                className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[70] lg:hidden"
               />
               <motion.div
                 initial={{ x: "100%" }}
                 animate={{ x: 0 }}
                 exit={{ x: "100%" }}
                 transition={{ type: "tween", ease: [0.32, 0.72, 0, 1], duration: 0.3 }}
-                className="fixed top-0 right-0 bottom-0 w-[80%] max-w-[300px] bg-[#050505] shadow-2xl z-[71] flex flex-col lg:hidden overflow-y-auto no-scrollbar border-l border-[#1e1e1e]"
+                className="fixed top-0 right-0 bottom-0 w-[80%] max-w-[300px] bg-[#050505] shadow-2xl z-[71] flex flex-col lg:hidden overflow-y-auto no-scrollbar border-l border-zinc-800"
               >
                 {/* Close button */}
                 <button
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="absolute top-[16px] right-[16px] z-[80] bg-[#111111] border border-[#1e1e1e] rounded-md w-8 h-8 flex items-center justify-center cursor-pointer text-[#888888] hover:text-[#ffffff] transition-colors"
+                  className="absolute top-[16px] right-[16px] z-[80] bg-[#111111] border border-zinc-800 rounded-md w-8 h-8 flex items-center justify-center cursor-pointer text-[#888888] hover:text-white transition-colors"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -2574,7 +2463,7 @@ function AppContent() {
                 {/* Header / Logo */}
                 <div className="flex items-center justify-start px-[24px] pt-[24px] pb-[16px] shrink-0 relative z-[70]">
                   <span 
-                    className="font-changa text-2xl font-black italic tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-white via-zinc-200 to-zinc-400 select-none cursor-pointer"
+                    className="font-changa text-2xl font-black italic tracking-wider text-white select-none cursor-pointer"
                     onClick={() => {
                       setActiveView("home");
                       setIsMobileMenuOpen(false);
@@ -2587,12 +2476,12 @@ function AppContent() {
                 {/* Nav items */}
                 <div className="px-[16px] flex flex-col gap-[8px] shrink-0 mt-4">
                   <div className="flex items-center py-[6px] mb-2">
-                    <div className="flex-grow border-t border-[#1e1e1e]"></div>
+                    <div className="flex-grow border-t border-zinc-800"></div>
                     <span className="shrink-0 px-3 text-[10px] font-medium text-[#888888] uppercase tracking-[0.2em]">เมนู</span>
-                    <div className="flex-grow border-t border-[#1e1e1e]"></div>
+                    <div className="flex-grow border-t border-zinc-800"></div>
                   </div>
                   <div
-                    className={`nav-row flex items-center gap-[13px] border rounded-lg p-[10px] px-[14px] cursor-pointer transition-all ${activeView === "home" ? "border-[#1e1e1e] bg-[#161616] text-[#ffffff]" : "border-transparent text-[#888888] hover:bg-[#111111] hover:text-[#ffffff]"}`}
+                    className={`nav-row flex items-center gap-[13px] border rounded-lg p-[10px] px-[14px] cursor-pointer transition-all ${activeView === "home" ? "border-zinc-800 bg-[#161616] text-white" : "border-transparent text-[#888888] hover:bg-[#111111] hover:text-white"}`}
                     onClick={() => {
                       setActiveView("home");
                       setIsMobileMenuOpen(false);
@@ -2602,7 +2491,7 @@ function AppContent() {
                     <span className="text-[13px] font-medium">หน้าหลัก</span>
                   </div>
                   <div
-                    className={`nav-row flex items-center gap-[13px] border rounded-lg p-[10px] px-[14px] cursor-pointer transition-all ${activeView === "categories" || activeView === "category_products" ? "border-[#1e1e1e] bg-[#161616] text-[#ffffff]" : "border-transparent text-[#888888] hover:bg-[#111111] hover:text-[#ffffff]"}`}
+                    className={`nav-row flex items-center gap-[13px] border rounded-lg p-[10px] px-[14px] cursor-pointer transition-all ${activeView === "categories" || activeView === "category_products" ? "border-zinc-800 bg-[#161616] text-white" : "border-transparent text-[#888888] hover:bg-[#111111] hover:text-white"}`}
                     onClick={() => {
                       setActiveView("categories");
                       setIsMobileMenuOpen(false);
@@ -2612,7 +2501,7 @@ function AppContent() {
                     <span className="text-[13px] font-medium">สินค้าทั้งหมด</span>
                   </div>
                   <div
-                    className={`nav-row flex items-center gap-[13px] border rounded-lg p-[10px] px-[14px] cursor-pointer transition-all ${activeView === "wallet" ? "border-[#1e1e1e] bg-[#161616] text-[#ffffff]" : "border-transparent text-[#888888] hover:bg-[#111111] hover:text-[#ffffff]"}`}
+                    className={`nav-row flex items-center gap-[13px] border rounded-lg p-[10px] px-[14px] cursor-pointer transition-all ${activeView === "wallet" ? "border-zinc-800 bg-[#161616] text-white" : "border-transparent text-[#888888] hover:bg-[#111111] hover:text-white"}`}
                     onClick={() => {
                       if (!user) {
                         setActiveView("login");
@@ -2626,7 +2515,7 @@ function AppContent() {
                     <span className="text-[13px] font-medium">เติมเงิน</span>
                   </div>
                   <div
-                    className={`nav-row flex items-center gap-[13px] border rounded-lg p-[10px] px-[14px] cursor-pointer transition-all ${activeView === "free_website" ? "border-[#1e1e1e] bg-[#161616] text-[#0066ff]" : "border-transparent text-[#888888] hover:bg-[#111111] hover:text-[#ffffff]"}`}
+                    className={`nav-row flex items-center gap-[13px] border rounded-lg p-[10px] px-[14px] cursor-pointer transition-all ${activeView === "free_website" ? "border-zinc-800 bg-[#161616] text-[#0066ff]" : "border-transparent text-[#888888] hover:bg-[#111111] hover:text-white"}`}
                     onClick={() => {
                       if (!user) {
                         Swal.fire({
@@ -2651,7 +2540,7 @@ function AppContent() {
                     <span className="text-[13px] font-medium">เปิดเว็บไซต์ฟรี</span>
                   </div>
                   <div
-                    className={`nav-row flex items-center gap-[13px] border rounded-lg p-[10px] px-[14px] cursor-pointer transition-all ${activeView === "tools" ? "border-[#1e1e1e] bg-[#161616] text-[#ffffff]" : "border-transparent text-[#888888] hover:bg-[#111111] hover:text-[#ffffff]"}`}
+                    className={`nav-row flex items-center gap-[13px] border rounded-lg p-[10px] px-[14px] cursor-pointer transition-all ${activeView === "tools" ? "border-zinc-800 bg-[#161616] text-white" : "border-transparent text-[#888888] hover:bg-[#111111] hover:text-white"}`}
                     onClick={() => {
                       if (!user) {
                         Swal.fire({
@@ -2676,7 +2565,7 @@ function AppContent() {
                     <span className="text-[13px] font-medium">เครื่องมือ</span>
                   </div>
                   <div
-                    className={`nav-row flex items-center gap-[13px] border rounded-lg p-[10px] px-[14px] cursor-pointer transition-all border-transparent text-[#888888] hover:bg-[#111111] hover:text-[#ffffff]`}
+                    className={`nav-row flex items-center gap-[13px] border rounded-lg p-[10px] px-[14px] cursor-pointer transition-all border-transparent text-[#888888] hover:bg-[#111111] hover:text-white`}
                     onClick={() => {
                       setShowContactUs(true);
                       setIsMobileMenuOpen(false);
@@ -2696,12 +2585,12 @@ function AppContent() {
                     </div>
                     <div
                       onClick={() => setIsUserMenuOpen((v) => !v)}
-                      className="bg-[#111111] border border-[#1e1e1e] rounded-xl p-3 flex flex-col gap-3 cursor-pointer hover:border-[#333333] transition-all shadow-sm active:scale-[0.99]"
+                      className="bg-[#111111] border border-zinc-800 rounded-xl p-3 flex flex-col gap-3 cursor-pointer hover:border-[#333333] transition-all shadow-sm active:scale-[0.99]"
                     >
                       <div className="flex items-center gap-3">
                         {/* Avatar */}
                         <div className="w-10 h-10 rounded-full bg-[#1e1e1e] p-[1px] shrink-0 shadow-sm">
-                          <div className="w-full h-full rounded-full bg-[#0a0a0a] overflow-hidden">
+                          <div className="w-full h-full rounded-full bg-[#121212] overflow-hidden">
                             <img
                               src={getAvatarUrl(
                                 user?.id ||
@@ -2716,7 +2605,7 @@ function AppContent() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between">
-                            <span className="text-[14px] font-medium text-[#ffffff] truncate pr-2">
+                            <span className="text-[14px] font-medium text-white truncate pr-2">
                               {userPlan?.username || user?.email?.split("@")[0]}
                             </span>
                             <div
@@ -2727,12 +2616,12 @@ function AppContent() {
                           </div>
                           <div className="flex items-center gap-2 mt-0.5">
                             {userPlan?.isPremium ? (
-                              <div className="flex items-center gap-1.5 px-2 py-0.5 bg-white text-black border border-white text-[10px] font-black rounded-md uppercase tracking-wider shadow-sm">
+                              <div className="flex items-center gap-1.5 px-2 py-0.5 bg-[#050505] text-white border border-white text-[10px] font-black rounded-md uppercase tracking-wider shadow-sm">
                                 <Crown className="w-3 h-3" />
                                 Premium
                               </div>
                             ) : (
-                              <div className="flex items-center gap-1.5 px-2 py-0.5 bg-[#161616] text-[#888888] border border-[#1e1e1e] text-[10px] font-medium rounded-md uppercase tracking-wider shadow-sm">
+                              <div className="flex items-center gap-1.5 px-2 py-0.5 bg-[#161616] text-[#888888] border border-zinc-800 text-[10px] font-medium rounded-md uppercase tracking-wider shadow-sm">
                                 <User className="w-3 h-3" />
                                 {getUserRank(userPlan, user)}
                               </div>
@@ -2742,10 +2631,10 @@ function AppContent() {
                       </div>
 
                       <div className="flex items-center gap-2">
-                        <div className="flex-1 bg-[#0a0a0a] border border-[#1e1e1e] rounded-lg p-2.5 flex items-center justify-between">
+                        <div className="flex-1 bg-[#121212] border border-zinc-800 rounded-lg p-2.5 flex items-center justify-between">
                           <div className="flex items-center gap-2.5">
-                            <div className="w-7 h-7 rounded-full bg-[#161616] border border-[#1e1e1e] flex items-center justify-center shadow-sm overflow-hidden">
-                              <Coins className="w-4 h-4 text-[#ffffff]" />
+                            <div className="w-7 h-7 rounded-full bg-[#161616] border border-zinc-800 flex items-center justify-center shadow-sm overflow-hidden">
+                              <Coins className="w-4 h-4 text-white" />
                             </div>
                             <div className="flex flex-col">
                               <div className="flex items-center gap-1.5">
@@ -2755,12 +2644,12 @@ function AppContent() {
                                 </span>
                               </div>
                               <div className="flex items-baseline gap-1">
-                                <span className="text-[16px] font-medium text-[#ffffff]">
+                                <span className="text-[16px] font-medium text-white">
                                   {userPlan?.balance
                                     ? Math.floor(userPlan.balance).toLocaleString()
                                     : "0"}
                                 </span>
-                                <span className="text-[12px] font-bold text-[#ffffff]">
+                                <span className="text-[12px] font-bold text-white">
                                   ฿
                                 </span>
                               </div>
@@ -2779,12 +2668,12 @@ function AppContent() {
                         marginTop: isUserMenuOpen ? "8px" : "0px",
                       }}
                     >
-                      <div className="bg-[#111111] shadow-inner border border-[#1e1e1e] rounded-xl overflow-hidden">
-                        <div className="p-3 px-4 pb-2 text-[13px] font-medium text-[#ffffff] border-b border-[#1e1e1e]">
+                      <div className="bg-[#111111] shadow-inner border border-zinc-800 rounded-xl overflow-hidden">
+                        <div className="p-3 px-4 pb-2 text-[13px] font-medium text-white border-b border-zinc-800">
                           {userPlan?.username || user?.email?.split("@")[0]}
                         </div>
                       <div
-                        className={`dd-row flex items-center gap-3 p-3 px-4 text-[13px] font-medium text-[#888888] border-b border-[#1e1e1e] cursor-pointer transition-colors ${activeView === "profile" ? "bg-[#161616] text-[#ffffff]" : "hover:bg-[#161616] hover:text-[#ffffff]"}`}
+                        className={`dd-row flex items-center gap-3 p-3 px-4 text-[13px] font-medium text-[#888888] border-b border-zinc-800 cursor-pointer transition-colors ${activeView === "profile" ? "bg-[#161616] text-white" : "hover:bg-[#161616] hover:text-white"}`}
                         onClick={() => {
                           setActiveView("profile");
                           setIsMobileMenuOpen(false);
@@ -2794,7 +2683,7 @@ function AppContent() {
                         โปรไฟล์
                       </div>
                       <div
-                        className={`dd-row flex items-center gap-3 p-3 px-4 text-[13px] font-medium text-[#888888] border-b border-[#1e1e1e] cursor-pointer transition-colors ${activeView === "settings" ? "bg-[#161616] text-[#ffffff]" : "hover:bg-[#161616] hover:text-[#ffffff]"}`}
+                        className={`dd-row flex items-center gap-3 p-3 px-4 text-[13px] font-medium text-[#888888] border-b border-zinc-800 cursor-pointer transition-colors ${activeView === "settings" ? "bg-[#161616] text-white" : "hover:bg-[#161616] hover:text-white"}`}
                         onMouseEnter={() => settingsImport()}
                         onClick={() => {
                           setActiveView("settings");
@@ -2805,7 +2694,7 @@ function AppContent() {
                         การตั้งค่าผู้ใช้
                       </div>
                       <div
-                        className={`dd-row flex items-center gap-3 p-3 px-4 text-[13px] font-medium text-[#888888] border-b border-[#1e1e1e] cursor-pointer transition-colors ${activeView === "wallet_history" ? "bg-[#161616] text-[#ffffff]" : "hover:bg-[#161616] hover:text-[#ffffff]"}`}
+                        className={`dd-row flex items-center gap-3 p-3 px-4 text-[13px] font-medium text-[#888888] border-b border-zinc-800 cursor-pointer transition-colors ${activeView === "wallet_history" ? "bg-[#161616] text-white" : "hover:bg-[#161616] hover:text-white"}`}
                         onMouseEnter={() => historyImport()}
                         onClick={() => {
                           setActiveView("wallet_history");
@@ -2816,7 +2705,7 @@ function AppContent() {
                         ประวัติเติมเงิน
                       </div>
                       <div
-                        className={`dd-row flex items-center gap-3 p-3 px-4 text-[13px] font-medium text-[#888888] border-b border-[#1e1e1e] cursor-pointer transition-colors ${activeView === "order_history" ? "bg-[#161616] text-[#ffffff]" : "hover:bg-[#161616] hover:text-[#ffffff]"}`}
+                        className={`dd-row flex items-center gap-3 p-3 px-4 text-[13px] font-medium text-[#888888] border-b border-zinc-800 cursor-pointer transition-colors ${activeView === "order_history" ? "bg-[#161616] text-white" : "hover:bg-[#161616] hover:text-white"}`}
                         onMouseEnter={() => historyImport()}
                         onClick={() => {
                           setActiveView("order_history");
@@ -2827,7 +2716,7 @@ function AppContent() {
                         ประวัติการซื้อสินค้า
                       </div>
                       <div
-                        className={`dd-row flex items-center gap-3 p-3 px-4 text-[13px] font-medium text-[#888888] border-b border-[#1e1e1e] cursor-pointer transition-colors ${activeView === "random_history" ? "bg-[#161616] text-[#ffffff]" : "hover:bg-[#161616] hover:text-[#ffffff]"}`}
+                        className={`dd-row flex items-center gap-3 p-3 px-4 text-[13px] font-medium text-[#888888] border-b border-zinc-800 cursor-pointer transition-colors ${activeView === "random_history" ? "bg-[#161616] text-white" : "hover:bg-[#161616] hover:text-white"}`}
                         onMouseEnter={() => historyImport()}
                         onClick={() => {
                           setActiveView("random_history");
@@ -2839,7 +2728,7 @@ function AppContent() {
                       </div>
                       {isAdmin && (
                         <div
-                          className={`dd-row flex items-center gap-3 p-3 px-4 text-[13px] font-bold text-white border-b border-[#1e1e1e] cursor-pointer transition-colors bg-[#161616]`}
+                          className={`dd-row flex items-center gap-3 p-3 px-4 text-[13px] font-bold text-white border-b border-zinc-800 cursor-pointer transition-colors bg-[#161616]`}
                           onClick={() => {
                             setActiveView("admin");
                             setIsMobileMenuOpen(false);
@@ -2887,7 +2776,7 @@ function AppContent() {
                           setActiveView("signup");
                           setIsMobileMenuOpen(false);
                         }}
-                        className="w-full py-2.5 bg-[#161616] hover:bg-[#111111] border border-[#1e1e1e] hover:border-[#333333] text-[#ffffff] rounded-lg font-medium text-[14px] flex items-center justify-center gap-2 active:scale-95 transition-all shadow-sm"
+                        className="w-full py-2.5 bg-[#161616] hover:bg-[#111111] border border-zinc-800 hover:border-[#333333] text-white rounded-lg font-medium text-[14px] flex items-center justify-center gap-2 active:scale-95 transition-all shadow-sm"
                       >
                         <UserPlus className="w-[18px] h-[18px]" /> สมัครสมาชิก
                       </button>
@@ -3223,7 +3112,7 @@ function AppContent() {
               {/* Brand & Intro */}
               <div className="col-span-1 md:col-span-1 flex flex-col items-center">
                 <span 
-                  className="font-changa text-3xl font-black italic tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-white via-zinc-200 to-zinc-400 mb-4 select-none cursor-pointer"
+                  className="font-changa text-3xl font-black italic tracking-wider text-white mb-4 select-none cursor-pointer"
                   onClick={() => {
                     setActiveView("home");
                     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -3248,7 +3137,7 @@ function AppContent() {
                   <li>
                     <button
                       onClick={() => setActiveView("home")}
-                      className="hover:text-[#3B82F6] transition-colors"
+                      className="hover:text-purple-500 transition-colors"
                     >
                       สินค้าทั่วไป
                     </button>
@@ -3256,7 +3145,7 @@ function AppContent() {
                   <li>
                     <button
                       onClick={() => setActiveView("premium")}
-                      className="hover:text-[#3B82F6] transition-colors"
+                      className="hover:text-purple-500 transition-colors"
                     >
                       แอพพรีเมียม
                     </button>
@@ -3264,7 +3153,7 @@ function AppContent() {
                   <li>
                     <button
                       onClick={() => setActiveView("vip")}
-                      className="hover:text-[#3B82F6] transition-colors"
+                      className="hover:text-purple-500 transition-colors"
                     >
                       ยศ VIP
                     </button>
@@ -3281,7 +3170,7 @@ function AppContent() {
                   <li>
                     <button
                       onClick={() => setShowAboutUs(true)}
-                      className="hover:text-[#3B82F6] transition-colors"
+                      className="hover:text-purple-500 transition-colors"
                     >
                       เกี่ยวกับเรา
                     </button>
@@ -3289,7 +3178,7 @@ function AppContent() {
                   <li>
                     <button
                       onClick={() => setShowTerms(true)}
-                      className="hover:text-[#3B82F6] transition-colors"
+                      className="hover:text-purple-500 transition-colors"
                     >
                       เงื่อนไขการใช้งาน
                     </button>
@@ -3297,7 +3186,7 @@ function AppContent() {
                   <li>
                     <button
                       onClick={() => setShowPrivacy(true)}
-                      className="hover:text-[#3B82F6] transition-colors"
+                      className="hover:text-purple-500 transition-colors"
                     >
                       นโยบายความเป็นส่วนตัว
                     </button>
@@ -3305,7 +3194,7 @@ function AppContent() {
                   <li>
                     <button
                       onClick={() => setShowContactUs(true)}
-                      className="hover:text-[#3B82F6] transition-colors"
+                      className="hover:text-purple-500 transition-colors"
                     >
                       ติดต่อเรา
                     </button>
@@ -3356,14 +3245,14 @@ function AppContent() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-[100]  font-sans"
+              className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-[100]  font-sans"
             >
               <motion.div
                 initial={{ scale: 0.95, opacity: 0, y: 20 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 exit={{ scale: 0.95, opacity: 0, y: 20 }}
                 transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                className="bg-[#0B0F14] border border-white/10 rounded-xl p-6 sm:p-8 max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl relative"
+                className="bg-[#050505] border border-white/10 rounded-xl p-6 sm:p-8 max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl relative"
               >
                 <h2 className="text-xl sm:text-2xl font-bold mb-6 text-white flex items-center gap-2">
                   <Shield className="w-6 h-6 shrink-0 text-[#2563EB]" />{" "}
@@ -3501,7 +3390,7 @@ function AppContent() {
                 <div className="pt-6 mt-6 border-t border-white/5 flex gap-3 flex-col sm:flex-row justify-end">
                   <button
                     onClick={() => setShowPrivacy(false)}
-                    className="bg-[#3B82F6]/10 hover:bg-[#3B82F6]/25 text-[#3B82F6] font-bold py-3 px-8 rounded-2xl transition-colors w-full sm:w-auto"
+                    className="bg-purple-600/10 hover:bg-purple-600/25 text-purple-500 font-bold py-3 px-8 rounded-2xl transition-colors w-full sm:w-auto"
                   >
                     ทำความเข้าใจและปิดหน้าต่าง
                   </button>
@@ -3515,14 +3404,14 @@ function AppContent() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-[100]  font-sans"
+              className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-[100]  font-sans"
             >
               <motion.div
                 initial={{ scale: 0.95, opacity: 0, y: 20 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 exit={{ scale: 0.95, opacity: 0, y: 20 }}
                 transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                className="bg-[#0B0F14] border border-white/10 rounded-xl p-6 sm:p-8 max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl relative"
+                className="bg-[#050505] border border-white/10 rounded-xl p-6 sm:p-8 max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl relative"
               >
                 <h2 className="text-xl sm:text-2xl font-bold mb-6 flex items-center gap-2 text-white">
                   <ListChecks className="w-6 h-6 shrink-0 text-[#2563EB]" />{" "}
@@ -3641,104 +3530,16 @@ function AppContent() {
 
                   <div>
                     <h3 className="font-bold text-white text-base mb-2">
-                      6. การระงับกรณีเปิดเครื่องมือ Developer Tools
+                      6. การจัดการและระบบต่างๆ
                     </h3>
-                    <p>
-                      หากเราตรวจพบว่าคุณพยายามเข้าถึง Inspection Tools หรือ
-                      Console เพื่อป่วนการหน่วงเวลา ระบบจะจับรีไดเร็ค ล้าง
-                      Session การใช้งาน ปิดบังรหัส หรือหยุดทำงาน
-                      ถือว่าผู้ใช้ฝืนกฎโดยเจตนา
-                    </p>
                   </div>
-
                   <div>
                     <h3 className="font-bold text-white text-base mb-2">
-                      7. เหตุสุดวิสัยและการปรับปรุง
+                      ระบบและบริการของเรา
                     </h3>
-                    <p>
-                      ในกรณีที่มีการอัปเดตรหัส ฝั่ง Third-Party เปลี่ยนมาตรการ
-                      ปิดช่องโหว่ ปิดพอร์ต หรือเหตุภัยพิบัติซึ่งทำให้ระบบบอท
-                      เครื่องมือ ตลอดจนหน้าต่างตรวจสอบไม่สามารถใช้การได้
-                      ถือเป็นเหตุที่เหนือการควบคุม (Force Majeure)
-                      และเราอาจจำเป็นต้องยุติฟีเจอร์นั้นชั่วคราวหรือถาวร
-                      โดยไม่จำเป็นต้องชดเชย
-                    </p>
-                  </div>
-                </div>
-                <div className="pt-6 mt-6 border-t border-white/5 text-right w-full">
-                  <button
-                    onClick={() => setShowTerms(false)}
-                    className="bg-[#3B82F6] hover:bg-[#1D4ED8] text-white font-bold py-3 px-8 rounded-2xl transition-all shadow-md hover:shadow-lg w-full sm:w-auto"
-                  >
-                    ข้าพเจ้ายอมรับและตกลงตามข้อกำหนดกติกา
-                  </button>
-                </div>
-              </motion.div>
-            </motion.div>
-          )}
-
-          {showAboutUs && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-[100]  font-sans"
-            >
-              <motion.div
-                initial={{ scale: 0.95, opacity: 0, y: 20 }}
-                animate={{ scale: 1, opacity: 1, y: 0 }}
-                exit={{ scale: 0.95, opacity: 0, y: 20 }}
-                transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                className="bg-[#0B0F14] border border-white/10 rounded-xl p-6 sm:p-8 max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl relative"
-              >
-                <h2 className="text-xl sm:text-2xl font-bold mb-6 flex items-center gap-3 text-white">
-                  <div className="w-8 h-8 rounded-full bg-[#3B82F6]/25 flex items-center justify-center text-[#3B82F6]">
-                    <svg
-                      className="w-4 h-4"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                      ></path>
-                    </svg>
-                  </div>
-                  บริษัทและโครงการ (About APEXSTORE)
-                </h2>
-                <div className="overflow-y-auto pr-2 sm:pr-4 space-y-6 text-sm leading-relaxed text-zinc-400 scrollbar-thin scrollbar-thumb-zinc-700 flex-1">
-                  <div>
-                    <h3 className="font-bold text-white text-base mb-2">
-                      จุดเริ่มต้น และวิสัยทัศน์ (Vision & Origin)
-                    </h3>
-                    <p>
-                      <strong>APEXSTORE</strong>{" "}
-                      เกิดจากแนวคิดที่ต้องการทลายข้อจำกัดด้านเวลาและความยุ่งยากของการบริหารโซเชียลมีเดีย
-                      ทรัพยากรบัญชี และคีย์ผลิตภัณฑ์ ด้วยเจตนารมณ์ที่จะรวบรวม
-                      "เครื่องมือตัวคัดกรองอัตโนมัติ" และ
-                      "สินทรัพย์ดิจิทัลแอปพรีเมียม" เข้าไว้ในแพลตฟอร์มเดียว
-                      เราออกแบบเทคโนโลยีที่เน้นเรื่องความเสถียร ความทันสมัย
-                      ปลอดภัย และราคาที่ทุกคนจับต้องได้
-                    </p>
-                  </div>
-
-                  <div>
-                    <h3 className="font-bold text-white text-base mb-2">
-                      ผลิตภัณฑ์หลักของเรา (Products & Services)
-                    </h3>
-                    <p className="mb-2">
-                      เครือข่ายของ APEXSTORE
-                      ภาคภูมิใจที่จะนำเสนอขอบข่ายการบริการหลากหลาย ได้แก่ :
-                    </p>
-                    <ul className="list-disc pl-5 space-y-1">
+                    <ul className="list-disc pl-5">
                       <li>
-                        <strong>
-                          Automation Verification Tools (Checkers):
-                        </strong>{" "}
-                        เครื่องมือตรวจสอบไอดี (ตัวเช็ค)
+                        <strong>ระบบตรวจสอบไอดี (ตัวเช็ค):</strong>
                         ทรงพลังที่รองรับบัญชีจำนวนมากพร้อมกัน
                         โดยไม่สูญเสียความแม่นยำ พร้อมเทคโนโลยีคัดกรอง Proxy
                         ที่ทันสมัย
@@ -3804,7 +3605,7 @@ function AppContent() {
                 <div className="pt-6 mt-6 border-t border-white/5 flex justify-end w-full">
                   <button
                     onClick={() => setShowAboutUs(false)}
-                    className="bg-[#3B82F6]/10 hover:bg-[#3B82F6]/25 text-[#3B82F6] font-bold py-3 px-8 rounded-2xl transition-all w-full sm:w-auto"
+                    className="bg-purple-600/10 hover:bg-purple-600/25 text-purple-500 font-bold py-3 px-8 rounded-2xl transition-all w-full sm:w-auto"
                   >
                     ปิดหน้าต่างนี้
                   </button>
@@ -3818,18 +3619,18 @@ function AppContent() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-[100]  font-sans"
+              className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-[100]  font-sans"
             >
               <motion.div
                 initial={{ scale: 0.95, opacity: 0, y: 20 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 exit={{ scale: 0.95, opacity: 0, y: 20 }}
                 transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                className="bg-[#0B0F14] border border-white/10 rounded-xl p-6 sm:p-8 max-w-md w-full flex flex-col shadow-2xl relative"
+                className="bg-[#050505] border border-white/10 rounded-xl p-6 sm:p-8 max-w-md w-full flex flex-col shadow-2xl relative"
               >
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-xl sm:text-2xl font-bold flex items-center gap-2 text-white">
-                    <Phone className="w-6 h-6 shrink-0 text-[#3B82F6]" />{" "}
+                    <Phone className="w-6 h-6 shrink-0 text-purple-500" />{" "}
                     ติดต่อเรา
                   </h2>
                   <button
@@ -3861,9 +3662,9 @@ function AppContent() {
                   {siteSettings?.contact_email && (
                     <a
                       href={`mailto:${siteSettings.contact_email}`}
-                      className="flex items-center gap-4 p-4 bg-zinc-800/50 hover:bg-zinc-800 border border-white/5 hover:border-white/10 rounded-2xl text-white transition-all group"
+                      className="flex items-center gap-4 p-4 bg-gray-100 hover:bg-gray-200 border border-white/5 hover:border-white/10 rounded-2xl text-white transition-all group"
                     >
-                      <div className="w-12 h-12 bg-zinc-700 rounded-xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                      <div className="w-12 h-12 bg-gray-200 rounded-xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                         <Mail className="w-6 h-6" />
                       </div>
                       <div>
@@ -3879,7 +3680,7 @@ function AppContent() {
                 <div className="pt-6 mt-6 border-t border-white/5 flex justify-end w-full">
                   <button
                     onClick={() => setShowContactUs(false)}
-                    className="bg-[#3B82F6]/10 hover:bg-[#3B82F6]/25 text-[#3B82F6] font-bold py-3 px-8 rounded-2xl transition-all w-full sm:w-auto"
+                    className="bg-purple-600/10 hover:bg-purple-600/25 text-purple-500 font-bold py-3 px-8 rounded-2xl transition-all w-full sm:w-auto"
                   >
                     ปิดหน้าต่างนี้
                   </button>
@@ -3901,9 +3702,9 @@ function AppContent() {
 
         {/* Turnstile Modal */}
         {showTurnstileModal && (
-          <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-[70]  font-sans animate-in zoom-in-95 duration-200">
-            <div className="bg-[#0B0F14] border border-white/10 rounded-xl p-6 sm:p-8 max-w-sm w-full shadow-xl relative overflow-hidden flex flex-col items-center">
-              <div className="bg-[#0a0d12] border border-white/5 rounded-2xl mb-2 relative overflow-hidden w-full h-[58px]">
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-[70]  font-sans animate-in zoom-in-95 duration-200">
+            <div className="bg-[#050505] border border-white/10 rounded-xl p-6 sm:p-8 max-w-sm w-full shadow-xl relative overflow-hidden flex flex-col items-center">
+              <div className="bg-[#121212] border border-white/5 rounded-2xl mb-2 relative overflow-hidden w-full h-[58px]">
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[110%] scale-[0.92] flex justify-center">
                   {TURNSTILE_SITE_KEY ? (
                     <Turnstile
@@ -3918,7 +3719,7 @@ function AppContent() {
                       }}
                     />
                   ) : (
-                    <div className="p-3 bg-[#3B82F6]/20 text-[#3B82F6] rounded-xl text-center text-[10px] font-bold w-full mx-8">
+                    <div className="p-3 bg-purple-600/20 text-purple-500 rounded-xl text-center text-[10px] font-bold w-full mx-8">
                       ยังไม่ได้ตั้งค่า TURNSTILE_SITE_KEY (Bypass Mode
                       Active)
                     </div>
@@ -3933,7 +3734,7 @@ function AppContent() {
                       console.error,
                     );
                   }}
-                  className="w-full bg-[#3B82F6] hover:bg-[#2563EB] text-white font-bold py-3.5 rounded-2xl transition-all shadow-sm mb-4"
+                  className="w-full bg-purple-600 hover:bg-[#2563EB] text-white font-bold py-3.5 rounded-2xl transition-all shadow-sm mb-4"
                 >
                   ดำเนินการต่อ (Bypass)
                 </button>
@@ -3964,140 +3765,6 @@ function AppContent() {
           )}
         </Suspense>
 
-        {/* Global Audio Provider */}
-        {!deferMedia && siteSettings.spotify_url && (
-          <div className="fixed bottom-6 right-6 z-[990] flex flex-col items-end gap-3 pointer-events-none group/float">
-            <div className="bg-[#0b0e14]/90  border border-white/10 px-3 py-1.5 rounded-full text-[10px] font-black text-[#3B82F6] tracking-widest opacity-0 group-hover/float:opacity-100 transition-opacity mb-1 shadow-2xl pointer-events-none uppercase">
-              Music Player
-            </div>
-            <button
-              onClick={() => {
-                if (
-                  siteSettings.spotify_url.includes("youtube.com") ||
-                  siteSettings.spotify_url.includes("youtu.be")
-                ) {
-                  if (
-                    ytIframeRef.current &&
-                    ytIframeRef.current.contentWindow
-                  ) {
-                    if (ytPlaying) {
-                      ytIframeRef.current.contentWindow.postMessage(
-                        JSON.stringify({
-                          event: "command",
-                          func: "pauseVideo",
-                          args: [],
-                        }),
-                        "*",
-                      );
-                      setYtPlaying(false);
-                    } else {
-                      ytIframeRef.current.contentWindow.postMessage(
-                        JSON.stringify({
-                          event: "command",
-                          func: "unMute",
-                          args: [],
-                        }),
-                        "*",
-                      );
-                      ytIframeRef.current.contentWindow.postMessage(
-                        JSON.stringify({
-                          event: "command",
-                          func: "playVideo",
-                          args: [],
-                        }),
-                        "*",
-                      );
-                      setYtPlaying(true);
-                    }
-                  }
-                } else {
-                  setIsMusicExpanded(!isMusicExpanded);
-                }
-              }}
-              className={`w-12 h-12 rounded-2xl bg-[#0b0e14]/90  border border-white/10 flex items-center justify-center text-[#3B82F6] shadow-2xl transition-all duration-300 pointer-events-auto hover:scale-110 active:scale-95 ${isMusicExpanded || ytPlaying ? "rotate-90" : ""}`}
-              title="เปิด/ปิด แถบเพลง"
-            >
-              <Music
-                className={`w-5 h-5 ${ytPlaying || siteSettings.spotify_autoplay || siteSettings.spotify_url.match(/\.(mp3|wav|ogg|m4a)$/) || siteSettings.spotify_url.includes("drive.google.com/uc") || siteSettings.spotify_url.startsWith("data:audio") ? "animate-pulse" : ""}`}
-              />
-            </button>
-
-            {!(
-              siteSettings.spotify_url.includes("youtube.com") ||
-              siteSettings.spotify_url.includes("youtu.be")
-            ) && (
-              <div
-                className={`transition-all duration-500 transform origin-bottom-right pointer-events-auto ${isMusicExpanded || siteSettings.spotify_autoplay ? "translate-y-0 opacity-100 scale-100" : "translate-y-10 opacity-0 scale-50 pointer-events-none"}`}
-              >
-                <div
-                  className={`bg-[#0b0e14]/90  border border-white/10 p-1 rounded-2xl shadow-2xl overflow-hidden ${siteSettings.spotify_url.match(/\.(mp3|wav|ogg|m4a)$/) || siteSettings.spotify_url.includes("drive.google.com/uc") || siteSettings.spotify_url.startsWith("data:audio") ? "w-auto h-auto" : "w-[300px] h-[80px]"}`}
-                >
-                  {siteSettings.spotify_url.match(/\.(mp3|wav|ogg|m4a)$/) ||
-                  siteSettings.spotify_url.includes("drive.google.com/uc") ||
-                  siteSettings.spotify_url.startsWith("data:audio") ? (
-                    <div className="p-3 flex items-center gap-4 min-w-[280px]">
-                      <div className="w-10 h-10 rounded-xl bg-[#3B82F6]/10 flex items-center justify-center">
-                        <Music className="w-5 h-5 text-[#3B82F6] animate-pulse" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">
-                          Playing Background Music
-                        </p>
-                        <audio
-                          ref={audioRef}
-                          src={formatSpotifyEmbedUrl(
-                            siteSettings.spotify_url,
-                            false,
-                          )}
-                          controls
-                          autoPlay={siteSettings.spotify_autoplay}
-                          loop
-                          className="h-8 w-full mt-1 accent-[#3B82F6]"
-                        />
-                      </div>
-                    </div>
-                  ) : (
-                    <iframe
-                      src={formatSpotifyEmbedUrl(
-                        siteSettings.spotify_url,
-                        siteSettings.spotify_autoplay || false,
-                      )}
-                      width="100%"
-                      height="100%"
-                      frameBorder="0"
-                      allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                      loading="lazy"
-                      className="rounded-xl"
-                    ></iframe>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* YouTube Background Invisible Audio Player */}
-        {!deferMedia &&
-          siteSettings.spotify_url &&
-          (siteSettings.spotify_url.includes("youtube.com") ||
-            siteSettings.spotify_url.includes("youtu.be")) && (
-            <div
-              className="fixed top-0 left-0 w-[400px] h-[300px] pointer-events-none z-[-9999]"
-              style={{ opacity: 0.001 }}
-            >
-              <iframe
-                ref={ytIframeRef}
-                src={formatSpotifyEmbedUrl(
-                  siteSettings.spotify_url,
-                  siteSettings.spotify_autoplay || false,
-                )}
-                width="100%"
-                height="100%"
-                frameBorder="0"
-                allow="autoplay; encrypted-media"
-              ></iframe>
-            </div>
-          )}
       </div>
 
       {/* Mobile Bottom Navigation Bar removed as per request */}

@@ -154,7 +154,7 @@ export const DiscordBadgeTool: React.FC = () => {
                                         flex items-center justify-center gap-3 py-5 px-4 rounded-2xl border-2 transition-all duration-300
                                         ${houseId === house.id 
                                             ? `bg-white/5 border-[${house.color.split('bg-[')[1].split(']')[0]}] text-white shadow-lg scale-105` 
-                                            : 'bg-black/40 border-white/5 text-zinc-400 hover:bg-white/5 hover:border-white/10'
+                                            : 'bg-black/40 backdrop-blur-sm border-white/5 text-zinc-400 hover:bg-white/5 hover:border-white/10'
                                         }
                                     `}
                                     style={houseId === house.id ? { 

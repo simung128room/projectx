@@ -149,20 +149,20 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user,
             {/* Sidebar Tabs */}
             <div className="md:w-1/3 bg-[#121417] border-b md:border-b-0 md:border-r border-white/10 p-6">
               <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                <Shield className="w-5 h-5 text-[#3B82F6]" /> ตั้งค่าผู้ใช้
+                <Shield className="w-5 h-5 text-purple-500" /> ตั้งค่าผู้ใช้
               </h2>
               
               <div className="space-y-2">
                 <button 
                   onClick={() => setCurrentTab('password')}
-                  className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all ${currentTab === 'password' ? 'bg-[#3B82F6] text-white' : 'text-zinc-400 hover:bg-white/5'}`}
+                  className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all ${currentTab === 'password' ? 'bg-purple-600 text-white' : 'text-zinc-400 hover:bg-white/5'}`}
                 >
                   <Key className="w-4 h-4" />
                   <span className="text-sm font-medium">เปลี่ยนรหัสผ่าน</span>
                 </button>
                 <button 
                   onClick={() => setCurrentTab('preferences')}
-                  className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all ${currentTab === 'preferences' ? 'bg-[#3B82F6] text-white' : 'text-zinc-400 hover:bg-white/5'}`}
+                  className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all ${currentTab === 'preferences' ? 'bg-purple-600 text-white' : 'text-zinc-400 hover:bg-white/5'}`}
                 >
                   <Settings className="w-4 h-4" />
                   <span className="text-sm font-medium">การตั้งค่าเพิ่มเติม</span>
@@ -221,7 +221,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user,
                         <input type="password" placeholder="••••••••" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} className="w-full bg-[#121417] border border-white/10 rounded-xl py-3 pl-10 pr-4 text-sm text-white focus:border-[#3B82F6] outline-none" />
                       </div>
                     </div>
-                    <button onClick={handleChangePassword} className="w-full bg-[#3B82F6] hover:bg-[#2563EB] text-white font-bold py-3.5 rounded-xl transition-all shadow-sm">
+                    <button onClick={handleChangePassword} className="w-full bg-purple-600 hover:bg-[#2563EB] text-white font-bold py-3.5 rounded-xl transition-all shadow-sm">
                       ยืนยันการเปลี่ยนรหัสผ่าน
                     </button>
                   </div>
@@ -263,7 +263,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user,
                             checked={useCustomCursor ?? true} 
                             onChange={toggleCustomCursor}
                           />
-                          <div className="w-11 h-6 bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#3B82F6]"></div>
+                          <div className="w-11 h-6 bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-[#050505] after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
                         </label>
                       </div>
                     </div>

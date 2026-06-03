@@ -312,7 +312,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
               </div>
               <button
                 type="submit"
-                className="w-full py-4 bg-[#3B82F6] hover:bg-[#2563EB] text-white font-black rounded-2xl transition-all shadow-lg shadow-lg"
+                className="w-full py-4 bg-purple-600 hover:bg-[#2563EB] text-white font-black rounded-2xl transition-all shadow-lg shadow-lg"
               >
                 เติมเงิน
               </button>
@@ -338,7 +338,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
 
           <div className="space-y-6">
             <div className="bg-[#0B0D0F] border-2 border-white/5 rounded-xl p-6 text-center space-y-4 shadow-xl">
-                <div className="flex bg-[#3B82F6] text-white rounded-full px-6 py-2 gap-3 items-center w-fit mx-auto shadow-sm">
+                <div className="flex bg-purple-600 text-white rounded-full px-6 py-2 gap-3 items-center w-fit mx-auto shadow-sm">
                   <span className="font-black text-sm tracking-wide">ธนาคารกสิกรไทย</span>
                 </div>
                 
@@ -351,7 +351,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
                           navigator.clipboard.writeText('1963870325');
                           Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'คัดลอกเลขบัญชีแล้ว', showConfirmButton: false, timer: 1500 });
                         }}
-                        className="p-3 bg-[#3B82F6] text-white rounded-2xl shadow-lg hover:bg-[#2563EB] transition-all active:scale-95"
+                        className="p-3 bg-purple-600 text-white rounded-2xl shadow-lg hover:bg-[#2563EB] transition-all active:scale-95"
                       >
                         <Copy className="w-5 h-5" />
                       </button>
@@ -381,12 +381,12 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
               </label>
             </div>
 
-            <div className="bg-[#3B82F6]/10 border-2 border-white/10 rounded-2xl p-5 flex gap-4 items-center">
-                <div className="w-12 h-12 bg-[#3B82F6] rounded-2xl flex items-center justify-center shrink-0 shadow-lg shadow-lg/20">
+            <div className="bg-purple-600/10 border-2 border-white/10 rounded-2xl p-5 flex gap-4 items-center">
+                <div className="w-12 h-12 bg-purple-600 rounded-2xl flex items-center justify-center shrink-0 shadow-lg shadow-lg/20">
                   <AlertTriangle className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <p className="text-sm font-black text-[#3B82F6] uppercase tracking-wide leading-tight">สลิปต้องมี QR Code เท่านั้น</p>
+                  <p className="text-sm font-black text-purple-500 uppercase tracking-wide leading-tight">สลิปต้องมี QR Code เท่านั้น</p>
                   <p className="text-[11px] text-[#2563EB]/80 font-bold mt-1 leading-relaxed">ระบบไม่รองรับ Wallet หรือสลิปที่ไม่มี QR Code ทุกกรณี หากโอนผิดไม่คืนเงิน</p>
                 </div>
             </div>

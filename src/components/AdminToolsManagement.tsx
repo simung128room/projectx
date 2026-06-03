@@ -259,7 +259,7 @@ export const AdminToolsManagement = () => {
                     <option value="file">ลิ้งค์ดาวน์โหลด</option>
                   </select>
                   <input value={attData} onChange={e=>setAttData(e.target.value)} className="flex-1 bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2 text-white sm:text-sm" placeholder={attType === 'text' ? "วางข้อความที่นี่..." : "วางลิ้งค์ URL"} />
-                  <button onClick={() => { if(attData) { setAttachments([...attachments, {type: attType, data: attData}]); setAttData(''); } }} className="bg-zinc-800 hover:bg-zinc-700 text-white px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-1"><Plus className="w-4 h-4"/> แอดไฟล์</button>
+                  <button onClick={() => { if(attData) { setAttachments([...attachments, {type: attType, data: attData}]); setAttData(''); } }} className="bg-zinc-800 hover:bg-gray-200 text-white px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-1"><Plus className="w-4 h-4"/> แอดไฟล์</button>
                 </div>
               </div>
 

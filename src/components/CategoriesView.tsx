@@ -37,12 +37,12 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({ categories = [],
       <div className="flex items-center gap-4 mb-8">
         <button 
           onClick={onBack}
-          className="p-3 bg-[#111111] hover:bg-[#161616] border border-[#1e1e1e] rounded-full transition-colors group shadow-sm"
+          className="p-3 bg-[#111111] hover:bg-[#161616] border border-zinc-800 rounded-full transition-colors group shadow-sm"
         >
-          <ArrowLeft className="w-5 h-5 text-[#888888] group-hover:text-[#ffffff]" />
+          <ArrowLeft className="w-5 h-5 text-[#888888] group-hover:text-white" />
         </button>
         <div>
-          <h1 className="text-3xl sm:text-4xl font-medium text-[#ffffff] tracking-tight flex items-center gap-3">
+          <h1 className="text-3xl sm:text-4xl font-medium text-white tracking-tight flex items-center gap-3">
              <Package className="w-8 h-8 text-[#0066ff]" /> หมวดหมู่สินค้า
           </h1>
           <p className="text-sm font-medium text-[#888888] mt-2">เลือกหมวดหมู่ที่ต้องการดูสินค้า</p>

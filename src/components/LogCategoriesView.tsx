@@ -130,7 +130,7 @@ export const LogCategoriesView: React.FC<LogCategoriesViewProps> = ({ userPlan, 
                </h2>
                <div className="ml-auto w-48 relative">
                  <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
-                 <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="ค้นหา..." className="w-full bg-black/50 border border-white/10 rounded-xl pl-9 pr-4 py-2 text-sm text-white" />
+                 <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="ค้นหา..." className="w-full bg-white/50 border border-white/10 rounded-xl pl-9 pr-4 py-2 text-sm text-white" />
                </div>
             </div>
 
@@ -179,7 +179,7 @@ export const LogCategoriesView: React.FC<LogCategoriesViewProps> = ({ userPlan, 
                       
                       <div className="w-full flex items-center justify-between pt-4 border-t border-white/5 mt-auto">
                         <span className="text-xs font-bold text-zinc-400">{catItemsCount} รายการ</span>
-                        <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-zinc-400 group-hover:bg-[#3B82F6]/10 group-hover:text-[#2563EB] transition-all">
+                        <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-zinc-400 group-hover:bg-purple-600/10 group-hover:text-[#2563EB] transition-all">
                           <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-all" />
                         </div>
                       </div>

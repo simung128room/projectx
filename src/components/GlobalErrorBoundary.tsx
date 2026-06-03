@@ -43,7 +43,7 @@ export class GlobalErrorBoundary extends React.Component<ErrorBoundaryProps, Err
           <div className="max-w-md w-full bg-[#0B0D0F] border border-white/5 rounded-[2.5rem] p-10 text-center shadow-2xl relative overflow-hidden">
             {/* Background Decoration */}
             <div className="absolute -top-24 -left-24 w-48 h-48 bg-red-500/10  rounded-full"></div>
-            <div className="absolute -bottom-24 -right-24 w-48 h-48 bg-[#3B82F6]/10  rounded-full"></div>
+            <div className="absolute -bottom-24 -right-24 w-48 h-48 bg-purple-600/10  rounded-full"></div>
             
             <div className="relative z-10">
                 <div className="w-20 h-20 bg-red-500/10 rounded-xl flex items-center justify-center mx-auto mb-8 text-red-500 shadow-lg shadow-red-500/5">
@@ -58,7 +58,7 @@ export class GlobalErrorBoundary extends React.Component<ErrorBoundaryProps, Err
                 <div className="flex flex-col gap-3">
                     <button
                         onClick={this.handleReload}
-                        className="w-full flex items-center justify-center gap-2 py-4 bg-[#3B82F6] hover:bg-[#1D4ED8] text-white rounded-2xl font-black text-sm transition-all active:scale-[0.98] shadow-lg shadow-lg/25 uppercase tracking-wider"
+                        className="w-full flex items-center justify-center gap-2 py-4 bg-purple-600 hover:bg-[#1D4ED8] text-white rounded-2xl font-black text-sm transition-all active:scale-[0.98] shadow-lg shadow-lg/25 uppercase tracking-wider"
                     >
                         <RefreshCcw className="w-4 h-4" /> รีเฟรชหน้านี้
                     </button>

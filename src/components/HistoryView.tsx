@@ -56,7 +56,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ purchaseHistory = [], 
       title: 'ประวัติการเติมเงิน (อังเปา)',
       subtitle: 'True Money Wallet Gift History',
       icon: Gift,
-      bg: 'bg-[#3B82F6]/10',
+      bg: 'bg-purple-600/10',
       color: 'text-[#2563EB]'
     },
     {
@@ -76,7 +76,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ purchaseHistory = [], 
       case 'pending':
         return <span className="bg-amber-500/10 text-amber-600 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-amber-100 flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-amber-500"></div>รอดำเนินการ</span>;
       case 'failed':
-        return <span className="bg-[#3B82F6]/10 text-[#3B82F6] px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-white/10 flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-[#2563EB]"></div>ล้มเหลว</span>;
+        return <span className="bg-purple-600/10 text-purple-500 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-white/10 flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-[#2563EB]"></div>ล้มเหลว</span>;
       default:
         return <span className="bg-[#121820] text-zinc-500 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-white/10 flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-zinc-400"></div>{status || 'สำเร็จ'}</span>;
     }
@@ -89,7 +89,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ purchaseHistory = [], 
       case 'special_product':
         return purchaseHistory.filter(p => p.is_special).map(p => ({ ...p, type: 'special_product', title: p.productName || 'สินค้าพิเศษ', icon: Star, color: 'text-amber-500', bg: 'bg-amber-50', money: -(p.price || 0), date: p.date || p.timestamp }));
       case 'topup_gift':
-        return topupHistory.filter(t => t.method?.toLowerCase().includes('gift') || t.method?.toLowerCase().includes('อั่งเปา')).map(t => ({ ...t, type: 'topup_gift', title: 'TrueMoney Wallet (อังเปา)', icon: Gift, color: 'text-[#2563EB]', bg: 'bg-[#3B82F6]/10', money: t.amount, date: t.date || t.timestamp }));
+        return topupHistory.filter(t => t.method?.toLowerCase().includes('gift') || t.method?.toLowerCase().includes('อั่งเปา')).map(t => ({ ...t, type: 'topup_gift', title: 'TrueMoney Wallet (อังเปา)', icon: Gift, color: 'text-[#2563EB]', bg: 'bg-purple-600/10', money: t.amount, date: t.date || t.timestamp }));
       case 'topup_slip':
         return topupHistory.filter(t => !t.method?.toLowerCase().includes('gift') && !t.method?.toLowerCase().includes('อั่งเปา')).map(t => ({ ...t, type: 'topup_slip', title: 'ธนาคาร เช็คสลิป', icon: CreditCard, color: 'text-emerald-500', bg: 'bg-emerald-50', money: t.amount, date: t.date || t.timestamp }));
       case 'key_usage':
@@ -160,7 +160,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ purchaseHistory = [], 
             <div className="bg-[#0B0D0F] rounded-xl border border-white/10 shadow-sm overflow-hidden mb-6">
               <div className="p-6 md:p-8 border-b border-white/5 bg-[#121417]/50">
                 <div className="flex items-center gap-3">
-                  <div className="p-2.5 bg-[#3B82F6]/20 text-[#3B82F6] rounded-xl">
+                  <div className="p-2.5 bg-purple-600/20 text-purple-500 rounded-xl">
                     <History className="w-6 h-6" />
                   </div>
                   <div>
@@ -261,7 +261,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ purchaseHistory = [], 
                     <p className="text-xs font-medium text-zinc-500">ยังไม่พบข้อมูลในหมวดหมู่นี้</p>
                     <button 
                       onClick={() => setCurrentCategory(null)}
-                      className="mt-6 px-6 py-2 bg-zinc-900 text-white rounded-xl text-xs font-bold hover:bg-zinc-800 transition-colors"
+                      className="mt-6 px-6 py-2 bg-zinc-900 text-white rounded-xl text-xs font-bold hover:bg-gray-200 transition-colors"
                     >
                       ย้อนกลับ
                     </button>

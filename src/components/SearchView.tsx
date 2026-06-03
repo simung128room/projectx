@@ -78,13 +78,13 @@ export const SearchView: React.FC<SearchViewProps> = ({ products, onBack, onProd
                   </div>
                 )}
                 
-                <h3 className="font-bold text-white text-lg mb-2 line-clamp-2 leading-tight group-hover:text-[#3B82F6] transition-colors flex-1">{product.name}</h3>
+                <h3 className="font-bold text-white text-lg mb-2 line-clamp-2 leading-tight group-hover:text-purple-500 transition-colors flex-1">{product.name}</h3>
                 
                 <div className="flex items-end justify-between mt-auto pt-4 border-t border-white/5">
                   <div className="flex flex-col">
                     <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-1">ราคา</span>
                     <div className="flex items-baseline gap-1">
-                      <span className="text-[#3B82F6] font-medium text-sm">฿</span>
+                      <span className="text-purple-500 font-medium text-sm">฿</span>
                       <span className="text-xl font-black text-white leading-none">{(product.price || 0).toLocaleString()}</span>
                     </div>
                   </div>

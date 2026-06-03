@@ -54,7 +54,7 @@ export const ProxyFreeFireIOSTool: React.FC = () => {
             </div>
 
             <div className="space-y-4">
-              <div className="bg-black/50 p-4 rounded-xl border border-white/5 flex items-center justify-between">
+              <div className="bg-white/50 p-4 rounded-xl border border-white/5 flex items-center justify-between">
                 <div>
                   <div className="text-[10px] font-bold text-zinc-500 mb-1 tracking-wider">SERVER (IP)</div>
                   <div className="text-white font-mono text-lg">{serverIp}</div>
@@ -67,7 +67,7 @@ export const ProxyFreeFireIOSTool: React.FC = () => {
                 </button>
               </div>
 
-              <div className="bg-black/50 p-4 rounded-xl border border-white/5 flex items-center justify-between">
+              <div className="bg-white/50 p-4 rounded-xl border border-white/5 flex items-center justify-between">
                 <div>
                   <div className="text-[10px] font-bold text-zinc-500 mb-1 tracking-wider">PORT</div>
                   <div className="text-white font-mono text-lg">{port}</div>
@@ -98,7 +98,7 @@ export const ProxyFreeFireIOSTool: React.FC = () => {
               </div>
             </div>
 
-            <div className="bg-black/50 p-6 rounded-xl border border-white/5">
+            <div className="bg-white/50 p-6 rounded-xl border border-white/5">
               <div className="flex flex-col items-center text-center">
                 <Download className="w-10 h-10 text-zinc-500 mb-3" />
                 <div className="text-sm font-medium text-zinc-300 mb-1">BFUN IOS PROXY 💀.cer</div>

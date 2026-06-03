@@ -163,7 +163,7 @@ export function TwoFAGenerator() {
                       layout
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="group bg-white/5 border border-white/5 rounded-xl p-5 hover:bg-white/[0.08] hover:border-indigo-500/30 transition-all relative overflow-hidden"
+                      className="group bg-white/5 border border-white/5 rounded-xl p-5 hover:bg-[#050505]/[0.08] hover:border-indigo-500/30 transition-all relative overflow-hidden"
                     >
                       {/* Timer Progress Bar */}
                       <div className="absolute bottom-0 left-0 h-1 bg-indigo-500/30" style={{ width: '100%' }}>

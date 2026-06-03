@@ -141,7 +141,7 @@ export const AdminCategoriesManagement: React.FC<AdminCategoriesManagementProps>
         </h2>
         <button 
           onClick={() => { setIsAdding(true); setFormData({ name: '', title: '', subtitle: '', bannerUrl: '' }); }}
-          className="bg-[#3B82F6] hover:bg-[#1D4ED8] text-white px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2"
+          className="bg-purple-600 hover:bg-[#1D4ED8] text-white px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2"
         >
           <Plus className="w-4 h-4" /> เพิ่มหมวดหมู่
         </button>
@@ -233,7 +233,7 @@ export const AdminCategoriesManagement: React.FC<AdminCategoriesManagementProps>
                   {formData.bannerUrl ? (
                     <div className="w-full md:w-64 h-32 rounded-2xl overflow-hidden border border-white/10 shadow-sm relative group bg-[#121820] shrink-0">
                       <img loading="lazy" src={formData.bannerUrl || undefined} alt="Preview" className="w-full h-full object-cover" />
-                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                         <p className="text-white text-xs font-bold text-center px-4 drop-shadow-md">พรีวิวรูปภาพหน้าปก</p>
                       </div>
                     </div>
@@ -251,7 +251,7 @@ export const AdminCategoriesManagement: React.FC<AdminCategoriesManagementProps>
               <button onClick={() => { setIsAdding(false); setEditingCategory(null); }} className="px-6 py-3 rounded-2xl font-bold bg-[#0B0D0F] border border-white/10 text-zinc-400 hover:bg-[#121417] hover:text-white transition-colors shadow-sm">
                 ยกเลิก
               </button>
-              <button onClick={saveCategory} className="px-6 py-3 rounded-2xl font-bold bg-[#3B82F6] text-white hover:bg-[#1D4ED8] hover:shadow-lg hover:shadow-lg/20 flex items-center gap-2 transition-all active:scale-95">
+              <button onClick={saveCategory} className="px-6 py-3 rounded-2xl font-bold bg-purple-600 text-white hover:bg-[#1D4ED8] hover:shadow-lg hover:shadow-lg/20 flex items-center gap-2 transition-all active:scale-95">
                 <Save className="w-5 h-5"/> {editingCategory ? 'อัปเดตหมวดหมู่' : 'สร้างหมวดหมู่'}
               </button>
             </div>
@@ -306,7 +306,7 @@ export const AdminCategoriesManagement: React.FC<AdminCategoriesManagementProps>
                         <ShoppingCart className="w-4 h-4" />
                         <span className="text-xs font-bold hidden sm:inline">จัดการสินค้า</span>
                       </button>
-                      <button onClick={() => { setEditingCategory(c); setFormData(c); setIsAdding(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="p-2 border border-[#3B82F6]/30 bg-[#3B82F6]/10 text-white hover:bg-[#3B82F6] hover:text-white rounded-xl transition-colors shadow-sm" title="แก้ไข">
+                      <button onClick={() => { setEditingCategory(c); setFormData(c); setIsAdding(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="p-2 border border-[#3B82F6]/30 bg-purple-600/10 text-white hover:bg-purple-600 hover:text-white rounded-xl transition-colors shadow-sm" title="แก้ไข">
                         <Edit className="w-4 h-4" />
                       </button>
                       <button onClick={() => deleteCategory(c.id)} className="p-2 border border-red-500/30 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-xl transition-colors shadow-sm" title="ลบ">
@@ -333,11 +333,11 @@ export const AdminCategoriesManagement: React.FC<AdminCategoriesManagementProps>
       </div>
 
       {managingProductsForCategory && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-end p-0 z-50">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-end p-0 z-50">
           <div className="bg-[#0B0D0F] border-l border-white/5 w-full max-w-2xl h-full shadow-2xl relative p-6 sm:p-8 flex flex-col overflow-y-auto animate-in slide-in-from-right-full duration-300">
             <button 
               onClick={() => setManagingProductsForCategory(null)}
-              className="absolute top-4 right-4 p-2 text-zinc-500 hover:text-white bg-zinc-900 border border-zinc-800 rounded-full hover:bg-zinc-800 transition-colors"
+              className="absolute top-4 right-4 p-2 text-zinc-500 hover:text-white bg-zinc-900 border border-zinc-800 rounded-full hover:bg-gray-200 transition-colors"
             >
               <X className="w-5 h-5" />
             </button>

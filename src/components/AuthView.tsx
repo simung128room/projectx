@@ -152,7 +152,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
                     
                     <div className="space-y-5">
                         <div className="flex items-center gap-4 text-sm text-zinc-300 font-medium">
-                            <div className="w-12 h-12 rounded-2xl bg-[#3B82F6]/10 border border-[#3B82F6]/20 flex items-center justify-center text-[#3B82F6]">
+                            <div className="w-12 h-12 rounded-2xl bg-purple-600/10 border border-[#3B82F6]/20 flex items-center justify-center text-purple-500">
                                 <Zap className="w-5 h-5" />
                             </div>
                             ระบบอัตโนมัติ รวดเร็ว 24 ชม.
@@ -170,7 +170,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
 
         {/* Right Side: Form */}
         <div className="w-full lg:w-1/2 bg-[#0B0D0F] p-8 sm:p-12 relative flex flex-col justify-center">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-[#3B82F6]/5 rounded-full blur-3xl pointer-events-none"></div>
+          <div className="absolute top-0 right-0 w-64 h-64 bg-purple-600/5 rounded-full blur-3xl pointer-events-none"></div>
 
           {/* Header */}
           <div className="flex justify-between items-start mb-8 relative">
@@ -178,7 +178,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
               <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight leading-tight">
                 {authMode === 'login' ? 'เข้าสู่ระบบ' : authMode === 'forgot' ? 'รีเซ็ตรหัสผ่าน' : 'สร้างบัญชีผู้ใช้ใหม่'}
               </h2>
-              <div className="h-1 w-12 bg-[#3B82F6] rounded-full mt-3 mb-3"></div>
+              <div className="h-1 w-12 bg-purple-600 rounded-full mt-3 mb-3"></div>
               <p className="text-zinc-400 text-[13px] sm:text-sm">
                 {authMode === 'login' ? 'ยินดีต้อนรับกลับสู่ APEXSTORE' : authMode === 'forgot' ? 'กู้คืนบัญชีของคุณ' : 'ลงทะเบียนเพื่อเริ่มต้นใช้งานระบบ'}
               </p>
@@ -336,7 +336,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
                   ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-500/20'
                   : authMode === 'forgot'
                   ? 'bg-fuchsia-600 hover:bg-fuchsia-500 text-white shadow-fuchsia-500/20'
-                  : 'bg-[#3B82F6] hover:bg-[#2563EB] text-white shadow-[#3B82F6]/20'
+                  : 'bg-purple-600 hover:bg-[#2563EB] text-white shadow-[#3B82F6]/20'
               }`}
             >
               {authLoading ? (
@@ -381,7 +381,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
                   setActiveView(nextMode); 
                 }} 
                 className={`font-bold transition-colors underline-offset-4 hover:underline focus:outline-none ${
-                    authMode === 'login' ? 'text-emerald-500 hover:text-emerald-400' : 'text-[#3B82F6] hover:text-[#2563EB]'
+                    authMode === 'login' ? 'text-emerald-500 hover:text-emerald-400' : 'text-purple-500 hover:text-[#2563EB]'
                 }`}
               >
                 {authMode === 'login' ? 'สมัครสมาชิก' : 'เข้าสู่ระบบ'}

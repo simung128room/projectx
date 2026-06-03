@@ -164,7 +164,7 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
                        <span className="font-mono text-xs text-zinc-400 bg-[#121820] px-2 py-1 rounded-md border border-white/5">{u.lastLoginIp || u.last_login_ip || 'ไม่ทราบ'}</span>
                     </td>
                     <td className="px-4 py-4">
-                      <span className={`px-2 py-1 rounded-full text-[10px] uppercase tracking-widest font-bold ${u.role === 'Admin' ? 'bg-[#3B82F6]/10 text-[#3B82F6] border border-white/10' : u.role === 'Premium' ? 'bg-amber-500/10 text-amber-600 border border-amber-100' : 'bg-[#121820] text-zinc-400 border border-white/10'}`}>
+                      <span className={`px-2 py-1 rounded-full text-[10px] uppercase tracking-widest font-bold ${u.role === 'Admin' ? 'bg-purple-600/10 text-purple-500 border border-white/10' : u.role === 'Premium' ? 'bg-amber-500/10 text-amber-600 border border-amber-100' : 'bg-[#121820] text-zinc-400 border border-white/10'}`}>
                         {u.role}
                       </span>
                     </td>
@@ -177,7 +177,7 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
                     </td>
                     <td className="px-4 py-4 font-bold font-mono text-emerald-600 text-right">{(u.balance || 0).toLocaleString()}</td>
                     <td className="px-4 py-4 text-right">
-                       <button onClick={() => setSelectedUser(u)} className="px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1 ml-auto shadow-sm active:scale-95">
+                       <button onClick={() => setSelectedUser(u)} className="px-3 py-1.5 bg-zinc-900 hover:bg-gray-200 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1 ml-auto shadow-sm active:scale-95">
                           <Eye className="w-3 h-3" /> ดูข้อมูล
                        </button>
                     </td>
@@ -210,7 +210,7 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
                 <div>
                   <h2 className="text-xl font-bold text-white mb-1">{selectedUser.email}</h2>
                   <div className="flex items-center gap-2 text-xs font-bold">
-                    <span className={`px-2 py-0.5 rounded uppercase tracking-widest ${selectedUser.role === 'Admin' ? 'bg-[#3B82F6]/20 text-[#3B82F6]' : selectedUser.role === 'Premium' ? 'bg-amber-100 text-amber-600' : 'bg-zinc-200 text-zinc-400'}`}>
+                    <span className={`px-2 py-0.5 rounded uppercase tracking-widest ${selectedUser.role === 'Admin' ? 'bg-purple-600/20 text-purple-500' : selectedUser.role === 'Premium' ? 'bg-amber-100 text-amber-600' : 'bg-zinc-200 text-zinc-400'}`}>
                       {selectedUser.role}
                     </span>
                     <span className={`px-2 py-0.5 rounded uppercase tracking-widest flex items-center gap-1 ${selectedUser.status === 'banned' ? 'bg-zinc-200 text-zinc-400' : 'bg-emerald-100 text-emerald-600'}`}>
@@ -265,7 +265,7 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
                         <button onClick={() => handleUpdateBalance(selectedUser, 'add')} className="flex-1 py-2.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 hover:bg-emerald-100 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 outline-none">
                           <HandCoins className="w-4 h-4" /> เพิ่มเงิน
                         </button>
-                        <button onClick={() => handleUpdateBalance(selectedUser, 'deduct')} className="flex-1 py-2.5 bg-[#3B82F6]/10 border border-[#3B82F6]/30 text-[#3B82F6] hover:bg-[#3B82F6]/20 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 outline-none">
+                        <button onClick={() => handleUpdateBalance(selectedUser, 'deduct')} className="flex-1 py-2.5 bg-purple-600/10 border border-[#3B82F6]/30 text-purple-500 hover:bg-purple-600/20 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 outline-none">
                           <ArrowRightLeft className="w-4 h-4" /> หักเงิน
                         </button>
                       </div>
@@ -345,12 +345,12 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
 
                         <button onClick={() => handleToggleBan(selectedUser)} className={`w-full flex items-center justify-between p-3.5 bg-[#0B0D0F] border ${selectedUser.status === 'banned' ? 'border-emerald-500/30 hover:border-emerald-500/50' : 'border-[#3B82F6]/30 hover:border-[#3B82F6]/40'} rounded-xl transition-all group`}>
                            <div className="flex items-center gap-3">
-                             <div className={`p-2 rounded-lg transition-colors ${selectedUser.status === 'banned' ? 'bg-emerald-500/10 group-hover:bg-emerald-100' : 'bg-[#3B82F6]/10 group-hover:bg-[#3B82F6]/20'}`}>
-                                {selectedUser.status === 'banned' ? <CheckCircle className="w-4 h-4 text-emerald-600" /> : <Ban className="w-4 h-4 text-[#3B82F6]" />}
+                             <div className={`p-2 rounded-lg transition-colors ${selectedUser.status === 'banned' ? 'bg-emerald-500/10 group-hover:bg-emerald-100' : 'bg-purple-600/10 group-hover:bg-purple-600/20'}`}>
+                                {selectedUser.status === 'banned' ? <CheckCircle className="w-4 h-4 text-emerald-600" /> : <Ban className="w-4 h-4 text-purple-500" />}
                              </div>
                              <div className="flex flex-col items-start leading-tight">
                                 <span className={`text-sm font-bold ${selectedUser.status === 'banned' ? 'text-emerald-700' : 'text-[#1D4ED8]'}`}>{selectedUser.status === 'banned' ? 'ปลดแบนผู้ใช้นี้' : 'ระงับ/แบนผู้ใช้นี้'}</span>
-                                <span className={`text-[10px] font-medium mt-0.5 ${selectedUser.status === 'banned' ? 'text-emerald-600/70' : 'text-[#3B82F6]/70'}`}>{selectedUser.status === 'banned' ? 'ผู้ใช้จะสามารถล็อกอินได้' : 'ป้องกันการเข้าสู่ระบบ'}</span>
+                                <span className={`text-[10px] font-medium mt-0.5 ${selectedUser.status === 'banned' ? 'text-emerald-600/70' : 'text-purple-500/70'}`}>{selectedUser.status === 'banned' ? 'ผู้ใช้จะสามารถล็อกอินได้' : 'ป้องกันการเข้าสู่ระบบ'}</span>
                              </div>
                            </div>
                         </button>

@@ -39,9 +39,9 @@ export const RedeemKeyView: React.FC<RedeemKeyViewProps> = ({ redeemKey, userEma
             <span className="sm:hidden">กลับ</span>
           </button>
           
-          <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#3B82F6]/10 border border-white/10">
-            <Sparkles className="w-4 h-4 text-[#3B82F6]" />
-            <span className="text-[#3B82F6] text-[10px] font-black uppercase tracking-[0.2em]">Key Activation</span>
+          <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-purple-600/10 border border-white/10">
+            <Sparkles className="w-4 h-4 text-purple-500" />
+            <span className="text-purple-500 text-[10px] font-black uppercase tracking-[0.2em]">Key Activation</span>
           </div>
         </div>
 
@@ -50,14 +50,14 @@ export const RedeemKeyView: React.FC<RedeemKeyViewProps> = ({ redeemKey, userEma
             
             {/* Left Column: Info & Benefits */}
             <div className="lg:col-span-12 xl:col-span-5 p-8 md:p-12 border-b lg:border-b-0 lg:border-r border-white/5 bg-[#121417] relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-[#3B82F6]/20/50  rounded-full pointer-events-none -translate-y-1/2 translate-x-1/4"></div>
+              <div className="absolute top-0 right-0 w-64 h-64 bg-purple-600/20/50  rounded-full pointer-events-none -translate-y-1/2 translate-x-1/4"></div>
               
               <div className="mb-10 relative z-10">
-                <div className="w-16 h-16 bg-[#3B82F6] rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-lg/20">
+                <div className="w-16 h-16 bg-purple-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-lg/20">
                   <KeyIcon className="w-8 h-8 text-white" />
                 </div>
                 <h2 className="text-3xl font-black text-white tracking-tight mb-3">
-                  อัพเกรดเป็น <span className="text-[#3B82F6]">Premium</span>
+                  อัพเกรดเป็น <span className="text-purple-500">Premium</span>
                 </h2>
               </div>
 
@@ -109,7 +109,7 @@ export const RedeemKeyView: React.FC<RedeemKeyViewProps> = ({ redeemKey, userEma
                     {!isLoggedIn && (
                       <div className="mt-3 text-center">
                         <p className="text-sm font-bold text-[#2563EB] mb-2">กรุณาเข้าสู่ระบบก่อนกรอกคีย์</p>
-                        <button type="button" onClick={onLoginClick} className="px-4 py-2 bg-[#3B82F6]/10 text-[#3B82F6] rounded-lg text-sm font-bold hover:bg-[#3B82F6]/20 transition-colors">เข้าสู่ระบบ / สมัครสมาชิก</button>
+                        <button type="button" onClick={onLoginClick} className="px-4 py-2 bg-purple-600/10 text-purple-500 rounded-lg text-sm font-bold hover:bg-purple-600/20 transition-colors">เข้าสู่ระบบ / สมัครสมาชิก</button>
                       </div>
                     )}
                   </div>
@@ -119,8 +119,8 @@ export const RedeemKeyView: React.FC<RedeemKeyViewProps> = ({ redeemKey, userEma
                     disabled={!keyInput || !isLoggedIn}
                     className="w-full relative group h-16 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                   >
-                    <div className="absolute inset-0 bg-[#3B82F6] rounded-xl blur-lg opacity-20 group-hover:opacity-40 transition-opacity"></div>
-                    <div className="relative h-full w-full bg-[#3B82F6] text-white rounded-xl font-bold text-sm uppercase tracking-widest flex items-center justify-center gap-3 shadow-md active:scale-[0.98] transition-all">
+                    <div className="absolute inset-0 bg-purple-600 rounded-xl blur-lg opacity-20 group-hover:opacity-40 transition-opacity"></div>
+                    <div className="relative h-full w-full bg-purple-600 text-white rounded-xl font-bold text-sm uppercase tracking-widest flex items-center justify-center gap-3 shadow-md active:scale-[0.98] transition-all">
                       เปิดใช้งานเดี๋ยวนี้
                       <Zap className="w-4 h-4 fill-white flex-shrink-0" />
                     </div>

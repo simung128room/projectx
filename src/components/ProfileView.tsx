@@ -96,7 +96,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           
           <h3 className="text-xl font-black text-white mb-1 text-center truncate w-full px-2 z-10">{username}</h3>
           {!isAdminOrOwner && (
-            <span className="text-xs font-bold text-[#3B82F6] uppercase tracking-widest bg-[#3B82F6]/10 px-3 py-1 rounded-full border border-white/10 mb-6 z-10">
+            <span className="text-xs font-bold text-purple-500 uppercase tracking-widest bg-purple-600/10 px-3 py-1 rounded-full border border-white/10 mb-6 z-10">
               {role}
             </span>
           )}
@@ -202,7 +202,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             </div>
 
             <div className="flex justify-end pt-2">
-              <button type="submit" className="bg-[#3B82F6] hover:bg-[#2563EB] text-white font-bold py-2.5 px-6 rounded-xl transition-all text-sm shadow-sm">
+              <button type="submit" className="bg-purple-600 hover:bg-[#2563EB] text-white font-bold py-2.5 px-6 rounded-xl transition-all text-sm shadow-sm">
                 บันทึกการแก้ไข
               </button>
             </div>
@@ -214,7 +214,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             <div className="space-y-2">
               <button type="button" onClick={() => setActiveView('history')} className="w-full flex items-center justify-between p-3 rounded-2xl bg-[#0B0D0F] border border-white/10 hover:border-[#3B82F6]/30 hover:bg-[#121417] transition-all group shadow-sm">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-[#3B82F6]/20 rounded-lg text-[#3B82F6]">
+                  <div className="p-2 bg-purple-600/20 rounded-lg text-purple-500">
                     <History className="w-4 h-4" />
                   </div>
                   <span className="text-sm font-medium text-zinc-400 group-hover:text-white transition-colors">ประวัติสั่งซื้อ (History)</span>
@@ -232,14 +232,14 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 <ChevronRight className="w-4 h-4 text-zinc-500 group-hover:text-zinc-300 transition-colors" />
               </button>
 
-              <button type="button" onClick={() => setActiveView('redeem')} className="w-full flex items-center justify-between p-3 rounded-2xl bg-[#0B0D0F] border border-white/10 hover:border-[#3B82F6]/30 hover:bg-[#3B82F6]/5 transition-all group shadow-sm">
+              <button type="button" onClick={() => setActiveView('redeem')} className="w-full flex items-center justify-between p-3 rounded-2xl bg-[#0B0D0F] border border-white/10 hover:border-[#3B82F6]/30 hover:bg-purple-600/5 transition-all group shadow-sm">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-[#3B82F6]/10 rounded-lg text-[#3B82F6]">
+                  <div className="p-2 bg-purple-600/10 rounded-lg text-purple-500">
                     <Key className="w-4 h-4" />
                   </div>
                   <span className="text-sm font-medium text-zinc-400 group-hover:text-white transition-colors">เปิดใช้งานคีย์ไลเซนส์ (Redeem Key)</span>
                 </div>
-                <ChevronRight className="w-4 h-4 text-zinc-500 group-hover:text-[#3B82F6] transition-colors" />
+                <ChevronRight className="w-4 h-4 text-zinc-500 group-hover:text-purple-500 transition-colors" />
               </button>
               
               {user && (
@@ -257,12 +257,12 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                       handleLogout();
                     }
                   });
-                }} className="w-full flex items-center justify-between p-3 rounded-2xl bg-[#0B0D0F] border border-white/10 hover:border-[#3B82F6]/30 hover:bg-[#3B82F6]/10 transition-all group shadow-sm">
+                }} className="w-full flex items-center justify-between p-3 rounded-2xl bg-[#0B0D0F] border border-white/10 hover:border-[#3B82F6]/30 hover:bg-purple-600/10 transition-all group shadow-sm">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 bg-[#3B82F6]/10 rounded-lg text-[#2563EB]">
+                    <div className="p-2 bg-purple-600/10 rounded-lg text-[#2563EB]">
                       <LogOut className="w-4 h-4" />
                     </div>
-                    <span className="text-sm font-medium text-zinc-400 group-hover:text-[#3B82F6] transition-colors">ออกจากระบบ</span>
+                    <span className="text-sm font-medium text-zinc-400 group-hover:text-purple-500 transition-colors">ออกจากระบบ</span>
                   </div>
                   <ChevronRight className="w-4 h-4 text-zinc-500 group-hover:text-[#2563EB] transition-colors" />
                 </button>
@@ -283,7 +283,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                     <span className="text-[10px] text-zinc-500">ไม่ได้เชื่อมต่อ</span>
                   </div>
                 </div>
-                <span className="text-xs font-bold text-[#3B82F6] px-3 py-1 bg-[#3B82F6]/10 rounded-full">เชื่อมต่อ</span>
+                <span className="text-xs font-bold text-purple-500 px-3 py-1 bg-purple-600/10 rounded-full">เชื่อมต่อ</span>
               </button>
               
               <button className="flex items-center justify-between p-4 rounded-xl bg-[#121417] border border-white/5 hover:border-[#5865F2]/30 hover:bg-[#5865F2]/5 transition-all group">
@@ -296,7 +296,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                     <span className="text-[10px] text-zinc-500">ไม่ได้เชื่อมต่อ</span>
                   </div>
                 </div>
-                <span className="text-xs font-bold text-[#3B82F6] px-3 py-1 bg-[#3B82F6]/10 rounded-full">เชื่อมต่อ</span>
+                <span className="text-xs font-bold text-purple-500 px-3 py-1 bg-purple-600/10 rounded-full">เชื่อมต่อ</span>
               </button>
             </div>
           </div>
@@ -304,7 +304,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           <div className="mt-8 border-t border-white/5 pt-8">
             <div className="flex items-center justify-between mb-4 px-1">
               <h3 className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">รายการสินค้าที่ซื้อล่าสุด (Purchased Items)</h3>
-              <button onClick={() => setActiveView('history')} className="text-[10px] uppercase font-bold text-[#3B82F6] hover:text-[#2563EB] transition-colors">
+              <button onClick={() => setActiveView('history')} className="text-[10px] uppercase font-bold text-purple-500 hover:text-[#2563EB] transition-colors">
                 ดูทั้งหมด
               </button>
             </div>
@@ -324,7 +324,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           <div className="mt-8 border-t border-white/5 pt-8">
             <div className="flex items-center justify-between mb-4 px-1">
               <h3 className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">คีย์ที่เปิดใช้งานล่าสุด (Redeemed Keys)</h3>
-              <button onClick={() => setActiveView('history')} className="text-[10px] uppercase font-bold text-[#3B82F6] hover:text-[#2563EB] transition-colors">
+              <button onClick={() => setActiveView('history')} className="text-[10px] uppercase font-bold text-purple-500 hover:text-[#2563EB] transition-colors">
                 ดูทั้งหมด
               </button>
             </div>

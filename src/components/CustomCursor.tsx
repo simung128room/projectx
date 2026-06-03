@@ -82,7 +82,7 @@ export const CustomCursor: React.FC = () => {
       {/* Dot */}
       <div
         ref={dotRef}
-        className="fixed top-0 left-0 w-2 h-2 rounded-full bg-[#3B82F6] pointer-events-none z-[9999]"
+        className="fixed top-0 left-0 w-2 h-2 rounded-full bg-purple-600 pointer-events-none z-[9999]"
         style={{ transition: 'transform 0.1s ease-out', willChange: 'transform' }}
       />
       

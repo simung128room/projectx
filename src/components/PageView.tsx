@@ -30,7 +30,7 @@ export const PageView: React.FC<PageViewProps> = ({ page, onBack }) => {
            {page.title.replace(/^#+\s*/, '')}
         </h1>
         
-        <div className="prose prose-zinc max-w-none prose-headings:font-black prose-a:text-[#3B82F6] hover:prose-a:text-[#1D4ED8]">
+        <div className="prose prose-zinc max-w-none prose-headings:font-black prose-a:text-purple-500 hover:prose-a:text-[#1D4ED8]">
            <div className="markdown-body">
              <Markdown>{page.content || '*ไม่มีเนื้อหา*'}</Markdown>
            </div>

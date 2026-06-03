@@ -141,7 +141,7 @@ export const ContactView: React.FC<ContactViewProps> = ({
           </div>
           <h2 className="text-xl font-black text-white mb-2">Email Support</h2>
           <p className="text-zinc-500 text-sm font-medium">ติดต่อแจ้งปัญหาหรือสอบถามข้อมูลเพิ่มเติมผ่านทางอีเมล</p>
-          <div className="mt-6 px-6 py-2.5 bg-zinc-800 text-white rounded-xl font-bold text-sm shadow-sm group-hover:bg-zinc-700 transition-colors">
+          <div className="mt-6 px-6 py-2.5 bg-zinc-800 text-white rounded-xl font-bold text-sm shadow-sm group-hover:bg-gray-200 transition-colors">
             ส่งอีเมลหาเรา
           </div>
           {!contactEmail && (

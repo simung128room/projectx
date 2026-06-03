@@ -118,7 +118,7 @@ export const AdminPagesManagement: React.FC<AdminPagesManagementProps> = ({ cust
             </button>
             <button 
               type="submit"
-              className="px-6 py-3 font-bold text-sm rounded-xl bg-[#3B82F6] text-white hover:bg-[#1D4ED8]"
+              className="px-6 py-3 font-bold text-sm rounded-xl bg-purple-600 text-white hover:bg-[#1D4ED8]"
             >
               บันทึก
             </button>
@@ -137,7 +137,7 @@ export const AdminPagesManagement: React.FC<AdminPagesManagementProps> = ({ cust
         </div>
         <button 
           onClick={handleCreateNew}
-          className="bg-[#3B82F6] hover:bg-[#1D4ED8] text-white px-4 py-2 font-bold text-sm rounded-xl shadow-sm flex items-center gap-2 transition-colors"
+          className="bg-purple-600 hover:bg-[#1D4ED8] text-white px-4 py-2 font-bold text-sm rounded-xl shadow-sm flex items-center gap-2 transition-colors"
         >
           <Plus className="w-4 h-4" /> สร้างหน้าเพจใหม่
         </button>
@@ -153,7 +153,7 @@ export const AdminPagesManagement: React.FC<AdminPagesManagementProps> = ({ cust
             {customPages.map(page => (
               <div key={page.id} className="p-4 flex items-center justify-between hover:bg-[#121417] transition-colors">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-[#3B82F6]/10 text-[#3B82F6] rounded-xl flex items-center justify-center">
+                  <div className="w-10 h-10 bg-purple-600/10 text-purple-500 rounded-xl flex items-center justify-center">
                     <FileText className="w-5 h-5" />
                   </div>
                   <div>
@@ -162,7 +162,7 @@ export const AdminPagesManagement: React.FC<AdminPagesManagementProps> = ({ cust
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <button onClick={() => handleEdit(page)} className="p-2 text-zinc-500 hover:text-[#3B82F6] bg-[#0B0D0F] rounded-xl border border-white/10 shadow-sm transition-all"><Edit className="w-4 h-4"/></button>
+                  <button onClick={() => handleEdit(page)} className="p-2 text-zinc-500 hover:text-purple-500 bg-[#0B0D0F] rounded-xl border border-white/10 shadow-sm transition-all"><Edit className="w-4 h-4"/></button>
                   <button onClick={() => handleDelete(page)} className="p-2 text-zinc-500 hover:text-red-500 bg-[#0B0D0F] rounded-xl border border-white/10 shadow-sm transition-all"><Trash2 className="w-4 h-4"/></button>
                 </div>
               </div>
