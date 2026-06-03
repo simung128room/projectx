@@ -69,9 +69,9 @@ export const LogCategoriesView: React.FC<LogCategoriesViewProps> = ({ userPlan, 
           return `<img loading="lazy" src="${safeUrl}" class="w-full rounded-lg mb-2" />`;
         }
         if (att.type === 'file') {
-          return `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="block w-full py-2 bg-[#2563EB] text-gray-900 rounded-lg text-center font-bold mb-2">ดาวน์โหลดไฟล์</a>`;
+          return `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="block w-full py-2 bg-[#2563EB] text-white rounded-lg text-center font-bold mb-2">ดาวน์โหลดไฟล์</a>`;
         }
-        return `<div class="bg-gray-50 border border-gray-200 p-3 rounded-lg mb-2 text-left text-sm text-gray-700 break-all select-all font-mono max-h-48 overflow-y-auto">${(att.data || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>`;
+        return `<div class="bg-[#0a0a0a] border border-white/10 p-3 rounded-lg mb-2 text-left text-sm text-zinc-300 break-all select-all font-mono max-h-48 overflow-y-auto">${(att.data || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>`;
     }).join('');
 
     Swal.fire({
@@ -102,35 +102,35 @@ export const LogCategoriesView: React.FC<LogCategoriesViewProps> = ({ userPlan, 
     <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 pt-24">
        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
          <div>
-            <h1 className="text-3xl sm:text-4xl font-black text-gray-900 tracking-tight flex items-center gap-3">
+            <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight flex items-center gap-3">
               <Gift className="w-8 h-8 text-[#2563EB]" /> {filterType === 'vip' ? 'VIP PH LOG' : filterType === 'free' ? 'FREE FH LOG' : 'ทรัพยากร / เครื่องมือ'}
             </h1>
-            <p className="text-sm font-medium text-gray-500 mt-2">ดาวน์โหลดไฟล์และเอกสารฟรี & พรีเมียม</p>
+            <p className="text-sm font-medium text-zinc-500 mt-2">ดาวน์โหลดไฟล์และเอกสารฟรี & พรีเมียม</p>
          </div>
          {isAdmin && (
-           <button onClick={() => setShowAdmin(!showAdmin)} className="flex bg-[#2563EB] text-gray-900 px-4 py-2 rounded-xl text-sm font-bold shadow-lg shadow-lg/20 self-start md:self-auto hover:-translate-y-1 transition-all">
+           <button onClick={() => setShowAdmin(!showAdmin)} className="flex bg-[#2563EB] text-white px-4 py-2 rounded-xl text-sm font-bold shadow-lg shadow-lg/20 self-start md:self-auto hover:-translate-y-1 transition-all">
               {showAdmin ? 'ปิดจัดการเนื้อหา' : 'เพิ่มเนื้อหา (แอดมิน)'}
            </button>
          )}
        </div>
 
        {showAdmin ? (
-         <div className="bg-white/80 border border-gray-200 rounded-xl p-4 sm:p-6 mb-8">
+         <div className="bg-[#050505]/80 border border-white/10 rounded-xl p-4 sm:p-6 mb-8">
            <AdminToolsManagement />
          </div>
        ) : selectedCategory ? (
          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
             <div className="flex items-center gap-4 mb-6">
-               <button onClick={() => setSelectedCategory(null)} className="px-4 py-2 bg-white/5 hover:bg-blue-50 border border-gray-200 rounded-xl text-gray-900 font-bold text-sm">
+               <button onClick={() => setSelectedCategory(null)} className="px-4 py-2 bg-[#050505]/5 hover:bg-white/10 border border-white/10 rounded-xl text-white font-bold text-sm">
                  กลับ
                </button>
-               <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+               <h2 className="text-xl font-bold text-white flex items-center gap-2">
                  {selectedCategory.name}
                  {selectedCategory.isVip && <span className="bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full text-[10px] uppercase">VIP</span>}
                </h2>
                <div className="ml-auto w-48 relative">
-                 <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
-                 <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="ค้นหา..." className="w-full bg-white/50 border border-gray-200 rounded-xl pl-9 pr-4 py-2 text-sm text-gray-900" />
+                 <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
+                 <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="ค้นหา..." className="w-full bg-[#050505]/50 border border-white/10 rounded-xl pl-9 pr-4 py-2 text-sm text-white" />
                </div>
             </div>
 
@@ -138,19 +138,19 @@ export const LogCategoriesView: React.FC<LogCategoriesViewProps> = ({ userPlan, 
               {currentItems.map((item) => {
                  const isLocked = item.type === 'premium' && !isVip;
                  return (
-                   <div key={item.id} onClick={() => handleOpenItem(item)} className={`bg-[#0B0D0F] border border-gray-200 rounded-xl p-5 cursor-pointer hover:border-[#3B82F6]/30 transition-all ${isLocked ? 'opacity-80' : 'hover:-translate-y-1 hover:shadow-xl hover:shadow-lg/10'}`}>
+                   <div key={item.id} onClick={() => handleOpenItem(item)} className={`bg-[#0B0D0F] border border-white/10 rounded-xl p-5 cursor-pointer hover:border-[#3B82F6]/30 transition-all ${isLocked ? 'opacity-80' : 'hover:-translate-y-1 hover:shadow-xl hover:shadow-lg/10'}`}>
                       <div className="flex justify-between items-start mb-3">
                         <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase ${item.type === 'premium' ? 'bg-amber-500/20 text-amber-400' : 'bg-blue-600/20 text-blue-600'}`}>
                           {item.type === 'premium' ? 'Premium' : 'Free'}
                         </span>
-                        {isLocked ? <Lock className="w-4 h-4 text-gray-500"/> : <Download className="w-4 h-4 text-[#2563EB]"/>}
+                        {isLocked ? <Lock className="w-4 h-4 text-zinc-500"/> : <Download className="w-4 h-4 text-[#2563EB]"/>}
                       </div>
-                      <h3 className="text-lg font-bold text-gray-900 mb-2">{item.title}</h3>
-                      {item.keyword && <span className="text-[10px] text-gray-600 font-medium">#{item.keyword}</span>}
+                      <h3 className="text-lg font-bold text-white mb-2">{item.title}</h3>
+                      {item.keyword && <span className="text-[10px] text-zinc-400 font-medium">#{item.keyword}</span>}
                    </div>
                  );
               })}
-              {currentItems.length === 0 && <div className="col-span-full py-12 text-center text-gray-500">ไม่พบเนื้อหาในหมวดหมู่นี้</div>}
+              {currentItems.length === 0 && <div className="col-span-full py-12 text-center text-zinc-500">ไม่พบเนื้อหาในหมวดหมู่นี้</div>}
             </div>
          </motion.div>
        ) : (
@@ -165,21 +165,21 @@ export const LogCategoriesView: React.FC<LogCategoriesViewProps> = ({ userPlan, 
                    animate={{ opacity: 1, y: 0 }}
                    transition={{ delay: i * 0.05 }}
                    onClick={() => { setSelectedCategory(c); setSearch(''); }}
-                   className="bg-[#0B0D0F] border border-gray-200 hover:border-[#2563EB]/30 hover:shadow-xl hover:shadow-lg/10 rounded-xl overflow-hidden transition-all cursor-pointer group flex flex-col pt-2"
+                   className="bg-[#0B0D0F] border border-white/10 hover:border-[#2563EB]/30 hover:shadow-xl hover:shadow-lg/10 rounded-xl overflow-hidden transition-all cursor-pointer group flex flex-col pt-2"
                  >
                    <div className="p-6 flex-1 flex flex-col">
                       <div className="flex items-center justify-between mb-4">
-                        <div className="w-12 h-12 rounded-2xl bg-white/5 border border-gray-200 flex items-center justify-center text-[#2563EB] group-hover:scale-110 transition-transform">
+                        <div className="w-12 h-12 rounded-2xl bg-[#050505]/5 border border-white/10 flex items-center justify-center text-[#2563EB] group-hover:scale-110 transition-transform">
                           <Folder className="w-6 h-6" />
                         </div>
                         {c.isVip && <span className="bg-amber-500/10 text-amber-500 border border-amber-500/20 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider">VIP</span>}
                       </div>
-                      <h2 className="text-xl font-black text-gray-900 group-hover:text-[#2563EB] transition-colors tracking-tight">{c.name}</h2>
-                      <p className="text-sm text-gray-500 mt-1 mb-4 flex-1">{c.subtitle}</p>
+                      <h2 className="text-xl font-black text-white group-hover:text-[#2563EB] transition-colors tracking-tight">{c.name}</h2>
+                      <p className="text-sm text-zinc-500 mt-1 mb-4 flex-1">{c.subtitle}</p>
                       
-                      <div className="w-full flex items-center justify-between pt-4 border-t border-gray-200 mt-auto">
-                        <span className="text-xs font-bold text-gray-600">{catItemsCount} รายการ</span>
-                        <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-600 group-hover:bg-purple-600/10 group-hover:text-[#2563EB] transition-all">
+                      <div className="w-full flex items-center justify-between pt-4 border-t border-white/10 mt-auto">
+                        <span className="text-xs font-bold text-zinc-400">{catItemsCount} รายการ</span>
+                        <div className="w-8 h-8 rounded-full bg-[#050505]/5 flex items-center justify-center text-zinc-400 group-hover:bg-purple-600/10 group-hover:text-[#2563EB] transition-all">
                           <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-all" />
                         </div>
                       </div>

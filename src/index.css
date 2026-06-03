@@ -6,14 +6,14 @@
   --font-mono: "JetBrains Mono", monospace;
   --font-changa: "Changa One", sans-serif;
   
-  --color-background: #ffffff;
-  --color-surface: #f9fafb;
-  --color-border: #e5e7eb;
-  --color-text-primary: #111827;
-  --color-text-secondary: #6b7280;
-  --color-accent: #2563eb;
-  --color-user-bubble: #f3f4f6;
-  --color-input-bg: #ffffff;
+  --color-background: #000000;
+  --color-surface: #0a0a0a;
+  --color-border: #222222;
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #888888;
+  --color-accent: #ffffff;
+  --color-user-bubble: #111111;
+  --color-input-bg: #050505;
 }
 
 @layer base {
@@ -32,7 +32,7 @@
     font-family: var(--font-sans);
     font-size: 14px;
     line-height: 1.6;
-    color-scheme: light;
+    color-scheme: dark;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -46,11 +46,11 @@
     background: transparent; 
   }
   ::-webkit-scrollbar-thumb { 
-    background: #d1d5db; 
+    background: #333; 
     border-radius: 3px; 
   }
   ::-webkit-scrollbar-thumb:hover { 
-    background: #111827; 
+    background: #555; 
   }
   
   img {
@@ -67,7 +67,7 @@
   }
   
   .glass-header {
-    background: rgba(255, 255, 255, 0.7);
+    background: rgba(10, 10, 10, 0.7);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--color-border);
@@ -88,13 +88,13 @@
     border: 1px solid var(--color-border);
     border-radius: 12px;
     padding: 10px 14px;
-    box-shadow: 0 0 0 1px transparent, 0 4px 12px rgba(0,0,0,0.05);
+    box-shadow: 0 0 0 1px #2a2a2a, 0 4px 24px rgba(0,0,0,0.4);
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
   }
   
   .input-wrapper:focus-within {
     border-color: var(--color-accent);
-    box-shadow: 0 0 0 1px var(--color-accent), 0 4px 12px rgba(0,0,0,0.05);
+    box-shadow: 0 0 0 1px var(--color-accent), 0 4px 24px rgba(0,0,0,0.4);
   }
   
   .input-wrapper textarea {
@@ -116,7 +116,7 @@
   
   /* Markdown Rendering */
   .code-block-wrapper {
-    background: #f8fafc;
+    background: #0d1117;
     border-radius: 8px;
     margin: 12px 0;
     overflow: hidden;
@@ -128,7 +128,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 8px 12px;
-    background: #f1f5f9;
+    background: #161b22;
     font-family: var(--font-mono);
     font-size: 12px;
     color: var(--color-text-secondary);
@@ -148,7 +148,7 @@
   }
   
   .inline-code {
-    background: rgba(0, 0, 0, 0.05);
+    background: rgba(255, 255, 255, 0.1);
     padding: 2px 4px;
     border-radius: 4px;
     font-family: var(--font-mono);
@@ -192,7 +192,7 @@
     transition: background-color 0.15s ease-in-out;
   }
   .sidebar-item:hover {
-    background-color: rgba(0, 0, 0, 0.05);
+    background-color: rgba(255, 255, 255, 0.05);
   }
   
   .send-btn {

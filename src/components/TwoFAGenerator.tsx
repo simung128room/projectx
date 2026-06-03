@@ -90,33 +90,33 @@ export function TwoFAGenerator() {
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-[#0b0f14]/80  border border-gray-200 rounded-xl overflow-hidden shadow-2xl"
+        className="bg-[#0b0f14]/80  border border-white/10 rounded-xl overflow-hidden shadow-2xl"
       >
         {/* Header */}
-        <div className="p-8 border-b border-gray-200 from-indigo-500/10 via-transparent to-transparent">
+        <div className="p-8 border-b border-white/10 from-indigo-500/10 via-transparent to-transparent">
           <div className="flex items-center gap-4 mb-2">
             <div className="w-12 h-12 rounded-2xl bg-indigo-500/20 flex items-center justify-center border border-indigo-500/30">
               <ShieldCheck className="w-7 h-7 text-indigo-400" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 tracking-tight">2FA Generator</h2>
+              <h2 className="text-2xl font-bold text-white tracking-tight">2FA Generator</h2>
               <p className="text-indigo-400/80 text-sm font-medium">สร้างรหัส OTP จาก Secret Key</p>
             </div>
           </div>
-          <p className="text-gray-600 text-sm">สร้างรหัสสำหรับการยืนยันตัวตนแบบสองขั้นตอน (Two-Factor Authentication)</p>
+          <p className="text-zinc-400 text-sm">สร้างรหัสสำหรับการยืนยันตัวตนแบบสองขั้นตอน (Two-Factor Authentication)</p>
         </div>
 
         <div className="p-8 space-y-8">
           {/* Input Section */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <label className="text-gray-700 text-sm font-bold flex items-center gap-2">
+              <label className="text-zinc-300 text-sm font-bold flex items-center gap-2">
                 <KeyIcon className="w-4 h-4 text-indigo-400" />
                 2FA Secret
               </label>
               <button 
                 onClick={clearAll}
-                className="text-gray-500 hover:text-red-400 transition-colors flex items-center gap-1 text-xs font-bold"
+                className="text-zinc-500 hover:text-red-400 transition-colors flex items-center gap-1 text-xs font-bold"
               >
                 <Trash2 className="w-3.5 h-3.5" />
                 ล้างข้อมูล
@@ -126,13 +126,13 @@ export function TwoFAGenerator() {
               value={secretsInput}
               onChange={(e) => setSecretsInput(e.target.value)}
               placeholder="กรอก Secret Key หลายตัวได้ โดยแยกบรรทัด"
-              className="w-full h-40 bg-gray-100 border border-gray-200 rounded-2xl p-4 text-gray-900 focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/30 outline-none resize-none transition-all placeholder:text-gray-500 font-mono text-sm leading-relaxed"
+              className="w-full h-40 bg-[#121212] border border-white/10 rounded-2xl p-4 text-white focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/30 outline-none resize-none transition-all placeholder:text-zinc-500 font-mono text-sm leading-relaxed"
             />
-            <div className="h-px bg-white/5 my-2" />
+            <div className="h-px bg-[#050505]/5 my-2" />
             <button
               onClick={generateCodes}
               disabled={!secretsInput.trim()}
-              className="w-full h-14 bg-indigo-500 hover:bg-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed text-gray-900 rounded-2xl font-black text-lg transition-all shadow-lg shadow-indigo-500/20 active:scale-[0.98] flex items-center justify-center gap-3"
+              className="w-full h-14 bg-indigo-500 hover:bg-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-2xl font-black text-lg transition-all shadow-lg shadow-indigo-500/20 active:scale-[0.98] flex items-center justify-center gap-3"
             >
               <RefreshCw className="w-5 h-5" />
               Generate OTP
@@ -149,7 +149,7 @@ export function TwoFAGenerator() {
                 className="space-y-4"
               >
                 <div className="flex items-center justify-between px-2">
-                  <h3 className="text-gray-600 text-xs font-black uppercase tracking-widest">รหัสที่สร้างสำเร็จ</h3>
+                  <h3 className="text-zinc-400 text-xs font-black uppercase tracking-widest">รหัสที่สร้างสำเร็จ</h3>
                   <div className="flex items-center gap-2 text-indigo-400 text-xs font-bold">
                     <Clock className="w-3.5 h-3.5" />
                     เปลี่ยนรหัสใน {timeLeftGlobal} วินาที
@@ -163,7 +163,7 @@ export function TwoFAGenerator() {
                       layout
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="group bg-white/5 border border-gray-200 rounded-xl p-5 hover:bg-white/[0.08] hover:border-indigo-500/30 transition-all relative overflow-hidden"
+                      className="group bg-[#050505]/5 border border-white/10 rounded-xl p-5 hover:bg-[#050505]/[0.08] hover:border-indigo-500/30 transition-all relative overflow-hidden"
                     >
                       {/* Timer Progress Bar */}
                       <div className="absolute bottom-0 left-0 h-1 bg-indigo-500/30" style={{ width: '100%' }}>
@@ -176,20 +176,20 @@ export function TwoFAGenerator() {
 
                       <div className="flex flex-col gap-3">
                         <div className="flex items-center justify-between">
-                          <span className="text-gray-500 text-[10px] font-mono break-all line-clamp-1 pr-8">
+                          <span className="text-zinc-500 text-[10px] font-mono break-all line-clamp-1 pr-8">
                             {result.secret}
                           </span>
                         </div>
                         <div className="flex items-center justify-between gap-4">
-                          <span className="text-3xl font-black text-gray-900 tracking-[0.2em] font-mono">
+                          <span className="text-3xl font-black text-white tracking-[0.2em] font-mono">
                             {result.code.slice(0, 3)} {result.code.slice(3)}
                           </span>
                           <button
                             onClick={() => handleCopy(result.code, idx)}
                             className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${
                               copiedIndex === idx 
-                                ? "bg-blue-600 text-gray-900" 
-                                : "bg-white/10 text-gray-900 hover:bg-indigo-500"
+                                ? "bg-blue-600 text-white" 
+                                : "bg-[#050505]/10 text-white hover:bg-indigo-500"
                             }`}
                           >
                             {copiedIndex === idx ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
@@ -215,8 +215,8 @@ export function TwoFAGenerator() {
           )}
 
           {!results.length && !error && (
-            <div className="py-12 flex flex-col items-center justify-center text-gray-500">
-              <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mb-4">
+            <div className="py-12 flex flex-col items-center justify-center text-zinc-500">
+              <div className="w-20 h-20 rounded-full bg-[#050505]/5 flex items-center justify-center mb-4">
                 <KeyIcon className="w-8 h-8" />
               </div>
               <p className="text-sm font-medium">กรอก Secret Key เพื่อเริ่มสร้างรหัส OTP</p>
@@ -225,8 +225,8 @@ export function TwoFAGenerator() {
         </div>
 
         {/* Footer Info */}
-        <div className="p-6 bg-white/80 border-t border-gray-200">
-          <div className="flex items-center gap-2 text-gray-500 text-[10px] font-bold uppercase tracking-widest">
+        <div className="p-6 bg-[#050505]/80 border-t border-white/10">
+          <div className="flex items-center gap-2 text-zinc-500 text-[10px] font-bold uppercase tracking-widest">
             <ShieldCheck className="w-3 h-3" />
             SECURE GENERATION • LOCAL ONLY
           </div>
@@ -235,21 +235,21 @@ export function TwoFAGenerator() {
 
       {/* Instructions */}
       <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-[#0b0f14]/50 border border-gray-200 rounded-xl p-6">
-          <h4 className="text-gray-900 font-bold mb-2 flex items-center gap-2">
+        <div className="bg-[#0b0f14]/50 border border-white/10 rounded-xl p-6">
+          <h4 className="text-white font-bold mb-2 flex items-center gap-2">
             <div className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
             2FA คืออะไร?
           </h4>
-          <p className="text-gray-600 text-xs leading-relaxed">
+          <p className="text-zinc-400 text-xs leading-relaxed">
             2FA (Two-Factor Authentication) คือการยืนยันตัวตนแบบสองขั้นตอน เพื่อความปลอดภัยสูงสุดของบัญชีของคุณ รหัสจะเปลี่ยนไปทุกๆ 30 วินาที
           </p>
         </div>
-        <div className="bg-[#0b0f14]/50 border border-gray-200 rounded-xl p-6">
-          <h4 className="text-gray-900 font-bold mb-2 flex items-center gap-2">
+        <div className="bg-[#0b0f14]/50 border border-white/10 rounded-xl p-6">
+          <h4 className="text-white font-bold mb-2 flex items-center gap-2">
             <div className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
             ความปลอดภัย
           </h4>
-          <p className="text-gray-600 text-xs leading-relaxed">
+          <p className="text-zinc-400 text-xs leading-relaxed">
             รหัส 2FA ถูกสร้างขึ้นบนบราวเซอร์ของคุณโดยตรง (Client-side) ไม่มีการส่ง Secret Key ไปยังเซิร์ฟเวอร์ของเรา ข้อมูลของคุณปลอดภัย 100%
           </p>
         </div>

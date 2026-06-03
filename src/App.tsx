@@ -305,7 +305,7 @@ function ElapsedTimeDisplay({
 
   if (elapsedTime === "00:00:00.000") return null;
   return (
-    <div className="px-3 py-1 bg-gray-100 rounded-full border border-gray-200 text-xs font-mono text-gray-600 font-bold">
+    <div className="px-3 py-1 bg-[#121212] rounded-full border border-white/10 text-xs font-mono text-zinc-400 font-bold">
       {elapsedTime}
     </div>
   );
@@ -344,7 +344,7 @@ function ComboTextarea({
       onChange={handleChange}
       rows={12}
       disabled={disabled}
-      className={`w-full bg-white border border-gray-200 p-3 text-[11px] font-mono text-blue-600 focus:border-emerald-500/50 focus:outline-none resize-none transition-all scrollbar-thin scrollbar-thumb-zinc-800 h-[320px] shadow-inner ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
+      className={`w-full bg-[#050505] border border-white/10 p-3 text-[11px] font-mono text-blue-600 focus:border-emerald-500/50 focus:outline-none resize-none transition-all scrollbar-thin scrollbar-thumb-zinc-800 h-[320px] shadow-inner ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
       placeholder={"user:pass\nuser|pass"}
       spellCheck="false"
     />
@@ -791,7 +791,7 @@ function AppContent() {
             title: "สั่งซื้อสำเร็จ",
             icon: ShoppingCart,
             bg: "bg-blue-600",
-            color: "text-gray-900",
+            color: "text-white",
           });
         }
       });
@@ -1315,7 +1315,7 @@ function AppContent() {
   const addLog = (
     text: string,
     iconName: string,
-    colorClass: string = "text-gray-700",
+    colorClass: string = "text-zinc-300",
   ) => {
     setLogs((prev) => {
       const nextLogs = [
@@ -1439,7 +1439,7 @@ function AppContent() {
     const { value: formValues } = await Swal.fire({
       title: "สร้างคีย์ใหม่",
       html:
-        '<select id="swal-input1" class="swal2-input bg-white border-gray-200 text-gray-900 w-full">' +
+        '<select id="swal-input1" class="swal2-input bg-[#050505] border-white/10 text-white w-full">' +
         '<option value="Day">1 วัน (Day)</option>' +
         '<option value="Week">7 วัน (Week)</option>' +
         '<option value="Month">1 เดือน (Month)</option>' +
@@ -1447,7 +1447,7 @@ function AppContent() {
         '<option value="Year">1 ปี (Year)</option>' +
         '<option value="Lifetime">ถาวร (Lifetime)</option>' +
         "</select>" +
-        '<input id="swal-input2" class="swal2-input bg-white border-gray-200 text-gray-900 w-full" placeholder="จำนวนคีย์ (1-50)" type="number" value="1">',
+        '<input id="swal-input2" class="swal2-input bg-[#050505] border-white/10 text-white w-full" placeholder="จำนวนคีย์ (1-50)" type="number" value="1">',
       focusConfirm: false,
       background: "#ffffff",
       color: "#18181b",
@@ -1495,8 +1495,8 @@ function AppContent() {
     const { value: ipData } = await Swal.fire({
       title: "บล็อค IP ผู้ใช้",
       html:
-        '<input id="swal-ip" class="swal2-input bg-white border-gray-200 text-gray-900 w-full" placeholder="IP Address เช่น 1.1.1.1">' +
-        '<input id="swal-reason" class="swal2-input bg-white border-gray-200 text-gray-900 w-full" placeholder="เหตุผลการบล็อค">',
+        '<input id="swal-ip" class="swal2-input bg-[#050505] border-white/10 text-white w-full" placeholder="IP Address เช่น 1.1.1.1">' +
+        '<input id="swal-reason" class="swal2-input bg-[#050505] border-white/10 text-white w-full" placeholder="เหตุผลการบล็อค">',
       focusConfirm: false,
       background: "#ffffff",
       color: "#18181b",
@@ -1566,9 +1566,9 @@ function AppContent() {
       title: "ลบคีย์หลายรายการ",
       html: `
         <div class="text-left text-sm space-y-2 mb-4">
-          <div><span class="text-gray-500">คีย์ทั้งหมด:</span> <span class="font-bold text-blue-600">${totalAll}</span> รายการ</div>
-          <div><span class="text-gray-500">ยังไม่ได้ใช้:</span> <span class="font-bold text-blue-500">${totalActive}</span> รายการ</div>
-          <div><span class="text-gray-500">ใช้แล้ว:</span> <span class="font-bold text-amber-500">${totalUsed}</span> รายการ</div>
+          <div><span class="text-zinc-500">คีย์ทั้งหมด:</span> <span class="font-bold text-blue-600">${totalAll}</span> รายการ</div>
+          <div><span class="text-zinc-500">ยังไม่ได้ใช้:</span> <span class="font-bold text-blue-500">${totalActive}</span> รายการ</div>
+          <div><span class="text-zinc-500">ใช้แล้ว:</span> <span class="font-bold text-amber-500">${totalUsed}</span> รายการ</div>
         </div>
         <select id="bulk-delete-type" class="swal2-select" style="width: 100%; font-size: 14px; margin-bottom: 10px;">
           <option value="used">ลบเฉพาะคีย์ที่ใช้แล้ว (Used)</option>
@@ -2099,17 +2099,17 @@ function AppContent() {
           <h1 className="text-3xl font-bold text-[#2563EB] mb-4 uppercase tracking-tighter">
             Access Revoked
           </h1>
-          <p className="text-gray-600 text-sm leading-relaxed mb-8">
+          <p className="text-zinc-400 text-sm leading-relaxed mb-8">
             ที่อยู่ IP ของคุณ ({clientIp})
             ถูกระงับการเข้าถึงระบบเนื่องจากละเมิดข้อตกลงการใช้งานหรือพบพฤติกรรมที่น่าสงสัย
             หากคุณคิดว่าเป็นความผิดพลาด กรุณาติดต่อผู้ดูแลระบบ APEXSTORE
           </p>
-          <div className="bg-white/50 rounded-2xl p-4 text-[10px] text-gray-500 font-mono mb-8">
+          <div className="bg-[#050505]/50 rounded-2xl p-4 text-[10px] text-zinc-500 font-mono mb-8">
             Error Code: APEXSTORE_SECURITY_BLOCK_L4
           </div>
           <button
             onClick={() => window.location.reload()}
-            className="bg-purple-600 hover:bg-[#2563EB] text-gray-900 px-8 py-3 rounded-2xl text-xs font-bold transition-all"
+            className="bg-purple-600 hover:bg-[#2563EB] text-white px-8 py-3 rounded-2xl text-xs font-bold transition-all"
           >
             TRY RECONNECTING
           </button>
@@ -2136,7 +2136,7 @@ function AppContent() {
     );
 
   return (
-    <div className="min-h-screen w-full bg-white text-gray-900 font-sans selection:bg-white/80 flex flex-col lg:flex-row relative">
+    <div className="min-h-screen w-full bg-[#050505] text-white font-sans selection:bg-[#050505]/80 flex flex-col lg:flex-row relative">
       {useCustomCursor && <CustomCursor />}
       <Suspense fallback={null}>
         <PopupBanner
@@ -2147,7 +2147,7 @@ function AppContent() {
       </Suspense>
 
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex flex-col w-[300px] shrink-0 bg-gray-100 border-r border-gray-200 h-screen sticky top-0 p-8 z-[60] overflow-y-auto no-scrollbar">
+      <aside className="hidden lg:flex flex-col w-[300px] shrink-0 bg-[#121212] border-r border-white/10 h-screen sticky top-0 p-8 z-[60] overflow-y-auto no-scrollbar">
         <div className="mb-10 w-full flex justify-start">
           <span 
             className="font-changa text-3xl font-black italic tracking-wider text-blue-600 drop-shadow-md hover:scale-105 active:scale-95 transition-all duration-205 cursor-pointer select-none"
@@ -2158,13 +2158,13 @@ function AppContent() {
         </div>
         <div className="flex-1 space-y-1">
           <div className="flex items-center py-[8px] my-1">
-            <div className="flex-grow border-t border-gray-200"></div>
-            <span className="shrink-0 px-3 text-[10px] font-medium text-gray-500 uppercase tracking-[0.2em]">เมนู</span>
-            <div className="flex-grow border-t border-gray-200"></div>
+            <div className="flex-grow border-t border-white/10"></div>
+            <span className="shrink-0 px-3 text-[10px] font-medium text-zinc-500 uppercase tracking-[0.2em]">เมนู</span>
+            <div className="flex-grow border-t border-white/10"></div>
           </div>
           <button
             onClick={() => setActiveView("home")}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${activeView === "home" ? "bg-gray-100 text-gray-900 border border-gray-200 shadow-sm" : "text-gray-500 hover:bg-gray-50 hover:text-gray-900 border border-transparent"}`}
+            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${activeView === "home" ? "bg-[#121212] text-white border border-white/10 shadow-sm" : "text-zinc-500 hover:bg-[#0a0a0a] hover:text-white border border-transparent"}`}
           >
             <Home className="w-[18px] h-[18px]" /> หน้าแรก
           </button>
@@ -2173,7 +2173,7 @@ function AppContent() {
               setActiveView("categories");
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${activeView === "categories" ? "bg-gray-100 text-gray-900 border border-gray-200 shadow-sm" : "text-gray-500 hover:bg-gray-50 hover:text-gray-900 border border-transparent"}`}
+            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${activeView === "categories" ? "bg-[#121212] text-white border border-white/10 shadow-sm" : "text-zinc-500 hover:bg-[#0a0a0a] hover:text-white border border-transparent"}`}
           >
             <ShoppingCart className="w-[18px] h-[18px]" /> สินค้าทั้งหมด
           </button>
@@ -2182,7 +2182,7 @@ function AppContent() {
               setActiveView(user ? "wallet" : "login");
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${activeView === "wallet" ? "bg-gray-100 text-gray-900 border border-gray-200 shadow-sm" : "text-gray-500 hover:bg-gray-50 hover:text-gray-900 border border-transparent"}`}
+            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${activeView === "wallet" ? "bg-[#121212] text-white border border-white/10 shadow-sm" : "text-zinc-500 hover:bg-[#0a0a0a] hover:text-white border border-transparent"}`}
           >
             <Wallet className="w-[18px] h-[18px]" /> เติมเงิน
           </button>
@@ -2197,7 +2197,7 @@ function AppContent() {
               setActiveView("free_website");
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${activeView === "free_website" ? "bg-gray-100 text-gray-900 border border-gray-200 shadow-sm" : "text-gray-500 hover:bg-gray-50 hover:text-gray-900 border border-transparent"}`}
+            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${activeView === "free_website" ? "bg-[#121212] text-white border border-white/10 shadow-sm" : "text-zinc-500 hover:bg-[#0a0a0a] hover:text-white border border-transparent"}`}
           >
             <Globe className="w-[18px] h-[18px]" /> เปิดเว็บไซต์ฟรี
           </button>
@@ -2213,35 +2213,35 @@ function AppContent() {
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
             onMouseEnter={() => toolsImport()}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${activeView === "tools" ? "bg-gray-100 text-gray-900 border border-gray-200 shadow-sm" : "text-gray-500 hover:bg-gray-50 hover:text-gray-900 border border-transparent"}`}
+            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${activeView === "tools" ? "bg-[#121212] text-white border border-white/10 shadow-sm" : "text-zinc-500 hover:bg-[#0a0a0a] hover:text-white border border-transparent"}`}
           >
             <Bot className="w-[18px] h-[18px]" /> เครื่องมือฟรี
           </button>
 
           {!user && (
             <>
-              <div className="w-full h-[1px] bg-gray-200 my-4" />
+              <div className="w-full h-[1px] bg-[#1e1e1e] my-4" />
               <div className="flex flex-col gap-2">
                 <button
                   onClick={() => {
                     setActiveView("login");
                     window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
-                  className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all shadow-sm active:scale-95 ${activeView === "login" ? "bg-black text-white" : "bg-gray-200 hover:bg-black hover:text-white text-gray-900"}`}
+                  className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all shadow-sm active:scale-95 ${activeView === "login" ? "bg-black text-white" : "bg-[#1e1e1e] hover:bg-black hover:text-white text-white"}`}
                 >
                   <LogIn className="w-[18px] h-[18px]" /> เข้าสู่ระบบ
                 </button>
                 <div className="flex items-center gap-3 px-2 py-1">
-                  <div className="flex-1 h-[1px] bg-gray-200" />
-                  <span className="text-[10px] font-medium text-gray-500 uppercase tracking-widest">or</span>
-                  <div className="flex-1 h-[1px] bg-gray-200" />
+                  <div className="flex-1 h-[1px] bg-[#1e1e1e]" />
+                  <span className="text-[10px] font-medium text-zinc-500 uppercase tracking-widest">or</span>
+                  <div className="flex-1 h-[1px] bg-[#1e1e1e]" />
                 </div>
                 <button
                   onClick={() => {
                     setActiveView("signup");
                     window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
-                  className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all active:scale-95 border ${activeView === "signup" ? "bg-gray-100 text-gray-900 border-[#333333]" : "bg-transparent hover:bg-gray-50 text-gray-500 border-gray-200 hover:text-gray-900"}`}
+                  className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all active:scale-95 border ${activeView === "signup" ? "bg-[#121212] text-white border-[#333333]" : "bg-transparent hover:bg-[#0a0a0a] text-zinc-500 border-white/10 hover:text-white"}`}
                 >
                   <UserPlus className="w-[18px] h-[18px]" /> สมัครสมาชิก
                 </button>
@@ -2253,7 +2253,7 @@ function AppContent() {
             <>
               <button
                 onClick={() => setIsDesktopToolsOpen(!isDesktopToolsOpen)}
-                className="w-full flex items-center justify-between px-4 py-2.5 rounded-lg text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition-all group mt-2"
+                className="w-full flex items-center justify-between px-4 py-2.5 rounded-lg text-sm font-medium text-zinc-500 hover:bg-[#0a0a0a] hover:text-white transition-all group mt-2"
               >
                 <div className="flex items-center gap-3">
                   <Bot className="w-[18px] h-[18px]" /> เครื่องมือย่อย
@@ -2265,40 +2265,40 @@ function AppContent() {
               <div
                 className={`overflow-hidden transition-all duration-300 ease-in-out ${isDesktopToolsOpen ? "max-h-[800px] opacity-100" : "max-h-0 opacity-0"}`}
               >
-                <div className="flex flex-col gap-1 mt-1 pl-3 border-l border-gray-200 ml-6">
+                <div className="flex flex-col gap-1 mt-1 pl-3 border-l border-white/10 ml-6">
                   <button
                     onClick={() => setActiveView("telegram_catcher")}
-                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-md text-xs font-medium transition-all ${activeView === "telegram_catcher" ? "bg-gray-100 text-gray-900" : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"}`}
+                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-md text-xs font-medium transition-all ${activeView === "telegram_catcher" ? "bg-[#121212] text-white" : "text-zinc-500 hover:bg-[#0a0a0a] hover:text-white"}`}
                   >
                     <ArrowUpRight className="w-[14px] h-[14px]" /> ดักซองเทเลแกรม
                   </button>
                   <button
                     onClick={() => setActiveView("discord_catcher")}
-                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-md text-xs font-medium transition-all ${activeView === "discord_catcher" ? "bg-gray-100 text-gray-900" : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"}`}
+                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-md text-xs font-medium transition-all ${activeView === "discord_catcher" ? "bg-[#121212] text-white" : "text-zinc-500 hover:bg-[#0a0a0a] hover:text-white"}`}
                   >
                     <ArrowUpRight className="w-[14px] h-[14px]" /> ดักซองดิสคอร์ด
                   </button>
                   <button
                     onClick={() => setActiveView("discord_on")}
-                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-md text-xs font-medium transition-all ${activeView === "discord_on" ? "bg-gray-100 text-gray-900" : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"}`}
+                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-md text-xs font-medium transition-all ${activeView === "discord_on" ? "bg-[#121212] text-white" : "text-zinc-500 hover:bg-[#0a0a0a] hover:text-white"}`}
                   >
                     <ArrowUpRight className="w-[14px] h-[14px]" /> รันโทเค่นดิสคอร์ด
                   </button>
                   <button
                     onClick={() => setActiveView("discord_badge")}
-                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-md text-xs font-medium transition-all ${activeView === "discord_badge" ? "bg-gray-100 text-gray-900" : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"}`}
+                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-md text-xs font-medium transition-all ${activeView === "discord_badge" ? "bg-[#121212] text-white" : "text-zinc-500 hover:bg-[#0a0a0a] hover:text-white"}`}
                   >
                     <ArrowUpRight className="w-[14px] h-[14px]" /> รับตราอัตโนมัติ
                   </button>
                   <button
                     onClick={() => setActiveView("two_fa_generator")}
-                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-md text-xs font-medium transition-all ${activeView === "two_fa_generator" ? "bg-gray-100 text-gray-900" : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"}`}
+                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-md text-xs font-medium transition-all ${activeView === "two_fa_generator" ? "bg-[#121212] text-white" : "text-zinc-500 hover:bg-[#0a0a0a] hover:text-white"}`}
                   >
                     <ArrowUpRight className="w-[14px] h-[14px]" /> สร้างรหัส 2FA
                   </button>
                   <button
                     onClick={() => setActiveView("proxy_free")}
-                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-md text-xs font-medium transition-all ${activeView === "proxy_free" ? "bg-gray-100 text-gray-900" : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"}`}
+                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-md text-xs font-medium transition-all ${activeView === "proxy_free" ? "bg-[#121212] text-white" : "text-zinc-500 hover:bg-[#0a0a0a] hover:text-white"}`}
                   >
                     <ArrowUpRight className="w-[14px] h-[14px]" /> พร็อกซี่ฟรี (Proxy)
                   </button>
@@ -2312,7 +2312,7 @@ function AppContent() {
               setActiveView(user ? "history" : "login");
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${activeView === "history" ? "bg-gray-100 text-gray-900 border border-gray-200 shadow-sm" : "text-gray-500 hover:bg-gray-50 hover:text-gray-900 border border-transparent"}`}
+            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${activeView === "history" ? "bg-[#121212] text-white border border-white/10 shadow-sm" : "text-zinc-500 hover:bg-[#0a0a0a] hover:text-white border border-transparent"}`}
           >
             <History className="w-[18px] h-[18px]" /> ประวัติสั่งซื้อ
           </button>
@@ -2320,7 +2320,7 @@ function AppContent() {
             onClick={() => {
               setShowContactUs(true);
             }}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all text-gray-500 hover:bg-gray-50 hover:text-gray-900 border border-transparent`}
+            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all text-zinc-500 hover:bg-[#0a0a0a] hover:text-white border border-transparent`}
           >
             <Phone className="w-[18px] h-[18px]" /> ติดต่อแอดมิน
           </button>
@@ -2335,7 +2335,7 @@ function AppContent() {
 
           {user && customPages && customPages.length > 0 && (
             <>
-              <div className="text-[10px] font-medium text-gray-500 uppercase tracking-widest mt-6 mb-3 pl-3">
+              <div className="text-[10px] font-medium text-zinc-500 uppercase tracking-widest mt-6 mb-3 pl-3">
                 หน้าอื่นๆ
               </div>
               {customPages.map((page) => (
@@ -2345,7 +2345,7 @@ function AppContent() {
                     setSelectedPage(page);
                     setActiveView("custom_page");
                   }}
-                  className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${activeView === "custom_page" && selectedPage?.id === page.id ? "bg-gray-100 text-gray-900 border border-gray-200 shadow-sm" : "text-gray-500 hover:bg-gray-50 hover:text-gray-900 border border-transparent"}`}
+                  className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${activeView === "custom_page" && selectedPage?.id === page.id ? "bg-[#121212] text-white border border-white/10 shadow-sm" : "text-zinc-500 hover:bg-[#0a0a0a] hover:text-white border border-transparent"}`}
                 >
                   <FileText className="w-[18px] h-[18px]" />{" "}
                   {page.title.replace(/^#+\s*/, "")}
@@ -2359,10 +2359,10 @@ function AppContent() {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-h-screen min-w-0 relative overflow-x-hidden">
         {/* Desktop Top Header */}
-        <div className="hidden lg:block sticky top-0 z-[50] w-full bg-white/95 backdrop-blur-md border-b border-gray-200/80 shadow-md">
+        <div className="hidden lg:block sticky top-0 z-[50] w-full bg-[#050505]/95 backdrop-blur-md border-b border-white/10/80 shadow-md">
           <header className="w-full h-[64px] flex items-center justify-between px-8">
             <div className="flex items-center gap-4">
-              <h1 className="text-sm font-medium text-gray-900">
+              <h1 className="text-sm font-medium text-white">
                 {activeView === "home" ? "ภาพรวม" : 
                  activeView === "categories" ? "หมวดหมู่สินค้า" : 
                  activeView === "category_products" ? "รายการสินค้า" : 
@@ -2375,25 +2375,25 @@ function AppContent() {
             <div className="flex items-center gap-4">
               <button
                 onClick={() => setActiveView("search")}
-                className="w-8 h-8 rounded-md flex items-center justify-center text-gray-500 hover:text-gray-900 hover:bg-gray-50 transition-colors"
+                className="w-8 h-8 rounded-md flex items-center justify-center text-zinc-500 hover:text-white hover:bg-[#0a0a0a] transition-colors"
                 aria-label="Search"
               >
                 <Search className="w-[18px] h-[18px]" />
               </button>
               {user ? (
                 <div
-                  className="flex items-center gap-3 px-3 py-1.5 rounded-full border border-gray-200 hover:border-[#333333] transition-colors cursor-pointer bg-gray-100"
+                  className="flex items-center gap-3 px-3 py-1.5 rounded-full border border-white/10 hover:border-[#333333] transition-colors cursor-pointer bg-[#121212]"
                   onClick={() => setActiveView("profile")}
                 >
                   <div className="flex flex-col text-right">
-                    <span className="text-[13px] font-medium text-gray-900 leading-tight">
+                    <span className="text-[13px] font-medium text-white leading-tight">
                       {userPlan?.username || user.email?.split("@")[0] || "User"}
                     </span>
-                    <span className="text-[11px] text-gray-900 font-medium">
+                    <span className="text-[11px] text-white font-medium">
                       ฿ {userPlan?.balance?.toLocaleString(undefined, { minimumFractionDigits: 2 }) || "0.00"}
                     </span>
                   </div>
-                  <div className="w-7 h-7 rounded-full overflow-hidden bg-gray-100">
+                  <div className="w-7 h-7 rounded-full overflow-hidden bg-[#121212]">
                     <img
                       src={getAvatarUrl(user?.id || userPlan?.username || user?.email?.split("@")[0] || "guest")}
                       alt="avatar"
@@ -2415,11 +2415,11 @@ function AppContent() {
         </div>
 
         {/* Global Top Navbar (Mobile) */}
-        <div className="lg:hidden sticky top-0 z-[65] w-full bg-white/95 backdrop-blur-md border-b border-gray-200/80 shadow-md">
+        <div className="lg:hidden sticky top-0 z-[65] w-full bg-[#050505]/95 backdrop-blur-md border-b border-white/10/80 shadow-md">
           <nav className="w-full flex flex-col">
             <div className="flex items-center justify-between px-5 h-[64px] relative">
               <span 
-                className="font-changa text-2xl font-black italic tracking-wider text-gray-900 cursor-pointer select-none"
+                className="font-changa text-2xl font-black italic tracking-wider text-white cursor-pointer select-none"
                 onClick={() => setActiveView("home")}
               >
                 APEXSTORE
@@ -2428,7 +2428,7 @@ function AppContent() {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setActiveView("search")}
-                  className="w-10 h-10 rounded-md flex items-center justify-center text-gray-500 hover:text-gray-900 transition-colors"
+                  className="w-10 h-10 rounded-md flex items-center justify-center text-zinc-500 hover:text-white transition-colors"
                   aria-label="Search"
                 >
                   <Search className="w-5 h-5" />
@@ -2436,7 +2436,7 @@ function AppContent() {
                 <motion.button
                   whileTap={{ scale: 0.9 }}
                   onClick={() => setIsMobileMenuOpen(true)}
-                  className="w-10 h-10 rounded-md flex items-center justify-center text-gray-500 hover:text-gray-900 active:scale-95 transition-all"
+                  className="w-10 h-10 rounded-md flex items-center justify-center text-zinc-500 hover:text-white active:scale-95 transition-all"
                   aria-label="Menu"
                 >
                   <Menu className="w-5 h-5" />
@@ -2462,12 +2462,12 @@ function AppContent() {
                 animate={{ x: 0 }}
                 exit={{ x: "100%" }}
                 transition={{ type: "tween", ease: [0.32, 0.72, 0, 1], duration: 0.3 }}
-                className="fixed top-0 right-0 bottom-0 w-[80%] max-w-[300px] bg-white shadow-2xl z-[71] flex flex-col lg:hidden overflow-y-auto no-scrollbar border-l border-gray-200"
+                className="fixed top-0 right-0 bottom-0 w-[80%] max-w-[300px] bg-[#050505] shadow-2xl z-[71] flex flex-col lg:hidden overflow-y-auto no-scrollbar border-l border-white/10"
               >
                 {/* Close button */}
                 <button
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="absolute top-[16px] right-[16px] z-[80] bg-gray-50 border border-gray-200 rounded-md w-8 h-8 flex items-center justify-center cursor-pointer text-gray-500 hover:text-gray-900 transition-colors"
+                  className="absolute top-[16px] right-[16px] z-[80] bg-[#0a0a0a] border border-white/10 rounded-md w-8 h-8 flex items-center justify-center cursor-pointer text-zinc-500 hover:text-white transition-colors"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -2475,7 +2475,7 @@ function AppContent() {
                 {/* Header / Logo */}
                 <div className="flex items-center justify-start px-[24px] pt-[24px] pb-[16px] shrink-0 relative z-[70]">
                   <span 
-                    className="font-changa text-2xl font-black italic tracking-wider text-gray-900 select-none cursor-pointer"
+                    className="font-changa text-2xl font-black italic tracking-wider text-white select-none cursor-pointer"
                     onClick={() => {
                       setActiveView("home");
                       setIsMobileMenuOpen(false);
@@ -2488,12 +2488,12 @@ function AppContent() {
                 {/* Nav items */}
                 <div className="px-[16px] flex flex-col gap-[8px] shrink-0 mt-4">
                   <div className="flex items-center py-[6px] mb-2">
-                    <div className="flex-grow border-t border-gray-200"></div>
-                    <span className="shrink-0 px-3 text-[10px] font-medium text-gray-500 uppercase tracking-[0.2em]">เมนู</span>
-                    <div className="flex-grow border-t border-gray-200"></div>
+                    <div className="flex-grow border-t border-white/10"></div>
+                    <span className="shrink-0 px-3 text-[10px] font-medium text-zinc-500 uppercase tracking-[0.2em]">เมนู</span>
+                    <div className="flex-grow border-t border-white/10"></div>
                   </div>
                   <div
-                    className={`nav-row flex items-center gap-[13px] border rounded-lg p-[10px] px-[14px] cursor-pointer transition-all ${activeView === "home" ? "border-gray-200 bg-gray-100 text-gray-900" : "border-transparent text-gray-500 hover:bg-gray-50 hover:text-gray-900"}`}
+                    className={`nav-row flex items-center gap-[13px] border rounded-lg p-[10px] px-[14px] cursor-pointer transition-all ${activeView === "home" ? "border-white/10 bg-[#121212] text-white" : "border-transparent text-zinc-500 hover:bg-[#0a0a0a] hover:text-white"}`}
                     onClick={() => {
                       setActiveView("home");
                       setIsMobileMenuOpen(false);
@@ -2503,7 +2503,7 @@ function AppContent() {
                     <span className="text-[13px] font-medium">หน้าหลัก</span>
                   </div>
                   <div
-                    className={`nav-row flex items-center gap-[13px] border rounded-lg p-[10px] px-[14px] cursor-pointer transition-all ${activeView === "categories" || activeView === "category_products" ? "border-gray-200 bg-gray-100 text-gray-900" : "border-transparent text-gray-500 hover:bg-gray-50 hover:text-gray-900"}`}
+                    className={`nav-row flex items-center gap-[13px] border rounded-lg p-[10px] px-[14px] cursor-pointer transition-all ${activeView === "categories" || activeView === "category_products" ? "border-white/10 bg-[#121212] text-white" : "border-transparent text-zinc-500 hover:bg-[#0a0a0a] hover:text-white"}`}
                     onClick={() => {
                       setActiveView("categories");
                       setIsMobileMenuOpen(false);
@@ -2513,7 +2513,7 @@ function AppContent() {
                     <span className="text-[13px] font-medium">สินค้าทั้งหมด</span>
                   </div>
                   <div
-                    className={`nav-row flex items-center gap-[13px] border rounded-lg p-[10px] px-[14px] cursor-pointer transition-all ${activeView === "wallet" ? "border-gray-200 bg-gray-100 text-gray-900" : "border-transparent text-gray-500 hover:bg-gray-50 hover:text-gray-900"}`}
+                    className={`nav-row flex items-center gap-[13px] border rounded-lg p-[10px] px-[14px] cursor-pointer transition-all ${activeView === "wallet" ? "border-white/10 bg-[#121212] text-white" : "border-transparent text-zinc-500 hover:bg-[#0a0a0a] hover:text-white"}`}
                     onClick={() => {
                       if (!user) {
                         setActiveView("login");
@@ -2527,7 +2527,7 @@ function AppContent() {
                     <span className="text-[13px] font-medium">เติมเงิน</span>
                   </div>
                   <div
-                    className={`nav-row flex items-center gap-[13px] border rounded-lg p-[10px] px-[14px] cursor-pointer transition-all ${activeView === "free_website" ? "border-gray-200 bg-gray-100 text-blue-600" : "border-transparent text-gray-500 hover:bg-gray-50 hover:text-gray-900"}`}
+                    className={`nav-row flex items-center gap-[13px] border rounded-lg p-[10px] px-[14px] cursor-pointer transition-all ${activeView === "free_website" ? "border-white/10 bg-[#121212] text-blue-600" : "border-transparent text-zinc-500 hover:bg-[#0a0a0a] hover:text-white"}`}
                     onClick={() => {
                       if (!user) {
                         addToast({ title: "ระบบแจ้งเตือน", message: "คุณต้องเข้าสู่ระบบก่อนใช้งานตัวเลือกนี้", type: "warning" });
@@ -2544,7 +2544,7 @@ function AppContent() {
                     <span className="text-[13px] font-medium">เปิดเว็บไซต์ฟรี</span>
                   </div>
                   <div
-                    className={`nav-row flex items-center gap-[13px] border rounded-lg p-[10px] px-[14px] cursor-pointer transition-all ${activeView === "tools" ? "border-gray-200 bg-gray-100 text-gray-900" : "border-transparent text-gray-500 hover:bg-gray-50 hover:text-gray-900"}`}
+                    className={`nav-row flex items-center gap-[13px] border rounded-lg p-[10px] px-[14px] cursor-pointer transition-all ${activeView === "tools" ? "border-white/10 bg-[#121212] text-white" : "border-transparent text-zinc-500 hover:bg-[#0a0a0a] hover:text-white"}`}
                     onClick={() => {
                       if (!user) {
                         addToast({ title: "ระบบแจ้งเตือน", message: "คุณต้องเข้าสู่ระบบก่อนใช้งานตัวเลือกนี้", type: "warning" });
@@ -2561,7 +2561,7 @@ function AppContent() {
                     <span className="text-[13px] font-medium">เครื่องมือ</span>
                   </div>
                   <div
-                    className={`nav-row flex items-center gap-[13px] border rounded-lg p-[10px] px-[14px] cursor-pointer transition-all border-transparent text-gray-500 hover:bg-gray-50 hover:text-gray-900`}
+                    className={`nav-row flex items-center gap-[13px] border rounded-lg p-[10px] px-[14px] cursor-pointer transition-all border-transparent text-zinc-500 hover:bg-[#0a0a0a] hover:text-white`}
                     onClick={() => {
                       setShowContactUs(true);
                       setIsMobileMenuOpen(false);
@@ -2575,18 +2575,18 @@ function AppContent() {
                 {/* สมาชิก */}
                 {user ? (
                   <div className="px-[14px] pt-[20px] shrink-0">
-                    <div className="text-[14px] font-medium text-gray-500 mb-[8px] flex items-center gap-2">
+                    <div className="text-[14px] font-medium text-zinc-500 mb-[8px] flex items-center gap-2">
                       <User className="w-[18px] h-[18px]" />
                       สมาชิก
                     </div>
                     <div
                       onClick={() => setIsUserMenuOpen((v) => !v)}
-                      className="bg-gray-50 border border-gray-200 rounded-xl p-3 flex flex-col gap-3 cursor-pointer hover:border-[#333333] transition-all shadow-sm active:scale-[0.99]"
+                      className="bg-[#0a0a0a] border border-white/10 rounded-xl p-3 flex flex-col gap-3 cursor-pointer hover:border-[#333333] transition-all shadow-sm active:scale-[0.99]"
                     >
                       <div className="flex items-center gap-3">
                         {/* Avatar */}
-                        <div className="w-10 h-10 rounded-full bg-gray-200 p-[1px] shrink-0 shadow-sm">
-                          <div className="w-full h-full rounded-full bg-gray-100 overflow-hidden">
+                        <div className="w-10 h-10 rounded-full bg-[#1e1e1e] p-[1px] shrink-0 shadow-sm">
+                          <div className="w-full h-full rounded-full bg-[#121212] overflow-hidden">
                             <img
                               src={getAvatarUrl(
                                 user?.id ||
@@ -2601,23 +2601,23 @@ function AppContent() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between">
-                            <span className="text-[14px] font-medium text-gray-900 truncate pr-2">
+                            <span className="text-[14px] font-medium text-white truncate pr-2">
                               {userPlan?.username || user?.email?.split("@")[0]}
                             </span>
                             <div
-                              className={`text-gray-500 transition-transform duration-200 ${isUserMenuOpen ? "rotate-180" : "rotate-0"}`}
+                              className={`text-zinc-500 transition-transform duration-200 ${isUserMenuOpen ? "rotate-180" : "rotate-0"}`}
                             >
                               <ChevronDownIcon />
                             </div>
                           </div>
                           <div className="flex items-center gap-2 mt-0.5">
                             {userPlan?.isPremium ? (
-                              <div className="flex items-center gap-1.5 px-2 py-0.5 bg-white text-gray-900 border border-white text-[10px] font-black rounded-md uppercase tracking-wider shadow-sm">
+                              <div className="flex items-center gap-1.5 px-2 py-0.5 bg-[#050505] text-white border border-white text-[10px] font-black rounded-md uppercase tracking-wider shadow-sm">
                                 <Crown className="w-3 h-3" />
                                 Premium
                               </div>
                             ) : (
-                              <div className="flex items-center gap-1.5 px-2 py-0.5 bg-gray-100 text-gray-500 border border-gray-200 text-[10px] font-medium rounded-md uppercase tracking-wider shadow-sm">
+                              <div className="flex items-center gap-1.5 px-2 py-0.5 bg-[#121212] text-zinc-500 border border-white/10 text-[10px] font-medium rounded-md uppercase tracking-wider shadow-sm">
                                 <User className="w-3 h-3" />
                                 {getUserRank(userPlan, user)}
                               </div>
@@ -2627,25 +2627,25 @@ function AppContent() {
                       </div>
 
                       <div className="flex items-center gap-2">
-                        <div className="flex-1 bg-gray-100 border border-gray-200 rounded-lg p-2.5 flex items-center justify-between">
+                        <div className="flex-1 bg-[#121212] border border-white/10 rounded-lg p-2.5 flex items-center justify-between">
                           <div className="flex items-center gap-2.5">
-                            <div className="w-7 h-7 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center shadow-sm overflow-hidden">
-                              <Coins className="w-4 h-4 text-gray-900" />
+                            <div className="w-7 h-7 rounded-full bg-[#121212] border border-white/10 flex items-center justify-center shadow-sm overflow-hidden">
+                              <Coins className="w-4 h-4 text-white" />
                             </div>
                             <div className="flex flex-col">
                               <div className="flex items-center gap-1.5">
-                                <Wallet className="w-3 h-3 text-gray-500" />
-                                <span className="text-[10px] font-medium text-gray-500 uppercase tracking-wide">
+                                <Wallet className="w-3 h-3 text-zinc-500" />
+                                <span className="text-[10px] font-medium text-zinc-500 uppercase tracking-wide">
                                   ยอดเงินคงเหลือ
                                 </span>
                               </div>
                               <div className="flex items-baseline gap-1">
-                                <span className="text-[16px] font-medium text-gray-900">
+                                <span className="text-[16px] font-medium text-white">
                                   {userPlan?.balance
                                     ? Math.floor(userPlan.balance).toLocaleString()
                                     : "0"}
                                 </span>
-                                <span className="text-[12px] font-bold text-gray-900">
+                                <span className="text-[12px] font-bold text-white">
                                   ฿
                                 </span>
                               </div>
@@ -2664,12 +2664,12 @@ function AppContent() {
                         marginTop: isUserMenuOpen ? "8px" : "0px",
                       }}
                     >
-                      <div className="bg-gray-50 shadow-inner border border-gray-200 rounded-xl overflow-hidden">
-                        <div className="p-3 px-4 pb-2 text-[13px] font-medium text-gray-900 border-b border-gray-200">
+                      <div className="bg-[#0a0a0a] shadow-inner border border-white/10 rounded-xl overflow-hidden">
+                        <div className="p-3 px-4 pb-2 text-[13px] font-medium text-white border-b border-white/10">
                           {userPlan?.username || user?.email?.split("@")[0]}
                         </div>
                       <div
-                        className={`dd-row flex items-center gap-3 p-3 px-4 text-[13px] font-medium text-gray-500 border-b border-gray-200 cursor-pointer transition-colors ${activeView === "profile" ? "bg-gray-100 text-gray-900" : "hover:bg-gray-100 hover:text-gray-900"}`}
+                        className={`dd-row flex items-center gap-3 p-3 px-4 text-[13px] font-medium text-zinc-500 border-b border-white/10 cursor-pointer transition-colors ${activeView === "profile" ? "bg-[#121212] text-white" : "hover:bg-[#121212] hover:text-white"}`}
                         onClick={() => {
                           setActiveView("profile");
                           setIsMobileMenuOpen(false);
@@ -2679,7 +2679,7 @@ function AppContent() {
                         โปรไฟล์
                       </div>
                       <div
-                        className={`dd-row flex items-center gap-3 p-3 px-4 text-[13px] font-medium text-gray-500 border-b border-gray-200 cursor-pointer transition-colors ${activeView === "settings" ? "bg-gray-100 text-gray-900" : "hover:bg-gray-100 hover:text-gray-900"}`}
+                        className={`dd-row flex items-center gap-3 p-3 px-4 text-[13px] font-medium text-zinc-500 border-b border-white/10 cursor-pointer transition-colors ${activeView === "settings" ? "bg-[#121212] text-white" : "hover:bg-[#121212] hover:text-white"}`}
                         onMouseEnter={() => settingsImport()}
                         onClick={() => {
                           setActiveView("settings");
@@ -2690,7 +2690,7 @@ function AppContent() {
                         การตั้งค่าผู้ใช้
                       </div>
                       <div
-                        className={`dd-row flex items-center gap-3 p-3 px-4 text-[13px] font-medium text-gray-500 border-b border-gray-200 cursor-pointer transition-colors ${activeView === "wallet_history" ? "bg-gray-100 text-gray-900" : "hover:bg-gray-100 hover:text-gray-900"}`}
+                        className={`dd-row flex items-center gap-3 p-3 px-4 text-[13px] font-medium text-zinc-500 border-b border-white/10 cursor-pointer transition-colors ${activeView === "wallet_history" ? "bg-[#121212] text-white" : "hover:bg-[#121212] hover:text-white"}`}
                         onMouseEnter={() => historyImport()}
                         onClick={() => {
                           setActiveView("wallet_history");
@@ -2701,7 +2701,7 @@ function AppContent() {
                         ประวัติเติมเงิน
                       </div>
                       <div
-                        className={`dd-row flex items-center gap-3 p-3 px-4 text-[13px] font-medium text-gray-500 border-b border-gray-200 cursor-pointer transition-colors ${activeView === "order_history" ? "bg-gray-100 text-gray-900" : "hover:bg-gray-100 hover:text-gray-900"}`}
+                        className={`dd-row flex items-center gap-3 p-3 px-4 text-[13px] font-medium text-zinc-500 border-b border-white/10 cursor-pointer transition-colors ${activeView === "order_history" ? "bg-[#121212] text-white" : "hover:bg-[#121212] hover:text-white"}`}
                         onMouseEnter={() => historyImport()}
                         onClick={() => {
                           setActiveView("order_history");
@@ -2712,7 +2712,7 @@ function AppContent() {
                         ประวัติการซื้อสินค้า
                       </div>
                       <div
-                        className={`dd-row flex items-center gap-3 p-3 px-4 text-[13px] font-medium text-gray-500 border-b border-gray-200 cursor-pointer transition-colors ${activeView === "random_history" ? "bg-gray-100 text-gray-900" : "hover:bg-gray-100 hover:text-gray-900"}`}
+                        className={`dd-row flex items-center gap-3 p-3 px-4 text-[13px] font-medium text-zinc-500 border-b border-white/10 cursor-pointer transition-colors ${activeView === "random_history" ? "bg-[#121212] text-white" : "hover:bg-[#121212] hover:text-white"}`}
                         onMouseEnter={() => historyImport()}
                         onClick={() => {
                           setActiveView("random_history");
@@ -2724,7 +2724,7 @@ function AppContent() {
                       </div>
                       {isAdmin && (
                         <div
-                          className={`dd-row flex items-center gap-3 p-3 px-4 text-[13px] font-bold text-gray-900 border-b border-gray-200 cursor-pointer transition-colors bg-gray-100`}
+                          className={`dd-row flex items-center gap-3 p-3 px-4 text-[13px] font-bold text-white border-b border-white/10 cursor-pointer transition-colors bg-[#121212]`}
                           onClick={() => {
                             setActiveView("admin");
                             setIsMobileMenuOpen(false);
@@ -2750,7 +2750,7 @@ function AppContent() {
                 ) : (
                   <>
                     <div className="px-6 my-4">
-                       <div className="w-full h-[1px] bg-gray-200" />
+                       <div className="w-full h-[1px] bg-[#1e1e1e]" />
                     </div>
                     <div className="px-[14px] flex flex-col gap-3">
                       <button
@@ -2763,16 +2763,16 @@ function AppContent() {
                         <LogIn className="w-[18px] h-[18px]" /> เข้าสู่ระบบ
                       </button>
                       <div className="flex items-center gap-3 px-4">
-                         <div className="h-[1px] flex-1 bg-gray-200" />
-                         <span className="text-[10px] text-gray-500 font-medium uppercase tracking-widest">or</span>
-                         <div className="h-[1px] flex-1 bg-gray-200" />
+                         <div className="h-[1px] flex-1 bg-[#1e1e1e]" />
+                         <span className="text-[10px] text-zinc-500 font-medium uppercase tracking-widest">or</span>
+                         <div className="h-[1px] flex-1 bg-[#1e1e1e]" />
                       </div>
                       <button
                         onClick={() => {
                           setActiveView("signup");
                           setIsMobileMenuOpen(false);
                         }}
-                        className="w-full py-2.5 bg-gray-100 hover:bg-gray-50 border border-gray-200 hover:border-[#333333] text-gray-900 rounded-lg font-medium text-[14px] flex items-center justify-center gap-2 active:scale-95 transition-all shadow-sm"
+                        className="w-full py-2.5 bg-[#121212] hover:bg-[#0a0a0a] border border-white/10 hover:border-[#333333] text-white rounded-lg font-medium text-[14px] flex items-center justify-center gap-2 active:scale-95 transition-all shadow-sm"
                       >
                         <UserPlus className="w-[18px] h-[18px]" /> สมัครสมาชิก
                       </button>
@@ -2790,15 +2790,15 @@ function AppContent() {
 
         {/* Global Page Header (Based on activeView) for Mobile */}
         {activeView !== "home" && (
-          <div className="lg:hidden px-[18px] pt-[14px] pb-[10px] flex gap-[12px] items-center shrink-0 border-b border-gray-200 bg-[#111318]">
+          <div className="lg:hidden px-[18px] pt-[14px] pb-[10px] flex gap-[12px] items-center shrink-0 border-b border-white/10 bg-[#111318]">
             <div>
-              <div className="text-[10px] text-gray-500 font-bold uppercase tracking-widest leading-none mb-1">
+              <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest leading-none mb-1">
                 {activeView === "categories" ? "Main Shop" :
                  activeView === "wallet" ? "Billing" :
                  activeView === "profile" ? "Profile Info" :
                  activeView === "history" ? "History" : "Activity"}
               </div>
-              <div className="text-[20px] font-black text-gray-900 leading-none">
+              <div className="text-[20px] font-black text-white leading-none">
                 {activeView === "categories" ? "สินค้าทั่วไป" :
                  activeView === "category_products" ? "รายการสินค้า" :
                  activeView === "wallet" ? "เติมเงิน" :
@@ -3105,131 +3105,7 @@ function AppContent() {
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-px from-transparent via-[#3B82F6]/50 to-transparent"></div>
 
           <div className="max-w-7xl mx-auto px-6 md:px-12 w-full">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-12 text-sm text-gray-500 mb-12 text-center md:text-center">
-              {/* Brand & Intro */}
-              <div className="col-span-1 md:col-span-1 flex flex-col items-center">
-                <span 
-                  className="font-changa text-3xl font-black italic tracking-wider text-gray-900 mb-4 select-none cursor-pointer"
-                  onClick={() => {
-                    setActiveView("home");
-                    window.scrollTo({ top: 0, behavior: "smooth" });
-                  }}
-                >
-                  APEXSTORE
-                </span>
-                <p
-                  className="leading-relaxed mb-6 text-gray-600 select-all cursor-text hover:text-gray-900 transition-colors"
-                  title="คลิกเพื่อคัดลอก"
-                >
-                  APEXSTORE | จำหน่ายสินค้าราคาถูก ปลอดภัย 100%
-                </p>
-              </div>
-
-              {/* Links Group 1 */}
-              <div className="flex flex-col items-center">
-                <h4 className="text-gray-900 font-bold mb-4 tracking-wider">
-                  เกี่ยวกับเรา
-                </h4>
-                <ul className="space-y-3 flex flex-col items-center">
-                  <li>
-                    <button
-                      onClick={() => setActiveView("home")}
-                      className="hover:text-blue-600 transition-colors"
-                    >
-                      สินค้าทั่วไป
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      onClick={() => setActiveView("premium")}
-                      className="hover:text-blue-600 transition-colors"
-                    >
-                      แอพพรีเมียม
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      onClick={() => setActiveView("vip")}
-                      className="hover:text-blue-600 transition-colors"
-                    >
-                      ยศ VIP
-                    </button>
-                  </li>
-                </ul>
-              </div>
-
-              {/* Links Group 2 */}
-              <div className="flex flex-col items-center">
-                <h4 className="text-gray-900 font-bold mb-4 tracking-wider">
-                  ข้อมูลสำคัญ
-                </h4>
-                <ul className="space-y-3 flex flex-col items-center">
-                  <li>
-                    <button
-                      onClick={() => setShowAboutUs(true)}
-                      className="hover:text-blue-600 transition-colors"
-                    >
-                      เกี่ยวกับเรา
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      onClick={() => setShowTerms(true)}
-                      className="hover:text-blue-600 transition-colors"
-                    >
-                      เงื่อนไขการใช้งาน
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      onClick={() => setShowPrivacy(true)}
-                      className="hover:text-blue-600 transition-colors"
-                    >
-                      นโยบายความเป็นส่วนตัว
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      onClick={() => setShowContactUs(true)}
-                      className="hover:text-blue-600 transition-colors"
-                    >
-                      ติดต่อเรา
-                    </button>
-                  </li>
-                </ul>
-              </div>
-
-              {/* Contact Group */}
-              <div className="flex flex-col items-center">
-                <h4 className="text-gray-900 font-bold mb-4 tracking-wider">
-                  ติดต่อเรา
-                </h4>
-                <ul className="space-y-3 flex flex-col items-center">
-                  <li>
-                    <a
-                      href="https://discord.gg/EvFjgkSB4W"
-                      target="_blank"
-                      rel="noreferrer"
-                      className="flex items-center gap-2 hover:text-[#5865F2] transition-colors"
-                    >
-                      <div className="w-1.5 h-1.5 rounded-full bg-[#5865F2]"></div>
-                      Discord
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      href={`mailto:${siteSettings?.contact_email || "support.apexstoreth@gmail.com"}`}
-                      className="flex items-center gap-2 hover:text-gray-900 text-gray-600 transition-colors"
-                    >
-                      <div className="w-1.5 h-1.5 rounded-full bg-zinc-400"></div>
-                      Email Support
-                    </a>
-                  </li>
-                </ul>
-              </div>
-            </div>
-
-            <div className="pt-8 border-t border-gray-200 flex flex-col md:flex-row justify-center items-center gap-4 text-xs text-gray-600">
+            <div className="flex justify-center items-center gap-4 text-xs text-zinc-500">
               <p>© {new Date().getFullYear()} เอเพ็กซ์สโตร์ — สงวนลิขสิทธิ์</p>
             </div>
           </div>
@@ -3249,13 +3125,13 @@ function AppContent() {
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 exit={{ scale: 0.95, opacity: 0, y: 20 }}
                 transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                className="bg-white border border-gray-200 rounded-xl p-6 sm:p-8 max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl relative"
+                className="bg-[#050505] border border-white/10 rounded-xl p-6 sm:p-8 max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl relative"
               >
-                <h2 className="text-xl sm:text-2xl font-bold mb-6 text-gray-900 flex items-center gap-2">
+                <h2 className="text-xl sm:text-2xl font-bold mb-6 text-white flex items-center gap-2">
                   <Shield className="w-6 h-6 shrink-0 text-[#2563EB]" />{" "}
                   นโยบายความเป็นส่วนตัว (Privacy Policy)
                 </h2>
-                <div className="overflow-y-auto pr-2 sm:pr-4 space-y-6 text-sm leading-relaxed text-gray-600 scrollbar-thin scrollbar-thumb-zinc-700 flex-1">
+                <div className="overflow-y-auto pr-2 sm:pr-4 space-y-6 text-sm leading-relaxed text-zinc-400 scrollbar-thin scrollbar-thumb-zinc-700 flex-1">
                   <p>
                     <strong>อัปเดตล่าสุด:</strong>{" "}
                     {new Date().toLocaleDateString("th-TH", {
@@ -3266,7 +3142,7 @@ function AppContent() {
                   </p>
 
                   <div>
-                    <h3 className="font-bold text-gray-900 text-base mb-2">
+                    <h3 className="font-bold text-white text-base mb-2">
                       1. ข้อมูลที่เราเก็บรวบรวม
                     </h3>
                     <ul className="list-disc pl-5 space-y-1">
@@ -3302,7 +3178,7 @@ function AppContent() {
                   </div>
 
                   <div>
-                    <h3 className="font-bold text-gray-900 text-base mb-2">
+                    <h3 className="font-bold text-white text-base mb-2">
                       2. การปกป้องข้อมูล Combo และสินทรัพย์ของท่าน
                     </h3>
                     <p className="mb-2">
@@ -3321,7 +3197,7 @@ function AppContent() {
                   </div>
 
                   <div>
-                    <h3 className="font-bold text-gray-900 text-base mb-2">
+                    <h3 className="font-bold text-white text-base mb-2">
                       3. การเปิดเผยข้อมูลแก่บุคคลที่สาม
                     </h3>
                     <p>
@@ -3346,7 +3222,7 @@ function AppContent() {
                   </div>
 
                   <div>
-                    <h3 className="font-bold text-gray-900 text-base mb-2">
+                    <h3 className="font-bold text-white text-base mb-2">
                       4. คุกกี้ (Cookies) และการจัดเก็บ Cache
                     </h3>
                     <p>
@@ -3359,7 +3235,7 @@ function AppContent() {
                   </div>
 
                   <div>
-                    <h3 className="font-bold text-gray-900 text-base mb-2">
+                    <h3 className="font-bold text-white text-base mb-2">
                       5. สิทธิของเจ้าของข้อมูล (Data Subject Rights)
                     </h3>
                     <p>
@@ -3373,7 +3249,7 @@ function AppContent() {
                   </div>
 
                   <div>
-                    <h3 className="font-bold text-gray-900 text-base mb-2">
+                    <h3 className="font-bold text-white text-base mb-2">
                       6. การแก้ไขเปลี่ยนแปลงนโยบาย
                     </h3>
                     <p>
@@ -3384,7 +3260,7 @@ function AppContent() {
                     </p>
                   </div>
                 </div>
-                <div className="pt-6 mt-6 border-t border-gray-200 flex gap-3 flex-col sm:flex-row justify-end">
+                <div className="pt-6 mt-6 border-t border-white/10 flex gap-3 flex-col sm:flex-row justify-end">
                   <button
                     onClick={() => setShowPrivacy(false)}
                     className="bg-purple-600/10 hover:bg-purple-600/25 text-blue-600 font-bold py-3 px-8 rounded-2xl transition-colors w-full sm:w-auto"
@@ -3408,15 +3284,15 @@ function AppContent() {
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 exit={{ scale: 0.95, opacity: 0, y: 20 }}
                 transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                className="bg-white border border-gray-200 rounded-xl p-6 sm:p-8 max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl relative"
+                className="bg-[#050505] border border-white/10 rounded-xl p-6 sm:p-8 max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl relative"
               >
-                <h2 className="text-xl sm:text-2xl font-bold mb-6 flex items-center gap-2 text-gray-900">
+                <h2 className="text-xl sm:text-2xl font-bold mb-6 flex items-center gap-2 text-white">
                   <ListChecks className="w-6 h-6 shrink-0 text-[#2563EB]" />{" "}
                   ข้อกำหนดการใช้งาน (Terms of Use)
                 </h2>
-                <div className="overflow-y-auto pr-2 sm:pr-4 space-y-6 text-sm leading-relaxed text-gray-600 scrollbar-thin scrollbar-thumb-zinc-700 flex-1">
+                <div className="overflow-y-auto pr-2 sm:pr-4 space-y-6 text-sm leading-relaxed text-zinc-400 scrollbar-thin scrollbar-thumb-zinc-700 flex-1">
                   <div>
-                    <h3 className="font-bold text-gray-900 text-base mb-2">
+                    <h3 className="font-bold text-white text-base mb-2">
                       1. การรับรองความยินยอมและผูกพัน
                     </h3>
                     <p>
@@ -3429,7 +3305,7 @@ function AppContent() {
                   </div>
 
                   <div>
-                    <h3 className="font-bold text-gray-900 text-base mb-2">
+                    <h3 className="font-bold text-white text-base mb-2">
                       2. ขอบเขตสิทธิ์ หน้าที่ และการใช้งานที่ยอมรับได้ (AUP)
                     </h3>
                     <p className="mb-2">
@@ -3471,7 +3347,7 @@ function AppContent() {
                   </div>
 
                   <div>
-                    <h3 className="font-bold text-gray-900 text-base mb-2">
+                    <h3 className="font-bold text-white text-base mb-2">
                       3. การชำระเงิน การเติมเงิน และนโยบายล้างบางเครดิต (No
                       Refund Policy)
                     </h3>
@@ -3494,7 +3370,7 @@ function AppContent() {
                   </div>
 
                   <div>
-                    <h3 className="font-bold text-gray-900 text-base mb-2">
+                    <h3 className="font-bold text-white text-base mb-2">
                       4. ข้อยกเว้นและข้อจำกัดความรับผิดชอบ (Disclaimer)
                     </h3>
                     <p className="mb-2">
@@ -3513,7 +3389,7 @@ function AppContent() {
                   </div>
 
                   <div>
-                    <h3 className="font-bold text-gray-900 text-base mb-2">
+                    <h3 className="font-bold text-white text-base mb-2">
                       5. สิทธิของการยุติการให้บริการ และ IP Ban
                     </h3>
                     <p>
@@ -3526,12 +3402,12 @@ function AppContent() {
                   </div>
 
                   <div>
-                    <h3 className="font-bold text-gray-900 text-base mb-2">
+                    <h3 className="font-bold text-white text-base mb-2">
                       6. การจัดการและระบบต่างๆ
                     </h3>
                   </div>
                   <div>
-                    <h3 className="font-bold text-gray-900 text-base mb-2">
+                    <h3 className="font-bold text-white text-base mb-2">
                       ระบบและบริการของเรา
                     </h3>
                     <ul className="list-disc pl-5">
@@ -3557,7 +3433,7 @@ function AppContent() {
                   </div>
 
                   <div>
-                    <h3 className="font-bold text-gray-900 text-base mb-2">
+                    <h3 className="font-bold text-white text-base mb-2">
                       ความมุ่งมั่นด้านความปลอดภัย (Security Commitment)
                     </h3>
                     <p>
@@ -3573,7 +3449,7 @@ function AppContent() {
                   </div>
 
                   <div>
-                    <h3 className="font-bold text-gray-900 text-base mb-2">
+                    <h3 className="font-bold text-white text-base mb-2">
                       ช่องทางติดต่อคอมมูนิตี้ (Contact & Community)
                     </h3>
                     <p className="mb-2">
@@ -3592,14 +3468,14 @@ function AppContent() {
                         โดยผู้ดูแลมืออาชีพ (ตอบกลับรวดเร็วที่สุด)
                       </li>
                     </ul>
-                    <p className="mt-2 text-gray-500 italic">
+                    <p className="mt-2 text-zinc-500 italic">
                       "ขอบคุณผู้ใช้งานและพันธมิตรทุกคน
                       ที่เล็งเห็นคุณค่าและก้าวเดินไปพร้อมกับ APEXSTORE
                       ขวากหนามทางดิจิทัลไหนที่ยาก... เราพร้อมเบิกทางให้คุณ"
                     </p>
                   </div>
                 </div>
-                <div className="pt-6 mt-6 border-t border-gray-200 flex justify-end w-full">
+                <div className="pt-6 mt-6 border-t border-white/10 flex justify-end w-full">
                   <button
                     onClick={() => setShowAboutUs(false)}
                     className="bg-purple-600/10 hover:bg-purple-600/25 text-blue-600 font-bold py-3 px-8 rounded-2xl transition-all w-full sm:w-auto"
@@ -3623,18 +3499,18 @@ function AppContent() {
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 exit={{ scale: 0.95, opacity: 0, y: 20 }}
                 transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                className="bg-white border border-gray-200 rounded-xl p-6 sm:p-8 max-w-md w-full flex flex-col shadow-2xl relative"
+                className="bg-[#050505] border border-white/10 rounded-xl p-6 sm:p-8 max-w-md w-full flex flex-col shadow-2xl relative"
               >
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl sm:text-2xl font-bold flex items-center gap-2 text-gray-900">
+                  <h2 className="text-xl sm:text-2xl font-bold flex items-center gap-2 text-white">
                     <Phone className="w-6 h-6 shrink-0 text-blue-600" />{" "}
                     ติดต่อเรา
                   </h2>
                   <button
                     onClick={() => setShowContactUs(false)}
-                    className="p-2 hover:bg-blue-50 rounded-full transition-colors"
+                    className="p-2 hover:bg-white/10 rounded-full transition-colors"
                   >
-                    <X className="w-5 h-5 text-gray-600" />
+                    <X className="w-5 h-5 text-zinc-400" />
                   </button>
                 </div>
 
@@ -3643,14 +3519,14 @@ function AppContent() {
                     href="https://discord.gg/EvFjgkSB4W"
                     target="_blank"
                     rel="noreferrer"
-                    className="flex items-center gap-4 p-4 bg-[#5865F2]/10 hover:bg-[#5865F2]/20 border border-[#5865F2]/20 rounded-2xl text-gray-900 transition-all group"
+                    className="flex items-center gap-4 p-4 bg-[#5865F2]/10 hover:bg-[#5865F2]/20 border border-[#5865F2]/20 rounded-2xl text-white transition-all group"
                   >
                     <div className="w-12 h-12 bg-[#5865F2] rounded-xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                       <span className="font-bold text-xl block">D</span>
                     </div>
                     <div>
                       <h3 className="font-bold text-lg">Discord</h3>
-                      <p className="text-gray-600 text-sm">
+                      <p className="text-zinc-400 text-sm">
                         เข้าร่วมเซิร์ฟเวอร์ของเรา
                       </p>
                     </div>
@@ -3659,14 +3535,14 @@ function AppContent() {
                   {siteSettings?.contact_email && (
                     <a
                       href={`mailto:${siteSettings.contact_email}`}
-                      className="flex items-center gap-4 p-4 bg-gray-100 hover:bg-gray-200 border border-gray-200 hover:border-gray-200 rounded-2xl text-gray-900 transition-all group"
+                      className="flex items-center gap-4 p-4 bg-[#121212] hover:bg-[#1e1e1e] border border-white/10 hover:border-white/10 rounded-2xl text-white transition-all group"
                     >
-                      <div className="w-12 h-12 bg-gray-200 rounded-xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                      <div className="w-12 h-12 bg-[#1e1e1e] rounded-xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                         <Mail className="w-6 h-6" />
                       </div>
                       <div>
                         <h3 className="font-bold text-lg">Email</h3>
-                        <p className="text-gray-600 text-sm">
+                        <p className="text-zinc-400 text-sm">
                           {siteSettings.contact_email}
                         </p>
                       </div>
@@ -3674,7 +3550,7 @@ function AppContent() {
                   )}
                 </div>
 
-                <div className="pt-6 mt-6 border-t border-gray-200 flex justify-end w-full">
+                <div className="pt-6 mt-6 border-t border-white/10 flex justify-end w-full">
                   <button
                     onClick={() => setShowContactUs(false)}
                     className="bg-purple-600/10 hover:bg-purple-600/25 text-blue-600 font-bold py-3 px-8 rounded-2xl transition-all w-full sm:w-auto"
@@ -3700,8 +3576,8 @@ function AppContent() {
         {/* Turnstile Modal */}
         {showTurnstileModal && (
           <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-[70]  font-sans animate-in zoom-in-95 duration-200">
-            <div className="bg-white border border-gray-200 rounded-xl p-6 sm:p-8 max-w-sm w-full shadow-xl relative overflow-hidden flex flex-col items-center">
-              <div className="bg-gray-100 border border-gray-200 rounded-2xl mb-2 relative overflow-hidden w-full h-[58px]">
+            <div className="bg-[#050505] border border-white/10 rounded-xl p-6 sm:p-8 max-w-sm w-full shadow-xl relative overflow-hidden flex flex-col items-center">
+              <div className="bg-[#121212] border border-white/10 rounded-2xl mb-2 relative overflow-hidden w-full h-[58px]">
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[110%] scale-[0.92] flex justify-center">
                   {TURNSTILE_SITE_KEY ? (
                     <Turnstile
@@ -3731,14 +3607,14 @@ function AppContent() {
                       console.error,
                     );
                   }}
-                  className="w-full bg-purple-600 hover:bg-[#2563EB] text-gray-900 font-bold py-3.5 rounded-2xl transition-all shadow-sm mb-4"
+                  className="w-full bg-purple-600 hover:bg-[#2563EB] text-white font-bold py-3.5 rounded-2xl transition-all shadow-sm mb-4"
                 >
                   ดำเนินการต่อ (Bypass)
                 </button>
               )}
               <button
                 onClick={() => setShowTurnstileModal(false)}
-                className="text-[10px] font-bold text-gray-600 hover:text-gray-600 transition-colors uppercase tracking-widest mt-2"
+                className="text-[10px] font-bold text-zinc-400 hover:text-zinc-400 transition-colors uppercase tracking-widest mt-2"
               >
                 Cancel
               </button>

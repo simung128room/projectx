@@ -92,7 +92,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user,
       background: '#09090b',
       color: '#fff',
       customClass: {
-        input: 'bg-gray-50 border-gray-200 text-gray-900 rounded-xl'
+        input: 'bg-[#0a0a0a] border-white/10 text-white rounded-xl'
       }
     });
 
@@ -144,32 +144,32 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user,
     <AnimatedScroll direction="up">
       <div className="font-sans px-4 pb-12">
         <div className="max-w-4xl mx-auto mt-6">
-          <div className="bg-[#0B0D0F] border-gray-200 border rounded-xl overflow-hidden shadow-sm flex flex-col md:flex-row">
+          <div className="bg-[#0B0D0F] border-white/10 border rounded-xl overflow-hidden shadow-sm flex flex-col md:flex-row">
             
             {/* Sidebar Tabs */}
-            <div className="md:w-1/3 bg-gray-100 border-b md:border-b-0 md:border-r border-gray-200 p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+            <div className="md:w-1/3 bg-[#121212] border-b md:border-b-0 md:border-r border-white/10 p-6">
+              <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
                 <Shield className="w-5 h-5 text-blue-600" /> ตั้งค่าผู้ใช้
               </h2>
               
               <div className="space-y-2">
                 <button 
                   onClick={() => setCurrentTab('password')}
-                  className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all ${currentTab === 'password' ? 'bg-purple-600 text-gray-900' : 'text-gray-600 hover:bg-gray-100'}`}
+                  className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all ${currentTab === 'password' ? 'bg-purple-600 text-white' : 'text-zinc-400 hover:bg-[#121212]'}`}
                 >
                   <Key className="w-4 h-4" />
                   <span className="text-sm font-medium">เปลี่ยนรหัสผ่าน</span>
                 </button>
                 <button 
                   onClick={() => setCurrentTab('preferences')}
-                  className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all ${currentTab === 'preferences' ? 'bg-purple-600 text-gray-900' : 'text-gray-600 hover:bg-gray-100'}`}
+                  className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all ${currentTab === 'preferences' ? 'bg-purple-600 text-white' : 'text-zinc-400 hover:bg-[#121212]'}`}
                 >
                   <Settings className="w-4 h-4" />
                   <span className="text-sm font-medium">การตั้งค่าเพิ่มเติม</span>
                 </button>
                 <button 
                   onClick={() => setCurrentTab('delete')}
-                  className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all ${currentTab === 'delete' ? 'bg-red-500 text-gray-900' : 'text-red-400 hover:bg-red-500/10'}`}
+                  className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all ${currentTab === 'delete' ? 'bg-red-500 text-white' : 'text-red-400 hover:bg-red-500/10'}`}
                 >
                   <Trash2 className="w-4 h-4" />
                   <span className="text-sm font-medium">ลบบัญชี</span>
@@ -198,30 +198,30 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user,
                 <>
                   {currentTab === 'password' && (
                 <div className="animate-in fade-in duration-300">
-                  <h3 className="text-lg font-bold text-gray-900 mb-6">เปลี่ยนรหัสผ่านใหม่</h3>
+                  <h3 className="text-lg font-bold text-white mb-6">เปลี่ยนรหัสผ่านใหม่</h3>
                   <div className="space-y-4">
                     <div>
-                      <label className="text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-1.5 block">รหัสผ่านเดิม</label>
+                      <label className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mb-1.5 block">รหัสผ่านเดิม</label>
                       <div className="relative">
-                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-                        <input type="password" placeholder="••••••••" value={oldPassword} onChange={e => setOldPassword(e.target.value)} className="w-full bg-gray-100 border border-gray-200 rounded-xl py-3 pl-10 pr-4 text-sm text-gray-900 focus:border-[#3B82F6] outline-none" />
+                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+                        <input type="password" placeholder="••••••••" value={oldPassword} onChange={e => setOldPassword(e.target.value)} className="w-full bg-[#121212] border border-white/10 rounded-xl py-3 pl-10 pr-4 text-sm text-white focus:border-[#3B82F6] outline-none" />
                       </div>
                     </div>
                     <div>
-                      <label className="text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-1.5 block">รหัสผ่านใหม่</label>
+                      <label className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mb-1.5 block">รหัสผ่านใหม่</label>
                       <div className="relative">
-                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-                        <input type="password" placeholder="••••••••" value={newPassword} onChange={e => setNewPassword(e.target.value)} className="w-full bg-gray-100 border border-gray-200 rounded-xl py-3 pl-10 pr-4 text-sm text-gray-900 focus:border-[#3B82F6] outline-none" />
+                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+                        <input type="password" placeholder="••••••••" value={newPassword} onChange={e => setNewPassword(e.target.value)} className="w-full bg-[#121212] border border-white/10 rounded-xl py-3 pl-10 pr-4 text-sm text-white focus:border-[#3B82F6] outline-none" />
                       </div>
                     </div>
                     <div>
-                      <label className="text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-1.5 block">ยืนยันรหัสผ่านใหม่</label>
+                      <label className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mb-1.5 block">ยืนยันรหัสผ่านใหม่</label>
                       <div className="relative">
-                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-                        <input type="password" placeholder="••••••••" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} className="w-full bg-gray-100 border border-gray-200 rounded-xl py-3 pl-10 pr-4 text-sm text-gray-900 focus:border-[#3B82F6] outline-none" />
+                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+                        <input type="password" placeholder="••••••••" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} className="w-full bg-[#121212] border border-white/10 rounded-xl py-3 pl-10 pr-4 text-sm text-white focus:border-[#3B82F6] outline-none" />
                       </div>
                     </div>
-                    <button onClick={handleChangePassword} className="w-full bg-purple-600 hover:bg-[#2563EB] text-gray-900 font-bold py-3.5 rounded-xl transition-all shadow-sm">
+                    <button onClick={handleChangePassword} className="w-full bg-purple-600 hover:bg-[#2563EB] text-white font-bold py-3.5 rounded-xl transition-all shadow-sm">
                       ยืนยันการเปลี่ยนรหัสผ่าน
                     </button>
                   </div>
@@ -232,13 +232,13 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user,
                 <div className="animate-in fade-in duration-300">
                   <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-6 text-center">
                     <ShieldAlert className="w-12 h-12 text-red-500 mx-auto mb-4" />
-                    <h3 className="text-lg font-bold text-gray-900 mb-2">ลบบัญชีผู้ใช้งาน</h3>
-                    <p className="text-sm text-gray-600 mb-6 leading-relaxed">
+                    <h3 className="text-lg font-bold text-white mb-2">ลบบัญชีผู้ใช้งาน</h3>
+                    <p className="text-sm text-zinc-400 mb-6 leading-relaxed">
                       คำเตือน: หากคุณลบบัญชี ข้อมูลประวัติการสั่งซื้อ ยอดเงินคงเหลือ และข้อมูลส่วนตัวทั้งหมดจะถูกลบออกถาวรและไม่สามารถกู้คืนได้
                     </p>
                     <button 
                       onClick={handleDeleteAccount}
-                      className="w-full bg-red-500 hover:bg-red-600 text-gray-900 font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-red-500/20"
+                      className="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-red-500/20"
                     >
                       ลบบัญชีถาวร
                     </button>
@@ -248,12 +248,12 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user,
 
               {currentTab === 'preferences' && (
                 <div className="animate-in fade-in duration-300">
-                  <h3 className="text-lg font-bold text-gray-900 mb-6">ตั้งค่าการแสดงผลทั่วไป</h3>
+                  <h3 className="text-lg font-bold text-white mb-6">ตั้งค่าการแสดงผลทั่วไป</h3>
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between p-4 bg-gray-100 border border-gray-200 rounded-xl">
+                    <div className="flex items-center justify-between p-4 bg-[#121212] border border-white/10 rounded-xl">
                       <div>
-                        <div className="text-sm font-medium text-gray-900 mb-1">Custom Cursor</div>
-                        <div className="text-xs text-gray-600">เปิด/ปิด เอฟเฟกต์เคอร์เซอร์ของเว็บไซต์ เพื่อลดการกระตุกบนเครื่องสเปกต่ำ</div>
+                        <div className="text-sm font-medium text-white mb-1">Custom Cursor</div>
+                        <div className="text-xs text-zinc-400">เปิด/ปิด เอฟเฟกต์เคอร์เซอร์ของเว็บไซต์ เพื่อลดการกระตุกบนเครื่องสเปกต่ำ</div>
                       </div>
                       <div className="flex items-center">
                         <label className="relative inline-flex items-center cursor-pointer">
@@ -263,7 +263,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user,
                             checked={useCustomCursor ?? true} 
                             onChange={toggleCustomCursor}
                           />
-                          <div className="w-11 h-6 bg-gray-100 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                          <div className="w-11 h-6 bg-[#121212] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-[#050505] after:border-white/20 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
                         </label>
                       </div>
                     </div>

@@ -124,17 +124,17 @@ export const AdminApiKeys: React.FC = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-black text-gray-900 flex items-center gap-2">
+          <h2 className="text-2xl font-black text-white flex items-center gap-2">
             <Key className="w-6 h-6 text-[#2563EB]" />
             API Keys Management
           </h2>
-          <p className="text-sm text-gray-600 mt-1">
+          <p className="text-sm text-zinc-400 mt-1">
             สร้าง API Keys สำหรับการเรียกใช้งาน /api/check แบบ bypass การตรวจสอบ Cloudflare
           </p>
         </div>
         <button
           onClick={() => setIsAdding(!isAdding)}
-          className="bg-[#2563EB] text-gray-900 px-4 py-2 rounded-xl text-sm font-bold hover:bg-[#2563EB]/80 flex items-center gap-2"
+          className="bg-[#2563EB] text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-[#2563EB]/80 flex items-center gap-2"
         >
           {isAdding ? <XCircle className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
           {isAdding ? 'Cancel' : 'Create Key'}
@@ -142,16 +142,16 @@ export const AdminApiKeys: React.FC = () => {
       </div>
 
       {isAdding && (
-        <form onSubmit={handleAddKey} className="bg-[#0B0D0F] border border-gray-200 p-6 rounded-2xl flex flex-col gap-4">
+        <form onSubmit={handleAddKey} className="bg-[#0B0D0F] border border-white/10 p-6 rounded-2xl flex flex-col gap-4">
           <div className="flex flex-col gap-2">
-            <label className="text-xs font-bold text-gray-600 uppercase">Key Name / Description</label>
+            <label className="text-xs font-bold text-zinc-400 uppercase">Key Name / Description</label>
             <input
               required
               type="text"
               value={newKeyName}
               onChange={e => setNewKeyName(e.target.value)}
               placeholder="e.g. My Python Checker Script"
-              className="bg-gray-100 text-gray-900 px-4 py-3 rounded-xl border border-gray-200 focus:border-[#2563EB] outline-none"
+              className="bg-[#121212] text-white px-4 py-3 rounded-xl border border-white/10 focus:border-[#2563EB] outline-none"
             />
           </div>
           <div className="flex items-center gap-3">
@@ -160,34 +160,34 @@ export const AdminApiKeys: React.FC = () => {
               id="isLifetime"
               checked={isLifetime}
               onChange={e => setIsLifetime(e.target.checked)}
-              className="w-4 h-4 rounded bg-gray-100 border-gray-200 text-[#2563EB] focus:ring-[#2563EB]"
+              className="w-4 h-4 rounded bg-[#121212] border-white/10 text-[#2563EB] focus:ring-[#2563EB]"
             />
-            <label htmlFor="isLifetime" className="text-sm font-bold text-gray-900">Lifetime (ถาวร)</label>
+            <label htmlFor="isLifetime" className="text-sm font-bold text-white">Lifetime (ถาวร)</label>
           </div>
           {!isLifetime && (
             <div className="flex flex-col gap-2">
-              <label className="text-xs font-bold text-gray-600 uppercase">Expire In (Days)</label>
+              <label className="text-xs font-bold text-zinc-400 uppercase">Expire In (Days)</label>
               <input
                 type="number"
                 min="1"
                 required
                 value={expireDays}
                 onChange={e => setExpireDays(e.target.value)}
-                className="bg-gray-100 text-gray-900 px-4 py-3 rounded-xl border border-gray-200 focus:border-[#2563EB] outline-none"
+                className="bg-[#121212] text-white px-4 py-3 rounded-xl border border-white/10 focus:border-[#2563EB] outline-none"
               />
             </div>
           )}
-          <button type="submit" className="bg-[#2563EB] text-gray-900 font-bold py-3 rounded-xl mt-2">
+          <button type="submit" className="bg-[#2563EB] text-white font-bold py-3 rounded-xl mt-2">
             Generate Key
           </button>
         </form>
       )}
 
-      <div className="bg-[#0B0D0F] border border-gray-200 rounded-2xl overflow-hidden">
+      <div className="bg-[#0B0D0F] border border-white/10 rounded-2xl overflow-hidden">
         <div className="overflow-x-auto min-h-[300px]">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-gray-200 bg-gray-100/50 text-xs text-gray-600 uppercase font-black tracking-widest">
+              <tr className="border-b border-white/10 bg-[#121212]/50 text-xs text-zinc-400 uppercase font-black tracking-widest">
                 <th className="px-6 py-4">Status</th>
                 <th className="px-6 py-4">Name</th>
                 <th className="px-6 py-4">API Key</th>
@@ -197,18 +197,18 @@ export const AdminApiKeys: React.FC = () => {
                 <th className="px-6 py-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5 text-sm text-gray-700">
+            <tbody className="divide-y divide-white/5 text-sm text-zinc-300">
               {isLoading ? (
                 <tr>
                   <td colSpan={7} className="text-center py-8">Loading...</td>
                 </tr>
               ) : apiKeys.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="text-center py-8 text-gray-500">No API Keys found</td>
+                  <td colSpan={7} className="text-center py-8 text-zinc-500">No API Keys found</td>
                 </tr>
               ) : (
                 apiKeys.map(k => (
-                  <tr key={k.key} className="hover:bg-gray-100/30 transition-colors">
+                  <tr key={k.key} className="hover:bg-[#121212]/30 transition-colors">
                     <td className="px-6 py-4">
                       {k.status === 'active' ? (
                         <span className="bg-blue-600/20 text-blue-600 px-3 py-1 rounded-full text-xs font-bold border border-emerald-500/20">Active</span>
@@ -218,7 +218,7 @@ export const AdminApiKeys: React.FC = () => {
                         <span className="bg-red-500/20 text-red-400 px-3 py-1 rounded-full text-xs font-bold border border-red-500/20">Disabled</span>
                       )}
                     </td>
-                    <td className="px-6 py-4 font-bold text-gray-900">{k.name}</td>
+                    <td className="px-6 py-4 font-bold text-white">{k.name}</td>
                     <td className="px-6 py-4 font-mono text-xs text-[#2563EB] select-all cursor-pointer bg-[#2563EB]/10 px-2 py-1 rounded border border-[#2563EB]/20">
                       {k.key}
                     </td>

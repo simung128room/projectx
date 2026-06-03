@@ -26,7 +26,7 @@ const THEMES: ThemeConfig[] = [
     name: 'Violet Glow',
     bgClass: 'bg-[#0B0813]',
     accentClass: 'text-violet-400',
-    btnClass: 'bg-violet-600 hover:bg-violet-500 text-gray-900 shadow-violet-500/10',
+    btnClass: 'bg-violet-600 hover:bg-violet-500 text-white shadow-violet-500/10',
     borderClass: 'border-violet-500/20',
     textColor: 'text-violet-200',
     accentGlow: 'from-violet-500/20 to-transparent'
@@ -36,7 +36,7 @@ const THEMES: ThemeConfig[] = [
     name: 'Lime Cyber',
     bgClass: 'bg-[#040804]',
     accentClass: 'text-lime-400',
-    btnClass: 'bg-lime-500 hover:bg-lime-400 text-gray-900 shadow-lime-500/10',
+    btnClass: 'bg-lime-500 hover:bg-lime-400 text-white shadow-lime-500/10',
     borderClass: 'border-lime-500/20',
     textColor: 'text-lime-200',
     accentGlow: 'from-lime-500/25 to-transparent'
@@ -46,7 +46,7 @@ const THEMES: ThemeConfig[] = [
     name: 'Crimson Blade',
     bgClass: 'bg-[#0A0505]',
     accentClass: 'text-red-500',
-    btnClass: 'bg-red-600 hover:bg-red-500 text-gray-900 shadow-red-500/10',
+    btnClass: 'bg-red-600 hover:bg-red-500 text-white shadow-red-500/10',
     borderClass: 'border-red-500/20',
     textColor: 'text-red-200',
     accentGlow: 'from-red-500/20 to-transparent'
@@ -55,10 +55,10 @@ const THEMES: ThemeConfig[] = [
     id: 'slate',
     name: 'Onyx Slate',
     bgClass: 'bg-[#090D12]',
-    accentClass: 'text-gray-700',
-    btnClass: 'bg-zinc-100 hover:bg-white text-gray-900 shadow-zinc-500/10',
+    accentClass: 'text-zinc-300',
+    btnClass: 'bg-zinc-100 hover:bg-[#050505] text-white shadow-zinc-500/10',
     borderClass: 'border-zinc-500/20',
-    textColor: 'text-gray-600',
+    textColor: 'text-zinc-400',
     accentGlow: 'from-zinc-500/15 to-transparent'
   }
 ];
@@ -238,7 +238,7 @@ export const FreeWebsiteTool: React.FC<FreeWebsiteToolProps> = ({ userPlan, prod
         <div className="mb-8 flex items-center gap-4">
           <button 
             onClick={onBack}
-            className="w-10 h-10 rounded-full bg-white/5 border border-gray-200 flex items-center justify-center text-gray-600 hover:text-gray-900 hover:bg-blue-50 transition-all"
+            className="w-10 h-10 rounded-full bg-[#050505]/5 border border-white/10 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/10 transition-all"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
@@ -246,17 +246,17 @@ export const FreeWebsiteTool: React.FC<FreeWebsiteToolProps> = ({ userPlan, prod
             <span className="text-[10px] bg-blue-600/10 text-blue-600 border border-purple-500/20 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider">
               Web Builder
             </span>
-            <h1 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight flex items-center gap-2.5 mt-1.5">
+            <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight flex items-center gap-2.5 mt-1.5">
               <Globe className="w-6 h-6 text-[#A78BFA]" />
               เครื่องมือสร้างและดาวน์โหลดหน้าร้านฟรี
             </h1>
-            <p className="text-gray-500 text-sm mt-1">
+            <p className="text-zinc-500 text-sm mt-1">
               สร้างเว็บไซต์สำเร็จรูปพร้อมแคตตาล็อกสินค้าของคุณ สามารถดาวน์โหลดโค้ด HTML ไปใช้ตั้งต้นเว็บได้ทันที
             </p>
           </div>
         </div>
 
-        <div className="bg-[#0A0D12] border border-gray-200 rounded-3xl p-6 md:p-10 relative overflow-hidden shadow-2xl">
+        <div className="bg-[#0A0D12] border border-white/10 rounded-3xl p-6 md:p-10 relative overflow-hidden shadow-2xl">
           {/* Background Accent */}
           <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/10 blur-[100px] rounded-full pointer-events-none"></div>
 
@@ -283,19 +283,19 @@ export const FreeWebsiteTool: React.FC<FreeWebsiteToolProps> = ({ userPlan, prod
                   {/* Form */}
                   <div className="space-y-5">
                     <div>
-                      <label className="block text-gray-600 text-xs font-bold mb-2 ml-1 uppercase tracking-wider">ชื่อร้านค้า (Store Name)</label>
+                      <label className="block text-zinc-400 text-xs font-bold mb-2 ml-1 uppercase tracking-wider">ชื่อร้านค้า (Store Name)</label>
                       <input 
                         type="text" 
                         value={storeName}
                         onChange={(e) => setStoreName(e.target.value)}
                         placeholder="ตัวอย่าง: APEX Premium Shop"
-                        className="w-full bg-[#111318] border border-gray-200 rounded-2xl py-3 px-4 text-sm text-gray-900 focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all font-medium"
+                        className="w-full bg-[#111318] border border-white/10 rounded-2xl py-3 px-4 text-sm text-white focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all font-medium"
                       />
                     </div>
                     <div>
-                      <label className="block text-gray-600 text-xs font-bold mb-2 ml-1 uppercase tracking-wider">ลิงก์ซับโดเมนระบบ (Subdomain)</label>
-                      <div className="flex border border-gray-200 rounded-2xl bg-[#111318] overflow-hidden focus-within:border-purple-500/50 focus-within:ring-1 focus-within:ring-purple-500/50 transition-all">
-                        <div className="bg-white/5 px-3 flex items-center justify-center text-gray-500 border-r border-gray-200 font-mono text-xs shrink-0 select-none">
+                      <label className="block text-zinc-400 text-xs font-bold mb-2 ml-1 uppercase tracking-wider">ลิงก์ซับโดเมนระบบ (Subdomain)</label>
+                      <div className="flex border border-white/10 rounded-2xl bg-[#111318] overflow-hidden focus-within:border-purple-500/50 focus-within:ring-1 focus-within:ring-purple-500/50 transition-all">
+                        <div className="bg-[#050505]/5 px-3 flex items-center justify-center text-zinc-500 border-r border-white/10 font-mono text-xs shrink-0 select-none">
                           https://
                         </div>
                         <input 
@@ -303,19 +303,19 @@ export const FreeWebsiteTool: React.FC<FreeWebsiteToolProps> = ({ userPlan, prod
                           value={subdomain}
                           onChange={(e) => setSubdomain(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
                           placeholder="my-store"
-                          className="w-full bg-transparent py-3 px-2 text-sm text-gray-900 focus:outline-none font-mono"
+                          className="w-full bg-transparent py-3 px-2 text-sm text-white focus:outline-none font-mono"
                         />
-                        <div className="bg-white/5 px-3 flex items-center justify-center text-gray-500 border-l border-gray-200 font-mono text-xs shrink-0 select-none">
+                        <div className="bg-[#050505]/5 px-3 flex items-center justify-center text-zinc-500 border-l border-white/10 font-mono text-xs shrink-0 select-none">
                           .apex.xyz
                         </div>
                       </div>
-                      <p className="text-gray-500 text-[10px] mt-2 ml-1">* อักษรภาษาอังกฤษ ตัวเลข และขีดกลาง (-) เท่านั้น</p>
+                      <p className="text-zinc-500 text-[10px] mt-2 ml-1">* อักษรภาษาอังกฤษ ตัวเลข และขีดกลาง (-) เท่านั้น</p>
                     </div>
                   </div>
 
                   {/* Select Theme */}
                   <div>
-                    <label className="block text-gray-600 text-xs font-bold mb-3.5 ml-1 uppercase tracking-wider">เลือกสไตล์การดีไซน์ (Design Theme)</label>
+                    <label className="block text-zinc-400 text-xs font-bold mb-3.5 ml-1 uppercase tracking-wider">เลือกสไตล์การดีไซน์ (Design Theme)</label>
                     <div className="grid grid-cols-2 gap-3">
                       {THEMES.map((theme) => {
                         const isSelected = selectedTheme.id === theme.id;
@@ -323,14 +323,14 @@ export const FreeWebsiteTool: React.FC<FreeWebsiteToolProps> = ({ userPlan, prod
                           <div
                             key={theme.id}
                             onClick={() => setSelectedTheme(theme)}
-                            className={`p-4 rounded-2xl border cursor-pointer select-none transition-all ${isSelected ? 'border-purple-500 bg-blue-600/5 shadow-lg shadow-purple-500/5' : 'border-gray-200 bg-black/30 hover:border-gray-300'}`}
+                            className={`p-4 rounded-2xl border cursor-pointer select-none transition-all ${isSelected ? 'border-purple-500 bg-blue-600/5 shadow-lg shadow-purple-500/5' : 'border-white/10 bg-black/30 hover:border-white/20'}`}
                           >
                             <div className="flex items-center gap-2 mb-2">
-                              <span className={`w-3.5 h-3.5 rounded-full ${theme.bgClass} border border-gray-300`}></span>
-                              <span className="text-xs font-bold text-gray-900">{theme.name}</span>
+                              <span className={`w-3.5 h-3.5 rounded-full ${theme.bgClass} border border-white/20`}></span>
+                              <span className="text-xs font-bold text-white">{theme.name}</span>
                             </div>
                             <div className="flex gap-1">
-                              <span className="w-4 h-1.5 rounded-full bg-gray-200"></span>
+                              <span className="w-4 h-1.5 rounded-full bg-[#1e1e1e]"></span>
                               <span className={`w-5 h-1.5 rounded-full ${isSelected ? 'bg-purple-400' : 'bg-zinc-500'}`}></span>
                             </div>
                           </div>
@@ -343,7 +343,7 @@ export const FreeWebsiteTool: React.FC<FreeWebsiteToolProps> = ({ userPlan, prod
                 <button
                   onClick={handleDeploy}
                   disabled={!storeName || !subdomain}
-                  className="w-full hover:-translate-y-0.5 bg-purple-600 hover:bg-blue-600 disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none text-gray-900 py-4 rounded-2xl font-bold text-sm tracking-wide shadow-lg shadow-purple-500/10 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                  className="w-full hover:-translate-y-0.5 bg-purple-600 hover:bg-blue-600 disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none text-white py-4 rounded-2xl font-bold text-sm tracking-wide shadow-lg shadow-purple-500/10 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
                 >
                   <Cpu className="w-4 h-4" /> เริ่มกระบวนการวิเคราะห์และจัดดีไซน์
                 </button>
@@ -370,13 +370,13 @@ export const FreeWebsiteTool: React.FC<FreeWebsiteToolProps> = ({ userPlan, prod
                    </div>
                 </div>
 
-                <h2 className="text-xl font-bold text-gray-900 tracking-tight mb-2">กำลังรวบรวมเนื้อหาแลนด์ดิ้งเพจ...</h2>
+                <h2 className="text-xl font-bold text-white tracking-tight mb-2">กำลังรวบรวมเนื้อหาแลนด์ดิ้งเพจ...</h2>
                 <div className="w-full max-w-sm mt-4">
-                  <div className="flex justify-between text-[11px] font-bold text-gray-500 mb-2">
+                  <div className="flex justify-between text-[11px] font-bold text-zinc-500 mb-2">
                     <span className="text-blue-600">{deploymentStatus}</span>
                     <span>{progress}%</span>
                   </div>
-                  <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
+                  <div className="w-full h-1.5 bg-[#050505]/5 rounded-full overflow-hidden">
                     <motion.div 
                       className="h-full bg-blue-600 rounded-full"
                       initial={{ width: 0 }}
@@ -402,19 +402,19 @@ export const FreeWebsiteTool: React.FC<FreeWebsiteToolProps> = ({ userPlan, prod
                        <CheckCircle2 className="w-7 h-7 text-blue-600" />
                     </div>
                     
-                    <h2 className="text-2xl font-black text-gray-900 tracking-tight mb-2">ออกแบบเว็บเสร็จแล้ว!</h2>
-                    <p className="text-gray-500 text-sm leading-relaxed mb-6">
+                    <h2 className="text-2xl font-black text-white tracking-tight mb-2">ออกแบบเว็บเสร็จแล้ว!</h2>
+                    <p className="text-zinc-500 text-sm leading-relaxed mb-6">
                       ระบบได้จัดแจงจัดโครงสร้างโค้ดหน้าตาเกมช็อป <strong>{storeName}</strong> โดยอิงจากแคตตาล็อกสินค้าในระบบ และธีมสีสไตล์ <strong>{selectedTheme.name}</strong> เรียบร้อยแล้ว
                     </p>
 
                     <div className="space-y-4 mb-8">
-                      <div className="bg-[#111318] border border-gray-200 rounded-2xl p-4 flex items-center justify-between gap-4">
+                      <div className="bg-[#111318] border border-white/10 rounded-2xl p-4 flex items-center justify-between gap-4">
                          <div className="flex items-center gap-3 overflow-hidden">
                             <div className="w-9 h-9 bg-blue-600/10 rounded-xl flex items-center justify-center shrink-0">
                                <LinkIcon className="w-4 h-4 text-blue-600" />
                             </div>
                             <div className="text-left overflow-hidden">
-                              <div className="text-[9px] font-bold text-gray-500 uppercase tracking-wider mb-0.5">ลิงก์ตัวอย่างสำหรับการอ้างอิง</div>
+                              <div className="text-[9px] font-bold text-zinc-500 uppercase tracking-wider mb-0.5">ลิงก์ตัวอย่างสำหรับการอ้างอิง</div>
                               <div className="text-blue-600 font-mono text-xs font-bold truncate">
                                 {finalUrl}
                               </div>
@@ -422,11 +422,11 @@ export const FreeWebsiteTool: React.FC<FreeWebsiteToolProps> = ({ userPlan, prod
                          </div>
                       </div>
 
-                      <div className="bg-white/80 border border-gray-200 rounded-2xl p-4 flex flex-col gap-2">
-                        <div className="text-xs font-bold text-gray-600 flex items-center gap-2">
+                      <div className="bg-[#050505]/80 border border-white/10 rounded-2xl p-4 flex flex-col gap-2">
+                        <div className="text-xs font-bold text-zinc-400 flex items-center gap-2">
                           <Layers className="w-3.5 h-3.5 text-blue-600" /> สมบัติต้นแบบที่จะได้รับ:
                         </div>
-                        <ul className="text-xs text-gray-500 space-y-1.5 list-disc pl-5">
+                        <ul className="text-xs text-zinc-500 space-y-1.5 list-disc pl-5">
                           <li>สไตล์ชีตระดับโปรพร้อมโมดูล Grid การแสดงผลการ์ดสินค้า</li>
                           <li>ทำงานได้ทันทีแบบ Single Static Page โหลดไว</li>
                           <li>ใช้เครื่องจักรเฟรมเวิร์ก CSS ยอดนิยม (Tailwind CSS CDN)</li>
@@ -439,13 +439,13 @@ export const FreeWebsiteTool: React.FC<FreeWebsiteToolProps> = ({ userPlan, prod
                   <div className="space-y-3">
                     <button
                       onClick={downloadStoreHTML}
-                      className="w-full hover:-translate-y-0.5 bg-blue-700 hover:bg-blue-600 text-gray-900 py-3.5 rounded-2xl font-bold text-sm tracking-wide shadow-lg shadow-emerald-500/10 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                      className="w-full hover:-translate-y-0.5 bg-blue-700 hover:bg-blue-600 text-white py-3.5 rounded-2xl font-bold text-sm tracking-wide shadow-lg shadow-emerald-500/10 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
                     >
                       <Download className="w-4 h-4" /> ดาวน์โหลดไฟล์เว็บ (index.html)
                     </button>
                     <button
                       onClick={() => setStep(1)}
-                      className="w-full bg-[#111318] hover:bg-[#16181f] text-gray-600 hover:text-gray-900 py-3.5 rounded-2xl font-bold text-sm transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                      className="w-full bg-[#111318] hover:bg-[#16181f] text-zinc-400 hover:text-white py-3.5 rounded-2xl font-bold text-sm transition-all active:scale-[0.98] flex items-center justify-center gap-2"
                     >
                       แก้ไขสไตล์ใหม่
                     </button>
@@ -455,20 +455,20 @@ export const FreeWebsiteTool: React.FC<FreeWebsiteToolProps> = ({ userPlan, prod
                 {/* Right Interactive Live Mockup Device Preview! */}
                 <div className="lg:col-span-7 flex flex-col">
                   <div className="flex items-center justify-between mb-3.5">
-                    <div className="text-xs font-bold text-gray-600 flex items-center gap-2">
+                    <div className="text-xs font-bold text-zinc-400 flex items-center gap-2">
                       <Eye className="w-4 h-4 text-blue-600" />
                       พรีวิวหน้าสดบนอุปกรณ์จำลอง (Live Mockup Frame)
                     </div>
-                    <div className="bg-[#111318] p-1 border border-gray-200 rounded-xl flex gap-1">
+                    <div className="bg-[#111318] p-1 border border-white/10 rounded-xl flex gap-1">
                       <button 
                         onClick={() => setPreviewDevice('desktop')}
-                        className={`p-1.5 rounded-lg transition-all ${previewDevice === 'desktop' ? 'bg-purple-600 text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
+                        className={`p-1.5 rounded-lg transition-all ${previewDevice === 'desktop' ? 'bg-purple-600 text-white' : 'text-zinc-500 hover:text-zinc-300'}`}
                       >
                         <Monitor className="w-4 h-4" />
                       </button>
                       <button 
                         onClick={() => setPreviewDevice('mobile')}
-                        className={`p-1.5 rounded-lg transition-all ${previewDevice === 'mobile' ? 'bg-purple-600 text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
+                        className={`p-1.5 rounded-lg transition-all ${previewDevice === 'mobile' ? 'bg-purple-600 text-white' : 'text-zinc-500 hover:text-zinc-300'}`}
                       >
                         <Smartphone className="w-4 h-4" />
                       </button>
@@ -476,48 +476,48 @@ export const FreeWebsiteTool: React.FC<FreeWebsiteToolProps> = ({ userPlan, prod
                   </div>
 
                   {/* Simulated Device Frame Container */}
-                  <div className={`w-full flex justify-center items-center p-4 bg-[#111318]/50 border border-gray-200 rounded-2xl min-h-[400px] overflow-hidden`}>
+                  <div className={`w-full flex justify-center items-center p-4 bg-[#111318]/50 border border-white/10 rounded-2xl min-h-[400px] overflow-hidden`}>
                     <motion.div 
                       layout
-                      className={`relative flex flex-col shadow-2xl transition-all duration-300 overflow-hidden ${selectedTheme.bgClass} ${previewDevice === 'mobile' ? 'w-[320px] h-[525px] rounded-[36px] border-[8px] border-gray-200' : 'w-full h-[380px] rounded-xl border border-gray-200'}`}
+                      className={`relative flex flex-col shadow-2xl transition-all duration-300 overflow-hidden ${selectedTheme.bgClass} ${previewDevice === 'mobile' ? 'w-[320px] h-[525px] rounded-[36px] border-[8px] border-white/10' : 'w-full h-[380px] rounded-xl border border-white/10'}`}
                     >
                       {/* Mobile Notch Indicator */}
                       {previewDevice === 'mobile' && (
-                        <div className="absolute top-0 inset-x-0 h-5 bg-gray-100 flex justify-center items-center z-20">
-                          <div className="w-16 h-3.5 bg-white rounded-b-xl"></div>
+                        <div className="absolute top-0 inset-x-0 h-5 bg-[#121212] flex justify-center items-center z-20">
+                          <div className="w-16 h-3.5 bg-[#050505] rounded-b-xl"></div>
                         </div>
                       )}
 
                       {/* Web Header inside Mockup */}
                       <header className={`px-4 sm:px-6 py-4 flex items-center justify-between border-b ${selectedTheme.borderClass} ${previewDevice === 'mobile' ? 'pt-7' : ''} shrink-0`}>
-                        <span className="text-xs font-black text-gray-900 leading-tight truncate max-w-[120px]">{storeName || 'My GameShop'}</span>
-                        <span className="font-mono text-[9px] text-gray-500 overflow-hidden text-ellipsis whitespace-nowrap max-w-[120px]">
+                        <span className="text-xs font-black text-white leading-tight truncate max-w-[120px]">{storeName || 'My GameShop'}</span>
+                        <span className="font-mono text-[9px] text-zinc-500 overflow-hidden text-ellipsis whitespace-nowrap max-w-[120px]">
                           {subdomain || 'demo'}.apex.xyz
                         </span>
                       </header>
 
                       {/* Mockup Body Content */}
                       <div className="flex-1 overflow-y-auto p-4 content-scroll text-left">
-                        <div className="relative mb-5 p-4 rounded-xl bg-gradient-to-r overflow-hidden border border-gray-200 select-none pointer-events-none">
+                        <div className="relative mb-5 p-4 rounded-xl bg-gradient-to-r overflow-hidden border border-white/10 select-none pointer-events-none">
                           <div className={`absolute inset-0 bg-gradient-to-tr ${selectedTheme.accentGlow} opacity-30`}></div>
                           <div className="relative z-10">
                             <span className={`text-[8px] font-black uppercase tracking-wider ${selectedTheme.accentClass}`}>
                               ยินดีต้อนรับพรีเมียม
                             </span>
-                            <h3 className="text-xs sm:text-sm font-black text-gray-900 mt-1 leading-tight">{storeName || 'My Store'}</h3>
+                            <h3 className="text-xs sm:text-sm font-black text-white mt-1 leading-tight">{storeName || 'My Store'}</h3>
                           </div>
                         </div>
 
-                        <h4 className="text-[10px] font-bold text-gray-600 uppercase tracking-widest mb-3">สินค้าทั้งหมด</h4>
+                        <h4 className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-3">สินค้าทั้งหมด</h4>
                         <div className={`grid ${previewDevice === 'mobile' ? 'grid-cols-2' : 'grid-cols-3'} gap-3`}>
                           {previewProducts.map((p) => (
-                            <div key={p.id} className="bg-white/5 border border-gray-200 p-2 rounded-xl flex flex-col justify-between h-36">
+                            <div key={p.id} className="bg-[#050505]/5 border border-white/10 p-2 rounded-xl flex flex-col justify-between h-36">
                               <div>
-                                <div className="aspect-video bg-gray-50 rounded-lg flex items-center justify-center text-[8px] text-gray-500 font-bold mb-1.5 overflow-hidden">
+                                <div className="aspect-video bg-[#0a0a0a] rounded-lg flex items-center justify-center text-[8px] text-zinc-500 font-bold mb-1.5 overflow-hidden">
                                   {p.tag && <span className={`absolute top-1 left-1 font-extrabold text-[7px] uppercase px-1 rounded ${selectedTheme.accentClass}`}>{p.tag}</span>}
                                   IMAGE PREVIEW
                                 </div>
-                                <h5 className="text-[9px] font-bold text-gray-900 truncate">{p.name}</h5>
+                                <h5 className="text-[9px] font-bold text-white truncate">{p.name}</h5>
                               </div>
                               <div className="mt-2 text-left">
                                 <p className={`text-[10px] font-black ${selectedTheme.accentClass}`}>฿{(p.price || 0).toLocaleString()}</p>
@@ -533,7 +533,7 @@ export const FreeWebsiteTool: React.FC<FreeWebsiteToolProps> = ({ userPlan, prod
                       {/* Simulated Home Button of Phone */}
                       {previewDevice === 'mobile' && (
                         <div className="absolute bottom-1 inset-x-0 flex justify-center">
-                          <div className="w-24 h-1 bg-gray-200 rounded-full"></div>
+                          <div className="w-24 h-1 bg-[#1e1e1e] rounded-full"></div>
                         </div>
                       )}
                     </motion.div>
