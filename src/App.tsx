@@ -2496,34 +2496,35 @@ function AppContent() {
                 </div>
 
                 {/* Nav items */}
-                <div className="px-[16px] flex flex-col gap-[8px] shrink-0 mt-4">
-                  <div className="flex items-center py-[6px] mb-2">
-                    <div className="flex-grow border-t border-white/10"></div>
-                    <span className="shrink-0 px-3 text-[10px] font-medium text-zinc-500 uppercase tracking-[0.2em]">เมนู</span>
-                    <div className="flex-grow border-t border-white/10"></div>
+                <div className="px-[16px] flex flex-col gap-[4px] shrink-0 mt-4">
+                  <div className="flex items-center py-[2px] mb-1">
+                    <div className="flex-grow border-t border-white/5"></div>
+                    <span className="shrink-0 px-3 text-[9px] font-bold text-zinc-600 uppercase tracking-[0.2em] italic">ACTIVITY FEED</span>
+                    <div className="flex-grow border-t border-white/5"></div>
                   </div>
                   <div
-                    className={`nav-row flex items-center gap-[13px] border rounded-lg p-[10px] px-[14px] cursor-pointer transition-all ${activeView === "home" ? "border-white/10 bg-[#121212] text-white" : "border-transparent text-zinc-500 hover:bg-[#0a0a0a] hover:text-white"}`}
+                    className={`nav-row flex items-center gap-[12px] border rounded-lg p-[8px] px-[12px] cursor-pointer transition-all border-dashed ${activeView === "home" ? "border-blue-900/50 bg-blue-900/10 text-white" : "border-transparent text-zinc-500 hover:bg-[#0a0a0a] hover:text-zinc-200"}`}
                     onClick={() => {
                       setActiveView("home");
                       setIsMobileMenuOpen(false);
                     }}
                   >
-                    <Home className="w-[18px] h-[18px]" />
-                    <span className="text-[13px] font-medium">หน้าหลัก</span>
+                    <Activity className="w-[14px] h-[14px]" />
+                    <span className="text-[12px] font-medium">หน้าหลัก</span>
+                    {activeView === "home" && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></div>}
                   </div>
                   <div
-                    className={`nav-row flex items-center gap-[13px] border rounded-lg p-[10px] px-[14px] cursor-pointer transition-all ${activeView === "categories" || activeView === "category_products" ? "border-white/10 bg-[#121212] text-white" : "border-transparent text-zinc-500 hover:bg-[#0a0a0a] hover:text-white"}`}
+                    className={`nav-row flex items-center gap-[12px] border rounded-lg p-[8px] px-[12px] cursor-pointer transition-all border-dashed ${activeView === "categories" || activeView === "category_products" ? "border-blue-900/50 bg-blue-900/10 text-white" : "border-transparent text-zinc-500 hover:bg-[#0a0a0a] hover:text-zinc-200"}`}
                     onClick={() => {
                       setActiveView("categories");
                       setIsMobileMenuOpen(false);
                     }}
                   >
-                    <ShoppingCart className="w-[18px] h-[18px]" />
-                    <span className="text-[13px] font-medium">สินค้าทั้งหมด</span>
+                    <ShoppingCart className="w-[14px] h-[14px]" />
+                    <span className="text-[12px] font-medium">สินค้าทั้งหมด</span>
                   </div>
                   <div
-                    className={`nav-row flex items-center gap-[13px] border rounded-lg p-[10px] px-[14px] cursor-pointer transition-all ${activeView === "wallet" ? "border-white/10 bg-[#121212] text-white" : "border-transparent text-zinc-500 hover:bg-[#0a0a0a] hover:text-white"}`}
+                    className={`nav-row flex items-center gap-[12px] border rounded-lg p-[8px] px-[12px] cursor-pointer transition-all border-dashed ${activeView === "wallet" ? "border-blue-900/50 bg-blue-900/10 text-white" : "border-transparent text-zinc-500 hover:bg-[#0a0a0a] hover:text-zinc-200"}`}
                     onClick={() => {
                       if (!user) {
                         setActiveView("login");
@@ -2533,11 +2534,11 @@ function AppContent() {
                       setIsMobileMenuOpen(false);
                     }}
                   >
-                    <Wallet className="w-[18px] h-[18px]" />
-                    <span className="text-[13px] font-medium">เติมเงิน</span>
+                    <Wallet className="w-[14px] h-[14px]" />
+                    <span className="text-[12px] font-medium">เติมเงิน</span>
                   </div>
                   <div
-                    className={`nav-row flex items-center gap-[13px] border rounded-lg p-[10px] px-[14px] cursor-pointer transition-all ${activeView === "free_website" ? "border-white/10 bg-[#121212] text-blue-600" : "border-transparent text-zinc-500 hover:bg-[#0a0a0a] hover:text-white"}`}
+                    className={`nav-row flex items-center gap-[12px] border rounded-lg p-[8px] px-[12px] cursor-pointer transition-all border-dashed ${activeView === "free_website" ? "border-blue-900/50 bg-blue-900/10 text-blue-400" : "border-transparent text-zinc-500 hover:bg-[#0a0a0a] hover:text-zinc-200"}`}
                     onClick={() => {
                       if (!user) {
                         addToast({ title: "ระบบแจ้งเตือน", message: "คุณต้องเข้าสู่ระบบก่อนใช้งานตัวเลือกนี้", type: "warning" });
@@ -2550,11 +2551,11 @@ function AppContent() {
                       setIsMobileMenuOpen(false);
                     }}
                   >
-                    <Globe className="w-[18px] h-[18px]" />
-                    <span className="text-[13px] font-medium">เปิดเว็บไซต์ฟรี</span>
+                    <Globe className="w-[14px] h-[14px]" />
+                    <span className="text-[12px] font-medium">เปิดเว็บไซต์ฟรี</span>
                   </div>
                   <div
-                    className={`nav-row flex items-center gap-[13px] border rounded-lg p-[10px] px-[14px] cursor-pointer transition-all ${activeView === "tools" ? "border-white/10 bg-[#121212] text-white" : "border-transparent text-zinc-500 hover:bg-[#0a0a0a] hover:text-white"}`}
+                    className={`nav-row flex items-center gap-[12px] border rounded-lg p-[8px] px-[12px] cursor-pointer transition-all border-dashed ${activeView === "tools" ? "border-blue-900/50 bg-blue-900/10 text-white" : "border-transparent text-zinc-500 hover:bg-[#0a0a0a] hover:text-zinc-200"}`}
                     onClick={() => {
                       if (!user) {
                         addToast({ title: "ระบบแจ้งเตือน", message: "คุณต้องเข้าสู่ระบบก่อนใช้งานตัวเลือกนี้", type: "warning" });
@@ -2567,18 +2568,18 @@ function AppContent() {
                       setIsMobileMenuOpen(false);
                     }}
                   >
-                    <Bot className="w-[18px] h-[18px]" />
-                    <span className="text-[13px] font-medium">เครื่องมือ</span>
+                    <Bot className="w-[14px] h-[14px]" />
+                    <span className="text-[12px] font-medium">เครื่องมือ</span>
                   </div>
                   <div
-                    className={`nav-row flex items-center gap-[13px] border rounded-lg p-[10px] px-[14px] cursor-pointer transition-all border-transparent text-zinc-500 hover:bg-[#0a0a0a] hover:text-white`}
+                    className={`nav-row flex items-center gap-[12px] border rounded-lg p-[8px] px-[12px] cursor-pointer transition-all border-dashed border-transparent text-zinc-500 hover:bg-[#0a0a0a] hover:text-zinc-200`}
                     onClick={() => {
                       setShowContactUs(true);
                       setIsMobileMenuOpen(false);
                     }}
                   >
-                    <Phone className="w-[18px] h-[18px]" />
-                    <span className="text-[13px] font-medium">ติดต่อเรา</span>
+                    <Phone className="w-[14px] h-[14px]" />
+                    <span className="text-[12px] font-medium">ติดต่อเรา</span>
                   </div>
                 </div>
 
