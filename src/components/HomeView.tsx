@@ -494,13 +494,13 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   className="w-full"
                 >
                   <CategoryCard
-                    title={cat.title}
+                    title={cat.name || cat.title || "ไม่มีชื่อหมวดหมู่"}
                     label="STORETH"
                     itemCountDesc={itemCountDesc}
                     priceRangeStr={catProducts.length > 0 ? priceRangeStr : undefined}
                     bgImage={cat.bannerUrl || undefined}
                     index={i}
-                    onClick={() => onSelectCategory(cat.name)}
+                    onClick={() => onSelectCategory(cat.id || cat.name)}
                     accentColor="#ffffff"
                     glowColor="rgba(255, 255, 255, 0.1)"
                     gradientFrom="transparent"
@@ -583,7 +583,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     : (dummyProduct?.name || "Premium Game License Key");
 
                   const clientUsername = !isDummy && purchase.username
-                    ? purchase.username.length > 4
+                    ? (purchase.username.length > 4 ? purchase.username.substring(0, 4) + "***" : purchase.username)
                     : "Member***";
 
                   const imageUrl = matchedProduct?.imageUrl || dummyProduct?.imageUrl;
@@ -710,14 +710,14 @@ export const HomeView: React.FC<HomeViewProps> = ({
             {safeCategories.map((cat) => (
               <button
                 key={cat.id}
-                onClick={() => { setActiveTab(cat.name); }}
+                onClick={() => { setActiveTab(cat.name || cat.title); }}
                 className={`px-4 py-2 rounded-xl text-xs font-bold shrink-0 transition-all border ${
-                  activeTab === cat.name
+                  activeTab === (cat.name || cat.title)
                     ? "bg-white text-black border-white shadow-[0_4px_12px_rgba(255,255,255,0.15)]"
                     : "bg-white/5 border-white/10 text-zinc-400 hover:text-white"
                 }`}
               >
-                {cat.title}
+                {cat.name || cat.title}
               </button>
             ))}
           </div>

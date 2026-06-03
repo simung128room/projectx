@@ -2236,15 +2236,12 @@ function AppContent() {
       {/* Desktop Sidebar */}
       <aside className="hidden lg:flex flex-col w-[280px] shrink-0 bg-[#0a0a0a] border-r border-[#1e1e1e] h-screen sticky top-0 p-6 z-[60] overflow-y-auto no-scrollbar">
         <div className="mb-10 w-full flex justify-start">
-          <motion.img
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            src="https://i.postimg.cc/66R1V03P/mi-m-ch-x-80-20260601204138.png"
-            alt="Logo"
-            referrerPolicy="no-referrer"
-            className="h-14 w-auto cursor-pointer drop-shadow-md rounded-xl"
+          <span 
+            className="font-changa text-3xl font-black italic tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-white via-zinc-200 to-zinc-400 drop-shadow-md hover:scale-105 active:scale-95 transition-all duration-205 cursor-pointer select-none"
             onClick={handleLogoClick}
-          />
+          >
+            APEXSTORE
+          </span>
         </div>
         <div className="flex-1 space-y-1">
           <div className="flex items-center py-[8px] my-1">
@@ -2461,8 +2458,8 @@ function AppContent() {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-h-screen min-w-0 relative overflow-x-hidden">
         {/* Desktop Top Header */}
-        <div className="hidden lg:block sticky top-3 px-8 z-[50] w-full pointer-events-none mt-3">
-          <header className="pointer-events-auto bg-[#050505]/90 backdrop-blur-md border border-zinc-900 rounded-2xl w-full h-[56px] flex items-center justify-between px-6 shadow-[0_8px_32px_rgba(0,0,0,0.8)]">
+        <div className="hidden lg:block sticky top-0 z-[50] w-full bg-[#050505]/95 backdrop-blur-md border-b border-zinc-900/80 shadow-md">
+          <header className="w-full h-[64px] flex items-center justify-between px-8">
             <div className="flex items-center gap-4">
               <h1 className="text-sm font-medium text-[#ffffff]">
                 {activeView === "home" ? "ภาพรวม" : 
@@ -2517,18 +2514,15 @@ function AppContent() {
         </div>
 
         {/* Global Top Navbar (Mobile) */}
-        <div className="lg:hidden sticky top-3 px-4 z-[65] w-full pointer-events-none mt-3">
-          <nav className="pointer-events-auto bg-[#050505]/90 backdrop-blur-md border border-zinc-900 rounded-2xl w-full flex flex-col shadow-[0_8px_32px_rgba(0,0,0,0.8)]">
-            <div className="flex items-center justify-between px-5 h-[56px] relative">
-              <motion.img
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                src="https://i.postimg.cc/66R1V03P/mi-m-ch-x-80-20260601204138.png"
-                alt="Logo"
-                referrerPolicy="no-referrer"
-                className="h-8 w-auto cursor-pointer rounded-lg"
+        <div className="lg:hidden sticky top-0 z-[65] w-full bg-[#050505]/95 backdrop-blur-md border-b border-zinc-900/80 shadow-md">
+          <nav className="w-full flex flex-col">
+            <div className="flex items-center justify-between px-5 h-[64px] relative">
+              <span 
+                className="font-changa text-2xl font-black italic tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-white via-zinc-200 to-zinc-400 cursor-pointer select-none"
                 onClick={() => setActiveView("home")}
-              />
+              >
+                APEXSTORE
+              </span>
 
               <div className="flex items-center gap-2">
                 <button
@@ -2579,12 +2573,15 @@ function AppContent() {
                 
                 {/* Header / Logo */}
                 <div className="flex items-center justify-start px-[24px] pt-[24px] pb-[16px] shrink-0 relative z-[70]">
-                  <img 
-                    src="https://i.postimg.cc/66R1V03P/mi-m-ch-x-80-20260601204138.png" 
-                    alt="Logo" 
-                    referrerPolicy="no-referrer"
-                    className="h-10 w-auto rounded-lg"
-                  />
+                  <span 
+                    className="font-changa text-2xl font-black italic tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-white via-zinc-200 to-zinc-400 select-none cursor-pointer"
+                    onClick={() => {
+                      setActiveView("home");
+                      setIsMobileMenuOpen(false);
+                    }}
+                  >
+                    APEXSTORE
+                  </span>
                 </div>
 
                 {/* Nav items */}
@@ -3225,12 +3222,15 @@ function AppContent() {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-12 text-sm text-zinc-500 mb-12 text-center md:text-center">
               {/* Brand & Intro */}
               <div className="col-span-1 md:col-span-1 flex flex-col items-center">
-                <img 
-                  src="https://i.postimg.cc/66R1V03P/mi-m-ch-x-80-20260601204138.png" 
-                  alt="Logo" 
-                  referrerPolicy="no-referrer"
-                  className="h-16 w-auto mb-4 rounded-xl shadow-md"
-                />
+                <span 
+                  className="font-changa text-3xl font-black italic tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-white via-zinc-200 to-zinc-400 mb-4 select-none cursor-pointer"
+                  onClick={() => {
+                    setActiveView("home");
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                >
+                  APEXSTORE
+                </span>
                 <p
                   className="leading-relaxed mb-6 text-zinc-400 select-all cursor-text hover:text-white transition-colors"
                   title="คลิกเพื่อคัดลอก"
