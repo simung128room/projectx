@@ -351,21 +351,29 @@ function AppContent() {
   const [adminPassword, setAdminPassword] = useState("");
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [userPlan, setUserPlan] = useState<UserPlan | null>(null);
-  const [siteSettings, setSiteSettings] = useState({
-    site_name: "APEXSTORE",
-    truewallet_phone: "",
-    contact_line: "https://www.facebook.com/share/18emwBsqUf/?mibextid=wwXIfr",
-    discord_link: "",
-    facebook_link: "",
-    instagram_link: "",
-    contact_email: "support.apexstoreth@gmail.com",
-    popup_enabled: false,
-    popup_img_url: "",
-    popup_link: "",
-    stats_users_offset: 1278,
-    stats_sales_offset: 0,
-    spotify_url: "https://youtu.be/WczSfh3gJaU?si=PI1i4X0p0FGbdEfq",
-    spotify_autoplay: true,
+  const [siteSettings, setSiteSettings] = useState(() => {
+    const defaultSettings = {
+      site_name: "APEXSTORE",
+      truewallet_phone: "",
+      contact_line: "https://www.facebook.com/share/18emwBsqUf/?mibextid=wwXIfr",
+      discord_link: "",
+      facebook_link: "",
+      instagram_link: "",
+      contact_email: "support.apexstoreth@gmail.com",
+      popup_enabled: false,
+      popup_img_url: "",
+      popup_link: "",
+      stats_users_offset: 1278,
+      stats_sales_offset: 0,
+      spotify_url: "https://youtu.be/WczSfh3gJaU?si=PI1i4X0p0FGbdEfq",
+      spotify_autoplay: true,
+    };
+    try {
+      const saved = localStorage.getItem("apex_settings_cache");
+      return saved ? JSON.parse(saved) : defaultSettings;
+    } catch {
+      return defaultSettings;
+    }
   });
 
   const [isMusicExpanded, setIsMusicExpanded] = useState(false);
@@ -491,17 +499,84 @@ function AppContent() {
   }, [siteSettings.spotify_url, siteSettings.spotify_autoplay]);
 
   // Home Store State (Moved up to prevent TDZ)
-  const defaultProducts: Product[] = [];
+  const defaultProducts: Product[] = [
+    {
+      id: "rov_standard",
+      name: "ไอดีเกม RoV ระดับพรีเมียม (พร้อมเล่น)",
+      price: 390,
+      originalPrice: 450,
+      category: "ไอดีเกมส์ยอดนิยม",
+      stock: 5,
+      soldCount: 22,
+      imageUrl: "https://i.postimg.cc/66R1V03P/mi-m-ch-x-80-20260601204138.png",
+      description: "สกินและตัวละครสมบูรณ์ ระบบรักษาความปลอดภัยเสถียร 100%",
+      isPopular: true
+    },
+    {
+      id: "netflix_4k",
+      name: "Netflix Premium Ultra HD 4K (30 วัน)",
+      price: 139,
+      originalPrice: 199,
+      category: "แอปพรีเมียม / บันเทิง",
+      stock: 12,
+      soldCount: 94,
+      imageUrl: "https://i.postimg.cc/66R1V03P/mi-m-ch-x-80-20260601204138.png",
+      description: "บัญชรแท้ภาพคมจัดระดับ 4K ใช้งานส่วนตัว เสถียร 100%",
+      isPopular: true
+    }
+  ];
 
-  const [products, setProducts] = useState<Product[]>([]);
-  const [siteStats, setSiteStats] = useState<SiteStats>({
-    users: 0,
-    stock: 0,
-    sales: 0,
-    topups: 0,
+  const [products, setProducts] = useState<Product[]>(() => {
+    try {
+      const saved = localStorage.getItem("apex_products_cache");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {}
+    return defaultProducts;
   });
-  const [customPages, setCustomPages] = useState<any[]>([]);
-  const [categories, setCategories] = useState<any[]>([]);
+
+  const [siteStats, setSiteStats] = useState<SiteStats>(() => {
+    const defaultStats = {
+      users: 1548,
+      stock: 890,
+      sales: 4562,
+      topups: 125400,
+    };
+    try {
+      const saved = localStorage.getItem("apex_stats_cache");
+      return saved ? JSON.parse(saved) : defaultStats;
+    } catch {
+      return defaultStats;
+    }
+  });
+
+  const [customPages, setCustomPages] = useState<any[]>(() => {
+    try {
+      const saved = localStorage.getItem("apex_pages_cache");
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const [categories, setCategories] = useState<any[]>(() => {
+    try {
+      const saved = localStorage.getItem("apex_categories_cache");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {}
+    return [
+      { id: "premium_app", name: "แอปพรีเมียม / บันเทิง" },
+      { id: "gaming_id", name: "ไอดีเกมส์ยอดนิยม" },
+      { id: "license_key", name: "คีย์ใบอนุญาต / โปรแกรม" },
+      { id: "proxy", name: "พร็อกซีเซสชั่นขั้นสูง" }
+    ];
+  });
+
   const [selectedPage, setSelectedPage] = useState<any>(null);
 
   const [threads, setThreads] = useState(5);
@@ -1058,21 +1133,29 @@ function AppContent() {
           
           if (res.url === "/api/settings" && res.data) {
             setSiteSettings(res.data);
+            try { localStorage.setItem("apex_settings_cache", JSON.stringify(res.data)); } catch (e) {}
           } else if (res.url === "/api/products" && res.data && Array.isArray(res.data)) {
-            setProducts(res.data.length > 0 ? res.data : defaultProducts);
+            const finalProds = res.data.length > 0 ? res.data : defaultProducts;
+            setProducts(finalProds);
+            try { localStorage.setItem("apex_products_cache", JSON.stringify(finalProds)); } catch (e) {}
           } else if (res.url === "/api/categories" && res.data && Array.isArray(res.data)) {
             setCategories(res.data);
+            try { localStorage.setItem("apex_categories_cache", JSON.stringify(res.data)); } catch (e) {}
           } else if (res.url === "/api/stats" && res.data) {
-            setSiteStats({
+            const statsObj = {
               users: res.data.users,
               stock: res.data.stock,
               sales: res.data.sales,
               topups: res.data.totalTopupsAmount,
               totalOrders: res.data.totalOrders,
-            });
+            };
+            setSiteStats(statsObj);
+            try { localStorage.setItem("apex_stats_cache", JSON.stringify(statsObj)); } catch (e) {}
           } else if (res.url === "/api/pages" && res.data) {
             const d = res.data;
-            setCustomPages(Array.isArray(d) ? d : (d.data && Array.isArray(d.data) ? d.data : []));
+            const pagesToSet = Array.isArray(d) ? d : (d.data && Array.isArray(d.data) ? d.data : []);
+            setCustomPages(pagesToSet);
+            try { localStorage.setItem("apex_pages_cache", JSON.stringify(pagesToSet)); } catch (e) {}
           }
         }
       });
@@ -1231,6 +1314,17 @@ function AppContent() {
         ]);
       }
 
+      // Fast check if cache resources exist to bypass loading screen delays
+      const hasCachedStats = !!localStorage.getItem("apex_stats_cache");
+      const hasCachedProducts = !!localStorage.getItem("apex_products_cache");
+      const hasCachedCategories = !!localStorage.getItem("apex_categories_cache");
+      const isCacheAvailable = hasCachedStats && hasCachedProducts && hasCachedCategories;
+
+      if (isCacheAvailable) {
+        // Cached data is present; reveal immediately
+        setIsLoaded(true);
+      }
+
       let timeoutId: any = setTimeout(() => {
         console.warn("Loading timeout 8s exceeded. Force revealing portal.");
         setForceReveal(true);
@@ -1255,6 +1349,7 @@ function AppContent() {
          console.error("Initial system parallel data fetch failed:", err);
        } finally {
          clearTimeout(timeoutId);
+         setIsLoaded(true);
        }
        
        dataReady = true;
@@ -2120,18 +2215,8 @@ function AppContent() {
           className="relative flex flex-col items-center justify-center z-10 max-w-sm px-6 text-center"
         >
           {/* Loader animation cube - perfectly centered */}
-          <div className="relative mb-8 flex justify-center">
+          <div className="relative flex justify-center">
             <div className="page-loader-cube" />
-          </div>
-
-          {/* Animated Thai descriptive status */}
-          <div className="space-y-2 mt-2">
-            <p className="text-sm font-bold text-white tracking-widest animate-pulse">
-              กำลังดาวน์โหลดข้อมูลสินค้าและสถิติล่าสุด...
-            </p>
-            <p className="text-xs text-zinc-500 font-medium">
-              กรุณารอสักครู่ ระบบกำลังจัดเตรียมข้อมูลให้มีความเสถียร 100%
-            </p>
           </div>
         </motion.div>
       </div>
