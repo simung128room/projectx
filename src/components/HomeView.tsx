@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import { motion, AnimatePresence } from "motion/react";
 import { CategoryCard } from "./CategoryCard";
 import {
   ShoppingCart,
@@ -73,6 +72,18 @@ export const HomeView: React.FC<HomeViewProps> = ({
   const [activeTab, setActiveTab] = useState<string>("all");
   const [inStockOnly, setInStockOnly] = useState<boolean>(false);
   const [displayedCount, setDisplayedCount] = useState<number>(20);
+  const [isPageVisible, setIsPageVisible] = useState<boolean>(true);
+
+  // Monitor visibility to completely pause intervals and CSS animations on background tabs
+  useEffect(() => {
+    const handleVisibility = () => {
+      setIsPageVisible(document.visibilityState === "visible");
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibility);
+    };
+  }, []);
 
   // Fallback checks to prevent array mapping crashes
   const safeProducts = useMemo(() => (Array.isArray(products) ? products : []), [products]);
@@ -168,13 +179,13 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
   // Automated Banner Carousel transition
   useEffect(() => {
-    if (bannersToUse.length > 1) {
+    if (bannersToUse.length > 1 && isPageVisible) {
       const timer = setInterval(() => {
         setCurrentBanner((prev) => (prev + 1) % bannersToUse.length);
       }, 6000);
       return () => clearInterval(timer);
     }
-  }, [bannersToUse.length]);
+  }, [bannersToUse.length, isPageVisible]);
 
   const handleNextBanner = () => {
     setCurrentBanner((prev) => (prev + 1) % bannersToUse.length);
@@ -217,26 +228,28 @@ export const HomeView: React.FC<HomeViewProps> = ({
       {/* 1. Elegant Banner Carousel with dynamic navigation overlay */}
       <SmoothScrollSection direction="left" delay={50} className="w-full">
         <div className="relative mx-auto w-full max-w-[2100px] aspect-[21/5] rounded-2xl overflow-hidden group border border-zinc-850 bg-black shadow-[0_8px_32px_rgba(0,0,0,0.8)]" style={{ maxHeight: `${BANNER_HEIGHT}px` }}>
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={currentBanner}
-              initial={{ opacity: 0, scale: 1.01 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.99 }}
-              transition={{ duration: 0.5, ease: "easeInOut" }}
-              className="absolute inset-0 w-full h-full"
-            >
-              <img
-                loading="lazy"
-                src={bannersToUse[currentBanner % bannersToUse.length]}
-                alt="Highlight banner 2100 x 500"
-                width={BANNER_WIDTH}
-                height={BANNER_HEIGHT}
-                className="w-full h-full object-cover object-center bg-black"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-zinc-950/20" />
-            </motion.div>
-          </AnimatePresence>
+          <div className="absolute inset-0 w-full h-full">
+            {bannersToUse.map((bannerUrl, idx) => (
+              <div
+                key={idx}
+                className={`absolute inset-0 w-full h-full transition-opacity duration-700 ease-in-out ${
+                  currentBanner % bannersToUse.length === idx 
+                    ? "opacity-100 z-10" 
+                    : "opacity-0 z-0 pointer-events-none"
+                }`}
+              >
+                <img
+                  loading="lazy"
+                  src={bannerUrl}
+                  alt={`Highlight banner ${idx}`}
+                  width={BANNER_WIDTH}
+                  height={BANNER_HEIGHT}
+                  className="w-full h-full object-cover object-center bg-black"
+                />
+              </div>
+            ))}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-zinc-950/20 z-15 pointer-events-none" />
+          </div>
 
           {/* Interactive Arrow Controls */}
           {bannersToUse.length > 1 && (
@@ -510,9 +523,13 @@ export const HomeView: React.FC<HomeViewProps> = ({
             .animate-live-ticker {
               animation: live-ticker-scroll 35s linear infinite;
               will-change: transform;
+              animation-play-state: ${isPageVisible ? "running" : "paused"} !important;
             }
             .animate-live-ticker:hover {
-              animation-play-state: paused;
+              animation-play-state: paused !important;
+            }
+            .animate-marquee-custom {
+              animation-play-state: ${isPageVisible ? "running" : "paused"} !important;
             }
           `}
         </style>

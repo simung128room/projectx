@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 
 interface CategoryCardProps {
   title: string;
@@ -25,8 +25,6 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
   glowColor = "rgba(59,130,246,0.6)",
   gradientFrom = "#0a1f3a",
 }) => {
-  const [hovered, setHovered] = useState(false);
-
   return (
     <>
       <div
@@ -38,8 +36,6 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
             "--glow": glowColor,
           } as any
         }
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
         onClick={onClick}
       >
         {/* Banner */}
@@ -70,7 +66,7 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
         </div>
 
         {/* Hover glow border */}
-        <div className={`custom-card-glow ${hovered ? "active" : ""}`} />
+        <div className="custom-card-glow" />
       </div>
     </>
   );

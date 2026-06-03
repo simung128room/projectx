@@ -339,7 +339,7 @@
     transition: all 0.3s ease;
   }
 
-  .custom-card-glow.active {
+  .custom-category-card:hover .custom-card-glow {
     border-color: var(--accent, #0066ff);
     box-shadow: inset 0 0 12px var(--glow, rgba(0, 102, 255, 0.2));
   }
