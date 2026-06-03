@@ -13,6 +13,18 @@ export const ToolsView: React.FC<ToolsViewProps> = ({ setActiveView }) => {
 
   const tools = [
     {
+      id: 'api_proxy_gen',
+      name: 'API Proxy',
+      desc: 'สร้าง API ลิงก์สำหรับดึง Proxy ไปใช้งานกับโปรแกรมของคุณ อัปเดตเรียลไทม์ ดึงได้ทุก 0.1 วิ',
+      category: 'utility',
+      icon: Globe,
+      gradient: 'from-[#8B5CF6] to-[#C084FC]',
+      iconColor: 'text-[#C084FC]',
+      glowColor: 'group-hover:shadow-[0_0_40px_-10px_rgba(192,132,252,0.4)]',
+      tag: 'NEW',
+      premium: false
+    },
+    {
       id: 'free_website',
       name: 'เปิดเว็บไซต์ฟรี',
       desc: 'เครื่องมือสร้างเว็บไซต์ร้านค้าของคุณ แจกฟรีสำหรับสมาชิกทุกคน พร้อมใช้งานทันทีใน 5 วินาที',

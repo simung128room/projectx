@@ -216,6 +216,11 @@ const TelegramCatcherTool = lazy(() =>
     default: module.TelegramCatcherTool,
   })),
 );
+const ApiProxyGenTool = lazy(() =>
+  import("./components/ApiProxyGenTool").then((module) => ({
+    default: module.ApiProxyGenTool,
+  })),
+);
 const ProxyFreeTool = lazy(() =>
   import("./components/ProxyFreeTool").then((module) => ({
     default: module.ProxyFreeTool,
@@ -493,6 +498,7 @@ function AppContent() {
     | "two_fa_generator"
     | "proxy_ff_ios"
     | "proxy_free"
+    | "api_proxy_gen"
     | "admin"
     | "profile"
     | "logs"
@@ -556,6 +562,7 @@ function AppContent() {
         "discord_on",
         "discord_badge",
         "two_fa_generator",
+        "api_proxy_gen",
         "proxy_free",
         "admin",
         "profile",
@@ -2934,6 +2941,7 @@ function AppContent() {
             {activeView === "two_fa_generator" && <TwoFAGenerator />}
             {activeView === "proxy_ff_ios" && <ProxyFreeFireIOSTool />}
             {activeView === "proxy_free" && <ProxyFreeTool />}
+            {activeView === "api_proxy_gen" && <ApiProxyGenTool />}
             {activeView === "logs" && (
               <HistoryLogsView
                 usedKeysHistory={usedKeysHistory.filter(
