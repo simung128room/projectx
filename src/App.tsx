@@ -2477,7 +2477,7 @@ function AppContent() {
             {/* Search Button */}
             <button
               onClick={() => setActiveView("search")}
-              className="w-10 h-10 rounded-full flex items-center justify-center text-white/50 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] transition-all duration-200 cursor-pointer"
+              className="w-10 h-10 rounded-xl flex items-center justify-center text-white/50 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] transition-all duration-200 cursor-pointer"
               aria-label="Search"
             >
               <Search className="w-4.5 h-4.5" />
@@ -2535,7 +2535,7 @@ function AppContent() {
             <motion.button
               whileTap={{ scale: 0.9 }}
               onClick={() => setIsMobileMenuOpen(true)}
-              className="lg:hidden w-10 h-10 rounded-full flex items-center justify-center text-white/50 hover:text-white bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.05] transition-all duration-200 active:scale-95 cursor-pointer"
+              className="lg:hidden w-10 h-10 rounded-xl flex items-center justify-center text-white/50 hover:text-white bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.05] transition-all duration-200 active:scale-95 cursor-pointer"
               aria-label="Menu"
             >
               <Menu className="w-5 h-5" />
@@ -2567,7 +2567,7 @@ function AppContent() {
                 {/* Close button */}
                 <button
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="absolute top-[20px] right-[20px] z-[80] w-9 h-9 rounded-full bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.05] flex items-center justify-center cursor-pointer text-white/50 hover:text-white transition-all duration-200"
+                  className="absolute top-[20px] right-[20px] z-[80] w-9 h-9 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.05] flex items-center justify-center cursor-pointer text-white/50 hover:text-white transition-all duration-200"
                 >
                   <X className="w-4 h-4" />
                 </button>

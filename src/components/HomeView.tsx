@@ -69,6 +69,66 @@ function SaleTicker() {
   );
 }
 
+// ─── Animated Number Generator ───────────────────────────────────────────────
+
+interface AnimatedNumberProps {
+  value: number;
+  accent: string;
+}
+
+function AnimatedNumber({ value, accent }: AnimatedNumberProps) {
+  const [displayValue, setDisplayValue] = useState(0);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const prevValueRef = useRef(0);
+
+  useEffect(() => {
+    let startTimestamp: number | null = null;
+    const startValue = displayValue === 0 && prevValueRef.current === 0 ? 0 : prevValueRef.current;
+    const endValue = value;
+    const duration = 1500; // Duration in ms
+
+    setIsAnimating(true);
+    prevValueRef.current = value;
+
+    const step = (timestamp: number) => {
+      if (!startTimestamp) startTimestamp = timestamp;
+      const elapsed = timestamp - startTimestamp;
+      const progress = Math.min(elapsed / duration, 1);
+      
+      // Easing function: easeOutExpo for extremely smooth progression
+      const easeProgress = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+      const current = Math.floor(startValue + (endValue - startValue) * easeProgress);
+      
+      setDisplayValue(current);
+
+      if (progress < 1) {
+        window.requestAnimationFrame(step);
+      } else {
+        setDisplayValue(endValue);
+        setIsAnimating(false);
+      }
+    };
+
+    const animFrame = window.requestAnimationFrame(step);
+    return () => window.cancelAnimationFrame(animFrame);
+  }, [value]);
+
+  return (
+    <span 
+      className={`inline-block font-mono tracking-tight transition-all duration-300 ${
+        isAnimating ? "scale-105" : "scale-100"
+      }`}
+      style={{ 
+        color: isAnimating ? "#ffffff" : "inherit",
+        textShadow: isAnimating ? `0 0 16px ${accent}, 0 0 4px ${accent}` : "none",
+        transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)"
+      }}
+    >
+      {displayValue.toLocaleString()}
+    </span>
+  );
+}
+
 // ─── Stat Card ────────────────────────────────────────────────────────────────
 
 function StatCard({
@@ -93,7 +153,11 @@ function StatCard({
       />
       <p className="text-xs text-white/40 font-medium tracking-wide uppercase mb-2">{label}</p>
       <p className="text-3xl font-black text-white tracking-tight leading-none">
-        {typeof value === "number" ? value.toLocaleString() : value}
+        {typeof value === "number" ? (
+          <AnimatedNumber value={value} accent={accent} />
+        ) : (
+          value
+        )}
       </p>
       <p className="text-xs text-white/30 mt-1">{unit}</p>
       <div className="absolute bottom-3 right-3 opacity-5 group-hover:opacity-10 transition-opacity duration-300">
