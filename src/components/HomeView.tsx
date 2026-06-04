@@ -228,52 +228,71 @@ function CategoryChip({
   products: Product[];
   onClick: () => void;
 }) {
-  const productCount = products.filter(
+  const catProducts = products.filter(
     (p) => p.category === cat.id || p.category === cat.name || p.category === cat.title
-  ).length;
+  );
+  const productCount = catProducts.length;
+
+  const prices = catProducts.map(p => p.price);
+  const minPrice = prices.length > 0 ? Math.min(...prices) : 0;
+  const maxPrice = prices.length > 0 ? Math.max(...prices) : 0;
+
+  const priceRangeStr = prices.length > 0
+    ? (minPrice === maxPrice 
+        ? `${minPrice.toFixed(2)}` 
+        : `${minPrice.toFixed(2)} - ${maxPrice.toFixed(2)}`)
+    : "0.00";
 
   return (
-    <button
+    <div
       onClick={onClick}
-      className="relative group overflow-hidden rounded-xl border border-white/[0.07] bg-[#0d0d0d] hover:border-white/20 transition-all duration-300 active:scale-[0.98] text-left w-full aspect-[21/5] cursor-pointer"
+      className="relative group overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0c0c0e] hover:border-white/20 transition-all duration-300 flex flex-col cursor-pointer hover:-translate-y-1 shadow-lg"
     >
-      {cat.bannerUrl ? (
-        <>
+      {/* Banner Area */}
+      <div className="relative aspect-[21/9] w-full overflow-hidden shrink-0 bg-[#141416]">
+        {cat.bannerUrl ? (
           <img
             src={cat.bannerUrl}
             alt={cat.name || cat.title}
-            className="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:opacity-60 group-hover:scale-[1.02] transition-all duration-500"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-60 group-hover:opacity-85"
+            referrerPolicy="no-referrer"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/60 to-transparent" />
-        </>
-      ) : (
-        <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-white/[0.02]" />
-      )}
-      <div className="absolute inset-0 p-4 sm:p-[20px] flex flex-col justify-between z-10 select-none">
-        <div>
-          {/* ชื่อหมวดหมู่ */}
-          <span className="text-sm sm:text-lg md:text-xl font-black text-white tracking-widest uppercase truncate block">
-            {cat.name || cat.title}
-          </span>
-          
-          {/* แถบสั้นยาว */}
-          <div className="w-8 group-hover:w-20 h-[3px] bg-neon-green transition-all duration-300 mt-1.5 sm:mt-2 rounded-full" />
-        </div>
-
-        <div className="flex items-center justify-between mt-auto">
-          {/* มีสินค้าทั้งหมด # รายการ */}
-          <span className="text-[10px] sm:text-xs text-white/50 group-hover:text-white/80 transition-colors uppercase font-bold tracking-wider flex items-center gap-1.5 sm:gap-2">
-            <Package className="w-3.5 h-3.5 text-white/30 shrink-0" />
-            <span>มีสินค้าทั้งหมด <span className="text-neon-green font-black font-mono">{productCount}</span> รายการ</span>
-          </span>
-
-          {/* [ ไอคอน ] */}
-          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/5 border border-white/5 group-hover:bg-neon-green/15 group-hover:border-neon-green/35 flex items-center justify-center shrink-0 transition-all duration-300">
-            <ChevronRight className="w-4 h-4 text-white/40 group-hover:text-neon-green group-hover:translate-x-0.5 transition-all duration-200" />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-zinc-900 to-black flex items-center justify-center">
+            <Package className="w-8 h-8 text-white/10" />
           </div>
+        )}
+        
+        {/* Gradients */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0c0c0e] via-transparent to-transparent opacity-90" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0c0c0e]/40 to-transparent" />
+
+        {/* Watermark Logo Label as shown in layout */}
+        <div className="absolute bottom-2.5 left-3 px-2 py-0.5 rounded bg-black/60 backdrop-blur-md border border-white/[0.08] text-[9.5px] uppercase font-mono font-black text-white/80 tracking-widest leading-none select-none">
+          OG SHOP
         </div>
       </div>
-    </button>
+
+      {/* Content Area */}
+      <div className="p-4 sm:p-5 flex flex-col justify-between flex-1 bg-[#0c0c0e]">
+        <h3 className="text-base sm:text-lg font-black text-white px-0.5 tracking-wide uppercase truncate mb-1">
+          {cat.name || cat.title}
+        </h3>
+        
+        <div className="flex items-center justify-between text-xs font-semibold mt-3 pt-3 border-t border-white/[0.04]">
+          {/* Item Count */}
+          <span className="text-white/40 flex items-center gap-1.5 uppercase font-bold tracking-wider">
+            <Package className="w-3.5 h-3.5 text-white/35 shrink-0" />
+            <span>มีสินค้าทั้งหมด <span className="text-neon-green font-black">{productCount}</span> รายการ</span>
+          </span>
+          
+          {/* Price Range */}
+          <span className="text-white font-mono font-black tracking-wider text-xs bg-white/[0.03] px-2.5 py-1.5 rounded-lg border border-white/[0.06] shadow-sm">
+            {priceRangeStr}
+          </span>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -294,18 +313,19 @@ function ProductCard({
       ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
       : null;
 
-  const isHot = product.price > 100 || (discount !== null && discount >= 20);
+  const isHot = product.price > 100 || (discount !== null && discount >= 20) || product.stock > 0;
 
   return (
-    <div className="group relative bg-[#0d0d0d] border border-white/[0.06] rounded-xl overflow-hidden hover:border-white/[0.14] transition-all duration-300 flex flex-col">
-      {/* Image area */}
-      <div className="relative aspect-square w-full bg-[#111] overflow-hidden shrink-0">
+    <div className="group relative bg-[#0c0c0e] border border-white/[0.08] rounded-2xl overflow-hidden hover:border-white/20 transition-all duration-300 flex flex-col hover:-translate-y-1 shadow-lg">
+      {/* Image area with corner ribbon */}
+      <div className="relative aspect-square w-full bg-[#141416] overflow-hidden shrink-0">
         {hasImage ? (
           <img
             src={product.imageUrl}
             alt={product.name}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             onError={() => setImgError(true)}
+            referrerPolicy="no-referrer"
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center select-none">
@@ -316,70 +336,70 @@ function ProductCard({
           </div>
         )}
 
+        {/* Diagonal "Best Seller" ribbon in image corner */}
+        {isHot && (
+          <div className="absolute top-0 right-0 overflow-hidden w-20 h-20 pointer-events-none z-10">
+            <div className="absolute top-3 -right-6 bg-gradient-to-r from-red-600 to-orange-500 text-white text-[9px] font-black uppercase py-1 w-24 text-center transform rotate-45 shadow-md border-b border-white/10">
+              Best Seller
+            </div>
+          </div>
+        )}
+
         {/* Overlay gradient */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d0d] via-transparent to-transparent opacity-60" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0c0c0e] via-transparent to-transparent opacity-80" />
 
-        {/* Badges */}
-        <div className="absolute top-2.5 left-2.5 flex flex-wrap gap-1.5">
-          {isHot && (
-            <span className="inline-flex items-center gap-1 bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[9px] font-bold px-2 py-0.5 rounded-full backdrop-blur-sm">
-              <Zap className="w-2.5 h-2.5" /> ขายดี
-            </span>
-          )}
-          {!isHot && (
-            <span className="inline-flex items-center gap-1 bg-white/10 text-white/70 border border-white/10 text-[9px] font-bold px-2 py-0.5 rounded-full backdrop-blur-sm">
-              <Star className="w-2.5 h-2.5" /> แนะนำ
-            </span>
-          )}
-        </div>
-
+        {/* Discount Badge on left */}
         {discount !== null && (
-          <div className="absolute top-2.5 right-2.5 bg-red-500/90 text-white text-[9px] font-black px-1.5 py-0.5 rounded-md backdrop-blur-sm">
+          <div className="absolute top-3 left-3 bg-red-600 text-white text-[9px] font-black px-2 py-0.5 rounded-md shadow-md">
             -{discount}%
           </div>
         )}
       </div>
 
       {/* Content */}
-      <div className="p-3.5 sm:p-4 flex flex-col flex-1">
-        <h3 className="text-[13px] font-bold text-white leading-snug line-clamp-1 mb-1 group-hover:text-white/90 transition-colors">
+      <div className="p-4 sm:p-5 flex flex-col flex-1">
+        <h3 className="text-sm font-black text-white leading-snug line-clamp-1 mb-3 group-hover:text-blue-400 transition-colors">
           {product.name}
         </h3>
-        <p className="text-[11px] text-white/40 line-clamp-2 mb-3 flex-1 leading-relaxed">
-          {product.description}
-        </p>
+
+        {/* "ราคาสินค้า" subtle label */}
+        <span className="text-[10px] font-bold text-white/30 uppercase tracking-wider block mb-1">ราคาสินค้า</span>
 
         {/* Price row */}
-        <div className="flex flex-wrap items-baseline gap-2 mb-2">
-          <span className="text-[15px] font-black text-white">฿{product.price.toFixed(2)}</span>
-          {product.originalPrice && product.price < product.originalPrice && (
-            <>
-              <span className="text-[11px] text-white/30 line-through">฿{product.originalPrice.toFixed(2)}</span>
-            </>
+        <div className="flex flex-wrap items-center gap-2 mb-4">
+          {product.originalPrice && product.price < product.originalPrice ? (
+            <span className="text-xs text-red-500/80 line-through font-mono font-bold">฿{product.originalPrice.toLocaleString()}</span>
+          ) : null}
+          
+          <span className="text-base font-black text-amber-400 tracking-tight font-mono">
+            ฿{product.price.toLocaleString()}
+          </span>
+
+          {product.stock > 0 ? (
+            <span className="ml-auto bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[9px] font-black px-1.5 py-0.5 rounded-md leading-none select-none">
+              พร้อมจำหน่าย
+            </span>
+          ) : (
+            <span className="ml-auto bg-red-500/10 text-red-400 border border-red-500/20 text-[9px] font-black px-1.5 py-0.5 rounded-md leading-none select-none">
+              สินค้าหมด
+            </span>
           )}
         </div>
 
-        {/* Discount Badge below product (แอดมินตั้งจากราคาเดิมได้) */}
-        {discount !== null && (
-          <div className="mb-2.5">
-            <span className="inline-flex items-center gap-1.5 rounded-md bg-red-500/10 text-red-400 text-[10px] sm:text-[11px] font-extrabold px-2 py-1 border border-red-500/20 shadow-sm">
-              🔥 ลดราคาพิเศษ {discount}%
-            </span>
-          </div>
-        )}
-
-        {/* Stock */}
-        <p className="text-[10px] text-white/30 font-medium mb-3">
-          คงเหลือ {product.stock.toLocaleString()} ชิ้น
-        </p>
-
+        {/* Buy Button */}
         <button
           onClick={onClick}
-          className="w-full flex items-center justify-center gap-2 bg-white/[0.05] hover:bg-white/[0.1] active:bg-white/[0.07] active:scale-[0.98] text-white border border-white/[0.08] hover:border-white/20 py-2 rounded-lg text-xs font-semibold transition-all duration-200"
+          className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white py-2.5 rounded-xl text-xs font-black transition-all duration-200 mt-auto shadow-md"
         >
           <ShoppingCart className="w-3.5 h-3.5" />
-          ดูสินค้า
+          สั่งซื้อสินค้า
         </button>
+
+        {/* Stock Row Box */}
+        <div className="mt-3.5 py-1.5 rounded-xl bg-white/[0.02] border border-white/[0.04] flex items-center justify-center gap-2 text-[10px] text-white/40 font-black uppercase tracking-widest leading-none">
+          <Package className="w-3.5 h-3.5 text-white/20 shrink-0" />
+          <span>คงเหลือ <span className="text-white/70 font-mono">{product.stock.toLocaleString()}</span> ชิ้น</span>
+        </div>
       </div>
     </div>
   );

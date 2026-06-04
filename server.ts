@@ -901,6 +901,10 @@ import healthRoute from './src/routes/health.route.js';
           updatedAt: new Date().toISOString()
 
         }, { merge: true });
+
+        // Invalidate user cache and statistics cache to update the counter instantly
+        invalidateCache('users');
+        invalidateStatsCache();
       } catch (err: any) {
         console.error('Failed to create user doc:', err.message || err);
         if (err.details) console.error('Error Details:', err.details);
@@ -2395,14 +2399,18 @@ const diskUpload = multer({ dest: uploadDir });
 
       let totalUsersCount = 0;
       try {
-        const { count, error } = await supabaseAdmin.from('users').select('*', { count: 'exact', head: true });
-        if (!error && count !== null) {
-          totalUsersCount = count;
-        } else {
-          const users = await getCachedCollection('users', 60000);
-          totalUsersCount = users.length;
-        }
-      } catch(e) {}
+        // Since we insert user profile documents in Firestore on signup, Firestore is our primary database
+        const users = await getCachedCollection('users', 60000);
+        totalUsersCount = users.length;
+      } catch (e) {
+        console.error('Firestore users count error, trying fallback:', e);
+        try {
+          const { count, error } = await supabaseAdmin.from('users').select('*', { count: 'exact', head: true });
+          if (!error && count !== null) {
+            totalUsersCount = count;
+          }
+        } catch (se) {}
+      }
 
       cachedStats = {
         users: siteSettings.stats_users_override !== undefined && siteSettings.stats_users_override !== null && !isNaN(siteSettings.stats_users_override) ? siteSettings.stats_users_override : totalUsersCount + (siteSettings.stats_users_offset || 0),
@@ -3477,6 +3485,8 @@ const diskUpload = multer({ dest: uploadDir });
       const docRef = admin.firestore().collection('users').doc(uid);
       await docRef.set({ ...dataToUpdate, updatedAt: new Date().toISOString() }, { merge: true });
       userTokenCache.clear();
+      invalidateCache('users');
+      invalidateStatsCache();
       res.json({ success: true });
     } catch (err: any) {
       console.error('Error saving user:', err.message || JSON.stringify(err));
@@ -3506,6 +3516,8 @@ const diskUpload = multer({ dest: uploadDir });
       await supabaseAdmin.auth.admin.deleteUser(uid).catch(() => {});
       await admin.firestore().collection('users').doc(uid).delete();
       userTokenCache.clear();
+      invalidateCache('users');
+      invalidateStatsCache();
       res.json({ success: true });
     } catch (err: any) {
       res.status(500).json({ error: String(err && err.message ? err.message : err) });

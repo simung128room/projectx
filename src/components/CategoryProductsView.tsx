@@ -90,96 +90,123 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
       ) : (
         <>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-            {visibleProducts.map((product, i) => (
-            <motion.div
-              key={product.id}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.2, delay: Math.min(i, 10) * 0.03 }}
-              className="bg-card border border-border border-2 overflow-hidden transition-all h-full flex flex-col group brut-card"
-            >
-              <div className="aspect-square bg-card relative overflow-hidden brut-card">
-                {product.tag && (
-                  <div className="absolute top-2 right-2 bg-gradient-to-r from-red-500 to-orange-500 text-white font-black text-[10px] px-2 py-0.5 z-10 border border-border border-2 uppercase tracking-widest">
-                    {product.tag}
-                  </div>
-                )}
-                {product.imageUrl && product.imageUrl.trim() !== "" ? (
-                  <img loading="lazy"
-                    src={product.imageUrl}
-                    alt={product.name}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                    onError={(e) => {
-                      e.currentTarget.style.display = 'none';
-                      if (e.currentTarget.nextElementSibling) {
-                        (e.currentTarget.nextElementSibling as HTMLElement).style.display = 'flex';
-                      }
-                    }}
-                  />
-                ) : null}
-                <div 
-                  className="w-full h-full flex flex-col items-center justify-center opacity-80"
-                  style={{ 
-                    display: product.imageUrl && product.imageUrl.trim() !== "" ? 'none' : 'flex',
-                    background: generateGradient(product.name || product.id)
-                  }}
+            {visibleProducts.map((product, i) => {
+              const discount = product.originalPrice && product.price < product.originalPrice
+                ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
+                : null;
+              const isHot = product.price > 100 || (discount !== null && discount >= 20) || product.stock > 0;
+              
+              return (
+                <motion.div
+                  key={product.id}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.2, delay: Math.min(i, 10) * 0.03 }}
+                  className="group relative bg-[#0c0c0e] border border-white/[0.08] rounded-2xl overflow-hidden hover:border-white/20 transition-all duration-300 flex flex-col hover:-translate-y-1 shadow-lg"
                 >
-                  <span className="text-5xl font-black text-white mix-blend-overlay opacity-60">
-                    {(product.name || "P")[0].toUpperCase()}
-                  </span>
-                  <span className="text-xs font-bold text-white/60 uppercase tracking-widest mt-2">{product.category || "STORETH"}</span>
-                </div>
-                {product.stock <= 0 && (
-                  <div className="absolute inset-0 bg-black/40 backdrop-blur-sm backdrop- flex items-center justify-center z-10 transition-opacity opacity-0 group-hover:opacity-100">
-                    <span className="bg-primary text-primary-foreground text-white font-bold px-4 py-1.5 text-xs">
-                      สินค้าหมด
-                    </span>
-                  </div>
-                )}
-              </div>
-
-              <div className="p-3.5 flex flex-col flex-1">
-                <h3 className="font-bold text-white text-sm line-clamp-1 mb-1">
-                  {product.name}
-                </h3>
-                <div className="flex items-center gap-2 mb-0.5">
-                  {product.originalPrice &&
-                    product.price &&
-                    product.originalPrice > product.price && (
-                      <span className="text-[10px] text-muted-foreground line-through">
-                        ฿{(product.originalPrice || 0).toLocaleString()}
+                  {/* Image area with corner ribbon */}
+                  <div className="relative aspect-square w-full bg-[#141416] overflow-hidden shrink-0">
+                    {product.imageUrl && product.imageUrl.trim() !== "" ? (
+                      <img loading="lazy"
+                        src={product.imageUrl}
+                        alt={product.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                          if (e.currentTarget.nextElementSibling) {
+                            (e.currentTarget.nextElementSibling as HTMLElement).style.display = 'flex';
+                          }
+                        }}
+                        referrerPolicy="no-referrer"
+                      />
+                    ) : null}
+                    <div 
+                      className="w-full h-full flex flex-col items-center justify-center opacity-85"
+                      style={{ 
+                        display: product.imageUrl && product.imageUrl.trim() !== "" ? 'none' : 'flex',
+                        background: generateGradient(product.name || product.id)
+                      }}
+                    >
+                      <span className="text-4xl font-black text-white mix-blend-overlay opacity-65">
+                        {(product.name || "P")[0].toUpperCase()}
                       </span>
+                      <span className="text-[10px] font-bold text-white/50 uppercase tracking-widest mt-1">{product.category || "STORETH"}</span>
+                    </div>
+
+                    {/* Diagonal "Best Seller" ribbon in image corner */}
+                    {isHot && (
+                      <div className="absolute top-0 right-0 overflow-hidden w-20 h-20 pointer-events-none z-10">
+                        <div className="absolute top-3 -right-6 bg-gradient-to-r from-red-600 to-orange-500 text-white text-[9px] font-black uppercase py-1 w-24 text-center transform rotate-45 shadow-md border-b border-white/10">
+                          Best Seller
+                        </div>
+                      </div>
                     )}
-                  <div className="text-blue-600 font-bold text-sm">
-                    ฿{(product.price || 0).toLocaleString()}
+
+                    {/* Overlay gradient */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#0c0c0e] via-transparent to-transparent opacity-80" />
+
+                    {/* Discount Badge on left */}
+                    {discount !== null && (
+                      <div className="absolute top-3 left-3 bg-red-600 text-white text-[9px] font-black px-2 py-0.5 rounded-md shadow-md z-10">
+                        -{discount}%
+                      </div>
+                    )}
                   </div>
-                </div>
 
-                {product.stock <= 0 ? (
-                  <button className="w-full mt-3 bg-primary text-primary-foreground text-blue-600 py-2.5 text-xs font-bold flex items-center justify-center gap-1.5 cursor-default">
-                    <Package className="w-3.5 h-3.5" /> สินค้าหมด
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => onProductClick(product.id)}
-                    className="w-full mt-3 bg-card text-white hover:bg-[#1e1e1e] py-2.5 text-xs font-bold transition-colors active:scale-95 flex items-center justify-center gap-2 brut-card"
-                  >
-                    <ShoppingCart className="w-3.5 h-3.5" /> สั่งซื้อสินค้า
-                  </button>
-                )}
+                  {/* Content */}
+                  <div className="p-4 sm:p-5 flex flex-col flex-1 bg-[#0c0c0e]">
+                    <h3 className="text-sm font-black text-white leading-snug line-clamp-1 mb-3 group-hover:text-blue-400 transition-colors">
+                      {product.name}
+                    </h3>
 
-                <div className="mt-3 pt-3 border-t border-zinc-50 flex items-center justify-center gap-1.5 text-[10px] text-muted-foreground font-bold uppercase tracking-wider">
-                  <span
-                    className={`w-1.5 h-1.5 ${product.stock > 0 ? "bg-emerald-400 animate-pulse" : "bg-zinc-200"}`}
-                  ></span>
-                  คงเหลือ{" "}
-                  {product.stock >= 999999
-                    ? "ไม่จำกัด"
-                    : `${product.stock} ชิ้น`}
-                </div>
-              </div>
-            </motion.div>
-          ))}
+                    {/* "ราคาสินค้า" subtle label */}
+                    <span className="text-[10px] font-bold text-white/30 uppercase tracking-wider block mb-1">ราคาสินค้า</span>
+
+                    {/* Price row */}
+                    <div className="flex flex-wrap items-center gap-2 mb-4">
+                      {product.originalPrice && product.price < product.originalPrice ? (
+                        <span className="text-xs text-red-500/80 line-through font-mono font-bold">฿{product.originalPrice.toLocaleString()}</span>
+                      ) : null}
+                      
+                      <span className="text-base font-black text-amber-400 tracking-tight font-mono">
+                        ฿{(product.price || 0).toLocaleString()}
+                      </span>
+
+                      {product.stock > 0 ? (
+                        <span className="ml-auto bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[9px] font-black px-1.5 py-0.5 rounded-md leading-none select-none">
+                          พร้อมจำหน่าย
+                        </span>
+                      ) : (
+                        <span className="ml-auto bg-red-500/10 text-red-400 border border-red-500/20 text-[9px] font-black px-1.5 py-0.5 rounded-md leading-none select-none">
+                          สินค้าหมด
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Buy Button */}
+                    {product.stock <= 0 ? (
+                      <button className="w-full bg-red-600/10 text-red-400 border border-red-500/20 py-2.5 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 cursor-default mt-auto">
+                        <Package className="w-3.5 h-3.5" /> สินค้าหมด
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => onProductClick(product.id)}
+                        className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white py-2.5 rounded-xl text-xs font-black transition-all duration-200 mt-auto shadow-md"
+                      >
+                        <ShoppingCart className="w-3.5 h-3.5" />
+                        สั่งซื้อสินค้า
+                      </button>
+                    )}
+
+                    {/* Stock Row Box */}
+                    <div className="mt-3.5 py-1.5 rounded-xl bg-white/[0.02] border border-white/[0.04] flex items-center justify-center gap-2 text-[10px] text-white/40 font-black uppercase tracking-widest leading-none">
+                      <Package className="w-3.5 h-3.5 text-white/20 shrink-0" />
+                      <span>คงเหลือ <span className="text-white/70 font-mono">{product.stock >= 999999 ? "ไม่จำกัด" : product.stock.toLocaleString()}</span> ชิ้น</span>
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
           </div>
           
           {visibleProducts.length < filteredProducts.length && (

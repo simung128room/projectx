@@ -2371,12 +2371,15 @@ function AppContent() {
         <div className="flex items-center justify-between h-[72px] px-4 md:px-8 max-w-7xl mx-auto w-full">
           {/* Logo with matching Icon size */}
           <div 
-            className="flex items-center gap-3 flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity" 
+            className="flex items-center gap-3.5 flex-shrink-0 cursor-pointer hover:opacity-90 transition-all group" 
             onClick={() => {
               setActiveView("home");
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
           >
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-neon-green/20 to-black border border-neon-green/30 group-hover:border-neon-green/50 flex items-center justify-center shrink-0 transition-all duration-300 shadow-[0_0_15px_rgba(57,255,20,0.15)] group-hover:shadow-[0_0_20px_rgba(57,255,20,0.3)]">
+              <Zap className="w-5 h-5 text-neon-green animate-pulse" />
+            </div>
             <span className="font-mono font-black text-xl md:text-2xl tracking-widest text-white uppercase select-none leading-none">
               APEX<span className="text-neon-green font-black">STORE</span>
             </span>
@@ -2604,7 +2607,7 @@ function AppContent() {
                       setIsMobileMenuOpen(false);
                     }}
                   >
-                    <Activity className={`w-[15px] h-[15px] ${activeView === "home" ? "text-neon-green" : "text-white/40"}`} />
+                    <Home className={`w-[15px] h-[15px] ${activeView === "home" ? "text-neon-green" : "text-white/40"}`} />
                     <span className="text-sm">หน้าหลัก</span>
                     {activeView === "home" && <div className="ml-auto w-1.5 h-1.5 bg-neon-green rounded-full animate-pulse" />}
                   </div>
