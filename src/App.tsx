@@ -2425,7 +2425,7 @@ function AppContent() {
         </div>
 
         {/* Global Top Navbar (Mobile) */}
-        <div className="lg:hidden sticky top-0 z-[65] w-full bg-card backdrop-blur-md border-b border-white/10/80 brut-card">
+        <div className="lg:hidden sticky top-0 z-[65] w-full bg-card backdrop-blur-md border-b-2 border-border brut-card">
           <nav className="w-full flex flex-col">
             <div className="flex items-center justify-between px-5 h-[64px] relative">
               <span 
@@ -2829,6 +2829,15 @@ function AppContent() {
               </div>
             }
           >
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeView}
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className="flex-1 w-full flex flex-col min-h-0"
+            >
             {activeView === "categories" && (
               <CategoriesView
                 categories={categories}
@@ -3107,7 +3116,9 @@ function AppContent() {
                 usersList={usersList}
                 onRefreshData={refreshAllSystemData}
               />
-            )}{" "}
+            )}
+            </motion.div>
+          </AnimatePresence>
           </Suspense>
         </div>
 
