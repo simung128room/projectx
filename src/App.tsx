@@ -2367,32 +2367,33 @@ function AppContent() {
       </aside>
 
       {/* Top Header */}
-      <header className="sticky top-0 z-[65] w-full bg-[#0a0a0a] border-b border-border flex-shrink-0 brut-card select-none">
-        <div className="flex items-center justify-between h-[64px] px-4 md:px-8 max-w-7xl mx-auto w-full">
-          {/* Logo */}
+      <header className="sticky top-0 z-[65] w-full bg-[#030303]/95 backdrop-blur-md border-b border-white/[0.08] shadow-lg shadow-black/80 flex-shrink-0 select-none">
+        <div className="flex items-center justify-between h-[72px] px-4 md:px-8 max-w-7xl mx-auto w-full">
+          {/* Logo with matching Icon size */}
           <div 
-            className="flex items-center gap-2 flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity" 
+            className="flex items-center gap-3 flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity" 
             onClick={() => {
               setActiveView("home");
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
           >
-            <span className="font-mono font-black text-sm tracking-widest text-[#ffffff] uppercase">
-              APEX<span className="text-neon-green font-black select-none">STORE</span>
+            <Shield className="w-7 h-7 md:w-8 md:h-8 text-neon-green animate-pulse shrink-0" />
+            <span className="font-mono font-black text-xl md:text-2xl tracking-widest text-white uppercase select-none leading-none">
+              APEX<span className="text-neon-green font-black">STORE</span>
             </span>
           </div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center gap-[4px]">
+          <nav className="hidden lg:flex items-center gap-1 bg-white/[0.02] border border-white/[0.04] p-1 rounded-xl">
             <button
               onClick={() => {
                 setActiveView("home");
                 window.scrollTo({ top: 0, behavior: "smooth" });
               }}
-              className={`flex items-center gap-1.5 px-3 py-1.5 font-mono text-xs font-bold tracking-widest uppercase transition-all duration-150 cursor-pointer ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-mono text-xs font-bold tracking-wider uppercase transition-all duration-150 cursor-pointer ${
                 activeView === "home"
-                  ? "text-background bg-white font-extrabold"
-                  : "text-muted-foreground hover:text-[#ffffff]"
+                  ? "bg-white text-black font-extrabold"
+                  : "text-white/60 hover:text-white hover:bg-white/[0.02]"
               }`}
             >
               <Home size={12} />
@@ -2403,10 +2404,10 @@ function AppContent() {
                 setActiveView("categories");
                 window.scrollTo({ top: 0, behavior: "smooth" });
               }}
-              className={`flex items-center gap-1.5 px-3 py-1.5 font-mono text-xs font-bold tracking-widest uppercase transition-all duration-150 cursor-pointer ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-mono text-xs font-bold tracking-wider uppercase transition-all duration-150 cursor-pointer ${
                 activeView === "categories" || activeView === "category_products" || activeView === "product_detail"
-                  ? "text-background bg-white font-extrabold"
-                  : "text-muted-foreground hover:text-[#ffffff]"
+                  ? "bg-white text-black font-extrabold"
+                  : "text-white/60 hover:text-white hover:bg-white/[0.02]"
               }`}
             >
               <ShoppingBag size={12} />
@@ -2417,10 +2418,10 @@ function AppContent() {
                 setActiveView(user ? "wallet" : "login");
                 window.scrollTo({ top: 0, behavior: "smooth" });
               }}
-              className={`flex items-center gap-1.5 px-3 py-1.5 font-mono text-xs font-bold tracking-widest uppercase transition-all duration-150 cursor-pointer ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-mono text-xs font-bold tracking-wider uppercase transition-all duration-150 cursor-pointer ${
                 activeView === "wallet"
-                  ? "text-background bg-white font-extrabold"
-                  : "text-muted-foreground hover:text-[#ffffff]"
+                  ? "bg-white text-black font-extrabold"
+                  : "text-white/60 hover:text-white hover:bg-white/[0.02]"
               }`}
             >
               <CreditCard size={12} />
@@ -2431,10 +2432,10 @@ function AppContent() {
                 setActiveView(user ? "tools" : "login");
                 window.scrollTo({ top: 0, behavior: "smooth" });
               }}
-              className={`flex items-center gap-1.5 px-3 py-1.5 font-mono text-xs font-bold tracking-widest uppercase transition-all duration-150 cursor-pointer ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-mono text-xs font-bold tracking-wider uppercase transition-all duration-150 cursor-pointer ${
                 activeView === "tools" || activeView === "free_website" || activeView === "telegram_catcher" || activeView === "discord_catcher" || activeView === "discord_on" || activeView === "discord_badge" || activeView === "two_fa_generator" || activeView === "proxy_ff_ios" || activeView === "proxy_free" || activeView === "api_proxy_gen"
-                  ? "text-background bg-white font-extrabold"
-                  : "text-muted-foreground hover:text-[#ffffff]"
+                  ? "bg-white text-black font-extrabold"
+                  : "text-white/60 hover:text-white hover:bg-white/[0.02]"
               }`}
             >
               <Zap size={12} />
@@ -2445,10 +2446,10 @@ function AppContent() {
                 setActiveView(user ? "log_categories" : "login");
                 window.scrollTo({ top: 0, behavior: "smooth" });
               }}
-              className={`flex items-center gap-1.5 px-3 py-1.5 font-mono text-xs font-bold tracking-widest uppercase transition-all duration-150 cursor-pointer ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-mono text-xs font-bold tracking-wider uppercase transition-all duration-150 cursor-pointer ${
                 activeView === "log_categories" || activeView === "vip_logs" || activeView === "free_logs" || activeView === "logs" || activeView === "history" || activeView === "order_history" || activeView === "random_history" || activeView === "wallet_history" || activeView === "checker_logs"
-                  ? "text-background bg-white font-extrabold"
-                  : "text-muted-foreground hover:text-[#ffffff]"
+                  ? "bg-white text-black font-extrabold"
+                  : "text-white/60 hover:text-white hover:bg-white/[0.02]"
               }`}
             >
               <History size={12} />
@@ -2460,10 +2461,10 @@ function AppContent() {
                   setActiveView("admin");
                   window.scrollTo({ top: 0, behavior: "smooth" });
                 }}
-                className={`flex items-center gap-1.5 px-3 py-1.5 font-mono text-xs font-bold tracking-widest uppercase transition-all duration-150 cursor-pointer ${
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-mono text-xs font-bold tracking-wider uppercase transition-all duration-150 cursor-pointer ${
                   activeView === "admin"
                     ? "text-[#0a0a0a] bg-neon-yellow font-extrabold"
-                    : "text-neon-yellow hover:text-neon-green"
+                    : "text-neon-yellow hover:text-neon-green hover:bg-white/[0.02]"
                 }`}
               >
                 <Settings size={12} />
@@ -2477,10 +2478,10 @@ function AppContent() {
             {/* Search Button */}
             <button
               onClick={() => setActiveView("search")}
-              className="w-10 h-10 flex items-center justify-center text-muted-foreground hover:text-[#ffffff] bg-[#0c0c0c] border border-border border-2 transition-colors hover:border-[#444] active:scale-95 cursor-pointer animate-fade-in"
+              className="w-10 h-10 rounded-full flex items-center justify-center text-white/50 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] transition-all duration-200 cursor-pointer"
               aria-label="Search"
             >
-              <Search className="w-[18px] h-[18px]" />
+              <Search className="w-4.5 h-4.5" />
             </button>
 
             {/* Profile / Status */}
@@ -2488,18 +2489,18 @@ function AppContent() {
               {user ? (
                 <>
                   <div 
-                    className="flex items-center gap-3 px-3 py-1.5 border border-border border-2 hover:border-[#444] transition-colors cursor-pointer bg-card brut-card"
+                    className="flex items-center gap-3 px-3 py-1.5 rounded-full border border-white/[0.06] hover:border-white/[0.12] transition-colors cursor-pointer bg-white/[0.02] hover:bg-white/[0.04]"
                     onClick={() => setActiveView("profile")}
                   >
-                    <div className="flex flex-col text-right font-mono">
-                      <span className="text-[11px] font-bold leading-tight text-[#888888]">
+                    <div className="flex flex-col text-right font-mono pr-1">
+                      <span className="text-[10px] font-bold leading-none text-white/40 mb-1">
                         {userPlan?.username || user.email?.split("@")[0] || "User"}
                       </span>
-                      <span className="text-[12px] font-bold text-neon-yellow">
-                        ฿{userPlan?.balance?.toLocaleString(undefined, { minimumFractionDigits: 2 }) || "0.00"}
+                      <span className="text-xs font-black text-neon-yellow leading-none">
+                        ฿{userPlan?.balance ? Math.floor(userPlan.balance).toLocaleString() : "0"}
                       </span>
                     </div>
-                    <div className="w-8 h-8 md:w-9 md:h-9 overflow-hidden bg-card border border-border shrink-0">
+                    <div className="w-8 h-8 md:w-[34px] md:h-[34px] rounded-full overflow-hidden bg-[#111] border border-white/[0.1] shrink-0">
                       <img
                         src={getAvatarUrl(user?.id || userPlan?.username || user?.email?.split("@")[0] || "guest")}
                         alt="avatar"
@@ -2510,7 +2511,7 @@ function AppContent() {
                   </div>
                   <button
                     onClick={handleLogout}
-                    className="flex items-center gap-1.5 px-3 py-1.5 font-mono text-xs font-bold tracking-widest uppercase transition-all duration-150 text-neon-red hover:text-neon-yellow cursor-pointer"
+                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-rose-500/10 bg-rose-500/5 hover:bg-rose-500/15 font-mono text-xs font-bold tracking-widest uppercase transition-all duration-150 text-rose-450 hover:text-rose-400 cursor-pointer"
                   >
                     <LogOut size={12} />
                     LOGOUT
@@ -2519,14 +2520,14 @@ function AppContent() {
               ) : (
                 <button
                   onClick={() => setActiveView("login")}
-                  className="brut-btn text-xs px-4 py-2"
+                  className="px-5 py-2.5 bg-white text-black font-extrabold text-[11px] tracking-wider rounded-xl uppercase hover:bg-zinc-200 transition-all duration-150 cursor-pointer shadow-lg shadow-white/5 active:scale-95"
                 >
                   ลงชื่อเข้าใช้
                 </button>
               )}
               {/* Online Indicator */}
-              <div className="h-4 w-px bg-border animate-fade-in" />
-              <span className="font-mono text-xs text-muted-foreground whitespace-nowrap animate-fade-in">
+              <div className="h-4 w-px bg-white/[0.08] animate-fade-in" />
+              <span className="font-mono text-xs text-white/40 whitespace-nowrap animate-fade-in flex items-center gap-1.5">
                 <span className="text-neon-green animate-blink">▮</span> ONLINE
               </span>
             </div>
@@ -2535,7 +2536,7 @@ function AppContent() {
             <motion.button
               whileTap={{ scale: 0.9 }}
               onClick={() => setIsMobileMenuOpen(true)}
-              className="lg:hidden w-10 h-10 flex items-center justify-center text-muted-foreground hover:text-[#ffffff] bg-[#0c0c0c] border border-border border-2 transition-all active:scale-95 cursor-pointer"
+              className="lg:hidden w-10 h-10 rounded-full flex items-center justify-center text-white/50 hover:text-white bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.05] transition-all duration-200 active:scale-95 cursor-pointer"
               aria-label="Menu"
             >
               <Menu className="w-5 h-5" />
@@ -2574,16 +2575,19 @@ function AppContent() {
                 
                 {/* Header / Logo */}
                 <div className="flex flex-col items-start px-6 pt-8 pb-5 shrink-0 relative z-[70]">
-                  <span 
-                    className="font-mono text-xl font-black tracking-widest text-white select-none cursor-pointer uppercase"
+                  <div 
+                    className="flex items-center gap-2.5 cursor-pointer select-none"
                     onClick={() => {
                       setActiveView("home");
                       setIsMobileMenuOpen(false);
                     }}
                   >
-                    APEX<span className="text-neon-green font-black select-none">STORE</span>
-                  </span>
-                  <span className="text-[9px] font-mono font-semibold text-white/20 tracking-[0.2em] uppercase mt-1">
+                    <Shield className="w-6 h-6 text-neon-green animate-pulse shrink-0" />
+                    <span className="font-mono text-xl font-black tracking-widest text-white uppercase">
+                      APEX<span className="text-neon-green font-black select-none">STORE</span>
+                    </span>
+                  </div>
+                  <span className="text-[9px] font-mono font-semibold text-white/20 tracking-[0.2em] uppercase mt-1 ml-8.5">
                     PREMIUM STOREFRONT
                   </span>
                 </div>
