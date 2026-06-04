@@ -2377,7 +2377,6 @@ function AppContent() {
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
           >
-            <Shield className="w-7 h-7 md:w-8 md:h-8 text-neon-green animate-pulse shrink-0" />
             <span className="font-mono font-black text-xl md:text-2xl tracking-widest text-white uppercase select-none leading-none">
               APEX<span className="text-neon-green font-black">STORE</span>
             </span>
@@ -2582,7 +2581,6 @@ function AppContent() {
                       setIsMobileMenuOpen(false);
                     }}
                   >
-                    <Shield className="w-6 h-6 text-neon-green animate-pulse shrink-0" />
                     <span className="font-mono text-xl font-black tracking-widest text-white uppercase">
                       APEX<span className="text-neon-green font-black select-none">STORE</span>
                     </span>

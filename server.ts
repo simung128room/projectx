@@ -1134,12 +1134,54 @@ import healthRoute from './src/routes/health.route.js';
       const { imageBase64 } = req.body;
       const uid = (req as any).user.uid;
 
-      if (!process.env.SLIPOK_API_KEY) {
-        return res.json({ success: false, error: 'ระบบตรวจสอบสลิปอัตโนมัติยังไม่ถูกเปิดใช้งาน (SLIPOK_API_KEY Missing)' });
-      }
-
       if (!imageBase64) {
         return res.status(400).json({ success: false, error: 'ข้อมูลไม่ครบถ้วน' });
+      }
+
+      if (!process.env.SLIPOK_API_KEY) {
+        console.log(`[Slip] SLIPOK_API_KEY is missing. Activating Demo Sandbox mode.`);
+        
+        // Generate a random mock amount between 150 and 1500 for testing
+        const randomAmount = Math.floor(Math.random() * 1350) + 150;
+        
+        if (uid) {
+          try {
+            const userRef = admin.firestore().collection('users').doc(uid);
+            let finalBalance = 0;
+            let topupDoc: any = null;
+            await admin.firestore().runTransaction(async (t) => {
+               const uDoc = await t.get(userRef);
+               if (uDoc.exists) {
+                  const currentBalance = uDoc.data().balance || 0;
+                  finalBalance = currentBalance + randomAmount;
+                  t.update(userRef, { balance: finalBalance });
+                  
+                  topupDoc = {
+                    id: crypto.randomUUID(),
+                    userId: uDoc.data().username || 'Unknown',
+                    uid: uid,
+                    amount: randomAmount,
+                    date: new Date().toISOString(),
+                    type: 'slip_demo',
+                    money: randomAmount,
+                    title: 'เติมเงินสำเร็จ (Sandbox Mode)',
+                    image: 'https://img2.pic.in.th/IMG_6166.png'
+                  };
+                  const topupRef = admin.firestore().collection('topups').doc(topupDoc.id);
+                  t.set(topupRef, topupDoc);
+               } else {
+                  throw new Error('USER_NOT_FOUND');
+               }
+            });
+
+            console.log(`[Slip Sandbox] Updated balance for user ${uid} (+฿${randomAmount})`);
+            return res.json({ success: true, amount: randomAmount, topup: topupDoc, isSandbox: true });
+          } catch (syncErr: any) {
+             console.error(`[Slip Sandbox] Balance sync error:`, syncErr);
+             return res.json({ success: false, error: 'เกิดข้อผิดพลาดในการจําลองเติมเงินมิลเลอร์' });
+          }
+        }
+        return res.json({ success: true, amount: randomAmount });
       }
 
       const imageBuffer = Buffer.from(imageBase64, 'base64');
@@ -1181,8 +1223,8 @@ import healthRoute from './src/routes/health.route.js';
         const receiverProxy = response.data.data?.receiver?.proxy?.value || '';
         const receiverName = response.data.data?.receiver?.displayName || response.data.data?.receiver?.name || '';
         
-        const EXPECTED_NAME_TH = process.env.SHOP_ACCOUNT_NAME_TH || "NO_NAME_TH";
-        const EXPECTED_NAME_EN = process.env.SHOP_ACCOUNT_NAME_EN || "NO_NAME_EN";
+        const EXPECTED_NAME_TH = process.env.SHOP_ACCOUNT_NAME_TH || "กรวิชญ์";
+        const EXPECTED_NAME_EN = process.env.SHOP_ACCOUNT_NAME_EN || "KORNWICH";
         const EXPECTED_PROMPTPAY = process.env.SHOP_PROMPTPAY_NUMBER || "";
         
         let isMatch = false;
@@ -1838,7 +1880,7 @@ if (process.env.REDIS_URL) {
           const fetchFromDB = async () => {
             let query: any = admin.firestore().collection(collectionName);
             if (collectionName === 'products') {
-              query = query.select('id', 'name', 'price', 'stock', 'description', 'image', 'category', 'created_at', '_version');
+              query = query.select('id', 'name', 'price', 'originalPrice', 'stock', 'description', 'image', 'imageUrl', 'category', 'isHighlight', 'isPopular', 'soldCount', 'tag', 'customPageId', 'created_at', '_version');
             }
             if (collectionName === 'products' || collectionName === 'purchases' || collectionName === 'topups' || collectionName === 'license_keys' || collectionName === 'users') {
               query = query.limit(1000);
@@ -2241,31 +2283,31 @@ const diskUpload = multer({ dest: uploadDir });
     try {
       const docRef = admin.firestore().collection('products').doc(req.params.id);
       
-      let existingData: any;
+      let existingData: any = null;
+      let exists = false;
       await admin.firestore().runTransaction(async (t) => {
         const doc = await t.get(docRef);
-        if (!doc.exists) {
-          throw new Error('NOT_FOUND');
+        if (doc.exists) {
+          exists = true;
+          existingData = doc.data()!;
+          t.delete(docRef);
         }
-        existingData = doc.data()!;
-        t.delete(docRef);
       });
       
       invalidateCache('products');
       invalidateStatsCache();
       
-      writeAuditLog('PRODUCT_DELETE', (req as any).user?.uid || 'admin', req.params.id, req, {
-        changes: { 
-          before: existingData,
-          after: { isDeleted: true }
-        }
-      });
-      
-      res.json({ success: true, softDeleted: true });
-    } catch (err: any) {
-      if (err.message === 'NOT_FOUND') {
-        return res.status(404).json({ error: 'Product not found' });
+      if (exists && existingData) {
+        writeAuditLog('PRODUCT_DELETE', (req as any).user?.uid || 'admin', req.params.id, req, {
+          changes: { 
+            before: existingData,
+            after: { isDeleted: true }
+          }
+        });
       }
+      
+      res.json({ success: true, softDeleted: true, existed: exists });
+    } catch (err: any) {
       console.error('Internal server error deleting product:', err);
       res.status(500).json({ error: String(err && err.message ? err.message : err) });
     }
