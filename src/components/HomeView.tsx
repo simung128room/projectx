@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Product, SiteStats, Category } from "../types";
-import { ShoppingCart, Package, Users, ChevronRight, Zap, Star, Clock, LayoutGrid } from "lucide-react";
+import { ShoppingCart, Package, Users, ChevronRight, Zap, Star, Clock, LayoutGrid, History, MessageSquare, Coins } from "lucide-react";
+import { motion } from "motion/react";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -99,6 +100,56 @@ function StatCard({
         <Icon className="w-10 h-10 text-white" />
       </div>
     </div>
+  );
+}
+
+// ─── Shortcut Button ──────────────────────────────────────────────────────────
+
+interface ShortcutBtnProps {
+  label: string;
+  subLabel: string;
+  icon: React.ElementType;
+  colorClass: string;
+  glowColor: string;
+  onClick: () => void;
+}
+
+function ShortcutBtn({
+  label,
+  subLabel,
+  icon: Icon,
+  colorClass,
+  glowColor,
+  onClick,
+}: ShortcutBtnProps) {
+  return (
+    <motion.button
+      whileHover={{ y: -2, transition: { duration: 0.2 } }}
+      whileTap={{ scale: 0.95 }}
+      onClick={onClick}
+      className="relative overflow-hidden text-left bg-[#0d0d0d] border border-white/[0.06] hover:border-white/[0.14] rounded-xl p-4 sm:p-5 flex items-center gap-4 transition-all duration-300 w-full group cursor-pointer"
+    >
+      {/* Dynamic Glow */}
+      <div
+        className="absolute -top-12 -right-12 w-24 h-24 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-2xl pointer-events-none"
+        style={{ background: glowColor }}
+      />
+      
+      {/* Icon Frame */}
+      <div className={`p-3 rounded-xl bg-white/[0.02] border border-white/[0.08] group-hover:border-transparent group-hover:scale-105 duration-300 ${colorClass} shrink-0`}>
+        <Icon className="w-5 h-5 font-bold" />
+      </div>
+
+      <div className="flex flex-col min-w-0">
+        <span className="text-xs sm:text-sm font-black text-white tracking-wider uppercase">{label}</span>
+        <span className="text-[10px] text-white/30 group-hover:text-white/50 duration-300 tracking-normal truncate mt-0.5 font-bold font-mono">{subLabel}</span>
+      </div>
+
+      {/* Decorative arrow */}
+      <div className="ml-auto opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all duration-300 text-white/40 shrink-0">
+        <ChevronRight className="w-4 h-4" />
+      </div>
+    </motion.button>
   );
 }
 
@@ -330,6 +381,48 @@ export const HomeView: React.FC<HomeViewProps> = ({
             accent="rgba(239,68,68,0.4)"
           />
         </div>
+
+        {/* ── Quick Shortcut Buttons ── */}
+        <section className="mb-8">
+          <div className="flex items-center gap-2 mb-4">
+            <Zap className="w-5 h-5 text-neon-green" />
+            <h2 className="text-base font-black text-white tracking-tight uppercase">ทางลัดด่วน / QUICK ACTIONS</h2>
+          </div>
+          <div className="grid grid-cols-2 gap-3 sm:gap-4">
+            <ShortcutBtn
+              label="สั่งซื้อสินค้า"
+              subLabel="GO SHOPPING"
+              icon={ShoppingCart}
+              colorClass="text-emerald-400 group-hover:bg-emerald-500/10 group-hover:text-emerald-300"
+              glowColor="rgba(16,185,129,0.15)"
+              onClick={() => setActiveView("categories")}
+            />
+            <ShortcutBtn
+              label="ประวัติสั่งซื้อ"
+              subLabel="ORDER HISTORY"
+              icon={History}
+              colorClass="text-indigo-400 group-hover:bg-indigo-500/10 group-hover:text-indigo-300"
+              glowColor="rgba(99,102,241,0.15)"
+              onClick={() => setActiveView("order_history")}
+            />
+            <ShortcutBtn
+              label="ติดต่อ ADMIN"
+              subLabel="CONTACT ADMIN"
+              icon={MessageSquare}
+              colorClass="text-rose-450 group-hover:bg-rose-500/10 group-hover:text-rose-350"
+              glowColor="rgba(244,63,94,0.15)"
+              onClick={() => setActiveView("contact")}
+            />
+            <ShortcutBtn
+              label="เติมเงิน TOPUP"
+              subLabel="TOPUP WALLET"
+              icon={Coins}
+              colorClass="text-amber-400 group-hover:bg-amber-500/10 group-hover:text-amber-300"
+              glowColor="rgba(245,158,11,0.15)"
+              onClick={() => setActiveView("wallet")}
+            />
+          </div>
+        </section>
 
         {/* ── Categories ── */}
         {categories.length > 0 && (
