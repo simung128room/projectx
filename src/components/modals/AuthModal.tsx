@@ -190,7 +190,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
         <button 
           type="submit"
           disabled={authLoading}
-          className={`w-full py-4 mt-6 text-sm font-bold transition-all flex items-center justify-center gap-2 ${ authMode === 'login' ? 'bg-cyan-600 hover:bg-cyan-500 : 'bg-blue-700 hover:bg-blue-600 } disabled:opacity-50 disabled:cursor-not-allowed`}
+          className={`w-full py-4 mt-6 text-sm font-bold transition-all flex items-center justify-center gap-2 ${ authMode === 'login' ? 'bg-cyan-600 hover:bg-cyan-500' : 'bg-blue-700 hover:bg-blue-600' } disabled:opacity-50 disabled:cursor-not-allowed`}
         >
           {authLoading ? (
             <div className="w-5 h-5 border-2 border-border border-t-white animate-spin"></div>

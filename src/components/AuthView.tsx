@@ -206,8 +206,8 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
         <div className="mt-8 pt-6 border-t border-border border-2 flex flex-col gap-4 text-center">
           <button 
             onClick={() => { 
-                const nextMode = authMode === 'login' ? (authMode === 'forgot' ? 'login' : 'signup') : 'login';
-                setAuthMode(nextMode); 
+                const nextMode = authMode === 'login' ? 'signup' : 'login';
+                setAuthMode(nextMode as "login" | "signup"); 
                 setActiveView(nextMode); 
             }} 
             className="text-white text-xs font-medium hover:text-blue-500 transition-colors"

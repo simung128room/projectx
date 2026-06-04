@@ -2146,7 +2146,7 @@ function AppContent() {
     );
 
   return (
-    <div className="min-h-screen w-full bg-card text-white font-sans selection:bg-[#050505]/80 flex flex-col lg:flex-row relative brut-card">
+    <div className="min-h-screen w-full bg-[#030303] text-white font-sans selection:bg-[#050505]/80 flex flex-col relative">
       {useCustomCursor && <CustomCursor />}
       <Suspense fallback={null}>
         <PopupBanner
@@ -2157,7 +2157,7 @@ function AppContent() {
       </Suspense>
 
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex flex-col w-[300px] shrink-0 bg-card border-r border-border border-2 h-screen sticky top-0 p-8 z-[60] overflow-y-auto no-scrollbar brut-card">
+      <aside className="hidden">
         <div className="mb-10 w-full flex justify-start">
           <span 
             className="font-changa text-3xl font-black italic tracking-wider text-blue-600 hover:scale-105 active:scale-95 transition-all duration-205 cursor-pointer select-none"
@@ -2366,96 +2366,187 @@ function AppContent() {
         </div>
       </aside>
 
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-h-screen min-w-0 relative overflow-x-hidden">
-        {/* Desktop Top Header */}
-        <div className="hidden lg:block sticky top-0 z-[50] w-full bg-card backdrop-blur-md border-b border-white/10/80 brut-card">
-          <header className="w-full h-[64px] flex items-center justify-between px-8">
-            <div className="flex items-center gap-4">
-              <h1 className="text-sm font-medium text-white">
-                {activeView === "home" ? "ภาพรวม" : 
-                 activeView === "categories" ? "หมวดหมู่สินค้า" : 
-                 activeView === "category_products" ? "รายการสินค้า" : 
-                 activeView === "wallet" ? "เติมเงิน" : 
-                 activeView === "profile" ? "ตั้งค่าโปรไฟล์" : 
-                 activeView === "history" ? "ประวัติการใช้งาน" : 
-                 activeView === "admin" ? "ระบบจัดการหลังบ้าน" : "แดชบอร์ด"}
-              </h1>
-            </div>
-            <div className="flex items-center gap-4">
+      {/* Top Header */}
+      <header className="sticky top-0 z-[65] w-full bg-[#0a0a0a] border-b border-border flex-shrink-0 brut-card select-none">
+        <div className="flex items-center justify-between h-[64px] px-4 md:px-8 max-w-7xl mx-auto w-full">
+          {/* Logo */}
+          <div 
+            className="flex items-center gap-2 flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity" 
+            onClick={() => {
+              setActiveView("home");
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+          >
+            <Terminal size={18} className="text-neon-green" />
+            <span className="font-mono font-bold text-sm tracking-widest text-[#ffffff]">
+              PROJECT<span className="text-neon-green font-extrabold select-none">X</span>
+            </span>
+          </div>
+
+          {/* Desktop Navigation */}
+          <nav className="hidden lg:flex items-center gap-[4px]">
+            <button
+              onClick={() => {
+                setActiveView("home");
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+              className={`flex items-center gap-1.5 px-3 py-1.5 font-mono text-xs font-bold tracking-widest uppercase transition-all duration-150 cursor-pointer ${
+                activeView === "home"
+                  ? "text-background bg-white font-extrabold"
+                  : "text-muted-foreground hover:text-[#ffffff]"
+              }`}
+            >
+              <Home size={12} />
+              HOME
+            </button>
+            <button
+              onClick={() => {
+                setActiveView("categories");
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+              className={`flex items-center gap-1.5 px-3 py-1.5 font-mono text-xs font-bold tracking-widest uppercase transition-all duration-150 cursor-pointer ${
+                activeView === "categories" || activeView === "category_products" || activeView === "product_detail"
+                  ? "text-background bg-white font-extrabold"
+                  : "text-muted-foreground hover:text-[#ffffff]"
+              }`}
+            >
+              <ShoppingBag size={12} />
+              SHOP
+            </button>
+            <button
+              onClick={() => {
+                setActiveView(user ? "wallet" : "login");
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+              className={`flex items-center gap-1.5 px-3 py-1.5 font-mono text-xs font-bold tracking-widest uppercase transition-all duration-150 cursor-pointer ${
+                activeView === "wallet"
+                  ? "text-background bg-white font-extrabold"
+                  : "text-muted-foreground hover:text-[#ffffff]"
+              }`}
+            >
+              <CreditCard size={12} />
+              WALLET
+            </button>
+            <button
+              onClick={() => {
+                setActiveView(user ? "tools" : "login");
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+              className={`flex items-center gap-1.5 px-3 py-1.5 font-mono text-xs font-bold tracking-widest uppercase transition-all duration-150 cursor-pointer ${
+                activeView === "tools" || activeView === "free_website" || activeView === "telegram_catcher" || activeView === "discord_catcher" || activeView === "discord_on" || activeView === "discord_badge" || activeView === "two_fa_generator" || activeView === "proxy_ff_ios" || activeView === "proxy_free" || activeView === "api_proxy_gen"
+                  ? "text-background bg-white font-extrabold"
+                  : "text-muted-foreground hover:text-[#ffffff]"
+              }`}
+            >
+              <Zap size={12} />
+              TOOLS
+            </button>
+            <button
+              onClick={() => {
+                setActiveView(user ? "log_categories" : "login");
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+              className={`flex items-center gap-1.5 px-3 py-1.5 font-mono text-xs font-bold tracking-widest uppercase transition-all duration-150 cursor-pointer ${
+                activeView === "log_categories" || activeView === "vip_logs" || activeView === "free_logs" || activeView === "logs" || activeView === "history" || activeView === "order_history" || activeView === "random_history" || activeView === "wallet_history" || activeView === "checker_logs"
+                  ? "text-background bg-white font-extrabold"
+                  : "text-muted-foreground hover:text-[#ffffff]"
+              }`}
+            >
+              <History size={12} />
+              LOGS
+            </button>
+            {isAdmin && (
               <button
-                onClick={() => setActiveView("search")}
-                className="w-8 h-8 flex items-center justify-center text-muted-foreground hover:text-white hover:bg-[#0a0a0a] transition-colors"
-                aria-label="Search"
+                onClick={() => {
+                  setActiveView("admin");
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+                className={`flex items-center gap-1.5 px-3 py-1.5 font-mono text-xs font-bold tracking-widest uppercase transition-all duration-150 cursor-pointer ${
+                  activeView === "admin"
+                    ? "text-[#0a0a0a] bg-neon-yellow font-extrabold"
+                    : "text-neon-yellow hover:text-neon-green"
+                }`}
               >
-                <Search className="w-[18px] h-[18px]" />
+                <Settings size={12} />
+                ADMIN
               </button>
+            )}
+          </nav>
+
+          {/* Right Section */}
+          <div className="flex items-center gap-3">
+            {/* Search Button */}
+            <button
+              onClick={() => setActiveView("search")}
+              className="w-10 h-10 flex items-center justify-center text-muted-foreground hover:text-[#ffffff] bg-[#0c0c0c] border border-border border-2 transition-colors hover:border-[#444] active:scale-95 cursor-pointer animate-fade-in"
+              aria-label="Search"
+            >
+              <Search className="w-[18px] h-[18px]" />
+            </button>
+
+            {/* Profile / Status */}
+            <div className="hidden lg:flex items-center gap-3">
               {user ? (
-                <div
-                  className="flex items-center gap-3 px-3 py-1.5 border border-border border-2 hover:border-[#333333] transition-colors cursor-pointer bg-card brut-card"
-                  onClick={() => setActiveView("profile")}
-                >
-                  <div className="flex flex-col text-right">
-                    <span className="text-[13px] font-medium text-white leading-tight">
-                      {userPlan?.username || user.email?.split("@")[0] || "User"}
-                    </span>
-                    <span className="text-[11px] text-white font-medium">
-                      ฿ {userPlan?.balance?.toLocaleString(undefined, { minimumFractionDigits: 2 }) || "0.00"}
-                    </span>
+                <>
+                  <div 
+                    className="flex items-center gap-3 px-3 py-1.5 border border-border border-2 hover:border-[#444] transition-colors cursor-pointer bg-card brut-card"
+                    onClick={() => setActiveView("profile")}
+                  >
+                    <div className="flex flex-col text-right font-mono">
+                      <span className="text-[11px] font-bold leading-tight text-[#888888]">
+                        {userPlan?.username || user.email?.split("@")[0] || "User"}
+                      </span>
+                      <span className="text-[12px] font-bold text-neon-yellow">
+                        ฿{userPlan?.balance?.toLocaleString(undefined, { minimumFractionDigits: 2 }) || "0.00"}
+                      </span>
+                    </div>
+                    <div className="w-8 h-8 md:w-9 md:h-9 overflow-hidden bg-card border border-border shrink-0">
+                      <img
+                        src={getAvatarUrl(user?.id || userPlan?.username || user?.email?.split("@")[0] || "guest")}
+                        alt="avatar"
+                        className="w-full h-full object-cover"
+                        referrerPolicy="no-referrer"
+                      />
+                    </div>
                   </div>
-                  <div className="w-7 h-7 overflow-hidden bg-card brut-card">
-                    <img
-                      src={getAvatarUrl(user?.id || userPlan?.username || user?.email?.split("@")[0] || "guest")}
-                      alt="avatar"
-                      className="w-full h-full object-cover"
-                      referrerPolicy="no-referrer"
-                    />
-                  </div>
-                </div>
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center gap-1.5 px-3 py-1.5 font-mono text-xs font-bold tracking-widest uppercase transition-all duration-150 text-neon-red hover:text-neon-yellow cursor-pointer"
+                  >
+                    <LogOut size={12} />
+                    LOGOUT
+                  </button>
+                </>
               ) : (
                 <button
                   onClick={() => setActiveView("login")}
-                  className="px-4 py-1.5 bg-black hover:bg-gray-800 text-white text-[13px] font-medium transition-colors"
+                  className="brut-btn text-xs px-4 py-2"
                 >
-                  เข้าสู่ระบบ
+                  LOGIN
                 </button>
               )}
-            </div>
-          </header>
-        </div>
-
-        {/* Global Top Navbar (Mobile) */}
-        <div className="lg:hidden sticky top-0 z-[65] w-full bg-card backdrop-blur-md border-b-2 border-border brut-card">
-          <nav className="w-full flex flex-col">
-            <div className="flex items-center justify-between px-5 h-[64px] relative">
-              <span 
-                className="font-changa text-2xl font-black italic tracking-wider text-white cursor-pointer select-none"
-                onClick={() => setActiveView("home")}
-              >
-                APEXSTORE
+              {/* Online Indicator */}
+              <div className="h-4 w-px bg-border animate-fade-in" />
+              <span className="font-mono text-xs text-muted-foreground whitespace-nowrap animate-fade-in">
+                <span className="text-neon-green animate-blink">▮</span> ONLINE
               </span>
-
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setActiveView("search")}
-                  className="w-10 h-10 flex items-center justify-center text-muted-foreground hover:text-white transition-colors"
-                  aria-label="Search"
-                >
-                  <Search className="w-5 h-5" />
-                </button>
-                <motion.button
-                  whileTap={{ scale: 0.9 }}
-                  onClick={() => setIsMobileMenuOpen(true)}
-                  className="w-10 h-10 flex items-center justify-center text-muted-foreground hover:text-white active:scale-95 transition-all"
-                  aria-label="Menu"
-                >
-                  <Menu className="w-5 h-5" />
-                </motion.button>
-              </div>
             </div>
-          </nav>
-        </div>
 
+            {/* Mobile Burger Trigger */}
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              onClick={() => setIsMobileMenuOpen(true)}
+              className="lg:hidden w-10 h-10 flex items-center justify-center text-muted-foreground hover:text-[#ffffff] bg-[#0c0c0c] border border-border border-2 transition-all active:scale-95 cursor-pointer"
+              aria-label="Menu"
+            >
+              <Menu className="w-5 h-5" />
+            </motion.button>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col min-h-screen min-w-0 relative overflow-x-hidden">
         {/* Mobile Menu Dropdown */}
         <AnimatePresence>
           {isMobileMenuOpen && (
@@ -2491,7 +2582,7 @@ function AppContent() {
                       setIsMobileMenuOpen(false);
                     }}
                   >
-                    APEXSTORE
+                    PROJECT<span className="text-neon-green font-extrabold">X</span>
                   </span>
                 </div>
 

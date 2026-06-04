@@ -62,6 +62,7 @@ export interface Category {
   title: string;
   subtitle: string;
   bannerUrl: string;
+  imageUrl?: string;
 }
 
 export interface Product {

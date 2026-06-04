@@ -100,7 +100,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     <div key={cat.id} 
                         onClick={() => onSelectCategory(cat.id)}
                         className="cursor-pointer group relative overflow-hidden aspect-[21/5] border border-border border-2 hover:border-white/20 transition-all">
-                        {cat.imageUrl && <img src={cat.imageUrl} alt={cat.name} className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-all duration-500" />}
+                        {cat.bannerUrl && <img src={cat.bannerUrl} alt={cat.name} className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-all duration-500" />}
                         <div className="absolute inset-0 flex items-center justify-center font-bold text-white tracking-widest">{cat.name}</div>
                     </div>
                 ))}
