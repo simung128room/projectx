@@ -135,9 +135,9 @@ export const ProxyFreeTool: React.FC = () => {
             <Globe className="w-8 h-8 text-blue-600" />
             Free Proxy List
           </h2>
-          <p className="text-zinc-400 mt-2 flex items-center gap-2">
+          <p className="text-muted-foreground mt-2 flex items-center gap-2">
             อัปเดต Proxy อัตโนมัติจาก{" "}
-            <span className="px-2 py-1 bg-[#050505]/10 rounded-lg text-xs font-mono text-white">
+            <span className="px-2 py-1 bg-card text-xs font-mono text-white brut-card">
               proxifly/free-proxy-list
             </span>
           </p>
@@ -147,7 +147,7 @@ export const ProxyFreeTool: React.FC = () => {
           <button
             onClick={fetchProxies}
             disabled={loading}
-            className="bg-purple-600/10 text-blue-600 border border-[#3B82F6]/20 hover:bg-purple-600/20 px-5 py-3 rounded-2xl font-bold flex items-center gap-2 transition-all disabled:opacity-50"
+            className="bg-primary text-primary-foreground text-blue-600 border border-[#3B82F6]/20 hover:bg-purple-600/20 px-5 py-3 font-bold flex items-center gap-2 transition-all disabled:opacity-50"
           >
             <RefreshCcw
               className={`w-5 h-5 ${loading ? "animate-spin" : ""}`}
@@ -186,19 +186,19 @@ export const ProxyFreeTool: React.FC = () => {
         ].map((stat, idx) => (
           <div
             key={idx}
-            className={`${stat.bg} border border-white/10 p-6 rounded-xl relative overflow-hidden group hover:border-white/10 transition-colors`}
+            className={`${stat.bg} border border-border border-2 p-6 relative overflow-hidden group hover:border-white/10 transition-colors`}
           >
-            <p className="text-xs font-bold text-zinc-500 mb-2 tracking-widest">
+            <p className="text-xs font-bold text-muted-foreground mb-2 tracking-widest">
               {stat.label}
             </p>
             <div className="flex items-baseline gap-2">
               <span className={`text-4xl font-black ${stat.color}`}>
                 {loading ? "..." : stat.count.toLocaleString()}
               </span>
-              <span className="text-sm font-medium text-zinc-500">IPs</span>
+              <span className="text-sm font-medium text-muted-foreground">IPs</span>
             </div>
             {idx === 0 && (
-              <div className="mt-4 text-xs font-medium text-blue-600 flex items-center gap-1.5 bg-blue-600/10 w-max px-2.5 py-1 rounded-full border border-emerald-500/20">
+              <div className="mt-4 text-xs font-medium text-blue-600 flex items-center gap-1.5 bg-primary text-primary-foreground w-max px-2.5 py-1 border border-emerald-500/20">
                 <CheckCircle className="w-3.5 h-3.5" />
                 อัปเดต: {stats.lastUpdated}
               </div>
@@ -207,8 +207,8 @@ export const ProxyFreeTool: React.FC = () => {
         ))}
       </div>
 
-      <div className="bg-[#121212] border border-white/10 rounded-xl overflow-hidden flex flex-col">
-        <div className="border-b border-white/10 bg-[#050505]/50">
+      <div className="bg-card border border-border border-2 overflow-hidden flex flex-col brut-card">
+        <div className="border-b border-border border-2 bg-card brut-card">
           <div className="flex overflow-x-auto hide-scrollbar px-2 pt-2">
             {[
               { id: "all", label: "ทั้งหมด (All)" },
@@ -219,11 +219,7 @@ export const ProxyFreeTool: React.FC = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`flex-shrink-0 px-6 py-4 text-sm font-bold border-b-2 transition-all ${
-                  activeTab === tab.id
-                    ? "border-[#3B82F6] text-blue-600"
-                    : "border-transparent text-zinc-500 hover:text-zinc-300 hover:bg-[#121212]"
-                } rounded-t-xl`}
+                className={`flex-shrink-0 px-6 py-4 text-sm font-bold border-b-2 transition-all ${ activeTab === tab.id ? "border-[#3B82F6] text-blue-600" : "border-transparent text-muted-foreground hover:text-zinc-300 hover:bg-[#121212]" }`}
               >
                 {tab.label}
               </button>
@@ -232,9 +228,9 @@ export const ProxyFreeTool: React.FC = () => {
         </div>
 
         <div className="p-4 sm:p-6 flex-1 flex flex-col gap-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-black/40 backdrop-blur-sm p-4 rounded-2xl border border-white/10">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-black/40 backdrop-blur-sm p-4 border border-border border-2">
             <div className="flex items-center gap-3">
-              <Shield className="w-5 h-5 text-zinc-400" />
+              <Shield className="w-5 h-5 text-muted-foreground" />
               <span className="text-sm font-bold text-white">
                 พร้อมใช้งาน:{" "}
                 <span className="text-blue-600">
@@ -247,28 +243,28 @@ export const ProxyFreeTool: React.FC = () => {
               <button
                 onClick={downloadFile}
                 disabled={currentList.length === 0}
-                className="flex-1 sm:flex-none justify-center bg-[#121212] hover:bg-[#1e1e1e] text-white px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all disabled:opacity-50"
+                className="flex-1 sm:flex-none justify-center bg-card hover:bg-[#1e1e1e] text-white px-4 py-2.5 text-xs font-bold flex items-center gap-2 transition-all disabled:opacity-50 brut-card"
               >
                 <Download className="w-4 h-4" /> บันทึกไฟล์ (.txt)
               </button>
               <button
                 onClick={copyToClipboard}
                 disabled={currentList.length === 0}
-                className="flex-1 sm:flex-none justify-center bg-purple-600 hover:bg-[#166BCC] text-white px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all disabled:opacity-50 shadow-lg shadow-lg/25"
+                className="flex-1 sm:flex-none justify-center bg-primary text-primary-foreground hover:bg-[#166BCC] text-white px-4 py-2.5 text-xs font-bold flex items-center gap-2 transition-all disabled:opacity-50"
               >
                 <Copy className="w-4 h-4" /> คัดลอกทั้งหมด
               </button>
             </div>
           </div>
 
-          <div className="flex-1 min-h-[400px] h-[500px] bg-[#050505] border border-white/10 rounded-2xl p-4 overflow-hidden relative">
+          <div className="flex-1 min-h-[400px] h-[500px] bg-card border border-border border-2 p-4 overflow-hidden relative brut-card">
             {loading ? (
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-zinc-500 bg-[#050505]/50 z-10">
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-muted-foreground bg-card z-10 brut-card">
                 <RefreshCcw className="w-10 h-10 animate-spin mb-4 text-blue-600" />
                 <p className="font-bold tracking-wide">กำลังรวบรวม IP...</p>
               </div>
             ) : currentList.length === 0 ? (
-              <div className="absolute inset-0 flex items-center justify-center text-zinc-500 font-medium">
+              <div className="absolute inset-0 flex items-center justify-center text-muted-foreground font-medium">
                 ไม่มีโปรโตคอลนี้ในขณะนี้
               </div>
             ) : null}
@@ -277,7 +273,7 @@ export const ProxyFreeTool: React.FC = () => {
               readOnly
               value={currentList.join("\n")}
               spellCheck={false}
-              className="absolute inset-0 w-full h-full p-6 bg-transparent text-[13px] leading-[1.8] font-mono text-zinc-300 focus:outline-none resize-none scrollbar-thin scrollbar-thumb-zinc-700"
+              className="absolute inset-0 w-full h-full p-6 bg-transparent text-[13px] leading-[1.8] font-mono text-muted-foreground focus:outline-none resize-none scrollbar-thin scrollbar-thumb-zinc-700"
             />
           </div>
         </div>

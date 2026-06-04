@@ -44,29 +44,29 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
         <div className="flex items-center gap-4">
           <button
             onClick={onBack}
-            className="p-3 bg-[#0B0D0F] hover:bg-[#121212] border border-white/10 rounded-full transition-colors group shadow-sm shrink-0"
+            className="p-3 bg-card hover:bg-[#121212] border border-border border-2 transition-colors group shrink-0 brut-card"
           >
-            <ArrowLeft className="w-5 h-5 text-zinc-400 group-hover:text-white" />
+            <ArrowLeft className="w-5 h-5 text-muted-foreground group-hover:text-white" />
           </button>
           <div>
             <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight flex items-center gap-3">
               {category === "all" ? (
                 <div className="flex items-center gap-3 uppercase">
-                  <div className="w-12 h-12 bg-purple-600 rounded-2xl flex items-center justify-center shadow-lg shadow-lg/20">
+                  <div className="w-12 h-12 bg-primary text-primary-foreground flex items-center justify-center">
                     <Package className="w-7 h-7 text-white" />
                   </div>
                   สินค้าทั้งหมด
                 </div>
               ) : (
                 <div className="flex items-center gap-3 uppercase">
-                  <div className="w-12 h-12 bg-[#0a0a0a] rounded-2xl flex items-center justify-center shadow-lg">
+                  <div className="w-12 h-12 bg-card flex items-center justify-center brut-card">
                     <ShoppingCart className="w-7 h-7 text-white" />
                   </div>
                   {categoryInfo?.title || category}
                 </div>
               )}
             </h1>
-            <p className="text-sm font-medium text-zinc-500 mt-3 flex items-center gap-2">
+            <p className="text-sm font-medium text-muted-foreground mt-3 flex items-center gap-2">
               <Star className="w-4 h-4 text-amber-500" />{" "}
               {categoryInfo?.subtitle ||
                 `พบสินค้าทั้งหมด ${filteredProducts.length} รายการ`}
@@ -76,14 +76,14 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
       </div>
 
       {!filteredProducts || filteredProducts.length === 0 ? (
-        <div className="border-2 border-dashed border-white/10 bg-[#0B0D0F] rounded-xl p-16 text-center shadow-sm">
+        <div className="border-2 border-dashed border-border bg-card p-16 text-center brut-card">
           <div className="animate-pulse mb-6 flex justify-center">
-            <Package className="w-16 h-16 text-zinc-200" />
+            <Package className="w-16 h-16 text-muted-foreground" />
           </div>
-          <h3 className="text-xl font-bold text-zinc-400">
+          <h3 className="text-xl font-bold text-muted-foreground">
             ยังไม่มีสินค้าในขณะนี้
           </h3>
-          <p className="text-zinc-400 text-sm mt-2 font-medium">
+          <p className="text-muted-foreground text-sm mt-2 font-medium">
             โปรดรอการอัพเดทจากผู้ดูแลระบบ
           </p>
         </div>
@@ -96,11 +96,11 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.2, delay: Math.min(i, 10) * 0.03 }}
-              className="bg-[#0B0D0F] border border-white/10 rounded-2xl overflow-hidden hover:shadow-xl transition-all h-full flex flex-col group"
+              className="bg-card border border-border border-2 overflow-hidden transition-all h-full flex flex-col group brut-card"
             >
-              <div className="aspect-square bg-[#0a0a0a] relative overflow-hidden">
+              <div className="aspect-square bg-card relative overflow-hidden brut-card">
                 {product.tag && (
-                  <div className="absolute top-2 right-2 bg-gradient-to-r from-red-500 to-orange-500 text-white font-black text-[10px] px-2 py-0.5 rounded-full z-10 shadow-lg border border-white/20 uppercase tracking-widest">
+                  <div className="absolute top-2 right-2 bg-gradient-to-r from-red-500 to-orange-500 text-white font-black text-[10px] px-2 py-0.5 z-10 border border-border border-2 uppercase tracking-widest">
                     {product.tag}
                   </div>
                 )}
@@ -131,7 +131,7 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
                 </div>
                 {product.stock <= 0 && (
                   <div className="absolute inset-0 bg-black/40 backdrop-blur-sm backdrop- flex items-center justify-center z-10 transition-opacity opacity-0 group-hover:opacity-100">
-                    <span className="bg-purple-600 text-white font-bold rounded-full px-4 py-1.5 text-xs">
+                    <span className="bg-primary text-primary-foreground text-white font-bold px-4 py-1.5 text-xs">
                       สินค้าหมด
                     </span>
                   </div>
@@ -146,7 +146,7 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
                   {product.originalPrice &&
                     product.price &&
                     product.originalPrice > product.price && (
-                      <span className="text-[10px] text-zinc-400 line-through">
+                      <span className="text-[10px] text-muted-foreground line-through">
                         ฿{(product.originalPrice || 0).toLocaleString()}
                       </span>
                     )}
@@ -156,21 +156,21 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
                 </div>
 
                 {product.stock <= 0 ? (
-                  <button className="w-full mt-3 bg-purple-600/20 text-blue-600 rounded-xl py-2.5 text-xs font-bold flex items-center justify-center gap-1.5 cursor-default">
+                  <button className="w-full mt-3 bg-primary text-primary-foreground text-blue-600 py-2.5 text-xs font-bold flex items-center justify-center gap-1.5 cursor-default">
                     <Package className="w-3.5 h-3.5" /> สินค้าหมด
                   </button>
                 ) : (
                   <button
                     onClick={() => onProductClick(product.id)}
-                    className="w-full mt-3 bg-[#0a0a0a] text-white hover:bg-[#1e1e1e] rounded-xl py-2.5 text-xs font-bold transition-colors active:scale-95 flex items-center justify-center gap-2"
+                    className="w-full mt-3 bg-card text-white hover:bg-[#1e1e1e] py-2.5 text-xs font-bold transition-colors active:scale-95 flex items-center justify-center gap-2 brut-card"
                   >
                     <ShoppingCart className="w-3.5 h-3.5" /> สั่งซื้อสินค้า
                   </button>
                 )}
 
-                <div className="mt-3 pt-3 border-t border-zinc-50 flex items-center justify-center gap-1.5 text-[10px] text-zinc-400 font-bold uppercase tracking-wider">
+                <div className="mt-3 pt-3 border-t border-zinc-50 flex items-center justify-center gap-1.5 text-[10px] text-muted-foreground font-bold uppercase tracking-wider">
                   <span
-                    className={`w-1.5 h-1.5 rounded-full ${product.stock > 0 ? "bg-emerald-400 animate-pulse" : "bg-zinc-200"}`}
+                    className={`w-1.5 h-1.5 ${product.stock > 0 ? "bg-emerald-400 animate-pulse" : "bg-zinc-200"}`}
                   ></span>
                   คงเหลือ{" "}
                   {product.stock >= 999999
@@ -186,7 +186,7 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
             <div className="mt-12 flex justify-center">
               <button
                 onClick={() => setRenderLimit(prev => prev + 20)}
-                className="px-8 py-3 bg-[#121212] border border-white/10 hover:border-white/20 text-white font-bold rounded-2xl transition-all shadow-lg active:scale-95"
+                className="px-8 py-3 bg-card border border-border border-2 hover:border-white/20 text-white font-bold transition-all active:scale-95 brut-card"
               >
                 โหลดเพิ่มเติม ({filteredProducts.length - visibleProducts.length} รายการ)
               </button>

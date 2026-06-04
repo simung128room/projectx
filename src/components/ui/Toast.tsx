@@ -33,18 +33,18 @@ const Toast: React.FC<{ toast: ToastType; onClose: (id: string) => void }> = ({ 
       initial={{ opacity: 0, x: 20, scale: 0.95 }}
       animate={{ opacity: 1, x: 0, scale: 1 }}
       exit={{ opacity: 0, x: 20, scale: 0.95 }}
-      className={`relative flex items-center min-w-[280px] max-w-sm gap-4 p-4 pr-10 rounded-2xl border bg-opacity-95  shadow-xl transition-all ${bgColors[toast.type]}`}
+      className={`relative flex items-center min-w-[280px] max-w-sm gap-4 p-4 pr-10 border bg-opacity-95 transition-all ${bgColors[toast.type]}`}
     >
       <div className="shrink-0">
         {icons[toast.type]}
       </div>
       <div className="flex flex-col">
         {toast.title && <span className="text-[13px] font-black text-white leading-tight mb-0.5 uppercase tracking-wide">{toast.title}</span>}
-        <p className="text-zinc-400 text-xs sm:text-[13px] font-medium leading-relaxed">{toast.message}</p>
+        <p className="text-muted-foreground text-xs sm:text-[13px] font-medium leading-relaxed">{toast.message}</p>
       </div>
       <button 
         onClick={() => onClose(toast.id)}
-        className="absolute right-3 top-3 text-zinc-500 hover:text-white transition-colors"
+        className="absolute right-3 top-3 text-muted-foreground hover:text-white transition-colors"
       >
         <X className="w-4 h-4" />
       </button>

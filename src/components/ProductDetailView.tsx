@@ -29,19 +29,19 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
     <div className="w-full animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-5xl mx-auto">
       {/* Breadcrumb Navigation */}
       <div className="flex items-center gap-2 mb-6 text-sm">
-        <button onClick={onBack} className="text-zinc-500 hover:text-blue-600 transition-colors flex items-center gap-1 font-medium">
+        <button onClick={onBack} className="text-muted-foreground hover:text-blue-600 transition-colors flex items-center gap-1 font-medium">
           <ArrowLeft className="w-4 h-4" />
           กลับสู่หน้าหลัก
         </button>
-        <ChevronRight className="w-4 h-4 text-zinc-300" />
+        <ChevronRight className="w-4 h-4 text-muted-foreground" />
         <span className="text-white font-bold truncate">{product.name}</span>
       </div>
 
-      <div className="bg-[#0B0D0F] rounded-xl border border-white/10 overflow-hidden shadow-sm flex flex-col md:flex-row">
+      <div className="bg-card border border-border border-2 overflow-hidden flex flex-col md:flex-row brut-card">
         {/* Left Side: Image */}
-        <div className="w-full md:w-5/12 lg:w-1/2 p-6 md:p-8 flex items-center justify-center bg-[#121212]/50">
+        <div className="w-full md:w-5/12 lg:w-1/2 p-6 md:p-8 flex items-center justify-center bg-card brut-card">
           <motion.div
-            className="w-full aspect-square relative rounded-2xl overflow-hidden group shadow-lg"
+            className="w-full aspect-square relative overflow-hidden group"
             whileHover={{ scale: 1.02 }}
             transition={{ type: "spring", stiffness: 300 }}
           >
@@ -54,7 +54,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
               }}
             />
             {discount && (
-              <div className="absolute top-4 left-4 z-20 bg-purple-600 text-white font-black px-3 py-1.5 rounded-xl shadow-lg border border-[#2563EB]/50 text-sm">
+              <div className="absolute top-4 left-4 z-20 bg-primary text-primary-foreground text-white font-black px-3 py-1.5 border border-[#2563EB]/50 text-sm">
                 -{discount}%
               </div>
             )}
@@ -64,15 +64,15 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
         {/* Right Side: Details & Actions */}
         <div className="w-full md:w-7/12 lg:w-1/2 p-6 md:p-8 flex flex-col">
           <div className="flex items-center gap-2 mb-3">
-             <span className="px-3 py-1 bg-purple-600/10 text-blue-600 font-bold text-xs rounded-lg border border-white/10 flex items-center gap-1.5 uppercase tracking-widest">
+             <span className="px-3 py-1 bg-primary text-primary-foreground text-blue-600 font-bold text-xs border border-border border-2 flex items-center gap-1.5 uppercase tracking-widest">
                 <Box className="w-3 h-3" /> Product
              </span>
              {product.stock > 0 ? (
-               <span className="px-3 py-1 bg-blue-600/10 text-emerald-600 font-bold text-xs rounded-lg border border-emerald-100 flex items-center gap-1.5 uppercase tracking-widest">
+               <span className="px-3 py-1 bg-primary text-primary-foreground text-emerald-600 font-bold text-xs border border-emerald-100 flex items-center gap-1.5 uppercase tracking-widest">
                  <CheckCircle2 className="w-3.5 h-3.5" /> INSTOCK
                </span>
              ) : (
-               <span className="px-3 py-1 bg-[#121212] text-zinc-400 font-bold text-xs rounded-lg border border-white/10 flex items-center gap-1.5 uppercase tracking-widest">
+               <span className="px-3 py-1 bg-card text-muted-foreground font-bold text-xs border border-border border-2 flex items-center gap-1.5 uppercase tracking-widest brut-card">
                  <Box className="w-3.5 h-3.5" /> OUT OF STOCK
                </span>
              )}
@@ -83,21 +83,21 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
           <div className="flex items-end gap-3 mb-8">
             <span className="text-4xl md:text-5xl font-black text-blue-600 tracking-tight">฿{(product.price || 0).toLocaleString()}</span>
             {product.originalPrice && product.price && product.originalPrice > product.price && (
-              <span className="text-xl md:text-2xl font-bold text-zinc-400 line-through mb-1">
+              <span className="text-xl md:text-2xl font-bold text-muted-foreground line-through mb-1">
                 ฿{(product.originalPrice || 0).toLocaleString()}
               </span>
             )}
           </div>
 
           <div className="grid grid-cols-2 gap-4 mb-8">
-            <div className="bg-[#121212] border border-white/10 rounded-2xl p-4">
-               <div className="text-zinc-500 text-xs font-bold mb-1 flex items-center gap-1"><Box className="w-3.5 h-3.5"/> สถานะสต๊อก</div>
+            <div className="bg-card border border-border border-2 p-4 brut-card">
+               <div className="text-muted-foreground text-xs font-bold mb-1 flex items-center gap-1"><Box className="w-3.5 h-3.5"/> สถานะสต๊อก</div>
                <div className={`text-xl font-black ${product.stock > 0 ? 'text-white' : 'text-[#2563EB]'}`}>
                  {product.stock >= 999999 ? '∞' : `${product.stock} ชิ้น`}
                </div>
             </div>
-            <div className="bg-[#121212] border border-white/10 rounded-2xl p-4">
-               <div className="text-zinc-500 text-xs font-bold mb-1 flex items-center gap-1"><ShoppingCart className="w-3.5 h-3.5"/> สั่งซื้อไปแล้ว</div>
+            <div className="bg-card border border-border border-2 p-4 brut-card">
+               <div className="text-muted-foreground text-xs font-bold mb-1 flex items-center gap-1"><ShoppingCart className="w-3.5 h-3.5"/> สั่งซื้อไปแล้ว</div>
                <div className="text-xl font-black text-white">{product.soldCount || 0} ครั้ง</div>
             </div>
           </div>
@@ -116,7 +116,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
                       addToast({ title: "คัดลอกลิงก์แล้ว", message: "แชร์ลิงก์ให้เพื่อนได้เลย!", type: "success" });
                     });
                   }}
-                  className="text-[10px] font-bold text-zinc-500 hover:text-blue-500 transition-colors flex items-center gap-1.5 bg-[#0B0D0F] border border-white/10 px-3 py-1.5 rounded-xl shadow-sm active:scale-95"
+                  className="text-[10px] font-bold text-muted-foreground hover:text-blue-500 transition-colors flex items-center gap-1.5 bg-card border border-border border-2 px-3 py-1.5 active:scale-95 brut-card"
                 >
                   <Share2 className="w-3.5 h-3.5" /> แชร์สินค้า
                 </button>
@@ -131,13 +131,13 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
                     link.click();
                     URL.revokeObjectURL(url);
                   }}
-                  className="text-[10px] font-bold text-zinc-500 hover:text-blue-600 transition-colors flex items-center gap-1.5 bg-[#0B0D0F] border border-white/10 px-3 py-1.5 rounded-xl shadow-sm active:scale-95"
+                  className="text-[10px] font-bold text-muted-foreground hover:text-blue-600 transition-colors flex items-center gap-1.5 bg-card border border-border border-2 px-3 py-1.5 active:scale-95 brut-card"
                 >
                   <Download className="w-3.5 h-3.5" /> DOWNLOAD .TXT
                 </button>
               </div>
             </div>
-            <div className="text-zinc-400 text-sm leading-relaxed whitespace-pre-wrap bg-[#121212]/50 p-5 rounded-2xl border border-white/10 min-h-[120px]">
+            <div className="text-muted-foreground text-sm leading-relaxed whitespace-pre-wrap bg-card p-5 border border-border border-2 min-h-[120px] brut-card">
               {product.description || "ไม่มีรายละเอียดสินค้าระบุไว้"}
             </div>
           </div>
@@ -150,7 +150,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
                   <div className="flex items-center gap-4">
                     <button
                       onClick={() => setPurchaseQuantity(Math.max(1, purchaseQuantity - 1))}
-                      className="w-12 h-12 rounded-xl bg-[#121212] flex items-center justify-center font-black text-xl hover:bg-zinc-200 transition-colors active:scale-95"
+                      className="w-12 h-12 bg-card flex items-center justify-center font-black text-xl hover:bg-zinc-200 transition-colors active:scale-95 brut-card"
                       disabled={purchaseQuantity <= 1}
                     >
                       -
@@ -164,13 +164,13 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
                         const val = parseInt(e.target.value);
                         if (!isNaN(val)) setPurchaseQuantity(Math.min(product.stock >= 999999 ? 999 : product.stock, Math.max(1, val)));
                       }}
-                      className="flex-1 h-12 bg-[#0B0D0F] border-2 border-white/10 rounded-xl text-center font-black text-xl outline-none focus:border-[#2563EB] transition-colors appearance-none m-0"
+                      className="flex-1 h-12 bg-card border-2 border-border text-center font-black text-xl outline-none focus:border-[#2563EB] transition-colors appearance-none m-0 brut-card"
                       style={{ WebkitAppearance: 'none', MozAppearance: 'textfield' }}
                       disabled={product.stock === 0}
                     />
                     <button
                       onClick={() => setPurchaseQuantity(Math.min(product.stock >= 999999 ? 999 : product.stock, purchaseQuantity + 1))}
-                      className="w-12 h-12 rounded-xl bg-[#121212] flex items-center justify-center font-black text-xl hover:bg-zinc-200 transition-colors active:scale-95"
+                      className="w-12 h-12 bg-card flex items-center justify-center font-black text-xl hover:bg-zinc-200 transition-colors active:scale-95 brut-card"
                       disabled={product.stock === 0 || purchaseQuantity >= product.stock}
                     >
                       +
@@ -199,11 +199,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
                      setShowConfirmPurchase(true);
                    }}
                    disabled={product.stock <= 0}
-                   className={`w-full py-4 rounded-xl text-base font-black transition-all flex items-center justify-center gap-2 shadow-lg ${
-                     product.stock > 0 
-                     ? 'bg-purple-600 hover:bg-[#1D4ED8] text-white shadow-lg' 
-                     : 'bg-zinc-200 text-zinc-500 cursor-not-allowed shadow-none'
-                   }`}
+                   className={`w-full py-4 text-base font-black transition-all flex items-center justify-center gap-2 ${ product.stock > 0 ? 'bg-purple-600 hover:bg-[#1D4ED8] text-white' : 'bg-zinc-200 text-muted-foreground cursor-not-allowed' }`}
                 >
                   <ShoppingCart className="w-5 h-5" />
                   {product.stock > 0 ? 'สั่งชื้อเลย' : 'สินค้าหมดชั่วคราว'}
@@ -213,10 +209,10 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
               <motion.div 
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-purple-600/10 border-2 border-[#3B82F6]/30 rounded-2xl p-5"
+                className="bg-primary text-primary-foreground border-2 border-[#3B82F6]/30 p-5"
               >
                 <div className="flex items-start gap-4 mb-4">
-                   <div className="w-10 h-10 rounded-full flex items-center justify-center bg-purple-600/20 text-blue-600 shrink-0">
+                   <div className="w-10 h-10 flex items-center justify-center bg-primary text-primary-foreground text-blue-600 shrink-0">
                      <AlertCircle className="w-5 h-5" />
                    </div>
                    <div>
@@ -230,7 +226,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
                 <div className="flex items-center gap-3 w-full">
                    <button 
                      onClick={() => setShowConfirmPurchase(false)}
-                     className="flex-1 py-3 bg-[#0B0D0F] border border-[#3B82F6]/30 hover:bg-purple-600/10 text-[#1D4ED8] font-bold rounded-xl transition-colors text-sm active:scale-95"
+                     className="flex-1 py-3 bg-card border border-[#3B82F6]/30 hover:bg-purple-600/10 text-[#1D4ED8] font-bold transition-colors text-sm active:scale-95 brut-card"
                    >
                      ยกเลิก
                    </button>
@@ -244,10 +240,10 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
                           setShowConfirmPurchase(false);
                         }
                       }}
-                     className="flex-1 py-3 bg-purple-600 hover:bg-[#1D4ED8] text-white font-bold rounded-xl transition-colors text-sm shadow-md shadow-lg/20 disabled:opacity-50 flex items-center justify-center gap-2 active:scale-95"
+                     className="flex-1 py-3 bg-primary text-primary-foreground hover:bg-[#1D4ED8] text-white font-bold transition-colors text-sm disabled:opacity-50 flex items-center justify-center gap-2 active:scale-95"
                    >
                      {showConfirmPurchase === 'loading' as any ? (
-                       <><div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div> กำลังทำรายการ...</>
+                       <><div className="w-4 h-4 border-2 border-border border-t-white animate-spin"></div> กำลังทำรายการ...</>
                      ) : 'ยืนยันการชำระเงิน'}
                    </button>
                 </div>

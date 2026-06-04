@@ -144,33 +144,33 @@ export const ToolsView: React.FC<ToolsViewProps> = ({ setActiveView }) => {
       <div className="font-sans px-4 pb-20 w-full max-w-7xl mx-auto mt-6 lg:mt-10">
         
         {/* Header Section: Hero Style */}
-        <div className="relative mb-14 rounded-[32px] overflow-hidden bg-gradient-to-br from-[#0B0D11] to-[#12161D] border border-white/10 p-8 md:p-12 lg:p-16 isolate">
+        <div className="relative mb-14 overflow-hidden bg-gradient-to-br from-[#0B0D11] to-[#12161D] border border-border border-2 p-8 md:p-12 lg:p-16 isolate">
           {/* Decorative Blooms */}
-          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-500/10 blur-[120px] rounded-full pointer-events-none -z-10 translate-x-1/3 -translate-y-1/3"></div>
-          <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-indigo-500/10 blur-[100px] rounded-full pointer-events-none -z-10 -translate-x-1/2 translate-y-1/2"></div>
+          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary text-primary-foreground blur-[120px] pointer-events-none -z-10 translate-x-1/3 -translate-y-1/3"></div>
+          <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-indigo-500/10 blur-[100px] pointer-events-none -z-10 -translate-x-1/2 translate-y-1/2"></div>
           
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 z-10">
             <div className="max-w-2xl">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-[#050505]/5 border border-white/10 rounded-full text-blue-400 text-xs font-black uppercase tracking-widest mb-6 backdrop-blur-sm">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-card border border-border border-2 text-blue-400 text-xs font-black uppercase tracking-widest mb-6 backdrop-blur-sm brut-card">
                 <Sparkles className="w-4 h-4 text-blue-400" /> ชุดเครื่องมือ APEX
               </div>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-tight mb-6 leading-tight">
                 ขับเคลื่อน<br/>ด้วยเครื่องมือ<span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-500">คุณภาพ</span>
               </h1>
-              <p className="text-zinc-400 text-base md:text-lg leading-relaxed max-w-xl">
+              <p className="text-muted-foreground text-base md:text-lg leading-relaxed max-w-xl">
                 ลดขั้นตอนที่น่าเบื่อด้วยระบบอัตโนมัติ ไม่ว่าจะเป็นโปรแกรมดึงของขวัญ หรือสร้างเว็บไซต์ส่วนตัว ทั้งหมดนี้เปิดให้ใช้งานฟรีและพรีเมียม
               </p>
             </div>
 
             <div className="w-full lg:w-80 space-y-4 shrink-0">
               <div className="relative">
-                <Search className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" />
+                <Search className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 <input 
                   type="text" 
                   placeholder="ค้นหาเครื่องมือ..." 
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-black/40 backdrop-blur-sm backdrop-blur-md border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all font-medium placeholder:text-zinc-500 shadow-inner"
+                  className="w-full bg-black/40 backdrop-blur-sm backdrop-blur-md border border-border border-2 py-4 pl-12 pr-4 text-white focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all font-medium placeholder:text-zinc-500"
                 />
               </div>
             </div>
@@ -179,7 +179,7 @@ export const ToolsView: React.FC<ToolsViewProps> = ({ setActiveView }) => {
 
         {/* Filters / Categories */}
         <div className="flex flex-wrap items-center gap-2 mb-8">
-          <div className="hidden md:flex items-center gap-2 mr-4 text-zinc-500">
+          <div className="hidden md:flex items-center gap-2 mr-4 text-muted-foreground">
             <Filter className="w-4 h-4" />
             <span className="text-xs font-bold uppercase tracking-widest">หมวดหมู่</span>
           </div>
@@ -187,11 +187,7 @@ export const ToolsView: React.FC<ToolsViewProps> = ({ setActiveView }) => {
             <button
               key={cat.id}
               onClick={() => setActiveCategory(cat.id)}
-              className={`px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-300 ${
-                activeCategory === cat.id 
-                  ? 'bg-purple-600 text-white shadow-[0_0_20px_-5px_rgba(37,99,235,0.4)] border border-blue-500' 
-                  : 'bg-[#121212] text-zinc-400 border border-white/10 hover:bg-[#121212] hover:text-white'
-              }`}
+              className={`px-5 py-2.5 text-sm font-bold transition-all duration-300 ${ activeCategory === cat.id ? 'bg-purple-600 text-white border border-blue-500' : 'bg-[#121212] text-muted-foreground border-border border-2 hover:bg-[#121212] hover:text-white' }`}
             >
               {cat.label}
             </button>
@@ -203,13 +199,13 @@ export const ToolsView: React.FC<ToolsViewProps> = ({ setActiveView }) => {
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex flex-col items-center justify-center py-24 text-center border-2 border-dashed border-white/10 rounded-3xl bg-[#0c1015]"
+            className="flex flex-col items-center justify-center py-24 text-center border-2 border-dashed border-border bg-card brut-card"
           >
-            <div className="w-20 h-20 bg-[#050505]/5 rounded-full flex items-center justify-center mb-6">
-              <Search className="w-8 h-8 text-zinc-500" />
+            <div className="w-20 h-20 bg-card flex items-center justify-center mb-6 brut-card">
+              <Search className="w-8 h-8 text-muted-foreground" />
             </div>
             <h3 className="text-xl font-bold text-white mb-2">ไม่พบเครื่องมือที่ต้องการ</h3>
-            <p className="text-zinc-500 text-sm">ลองปรับการค้นหา หรือเลือกหมวดหมู่อื่นดูอีกครั้ง</p>
+            <p className="text-muted-foreground text-sm">ลองปรับการค้นหา หรือเลือกหมวดหมู่อื่นดูอีกครั้ง</p>
           </motion.div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -229,32 +225,26 @@ export const ToolsView: React.FC<ToolsViewProps> = ({ setActiveView }) => {
                       setActiveView(tool.id);
                     }
                   }}
-                  className={`group cursor-pointer bg-[#0c1015] border border-white/10 hover:border-white/10 rounded-[32px] p-7 transition-all duration-500 relative overflow-hidden flex flex-col h-full ${tool.glowColor} hover:-translate-y-1.5`}
+                  className={`group cursor-pointer bg-card border border-border border-2 hover:border-white/10 p-7 transition-all duration-500 relative overflow-hidden flex flex-col h-full ${tool.glowColor} hover:-translate-y-1.5 brut-card`}
                 >
                   {/* Subtle Background Accent inside card */}
-                  <div className={`absolute -right-16 -top-16 w-48 h-48 bg-gradient-to-br ${tool.gradient} opacity-0 group-hover:opacity-15 blur-[60px] rounded-full transition-opacity duration-700 pointer-events-none`}></div>
+                  <div className={`absolute -right-16 -top-16 w-48 h-48 bg-gradient-to-br ${tool.gradient} opacity-0 group-hover:opacity-15 blur-[60px] transition-opacity duration-700 pointer-events-none`}></div>
 
                   {/* Header Row: Icon & Badges */}
                   <div className="flex justify-between items-start mb-6 relative z-10 w-full">
-                    <div className={`w-14 h-14 rounded-2xl bg-[#12161D] border border-white/10 flex items-center justify-center shadow-inner ${tool.iconColor} group-hover:scale-110 transition-transform duration-500 ease-out`}>
+                    <div className={`w-14 h-14 bg-card border border-border border-2 flex items-center justify-center ${tool.iconColor} group-hover:scale-110 transition-transform duration-500 ease-out brut-card`}>
                       <tool.icon className="w-7 h-7" strokeWidth={1.5} />
                     </div>
 
                     <div className="flex flex-col items-end gap-2 shrink-0">
                        {tool.premium && (
-                          <div className="flex items-center gap-1.5 bg-amber-500/10 text-amber-500 border border-amber-500/20 px-3 py-1.5 rounded-full backdrop-blur-md">
+                          <div className="flex items-center gap-1.5 bg-amber-500/10 text-amber-500 border border-amber-500/20 px-3 py-1.5 backdrop-blur-md">
                             <Star className="w-3.5 h-3.5 fill-amber-500" />
                             <span className="text-[10px] font-black uppercase tracking-wider">VIP</span>
                           </div>
                        )}
                        {tool.tag && (
-                          <div className={`px-3 py-1.5 rounded-full backdrop-blur-md text-[10px] font-black uppercase tracking-wider ${
-                            tool.tag === 'HOT' 
-                              ? 'bg-rose-500/10 text-rose-500 border border-rose-500/20' 
-                              : tool.tag === 'FREE' 
-                              ? 'bg-blue-600/10 text-blue-600 border border-emerald-500/20'
-                              : 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
-                          }`}>
+                          <div className={`px-3 py-1.5 backdrop-blur-md text-[10px] font-black uppercase tracking-wider ${ tool.tag === 'HOT' ? 'bg-rose-500/10 text-rose-500 border border-rose-500/20' : tool.tag === 'FREE' ? 'bg-blue-600/10 text-blue-600 border-emerald-500/20' : 'bg-blue-500/10 text-blue-400 border-blue-500/20' }`}>
                             {tool.tag}
                           </div>
                        )}
@@ -266,16 +256,16 @@ export const ToolsView: React.FC<ToolsViewProps> = ({ setActiveView }) => {
                     <h3 className="text-xl font-black text-white mb-3 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-purple-600 group-hover:to-blue-600 transition-all">
                       {tool.name}
                     </h3>
-                    <p className="text-zinc-500 text-sm leading-relaxed mb-8 font-medium">
+                    <p className="text-muted-foreground text-sm leading-relaxed mb-8 font-medium">
                       {tool.desc}
                     </p>
 
                     {/* Bottom Action */}
-                    <div className="mt-auto flex items-center justify-between pt-5 border-t border-white/10">
+                    <div className="mt-auto flex items-center justify-between pt-5 border-t border-border border-2">
                        <span className={`text-xs font-bold uppercase tracking-widest transition-colors ${tool.iconColor} opacity-70 group-hover:opacity-100 flex items-center gap-2`}>
                           เข้าใช้งานระบบ
                        </span>
-                       <div className="w-10 h-10 rounded-full bg-[#12161D] flex items-center justify-center text-zinc-400 group-hover:text-white group-hover:bg-white/10 transition-all duration-300 shrink-0">
+                       <div className="w-10 h-10 bg-card flex items-center justify-center text-muted-foreground group-hover:text-white group-hover:bg-white/10 transition-all duration-300 shrink-0 brut-card">
                           {(tool as any).link ? (
                             <ExternalLink className="w-4 h-4 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 transition-transform" />
                           ) : (
@@ -292,11 +282,11 @@ export const ToolsView: React.FC<ToolsViewProps> = ({ setActiveView }) => {
 
         {/* Informational Footer */}
         <div className="mt-16 flex justify-center pb-8">
-            <div className="inline-flex flex-col sm:flex-row items-center gap-4 px-8 py-5 rounded-3xl bg-[#050505]/80 border border-white/10 backdrop-blur-sm">
-               <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center shrink-0">
+            <div className="inline-flex flex-col sm:flex-row items-center gap-4 px-8 py-5 bg-card border border-border border-2 backdrop-blur-sm brut-card">
+               <div className="w-10 h-10 bg-amber-500/10 flex items-center justify-center shrink-0">
                  <ShieldCheck className="w-5 h-5 text-amber-500" /> 
                </div>
-               <p className="text-zinc-400 text-sm text-center font-medium">
+               <p className="text-muted-foreground text-sm text-center font-medium">
                  เครื่องมือที่มีตรา <span className="text-amber-500 font-black px-1">VIP</span> สงวนสิทธิ์การเข้าถึงเฉพาะสมาชิก Premium ขึ้นไป
                </p>
             </div>

@@ -82,14 +82,14 @@ export const CustomCursor: React.FC = () => {
       {/* Dot */}
       <div
         ref={dotRef}
-        className="fixed top-0 left-0 w-2 h-2 rounded-full bg-purple-600 pointer-events-none z-[9999]"
+        className="fixed top-0 left-0 w-2 h-2 bg-primary text-primary-foreground pointer-events-none z-[9999]"
         style={{ transition: 'transform 0.1s ease-out', willChange: 'transform' }}
       />
       
       {/* Ring Ring */}
       <div
         ref={ringRef}
-        className="fixed top-0 left-0 rounded-full border border-[#3B82F6]/50 pointer-events-none z-[9998]"
+        className="fixed top-0 left-0 border border-[#3B82F6]/50 pointer-events-none z-[9998]"
         style={{ transition: 'width 0.2s, height 0.2s, background-color 0.2s', willChange: 'transform, width, height' }}
       />
     </>

@@ -44,23 +44,23 @@ export const ApiProxyGenTool: React.FC = () => {
           <Globe className="w-8 h-8 text-blue-600" />
           API Proxy Generator
         </h2>
-        <p className="text-zinc-400 mt-2">
+        <p className="text-muted-foreground mt-2">
           สร้าง API ลิงก์สำหรับดึง Proxy ไปใช้งานกับโปรแกรมของคุณ อัปเดตเรียลไทม์ (ดึงทุก 0.1 วิได้)
         </p>
       </div>
 
-      <div className="bg-[#121212] border border-white/10 rounded-2xl p-6">
+      <div className="bg-card border border-border border-2 p-6 brut-card">
         <h3 className="text-lg font-bold text-white mb-4">การตั้งค่า API</h3>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-bold text-zinc-400 mb-2">โปรโตคอล (Protocol)</label>
+            <label className="block text-sm font-bold text-muted-foreground mb-2">โปรโตคอล (Protocol)</label>
             <div className="grid grid-cols-2 gap-2">
               {['all', 'http', 'socks4', 'socks5'].map((p) => (
                 <button
                   key={p}
                   onClick={() => setProtocol(p)}
-                  className={`py-2 px-4 rounded-xl text-sm font-bold border transition-all ${protocol === p ? 'bg-blue-600/20 border-purple-500 text-blue-600' : 'bg-[#18181B] border-white/10 text-zinc-400 hover:bg-[#121212] hover:text-white'}`}
+                  className={`py-2 px-4 text-sm font-bold border transition-all ${protocol === p ? 'bg-blue-600/20 border-purple-500 text-blue-600' : 'bg-[#18181B] border-border border-2 text-muted-foreground hover:bg-[#121212] hover:text-white'}`}
                 >
                   {p.toUpperCase()}
                 </button>
@@ -68,13 +68,13 @@ export const ApiProxyGenTool: React.FC = () => {
             </div>
           </div>
           <div>
-            <label className="block text-sm font-bold text-zinc-400 mb-2">รูปแบบข้อมูล (Format)</label>
+            <label className="block text-sm font-bold text-muted-foreground mb-2">รูปแบบข้อมูล (Format)</label>
             <div className="grid grid-cols-2 gap-2">
               {['txt', 'json'].map((f) => (
                 <button
                   key={f}
                   onClick={() => setFormat(f)}
-                  className={`py-2 px-4 rounded-xl text-sm font-bold border transition-all ${format === f ? 'bg-blue-500/20 border-blue-500 text-blue-400' : 'bg-[#18181B] border-white/10 text-zinc-400 hover:bg-[#121212] hover:text-white'}`}
+                  className={`py-2 px-4 text-sm font-bold border transition-all ${format === f ? 'bg-blue-500/20 border-blue-500 text-blue-400' : 'bg-[#18181B] border-border border-2 text-muted-foreground hover:bg-[#121212] hover:text-white'}`}
                 >
                   {f.toUpperCase()}
                 </button>
@@ -85,7 +85,7 @@ export const ApiProxyGenTool: React.FC = () => {
 
         <button 
           onClick={() => setShowApi(true)}
-          className="mt-6 w-full bg-purple-600 hover:bg-blue-600 text-white font-bold py-3 rounded-xl border border-purple-500/50 shadow-[0_0_15px_rgba(168,85,247,0.4)] transition-all active:scale-95 flex items-center justify-center gap-2"
+          className="mt-6 w-full bg-primary text-primary-foreground hover:bg-blue-600 text-white font-bold py-3 border border-purple-500/50 transition-all active:scale-95 flex items-center justify-center gap-2"
         >
           <RefreshCcw className="w-5 h-5" /> สร้าง API Link
         </button>
@@ -98,36 +98,36 @@ export const ApiProxyGenTool: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             className="space-y-6"
           >
-            <div className="bg-[#121212] border border-purple-500/30 rounded-2xl p-6 relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-1 h-full bg-blue-600"></div>
+            <div className="bg-card border border-purple-500/30 p-6 relative overflow-hidden brut-card">
+              <div className="absolute top-0 left-0 w-1 h-full bg-primary text-primary-foreground"></div>
               <h3 className="text-lg font-bold text-white mb-2">API URL ของคุณ</h3>
               <div className="flex flex-col sm:flex-row items-center gap-3">
                 <input 
                   type="text" 
                   readOnly 
                   value={generateApiUrl()}
-                  className="w-full flex-1 bg-black/50 border border-white/10 rounded-xl py-3 px-4 text-blue-600 font-mono text-sm focus:outline-none"
+                  className="w-full flex-1 bg-black/50 border border-border border-2 py-3 px-4 text-blue-600 font-mono text-sm focus:outline-none"
                 />
                 <button 
                   onClick={() => copyToClipboard(generateApiUrl())}
-                  className="w-full sm:w-auto bg-blue-600/20 hover:bg-blue-600/30 text-blue-600 py-3 px-6 rounded-xl border border-purple-500/30 transition-all font-bold flex items-center justify-center gap-2 shrink-0"
+                  className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-blue-600/30 text-blue-600 py-3 px-6 border border-purple-500/30 transition-all font-bold flex items-center justify-center gap-2 shrink-0"
                 >
                   <Copy className="w-4 h-4" /> คัดลอกลิงก์
                 </button>
               </div>
             </div>
 
-            <div className="bg-[#121212] border border-white/10 rounded-2xl overflow-hidden">
-              <div className="bg-[#18181B] px-4 py-3 sm:px-6 sm:py-4 border-b border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="bg-card border border-border border-2 overflow-hidden brut-card">
+              <div className="bg-card px-4 py-3 sm:px-6 sm:py-4 border-b border-border border-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 brut-card">
                 <h3 className="text-sm font-bold text-white flex items-center gap-2 whitespace-nowrap">
-                  <Code className="w-4 h-4 text-zinc-400" /> ตัวอย่างโค้ด (ดึงทุก 0.1 วิ)
+                  <Code className="w-4 h-4 text-muted-foreground" /> ตัวอย่างโค้ด (ดึงทุก 0.1 วิ)
                 </h3>
-                <div className="flex bg-black/50 rounded-lg p-1 border border-white/10 gap-1 shrink-0">
+                <div className="flex bg-black/50 p-1 border border-border border-2 gap-1 shrink-0">
                   {['python', 'nodejs', 'curl'].map((tab) => (
                     <button
                       key={tab}
                       onClick={() => setActiveTab(tab as any)}
-                      className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all ${activeTab === tab ? 'bg-[#121212] text-white' : 'text-zinc-500 hover:text-white'}`}
+                      className={`px-3 py-1.5 text-xs font-bold transition-all ${activeTab === tab ? 'bg-[#121212] text-white' : 'text-zinc-500 hover:text-white'}`}
                     >
                       {tab.toUpperCase()}
                     </button>
@@ -137,17 +137,17 @@ export const ApiProxyGenTool: React.FC = () => {
               <div className="p-4 relative group">
                 <button 
                   onClick={() => copyToClipboard(codeSnippets[activeTab])}
-                  className="absolute top-2 right-2 sm:top-4 sm:right-4 bg-[#050505]/5 hover:bg-white/10 border border-white/10 p-2 rounded-lg opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all text-zinc-400 hover:text-white"
+                  className="absolute top-2 right-2 sm:top-4 sm:right-4 bg-card hover:bg-white/10 border border-border border-2 p-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all text-muted-foreground hover:text-white brut-card"
                 >
                   <Copy className="w-4 h-4" />
                 </button>
-                <pre className="font-mono text-xs sm:text-sm text-zinc-300 leading-relaxed overflow-x-auto p-2">
+                <pre className="font-mono text-xs sm:text-sm text-muted-foreground leading-relaxed overflow-x-auto p-2">
                   <code>{codeSnippets[activeTab]}</code>
                 </pre>
               </div>
             </div>
             
-            <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4 flex items-start gap-3">
+            <div className="bg-primary text-primary-foreground border border-blue-500/20 p-4 flex items-start gap-3">
               <AlertCircle className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" />
               <div>
                 <h4 className="text-sm font-bold text-blue-400 mb-1">คำแนะนำการดึงข้อมูลความเร็วสูง</h4>

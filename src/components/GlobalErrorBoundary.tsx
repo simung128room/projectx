@@ -39,38 +39,38 @@ export class GlobalErrorBoundary extends React.Component<ErrorBoundaryProps, Err
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen bg-[#06080B] flex items-center justify-center p-6 font-sans">
-          <div className="max-w-md w-full bg-[#0B0D0F] border border-white/10 rounded-[2.5rem] p-10 text-center shadow-2xl relative overflow-hidden">
+        <div className="min-h-screen bg-card flex items-center justify-center p-6 font-sans brut-card">
+          <div className="max-w-md w-full bg-card border border-border border-2 p-10 text-center relative overflow-hidden brut-card">
             {/* Background Decoration */}
-            <div className="absolute -top-24 -left-24 w-48 h-48 bg-red-500/10  rounded-full"></div>
-            <div className="absolute -bottom-24 -right-24 w-48 h-48 bg-purple-600/10  rounded-full"></div>
+            <div className="absolute -top-24 -left-24 w-48 h-48 bg-red-500/10"></div>
+            <div className="absolute -bottom-24 -right-24 w-48 h-48 bg-primary text-primary-foreground"></div>
             
             <div className="relative z-10">
-                <div className="w-20 h-20 bg-red-500/10 rounded-xl flex items-center justify-center mx-auto mb-8 text-red-500 shadow-lg shadow-red-500/5">
+                <div className="w-20 h-20 bg-red-500/10 flex items-center justify-center mx-auto mb-8 text-red-500">
                     <AlertTriangle className="w-10 h-10" />
                 </div>
                 
                 <h1 className="text-3xl font-black text-white mb-4 tracking-tight">เกิดข้อผิดพลาด</h1>
-                <p className="text-zinc-500 text-sm leading-relaxed mb-10">
+                <p className="text-muted-foreground text-sm leading-relaxed mb-10">
                     ขออภัย ระบบขัดข้องกะทันหัน ข้อมูลข้อผิดพลาดถูกส่งไปยังทีมพัฒนาแล้ว โปรดลองใหม่อีกครั้งหรือกลับหน้าหลัก
                 </p>
 
                 <div className="flex flex-col gap-3">
                     <button
                         onClick={this.handleReload}
-                        className="w-full flex items-center justify-center gap-2 py-4 bg-purple-600 hover:bg-[#1D4ED8] text-white rounded-2xl font-black text-sm transition-all active:scale-[0.98] shadow-lg shadow-lg/25 uppercase tracking-wider"
+                        className="w-full flex items-center justify-center gap-2 py-4 bg-primary text-primary-foreground hover:bg-[#1D4ED8] text-white font-black text-sm transition-all active:scale-[0.98] uppercase tracking-wider"
                     >
                         <RefreshCcw className="w-4 h-4" /> รีเฟรชหน้านี้
                     </button>
                     <button
                         onClick={this.handleGoHome}
-                        className="w-full flex items-center justify-center gap-2 py-4 bg-[#050505]/5 hover:bg-white/10 text-zinc-400 hover:text-white rounded-2xl font-bold text-sm transition-all"
+                        className="w-full flex items-center justify-center gap-2 py-4 bg-card hover:bg-white/10 text-muted-foreground hover:text-white font-bold text-sm transition-all brut-card"
                     >
                         <Home className="w-4 h-4" /> กลับสู่หน้าหลัก
                     </button>
                 </div>
 
-                <div className="mt-8 pt-8 border-t border-white/10 text-[10px] text-zinc-500 font-mono uppercase tracking-widest">
+                <div className="mt-8 pt-8 border-t border-border border-2 text-[10px] text-muted-foreground font-mono uppercase tracking-widest">
                     Reference ID: {Math.random().toString(36).substring(7).toUpperCase()}
                 </div>
             </div>

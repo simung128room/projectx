@@ -17,7 +17,7 @@ interface HomeViewProps {
 
 function ROVCard({ label, color = "#555555", title }: { label: string; color?: string; title?: string }) {
   return (
-    <div className="h-full min-h-[100px] p-2.5 rounded-xl flex flex-col items-center justify-center relative overflow-hidden"
+    <div className="h-full min-h-[100px] p-2.5 flex flex-col items-center justify-center relative overflow-hidden"
          style={{ background: "linear-gradient(135deg, #050505 0%, #1a1a1a 50%, #050505 100%)" }}>
       <div
         className="absolute inset-0"
@@ -31,7 +31,7 @@ function ROVCard({ label, color = "#555555", title }: { label: string; color?: s
         {title ? title : "APEX PRODUCT"}
       </div>
       <div className="text-[9px] text-white/50 z-10 mt-0.5">สินค้าคุ้มค่าราคาประหยัด!!</div>
-      <div className="mt-1.5 text-black font-black text-[11px] rounded-md px-2 py-[1px] z-10" style={{ background: "#ffffff" }}>
+      <div className="mt-1.5 text-black font-black text-[11px] px-2 py-[1px] z-10" style={{ background: "#ffffff" }}>
         {label}
       </div>
     </div>
@@ -66,26 +66,26 @@ export const HomeView: React.FC<HomeViewProps> = ({
   ];
 
   return (
-    <div className="w-full pb-32 font-sans bg-[#050505] text-white -mt-2">
+    <div className="w-full pb-32 font-sans bg-card text-white -mt-2 brut-card">
       <div className="max-w-4xl mx-auto px-4 md:px-6 pt-4">
         
         {/* Banner */}
-        <div className="rounded-3xl overflow-hidden relative min-h-[180px] sm:min-h-[220px] mb-6 shadow-xl border border-white/10">
+        <div className="overflow-hidden relative min-h-[180px] sm:min-h-[220px] mb-6 border border-border border-2">
           <img src="https://i.postimg.cc/pVnngYLx/apex-storeth-v4-resized.png" alt="APEX STORE" className="w-full h-full object-cover" />
         </div>
 
         {/* Stats Grid */}
         <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-4">
-          <div className="bg-[#121212] border border-white/10 rounded-2xl p-4 sm:p-5 relative overflow-hidden group hover:border-white/10 transition-colors">
-            <div className="text-[13px] text-zinc-400 mb-1 font-medium">จำนวนสมาชิก</div>
+          <div className="bg-card border border-border border-2 p-4 sm:p-5 relative overflow-hidden group hover:border-white/10 transition-colors brut-card">
+            <div className="text-[13px] text-muted-foreground mb-1 font-medium">จำนวนสมาชิก</div>
             <div className="text-2xl sm:text-3xl font-black text-white">{totalMembers.toLocaleString()}</div>
-            <div className="text-xs text-zinc-500 mt-1">คน</div>
+            <div className="text-xs text-muted-foreground mt-1">คน</div>
             <div className="absolute right-3 bottom-0 text-5xl opacity-[0.03] group-hover:opacity-[0.05] transition-opacity"><Users className="w-12 h-12 text-white" /></div>
           </div>
-          <div className="bg-[#121212] border border-white/10 rounded-2xl p-4 sm:p-5 relative overflow-hidden group hover:border-white/10 transition-colors">
-            <div className="text-[13px] text-zinc-400 mb-1 font-medium">สินค้าในสต็อก</div>
+          <div className="bg-card border border-border border-2 p-4 sm:p-5 relative overflow-hidden group hover:border-white/10 transition-colors brut-card">
+            <div className="text-[13px] text-muted-foreground mb-1 font-medium">สินค้าในสต็อก</div>
             <div className="text-2xl sm:text-3xl font-black text-white">{totalStockAvailable.toLocaleString()}</div>
-            <div className="text-xs text-zinc-500 mt-1">ชิ้น</div>
+            <div className="text-xs text-muted-foreground mt-1">ชิ้น</div>
             <div className="absolute right-3 bottom-0 text-5xl opacity-[0.03] group-hover:opacity-[0.05] transition-opacity"><Package className="w-12 h-12 text-white" /></div>
           </div>
         </div>
@@ -99,7 +99,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 {categories.slice(0, 4).map(cat => (
                     <div key={cat.id} 
                         onClick={() => onSelectCategory(cat.id)}
-                        className="cursor-pointer group relative overflow-hidden rounded-2xl aspect-[21/5] border border-white/10 hover:border-white/20 transition-all">
+                        className="cursor-pointer group relative overflow-hidden aspect-[21/5] border border-border border-2 hover:border-white/20 transition-all">
                         {cat.imageUrl && <img src={cat.imageUrl} alt={cat.name} className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-all duration-500" />}
                         <div className="absolute inset-0 flex items-center justify-center font-bold text-white tracking-widest">{cat.name}</div>
                     </div>
@@ -108,19 +108,19 @@ export const HomeView: React.FC<HomeViewProps> = ({
         </div>
 
         {/* Recent Sales Ticker */}
-        <div className="bg-[#121212] border border-white/10 rounded-2xl p-4 sm:p-5 mb-5 sm:mb-6">
+        <div className="bg-card border border-border border-2 p-4 sm:p-5 mb-5 sm:mb-6 brut-card">
           <div className="text-[15px] font-bold text-white mb-0.5">รายการสินค้าล่าสุด</div>
-          <div className="text-xs text-zinc-500 mb-4">สินค้าที่ลูกค้าเพิ่งซื้อไปเมื่อสักครู่</div>
+          <div className="text-xs text-muted-foreground mb-4">สินค้าที่ลูกค้าเพิ่งซื้อไปเมื่อสักครู่</div>
           <div className="flex overflow-x-auto gap-3 pb-2 scrollbar-thin scrollbar-thumb-zinc-700">
             {recentSales.map((s, i) => (
-              <div key={i} className="flex-none flex items-center gap-3 bg-[#0a0a0a] rounded-xl p-3 border border-white/10 hover:bg-[#111] transition-colors w-[220px]">
+              <div key={i} className="flex-none flex items-center gap-3 bg-card p-3 border border-border border-2 hover:bg-[#111] transition-colors w-[220px] brut-card">
                 <div className="w-12 h-12 shrink-0">
                   <ROVCard label={String(s.price) + " ฿"} color="#555555" title={s.product.substring(0, 3)} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="text-[11px] text-zinc-500 font-medium">{s.user}</div>
-                  <div className="text-[12px] font-bold text-zinc-200 truncate">{s.product}</div>
-                  <div className="text-[10px] text-zinc-500 mt-0.5">{s.time}</div>
+                  <div className="text-[11px] text-muted-foreground font-medium">{s.user}</div>
+                  <div className="text-[12px] font-bold text-muted-foreground truncate">{s.product}</div>
+                  <div className="text-[10px] text-muted-foreground mt-0.5">{s.time}</div>
                 </div>
               </div>
             ))}
@@ -149,9 +149,9 @@ export const HomeView: React.FC<HomeViewProps> = ({
               const isBestSeller = p.price > 100 || (discount && discount >= 20);
               
               return (
-                <div key={p.id} className="bg-[#121212] rounded-2xl overflow-hidden border border-white/10 shadow-lg group hover:border-white/10 transition-all">
+                <div key={p.id} className="bg-card overflow-hidden border border-border border-2 group hover:border-white/10 transition-all brut-card">
                   {/* Product Image / ROVCard */}
-                  <div className="relative aspect-square w-full bg-[#0a0a0a]">
+                  <div className="relative aspect-square w-full bg-card brut-card">
                     {p.imageUrl && p.imageUrl.trim() !== "" ? (
                       <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-300" onError={(e) => { e.currentTarget.style.display = 'none'; if(e.currentTarget.nextElementSibling) (e.currentTarget.nextElementSibling as HTMLElement).style.display = 'flex'; }} />
                     ) : null}
@@ -162,16 +162,16 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     </div>
                     {/* Badge */}
                     {isBestSeller ? (
-                      <div className="absolute top-2.5 left-2.5 bg-[#121212]/90 backdrop-blur-sm shadow border border-zinc-700/50 text-white text-[9px] font-black px-2 py-0.5 rounded-full z-20">
+                      <div className="absolute top-2.5 left-2.5 bg-card backdrop-blur-sm shadow border border-zinc-700/50 text-white text-[9px] font-black px-2 py-0.5 z-20 brut-card">
                         ขายดี
                       </div>
                     ) : (
-                      <div className="absolute top-2.5 left-2.5 bg-[#121212]/90 backdrop-blur-sm shadow border border-zinc-700/50 text-white text-[9px] font-black px-2 py-0.5 rounded-full z-20">
+                      <div className="absolute top-2.5 left-2.5 bg-card backdrop-blur-sm shadow border border-zinc-700/50 text-white text-[9px] font-black px-2 py-0.5 z-20 brut-card">
                         แนะนำ
                       </div>
                     )}
                     {discount && (
-                      <div className="absolute top-2.5 right-2.5 bg-[#050505] backdrop-blur-sm shadow border border-white/20 text-black text-[9px] font-black px-1.5 py-0.5 rounded-full z-20">
+                      <div className="absolute top-2.5 right-2.5 bg-card backdrop-blur-sm shadow border border-border border-2 text-black text-[9px] font-black px-1.5 py-0.5 z-20 brut-card">
                         -{discount}%
                       </div>
                     )}
@@ -181,17 +181,17 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     <div className="text-[13px] font-bold text-white mb-1.5 leading-[1.3] line-clamp-1 group-hover:text-zinc-300 transition-colors">
                       {p.name}
                     </div>
-                    <div className="text-[11px] text-zinc-500 mb-3 line-clamp-2 min-h-[32px]">{p.description}</div>
+                    <div className="text-[11px] text-muted-foreground mb-3 line-clamp-2 min-h-[32px]">{p.description}</div>
                     <div className="flex items-center gap-2 mb-2">
                       <span className="text-[14px] font-black text-white">฿{p.price.toFixed(2)}</span>
                       {p.originalPrice && p.price < p.originalPrice && (
-                        <span className="text-[11px] text-zinc-500 line-through font-medium">
+                        <span className="text-[11px] text-muted-foreground line-through font-medium">
                           ฿{p.originalPrice.toFixed(2)}
                         </span>
                       )}
                     </div>
-                    <div className="text-[10px] text-zinc-500 font-medium mb-3">📦 คงเหลือ: {p.stock.toLocaleString()}</div>
-                    <button onClick={() => onProductClick(p.id)} className="w-full bg-[#050505]/5 hover:bg-[#050505] hover:text-black text-white border border-white/10 hover:border-white rounded-xl py-2 text-xs font-bold transition-all flex items-center justify-center gap-1.5 active:scale-95 group-hover:shadow-[0_0_15px_rgba(255,255,255,0.1)]">
+                    <div className="text-[10px] text-muted-foreground font-medium mb-3">📦 คงเหลือ: {p.stock.toLocaleString()}</div>
+                    <button onClick={() => onProductClick(p.id)} className="w-full bg-card hover:bg-[#050505] hover:text-black text-white border border-border border-2 hover:border-white py-2 text-xs font-bold transition-all flex items-center justify-center gap-1.5 active:scale-95 brut-card">
                       <ShoppingCart className="w-4 h-4" /> ดูสินค้า
                     </button>
                   </div>
@@ -202,7 +202,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="mt-8 mb-8 text-center text-xs text-zinc-500">
+        <div className="mt-8 mb-8 text-center text-xs text-muted-foreground">
            © {new Date().getFullYear()} เอเพ็กซ์สโตร์ — สงวนลิขสิทธิ์
         </div>
 

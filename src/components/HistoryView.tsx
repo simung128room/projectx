@@ -72,13 +72,13 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ purchaseHistory = [], 
   const getStatusBadge = (status: string) => {
     switch(status?.toLowerCase()) {
       case 'success':
-        return <span className="bg-blue-600/10 text-emerald-600 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-emerald-100 flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-blue-600"></div>สำเร็จ</span>;
+        return <span className="bg-primary text-primary-foreground text-emerald-600 px-3 py-1 text-[10px] font-bold uppercase tracking-widest border border-emerald-100 flex items-center gap-1.5"><div className="w-1.5 h-1.5 bg-primary text-primary-foreground"></div>สำเร็จ</span>;
       case 'pending':
-        return <span className="bg-amber-500/10 text-amber-600 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-amber-100 flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-amber-500"></div>รอดำเนินการ</span>;
+        return <span className="bg-amber-500/10 text-amber-600 px-3 py-1 text-[10px] font-bold uppercase tracking-widest border border-amber-100 flex items-center gap-1.5"><div className="w-1.5 h-1.5 bg-amber-500"></div>รอดำเนินการ</span>;
       case 'failed':
-        return <span className="bg-purple-600/10 text-blue-600 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-white/10 flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-[#2563EB]"></div>ล้มเหลว</span>;
+        return <span className="bg-primary text-primary-foreground text-blue-600 px-3 py-1 text-[10px] font-bold uppercase tracking-widest border border-border border-2 flex items-center gap-1.5"><div className="w-1.5 h-1.5 bg-card brut-card"></div>ล้มเหลว</span>;
       default:
-        return <span className="bg-[#121212] text-zinc-500 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-white/10 flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-zinc-400"></div>{status || 'สำเร็จ'}</span>;
+        return <span className="bg-card text-muted-foreground px-3 py-1 text-[10px] font-bold uppercase tracking-widest border border-border border-2 flex items-center gap-1.5 brut-card"><div className="w-1.5 h-1.5 bg-zinc-400"></div>{status || 'สำเร็จ'}</span>;
     }
   };
 
@@ -108,22 +108,22 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ purchaseHistory = [], 
     
     return (
       <div style={{ ...style, paddingTop: '12px' }}>
-        <div className="bg-[#0B0D0F] rounded-xl border border-white/10 p-4 transition-all hover:border-white/20 hover:shadow-md hover:shadow-black/5 flex flex-col gap-4 mx-1">
+        <div className="bg-card border border-border border-2 p-4 transition-all hover:border-white/20 flex flex-col gap-4 mx-1 brut-card">
           <div className="flex gap-4 items-center w-full">
-            <div className={`w-14 h-14 shrink-0 rounded-[1.25rem] flex items-center justify-center ${item.bg} ${item.color} shadow-inner`}>
+            <div className={`w-14 h-14 shrink-0 flex items-center justify-center ${item.bg} ${item.color}`}>
               <item.icon className="w-6 h-6" />
             </div>
             
             <div className="flex flex-col flex-1 min-w-0 justify-center">
               <h3 className="text-white font-bold text-sm sm:text-base truncate">{item.title}</h3>
               <div className="flex items-center justify-between mt-1">
-                <span className="text-xs font-medium text-zinc-500">{new Date(item.date).toLocaleDateString('th-TH')}</span>
+                <span className="text-xs font-medium text-muted-foreground">{new Date(item.date).toLocaleDateString('th-TH')}</span>
                 {item.money !== 0 ? (
                   <span className={`font-bold font-mono text-xs sm:text-sm ${item.money > 0 ? 'text-blue-500' : 'text-[#2563EB]'}`}>
                     {item.money > 0 ? '+' : ''}{item.money} ฿
                   </span>
                 ) : (
-                  <span className="font-bold text-xs text-zinc-400">0 ฿</span>
+                  <span className="font-bold text-xs text-muted-foreground">0 ฿</span>
                 )}
               </div>
             </div>
@@ -135,7 +135,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ purchaseHistory = [], 
             </div>
             <button 
               onClick={() => setSelectedItem(item)}
-              className="text-[11px] sm:text-xs font-bold text-zinc-400 bg-[#121212] px-4 py-2 rounded-xl hover:bg-zinc-200 transition-colors flex items-center gap-1 active:scale-95"
+              className="text-[11px] sm:text-xs font-bold text-muted-foreground bg-card px-4 py-2 hover:bg-zinc-200 transition-colors flex items-center gap-1 active:scale-95 brut-card"
             >
               ดูรายละเอียด <ChevronRight className="w-3 h-3" />
             </button>
@@ -157,37 +157,37 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ purchaseHistory = [], 
             exit={{ opacity: 0, y: -10 }}
             className="space-y-4"
           >
-            <div className="bg-[#0B0D0F] rounded-xl border border-white/10 shadow-sm overflow-hidden mb-6">
-              <div className="p-6 md:p-8 border-b border-white/10 bg-[#121212]/50">
+            <div className="bg-card border border-border border-2 overflow-hidden mb-6 brut-card">
+              <div className="p-6 md:p-8 border-b border-border border-2 bg-card brut-card">
                 <div className="flex items-center gap-3">
-                  <div className="p-2.5 bg-purple-600/20 text-blue-600 rounded-xl">
+                  <div className="p-2.5 bg-primary text-primary-foreground text-blue-600">
                     <History className="w-6 h-6" />
                   </div>
                   <div>
                     <h2 className="text-xl font-bold text-white leading-none mb-1">ประวัติสั่งซื้อ</h2>
-                    <p className="text-xs font-medium text-zinc-500">เลือกหมวดหมู่ที่ต้องการตรวจสอบ</p>
+                    <p className="text-xs font-medium text-muted-foreground">เลือกหมวดหมู่ที่ต้องการตรวจสอบ</p>
                   </div>
                 </div>
               </div>
 
-              <div className="p-4 md:p-6 bg-[#121212]/20">
+              <div className="p-4 md:p-6 bg-card brut-card">
                 <div className="grid grid-cols-1 gap-3">
                   {categories.map((cat) => (
                     <button
                       key={cat.id}
                       onClick={() => setCurrentCategory(cat.id)}
-                      className="group flex items-center justify-between p-4 bg-[#0B0D0F] border border-white/10 rounded-xl hover:border-[#3B82F6]/30 hover:shadow-md hover:shadow-lg"
+                      className="group flex items-center justify-between p-4 bg-card border border-border border-2 hover:border-[#3B82F6]/30 brut-card"
                     >
                       <div className="flex items-center gap-4">
-                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${cat.bg} ${cat.color} group-hover:scale-110 transition-transform`}>
+                        <div className={`w-12 h-12 flex items-center justify-center ${cat.bg} ${cat.color} group-hover:scale-110 transition-transform`}>
                           <cat.icon className="w-6 h-6" />
                         </div>
                         <div>
                           <h3 className="text-sm font-bold text-white">{cat.title}</h3>
-                          <p className="text-[10px] sm:text-xs font-medium text-zinc-400 uppercase tracking-tight">{cat.subtitle}</p>
+                          <p className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-tight">{cat.subtitle}</p>
                         </div>
                       </div>
-                      <ChevronRight className="w-5 h-5 text-zinc-300 group-hover:text-[#2563EB] transition-colors" />
+                      <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-[#2563EB] transition-colors" />
                     </button>
                   ))}
                 </div>
@@ -202,40 +202,40 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ purchaseHistory = [], 
             exit={{ opacity: 0, x: -20 }}
             className="space-y-4"
           >
-            <div className="bg-[#0B0D0F] rounded-xl border border-white/10 shadow-sm overflow-hidden">
-              <div className="p-6 md:p-8 border-b border-white/10 bg-[#121212]/50 flex items-center justify-between">
+            <div className="bg-card border border-border border-2 overflow-hidden brut-card">
+              <div className="p-6 md:p-8 border-b border-border border-2 bg-card flex items-center justify-between brut-card">
                 <div className="flex items-center gap-3">
                   <button 
                     onClick={() => setCurrentCategory(null)}
-                    className="p-2.5 bg-[#0B0D0F] border border-white/10 text-zinc-500 rounded-xl hover:bg-[#121212] hover:text-white transition-colors mr-2"
+                    className="p-2.5 bg-card border border-border border-2 text-muted-foreground hover:bg-[#121212] hover:text-white transition-colors mr-2 brut-card"
                   >
                     <ChevronLeft className="w-5 h-5" />
                   </button>
-                  <div className={`p-2.5 ${currentCategoryInfo?.bg} ${currentCategoryInfo?.color} rounded-xl`}>
+                  <div className={`p-2.5 ${currentCategoryInfo?.bg} ${currentCategoryInfo?.color}`}>
                     {currentCategoryInfo && <currentCategoryInfo.icon className="w-6 h-6" />}
                   </div>
                   <div>
                     <h2 className="text-lg font-bold text-white leading-none mb-1">{currentCategoryInfo?.title}</h2>
-                    <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-tight">{currentCategoryInfo?.subtitle}</p>
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-tight">{currentCategoryInfo?.subtitle}</p>
                   </div>
                 </div>
               </div>
 
-              <div className="p-4 md:p-6 bg-[#121212]/30 min-h-[400px]">
+              <div className="p-4 md:p-6 bg-card min-h-[400px] brut-card">
                 {isLoading ? (
                   <div className="space-y-3">
                     {[1, 2, 3].map((i) => (
-                      <div key={i} className="bg-[#0B0D0F] rounded-xl border border-white/10 p-4 flex flex-col gap-4">
+                      <div key={i} className="bg-card border border-border border-2 p-4 flex flex-col gap-4 brut-card">
                         <div className="flex gap-4 items-center">
-                          <Skeleton className="w-14 h-14 rounded-[1.25rem]" />
+                          <Skeleton className="w-14 h-14" />
                           <div className="flex-1 space-y-2">
                             <Skeleton className="h-5 w-1/2" />
                             <Skeleton className="h-4 w-1/4" />
                           </div>
                         </div>
-                        <div className="pt-3 border-t border-white/10 flex justify-between">
-                          <Skeleton className="h-6 w-20 rounded-full" />
-                          <Skeleton className="h-8 w-24 rounded-xl" />
+                        <div className="pt-3 border-t border-border border-2 flex justify-between">
+                          <Skeleton className="h-6 w-20" />
+                          <Skeleton className="h-8 w-24" />
                         </div>
                       </div>
                     ))}
@@ -254,14 +254,14 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ purchaseHistory = [], 
                   </div>
                 ) : (
                   <div className="py-20 flex flex-col items-center justify-center text-center">
-                    <div className="w-16 h-16 bg-[#0B0D0F] border border-white/10 shadow-sm rounded-xl flex items-center justify-center mb-4">
-                      <History className="w-8 h-8 text-zinc-200" />
+                    <div className="w-16 h-16 bg-card border border-border border-2 flex items-center justify-center mb-4 brut-card">
+                      <History className="w-8 h-8 text-muted-foreground" />
                     </div>
                     <h3 className="text-base font-bold text-white mb-1">ยังไม่มีประวัติ</h3>
-                    <p className="text-xs font-medium text-zinc-500">ยังไม่พบข้อมูลในหมวดหมู่นี้</p>
+                    <p className="text-xs font-medium text-muted-foreground">ยังไม่พบข้อมูลในหมวดหมู่นี้</p>
                     <button 
                       onClick={() => setCurrentCategory(null)}
-                      className="mt-6 px-6 py-2 bg-[#0a0a0a] text-white rounded-xl text-xs font-bold hover:bg-[#1e1e1e] transition-colors"
+                      className="mt-6 px-6 py-2 bg-card text-white text-xs font-bold hover:bg-[#1e1e1e] transition-colors brut-card"
                     >
                       ย้อนกลับ
                     </button>

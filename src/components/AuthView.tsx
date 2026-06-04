@@ -118,7 +118,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center p-4 relative overflow-hidden bg-[#0A0D12]">
+    <div className="min-h-screen w-full flex items-center justify-center p-4 relative overflow-hidden bg-card brut-card">
       {/* Background Effects */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#1e3a8a]/20 via-[#0A0D12] to-[#0A0D12] pointer-events-none"></div>
 
@@ -126,7 +126,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className="w-full max-w-md bg-[#0B0D0F]/80 backdrop-blur-2xl rounded-3xl border border-white/5 shadow-2xl relative z-10 p-8 sm:p-10"
+        className="w-full max-w-md bg-card backdrop-blur-2xl border border-border border-2 relative z-10 p-8 sm:p-10 brut-card"
       >
         {/* Header */}
         <div className="text-center mb-8">
@@ -134,14 +134,14 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
                 initial={{ scale: 0.9 }}
                 animate={{ scale: 1 }}
                 transition={{ duration: 0.5 }}
-                className="w-16 h-16 mx-auto bg-white/5 rounded-2xl flex items-center justify-center border border-white/5 mb-6 shadow-inner"
+                className="w-16 h-16 mx-auto bg-white/5 flex items-center justify-center border border-border border-2 mb-6"
             >
                 <Shield className="w-8 h-8 text-blue-500" />
             </motion.div>
             <h2 className="text-2xl font-bold text-white tracking-tighter">
                 {authMode === 'login' ? 'เข้าสู่ระบบ' : authMode === 'forgot' ? 'กู้คืนบัญชี' : 'สร้างบัญชี'}
             </h2>
-            <p className="text-zinc-500 text-xs mt-2 font-medium tracking-wide uppercase">
+            <p className="text-muted-foreground text-xs mt-2 font-medium tracking-wide uppercase">
                 {authMode === 'login' ? 'APEXSTORE DASHBOARD' : 'READY TO START'}
             </p>
         </div>
@@ -153,7 +153,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
                 type="text" 
                 value={authUsername}
                 onChange={(e) => setAuthUsername(e.target.value)}
-                className="w-full bg-[#0a0a0a]/50 border border-white/5 rounded-2xl py-3 px-4 outline-none focus:border-blue-600/50 transition-all text-white text-sm placeholder:text-zinc-600 font-sans shadow-inner"
+                className="w-full bg-card border border-border border-2 py-3 px-4 outline-none focus:border-blue-600/50 transition-all text-white text-sm placeholder:text-zinc-600 font-sans brut-card"
                 placeholder="ชื่อผู้ใช้ / Username"
                 required
               />
@@ -165,7 +165,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
                   type="email" 
                   value={authEmail}
                   onChange={(e) => setAuthEmail(e.target.value)}
-                  className="w-full bg-[#0a0a0a]/50 border border-white/5 rounded-2xl py-3 px-4 outline-none focus:border-blue-600/50 transition-all text-white text-sm placeholder:text-zinc-600 font-sans shadow-inner"
+                  className="w-full bg-card border border-border border-2 py-3 px-4 outline-none focus:border-blue-600/50 transition-all text-white text-sm placeholder:text-zinc-600 font-sans brut-card"
                   placeholder="อีเมล / Email"
                   required
                 />
@@ -178,7 +178,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
                   type={showPassword ? "text" : "password"}
                   value={authPassword}
                   onChange={(e) => setAuthPassword(e.target.value)}
-                  className="w-full bg-[#0a0a0a]/50 border border-white/5 rounded-2xl py-3 px-4 outline-none focus:border-blue-600/50 transition-all text-white text-sm placeholder:text-zinc-600 font-sans shadow-inner"
+                  className="w-full bg-card border border-border border-2 py-3 px-4 outline-none focus:border-blue-600/50 transition-all text-white text-sm placeholder:text-zinc-600 font-sans brut-card"
                   placeholder="รหัสผ่าน / Password"
                   required
                   minLength={6}
@@ -186,7 +186,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
                 <button 
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-4 flex items-center text-zinc-600 hover:text-white transition-colors"
+                  className="absolute inset-y-0 right-4 flex items-center text-muted-foreground hover:text-white transition-colors"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -197,13 +197,13 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
           <button 
             type="submit" 
             disabled={authLoading}
-            className="w-full py-3.5 rounded-2xl text-[14px] font-bold bg-white text-black hover:bg-zinc-200 transition-all flex justify-center items-center gap-2 mt-4 shadow-lg active:scale-[0.98]"
+            className="w-full py-3.5 text-[14px] font-bold bg-white text-black hover:bg-zinc-200 transition-all flex justify-center items-center gap-2 mt-4 active:scale-[0.98]"
           >
             {authLoading ? 'กำลังดำเนินการ...' : authMode === 'login' ? 'เข้าสู่ระบบ' : authMode === 'forgot' ? 'ส่งลิงก์กู้คืน' : 'สมัครสมาชิก'}
           </button>
         </form>
         
-        <div className="mt-8 pt-6 border-t border-white/5 flex flex-col gap-4 text-center">
+        <div className="mt-8 pt-6 border-t border-border border-2 flex flex-col gap-4 text-center">
           <button 
             onClick={() => { 
                 const nextMode = authMode === 'login' ? (authMode === 'forgot' ? 'login' : 'signup') : 'login';

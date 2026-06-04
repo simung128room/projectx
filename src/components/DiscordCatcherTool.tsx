@@ -135,12 +135,12 @@ export const DiscordCatcherTool: React.FC<DiscordCatcherToolProps> = ({ userPlan
   return (
     <AnimatedScroll direction="up" hideOnScroll={true}>
       <div className="max-w-4xl mx-auto pb-10 mt-6">
-        <div className="bg-[#1c242d] border border-white/10 rounded-xl overflow-hidden shadow-2xl flex flex-col md:flex-row">
+        <div className="bg-card border border-border border-2 overflow-hidden flex flex-col md:flex-row brut-card">
         
         {/* Sidebar Settings Area */}
-        <div className="w-full md:w-1/3 border-b md:border-b-0 md:border-r border-white/10 p-6 flex flex-col gap-6">
+        <div className="w-full md:w-1/3 border-b md:border-b-0 md:border-r border-border border-2 p-6 flex flex-col gap-6">
           <div className="flex items-center gap-3">
-             <div className="w-10 h-10 rounded-full bg-[#5865F2] flex items-center justify-center text-white">
+             <div className="w-10 h-10 bg-card flex items-center justify-center text-white brut-card">
                 <Bot className="w-5 h-5" />
              </div>
              <div>
@@ -151,42 +151,42 @@ export const DiscordCatcherTool: React.FC<DiscordCatcherToolProps> = ({ userPlan
           
           <form onSubmit={handleStart} className="flex flex-col gap-4 mt-2">
             <div>
-              <label className="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-1.5 block">Discord Token</label>
+              <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-1.5 block">Discord Token</label>
               <div className="relative">
-                <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+                <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <input 
                   type="password" 
                   value={discordToken}
                   onChange={e => setDiscordToken(e.target.value)}
                   placeholder="MTA...."
-                  className="w-full bg-[#121212] border border-white/10 rounded-xl py-3 pl-10 pr-4 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-[#5865F2]/50 focus:ring-1 focus:ring-[#5865F2]/20 transition-all font-mono"
+                  className="w-full bg-card border border-border border-2 py-3 pl-10 pr-4 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-[#5865F2]/50 focus:ring-1 focus:ring-[#5865F2]/20 transition-all font-mono brut-card"
                   disabled={status !== 'none' && status !== 'error'}
                 />
               </div>
             </div>
 
             <div className="pt-2">
-              <label className="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-1.5 block">TrueMoney Phone</label>
+              <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-1.5 block">TrueMoney Phone</label>
               <div className="relative">
-                <Wallet className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+                <Wallet className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <input 
                   type="text" 
                   value={truemoneyPhone}
                   onChange={e => setTruemoneyPhone(e.target.value)}
                   placeholder="08X-XXX-XXXX"
-                  className="w-full bg-[#121212] border border-white/10 rounded-xl py-3 pl-10 pr-4 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-[#5865F2]/50 focus:ring-1 focus:ring-[#5865F2]/20 transition-all font-mono"
+                  className="w-full bg-card border border-border border-2 py-3 pl-10 pr-4 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-[#5865F2]/50 focus:ring-1 focus:ring-[#5865F2]/20 transition-all font-mono brut-card"
                   disabled={status !== 'none' && status !== 'error'}
                 />
               </div>
             </div>
             
-            <div className="h-px bg-[#050505]/5 my-2" /> 
+            <div className="h-px bg-card my-2 brut-card" /> 
 
             {(status === 'none' || status === 'error') && (
               <button 
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-[#5865F2] hover:bg-[#4752C4] text-white font-black rounded-xl py-3 text-sm transition-all shadow-lg shadow-lg"
+                className="w-full bg-card hover:bg-[#4752C4] text-white font-black py-3 text-sm transition-all brut-card"
               >
                 {isLoading ? (
                   <><Loader2 className="w-4 h-4 animate-spin" /> Connecting...</>
@@ -200,7 +200,7 @@ export const DiscordCatcherTool: React.FC<DiscordCatcherToolProps> = ({ userPlan
               <button 
                 type="button"
                 onClick={stopCatcher}
-                className="w-full bg-red-500/10 hover:bg-red-500/20 text-red-500 font-bold rounded-xl py-3 text-sm transition-all border border-red-500/30 flex items-center justify-center gap-2 mt-2"
+                className="w-full bg-red-500/10 hover:bg-red-500/20 text-red-500 font-bold py-3 text-sm transition-all border border-red-500/30 flex items-center justify-center gap-2 mt-2"
               >
                 <LogOut className="w-4 h-4" /> Disconnect
               </button>
@@ -209,19 +209,15 @@ export const DiscordCatcherTool: React.FC<DiscordCatcherToolProps> = ({ userPlan
         </div>
 
         {/* Discord Chat Area */}
-        <div className="w-full md:w-2/3 bg-[#0e1621] flex flex-col h-[600px] relative">
+        <div className="w-full md:w-2/3 bg-card flex flex-col h-[600px] relative brut-card">
           
-          <div className="bg-[#1c242d] px-6 py-4 flex items-center border-b border-white/10 z-10">
-            <div className="w-10 h-10 rounded-full bg-[#2563EB] flex items-center justify-center mr-4">
+          <div className="bg-card px-6 py-4 flex items-center border-b border-border border-2 z-10 brut-card">
+            <div className="w-10 h-10 bg-card flex items-center justify-center mr-4 brut-card">
               <Bot className="w-6 h-6 text-white" />
             </div>
             <div>
               <div className="text-white font-bold text-sm">TrueMoney Catcher Bot</div>
-              <div className={`text-xs mt-0.5 font-medium transition-colors ${
-                status === 'connected' ? 'text-blue-600' : 
-                status === 'idle' || status === 'connecting' ? 'text-amber-400' :
-                status === 'error' ? 'text-red-400' : 'text-indigo-300'
-              }`}>
+              <div className={`text-xs mt-0.5 font-medium transition-colors ${ status === 'connected' ? 'text-blue-600' : status === 'idle' || status === 'connecting' ? 'text-amber-400' : status === 'error' ? 'text-red-400' : 'text-indigo-300' }`}>
                 {status === 'connected' ? '● Online & Ready' : 
                  status === 'none' ? 'Waiting for connection...' : 
                  status === 'idle' || status === 'connecting' ? 'Establishing connection...' : 
@@ -233,10 +229,10 @@ export const DiscordCatcherTool: React.FC<DiscordCatcherToolProps> = ({ userPlan
           <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-3 z-10 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
             {logs.length === 0 ? (
               <div className="mt-auto mb-auto text-center">
-                <div className="w-16 h-16 bg-[#1c242d] rounded-full flex items-center justify-center mx-auto mb-4 border border-white/10">
-                  <Bot className="w-8 h-8 text-zinc-500" />
+                <div className="w-16 h-16 bg-card flex items-center justify-center mx-auto mb-4 border border-border border-2 brut-card">
+                  <Bot className="w-8 h-8 text-muted-foreground" />
                 </div>
-                <div className="bg-[#050505]/5 text-zinc-400 text-xs px-4 py-1.5 rounded-full inline-block font-medium">
+                <div className="bg-card text-muted-foreground text-xs px-4 py-1.5 inline-block font-medium brut-card">
                   Add token and phone number to start
                 </div>
               </div>
@@ -247,13 +243,7 @@ export const DiscordCatcherTool: React.FC<DiscordCatcherToolProps> = ({ userPlan
                 const isAction = log.includes('🎯');
                 
                 return (
-                  <div key={i} className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm ${
-                    log.includes('เริ่ม') || isSuccess || isAction
-                      ? 'bg-[#5865F2]/20 text-[#C1C8FF] self-start ml-2 shadow-sm rounded-bl-sm border border-[#5865F2]/30'
-                      : isError 
-                        ? 'bg-red-500/20 text-red-100 border border-red-500/30 self-start ml-2 rounded-bl-sm'
-                        : 'bg-[#182533] text-white self-end mr-2 shadow-sm rounded-br-sm'
-                  }`}>
+                  <div key={i} className={`max-w-[85%] px-4 py-2.5 text-sm ${ log.includes('เริ่ม') || isSuccess || isAction ? 'bg-[#5865F2]/20 text-[#C1C8FF] self-start ml-2 border border-[#5865F2]/30' : isError ? 'bg-red-500/20 text-red-100 border-red-500/30' : 'bg-[#182533] text-white self-end mr-2'} `}>
                     <div className="flex flex-col">
                       <span className="leading-relaxed">{log}</span>
                       <span className="text-[10px] text-white/40 self-end mt-1 font-mono">

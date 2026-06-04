@@ -117,19 +117,19 @@ export const DiscordBadgeTool: React.FC = () => {
           <div className="max-w-4xl mx-auto space-y-8 pb-20 mt-4 md:mt-8">
             <div className="flex flex-col md:flex-row gap-6 items-start justify-between">
                 <div className="flex-1">
-                  <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#5865F2]/10 text-[#5865F2] text-xs font-bold mb-4 border border-[#5865F2]/20 ">
+                  <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-card text-[#5865F2] text-xs font-bold mb-4 border border-[#5865F2]/20  brut-card">
                      <Star className="w-4 h-4" /> DISCORD TOOL
                   </div>
-                  <h2 className="text-4xl md:text-5xl font-black text-white flex items-center gap-4 tracking-tight drop-shadow-lg">
+                  <h2 className="text-4xl md:text-5xl font-black text-white flex items-center gap-4 tracking-tight">
                      รับ <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-[#5865F2]">ตราอัตโนมัติ</span>
                   </h2>
-                  <p className="text-zinc-400 mt-4 text-base leading-relaxed max-w-2xl font-medium">
+                  <p className="text-muted-foreground mt-4 text-base leading-relaxed max-w-2xl font-medium">
                      เลือกบ้านที่คุณต้องการเข้า และรับเหรียญตรา HypeSquad บนโปรไฟล์ของคุณได้ทันที ฟรีไม่มีค่าใช้จ่าย!
                   </p>
                 </div>
             </div>
 
-            <div className="bg-orange-500/10 border border-orange-500/20 rounded-2xl p-4 flex gap-4 text-orange-400 text-sm">
+            <div className="bg-orange-500/10 border border-orange-500/20 p-4 flex gap-4 text-orange-400 text-sm">
                 <Info className="w-6 h-6 shrink-0" />
                 <div>
                    <p className="font-bold mb-1">คำเตือนด้านความปลอดภัย!</p>
@@ -139,12 +139,12 @@ export const DiscordBadgeTool: React.FC = () => {
                 </div>
             </div>
 
-            <div className="bg-[#0B0D0F]/90  border border-white/10 rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden">
+            <div className="bg-card border border-border border-2 p-8 relative overflow-hidden brut-card">
                 <div className="absolute top-0 left-0 w-full h-[2px] from-transparent via-[#5865F2]/80 to-transparent"></div>
                 
                 <div className="space-y-8 relative z-10">
                     <div>
-                        <label className="text-[11px] font-black text-zinc-500 uppercase tracking-widest pl-4 mb-2 block">1. Select House</label>
+                        <label className="text-[11px] font-black text-muted-foreground uppercase tracking-widest pl-4 mb-2 block">1. Select House</label>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             {houses.map((house) => (
                                 <button
@@ -162,7 +162,7 @@ export const DiscordBadgeTool: React.FC = () => {
                                         boxShadow: `0 0 15px ${house.color.split('bg-[')[1]?.split(']')[0]}30`
                                     } : {}}
                                 >
-                                    <img loading="lazy" src={house.icon} alt={house.name} className={`w-8 h-8 ${houseId === house.id ? 'drop-shadow-lg' : ''}`} />
+                                    <img loading="lazy" src={house.icon} alt={house.name} className={`w-8 h-8 ${houseId === house.id ? 'drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]' : ''}`} />
                                     <span className="font-bold tracking-wide">House of {house.name}</span>
                                 </button>
                             ))}
@@ -170,13 +170,13 @@ export const DiscordBadgeTool: React.FC = () => {
                     </div>
 
                     <div>
-                        <label className="text-[11px] font-black text-zinc-500 uppercase tracking-widest pl-4 mb-2 block text-[#5865F2]">2. Enter User Token</label>
+                        <label className="text-[11px] font-black text-muted-foreground uppercase tracking-widest pl-4 mb-2 block text-[#5865F2]">2. Enter User Token</label>
                         <input 
                             type="password" 
                             value={token}
                             onChange={(e) => setToken(e.target.value)}
                             placeholder="••••••••••••••••••••••••" 
-                            className="w-full bg-[#05070A] border border-white/10 rounded-2xl px-6 py-4 text-white text-sm font-medium placeholder-zinc-700 outline-none focus:border-[#5865F2]/40 focus:ring-4 focus:ring-[#5865F2]/10 transition-all font-mono shadow-inner"
+                            className="w-full bg-card border border-border border-2 px-6 py-4 text-white text-sm font-medium placeholder-zinc-700 outline-none focus:border-[#5865F2]/40 focus:ring-4 focus:ring-[#5865F2]/10 transition-all font-mono brut-card"
                         />
                     </div>
 
@@ -184,10 +184,10 @@ export const DiscordBadgeTool: React.FC = () => {
                         <button 
                             onClick={handleSetBadge} 
                             disabled={isLoading}
-                            className="flex-1 relative group overflow-hidden rounded-2xl disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="flex-1 relative group overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             <div className="absolute inset-0 from-[#5865F2] to-indigo-600 transition-transform duration-300 group-hover:scale-[1.02]"></div>
-                            <div className="relative w-full flex items-center justify-center gap-2 py-4 text-white font-bold text-sm shadow-lg transition-all">
+                            <div className="relative w-full flex items-center justify-center gap-2 py-4 text-white font-bold text-sm transition-all">
                                 {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Shield className="w-5 h-5" /> Claim HypeSquad Badge</>}
                             </div>
                         </button>
@@ -195,7 +195,7 @@ export const DiscordBadgeTool: React.FC = () => {
                         <button 
                             onClick={handleRemoveBadge}
                             disabled={isLoading}
-                            className="sm:w-auto w-full flex items-center justify-center gap-2 bg-red-500/10 hover:bg-red-500 hover:text-white text-red-400 border border-red-500/20 py-4 px-8 rounded-2xl font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="sm:w-auto w-full flex items-center justify-center gap-2 bg-red-500/10 hover:bg-red-500 hover:text-white text-red-400 border border-red-500/20 py-4 px-8 font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><ShieldBan className="w-5 h-5" /> Remove Badge</>}
                         </button>
@@ -203,7 +203,7 @@ export const DiscordBadgeTool: React.FC = () => {
                 </div>
             </div>
             
-            <div className="mt-8 text-center text-sm text-zinc-500">
+            <div className="mt-8 text-center text-sm text-muted-foreground">
                <p>© apex systems</p>
             </div>
           </div>
