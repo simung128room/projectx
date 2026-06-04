@@ -31,7 +31,7 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
       style={{ animationDelay: `${index * 0.05}s` }}
     >
       {/* Banner Area */}
-      <div className="relative aspect-[21/9] w-full overflow-hidden shrink-0 bg-[#141416]">
+      <div className="relative aspect-[21/5] w-full overflow-hidden shrink-0 bg-[#141416]">
         {bgImage ? (
           <img
             src={bgImage}
@@ -48,11 +48,6 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
         {/* Top-to-Bottom, Left-to-Right Gradients */}
         <div className="absolute inset-0 bg-gradient-to-t from-[#0c0c0e] via-transparent to-transparent opacity-90" />
         <div className="absolute inset-0 bg-gradient-to-r from-[#0c0c0e]/40 to-transparent" />
-
-        {/* Watermark Logo Label */}
-        <div className="absolute bottom-2.5 left-3 px-2 py-0.5 rounded bg-black/60 backdrop-blur-md border border-white/[0.08] text-[9.5px] uppercase font-mono font-black text-white/80 tracking-widest leading-none select-none">
-          OG SHOP
-        </div>
       </div>
 
       {/* Content Area */}
