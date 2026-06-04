@@ -114,23 +114,28 @@ function CategoryChip({
   return (
     <button
       onClick={onClick}
-      className="relative group overflow-hidden rounded-xl border border-white/[0.07] bg-[#0d0d0d] hover:border-white/20 transition-all duration-300 active:scale-[0.97] text-left"
+      className="relative group overflow-hidden rounded-xl border border-white/[0.07] bg-[#0d0d0d] hover:border-white/20 transition-all duration-300 active:scale-[0.97] text-left w-full aspect-[21/5]"
     >
       {cat.bannerUrl ? (
         <>
           <img
             src={cat.bannerUrl}
             alt={cat.name}
-            className="w-full h-20 sm:h-24 object-cover opacity-50 group-hover:opacity-70 group-hover:scale-105 transition-all duration-500"
+            className="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-70 group-hover:scale-105 transition-all duration-500"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/30 to-transparent" />
         </>
       ) : (
-        <div className="w-full h-20 sm:h-24 bg-gradient-to-br from-white/5 to-white/[0.02]" />
+        <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-white/[0.02]" />
       )}
-      <div className="absolute bottom-0 inset-x-0 p-3 flex items-center justify-between">
-        <span className="text-sm font-bold text-white tracking-wide">{cat.name}</span>
-        <ChevronRight className="w-3.5 h-3.5 text-white/50 group-hover:text-white group-hover:translate-x-0.5 transition-all duration-200" />
+      <div className="absolute inset-0 p-4 sm:p-5 flex items-center justify-between z-10">
+        <div className="flex flex-col min-w-0 pr-2">
+          <span className="text-sm sm:text-base font-black text-white tracking-widest uppercase truncate">{cat.name}</span>
+          <span className="text-[9px] sm:text-[10px] text-white/30 tracking-wider">RECOMMENDED • 2100x500</span>
+        </div>
+        <div className="w-8 h-8 rounded-full bg-white/5 group-hover:bg-white/10 flex items-center justify-center shrink-0 transition-colors">
+          <ChevronRight className="w-4 h-4 text-white/50 group-hover:text-white group-hover:translate-x-0.5 transition-all duration-200" />
+        </div>
       </div>
     </button>
   );
@@ -158,7 +163,7 @@ function ProductCard({
   return (
     <div className="group relative bg-[#0d0d0d] border border-white/[0.06] rounded-xl overflow-hidden hover:border-white/[0.14] transition-all duration-300 flex flex-col">
       {/* Image area */}
-      <div className="relative aspect-[4/3] w-full bg-[#111] overflow-hidden shrink-0">
+      <div className="relative aspect-square w-full bg-[#111] overflow-hidden shrink-0">
         {hasImage ? (
           <img
             src={product.imageUrl}
@@ -209,12 +214,23 @@ function ProductCard({
         </p>
 
         {/* Price row */}
-        <div className="flex items-baseline gap-2 mb-2">
+        <div className="flex flex-wrap items-baseline gap-2 mb-2">
           <span className="text-[15px] font-black text-white">฿{product.price.toFixed(2)}</span>
           {product.originalPrice && product.price < product.originalPrice && (
-            <span className="text-[11px] text-white/30 line-through">฿{product.originalPrice.toFixed(2)}</span>
+            <>
+              <span className="text-[11px] text-white/30 line-through">฿{product.originalPrice.toFixed(2)}</span>
+            </>
           )}
         </div>
+
+        {/* Discount Badge below product (แอดมินตั้งจากราคาเดิมได้) */}
+        {discount !== null && (
+          <div className="mb-2.5">
+            <span className="inline-flex items-center gap-1.5 rounded-md bg-red-500/10 text-red-400 text-[10px] sm:text-[11px] font-extrabold px-2 py-1 border border-red-500/20 shadow-sm">
+              🔥 ลดราคาพิเศษ {discount}%
+            </span>
+          </div>
+        )}
 
         {/* Stock */}
         <p className="text-[10px] text-white/30 font-medium mb-3">
@@ -319,15 +335,18 @@ export const HomeView: React.FC<HomeViewProps> = ({
         {categories.length > 0 && (
           <section className="mb-10">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-base font-black text-white tracking-tight">หมวดหมู่</h2>
+              <div className="flex items-center gap-2">
+                <LayoutGrid className="w-5 h-5 text-neon-green" />
+                <h2 className="text-base font-black text-white tracking-tight uppercase">หมวดหมู่แนะนำ</h2>
+              </div>
               <button
-                className="text-xs text-white/40 hover:text-white/70 transition-colors flex items-center gap-1"
+                className="text-xs text-white/40 hover:text-white/70 transition-colors flex items-center gap-1 font-semibold"
                 onClick={() => setActiveView("categories")}
               >
                 ดูทั้งหมด <ChevronRight className="w-3.5 h-3.5" />
               </button>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {categories.slice(0, 4).map((cat) => (
                 <CategoryChip key={cat.id} cat={cat} onClick={() => onSelectCategory(cat.id)} />
               ))}
@@ -338,10 +357,19 @@ export const HomeView: React.FC<HomeViewProps> = ({
         {/* ── Products ── */}
         <section>
           <div className="flex items-center justify-between mb-5">
-            <div>
-              <h2 className="text-base font-black text-white tracking-tight">สินค้าทั้งหมด</h2>
-              <p className="text-xs text-white/30 mt-0.5">ของดี มีจำกัด รีบเป็นเจ้าของ</p>
+            <div className="flex items-center gap-2">
+              <Star className="w-5 h-5 text-neon-yellow fill-neon-yellow animate-pulse" />
+              <div>
+                <h2 className="text-base font-black text-white tracking-tight uppercase">สินค้าแนะนำ</h2>
+                <p className="text-xs text-white/30 mt-0.5">ของดี มีจำกัด รีบเป็นเจ้าของ</p>
+              </div>
             </div>
+            <button
+              className="text-xs text-white/40 hover:text-white/70 transition-colors flex items-center gap-1 font-semibold"
+              onClick={() => setActiveView("categories")}
+            >
+              ดูทั้งหมด <ChevronRight className="w-3.5 h-3.5" />
+            </button>
           </div>
 
           {safeProducts.length === 0 ? (
@@ -356,13 +384,6 @@ export const HomeView: React.FC<HomeViewProps> = ({
             </div>
           )}
         </section>
-
-        {/* ── Footer ── */}
-        <footer className="mt-16 pt-8 border-t border-white/[0.06] text-center">
-          <p className="text-xs text-white/20">
-            © {new Date().getFullYear()} APEX STORE — สงวนลิขสิทธิ์
-          </p>
-        </footer>
 
       </div>
     </div>
