@@ -157,35 +157,56 @@ function ShortcutBtn({
 
 function CategoryChip({
   cat,
+  products,
   onClick,
 }: {
   cat: Category;
+  products: Product[];
   onClick: () => void;
 }) {
+  const productCount = products.filter(
+    (p) => p.category === cat.id || p.category === cat.name || p.category === cat.title
+  ).length;
+
   return (
     <button
       onClick={onClick}
-      className="relative group overflow-hidden rounded-xl border border-white/[0.07] bg-[#0d0d0d] hover:border-white/20 transition-all duration-300 active:scale-[0.97] text-left w-full aspect-[21/5]"
+      className="relative group overflow-hidden rounded-xl border border-white/[0.07] bg-[#0d0d0d] hover:border-white/20 transition-all duration-300 active:scale-[0.98] text-left w-full aspect-[21/5] cursor-pointer"
     >
       {cat.bannerUrl ? (
         <>
           <img
             src={cat.bannerUrl}
-            alt={cat.name}
-            className="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-70 group-hover:scale-105 transition-all duration-500"
+            alt={cat.name || cat.title}
+            className="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:opacity-60 group-hover:scale-[1.02] transition-all duration-500"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/30 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/60 to-transparent" />
         </>
       ) : (
         <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-white/[0.02]" />
       )}
-      <div className="absolute inset-0 p-4 sm:p-5 flex items-center justify-between z-10">
-        <div className="flex flex-col min-w-0 pr-2">
-          <span className="text-sm sm:text-base font-black text-white tracking-widest uppercase truncate">{cat.name}</span>
-          <span className="text-[9px] sm:text-[10px] text-white/30 tracking-wider">RECOMMENDED • 2100x500</span>
+      <div className="absolute inset-0 p-4 sm:p-[20px] flex flex-col justify-between z-10 select-none">
+        <div>
+          {/* ชื่อหมวดหมู่ */}
+          <span className="text-sm sm:text-lg md:text-xl font-black text-white tracking-widest uppercase truncate block">
+            {cat.name || cat.title}
+          </span>
+          
+          {/* แถบสั้นยาว */}
+          <div className="w-8 group-hover:w-20 h-[3px] bg-neon-green transition-all duration-300 mt-1.5 sm:mt-2 rounded-full" />
         </div>
-        <div className="w-8 h-8 rounded-full bg-white/5 group-hover:bg-white/10 flex items-center justify-center shrink-0 transition-colors">
-          <ChevronRight className="w-4 h-4 text-white/50 group-hover:text-white group-hover:translate-x-0.5 transition-all duration-200" />
+
+        <div className="flex items-center justify-between mt-auto">
+          {/* มีสินค้าทั้งหมด # รายการ */}
+          <span className="text-[10px] sm:text-xs text-white/50 group-hover:text-white/80 transition-colors uppercase font-bold tracking-wider flex items-center gap-1.5 sm:gap-2">
+            <Package className="w-3.5 h-3.5 text-white/30 shrink-0" />
+            <span>มีสินค้าทั้งหมด <span className="text-neon-green font-black font-mono">{productCount}</span> รายการ</span>
+          </span>
+
+          {/* [ ไอคอน ] */}
+          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/5 border border-white/5 group-hover:bg-neon-green/15 group-hover:border-neon-green/35 flex items-center justify-center shrink-0 transition-all duration-300">
+            <ChevronRight className="w-4 h-4 text-white/40 group-hover:text-neon-green group-hover:translate-x-0.5 transition-all duration-200" />
+          </div>
         </div>
       </div>
     </button>
@@ -384,10 +405,6 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
         {/* ── Quick Shortcut Buttons ── */}
         <section className="mb-8">
-          <div className="flex items-center gap-2 mb-4">
-            <Zap className="w-5 h-5 text-neon-green" />
-            <h2 className="text-base font-black text-white tracking-tight uppercase">ทางลัดด่วน / QUICK ACTIONS</h2>
-          </div>
           <div className="grid grid-cols-2 gap-3 sm:gap-4">
             <ShortcutBtn
               label="สั่งซื้อสินค้า"
@@ -441,7 +458,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {categories.slice(0, 4).map((cat) => (
-                <CategoryChip key={cat.id} cat={cat} onClick={() => onSelectCategory(cat.id)} />
+                <CategoryChip key={cat.id} cat={cat} products={products} onClick={() => onSelectCategory(cat.id)} />
               ))}
             </div>
           </section>
