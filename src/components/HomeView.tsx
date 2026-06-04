@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Product, SiteStats, Category } from "../types";
-import { ShoppingCart, Package, Users, ChevronRight, Zap, Star, Clock } from "lucide-react";
+import { ShoppingCart, Package, Users, ChevronRight, Zap, Star, Clock, LayoutGrid } from "lucide-react";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -284,7 +284,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
         </div>
 
         {/* ── Stats Row ── */}
-        <div className="grid grid-cols-2 gap-3 mb-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
           <StatCard
             label="สมาชิกทั้งหมด"
             value={totalMembers}
@@ -293,11 +293,25 @@ export const HomeView: React.FC<HomeViewProps> = ({
             accent="rgba(99,102,241,0.4)"
           />
           <StatCard
-            label="สินค้าในสต็อก"
+            label="พร้อมจำหน่าย"
             value={totalStock}
             unit="ชิ้น"
             icon={Package}
             accent="rgba(245,158,11,0.4)"
+          />
+          <StatCard
+            label="หมวดหมู่ทั้งหมด"
+            value={categories.length}
+            unit="หมวดหมู่"
+            icon={LayoutGrid}
+            accent="rgba(16,185,129,0.4)"
+          />
+          <StatCard
+            label="ยอดขาย"
+            value={totalSales}
+            unit="ครั้ง"
+            icon={ShoppingCart}
+            accent="rgba(239,68,68,0.4)"
           />
         </div>
 
