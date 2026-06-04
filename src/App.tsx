@@ -2769,90 +2769,90 @@ function AppContent() {
                         style={{
                           maxHeight: isUserMenuOpen ? "500px" : "0px",
                           opacity: isUserMenuOpen ? 1 : 0,
-                          marginTop: isUserMenuOpen ? "4px" : "0px",
+                          marginTop: isUserMenuOpen ? "6px" : "0px",
                         }}
                       >
-                        <div className="bg-white/[0.01] border border-white/[0.05] rounded-xl overflow-hidden mt-1 flex flex-col divide-y divide-white/[0.03]">
+                        <div className="bg-[#0b0b0c] border border-zinc-800 rounded-xl overflow-hidden mt-1 flex flex-col divide-y divide-white/[0.04] shadow-2xl relative">
                           <div
-                            className={`flex items-center gap-3 p-3 text-xs font-medium text-white/60 cursor-pointer transition-colors ${activeView === "profile" ? "bg-white/5 text-white" : "hover:bg-white/[0.02] hover:text-white"}`}
+                            className={`flex items-center gap-3.5 px-4 py-3.5 text-sm font-semibold cursor-pointer transition-all ${activeView === "profile" ? "bg-white/[0.04] text-white border-l-2 border-neon-green pl-[14px]" : "text-zinc-400 hover:text-white hover:bg-white/[0.02] hover:pl-[18px]"}`}
                             onClick={() => {
                               setActiveView("profile");
                               setIsMobileMenuOpen(false);
                             }}
                           >
-                            <User className="w-[14px] h-[14px] text-white/40" />
+                            <User className={`w-4.5 h-4.5 transition-colors ${activeView === "profile" ? "text-neon-green" : "text-zinc-500"}`} />
                             โปรไฟล์
                           </div>
                           
                           <div
-                            className={`flex items-center gap-3 p-3 text-xs font-medium text-white/60 cursor-pointer transition-colors ${activeView === "settings" ? "bg-white/5 text-white" : "hover:bg-white/[0.02] hover:text-white"}`}
+                            className={`flex items-center gap-3.5 px-4 py-3.5 text-sm font-semibold cursor-pointer transition-all ${activeView === "settings" ? "bg-white/[0.04] text-white border-l-2 border-neon-green pl-[14px]" : "text-zinc-400 hover:text-white hover:bg-white/[0.02] hover:pl-[18px]"}`}
                             onMouseEnter={() => settingsImport()}
                             onClick={() => {
                               setActiveView("settings");
                               setIsMobileMenuOpen(false);
                             }}
                           >
-                            <Settings className="w-[14px] h-[14px] text-white/40" />
+                            <Settings className={`w-4.5 h-4.5 transition-colors ${activeView === "settings" ? "text-neon-green" : "text-zinc-500"}`} />
                             การตั้งค่าผู้ใช้
                           </div>
                           
                           <div
-                            className={`flex items-center gap-3 p-3 text-xs font-medium text-white/60 cursor-pointer transition-colors ${activeView === "wallet_history" ? "bg-white/5 text-white" : "hover:bg-white/[0.02] hover:text-white"}`}
+                            className={`flex items-center gap-3.5 px-4 py-3.5 text-sm font-semibold cursor-pointer transition-all ${activeView === "wallet_history" ? "bg-white/[0.04] text-white border-l-2 border-neon-green pl-[14px]" : "text-zinc-400 hover:text-white hover:bg-white/[0.02] hover:pl-[18px]"}`}
                             onMouseEnter={() => historyImport()}
                             onClick={() => {
                               setActiveView("wallet_history");
                               setIsMobileMenuOpen(false);
                             }}
                           >
-                            <Wallet className="w-[14px] h-[14px] text-white/40" />
+                            <Wallet className={`w-4.5 h-4.5 transition-colors ${activeView === "wallet_history" ? "text-neon-green" : "text-zinc-500"}`} />
                             ประวัติเติมเงิน
                           </div>
                           
                           <div
-                            className={`flex items-center gap-3 p-3 text-xs font-medium text-white/60 cursor-pointer transition-colors ${activeView === "order_history" ? "bg-white/5 text-white" : "hover:bg-white/[0.02] hover:text-white"}`}
+                            className={`flex items-center gap-3.5 px-4 py-3.5 text-sm font-semibold cursor-pointer transition-all ${activeView === "order_history" ? "bg-white/[0.04] text-white border-l-2 border-neon-green pl-[14px]" : "text-zinc-400 hover:text-white hover:bg-white/[0.02] hover:pl-[18px]"}`}
                             onMouseEnter={() => historyImport()}
                             onClick={() => {
                               setActiveView("order_history");
                               setIsMobileMenuOpen(false);
                             }}
                           >
-                            <ShoppingBag className="w-[14px] h-[14px] text-white/40" />
+                            <ShoppingBag className={`w-4.5 h-4.5 transition-colors ${activeView === "order_history" ? "text-neon-green" : "text-zinc-500"}`} />
                             ประวัติการซื้อสินค้า
                           </div>
                           
                           <div
-                            className={`flex items-center gap-3 p-3 text-xs font-medium text-white/60 cursor-pointer transition-colors ${activeView === "random_history" ? "bg-white/5 text-white" : "hover:bg-white/[0.02] hover:text-white"}`}
+                            className={`flex items-center gap-3.5 px-4 py-3.5 text-sm font-semibold cursor-pointer transition-all ${activeView === "random_history" ? "bg-white/[0.04] text-white border-l-2 border-neon-green pl-[14px]" : "text-zinc-400 hover:text-white hover:bg-white/[0.02] hover:pl-[18px]"}`}
                             onMouseEnter={() => historyImport()}
                             onClick={() => {
                               setActiveView("random_history");
                               setIsMobileMenuOpen(false);
                             }}
                           >
-                            <Gift className="w-[14px] h-[14px] text-white/40" />
+                            <Gift className={`w-4.5 h-4.5 transition-colors ${activeView === "random_history" ? "text-neon-green" : "text-zinc-500"}`} />
                             ประวัติการสุ่มสินค้า
                           </div>
                           
                           {isAdmin && (
                             <div
-                              className="flex items-center gap-3 p-3 text-xs font-extrabold text-neon-green cursor-pointer transition-colors hover:bg-white/[0.02]"
+                              className={`flex items-center gap-3.5 px-4 py-3.5 text-sm font-bold cursor-pointer transition-all ${activeView === "admin" ? "bg-white/[0.04] text-neon-green border-l-2 border-neon-green pl-[14px]" : "text-neon-green/80 hover:text-neon-green hover:bg-white/[0.02] hover:pl-[18px]"}`}
                               onClick={() => {
                                 setActiveView("admin");
                                 setIsMobileMenuOpen(false);
                               }}
                             >
-                              <ShieldAlert className="w-[14px] h-[14px]" />
+                              <ShieldCheck className="w-4.5 h-4.5 text-neon-green animate-pulse" />
                               จัดการหลังบ้าน
                             </div>
                           )}
                           
                           <div
-                            className="flex items-center gap-3 p-3 text-xs font-semibold text-red-400 cursor-pointer transition-colors hover:bg-red-500/10"
+                            className="flex items-center gap-3.5 px-4 py-3.5 text-sm font-bold text-red-550/90 cursor-pointer transition-all hover:text-red-400 hover:bg-red-500/10 hover:pl-[18px]"
                             onClick={() => {
                               handleLogout();
                               setIsMobileMenuOpen(false);
                             }}
                           >
-                            <LogOut className="w-[14px] h-[14px]" />
+                            <LogOut className="w-4.5 h-4.5 text-red-500/90" />
                             ออกจากระบบ
                           </div>
                         </div>
