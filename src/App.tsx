@@ -2140,22 +2140,9 @@ function AppContent() {
     );
 
   const isHomeViewReady = (products.length > 0 && categories.length > 0 && siteSettings !== null) || forceReveal;
-  if (!isLoaded || (!isHomeViewReady && !dbErrorDetail))
-    return (
-      <div className="min-h-screen bg-card flex flex-col items-center justify-center font-sans overflow-hidden relative brut-card">
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          className="relative flex flex-col items-center justify-center z-10 max-w-sm px-6 text-center"
-        >
-          {/* Loader animation cube - perfectly centered */}
-          <div className="relative flex justify-center">
-            <div className="page-loader-cube" />
-          </div>
-        </motion.div>
-      </div>
-    );
+  if (!isLoaded || (!isHomeViewReady && !dbErrorDetail)) {
+    return <PortalLoader />;
+  }
 
   return (
     <div className="min-h-screen w-full bg-[#030303] text-white font-sans selection:bg-[#050505]/80 flex flex-col relative">
@@ -3735,6 +3722,99 @@ function AppContent() {
     </div>
   );
 }
+
+const PortalLoader: React.FC = () => {
+  const [msgIdx, setMsgIdx] = useState(0);
+  const [progress, setProgress] = useState(0);
+  
+  const messages = [
+    "กำลังเข้าสู่แพลตฟอร์ม APEX STORE...",
+    "กำลังเชื่อมต่อกับฐานข้อมูลหลัก...",
+    "กำลังซิงค์ข้อมูลหมวดหมู่และคอลเลกชันสินค้า...",
+    "กำลังรักษาความปลอดภัยช่องทางเซสชัน...",
+    "ยินดีต้อนรับ! กำลังตั้งค่าสถานะหน้าแรก..."
+  ];
+
+  useEffect(() => {
+    const msgInterval = setInterval(() => {
+      setMsgIdx((prev) => (prev + 1) % messages.length);
+    }, 1200);
+
+    const progressInterval = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 98) {
+          clearInterval(progressInterval);
+          return 98;
+        }
+        return prev + Math.floor(Math.random() * 6) + 3;
+      });
+    }, 80);
+
+    return () => {
+      clearInterval(msgInterval);
+      clearInterval(progressInterval);
+    };
+  }, []);
+
+  return (
+    <div className="min-h-screen w-full bg-[#030303] flex flex-col items-center justify-center font-sans overflow-hidden relative">
+      {/* Decorative backdrop elements */}
+      <div className="absolute inset-0 bg-[radial-gradient(#1e1e24_1px,transparent_1px)] [background-size:24px_24px] opacity-40 pointer-events-none" />
+      <div className="absolute top-1/4 left-1/4 w-80 h-80 rounded-full bg-neon-green/5 blur-[100px] pointer-events-none" />
+      <div className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full bg-blue-500/5 blur-[100px] pointer-events-none" />
+
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.6 }}
+        className="relative flex flex-col items-center justify-center z-10 max-w-sm px-6 text-center select-none"
+      >
+        {/* Glow backdrop behind Logo */}
+        <div className="relative mb-6">
+          <div className="absolute inset-0 bg-neon-green/15 blur-[40px] rounded-full scale-90 animate-pulse" />
+          <motion.img
+            src="https://img2.pic.in.th/IMG_718032ab9d504326a436.png"
+            alt="APEXSTORE Logo"
+            className="h-16 md:h-18 object-contain relative z-10 filter drop-shadow-[0_0_20px_rgba(16,185,129,0.3)]"
+            animate={{
+              scale: [0.97, 1.03, 0.97],
+            }}
+            transition={{
+              duration: 2.5,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          />
+        </div>
+
+        {/* Dynamic percentage */}
+        <div className="flex items-center justify-between w-60 mb-2">
+          <span className="text-[10px] font-black font-mono text-neon-green tracking-widest uppercase">System Initialization</span>
+          <span className="text-xs font-black font-mono text-neon-green">{Math.min(progress, 99)}%</span>
+        </div>
+
+        {/* Glowing Linear Progress Bar */}
+        <div className="w-60 bg-zinc-950 border border-white/[0.06] h-2 rounded-full overflow-hidden p-0.5 mb-6">
+          <div 
+            className="h-full bg-gradient-to-r from-neon-green to-emerald-400 rounded-full shadow-[0_0_12px_rgba(16,185,129,0.7)] transition-all duration-150 ease-out"
+            style={{ width: `${Math.min(progress, 100)}%` }}
+          />
+        </div>
+
+        {/* Loading details */}
+        <div className="flex flex-col items-center gap-2 h-14">
+          <span className="text-zinc-500 font-mono text-[9px] tracking-widest uppercase flex items-center gap-1.5 justify-center">
+            <span className="w-1 h-1 rounded-full bg-neon-green animate-ping" />
+            <span>CONNECTING PROTOCOL</span>
+          </span>
+          <div className="text-xs font-medium text-white/50 tracking-wide">
+            {messages[msgIdx]}
+          </div>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
 
 export default function App() {
   return (
