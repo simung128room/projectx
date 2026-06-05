@@ -2366,51 +2366,58 @@ const diskUpload = multer({ dest: uploadDir });
 
       let totalSales = 0;
       let totalPurchaseOrders = 0;
-      try {
-        // Optimized: Single query instead of recursive chunk loop requests
-        const { data, error } = await supabaseAdmin.from('purchases').select('price');
-        if (!error && data) {
-          totalPurchaseOrders = data.length;
-          for (const p of data) {
-            totalSales += (Number(p.price) || 0);
-          }
-        } else {
-          const purchases = await getCachedCollection('purchases', 60000);
-          purchases.forEach((p: any) => {
-            totalSales += (Number(p.price) || 0);
-            totalPurchaseOrders++;
-          });
-        }
-      } catch(e) {}
-
       let totalTopupsAmount = 0;
-      try {
-        // Optimized: Single query select for speed
-        const { data, error } = await supabaseAdmin.from('topups').select('amount');
-        if (!error && data) {
-          for (const t of data) {
-            totalTopupsAmount += (Number(t.amount) || 0);
-          }
-        } else {
-          const topups = await getCachedCollection('topups', 60000);
-          topups.forEach((t: any) => totalTopupsAmount += (Number(t.amount) || 0));
-        }
-      } catch(e) {}
-
       let totalUsersCount = 0;
-      try {
-        // Since we insert user profile documents in Firestore on signup, Firestore is our primary database
-        const users = await getCachedCollection('users', 60000);
-        totalUsersCount = users.length;
-      } catch (e) {
-        console.error('Firestore users count error, trying fallback:', e);
-        try {
-          const { count, error } = await supabaseAdmin.from('users').select('*', { count: 'exact', head: true });
-          if (!error && count !== null) {
-            totalUsersCount = count;
+
+      await Promise.all([
+        (async () => {
+          try {
+            // Optimized: Single query instead of recursive chunk loop requests
+            const { data, error } = await supabaseAdmin.from('purchases').select('price');
+            if (!error && data) {
+              totalPurchaseOrders = data.length;
+              for (const p of data) {
+                totalSales += (Number(p.price) || 0);
+              }
+            } else {
+              const purchases = await getCachedCollection('purchases', 60000);
+              purchases.forEach((p: any) => {
+                totalSales += (Number(p.price) || 0);
+                totalPurchaseOrders++;
+              });
+            }
+          } catch(e) {}
+        })(),
+        (async () => {
+          try {
+            // Optimized: Single query select for speed
+            const { data, error } = await supabaseAdmin.from('topups').select('amount');
+            if (!error && data) {
+              for (const t of data) {
+                totalTopupsAmount += (Number(t.amount) || 0);
+              }
+            } else {
+              const topups = await getCachedCollection('topups', 60000);
+              topups.forEach((t: any) => totalTopupsAmount += (Number(t.amount) || 0));
+            }
+          } catch(e) {}
+        })(),
+        (async () => {
+          try {
+            // Since we insert user profile documents in Firestore on signup, Firestore is our primary database
+            const users = await getCachedCollection('users', 60000);
+            totalUsersCount = users.length;
+          } catch (e) {
+            console.error('Firestore users count error, trying fallback:', e);
+            try {
+              const { count, error } = await supabaseAdmin.from('users').select('*', { count: 'exact', head: true });
+              if (!error && count !== null) {
+                totalUsersCount = count;
+              }
+            } catch (se) {}
           }
-        } catch (se) {}
-      }
+        })()
+      ]);
 
       cachedStats = {
         users: siteSettings.stats_users_override !== undefined && siteSettings.stats_users_override !== null && !isNaN(siteSettings.stats_users_override) ? siteSettings.stats_users_override : totalUsersCount + (siteSettings.stats_users_offset || 0),
@@ -2448,23 +2455,29 @@ const diskUpload = multer({ dest: uploadDir });
   app.get('/api/purchases', requireAuth, async (req: any, res: any) => {
     try {
       const adminDb = admin.firestore();
+      
+      const limit = Math.min(100, parseInt(req.query.limit) || 20);
+      const lastDocumentId = req.query.lastDocumentId;
+
       let q: any = adminDb.collection('purchases');
       
-      const page = Math.max(1, parseInt(req.query.page) || 1);
-      const limit = Math.min(100, parseInt(req.query.limit) || 20);
-      const offset = (page - 1) * limit;
-
-      if (req.isAdmin) {
-        let snapshot = q.orderBy('date', 'desc').limit(limit).offset(offset);
-        const snap = await snapshot.get();
-        let data = snap.docs.map((doc: any) => ({ dbId: doc.id, ...doc.data() }));
-        return res.json(data);
-      } else {
-        let snapshot = q.where('userId', '==', (req as any).user.uid).orderBy('date', 'desc').limit(limit).offset(offset);
-        const snap = await snapshot.get();
-        let data = snap.docs.map((doc: any) => ({ dbId: doc.id, ...doc.data() }));
-        return res.json(data);
+      if (!req.isAdmin) {
+        q = q.where('userId', '==', (req as any).user.uid);
       }
+      
+      q = q.orderBy('date', 'desc');
+
+      if (lastDocumentId) {
+        const lastDoc = await adminDb.collection('purchases').doc(lastDocumentId).get();
+        if (lastDoc.exists) {
+          q = q.startAfter(lastDoc);
+        }
+      }
+      
+      q = q.limit(limit);
+      const snap = await q.get();
+      let data = snap.docs.map((doc: any) => ({ dbId: doc.id, ...doc.data() }));
+      return res.json(data);
     } catch (err: any) {
       console.error('Error fetching purchases:', err.message || err);
       res.status(500).json({ error: String(err && err.message ? err.message : err) });

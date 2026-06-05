@@ -443,7 +443,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
         {/* ── Hero Banner ── */}
         <div className="relative overflow-hidden rounded-2xl border border-white/[0.07] mb-8 min-h-[160px] sm:min-h-[220px] bg-[#0d0d0d]">
           <img
-            src="https://i.postimg.cc/pVnngYLx/apex-storeth-v4-resized.png"
+            src="https://img2.pic.in.th/IMG_7177176d5344301b32a1.png"
             alt="APEX STORE"
             className="w-full h-full object-cover"
           />
