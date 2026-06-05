@@ -2177,12 +2177,12 @@ function AppContent() {
       {/* Desktop Sidebar */}
       <aside className="hidden">
         <div className="mb-10 w-full flex justify-start">
-          <span 
-            className="font-changa text-3xl font-black italic tracking-wider text-blue-600 hover:scale-105 active:scale-95 transition-all duration-205 cursor-pointer select-none"
+          <img
+            src="https://img2.pic.in.th/IMG_718032ab9d504326a436.png"
+            alt="APEXSTORE Logo"
+            className="h-[42px] object-contain hover:scale-105 active:scale-95 transition-all duration-205 cursor-pointer"
             onClick={handleLogoClick}
-          >
-            APEXSTORE
-          </span>
+          />
         </div>
         <div className="flex-1 space-y-1">
           <div className="flex items-center py-[8px] my-1">
@@ -2395,12 +2395,7 @@ function AppContent() {
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
           >
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-neon-green/20 to-black border border-neon-green/30 group-hover:border-neon-green/50 flex items-center justify-center shrink-0 transition-all duration-300 shadow-[0_0_15px_rgba(57,255,20,0.15)] group-hover:shadow-[0_0_20px_rgba(57,255,20,0.3)]">
-              <Zap className="w-5 h-5 text-neon-green animate-pulse" />
-            </div>
-            <span className="font-mono font-black text-xl md:text-2xl tracking-widest text-white uppercase select-none leading-none">
-              APEX<span className="text-neon-green font-black">STORE</span>
-            </span>
+            <img src="https://img2.pic.in.th/IMG_718032ab9d504326a436.png" alt="APEXSTORE Logo" className="h-[36px] md:h-[42px] object-contain" />
           </div>
 
           {/* Desktop Navigation */}
@@ -2602,9 +2597,7 @@ function AppContent() {
                       setIsMobileMenuOpen(false);
                     }}
                   >
-                    <span className="font-mono text-xl font-black tracking-widest text-white uppercase">
-                      APEX<span className="text-neon-green font-black select-none">STORE</span>
-                    </span>
+                    <img src="https://img2.pic.in.th/IMG_718032ab9d504326a436.png" alt="APEXSTORE Logo" className="h-[32px] object-contain" />
                   </div>
                   <span className="text-[9px] font-mono font-semibold text-white/20 tracking-[0.2em] uppercase mt-1 ml-8.5">
                     PREMIUM STOREFRONT

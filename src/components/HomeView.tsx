@@ -17,54 +17,6 @@ interface HomeViewProps {
   onSelectCategory: (categoryId: string) => void;
 }
 
-// ─── Ticker (animated sale feed) ─────────────────────────────────────────────
-
-const RECENT_SALES = [
-  { user: "อ***ร", product: "ROV สุ่มไอดีเทพ",      price: 0.99, time: "1 นาที" },
-  { user: "ก***ย", product: "ROV ของคุ้มระดับกลาง",  price: 35,   time: "2 นาที" },
-  { user: "ส***น", product: "ROV ไอดีระดับสูง",      price: 89,   time: "5 นาที" },
-  { user: "ป***ก", product: "ROV สกินหายาก",         price: 120,  time: "8 นาที" },
-  { user: "น***ต", product: "ROV แพ็กเกจพรีเมียม",  price: 199,  time: "12 นาที" },
-];
-
-function SaleTicker() {
-  const [index, setIndex] = useState(0);
-  const [visible, setVisible] = useState(true);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setVisible(false);
-      setTimeout(() => {
-        setIndex((i) => (i + 1) % RECENT_SALES.length);
-        setVisible(true);
-      }, 400);
-    }, 3200);
-    return () => clearInterval(interval);
-  }, []);
-
-  const sale = RECENT_SALES[index];
-
-  return (
-    <div className="flex items-center gap-3 overflow-hidden">
-      <div
-        className="flex items-center gap-2 text-sm transition-all duration-400"
-        style={{
-          opacity: visible ? 1 : 0,
-          transform: visible ? "translateY(0)" : "translateY(-6px)",
-        }}
-      >
-        <span className="font-semibold text-white/80">{sale.user}</span>
-        <span className="text-white/40">ซื้อ</span>
-        <span className="text-white truncate max-w-[160px] sm:max-w-none">{sale.product}</span>
-        <span className="shrink-0 font-bold text-amber-400">฿{sale.price.toFixed(2)}</span>
-        <span className="shrink-0 text-white/30 text-xs flex items-center gap-1">
-          <Clock className="w-3 h-3" /> {sale.time}
-        </span>
-      </div>
-    </div>
-  );
-}
-
 // ─── Animated Number Generator ───────────────────────────────────────────────
 
 interface AnimatedNumberProps {
@@ -427,13 +379,6 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
   return (
     <div className="w-full min-h-screen bg-[#070707] text-white font-sans antialiased">
-      {/* Live ticker bar */}
-      <div className="sticky top-0 z-30 border-b border-white/[0.06] bg-[#070707]/90 backdrop-blur-md px-4 py-2.5">
-        <div className="max-w-4xl mx-auto">
-          <SaleTicker />
-        </div>
-      </div>
-
       <div className="max-w-4xl mx-auto px-4 md:px-6 pb-24 pt-6">
 
         {/* ── Hero Banner ── */}
