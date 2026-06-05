@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import axios from "axios";
 import { Product, SiteStats, Category } from "../types";
-import { ShoppingCart, Package, Users, ChevronRight, Zap, Star, Clock, LayoutGrid, History, MessageSquare, Coins } from "lucide-react";
+import { ShoppingCart, Package, Users, ChevronRight, Zap, Star, Clock, LayoutGrid, History, MessageSquare, Coins, Megaphone } from "lucide-react";
 import { motion } from "motion/react";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -446,20 +446,20 @@ export const HomeView: React.FC<HomeViewProps> = ({
         </motion.div>
 
         {/* ── Announcement Bar ── */}
-        {((siteSettings?.announcement_text ?? "ยินดีต้อนรับสู่ APEXSTORE ศูนย์รวมสินค้าไอดีและข้อเสนอยอดฮิต ระบบซื้อขายทำงานอัตโนมัติ 24 ชั่วโมง - กรณีมีปัญหาโปรดติดต่อแอดมิน").trim() !== '') && (
+        {((siteSettings?.announcement_text ?? "ยินดีต้อนรับทุกท่านเข้าสู่ APEX STORE จำหน่ายไอดีราคาถูก | มีปัญหาติดต่อดิสอคร์ดเร็วที่สุด").trim() !== '') && (
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
             className="mb-8 flex items-center bg-zinc-900/50 border border-white/[0.06] rounded-xl px-4 py-2.5 overflow-hidden"
           >
-            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-red-500/10 text-red-500 shrink-0 mr-3 shadow-[0_0_10px_rgba(239,68,68,0.2)]">
-              {/* Using Megaphone or Volume2 icon from lucide-react */}
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="animate-pulse"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
+            <div className="flex items-center justify-center bg-red-500/10 px-2.5 py-1.5 rounded-lg border border-red-500/20 text-red-400 shrink-0 mr-3 shadow-[0_0_15px_rgba(239,68,68,0.1)] gap-1.5 font-black text-xs select-none">
+              <Megaphone className="w-3.5 h-3.5 animate-bounce" />
+              <span>ประกาศ</span>
             </div>
             <div className="flex-1 overflow-hidden relative" style={{ minWidth: 0 }}>
-              <div className="text-sm font-medium text-white/80 tracking-wide pt-1 animate-marquee-css inline-block whitespace-nowrap">
-                {siteSettings?.announcement_text ?? "ยินดีต้อนรับสู่ APEXSTORE ศูนย์รวมสินค้าไอดีและข้อเสนอยอดฮิต ระบบซื้อขายทำงานอัตโนมัติ 24 ชั่วโมง - กรณีมีปัญหาโปรดติดต่อแอดมิน"}
+              <div className="text-sm font-semibold text-white/90 tracking-wide pt-0.5 animate-marquee-css inline-block whitespace-nowrap">
+                {siteSettings?.announcement_text ?? "ยินดีต้อนรับทุกท่านเข้าสู่ APEX STORE จำหน่ายไอดีราคาถูก | มีปัญหาติดต่อดิสอคร์ดเร็วที่สุด"}
               </div>
             </div>
           </motion.div>

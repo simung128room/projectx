@@ -185,62 +185,80 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
           <AnimatePresence mode="popLayout">
             {/* Username field */}
             <motion.div layout key="username" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} transition={{ duration: 0.2 }}>
-              <div className="relative group">
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within:text-white transition-colors">
-                  <User className="w-4.5 h-4.5" />
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-extrabold text-white/60 tracking-wider pl-1 flex items-center gap-1.5 select-none uppercase">
+                  <User className="w-3.5 h-3.5 text-white/40" />
+                  <span>ชื่อผู้ใช้ (Username)</span>
+                </label>
+                <div className="relative group">
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within:text-white transition-colors">
+                    <User className="w-4.5 h-4.5" />
+                  </div>
+                  <input 
+                    type="text" 
+                    value={authUsername}
+                    onChange={(e) => setAuthUsername(e.target.value)}
+                    className="w-full pl-11 pr-4 py-3.5 bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.04] focus:bg-white/[0.04] focus:border-white/20 rounded-xl outline-none transition-all text-white text-sm placeholder:text-white/20 font-sans animate-none"
+                    placeholder="กรอกชื่อผู้ใช้ของคุณ"
+                    required
+                  />
                 </div>
-                <input 
-                  type="text" 
-                  value={authUsername}
-                  onChange={(e) => setAuthUsername(e.target.value)}
-                  className="w-full pl-11 pr-4 py-3.5 bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.04] focus:bg-white/[0.04] focus:border-white/20 rounded-xl outline-none transition-all text-white text-sm placeholder:text-white/20 font-sans"
-                  placeholder="ชื่อผู้ใช้ (Username)"
-                  required
-                />
               </div>
             </motion.div>
 
             {/* Email field (Only for signup/forgot) */}
             {(authMode === 'signup' || authMode === 'forgot') && (
               <motion.div layout key="email" initial={{ opacity: 0, height: 0, scale: 0.95 }} animate={{ opacity: 1, height: 'auto', scale: 1 }} exit={{ opacity: 0, height: 0, scale: 0.95 }} transition={{ duration: 0.2 }}>
-                <div className="relative group mt-4">
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within:text-white transition-colors">
-                    <Mail className="w-4.5 h-4.5" />
+                <div className="flex flex-col gap-1.5 mt-4">
+                  <label className="text-xs font-extrabold text-white/60 tracking-wider pl-1 flex items-center gap-1.5 select-none uppercase">
+                    <Mail className="w-3.5 h-3.5 text-white/40" />
+                    <span>อีเมลติดต่อกลับ (Recovery Email)</span>
+                  </label>
+                  <div className="relative group">
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within:text-white transition-colors">
+                      <Mail className="w-4.5 h-4.5" />
+                    </div>
+                    <input 
+                      type="email" 
+                      value={authEmail}
+                      onChange={(e) => setAuthEmail(e.target.value)}
+                      className="w-full pl-11 pr-4 py-3.5 bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.04] focus:bg-white/[0.04] focus:border-white/20 rounded-xl outline-none transition-all text-white text-sm placeholder:text-white/20 font-sans"
+                      placeholder="เช่น admin@yourdomain.com"
+                      required
+                    />
                   </div>
-                  <input 
-                    type="email" 
-                    value={authEmail}
-                    onChange={(e) => setAuthEmail(e.target.value)}
-                    className="w-full pl-11 pr-4 py-3.5 bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.04] focus:bg-white/[0.04] focus:border-white/20 rounded-xl outline-none transition-all text-white text-sm placeholder:text-white/20 font-sans"
-                    placeholder="อีเมล (Recovery Email)"
-                    required
-                  />
                 </div>
               </motion.div>
             )}
 
             {/* Password field */}
             <motion.div layout key="password" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} transition={{ duration: 0.2 }} className={authMode !== 'login' ? 'mt-4' : ''}>
-              <div className="relative group">
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within:text-white transition-colors">
-                  <Lock className="w-4.5 h-4.5" />
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-extrabold text-white/60 tracking-wider pl-1 flex items-center gap-1.5 select-none uppercase">
+                  <Lock className="w-3.5 h-3.5 text-white/40" />
+                  <span>รหัสผ่าน (Password)</span>
+                </label>
+                <div className="relative group">
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within:text-white transition-colors">
+                    <Lock className="w-4.5 h-4.5" />
+                  </div>
+                  <input 
+                    type={showPassword ? "text" : "password"}
+                    value={authPassword}
+                    onChange={(e) => setAuthPassword(e.target.value)}
+                    className="w-full pl-11 pr-12 py-3.5 bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.04] focus:bg-white/[0.04] focus:border-white/20 rounded-xl outline-none transition-all text-white text-sm placeholder:text-white/20 font-sans"
+                    placeholder="กรอกรหัสผ่านของคุณ (มากกว่า 6 ตัวอักษร)"
+                    required
+                    minLength={6}
+                  />
+                  <button 
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-4 flex items-center text-white/20 hover:text-white transition-colors p-1"
+                  >
+                    {showPassword ? <EyeOff className="w-4.5 h-4.5" /> : <Eye className="w-4.5 h-4.5" />}
+                  </button>
                 </div>
-                <input 
-                  type={showPassword ? "text" : "password"}
-                  value={authPassword}
-                  onChange={(e) => setAuthPassword(e.target.value)}
-                  className="w-full pl-11 pr-12 py-3.5 bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.04] focus:bg-white/[0.04] focus:border-white/20 rounded-xl outline-none transition-all text-white text-sm placeholder:text-white/20 font-sans"
-                  placeholder="รหัสผ่าน (Password)"
-                  required
-                  minLength={6}
-                />
-                <button 
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-4 flex items-center text-white/20 hover:text-white transition-colors p-1"
-                >
-                  {showPassword ? <EyeOff className="w-4.5 h-4.5" /> : <Eye className="w-4.5 h-4.5" />}
-                </button>
               </div>
             </motion.div>
 
@@ -262,26 +280,32 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
             {/* Confirm Password field (Only for signup/forgot) */}
             {(authMode === 'signup' || authMode === 'forgot') && (
               <motion.div layout key="confirmPassword" initial={{ opacity: 0, height: 0, scale: 0.95 }} animate={{ opacity: 1, height: 'auto', scale: 1 }} exit={{ opacity: 0, height: 0, scale: 0.95 }} transition={{ duration: 0.2 }}>
-                <div className="relative group mt-4">
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within:text-white transition-colors">
-                    <Shield className="w-4.5 h-4.5" />
+                <div className="flex flex-col gap-1.5 mt-4">
+                  <label className="text-xs font-extrabold text-white/60 tracking-wider pl-1 flex items-center gap-1.5 select-none uppercase">
+                    <Shield className="w-3.5 h-3.5 text-white/40" />
+                    <span>ยืนยันรหัสผ่านอีกครั้ง</span>
+                  </label>
+                  <div className="relative group">
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within:text-white transition-colors">
+                      <Shield className="w-4.5 h-4.5" />
+                    </div>
+                    <input 
+                      type={showConfirmPassword ? "text" : "password"}
+                      value={authConfirmPassword}
+                      onChange={(e) => setAuthConfirmPassword(e.target.value)}
+                      className="w-full pl-11 pr-12 py-3.5 bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.04] focus:bg-white/[0.04] focus:border-white/20 rounded-xl outline-none transition-all text-white text-sm placeholder:text-white/20 font-sans"
+                      placeholder="ป้อนรหัสผ่านเดิมอีกครั้งเพื่อความถูกต้อง"
+                      required
+                      minLength={6}
+                    />
+                    <button 
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute inset-y-0 right-4 flex items-center text-white/20 hover:text-white transition-colors p-1"
+                    >
+                      {showConfirmPassword ? <EyeOff className="w-4.5 h-4.5" /> : <Eye className="w-4.5 h-4.5" />}
+                    </button>
                   </div>
-                  <input 
-                    type={showConfirmPassword ? "text" : "password"}
-                    value={authConfirmPassword}
-                    onChange={(e) => setAuthConfirmPassword(e.target.value)}
-                    className="w-full pl-11 pr-12 py-3.5 bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.04] focus:bg-white/[0.04] focus:border-white/20 rounded-xl outline-none transition-all text-white text-sm placeholder:text-white/20 font-sans"
-                    placeholder="ยืนยันรหัสผ่านอีกครั้ง"
-                    required
-                    minLength={6}
-                  />
-                  <button 
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute inset-y-0 right-4 flex items-center text-white/20 hover:text-white transition-colors p-1"
-                >
-                  {showConfirmPassword ? <EyeOff className="w-4.5 h-4.5" /> : <Eye className="w-4.5 h-4.5" />}
-                </button>
                 </div>
               </motion.div>
             )}
