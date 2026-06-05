@@ -26,7 +26,7 @@
     padding: 0;
     width: 100%;
     min-height: 100%;
-    overflow-x: hidden;
+    overflow-x: clip;
     background-color: var(--color-background);
     color: var(--color-text-primary);
     font-family: var(--font-sans);
@@ -785,6 +785,15 @@
 @keyframes scan {
   0% { transform: translateY(-100%); }
   100% { transform: translateY(100vh); }
+}
+
+@keyframes marquee-css {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+
+.animate-marquee-css {
+  animation: marquee-css 15s linear infinite;
 }
 
 .animate-blink {

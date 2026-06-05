@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
+import axios from "axios";
 import { Product, SiteStats, Category } from "../types";
 import { ShoppingCart, Package, Users, ChevronRight, Zap, Star, Clock, LayoutGrid, History, MessageSquare, Coins } from "lucide-react";
 import { motion } from "motion/react";
@@ -85,15 +86,23 @@ function StatCard({
   unit,
   icon: Icon,
   accent,
+  delay = 0,
 }: {
   label: string;
   value: string | number;
   unit: string;
   icon: React.ElementType;
   accent: string;
+  delay?: number;
 }) {
   return (
-    <div className="relative bg-[#0d0d0d] border border-white/[0.06] rounded-xl p-5 overflow-hidden group hover:border-white/[0.12] transition-colors duration-300">
+    <motion.div 
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-20px" }}
+      transition={{ duration: 0.5, delay }}
+      className="relative bg-[#0d0d0d] border border-white/[0.06] rounded-xl p-5 overflow-hidden group hover:border-white/[0.12] transition-colors duration-300"
+    >
       {/* Subtle glow */}
       <div
         className="absolute -top-6 -right-6 w-24 h-24 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-2xl"
@@ -111,7 +120,7 @@ function StatCard({
       <div className="absolute bottom-3 right-3 opacity-5 group-hover:opacity-10 transition-opacity duration-300">
         <Icon className="w-10 h-10 text-white" />
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -124,6 +133,7 @@ interface ShortcutBtnProps {
   colorClass: string;
   glowColor: string;
   onClick: () => void;
+  delay?: number;
 }
 
 function ShortcutBtn({
@@ -133,9 +143,14 @@ function ShortcutBtn({
   colorClass,
   glowColor,
   onClick,
+  delay = 0,
 }: ShortcutBtnProps) {
   return (
     <motion.button
+      initial={{ opacity: 0, scale: 0.95 }}
+      whileInView={{ opacity: 1, scale: 1 }}
+      viewport={{ once: true, margin: "-20px" }}
+      transition={{ duration: 0.3, delay }}
       whileHover={{ y: -2, transition: { duration: 0.2 } }}
       whileTap={{ scale: 0.95 }}
       onClick={onClick}
@@ -171,10 +186,12 @@ function CategoryChip({
   cat,
   products,
   onClick,
+  delay = 0,
 }: {
   cat: Category;
   products: Product[];
   onClick: () => void;
+  delay?: number;
 }) {
   const catProducts = products.filter(
     (p) => p.category === cat.id || p.category === cat.name || p.category === cat.title
@@ -192,7 +209,11 @@ function CategoryChip({
     : "0.00";
 
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-20px" }}
+      transition={{ duration: 0.5, delay }}
       onClick={onClick}
       className="relative group overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0c0c0e] hover:border-white/20 transition-all duration-300 flex flex-col cursor-pointer hover:-translate-y-1 shadow-lg"
     >
@@ -235,7 +256,7 @@ function CategoryChip({
           </span>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -244,9 +265,11 @@ function CategoryChip({
 function ProductCard({
   product,
   onClick,
+  delay = 0,
 }: {
   product: Product;
   onClick: () => void;
+  delay?: number;
 }) {
   const [imgError, setImgError] = useState(false);
   const hasImage = product.imageUrl && product.imageUrl.trim() !== "" && !imgError;
@@ -259,7 +282,13 @@ function ProductCard({
   const isHot = product.price > 100 || (discount !== null && discount >= 20) || product.stock > 0;
 
   return (
-    <div className="group relative bg-[#0c0c0e] border border-white/[0.08] rounded-2xl overflow-hidden hover:border-white/20 transition-all duration-300 flex flex-col hover:-translate-y-1 shadow-lg">
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-20px" }}
+      transition={{ duration: 0.5, delay }}
+      className="group relative bg-[#0c0c0e] border border-white/[0.08] rounded-2xl overflow-hidden hover:border-white/20 transition-all duration-300 flex flex-col hover:-translate-y-1 shadow-lg"
+    >
       {/* Image area with corner ribbon */}
       <div className="relative aspect-square w-full bg-[#141416] overflow-hidden shrink-0">
         {hasImage ? (
@@ -344,7 +373,7 @@ function ProductCard({
           <span>คงเหลือ <span className="text-white/70 font-mono">{product.stock.toLocaleString()}</span> ชิ้น</span>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -360,6 +389,26 @@ export const HomeView: React.FC<HomeViewProps> = ({
   onProductClick,
   onSelectCategory,
 }) => {
+  const [latestPurchases, setLatestPurchases] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchPurchases = async () => {
+      try {
+        const res = await axios.get("/api/latest-purchases");
+        if (res.data) {
+          setLatestPurchases(res.data);
+        }
+      } catch (e) {
+        // silently fail or log
+      }
+    };
+    fetchPurchases();
+    
+    // Refresh every 30s
+    const intv = setInterval(fetchPurchases, 30000);
+    return () => clearInterval(intv);
+  }, []);
+
   const safeProducts = useMemo(() => (Array.isArray(products) ? products : []), [products]);
 
   const totalSales =
@@ -382,14 +431,39 @@ export const HomeView: React.FC<HomeViewProps> = ({
       <div className="max-w-4xl mx-auto px-4 md:px-6 pb-24 pt-6">
 
         {/* ── Hero Banner ── */}
-        <div className="relative overflow-hidden rounded-2xl border border-white/[0.07] mb-8 aspect-[21/5] bg-[#0d0d0d]">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="relative overflow-hidden rounded-2xl border border-white/[0.07] mb-3 aspect-[21/5] bg-[#0d0d0d]"
+        >
           <img
             src="https://img2.pic.in.th/IMG_7177176d5344301b32a1.png"
             alt="APEX STORE"
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-transparent" />
-        </div>
+        </motion.div>
+
+        {/* ── Announcement Bar ── */}
+        {((siteSettings?.announcement_text ?? "ยินดีต้อนรับสู่ APEXSTORE ศูนย์รวมสินค้าไอดีและข้อเสนอยอดฮิต ระบบซื้อขายทำงานอัตโนมัติ 24 ชั่วโมง - กรณีมีปัญหาโปรดติดต่อแอดมิน").trim() !== '') && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="mb-8 flex items-center bg-zinc-900/50 border border-white/[0.06] rounded-xl px-4 py-2.5 overflow-hidden"
+          >
+            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-red-500/10 text-red-500 shrink-0 mr-3 shadow-[0_0_10px_rgba(239,68,68,0.2)]">
+              {/* Using Megaphone or Volume2 icon from lucide-react */}
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="animate-pulse"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
+            </div>
+            <div className="flex-1 overflow-hidden relative" style={{ minWidth: 0 }}>
+              <div className="text-sm font-medium text-white/80 tracking-wide pt-1 animate-marquee-css inline-block whitespace-nowrap">
+                {siteSettings?.announcement_text ?? "ยินดีต้อนรับสู่ APEXSTORE ศูนย์รวมสินค้าไอดีและข้อเสนอยอดฮิต ระบบซื้อขายทำงานอัตโนมัติ 24 ชั่วโมง - กรณีมีปัญหาโปรดติดต่อแอดมิน"}
+              </div>
+            </div>
+          </motion.div>
+        )}
 
         {/* ── Stats Row ── */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
@@ -399,6 +473,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             unit="คน"
             icon={Users}
             accent="rgba(99,102,241,0.4)"
+            delay={0.1}
           />
           <StatCard
             label="พร้อมจำหน่าย"
@@ -406,6 +481,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             unit="ชิ้น"
             icon={Package}
             accent="rgba(245,158,11,0.4)"
+            delay={0.2}
           />
           <StatCard
             label="หมวดหมู่ทั้งหมด"
@@ -413,6 +489,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             unit="หมวดหมู่"
             icon={LayoutGrid}
             accent="rgba(16,185,129,0.4)"
+            delay={0.3}
           />
           <StatCard
             label="ยอดขาย"
@@ -420,6 +497,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             unit="ครั้ง"
             icon={ShoppingCart}
             accent="rgba(239,68,68,0.4)"
+            delay={0.4}
           />
         </div>
 
@@ -433,6 +511,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
               colorClass="text-emerald-400 group-hover:bg-emerald-500/10 group-hover:text-emerald-300"
               glowColor="rgba(16,185,129,0.15)"
               onClick={() => setActiveView("categories")}
+              delay={0.1}
             />
             <ShortcutBtn
               label="ประวัติสั่งซื้อ"
@@ -441,6 +520,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
               colorClass="text-indigo-400 group-hover:bg-indigo-500/10 group-hover:text-indigo-300"
               glowColor="rgba(99,102,241,0.15)"
               onClick={() => setActiveView("order_history")}
+              delay={0.2}
             />
             <ShortcutBtn
               label="ติดต่อ ADMIN"
@@ -449,6 +529,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
               colorClass="text-rose-450 group-hover:bg-rose-500/10 group-hover:text-rose-350"
               glowColor="rgba(244,63,94,0.15)"
               onClick={() => setActiveView("contact")}
+              delay={0.3}
             />
             <ShortcutBtn
               label="เติมเงิน TOPUP"
@@ -457,6 +538,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
               colorClass="text-amber-400 group-hover:bg-amber-500/10 group-hover:text-amber-300"
               glowColor="rgba(245,158,11,0.15)"
               onClick={() => setActiveView("wallet")}
+              delay={0.4}
             />
           </div>
         </section>
@@ -464,7 +546,13 @@ export const HomeView: React.FC<HomeViewProps> = ({
         {/* ── Categories ── */}
         {categories.length > 0 && (
           <section className="mb-10">
-            <div className="flex items-center justify-between mb-4">
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-20px" }}
+              transition={{ duration: 0.5 }}
+              className="flex items-center justify-between mb-4"
+            >
               <div className="flex items-center gap-2">
                 <LayoutGrid className="w-5 h-5 text-neon-green" />
                 <h2 className="text-base font-black text-white tracking-tight uppercase">หมวดหมู่แนะนำ</h2>
@@ -475,18 +563,90 @@ export const HomeView: React.FC<HomeViewProps> = ({
               >
                 ดูทั้งหมด <ChevronRight className="w-3.5 h-3.5" />
               </button>
-            </div>
+            </motion.div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {categories.slice(0, 4).map((cat) => (
-                <CategoryChip key={cat.id} cat={cat} products={products} onClick={() => onSelectCategory(cat.id)} />
+              {categories.slice(0, 4).map((cat, idx) => (
+                <CategoryChip key={cat.id} cat={cat} products={products} onClick={() => onSelectCategory(cat.id)} delay={idx * 0.1} />
               ))}
             </div>
           </section>
         )}
 
+        {/* ── Divider Strip ── */}
+        <motion.div
+          initial={{ opacity: 0, scaleX: 0 }}
+          whileInView={{ opacity: 1, scaleX: 1 }}
+          viewport={{ once: true, margin: "-20px" }}
+          transition={{ duration: 0.7 }}
+          className="w-full h-2 rounded-full bg-gradient-to-r from-emerald-500/0 via-emerald-500/20 to-indigo-500/0 mb-10"
+        />
+
+        {/* ── Latest Purchases ── */}
+        <section className="mb-10">
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: "-20px" }}
+            transition={{ duration: 0.5 }}
+            className="flex items-center gap-2 mb-4"
+          >
+             <History className="w-5 h-5 text-indigo-400" />
+             <h2 className="text-base font-black text-white tracking-tight uppercase">รายการสั่งซื้อล่าสุด 10 รายการ</h2>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-20px" }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="bg-[#121212] border border-white/10 rounded-xl overflow-hidden p-0 shadow-xl shadow-black/50"
+          >
+             <div className="max-h-60 overflow-y-auto no-scrollbar flex flex-col">
+               {latestPurchases.length === 0 ? (
+                 <div className="p-6 text-center text-white/40 text-sm font-medium flex flex-col items-center gap-2">
+                   <Package className="w-6 h-6 text-white/20" />
+                   ยังไม่มีรายการสั่งซื้อ
+                 </div>
+               ) : (
+                 latestPurchases.map((p, idx) => (
+                    <div key={p.dbId || idx} className="flex items-center justify-between p-3.5 border-b border-white/[0.04] last:border-b-0 hover:bg-white/[0.02] transition-colors">
+                      <div className="flex items-center gap-3 overflow-hidden pr-2">
+                        <div className="w-9 h-9 rounded-md shrink-0 bg-white/5 border border-white/5 flex items-center justify-center">
+                          <Package className="w-4 h-4 text-white/60" />
+                        </div>
+                        <div className="flex flex-col overflow-hidden">
+                          <span className="text-sm font-bold text-white truncate">{p.product_name}</span>
+                          <span className="text-xs text-white/40">{new Date(p.date).toLocaleString('th-TH')}</span>
+                        </div>
+                      </div>
+                      <div className="flex flex-col items-end shrink-0">
+                        <span className="text-sm font-black text-neon-green">+{p.quantity}</span>
+                        <span className="text-[10px] text-white/40 uppercase font-bold tracking-widest">{p.price} THB</span>
+                      </div>
+                    </div>
+                 ))
+               )}
+             </div>
+          </motion.div>
+        </section>
+
+        {/* ── Divider Strip ── */}
+        <motion.div
+          initial={{ opacity: 0, scaleX: 0 }}
+          whileInView={{ opacity: 1, scaleX: 1 }}
+          viewport={{ once: true, margin: "-20px" }}
+          transition={{ duration: 0.7 }}
+          className="w-full h-2 rounded-full bg-gradient-to-r from-blue-500/0 via-blue-500/20 to-purple-500/0 mb-10"
+        />
+
         {/* ── Products ── */}
         <section>
-          <div className="flex items-center justify-between mb-5">
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: "-20px" }}
+            transition={{ duration: 0.5 }}
+            className="flex items-center justify-between mb-5"
+          >
             <div className="flex items-center gap-2">
               <Star className="w-5 h-5 text-neon-yellow fill-neon-yellow animate-pulse" />
               <div>
@@ -500,7 +660,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             >
               ดูทั้งหมด <ChevronRight className="w-3.5 h-3.5" />
             </button>
-          </div>
+          </motion.div>
 
           {safeProducts.length === 0 ? (
             <div className="text-center py-20 text-white/30 text-sm">
@@ -508,8 +668,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
             </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
-              {safeProducts.map((p) => (
-                <ProductCard key={p.id} product={p} onClick={() => onProductClick(p.id)} />
+              {safeProducts.map((p, idx) => (
+                <ProductCard key={p.id} product={p} onClick={() => onProductClick(p.id)} delay={idx * 0.05} />
               ))}
             </div>
           )}

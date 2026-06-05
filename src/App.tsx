@@ -208,11 +208,6 @@ const ContactView = lazy(() =>
     default: module.ContactView,
   })),
 );
-const FreeWebsiteTool = lazy(() =>
-  import("./components/FreeWebsiteTool").then((module) => ({
-    default: module.FreeWebsiteTool,
-  }))
-);
 const TelegramCatcherTool = lazy(() =>
   import("./components/TelegramCatcherTool").then((module) => ({
     default: module.TelegramCatcherTool,
@@ -375,6 +370,7 @@ function AppContent() {
       stats_sales_offset: 0,
       spotify_url: "https://youtu.be/WczSfh3gJaU?si=PI1i4X0p0FGbdEfq",
       spotify_autoplay: true,
+      announcement_text: "ยินดีต้อนรับสู่ APEXSTORE ศูนย์รวมสินค้าไอดีและข้อเสนอยอดฮิต ระบบซื้อขายทำงานอัตโนมัติ 24 ชั่วโมง - กรณีมีปัญหาโปรดติดต่อแอดมิน",
     };
     try {
       const saved = localStorage.getItem("apex_settings_cache");
@@ -492,7 +488,6 @@ function AppContent() {
     | "categories"
     | "category_products"
     | "dashboard"
-    | "free_website"
     | "telegram_catcher"
     | "discord_catcher"
     | "discord_on"
@@ -568,7 +563,6 @@ function AppContent() {
         "categories",
         "category_products",
         "dashboard",
-        "free_website",
         "telegram_catcher",
         "discord_catcher",
         "discord_on",
@@ -2217,21 +2211,6 @@ function AppContent() {
           <button
             onClick={() => {
               if (!user) {
-                addToast({ title: "ระบบแจ้งเตือน", message: "คุณต้องเข้าสู่ระบบก่อนใช้งานฟีเจอร์นี้", type: "warning" });
-                setActiveView("login");
-                window.scrollTo({ top: 0, behavior: "smooth" });
-                return;
-              }
-              setActiveView("free_website");
-              window.scrollTo({ top: 0, behavior: "smooth" });
-            }}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-all ${activeView === "free_website" ? "bg-[#121212] text-white border border-border border-2" : "text-zinc-500 hover:bg-[#0a0a0a] hover:text-white border-transparent"}`}
-          >
-            <Globe className="w-[18px] h-[18px]" /> เปิดเว็บไซต์ฟรี
-          </button>
-          <button
-            onClick={() => {
-              if (!user) {
                 addToast({ title: "ระบบแจ้งเตือน", message: "คุณต้องเข้าสู่ระบบก่อนใช้งานบรรดาเครื่องมือ", type: "warning" });
                 setActiveView("login");
                 window.scrollTo({ top: 0, behavior: "smooth" });
@@ -2448,7 +2427,7 @@ function AppContent() {
                 window.scrollTo({ top: 0, behavior: "smooth" });
               }}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-mono text-xs font-bold tracking-wider uppercase transition-all duration-150 cursor-pointer ${
-                activeView === "tools" || activeView === "free_website" || activeView === "telegram_catcher" || activeView === "discord_catcher" || activeView === "discord_on" || activeView === "discord_badge" || activeView === "two_fa_generator" || activeView === "proxy_ff_ios" || activeView === "proxy_free" || activeView === "api_proxy_gen"
+                activeView === "tools" || activeView === "telegram_catcher" || activeView === "discord_catcher" || activeView === "discord_on" || activeView === "discord_badge" || activeView === "two_fa_generator" || activeView === "proxy_ff_ios" || activeView === "proxy_free" || activeView === "api_proxy_gen"
                   ? "bg-white text-black font-extrabold"
                   : "text-white/60 hover:text-white hover:bg-white/[0.02]"
               }`}
@@ -2647,24 +2626,6 @@ function AppContent() {
                   >
                     <Wallet className={`w-[15px] h-[15px] ${activeView === "wallet" ? "text-neon-green" : "text-white/40"}`} />
                     <span className="text-sm">เติมเงิน</span>
-                  </div>
-
-                  <div
-                    className={`flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all duration-200 ${activeView === "free_website" ? "bg-white/5 text-white border border-white/10 font-bold" : "text-white/50 hover:text-white hover:bg-white/[0.02]"}`}
-                    onClick={() => {
-                      if (!user) {
-                        addToast({ title: "ระบบแจ้งเตือน", message: "คุณต้องเข้าสู่ระบบก่อนใช้งานตัวเลือกนี้", type: "warning" });
-                        setActiveView("login");
-                        setIsMobileMenuOpen(false);
-                        window.scrollTo({ top: 0, behavior: "smooth" });
-                        return;
-                      }
-                      setActiveView("free_website");
-                      setIsMobileMenuOpen(false);
-                    }}
-                  >
-                    <Globe className={`w-[15px] h-[15px] ${activeView === "free_website" ? "text-neon-green" : "text-white/40"}`} />
-                    <span className="text-sm">เปิดเว็บไซต์ฟรี</span>
                   </div>
 
                   <div
@@ -3055,9 +3016,6 @@ function AppContent() {
                   (h) => h.uid === user?.id,
                 )}
               />
-            )}
-            {activeView === "free_website" && (
-              <FreeWebsiteTool userPlan={userPlan} products={products} onBack={() => setActiveView("tools")} />
             )}
             {activeView === "telegram_catcher" && (
               <TelegramCatcherTool userPlan={userPlan} />

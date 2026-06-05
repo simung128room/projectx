@@ -941,11 +941,16 @@ import healthRoute from './src/routes/health.route.js';
     if (popup_img_url !== undefined) siteSettings.popup_img_url = popup_img_url;
     if (popup_enabled !== undefined) siteSettings.popup_enabled = popup_enabled === true || popup_enabled === 'true';
     if (popup_link !== undefined) siteSettings.popup_link = popup_link;
-    if (spotify_url !== undefined) siteSettings.spotify_url = spotify_url;
-    if (spotify_autoplay !== undefined) siteSettings.spotify_autoplay = spotify_autoplay === true || spotify_autoplay === 'true';
-    if (banners !== undefined && Array.isArray(banners)) siteSettings.banners = banners;
-    if (proxies !== undefined && Array.isArray(proxies)) siteSettings.proxies = proxies;
-    if (auto_proxy !== undefined) siteSettings.auto_proxy = auto_proxy === true || auto_proxy === 'true';
+    if (req.body.discord_link !== undefined) siteSettings.discord_link = req.body.discord_link;
+    if (req.body.facebook_link !== undefined) siteSettings.facebook_link = req.body.facebook_link;
+    if (req.body.instagram_link !== undefined) siteSettings.instagram_link = req.body.instagram_link;
+    if (req.body.contact_email !== undefined) siteSettings.contact_email = req.body.contact_email;
+    if (req.body.announcement_text !== undefined) siteSettings.announcement_text = req.body.announcement_text;
+    if (req.body.spotify_url !== undefined) siteSettings.spotify_url = req.body.spotify_url;
+    if (req.body.spotify_autoplay !== undefined) siteSettings.spotify_autoplay = req.body.spotify_autoplay === true || req.body.spotify_autoplay === 'true';
+    if (req.body.banners !== undefined && Array.isArray(req.body.banners)) siteSettings.banners = req.body.banners;
+    if (req.body.proxies !== undefined && Array.isArray(req.body.proxies)) siteSettings.proxies = req.body.proxies;
+    if (req.body.auto_proxy !== undefined) siteSettings.auto_proxy = req.body.auto_proxy === true || req.body.auto_proxy === 'true';
     
     // Clear cached stats so they refresh next time someone calls /api/stats
     invalidateStatsCache();
@@ -2461,6 +2466,30 @@ const diskUpload = multer({ dest: uploadDir });
   });
 
   // --- Purchases Endpoints ---
+  app.get('/api/latest-purchases', async (req: any, res: any) => {
+    try {
+      const adminDb = admin.firestore();
+      const limit = 10;
+      const q = adminDb.collection('purchases').orderBy('date', 'desc').limit(limit);
+      const snap = await q.get();
+      const data = snap.docs.map((doc: any) => {
+        const d = doc.data();
+        return {
+          dbId: doc.id,
+          product_name: d.product_name,
+          quantity: d.quantity,
+          price: d.price,
+          date: d.date,
+          // Hide secret info
+        };
+      });
+      return res.json(data);
+    } catch (err: any) {
+      console.error('Error fetching latest purchases:', err.message || err);
+      res.status(500).json({ error: String(err && err.message ? err.message : err) });
+    }
+  });
+
   app.get('/api/purchases', requireAuth, async (req: any, res: any) => {
     try {
       const adminDb = admin.firestore();

@@ -1,3 +1,11 @@
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      marquee: React.DetailedHTMLProps<React.HTMLAttributes<HTMLMarqueeElement> & { scrollamount?: string }, HTMLMarqueeElement>;
+    }
+  }
+}
+
 export interface AccountResult {
   account: string;
   password: string;

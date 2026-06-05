@@ -660,7 +660,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     proxies: ['http://e7221fa7-20b7-43a7-9f76-c69fbc35cdef@lv3.gen5.netmld.shop:8080'],
     auto_proxy: true,
     spotify_url: '',
-    spotify_autoplay: false
+    spotify_autoplay: false,
+    announcement_text: 'ยินดีต้อนรับสู่ APEXSTORE ศูนย์รวมสินค้าไอดีและข้อเสนอยอดฮิต ระบบซื้อขายทำงานอัตโนมัติ 24 ชั่วโมง - กรณีมีปัญหาโปรดติดต่อแอดมิน'
   });
 
   const [uploadingMusic, setUploadingMusic] = useState(false);
@@ -1842,6 +1843,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           onChange={(e) => setSiteSettings({ ...siteSettings, instagram_link: e.target.value })}
                           className="w-full bg-card border border-border border-2 px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-pink-500 brut-card"
                           placeholder="https://www.instagram.com/..."
+                        />
+                      </div>
+
+                      <div className="space-y-4">
+                        <label className="block text-sm font-bold text-muted-foreground flex items-center gap-2">
+                           <MessageSquare className="w-4 h-4 text-emerald-500" /> ข้อความประกาศ (Announcement Bar)
+                        </label>
+                        <input 
+                          type="text"
+                          value={siteSettings.announcement_text || ''}
+                          onChange={(e) => setSiteSettings({ ...siteSettings, announcement_text: e.target.value })}
+                          className="w-full bg-card border border-border border-2 px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-emerald-500 brut-card"
+                          placeholder="พิมพ์ข้อความที่ต้องการให้วิ่งบนแถบประกาศ..."
                         />
                       </div>
 
