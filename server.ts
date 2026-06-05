@@ -2258,13 +2258,21 @@ const diskUpload = multer({ dest: uploadDir });
           }
         });
         
+        let nextVersion = (existingData._version || 0);
+        if (Object.keys(deltaAfter).length > 0) {
+          nextVersion += 1;
+          deltaAfter._version = nextVersion;
+        }
+
         // Compress stockData if needed
         if (deltaAfter.stockData && !deltaAfter.stockData[0]?.__compressed) {
           deltaAfter.stockData = await compressStock(deltaAfter.stockData);
         }
 
         const dataToSave = JSON.parse(JSON.stringify(deltaAfter));
-        t.update(docRef, dataToSave);
+        if (Object.keys(dataToSave).length > 0) {
+          t.update(docRef, dataToSave);
+        }
         finalData = { ...existingData, ...dataToSave, id: req.params.id };
       });
       
@@ -2308,7 +2316,7 @@ const diskUpload = multer({ dest: uploadDir });
         if (doc.exists) {
           exists = true;
           existingData = doc.data()!;
-          t.delete(docRef);
+          t.update(docRef, { isDeleted: true });
         }
       });
       

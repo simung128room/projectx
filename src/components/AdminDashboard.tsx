@@ -195,15 +195,13 @@ const ProductManagerModal = ({
               };
               
               if (isEdit && product) {
-                const delta: any = {};
-                Object.keys(p).forEach((k) => {
-                  if (p[k] !== (product as any)[k]) {
-                    delta[k] = p[k];
-                  }
-                });
-                delta.id = product.id;
-                delta._version = product._version || 0;
-                onSave(delta as Product);
+                const updatedProduct = {
+                  ...product,
+                  ...p,
+                  id: product.id,
+                  _version: product._version || 0,
+                };
+                onSave(updatedProduct as Product);
               } else {
                 onSave(p as Product);
               }
