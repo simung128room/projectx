@@ -92,16 +92,18 @@ axios.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    // If error is 401 and we haven't retried yet
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (
+      error.response?.status === 401 && 
+      !originalRequest._retry &&
+      !originalRequest.url?.includes('/api/signup') &&
+      !originalRequest.url?.includes('/api/reset-password')
+    ) {
       originalRequest._retry = true;
       try {
-        // Automatically refresh Supabase JWT Token
         const { data: { session }, error: refreshError } = await auth.auth.getSession();
         if (session?.access_token && !refreshError) {
           axios.defaults.headers.common["Authorization"] = `Bearer ${session.access_token}`;
           originalRequest.headers["Authorization"] = `Bearer ${session.access_token}`;
-          // Retry the request with the new token
           return axios(originalRequest);
         }
       } catch (refreshErr) {
@@ -713,6 +715,9 @@ function AppContent() {
 
   const [topupHistory, setTopupHistory] = useState<any[]>([]);
 
+  const [purchasesNextCursor, setPurchasesNextCursor] = useState<string | null>(null);
+  const [isAdminDataLoading, setIsAdminDataLoading] = useState(false);
+
   useEffect(() => {
     // Topup history is user-specific, we do not cache it in localStorage.
   }, [topupHistory]);
@@ -1119,11 +1124,21 @@ function AppContent() {
       console.log("Fetching user-specific data from backend...");
       const [usedKeysRes, purchasesRes, topupsRes] = await Promise.all([
         axios.get("/api/used_keys").catch(() => null),
-        axios.get("/api/purchases").catch(() => null),
+        axios.get("/api/purchases?limit=20").catch(() => null),
         axios.get("/api/topups").catch(() => null)
       ]);
       if (usedKeysRes?.data) setUsedKeysHistory(usedKeysRes.data);
-      if (purchasesRes?.data && Array.isArray(purchasesRes.data)) setPurchaseHistory(purchasesRes.data);
+      if (purchasesRes?.data) {
+        const purchaseData = Array.isArray(purchasesRes.data) 
+          ? purchasesRes.data 
+          : purchasesRes.data.data;
+        if (Array.isArray(purchaseData)) {
+          setPurchaseHistory(purchaseData);
+          if (purchasesRes.data.nextCursor) {
+            setPurchasesNextCursor(purchasesRes.data.nextCursor);
+          }
+        }
+      }
       if (topupsRes?.data && Array.isArray(topupsRes.data)) setTopupHistory(topupsRes.data);
     } catch (err) {
       console.error("Failed to fetch user-specific data:", err);
@@ -1132,7 +1147,8 @@ function AppContent() {
 
   // Dedicated admin logs/entities data retriever (decoupled from the landing page loop)
   const fetchAdminData = useCallback(async () => {
-    if (!isAdmin) return;
+    if (!isAdmin || isAdminDataLoading) return;
+    setIsAdminDataLoading(true);
     try {
       console.log("Fetching admin-specific data from backend...");
       const [licensesRes, blockedIpsRes, usersRes] = await Promise.all([
@@ -1145,8 +1161,10 @@ function AppContent() {
       if (usersRes?.data && Array.isArray(usersRes.data)) setUsersList(usersRes.data);
     } catch (err) {
       console.error("Failed to fetch admin-specific data:", err);
+    } finally {
+      setIsAdminDataLoading(false);
     }
-  }, [isAdmin]);
+  }, [isAdmin, isAdminDataLoading]);
 
   // Combined system-wide data refresh function for user/admin actions
   const refreshAllSystemData = useCallback(async () => {

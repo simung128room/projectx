@@ -46,10 +46,6 @@ function SaleTicker() {
 
   return (
     <div className="flex items-center gap-3 overflow-hidden">
-      <span className="shrink-0 inline-flex items-center gap-1 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-semibold px-2 py-0.5 border border-emerald-500/20">
-        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-        LIVE
-      </span>
       <div
         className="flex items-center gap-2 text-sm transition-all duration-400"
         style={{
@@ -441,7 +437,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
       <div className="max-w-4xl mx-auto px-4 md:px-6 pb-24 pt-6">
 
         {/* ── Hero Banner ── */}
-        <div className="relative overflow-hidden rounded-2xl border border-white/[0.07] mb-8 min-h-[160px] sm:min-h-[220px] bg-[#0d0d0d]">
+        <div className="relative overflow-hidden rounded-2xl border border-white/[0.07] mb-8 aspect-[21/5] bg-[#0d0d0d]">
           <img
             src="https://img2.pic.in.th/IMG_7177176d5344301b32a1.png"
             alt="APEX STORE"

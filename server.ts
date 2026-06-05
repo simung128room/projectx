@@ -560,7 +560,15 @@ app.set('trust proxy', 1);
 
   app.use('/api/', globalLimiter);
 
-const userTokenCache = new LRUCache<string, { user: any, isAdmin: boolean, timestamp: number } | Promise<{ user: any, isAdmin: boolean, timestamp: number }>>({ max: 1000, ttl: 10000 });
+const userTokenCache = new LRUCache<string, { user: any, isAdmin: boolean, timestamp: number } | Promise<{ user: any, isAdmin: boolean, timestamp: number }>>({ max: 1000, ttl: 60000 });
+
+const invalidateUserTokenCache = (uid: string) => {
+  for (const [token, cached] of userTokenCache.entries()) {
+    if (!(cached instanceof Promise) && cached.user?.id === uid) {
+      userTokenCache.delete(token);
+    }
+  }
+};
 
 const cleanupTokenCache = () => {
   // LRUCache handles cleanup automatically
@@ -820,7 +828,7 @@ import healthRoute from './src/routes/health.route.js';
     banners: ["https://img2.pic.in.th/-71_20260516210303.png"],
     spotify_url: 'https://youtu.be/WczSfh3gJaU?si=PI1i4X0p0FGbdEfq',
     spotify_autoplay: true,
-    proxies: ['http://e7221fa7-20b7-43a7-9f76-c69fbc35cdef@lv3.gen5.netmld.shop:8080'],
+    proxies: process.env.DEFAULT_PROXY_URL ? [process.env.DEFAULT_PROXY_URL] : [],
     auto_proxy: true
   };
 
@@ -1210,8 +1218,9 @@ import healthRoute from './src/routes/health.route.js';
       const form = new FormData();
       form.append('files', blob, isJpeg ? 'slip.jpg' : 'slip.png');
 
+      const slipokApiId = process.env.SLIPOK_API_ID || '65331';
       const response = await axios.post(
-        'https://api.slipok.com/api/line/apikey/65331',
+        `https://api.slipok.com/api/line/apikey/${slipokApiId}`,
         form,
         {
           headers: {
@@ -2455,29 +2464,44 @@ const diskUpload = multer({ dest: uploadDir });
   app.get('/api/purchases', requireAuth, async (req: any, res: any) => {
     try {
       const adminDb = admin.firestore();
-      
-      const limit = Math.min(100, parseInt(req.query.limit) || 20);
-      const lastDocumentId = req.query.lastDocumentId;
+      const limit = Math.min(100, parseInt(req.query.limit as string) || 20);
+      const afterDocId = req.query.after as string | undefined; // cursor = doc ID ของรายการสุดท้าย
 
-      let q: any = adminDb.collection('purchases');
-      
-      if (!req.isAdmin) {
-        q = q.where('userId', '==', (req as any).user.uid);
-      }
-      
-      q = q.orderBy('date', 'desc');
+      let q: any = adminDb.collection('purchases').orderBy('date', 'desc').limit(limit);
 
-      if (lastDocumentId) {
-        const lastDoc = await adminDb.collection('purchases').doc(lastDocumentId).get();
-        if (lastDoc.exists) {
-          q = q.startAfter(lastDoc);
+      // ถ้ามี cursor ให้เริ่มหลัง document นั้น
+      if (afterDocId) {
+        const cursorDoc = await adminDb.collection('purchases').doc(afterDocId).get();
+        if (cursorDoc.exists) {
+          q = q.startAfter(cursorDoc);
         }
       }
-      
-      q = q.limit(limit);
+
+      // Filter by user if not admin
+      if (!req.isAdmin) {
+        // NOTE: Firestore requires composite index for where + orderBy on different fields
+        // Create index: purchases -> userId ASC, date DESC
+        q = adminDb
+          .collection('purchases')
+          .where('userId', '==', (req as any).user.uid)
+          .orderBy('date', 'desc')
+          .limit(limit);
+
+        if (afterDocId) {
+          const cursorDoc = await adminDb.collection('purchases').doc(afterDocId).get();
+          if (cursorDoc.exists) {
+            q = q.startAfter(cursorDoc);
+          }
+        }
+      }
+
       const snap = await q.get();
-      let data = snap.docs.map((doc: any) => ({ dbId: doc.id, ...doc.data() }));
-      return res.json(data);
+      const data = snap.docs.map((doc: any) => ({ dbId: doc.id, ...doc.data() }));
+      
+      // ส่ง nextCursor กลับไปให้ client ใช้ต่อ
+      const nextCursor = snap.docs.length === limit ? snap.docs[snap.docs.length - 1].id : null;
+      
+      return res.json({ data, nextCursor });
     } catch (err: any) {
       console.error('Error fetching purchases:', err.message || err);
       res.status(500).json({ error: String(err && err.message ? err.message : err) });
@@ -2826,19 +2850,25 @@ const diskUpload = multer({ dest: uploadDir });
         data.sort((a: any, b: any) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime());
         return res.json(data);
       } else if (req.user) {
-        let snapshot;
-        try {
-           snapshot = await q.where('uid', '==', (req as any).user.uid).limit(100).get();
-        } catch (e: any) {
-           // Fallback in case 'uid' was not indexed properly or older data doesn't have it
-           snapshot = await q.where('userId', '==', (req as any).user.uid).limit(100).get();
+        const [snapByUid, snapByUserId] = await Promise.all([
+          adminDb.collection('topups').where('uid', '==', (req as any).user.uid).limit(100).get()
+            .catch(() => null),
+          adminDb.collection('topups').where('userId', '==', (req as any).user.uid).limit(100).get()
+            .catch(() => null),
+        ]);
+
+        const seen = new Set<string>();
+        let data: any[] = [];
+        for (const snap of [snapByUid, snapByUserId]) {
+          if (!snap) continue;
+          for (const doc of snap.docs) {
+            if (!seen.has(doc.id)) {
+              seen.add(doc.id);
+              data.push({ dbId: doc.id, ...doc.data() });
+            }
+          }
         }
-        let data = snapshot.docs.map((doc: any) => ({ dbId: doc.id, ...doc.data() }));
-        data.sort((a: any, b: any) => {
-          const dateA = new Date(a.date || 0).getTime();
-          const dateB = new Date(b.date || 0).getTime();
-          return dateB - dateA;
-        });
+        data.sort((a: any, b: any) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime());
         return res.json(data.slice(0, 100));
       } else {
         return res.json([]);
@@ -3105,14 +3135,26 @@ const diskUpload = multer({ dest: uploadDir });
 
   app.post('/api/license_keys/bulk', requireAdmin, async (req, res) => {
     try {
-      const { keys } = req.body; // Array of { key, type, status, created_at }
-      const results = [];
-      for (const k of keys) {
-         const docRef = await admin.firestore().collection('license_keys').add({ ...k, created_at: new Date().toISOString() });
-         results.push({ id: docRef.id, ...k });
+      const { keys } = req.body;
+      if (!Array.isArray(keys) || keys.length === 0) {
+        return res.status(400).json({ error: 'keys must be a non-empty array' });
       }
+      // Cap to prevent abuse
+      if (keys.length > 500) {
+        return res.status(400).json({ error: 'Maximum 500 keys per bulk insert' });
+      }
+      
+      const results = await Promise.all(
+        keys.map(async (k) => {
+          const docRef = await admin.firestore().collection('license_keys').add({ 
+            ...k, 
+            created_at: new Date().toISOString() 
+          });
+          return { id: docRef.id, ...k };
+        })
+      );
       res.json(results);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Internal server error bulk inserting license_keys:', err);
       res.status(500).json({ error: String(err && err.message ? err.message : err) });
     }
@@ -3297,7 +3339,7 @@ const diskUpload = multer({ dest: uploadDir });
       const newDoc = { username, role, granted_at: new Date().toISOString() };
       const docRef = admin.firestore().collection('admins').doc(username);
       await docRef.set(newDoc);
-      userTokenCache.clear();
+      invalidateUserTokenCache(username);
       res.json({ id: username, ...newDoc });
     } catch (err) {
       console.error('Internal server error upserting admin:', err);
@@ -3306,19 +3348,32 @@ const diskUpload = multer({ dest: uploadDir });
   });
 
   // --- Community Endpoints ---
-  const communityFile = path.resolve(os.tmpdir(), 'community_data.json');
   let communityData: { categories: any[], channels: any[], messages: any[], userRanks: Record<string, string> } = { categories: [], channels: [], messages: [], userRanks: {} };
-  if (fs.existsSync(communityFile)) {
+  
+  (async () => {
     try {
-      communityData = JSON.parse(fs.readFileSync(communityFile, 'utf-8'));
-      if (!communityData.userRanks) communityData.userRanks = {};
-    } catch(e) {}
-  }
-  const saveCommunity = () => {
+      const communityDoc = await admin.firestore().collection('settings').doc('community_data').get();
+      if (communityDoc.exists) {
+        const stored = communityDoc.data()?.data;
+        if (stored && stored.categories) {
+          communityData = stored;
+          if (!communityData.userRanks) communityData.userRanks = {};
+        }
+      }
+    } catch (e) {
+      console.warn('Could not load communityData from Firestore:', e);
+    }
+  })();
+
+  const saveCommunity = async () => {
     try {
-      fs.writeFileSync(communityFile, JSON.stringify(communityData));
-    } catch(e) {
-      console.warn("Could not write communityData JSON to file system. Proceeding in-memory only.");
+      await admin.firestore().collection('settings').doc('community_data').set(
+        { data: communityData },
+        { merge: false }
+      );
+    } catch (e) {
+      console.warn('Could not save communityData to Firestore:', e);
+      // Fallback: keep in memory only
     }
   };
 
@@ -3497,7 +3552,7 @@ const diskUpload = multer({ dest: uploadDir });
       
       const docRef = admin.firestore().collection('users').doc(uid);
       await docRef.set({ ...dataToUpdate, updatedAt: new Date().toISOString() }, { merge: true });
-      userTokenCache.clear();
+      invalidateUserTokenCache(uid);
       invalidateCache('users');
       invalidateStatsCache();
       res.json({ success: true });
@@ -3513,7 +3568,7 @@ const diskUpload = multer({ dest: uploadDir });
       const { password } = req.body;
       if (!password) return res.status(400).json({ error: 'Missing password' });
       await supabaseAdmin.auth.admin.updateUserById(uid, { password });
-      userTokenCache.clear();
+      invalidateUserTokenCache(uid);
       res.json({ success: true });
     } catch (err: any) {
       res.status(500).json({ error: String(err && err.message ? err.message : err) });
@@ -3528,7 +3583,7 @@ const diskUpload = multer({ dest: uploadDir });
       }
       await supabaseAdmin.auth.admin.deleteUser(uid).catch(() => {});
       await admin.firestore().collection('users').doc(uid).delete();
-      userTokenCache.clear();
+      invalidateUserTokenCache(uid);
       invalidateCache('users');
       invalidateStatsCache();
       res.json({ success: true });
@@ -4035,8 +4090,9 @@ const diskUpload = multer({ dest: uploadDir });
       }
   });
 
-  app.get('/api/discord/token-on/status', async (req, res) => {
+  app.get('/api/discord/token-on/status', requireAuth, async (req: any, res: any) => {
       const token = req.query.token as string;
+      if (!token) return res.status(400).json({ error: 'Missing token' });
       const sess = discordTokenOnSessions.get(token);
       if (!sess) return res.json({ status: 'none', logs: [] });
       res.json({ status: sess.status, logs: sess.logs });
