@@ -1898,7 +1898,7 @@ if (process.env.REDIS_URL) {
           const fetchFromDB = async () => {
             let query: any = admin.firestore().collection(collectionName);
             if (collectionName === 'products') {
-              query = query.select('id', 'name', 'price', 'originalPrice', 'stock', 'description', 'image', 'imageUrl', 'category', 'isHighlight', 'isPopular', 'soldCount', 'tag', 'customPageId', 'created_at', '_version');
+              query = query.select('id', 'name', 'price', 'originalPrice', 'stock', 'description', 'image', 'imageUrl', 'category', 'isHighlight', 'isPopular', 'soldCount', 'tag', 'customPageId', 'created_at', '_version', 'isDeleted');
             }
             if (collectionName === 'products' || collectionName === 'purchases' || collectionName === 'topups' || collectionName === 'license_keys' || collectionName === 'users') {
               query = query.limit(1000);

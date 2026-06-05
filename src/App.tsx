@@ -1056,7 +1056,7 @@ function AppContent() {
             setSiteSettings(res.data);
             try { localStorage.setItem("apex_settings_cache", JSON.stringify(res.data)); } catch (e) {}
           } else if (res.url === "/api/products" && res.data && Array.isArray(res.data)) {
-            const finalProds = res.data.length > 0 ? res.data : defaultProducts;
+            const finalProds = res.data;
             setProducts(finalProds);
             try { localStorage.setItem("apex_products_cache", JSON.stringify(finalProds)); } catch (e) {}
           } else if (res.url === "/api/categories" && res.data && Array.isArray(res.data)) {

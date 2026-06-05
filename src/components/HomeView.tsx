@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import axios from "axios";
 import { Product, SiteStats, Category } from "../types";
-import { ShoppingCart, Package, Users, ChevronRight, Zap, Star, Clock, LayoutGrid, History, MessageSquare, Coins, Megaphone } from "lucide-react";
+import { ShoppingCart, Package, Users, ChevronRight, Zap, Star, Clock, LayoutGrid, History, MessageSquare, Coins, Bell } from "lucide-react";
 import { motion } from "motion/react";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -97,9 +97,8 @@ function StatCard({
 }) {
   return (
     <motion.div 
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-20px" }}
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay }}
       className="relative bg-[#0d0d0d] border border-white/[0.06] rounded-xl p-5 overflow-hidden group hover:border-white/[0.12] transition-colors duration-300"
     >
@@ -148,8 +147,7 @@ function ShortcutBtn({
   return (
     <motion.button
       initial={{ opacity: 0, scale: 0.95 }}
-      whileInView={{ opacity: 1, scale: 1 }}
-      viewport={{ once: true, margin: "-20px" }}
+      animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.3, delay }}
       whileHover={{ y: -2, transition: { duration: 0.2 } }}
       whileTap={{ scale: 0.95 }}
@@ -210,9 +208,8 @@ function CategoryChip({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-20px" }}
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay }}
       onClick={onClick}
       className="relative group overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0c0c0e] hover:border-white/20 transition-all duration-300 flex flex-col cursor-pointer hover:-translate-y-1 shadow-lg"
@@ -283,9 +280,8 @@ function ProductCard({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-20px" }}
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay }}
       className="group relative bg-[#0c0c0e] border border-white/[0.08] rounded-2xl overflow-hidden hover:border-white/20 transition-all duration-300 flex flex-col hover:-translate-y-1 shadow-lg"
     >
@@ -454,7 +450,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             className="mb-8 flex items-center bg-zinc-900/50 border border-white/[0.06] rounded-xl px-4 py-2.5 overflow-hidden"
           >
             <div className="flex items-center justify-center bg-red-500/10 px-2.5 py-1.5 rounded-lg border border-red-500/20 text-red-400 shrink-0 mr-3 shadow-[0_0_15px_rgba(239,68,68,0.1)] gap-1.5 font-black text-xs select-none">
-              <Megaphone className="w-3.5 h-3.5 animate-bounce" />
+              <Bell className="w-3.5 h-3.5 animate-bounce" />
               <span>ประกาศ</span>
             </div>
             <div className="flex-1 overflow-hidden relative" style={{ minWidth: 0 }}>
@@ -547,9 +543,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
         {categories.length > 0 && (
           <section className="mb-10">
             <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, margin: "-20px" }}
+              initial={{ opacity: 0, x: -15 }}
+              animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5 }}
               className="flex items-center justify-between mb-4"
             >
@@ -575,8 +570,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
         {/* ── Divider Strip ── */}
         <motion.div
           initial={{ opacity: 0, scaleX: 0 }}
-          whileInView={{ opacity: 1, scaleX: 1 }}
-          viewport={{ once: true, margin: "-20px" }}
+          animate={{ opacity: 1, scaleX: 1 }}
           transition={{ duration: 0.7 }}
           className="w-full h-2 rounded-full bg-gradient-to-r from-emerald-500/0 via-emerald-500/20 to-indigo-500/0 mb-10"
         />
@@ -584,9 +578,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
         {/* ── Latest Purchases ── */}
         <section className="mb-10">
           <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, margin: "-20px" }}
+            initial={{ opacity: 0, x: -15 }}
+            animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
             className="flex items-center gap-2 mb-4"
           >
@@ -594,9 +587,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
              <h2 className="text-base font-black text-white tracking-tight uppercase">รายการสั่งซื้อล่าสุด 10 รายการ</h2>
           </motion.div>
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-20px" }}
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
             className="bg-[#121212] border border-white/10 rounded-xl overflow-hidden p-0 shadow-xl shadow-black/50"
           >
@@ -632,8 +624,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
         {/* ── Divider Strip ── */}
         <motion.div
           initial={{ opacity: 0, scaleX: 0 }}
-          whileInView={{ opacity: 1, scaleX: 1 }}
-          viewport={{ once: true, margin: "-20px" }}
+          animate={{ opacity: 1, scaleX: 1 }}
           transition={{ duration: 0.7 }}
           className="w-full h-2 rounded-full bg-gradient-to-r from-blue-500/0 via-blue-500/20 to-purple-500/0 mb-10"
         />
@@ -641,9 +632,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
         {/* ── Products ── */}
         <section>
           <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, margin: "-20px" }}
+            initial={{ opacity: 0, x: -15 }}
+            animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
             className="flex items-center justify-between mb-5"
           >
