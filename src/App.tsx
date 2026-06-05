@@ -394,28 +394,64 @@ function AppContent() {
   // Home Store State (Moved up to prevent TDZ)
   const defaultProducts: Product[] = [
     {
-      id: "rov_standard",
-      name: "ไอดีเกม RoV ระดับพรีเมียม (พร้อมเล่น)",
-      price: 390,
-      originalPrice: 450,
-      category: "ไอดีเกมส์ยอดนิยม",
-      stock: 5,
-      soldCount: 22,
-      imageUrl: "https://i.postimg.cc/66R1V03P/mi-m-ch-x-80-20260601204138.png",
-      description: "สกินและตัวละครสมบูรณ์ ระบบรักษาความปลอดภัยเสถียร 100%",
-      isPopular: true
-    },
-    {
       id: "netflix_4k",
-      name: "Netflix Premium Ultra HD 4K (30 วัน)",
+      name: "Netflix Premium Ultra HD 4K (30 วัน - จอส่วนตัว)",
       price: 139,
       originalPrice: 199,
       category: "แอปพรีเมียม / บันเทิง",
       stock: 12,
-      soldCount: 94,
-      imageUrl: "https://i.postimg.cc/66R1V03P/mi-m-ch-x-80-20260601204138.png",
-      description: "บัญชรแท้ภาพคมจัดระดับ 4K ใช้งานส่วนตัว เสถียร 100%",
+      soldCount: 945,
+      imageUrl: "https://upload.wikimedia.org/wikipedia/commons/f/ff/Netflix-new-icon.png",
+      description: "ความละเอียด 4K HDR เสียงรอบทิศทาง ใช้งานส่วนตัว เสถียรสูง 100% ตลอดทั้งเดือน",
       isPopular: true
+    },
+    {
+      id: "rov_standard",
+      name: "ไอดีเกม RoV ระดับพรีเมียม (สกินอลังการ พร้อมไต่แรงก์)",
+      price: 390,
+      originalPrice: 450,
+      category: "ไอดีเกมส์ยอดนิยม",
+      stock: 5,
+      soldCount: 142,
+      imageUrl: "https://seeklogo.com/images/A/arena-of-valor-logo-1BDD4A191C-seeklogo.com.png",
+      description: "ประวัติขาวสะอาด ไม่เคยโดนแบน ฮีโร่ครบ สกินเพียบพร้อมรูนเลเวล 90 ทุกสาย",
+      isPopular: true
+    },
+    {
+      id: "youtube_premium",
+      name: "YouTube Premium 4K (30 วัน - บัญชีส่วนตัวความปลอดภัยสูง)",
+      price: 39,
+      originalPrice: 69,
+      category: "แอปพรีเมียม / บันเทิง",
+      stock: 24,
+      soldCount: 1248,
+      imageUrl: "https://upload.wikimedia.org/wikipedia/commons/e/e1/Logo_of_YouTube_%282015-2017%29.svg",
+      description: "ไม่มีโฆษณาคั่นอย่างสมบูรณ์ เล่นขณะปิดหน้าจอได้ แถมบริการเสริม Youtube Music HQ",
+      isPopular: true
+    },
+    {
+      id: "discord_nitro",
+      name: "Discord Nitro Premium Gift (1 เดือน - บัญชีแท้ 100%)",
+      price: 119,
+      originalPrice: 320,
+      category: "แอปพรีเมียม / บันเทิง",
+      stock: 8,
+      soldCount: 231,
+      imageUrl: "https://upload.wikimedia.org/wikipedia/commons/c/ca/Discord_Color_Logo.svg",
+      description: "รับบูสเซิร์ฟเวอร์ฟรี x2 สติกเกอร์เคลื่นไหว อีโมจิพิเศษทุกเซิร์ฟ และแชร์จอ 1080p 60fps",
+      isPopular: true
+    },
+    {
+      id: "spotify_premium",
+      name: "Spotify Premium Personal (30 วัน - ปลดล็อคเสียงระดับ Hi-Fi)",
+      price: 29,
+      originalPrice: 129,
+      category: "แอปพรีเมียม / บันเทิง",
+      stock: 18,
+      soldCount: 412,
+      imageUrl: "https://upload.wikimedia.org/wikipedia/commons/1/19/Spotify_logo_without_text.svg",
+      description: "ดาวน์โหลดเพลงฟังแบบออฟไลน์ บิตเรตเสียงคมชัดสูงสุด 320kbps ข้ามเพลงแบบไร้ขีดจำกัด",
+      isPopular: false
     }
   ];
 

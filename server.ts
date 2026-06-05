@@ -1156,49 +1156,8 @@ import healthRoute from './src/routes/health.route.js';
       }
 
       if (!process.env.SLIPOK_API_KEY) {
-        console.log(`[Slip] SLIPOK_API_KEY is missing. Activating Demo Sandbox mode.`);
-        
-        // Generate a random mock amount between 150 and 1500 for testing
-        const randomAmount = Math.floor(Math.random() * 1350) + 150;
-        
-        if (uid) {
-          try {
-            const userRef = admin.firestore().collection('users').doc(uid);
-            let finalBalance = 0;
-            let topupDoc: any = null;
-            await admin.firestore().runTransaction(async (t) => {
-               const uDoc = await t.get(userRef);
-               if (uDoc.exists) {
-                  const currentBalance = uDoc.data().balance || 0;
-                  finalBalance = currentBalance + randomAmount;
-                  t.update(userRef, { balance: finalBalance });
-                  
-                  topupDoc = {
-                    id: crypto.randomUUID(),
-                    userId: uDoc.data().username || 'Unknown',
-                    uid: uid,
-                    amount: randomAmount,
-                    date: new Date().toISOString(),
-                    type: 'slip_demo',
-                    money: randomAmount,
-                    title: 'เติมเงินสำเร็จ (Sandbox Mode)',
-                    image: 'https://img2.pic.in.th/IMG_6166.png'
-                  };
-                  const topupRef = admin.firestore().collection('topups').doc(topupDoc.id);
-                  t.set(topupRef, topupDoc);
-               } else {
-                  throw new Error('USER_NOT_FOUND');
-               }
-            });
-
-            console.log(`[Slip Sandbox] Updated balance for user ${uid} (+฿${randomAmount})`);
-            return res.json({ success: true, amount: randomAmount, topup: topupDoc, isSandbox: true });
-          } catch (syncErr: any) {
-             console.error(`[Slip Sandbox] Balance sync error:`, syncErr);
-             return res.json({ success: false, error: 'เกิดข้อผิดพลาดในการจําลองเติมเงินมิลเลอร์' });
-          }
-        }
-        return res.json({ success: true, amount: randomAmount });
+        console.warn(`[Slip] SLIPOK_API_KEY is missing. Rejecting slip upload.`);
+        return res.status(503).json({ success: false, error: 'ระบบสแกนสลิปปิดปรับปรุงชั่วคราว กรุณาติดต่อผู้นำเข้าระบบหรือแอดมิน' });
       }
 
       const imageBuffer = Buffer.from(imageBase64, 'base64');
@@ -1916,6 +1875,110 @@ if (process.env.REDIS_URL) {
             return { id: doc.id, ...d };
           });
           data = data.filter((d: any) => !d.isDeleted);
+          
+          if (collectionName === 'products' && data.length === 0) {
+            console.log("Seeding default products because Firestore 'products' collection is empty...");
+            try {
+              const rovRef = admin.firestore().collection('products').doc('rov_standard');
+              const rovData = {
+                name: "ไอดีเกม RoV ระดับพรีเมียม (สกินอลังการ พร้อมไต่แรงก์)",
+                price: 390,
+                originalPrice: 450,
+                category: "ไอดีเกมส์ยอดนิยม",
+                stock: 5,
+                soldCount: 142,
+                imageUrl: "https://seeklogo.com/images/A/arena-of-valor-logo-1BDD4A191C-seeklogo.com.png",
+                description: "ประวัติขาวสะอาด ไม่เคยโดนแบน ฮีโร่ครบ สกินเพียบพร้อมรูนเลเวล 90 ทุกสาย",
+                isPopular: true,
+                isDeleted: false,
+                stockData: ["rov_user1:rov_pass1", "rov_user2:rov_pass2", "rov_user3:rov_pass3", "rov_user4:rov_pass4", "rov_user5:rov_pass5"],
+                created_at: new Date().toISOString(),
+                _version: 1
+              };
+              const rovCompressed = await compressStock(rovData.stockData);
+              rovData.stockData = rovCompressed as any;
+              await rovRef.set(rovData);
+              
+              const netflixRef = admin.firestore().collection('products').doc('netflix_4k');
+              const netflixData = {
+                name: "Netflix Premium Ultra HD 4K (30 วัน - จอส่วนตัว)",
+                price: 139,
+                originalPrice: 199,
+                category: "แอปพรีเมียม / บันเทิง",
+                stock: 12,
+                soldCount: 945,
+                imageUrl: "https://upload.wikimedia.org/wikipedia/commons/f/ff/Netflix-new-icon.png",
+                description: "ความละเอียด 4K HDR เสียงรอบทิศทาง ใช้งานส่วนตัว เสถียรสูง 100% ตลอดทั้งเดือน",
+                isPopular: true,
+                isDeleted: false,
+                stockData: [
+                  "netflix_user1:password", "netflix_user2:password", "netflix_user3:password",
+                  "netflix_user4:password", "netflix_user5:password", "netflix_user6:password",
+                  "netflix_user7:password", "netflix_user8:password", "netflix_user9:password",
+                  "netflix_user10:password", "netflix_user11:password", "netflix_user12:password"
+                ],
+                created_at: new Date().toISOString(),
+                _version: 1
+              };
+              const netflixCompressed = await compressStock(netflixData.stockData);
+              netflixData.stockData = netflixCompressed as any;
+              await netflixRef.set(netflixData);
+
+              const youtubeRef = admin.firestore().collection('products').doc('youtube_premium');
+              const youtubeData = {
+                name: "YouTube Premium 4K (30 วัน - บัญชีส่วนตัวความปลอดภัยสูง)",
+                price: 39,
+                originalPrice: 69,
+                category: "แอปพรีเมียม / บันเทิง",
+                stock: 15,
+                soldCount: 1248,
+                imageUrl: "https://upload.wikimedia.org/wikipedia/commons/e/e1/Logo_of_YouTube_%282015-2017%29.svg",
+                description: "ไม่มีโฆษณาคั่นอย่างสมบูรณ์ เล่นขณะปิดหน้าจอได้ แถมบริการเสริม Youtube Music HQ",
+                isPopular: true,
+                isDeleted: false,
+                stockData: [
+                  "yt_user1:pass1", "yt_user2:pass2", "yt_user3:pass3", "yt_user4:pass4", "yt_user5:pass5"
+                ],
+                created_at: new Date().toISOString(),
+                _version: 1
+              };
+              const youtubeCompressed = await compressStock(youtubeData.stockData);
+              youtubeData.stockData = youtubeCompressed as any;
+              await youtubeRef.set(youtubeData);
+
+              const discordRef = admin.firestore().collection('products').doc('discord_nitro');
+              const discordData = {
+                name: "Discord Nitro Premium Gift (1 เดือน - บัญชีแท้ 100%)",
+                price: 119,
+                originalPrice: 320,
+                category: "แอปพรีเมียม / บันเทิง",
+                stock: 8,
+                soldCount: 231,
+                imageUrl: "https://upload.wikimedia.org/wikipedia/commons/c/ca/Discord_Color_Logo.svg",
+                description: "รับบูสเซิร์ฟเวอร์ฟรี x2 สติกเกอร์เคลื่นไหว อีโมจิพิเศษทุกเซิร์ฟ และแชร์จอ 1080p 60fps",
+                isPopular: true,
+                isDeleted: false,
+                stockData: [
+                  "nitro_gift_link_1", "nitro_gift_link_2", "nitro_gift_link_3", "nitro_gift_link_4"
+                ],
+                created_at: new Date().toISOString(),
+                _version: 1
+              };
+              const discordCompressed = await compressStock(discordData.stockData);
+              discordData.stockData = discordCompressed as any;
+              await discordRef.set(discordData);
+              
+              console.log("Successfully seeded default products into Firestore.");
+              
+              const newSnapshot = await admin.firestore().collection('products').get();
+              data = newSnapshot.docs.map((doc: any) => {
+                const d = doc.data();
+                return { id: doc.id, ...d };
+              }).filter((d: any) => !d.isDeleted);
+            } catch (seedErr) {
+              console.error("Error seeding default products:", seedErr);
+            }
+          }
           
           // Check if cache was invalidated while we were fetching
           if (fetchRevisionBeforeStart !== cacheRevisionCounter) {
