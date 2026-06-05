@@ -2195,22 +2195,6 @@ function AppContent() {
           >
             <Wallet className="w-[18px] h-[18px]" /> เติมเงิน
           </button>
-          <button
-            onClick={() => {
-              if (!user) {
-                addToast({ title: "ระบบแจ้งเตือน", message: "คุณต้องเข้าสู่ระบบก่อนใช้งานบรรดาเครื่องมือ", type: "warning" });
-                setActiveView("login");
-                window.scrollTo({ top: 0, behavior: "smooth" });
-                return;
-              }
-              setActiveView("tools");
-              window.scrollTo({ top: 0, behavior: "smooth" });
-            }}
-            onMouseEnter={() => toolsImport()}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-all ${activeView === "tools" ? "bg-[#121212] text-white border border-border border-2" : "text-zinc-500 hover:bg-[#0a0a0a] hover:text-white border-transparent"}`}
-          >
-            <Bot className="w-[18px] h-[18px]" /> เครื่องมือฟรี
-          </button>
 
           {!user && (
             <>
@@ -2408,20 +2392,7 @@ function AppContent() {
               <CreditCard size={12} />
               WALLET
             </button>
-            <button
-              onClick={() => {
-                setActiveView(user ? "tools" : "login");
-                window.scrollTo({ top: 0, behavior: "smooth" });
-              }}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-mono text-xs font-bold tracking-wider uppercase transition-all duration-150 cursor-pointer ${
-                activeView === "tools" || activeView === "telegram_catcher" || activeView === "discord_catcher" || activeView === "discord_on" || activeView === "discord_badge" || activeView === "two_fa_generator" || activeView === "proxy_ff_ios" || activeView === "proxy_free" || activeView === "api_proxy_gen"
-                  ? "bg-white text-black font-extrabold"
-                  : "text-white/60 hover:text-white hover:bg-white/[0.02]"
-              }`}
-            >
-              <Zap size={12} />
-              TOOLS
-            </button>
+
             <button
               onClick={() => {
                 setActiveView(user ? "log_categories" : "login");
@@ -2615,23 +2586,7 @@ function AppContent() {
                     <span className="text-sm">เติมเงิน</span>
                   </div>
 
-                  <div
-                    className={`flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all duration-200 ${activeView === "tools" ? "bg-white/5 text-white border border-white/10 font-bold" : "text-white/50 hover:text-white hover:bg-white/[0.02]"}`}
-                    onClick={() => {
-                      if (!user) {
-                        addToast({ title: "ระบบแจ้งเตือน", message: "คุณต้องเข้าสู่ระบบก่อนใช้งานตัวเลือกนี้", type: "warning" });
-                        setActiveView("login");
-                        setIsMobileMenuOpen(false);
-                        window.scrollTo({ top: 0, behavior: "smooth" });
-                        return;
-                      }
-                      setActiveView("tools");
-                      setIsMobileMenuOpen(false);
-                    }}
-                  >
-                    <Bot className={`w-[15px] h-[15px] ${activeView === "tools" ? "text-neon-green" : "text-white/40"}`} />
-                    <span className="text-sm">เครื่องมือ</span>
-                  </div>
+
 
                   <div
                     className="flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all duration-200 text-white/50 hover:text-white hover:bg-white/[0.02]"

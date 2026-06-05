@@ -422,6 +422,35 @@ export const HomeView: React.FC<HomeViewProps> = ({
     [safeProducts]
   );
 
+  const getRelativeTime = (dateStr: string) => {
+    try {
+      const date = new Date(dateStr);
+      const now = new Date();
+      const diffMs = now.getTime() - date.getTime();
+      if (isNaN(diffMs)) return dateStr;
+      const diffSec = Math.floor(diffMs / 1000);
+      const diffMin = Math.floor(diffSec / 60);
+      if (diffMin < 1) return "เมื่อสักครู่";
+      if (diffMin < 60) return `${diffMin} นาทีที่แล้ว`;
+      const diffHrs = Math.floor(diffMin / 60);
+      if (diffHrs < 24) return `${diffHrs} ชั่วโมงที่แล้ว`;
+      const diffDays = Math.floor(diffHrs / 24);
+      if (diffDays < 7) return `${diffDays} วันที่แล้ว`;
+      return date.toLocaleDateString("th-TH", { month: "short", day: "numeric" });
+    } catch (e) {
+      return dateStr;
+    }
+  };
+
+  const marqueeItems = useMemo(() => {
+    if (!latestPurchases || latestPurchases.length === 0) return [];
+    let items = [...latestPurchases];
+    while (items.length < 10) {
+      items = [...items, ...latestPurchases];
+    }
+    return [...items, ...items];
+  }, [latestPurchases]);
+
   return (
     <div className="w-full min-h-screen bg-[#070707] text-white font-sans antialiased">
       <div className="max-w-4xl mx-auto px-4 md:px-6 pb-24 pt-6">
@@ -576,48 +605,99 @@ export const HomeView: React.FC<HomeViewProps> = ({
         />
 
         {/* ── Latest Purchases ── */}
-        <section className="mb-10">
+        <section className="mb-10 overflow-hidden">
           <motion.div
             initial={{ opacity: 0, x: -15 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
-            className="flex items-center gap-2 mb-4"
+            className="flex items-center justify-between mb-4 bg-zinc-950/20 px-1.5 py-1.5 rounded-lg border border-white/[0.03]"
           >
-             <History className="w-5 h-5 text-indigo-400" />
-             <h2 className="text-base font-black text-white tracking-tight uppercase">รายการสั่งซื้อล่าสุด 10 รายการ</h2>
+            <div className="flex items-center gap-2">
+              <History className="w-4 h-4 text-emerald-400 animate-pulse" />
+              <h2 className="text-sm font-black text-white/90 tracking-wider uppercase">รายการสั่งซื้อล่าสุด (REAL-TIME UPDATES)</h2>
+            </div>
+            <div className="flex items-center gap-1 text-[10px] uppercase font-black text-emerald-400 tracking-widest bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+              <span>LIVE</span>
+            </div>
           </motion.div>
+
           <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="bg-[#121212] border border-white/10 rounded-xl overflow-hidden p-0 shadow-xl shadow-black/50"
+            className="relative w-full overflow-hidden"
           >
-             <div className="max-h-60 overflow-y-auto no-scrollbar flex flex-col">
-               {latestPurchases.length === 0 ? (
-                 <div className="p-6 text-center text-white/40 text-sm font-medium flex flex-col items-center gap-2">
-                   <Package className="w-6 h-6 text-white/20" />
-                   ยังไม่มีรายการสั่งซื้อ
-                 </div>
-               ) : (
-                 latestPurchases.map((p, idx) => (
-                    <div key={p.dbId || idx} className="flex items-center justify-between p-3.5 border-b border-white/[0.04] last:border-b-0 hover:bg-white/[0.02] transition-colors">
-                      <div className="flex items-center gap-3 overflow-hidden pr-2">
-                        <div className="w-9 h-9 rounded-md shrink-0 bg-white/5 border border-white/5 flex items-center justify-center">
-                          <Package className="w-4 h-4 text-white/60" />
+            {/* Ambient vignette masks */}
+            <div className="absolute top-0 bottom-0 left-0 w-8 bg-gradient-to-r from-[#070707] to-transparent z-10 pointer-events-none" />
+            <div className="absolute top-0 bottom-0 right-0 w-8 bg-gradient-to-l from-[#070707] to-transparent z-10 pointer-events-none" />
+
+            {latestPurchases.length === 0 ? (
+              <div className="p-6 text-center text-white/40 text-sm font-medium flex flex-col items-center gap-2 bg-[#0c0c0e]/50 border border-white/[0.05] rounded-xl">
+                <Package className="w-5 h-5 text-white/20" />
+                ยังไม่มีผู้มีประวัติการสั่งซื้อล่าสุดในตอนนี้
+              </div>
+            ) : (
+              <div className="w-full overflow-hidden flex py-1">
+                <div className="animate-marquee-scroll flex gap-4 pr-4">
+                  {marqueeItems.map((p, idx) => {
+                    const matchedProduct = safeProducts.find(
+                      (prod) => prod.name === p.product_name
+                    );
+                    const imageUrl =
+                      matchedProduct?.imageUrl ||
+                      "https://img2.pic.in.th/IMG_718032ab9d504326a436.png";
+
+                    return (
+                      <div
+                        key={`${p.dbId || idx}-${idx}`}
+                        className="w-[280px] h-[68px] shrink-0 bg-[#0a0a0c]/85 backdrop-blur-md border border-white/[0.06] hover:border-emerald-500/30 rounded-xl px-3 py-2 flex items-center justify-between gap-3 transition-colors duration-250 select-none shadow-[0_4px_24px_rgba(0,0,0,0.4)] hover:shadow-[0_4px_24px_rgba(16,185,129,0.05)]"
+                      >
+                        {/* Thumb & detail */}
+                        <div className="flex items-center gap-2.5 overflow-hidden min-w-0 flex-1">
+                          {/* Image Wrapper */}
+                          <div className="w-10 h-10 rounded-lg shrink-0 bg-zinc-950 border border-white/[0.05] overflow-hidden flex items-center justify-center p-0.5 shadow-inner">
+                            <img
+                              src={imageUrl}
+                              alt=""
+                              className="w-full h-full object-cover rounded"
+                              referrerPolicy="no-referrer"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src =
+                                  "https://img2.pic.in.th/IMG_718032ab9d504326a436.png";
+                              }}
+                            />
+                          </div>
+
+                          {/* Detail summary */}
+                          <div className="flex flex-col min-w-0 pr-1">
+                            <span className="text-xs font-bold text-white tracking-wide truncate leading-snug">
+                              {p.product_name}
+                            </span>
+                            <span className="text-[10px] text-zinc-400 mt-0.5">
+                              ซื้อ: <span className="text-emerald-400 font-extrabold font-mono">+{p.quantity}</span> ชิ้น
+                            </span>
+                            <span className="text-[9px] text-[#888] font-mono font-medium truncate mt-0.5">
+                              {getRelativeTime(p.date)}
+                            </span>
+                          </div>
                         </div>
-                        <div className="flex flex-col overflow-hidden">
-                          <span className="text-sm font-bold text-white truncate">{p.product_name}</span>
-                          <span className="text-xs text-white/40">{new Date(p.date).toLocaleString('th-TH')}</span>
+
+                        {/* Price point */}
+                        <div className="flex flex-col items-end shrink-0 pl-1 border-l border-white/[0.04]">
+                          <span className="text-xs font-black text-emerald-400 font-mono tracking-tight leading-none mb-1">
+                            ฿{p.price}
+                          </span>
+                          <span className="text-[8px] font-black text-emerald-400/50 bg-emerald-500/5 border border-emerald-500/10 px-1 py-0.25 rounded font-mono tracking-widest uppercase">
+                            PAID
+                          </span>
                         </div>
                       </div>
-                      <div className="flex flex-col items-end shrink-0">
-                        <span className="text-sm font-black text-neon-green">+{p.quantity}</span>
-                        <span className="text-[10px] text-white/40 uppercase font-bold tracking-widest">{p.price} THB</span>
-                      </div>
-                    </div>
-                 ))
-               )}
-             </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </motion.div>
         </section>
 
