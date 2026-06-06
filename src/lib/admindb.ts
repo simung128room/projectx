@@ -47,12 +47,15 @@ async function saveLocalTable(collection: string, data: any) {
 }
 
 const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY;
+const supabaseKey = (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY || '').trim();
 
-const isSupabaseAdminConfigured = !!(supabaseUrl && supabaseUrl.startsWith('http') && supabaseKey);
+// Ensure the key is an actual JWT/ASCII string and not Thai text to prevent Node Headers ByteString crash
+const isValidKey = /^[A-Za-z0-9\-_.]+$/.test(supabaseKey);
+
+const isSupabaseAdminConfigured = !!(supabaseUrl && supabaseUrl.startsWith('http') && supabaseKey && isValidKey);
 
 if (!isSupabaseAdminConfigured) {
-  console.warn('Supabase service role variables are missing or invalid');
+  console.warn('Supabase service role variables are missing, invalid, or contain non-ascii characters');
 }
 
 const safeUrl = isSupabaseAdminConfigured ? supabaseUrl : 'https://placeholder.supabase.co';
