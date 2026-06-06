@@ -4,7 +4,7 @@ const ENCRYPTION_KEY = process.env.BACKEND_ENCRYPTION_KEY;
 if (!ENCRYPTION_KEY) {
   throw new Error('BACKEND_ENCRYPTION_KEY not set in environment variables');
 }
-const IV_LENGTH = 16; // For GCM it should ideally be 12, but we'll use 16
+const IV_LENGTH = 12; // GCM mode uses 96-bit (12 bytes) IV
 
 export function encrypt(text: string): string {
   try {

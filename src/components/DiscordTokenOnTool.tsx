@@ -32,7 +32,7 @@ export const DiscordTokenOnTool: React.FC<DiscordTokenOnToolProps> = ({ userPlan
 
   const fetchStatus = async () => {
     try {
-      const res = await axios.get(`/api/discord/token-on/status?token=${encodeURIComponent(discordToken)}`);
+      const res = await axios.post(`/api/discord/token-on/status`, { token: discordToken });
       if (res.data.status !== 'none') {
         setStatus(res.data.status);
         setLogs(res.data.logs);

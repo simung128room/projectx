@@ -1,6 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import { LRUCache } from 'lru-cache';
+import Redis from 'ioredis';
 dotenv.config({ override: true });
 
 import path from 'path';
@@ -610,9 +611,9 @@ const cleanupTokenCache = () => {
             (userObj as any).uid = user.id; // Map Supabase user.id to Firebase user.uid
             let adminEmails: string[] = [];
             if (process.env.ADMIN_EMAILS) {
-              adminEmails = process.env.ADMIN_EMAILS.split(',').map(e => e.trim());
+              adminEmails = process.env.ADMIN_EMAILS.split(',').map(e => e.trim().toLowerCase());
             }
-            if (adminEmails.includes(user.email || '')) {
+            if (adminEmails.includes((user.email || '').toLowerCase().trim())) {
               isAdminObj = true;
             } else {
               const userDoc = await admin.firestore().collection('users').doc(user.id).get();
@@ -830,9 +831,9 @@ import healthRoute from './src/routes/health.route.js';
     spotify_autoplay: true,
     proxies: process.env.DEFAULT_PROXY_URL ? [process.env.DEFAULT_PROXY_URL] : [],
     auto_proxy: true,
-    bank_name: 'ธนาคารกสิกรไทย',
-    bank_account_number: '196-3-87032-5',
-    bank_account_holder: 'นาย กรวิชญ์',
+    bank_name: '',
+    bank_account_number: '',
+    bank_account_holder: '',
     bank_qr_image: ''
   };
 
@@ -1152,8 +1153,8 @@ import healthRoute from './src/routes/health.route.js';
     }
   });
 
-  const usedSlips = new Set<string>();
-
+  // End configuration and initialize services
+  
   app.post('/api/topup/slip', mutationLimiter, requireAuth, async (req: any, res: any) => {
     try {
       const { imageBase64 } = req.body;
@@ -1190,13 +1191,18 @@ import healthRoute from './src/routes/health.route.js';
       const form = new FormData();
       form.append('files', blob, isJpeg ? 'slip.jpg' : 'slip.png');
 
-      const slipokApiId = process.env.SLIPOK_API_ID || '65331';
+      const slipokApiId = process.env.SLIPOK_API_ID;
+      const slipokApiKey = process.env.SLIPOK_API_KEY;
+      if (!slipokApiId || !slipokApiKey) {
+        return res.status(500).json({ success: false, error: 'ระบบไม่ได้ตั้งค่า SLIPOK_API_ID หรือ SLIPOK_API_KEY ไว้' });
+      }
+
       const response = await axios.post(
         `https://api.slipok.com/api/line/apikey/${slipokApiId}`,
         form,
         {
           headers: {
-            'x-authorization': process.env.SLIPOK_API_KEY || ''
+            'x-authorization': slipokApiKey
           }
         }
       );
@@ -1249,11 +1255,9 @@ import healthRoute from './src/routes/health.route.js';
              if (e.message === 'SLIP_USED') {
                 return res.json({ success: false, error: 'สลิปนี้ถูกใช้งานไปแล้ว (ตรวจสอบจากระบบ)' });
              }
-             // Fallback to local memory if DB fails (not 100% safe but better than nothing)
-             if (usedSlips.has(transRef)) {
-               return res.json({ success: false, error: 'สลิปนี้ถูกใช้งานไปแล้ว (local)' });
-             }
-             usedSlips.add(transRef);
+             // If DB transaction fails for reasons other than SLIP_USED, we must not proceed.
+             console.error("Slip transaction failed:", e);
+             return res.status(500).json({ success: false, error: 'ระบบขัดข้องชั่วคราว ไม่สามารถตรวจสอบสลิปได้ กรุณาลองใหม่อีกครั้ง' });
           }
         }
 
@@ -1369,13 +1373,13 @@ import healthRoute from './src/routes/health.route.js';
          return res.status(403).json({ error: 'Missing Captcha token. Please refresh the page and verify you are human. (Or provide valid API Key)' });
       }
 
-      // Since a batch check loop uses the same token, we cache verified tokens for 30 seconds with max 3 reuses
+      // Since a batch check loop uses the same token, we cache verified tokens for 10 seconds with max 1 reuse
       const now = Date.now();
-      const cacheKey = turnstileToken + '_' + (req.ip || 'unknown');
+      const cacheKey = turnstileToken + '_' + (req as any).user.uid;
       const cacheEntry = turnstileCache.get(cacheKey);
       
-      if (cacheEntry && (now - cacheEntry.time < 30 * 1000) && cacheEntry.uses < 3) {
-         // Token is already verified and within 30 second window with less than 3 uses
+      if (cacheEntry && (now - cacheEntry.time < 10 * 1000) && cacheEntry.uses < 1) {
+         // Token is already verified and within 10 second window with less than 1 use
          cacheEntry.uses++;
          // console.log("Used cached Turnstile token bypass");
       } else {
@@ -1727,7 +1731,7 @@ import healthRoute from './src/routes/health.route.js';
       return res.json({
         success: true,
         data: {
-          account, password, uid: userData.uid || 'N/A',
+          account, uid: userData.uid || 'N/A',
           shells: userData.shell || 0,
           level: codmInfo?.level || 0, 
           rank: 'Success', 
@@ -1788,9 +1792,7 @@ import healthRoute from './src/routes/health.route.js';
   // --- Supabase Proxy Routes ---
   // --- Products Endpoints ---
 
-import Redis from 'ioredis';
-
-let redis: Redis | null = null;
+let redis: any = null;
 if (process.env.REDIS_URL) {
   try {
     redis = new Redis(process.env.REDIS_URL, {
@@ -2704,10 +2706,11 @@ const diskUpload = multer({ dest: uploadDir });
       // 2. ถ้าไม่เจอ ลองหาในประวัติการสั่งซื้อ (purchases)
       let foundDoc = null;
       try {
+        const escapedKey = key.trim().replace(/[%_\\]/g, '\\$&');
         const { data, error } = await supabaseAdmin
           .from('purchases')
           .select('*')
-          .ilike('secretData', `%${key.trim()}%`)
+          .ilike('secretData', `%${escapedKey}%`)
           .limit(10);
         
         if (!error && data && data.length > 0) {
@@ -3268,16 +3271,16 @@ const diskUpload = multer({ dest: uploadDir });
     }
   });
 
-  app.get('/api/validate_key/:key', async (req, res) => {
+  app.get('/api/validate_key/:key', requireAuth, async (req: any, res: any) => {
     try {
       const snapshot = await admin.firestore().collection('license_keys').where('key', '==', req.params.key).limit(1).get();
       if (!snapshot || !snapshot.docs || snapshot.docs.length === 0) {
-        return res.status(404).json({ error: 'Key not found' });
+        return res.status(404).json({ valid: false, error: 'Key not found' });
       }
-      res.json({ id: snapshot.docs[0].id, ...snapshot.docs[0].data() });
+      res.json({ valid: true });
     } catch (err) {
       console.error('Internal server error validating key:', err);
-      res.status(500).json({ error: String(err && err.message ? err.message : err) });
+      res.status(500).json({ valid: false, error: 'Internal error' });
     }
   });
 
@@ -3518,10 +3521,11 @@ const diskUpload = multer({ dest: uploadDir });
         // 2. ถ้าไม่เจอ ลองหาในประวัติการสั่งซื้อ (เผื่อเป็นคีย์แรนด้อม/คีย์สินค้าที่ซื้อไป)
         let foundDoc = null;
         try {
+          const escapedKey = key.trim().replace(/[%_\\]/g, '\\$&');
           const { data, error } = await supabaseAdmin
             .from('purchases')
             .select('*')
-            .ilike('secretData', `%${key.trim()}%`)
+            .ilike('secretData', `%${escapedKey}%`)
             .limit(10);
             
           if (!error && data && data.length > 0) {
@@ -3859,6 +3863,7 @@ const diskUpload = multer({ dest: uploadDir });
   const tgSessions = new Map<string, {
       client: any,
       status: 'idle' | 'pending_otp' | 'pending_password' | 'connected' | 'error',
+      uid?: string,
       encryptedPhone: string,
       truemoneyPhone: string,
       resolveOtp?: (code: string) => void,
@@ -3919,11 +3924,18 @@ const diskUpload = multer({ dest: uploadDir });
               tgPhoneHashToSessionId.set(phoneHash, sessionId);
           }
 
-          const client = new TelegramClient(new StringSession(''), 2040, 'b18441a1ff607e10a989891a5462e627', { connectionRetries: 3 });
+          const apiId = parseInt(process.env.TELEGRAM_API_ID || '0');
+          const apiHash = process.env.TELEGRAM_API_HASH || '';
+          if (!apiId || !apiHash) {
+              return res.status(500).json({ error: 'System not configured for Telegram. Missing API credentials.' });
+          }
+
+          const client = new TelegramClient(new StringSession(''), apiId, apiHash, { connectionRetries: 3 });
           
           sess = { 
               client, 
               status: 'idle', 
+              uid: (req as any).user.uid,
               encryptedPhone: encrypt(telegramPhone),
               truemoneyPhone,
               logs: ['เริ่มเชื่อมต่อเข้าสู่ระบบ Telegram...']
@@ -4024,10 +4036,11 @@ const diskUpload = multer({ dest: uploadDir });
       }
   });
 
-  app.post('/api/telegram/catcher/submit', async (req, res) => {
+  app.post('/api/telegram/catcher/submit', requireAuth, async (req: any, res: any) => {
       const { sessionId, type, value } = req.body;
       const sess = tgSessions.get(sessionId);
       if (!sess) return res.status(400).json({ error: 'ไม่พบเซสชั่น' });
+      if (sess.uid !== req.user.uid) return res.status(403).json({ error: 'Access denied' });
 
       if (type === 'otp' && sess.resolveOtp) {
           sess.resolveOtp(value);
@@ -4040,10 +4053,10 @@ const diskUpload = multer({ dest: uploadDir });
       res.json({ success: true });
   });
 
-  app.post('/api/telegram/catcher/status', async (req, res) => {
+  app.post('/api/telegram/catcher/status', requireAuth, async (req: any, res: any) => {
       const { sessionId } = req.body;
       const sess = tgSessions.get(sessionId);
-      if (!sess) return res.json({ status: 'none', logs: [] });
+      if (!sess || sess.uid !== req.user.uid) return res.json({ status: 'none', logs: [] });
       res.json({ status: sess.status, logs: sess.logs });
   });
 
@@ -4198,8 +4211,8 @@ const diskUpload = multer({ dest: uploadDir });
       }
   });
 
-  app.get('/api/discord/token-on/status', requireAuth, async (req: any, res: any) => {
-      const token = req.query.token as string;
+  app.post('/api/discord/token-on/status', requireAuth, async (req: any, res: any) => {
+      const token = req.body.token as string;
       if (!token) return res.status(400).json({ error: 'Missing token' });
       const sess = discordTokenOnSessions.get(token);
       if (!sess) return res.json({ status: 'none', logs: [] });
