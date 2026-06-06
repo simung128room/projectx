@@ -33,11 +33,12 @@ interface WalletViewProps {
   setUserPlan: React.Dispatch<React.SetStateAction<UserPlan | null>>;
   onTopupSuccess?: (entry: any) => void;
   userId?: string | null;
+  siteSettings?: any;
 }
 
 type TopupView = 'main' | 'truemoney' | 'bank';
 
-export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, onTopupSuccess, userId }) => {
+export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, onTopupSuccess, userId, siteSettings }) => {
   const [activeView, setActiveView] = useState<TopupView>('main');
   const [truemoneyLink, setTruemoneyLink] = useState('');
   const [isCopying, setIsCopying] = useState(false);
@@ -46,9 +47,15 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
   const [isGuideOpen, setIsGuideOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const bankName = siteSettings?.bank_name || 'ธนาคารกสิกรไทย';
+  const bankAccountNumber = siteSettings?.bank_account_number || '196-3-87032-5';
+  const bankAccountHolder = siteSettings?.bank_account_holder || 'นาย กรวิชญ์';
+  const bankQrImage = siteSettings?.bank_qr_image || `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(window.location.origin)}`;
+
   const handleCopyAccount = () => {
     setIsCopying(true);
-    navigator.clipboard.writeText('1963870325');
+    const digitsOnly = bankAccountNumber.replace(/[-\s]/g, '');
+    navigator.clipboard.writeText(digitsOnly);
     
     Swal.fire({
       toast: true,
@@ -638,19 +645,19 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
                 <div className="md:col-span-7 space-y-6">
                   
                   {/* Premium Bank Card Mockup */}
-                  <div className="relative w-full aspect-[1.58/1] rounded-[2rem] bg-gradient-to-br from-[#0c401b] via-[#00a82d] to-[#044c18] p-6 flex flex-col justify-between border border-white/10 shadow-2xl overflow-hidden group select-none select-all-active">
+                  <div className="relative w-full aspect-[1.58/1] rounded-[2rem] bg-gradient-to-br from-zinc-900 via-zinc-950 to-neutral-900 p-6 flex flex-col justify-between border border-white/[0.05] shadow-2xl overflow-hidden group select-none select-all-active">
                     {/* Glowing effect inside card */}
-                    <div className="absolute -top-10 -right-10 w-24 h-24 bg-white/10 rounded-full blur-2xl group-hover:scale-125 transition-transform duration-700" />
+                    <div className="absolute -top-10 -right-10 w-24 h-24 bg-[#10b981]/10 rounded-full blur-2xl group-hover:scale-125 transition-transform duration-700" />
                     
                     {/* Card Brand Header */}
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-2">
-                        <div className="w-9 h-9 bg-white rounded-xl flex items-center justify-center border border-white/5 shadow-md">
-                          <Landmark className="w-5.25 h-5.25 text-[#00A82D]" />
+                        <div className="w-9 h-9 bg-white/5 rounded-xl flex items-center justify-center border border-white/5 shadow-md">
+                          <Landmark className="w-5.25 h-5.25 text-[#10b981]" />
                         </div>
                         <div>
-                          <span className="text-white text-[10px] font-black tracking-widest block uppercase">KASIKORNBANK</span>
-                          <span className="text-emerald-300 text-[8px] font-mono leading-none">ธนาคารกสิกรไทย</span>
+                          <span className="text-white text-[10px] font-black tracking-widest block uppercase font-mono">{bankName}</span>
+                          <span className="text-zinc-400 text-[8px] font-mono leading-none">ช่องทางชำระเงินธนาคาร</span>
                         </div>
                       </div>
                       
@@ -665,10 +672,10 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
 
                     {/* Account number block */}
                     <div className="my-2 relative group-item">
-                      <p className="text-[8px] text-emerald-200/50 font-black tracking-widest uppercase mb-1">ACCOUNT NUMBER / เลขบัญชี</p>
+                      <p className="text-[8px] text-zinc-500 font-black tracking-widest uppercase mb-1">ACCOUNT NUMBER / เลขบัญชี</p>
                       <div className="flex items-center justify-between gap-1.5">
                         <span className="text-xl sm:text-2xl font-mono font-black text-white tracking-widest select-all">
-                          196-3-87032-5
+                          {bankAccountNumber}
                         </span>
                         
                         <button 
@@ -688,12 +695,12 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
                     {/* Card Footer: Holder name */}
                     <div className="flex items-end justify-between border-t border-white/5 pt-3">
                       <div>
-                        <p className="text-[7px] text-emerald-200/50 font-black tracking-widest uppercase">ACCOUNT HOLDER / ชื่อบัญชี</p>
-                        <p className="text-sm font-extrabold text-white tracking-wide mt-0.5 select-all">นาย กรวิชญ์</p>
+                        <p className="text-[7px] text-zinc-500 font-black tracking-widest uppercase">ACCOUNT HOLDER / ชื่อบัญชี</p>
+                        <p className="text-sm font-extrabold text-white tracking-wide mt-0.5 select-all">{bankAccountHolder}</p>
                       </div>
                       
                       <div className="text-[10px] font-black text-white/55 font-mono tracking-widest select-none">
-                        VISA
+                        PREMIUM
                       </div>
                     </div>
                   </div>
@@ -717,7 +724,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
                   {/* Dynamic simulated QR code */}
                   <div className="p-4 bg-zinc-950 border border-white/[0.05] rounded-3xl relative flex flex-col items-center justify-center group select-none shadow-inner">
                     <div className="relative w-36 h-36 border border-white/5 rounded-2xl overflow-hidden bg-white p-2">
-                      <img loading="lazy" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://ais-pre-yqcwrqpfmcv3f3k4u45xxa-109803326919.asia-east1.run.app" alt="PromptPay" className="w-full h-full object-contain" />
+                      <img loading="lazy" src={bankQrImage} alt="PromptPay" className="w-full h-full object-contain" />
                       {/* Laserscan sweeping overlay animation */}
                       <span className="absolute left-0 w-full h-[3px] bg-emerald-500 shadow-[0_0_8px_#10b981] animate-[bounce_2.5s_infinite]" />
                     </div>

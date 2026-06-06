@@ -829,7 +829,11 @@ import healthRoute from './src/routes/health.route.js';
     spotify_url: 'https://youtu.be/WczSfh3gJaU?si=PI1i4X0p0FGbdEfq',
     spotify_autoplay: true,
     proxies: process.env.DEFAULT_PROXY_URL ? [process.env.DEFAULT_PROXY_URL] : [],
-    auto_proxy: true
+    auto_proxy: true,
+    bank_name: 'ธนาคารกสิกรไทย',
+    bank_account_number: '196-3-87032-5',
+    bank_account_holder: 'นาย กรวิชญ์',
+    bank_qr_image: ''
   };
 
   // Load from DB (HIGH-05: blocking start until loaded to prevent race conditions)
@@ -951,6 +955,10 @@ import healthRoute from './src/routes/health.route.js';
     if (req.body.banners !== undefined && Array.isArray(req.body.banners)) siteSettings.banners = req.body.banners;
     if (req.body.proxies !== undefined && Array.isArray(req.body.proxies)) siteSettings.proxies = req.body.proxies;
     if (req.body.auto_proxy !== undefined) siteSettings.auto_proxy = req.body.auto_proxy === true || req.body.auto_proxy === 'true';
+    if (req.body.bank_name !== undefined) siteSettings.bank_name = req.body.bank_name;
+    if (req.body.bank_account_number !== undefined) siteSettings.bank_account_number = req.body.bank_account_number;
+    if (req.body.bank_account_holder !== undefined) siteSettings.bank_account_holder = req.body.bank_account_holder;
+    if (req.body.bank_qr_image !== undefined) siteSettings.bank_qr_image = req.body.bank_qr_image;
     
     // Clear cached stats so they refresh next time someone calls /api/stats
     invalidateStatsCache();

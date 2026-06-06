@@ -659,7 +659,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     auto_proxy: true,
     spotify_url: '',
     spotify_autoplay: false,
-    announcement_text: 'ยินดีต้อนรับสู่ APEXSTORE ศูนย์รวมสินค้าไอดีและข้อเสนอยอดฮิต ระบบซื้อขายทำงานอัตโนมัติ 24 ชั่วโมง - กรณีมีปัญหาโปรดติดต่อแอดมิน'
+    announcement_text: 'ยินดีต้อนรับสู่ APEXSTORE ศูนย์รวมสินค้าไอดีและข้อเสนอยอดฮิต ระบบซื้อขายทำงานอัตโนมัติ 24 ชั่วโมง - กรณีมีปัญหาโปรดติดต่อแอดมิน',
+    bank_name: 'ธนาคารกสิกรไทย',
+    bank_account_number: '196-3-87032-5',
+    bank_account_holder: 'นาย กรวิชญ์',
+    bank_qr_image: ''
   });
 
   const [uploadingMusic, setUploadingMusic] = useState(false);
@@ -1803,6 +1807,58 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           onChange={(e) => setSiteSettings({ ...siteSettings, truewallet_phone: e.target.value })}
                           className="w-full bg-card border border-border border-2 px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-emerald-500 brut-card"
                           placeholder="095xxxxxxx"
+                        />
+                      </div>
+
+                      <div className="space-y-4">
+                        <label className="block text-sm font-bold text-muted-foreground flex items-center gap-2">
+                           <Globe className="w-4 h-4 text-emerald-500" /> ชื่อธนาคาร (เช่น ธนาคารกสิกรไทย)
+                        </label>
+                        <input 
+                          type="text"
+                          value={siteSettings.bank_name || ''}
+                          onChange={(e) => setSiteSettings({ ...siteSettings, bank_name: e.target.value })}
+                          className="w-full bg-card border border-border border-2 px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-emerald-500 brut-card"
+                          placeholder="ธนาคารกสิกรไทย"
+                        />
+                      </div>
+
+                      <div className="space-y-4">
+                        <label className="block text-sm font-bold text-muted-foreground flex items-center gap-2">
+                           <Globe className="w-4 h-4 text-emerald-500" /> เลขบัญชีบัญชาการ (เช่น 196-3-87032-5)
+                        </label>
+                        <input 
+                          type="text"
+                          value={siteSettings.bank_account_number || ''}
+                          onChange={(e) => setSiteSettings({ ...siteSettings, bank_account_number: e.target.value })}
+                          className="w-full bg-card border border-border border-2 px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-emerald-500 brut-card"
+                          placeholder="196-3-87032-5"
+                        />
+                      </div>
+
+                      <div className="space-y-4">
+                        <label className="block text-sm font-bold text-muted-foreground flex items-center gap-2">
+                           <Globe className="w-4 h-4 text-emerald-500" /> ชื่อเจ้าของบัญชี (เช่น นาย กรวิชญ์)
+                        </label>
+                        <input 
+                          type="text"
+                          value={siteSettings.bank_account_holder || ''}
+                          onChange={(e) => setSiteSettings({ ...siteSettings, bank_account_holder: e.target.value })}
+                          className="w-full bg-card border border-border border-2 px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-emerald-500 brut-card"
+                          placeholder="นาย กรวิชญ์"
+                        />
+                      </div>
+
+                      <div className="space-y-4">
+                        <label className="block text-sm font-bold text-muted-foreground flex items-center gap-2">
+                           <Globe className="w-4 h-4 text-emerald-500" /> ลิงก์รูปภาพ QR Code พร้อมเพย์ / ธนาคาร (ปล่อยว่างเพื่อใช้แบบ Dynamic QR)
+                        </label>
+                        <input 
+                          type="text"
+                          value={siteSettings.bank_qr_image || ''}
+                          onChange={(e) => setSiteSettings({ ...siteSettings, bank_qr_image: e.target.value })}
+                          className="w-full bg-card border border-border border-2 px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-emerald-500 brut-card"
+                          placeholder="https://..."
                         />
                       </div>
                       <div className="space-y-4">

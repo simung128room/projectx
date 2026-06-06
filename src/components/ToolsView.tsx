@@ -13,6 +13,18 @@ export const ToolsView: React.FC<ToolsViewProps> = ({ setActiveView }) => {
 
   const tools = [
     {
+      id: 'auto_deploy',
+      name: 'สร้างร้านค้าฟรี',
+      desc: 'ระบบสั่งจำลองโคลนติดตั้งเว็บไซต์ร้านค้าส่วนตัวออโต้บนซับโดเมนของคุณเอง พร้อมฐานข้อมูล MySQL และระบบจัดการครบวงจร',
+      category: 'premium',
+      icon: Globe,
+      gradient: 'from-[#059669] to-[#10B981]',
+      iconColor: 'text-[#10B981]',
+      glowColor: 'group-hover:shadow-[0_0_40px_-10px_rgba(16,185,129,0.4)]',
+      tag: 'HOT',
+      premium: false
+    },
+    {
       id: 'api_proxy_gen',
       name: 'API Proxy',
       desc: 'สร้าง API ลิงก์สำหรับดึง Proxy ไปใช้งานกับโปรแกรมของคุณ อัปเดตเรียลไทม์ ดึงได้ทุก 0.1 วิ',

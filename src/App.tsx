@@ -218,6 +218,11 @@ const ApiProxyGenTool = lazy(() =>
     default: module.ApiProxyGenTool,
   })),
 );
+const AutoDeployTool = lazy(() =>
+  import("./components/AutoDeployTool").then((module) => ({
+    default: module.AutoDeployTool,
+  })),
+);
 const ProxyFreeTool = lazy(() =>
   import("./components/ProxyFreeTool").then((module) => ({
     default: module.ProxyFreeTool,
@@ -532,6 +537,7 @@ function AppContent() {
     | "proxy_ff_ios"
     | "proxy_free"
     | "api_proxy_gen"
+    | "auto_deploy"
     | "admin"
     | "profile"
     | "logs"
@@ -3009,6 +3015,9 @@ function AppContent() {
             {activeView === "proxy_ff_ios" && <ProxyFreeFireIOSTool />}
             {activeView === "proxy_free" && <ProxyFreeTool />}
             {activeView === "api_proxy_gen" && <ApiProxyGenTool />}
+            {activeView === "auto_deploy" && (
+              <AutoDeployTool onBack={() => setActiveView("tools")} />
+            )}
             {activeView === "logs" && (
               <HistoryLogsView
                 usedKeysHistory={usedKeysHistory.filter(
@@ -3124,6 +3133,7 @@ function AppContent() {
                 userPlan={userPlan}
                 setUserPlan={setUserPlan}
                 userId={user?.uid}
+                siteSettings={siteSettings}
                 onTopupSuccess={(entry) => {
                   setTopupHistory((prev) => [entry, ...prev]);
                   setSiteStats((prev) => ({
