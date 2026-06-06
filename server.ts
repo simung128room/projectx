@@ -2631,28 +2631,6 @@ const diskUpload = multer({ dest: uploadDir });
     }
   });
 
-  // Mutex for purchase locking
-  const purchaseLocks = new Map<string, Promise<void>>();
-
-  const acquireLocks = async (...keys: string[]) => {
-    // Sort keys to prevent deadlocks
-    const sortedKeys = [...keys].sort();
-    for (const k of sortedKeys) {
-      while (purchaseLocks.has(k)) { await purchaseLocks.get(k); }
-      let rel: () => void;
-      const p = new Promise<void>(r => { rel = r; });
-      (p as any).release = rel!;
-      purchaseLocks.set(k, p);
-    }
-    return () => {
-      for (const k of sortedKeys) {
-        const p = purchaseLocks.get(k) as any;
-        if (p && p.release) p.release();
-        purchaseLocks.delete(k);
-      }
-    };
-  };
-
   app.post('/api/discord-rekey', async (req: any, res: any) => {
     const { key, secret, plan } = req.body;
     const expectedSecret = process.env.DISCORD_BOT_SECRET;
@@ -2757,9 +2735,6 @@ const diskUpload = multer({ dest: uploadDir });
     const userLockKey = `user:${userId}`;
     const productLockKey = `product:${productId}`;
     
-    // Memory lock as an extra precaution before entering transaction
-    const releaseLocks = await acquireLocks(userLockKey, productLockKey);
-
     try {
       const userRef = admin.firestore().collection('users').doc(userId);
       const productRef = admin.firestore().collection('products').doc(productId);
@@ -2944,8 +2919,6 @@ const diskUpload = multer({ dest: uploadDir });
       console.error('------- BUY ERROR TRACE -------', err);
       sendAlert('Transaction Failed / Rollback ❌', `**User**: ${userId}\n**Product**: ${productId}\n**Error**: ${msg}`, 16711680, req.id);
       res.status(500).json({ error: String(err && err.message ? err.message : err) });
-    } finally {
-      if (releaseLocks) releaseLocks();
     }
   });
 
@@ -3707,7 +3680,7 @@ const diskUpload = multer({ dest: uploadDir });
   app.get('/api/users', requireAdmin, async (req: any, res: any) => {
     try {
       const page = Math.max(1, parseInt(req.query.page) || 1);
-      const limit = Math.min(2000, parseInt(req.query.limit) || 1000);
+      const limit = Math.min(200, parseInt(req.query.limit as string) || 100);
       const offset = (page - 1) * limit;
 
       const snapshot = await admin.firestore().collection('users').limit(limit).offset(offset).get();

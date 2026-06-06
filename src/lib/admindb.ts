@@ -250,7 +250,7 @@ class SupabaseDoc {
         const slug = getVirtualSlug(this.collection, this.id);
         const legacySlug = `v:${this.collection}:${this.id}`;
         try {
-            const { data: matchingRow } = await supabaseAdmin.from('custom_pages').select('id, slug, content').or(`slug.eq.${slug},slug.eq.${legacySlug}`).limit(1);
+            const { data: matchingRow } = await supabaseAdmin.from('custom_pages').select('id, slug, content').in('slug', [slug, legacySlug]).limit(1);
             
             const existingContent = matchingRow && matchingRow[0] && matchingRow[0].content ? JSON.parse(matchingRow[0].content) : {};
             const activeSlug = matchingRow && matchingRow[0] && matchingRow[0].slug ? matchingRow[0].slug : slug;
@@ -336,7 +336,7 @@ class SupabaseDoc {
     if (isVirtual(this.collection)) {
         const slug = getVirtualSlug(this.collection, this.id);
         const legacySlug = `v:${this.collection}:${this.id}`;
-        const { error } = await supabaseAdmin.from('custom_pages').delete().or(`slug.eq.${slug},slug.eq.${legacySlug}`);
+        const { error } = await supabaseAdmin.from('custom_pages').delete().in('slug', [slug, legacySlug]);
         if (error) {
             console.error(`Error deleting virtual doc ${this.collection}/${this.id}:`, error);
             throw error;
@@ -351,7 +351,7 @@ class SupabaseDoc {
         const slug = getVirtualSlug(this.collection, this.id);
         const legacySlug = `v:${this.collection}:${this.id}`;
         try {
-            const { data: matchingRow } = await supabaseAdmin.from('custom_pages').select('id, slug, content').or(`slug.eq.${slug},slug.eq.${legacySlug}`).limit(1);
+            const { data: matchingRow } = await supabaseAdmin.from('custom_pages').select('id, slug, content').in('slug', [slug, legacySlug]).limit(1);
             
             let finalData = { ...data, id: this.id };
             let activeSlug = slug;
@@ -437,8 +437,8 @@ class SupabaseDoc {
             } else {
               console.warn(`Column ${col} missing but was already blacklisted! Skipping data manipulation manually.`);
             }
-            if (data && typeof data === 'object') {
-               delete data[col];
+            if (mergedData && typeof mergedData === 'object') {
+               delete mergedData[col];
             }
             continue;
           }
