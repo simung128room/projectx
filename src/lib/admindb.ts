@@ -92,7 +92,9 @@ const camelMap: Record<string, string> = {
   bill_number: 'billNumber',
   discord_claimed: 'discordClaimed',
   web_claimed: 'webClaimed',
-  product_id: 'productId'
+  product_id: 'productId',
+  is_deleted: 'isDeleted',
+  isdeleted: 'isDeleted'
 };
 
 const forwardMap: Record<string, string> = {
@@ -111,7 +113,8 @@ const forwardMap: Record<string, string> = {
   billNumber: 'bill_number',
   discordClaimed: 'discord_claimed',
   webClaimed: 'web_claimed',
-  productId: 'product_id'
+  productId: 'product_id',
+  isDeleted: 'is_deleted'
 };
 
 const missingColumns = new Set<string>();
@@ -165,8 +168,12 @@ function extractMissingColumn(errMsg: string): string | null {
   if (m3) {
     let col = m3[1];
     if (col.includes('.')) col = col.split('.').pop() || col;
+    // Strip leading/trailing double quotes
+    if (col.startsWith('"') && col.endsWith('"')) col = col.substring(1, col.length - 1);
     return col;
   }
+  const m4 = errMsg.match(/column "([^"]+)"/);
+  if (m4) return m4[1];
   return null;
 }
 

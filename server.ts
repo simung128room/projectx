@@ -1884,7 +1884,7 @@ if (process.env.REDIS_URL) {
             const d = doc.data();
             return { id: doc.id, ...d };
           });
-          data = data.filter((d: any) => !d.isDeleted);
+          data = data.filter((d: any) => !d.isDeleted && d.active !== false);
           
           if (collectionName === 'products' && data.length === 0) {
             console.log("Seeding default products because Firestore 'products' collection is empty...");
@@ -1984,7 +1984,7 @@ if (process.env.REDIS_URL) {
               data = newSnapshot.docs.map((doc: any) => {
                 const d = doc.data();
                 return { id: doc.id, ...d };
-              }).filter((d: any) => !d.isDeleted);
+              }).filter((d: any) => !d.isDeleted && d.active !== false);
             } catch (seedErr) {
               console.error("Error seeding default products:", seedErr);
             }
@@ -2389,7 +2389,7 @@ const diskUpload = multer({ dest: uploadDir });
         if (doc.exists) {
           exists = true;
           existingData = doc.data()!;
-          t.update(docRef, { isDeleted: true });
+          t.update(docRef, { isDeleted: true, active: false });
         }
       });
       
