@@ -54,7 +54,7 @@ export const AdminCategoriesManagement: React.FC<AdminCategoriesManagementProps>
       
       const updatedProducts = [...products];
 
-      // Execute updates concurrently in small batches to preserve performance
+      // Execute updates concurrently
       const updatePromises = [];
 
       for (const id of idsToAddCategory) {
@@ -77,11 +77,11 @@ export const AdminCategoriesManagement: React.FC<AdminCategoriesManagementProps>
       await Promise.all(updatePromises);
       
       setProducts(updatedProducts);
-      Swal.fire('สำเร็จ', 'อัปเดตสินค้าในหมวดหมู่เรียบร้อย', 'success');
+      Swal.fire({ title: 'สำเร็จ', text: 'อัปเดตสินค้าในหมวดหมู่เรียบร้อย', icon: 'success', background: '#09090b', color: '#fff', confirmButtonColor: '#3B82F6' });
       setManagingProductsForCategory(null);
     } catch (err) {
       console.error(err);
-      Swal.fire('ข้อผิดพลาด', 'ไม่สามารถอัปเดตข้อมูลสินค้าได้', 'error');
+      Swal.fire({ title: 'ข้อผิดพลาด', text: 'ไม่สามารถอัปเดตข้อมูลสินค้าได้', icon: 'error', background: '#09090b', color: '#fff', confirmButtonColor: '#EF4444' });
     } finally {
       setIsUpdatingProducts(false);
     }
@@ -89,7 +89,7 @@ export const AdminCategoriesManagement: React.FC<AdminCategoriesManagementProps>
 
   const saveCategory = async () => {
     if (!formData.name || !formData.title) {
-      Swal.fire('Error', 'กรุณากรอกชื่ออ้างอิงและหัวข้อหลัก', 'error');
+      Swal.fire({ title: 'ข้อผิดพลาด', text: 'กรุณากรอกชื่ออ้างอิงและหัวข้อหลัก', icon: 'error', background: '#09090b', color: '#fff', confirmButtonColor: '#EF4444' });
       return;
     }
     
@@ -104,10 +104,10 @@ export const AdminCategoriesManagement: React.FC<AdminCategoriesManagementProps>
         setIsAdding(false);
       }
       setFormData({ name: '', title: '', subtitle: '', bannerUrl: '' });
-      Swal.fire('สำเร็จ', 'บันทึกหมวดหมู่เรียบร้อย', 'success');
+      Swal.fire({ title: 'สำเร็จ', text: 'บันทึกหมวดหมู่เรียบร้อย', icon: 'success', background: '#09090b', color: '#fff', confirmButtonColor: '#3B82F6' });
     } catch (err) {
       console.error(err);
-      Swal.fire('Error', 'ไม่สามารถบันทึกได้', 'error');
+      Swal.fire({ title: 'Error', text: 'ไม่สามารถบันทึกได้', icon: 'error', background: '#09090b', color: '#fff', confirmButtonColor: '#EF4444' });
     }
   };
 
@@ -119,14 +119,18 @@ export const AdminCategoriesManagement: React.FC<AdminCategoriesManagementProps>
       showCancelButton: true,
       confirmButtonText: 'ลบ',
       cancelButtonText: 'ยกเลิก',
-      confirmButtonColor: '#dc2626'
+      confirmButtonColor: '#EF4444',
+      cancelButtonColor: '#71717a',
+      background: '#09090b',
+      color: '#fff'
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
           await axios.delete(`/api/categories/${id}`);
           setCategories(categories.filter(c => c.id !== id));
+          Swal.fire({ title: 'สำเร็จ', text: 'ลบหมวดหมู่เรียบร้อย', icon: 'success', background: '#09090b', color: '#fff', timer: 1000, showConfirmButton: false });
         } catch (err) {
-          Swal.fire('Error', 'ไม่สามารถลบหมวดหมู่ได้', 'error');
+          Swal.fire({ title: 'Error', text: 'ไม่สามารถลบหมวดหมู่ได้', icon: 'error', background: '#09090b', color: '#fff' });
         }
       }
     });
@@ -134,183 +138,204 @@ export const AdminCategoriesManagement: React.FC<AdminCategoriesManagementProps>
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-xl font-bold flex items-center gap-2">
-          <Package className="w-5 h-5 text-[#2563EB]" />
-          จัดการหมวดหมู่สินค้า
-        </h2>
+      <div className="flex justify-between items-center bg-zinc-950/20 p-4 border border-zinc-900 rounded-lg">
+        <div>
+          <h2 className="text-lg font-bold text-white flex items-center gap-2">
+            <Package className="w-5 h-5 text-[#3B82F6]" />
+            จัดการหมวดหมู่สินค้า
+          </h2>
+          <p className="text-xs text-zinc-500 mt-0.5">บริหารจัดการและกำหนดรายการสินค้าในหมวดหมู่ต่างๆ ของสโตร์</p>
+        </div>
         <button 
           onClick={() => { setIsAdding(true); setFormData({ name: '', title: '', subtitle: '', bannerUrl: '' }); }}
-          className="bg-primary text-primary-foreground hover:bg-[#1D4ED8] text-white px-4 py-2 text-sm font-bold flex items-center gap-2"
+          className="bg-[#3B82F6] hover:bg-[#2563EB] text-white font-bold py-2 px-4 text-xs transition-colors flex items-center gap-2 rounded-md shadow-[0_2px_10px_rgba(59,130,246,0.2)]"
         >
           <Plus className="w-4 h-4" /> เพิ่มหมวดหมู่
         </button>
       </div>
 
       {(isAdding || editingCategory) && (
-        <div className="bg-card border overflow-hidden mb-8 transition-all brut-card">
-          <div className="bg-card p-6 sm:p-8 flex items-center justify-between border-b border-border border-2 brut-card">
+        <div className="bg-[#0B0C0E] border border-zinc-800 rounded-lg overflow-hidden mb-8 transition-all duration-200 shadow-xl">
+          <div className="bg-zinc-950 p-6 flex items-center justify-between border-b border-zinc-850">
             <div>
-              <h3 className="text-xl font-black text-white tracking-tight">
+              <h3 className="text-base font-bold text-white tracking-tight">
                 {editingCategory ? 'แก้ไขหมวดหมู่สินค้า' : 'สร้างหมวดหมู่ใหม่'}
               </h3>
-              <p className="text-sm font-medium text-muted-foreground mt-1">
+              <p className="text-xs text-zinc-500 mt-1">
                 {editingCategory ? 'แก้ไขรายละเอียดหมวดหมู่ที่นี่' : 'เพิ่มรายละเอียดหมวดหมู่สินค้าใหม่ลงในระบบ'}
               </p>
             </div>
-            <div className="p-3 bg-card border border-border border-2 brut-card">
-              {editingCategory ? <Edit className="w-6 h-6 text-blue-500" /> : <Package className="w-6 h-6 text-[#2563EB]" />}
+            <div className="p-2.5 bg-zinc-900/50 border border-zinc-800 rounded-md">
+              {editingCategory ? <Edit className="w-5 h-5 text-amber-500" /> : <Package className="w-5 h-5 text-[#3B82F6]" />}
             </div>
           </div>
           
-          <div className="p-6 sm:p-8 space-y-6">
+          <div className="p-6 space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-4 md:col-span-1">
+              <div className="space-y-5 md:col-span-1">
                 <div className="group">
-                  <label className="block text-sm font-bold text-muted-foreground mb-2 group-focus-within:text-[#2563EB] transition-colors">
-                    ชื่ออ้างอิงของระบบ <span className="text-[#2563EB]">*</span>
+                  <label className="block text-xs font-bold text-zinc-400 mb-2">
+                    ชื่ออ้างอิงของระบบ (English เท่านั้น) <span className="text-[#3B82F6]">*</span>
                   </label>
                   <input 
                     type="text" 
                     value={formData.name || ''} 
                     onChange={e => setFormData({...formData, name: e.target.value})} 
-                    className="w-full bg-card focus:bg-[#0B0D0F] border border-border border-2 focus:border-[#3B82F6]/40 focus:ring-4 focus:ring-[#3B82F6]/30 px-4 py-3 text-sm font-medium transition-all brut-card" 
-                    placeholder="เช่น game_accounts (อักษรภาษาอังกฤษ)" 
+                    className="w-full bg-zinc-950 border border-zinc-800 focus:border-[#3B82F6]/60 rounded-md px-4 py-2.5 text-white text-sm focus:outline-none transition-colors" 
+                    placeholder="เช่น game_accounts" 
                   />
-                  <p className="text-xs text-muted-foreground mt-2 ml-1">สำหรับใช้ในระบบ โปรดใช้ภาษาอังกฤษ</p>
+                  <p className="text-[10px] text-zinc-500 mt-1.5 ml-1">สำหรับประมวลผลหลังบ้าน โปรดใช้ตัวอักษรภาษาอังกฤษ พิมพ์เล็ก</p>
                 </div>
                 
                 <div className="group">
-                  <label className="block text-sm font-bold text-muted-foreground mb-2 group-focus-within:text-[#2563EB] transition-colors">
-                    ชื่อหมวดหมู่ที่แสดง <span className="text-[#2563EB]">*</span>
+                  <label className="block text-xs font-bold text-zinc-400 mb-2">
+                    ชื่อหมวดหมู่ที่แสดง <span className="text-[#3B82F6]">*</span>
                   </label>
                   <input 
                     type="text" 
                     value={formData.title || ''} 
                     onChange={e => setFormData({...formData, title: e.target.value})} 
-                    className="w-full bg-card focus:bg-[#0B0D0F] border border-border border-2 focus:border-[#3B82F6]/40 focus:ring-4 focus:ring-[#3B82F6]/30 px-4 py-3 text-sm font-medium transition-all brut-card" 
+                    className="w-full bg-zinc-950 border border-zinc-800 focus:border-[#3B82F6]/60 rounded-md px-4 py-2.5 text-white text-sm focus:outline-none transition-colors" 
                     placeholder="เช่น บัญชีเกม" 
                   />
-                  <p className="text-xs text-muted-foreground mt-2 ml-1">ชื่อหมวดหมู่ที่จะแสดงให้ผู้ใช้งานเห็น</p>
+                  <p className="text-[10px] text-zinc-500 mt-1.5 ml-1">ชื่อหมวดหมู่ที่ลูกค้าเห็นบนหน้าเว็บ</p>
                 </div>
               </div>
 
-              <div className="space-y-4 md:col-span-1 flex flex-col">
+              <div className="space-y-5 md:col-span-1 flex flex-col">
                 <div className="group flex-1">
-                  <label className="block text-sm font-bold text-muted-foreground mb-2 group-focus-within:text-[#2563EB] transition-colors">
+                  <label className="block text-xs font-bold text-zinc-400 mb-2">
                     รายละเอียดหมวดหมู่ (ถ้ามี)
                   </label>
                   <textarea 
                     value={formData.subtitle || ''} 
                     onChange={e => setFormData({...formData, subtitle: e.target.value})} 
-                    className="w-full h-[124px] bg-card focus:bg-[#0B0D0F] border border-border border-2 focus:border-[#3B82F6]/40 focus:ring-4 focus:ring-[#3B82F6]/30 px-4 py-3 text-sm font-medium transition-all resize-none brut-card" 
-                    placeholder="เขียนอธิบายเกี่ยวกับสินค้านี้..." 
+                    className="w-full h-[122px] bg-zinc-950 border border-zinc-800 focus:border-[#3B82F6]/60 rounded-md px-4 py-2.5 text-white text-sm focus:outline-none transition-colors resize-none" 
+                    placeholder="เขียนอธิบายภาพรวมสั้นๆ เกี่ยวกับสิทธิพิเสษ หรือหมวดหมู่นี้..." 
                   />
                 </div>
               </div>
 
-              <div className="md:col-span-2 pt-4 border-t border-border border-2">
-                <label className="block text-sm font-bold text-muted-foreground mb-3">รูปภาพหน้าปกหมวดหมู่</label>
+              <div className="md:col-span-2 pt-4 border-t border-zinc-850">
+                <label className="block text-xs font-bold text-zinc-400 mb-2">รูปภาพหน้าปกหมวดหมู่ (URL)</label>
                 <div className="flex flex-col md:flex-row gap-6">
                   <div className="flex-1 space-y-4">
                     <div className="relative group">
-                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                        <ImageIcon className="h-5 w-5 text-muted-foreground group-focus-within:text-[#2563EB] transition-colors" />
+                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                        <ImageIcon className="h-4 w-4 text-zinc-500" />
                       </div>
                       <input 
                         type="text" 
                         value={formData.bannerUrl || ''} 
                         onChange={e => setFormData({...formData, bannerUrl: e.target.value})} 
-                        className="w-full bg-card focus:bg-[#0B0D0F] border border-border border-2 focus:border-[#3B82F6]/40 focus:ring-4 focus:ring-[#3B82F6]/30 pl-11 pr-4 py-3 text-sm font-medium transition-all brut-card" 
+                        className="w-full bg-zinc-950 border border-zinc-800 focus:border-[#3B82F6]/60 rounded-md pl-10 pr-4 py-2.5 text-white text-sm focus:outline-none transition-colors" 
                         placeholder="https://example.com/banner.jpg" 
                       />
                     </div>
-                    <p className="text-xs text-muted-foreground">
-                      แนะนำให้ใช้รูปภาพสัดส่วนแนวนอน (16:9) เพื่อการแสดงผลที่ดีที่สุด
+                    <p className="text-[10px] text-zinc-500">
+                      แนะนำให้ใช้ลิงก์รูปภาพสัดส่วนแนวนอน (16:9) เพื่อให้สอดรับกับหน้าแสดงผลฝั่งลูกค้า
                     </p>
                   </div>
                   
                   {formData.bannerUrl ? (
-                    <div className="w-full md:w-64 h-32 overflow-hidden border border-border border-2 relative group bg-card shrink-0 brut-card">
+                    <div className="w-full md:w-56 h-28 overflow-hidden rounded-md border border-zinc-800 bg-zinc-950 shrink-0 relative group">
                       <img loading="lazy" src={formData.bannerUrl || undefined} alt="Preview" className="w-full h-full object-cover" />
-                      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <p className="text-white text-xs font-bold text-center px-4">พรีวิวรูปภาพหน้าปก</p>
+                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <p className="text-white text-[10px] font-bold">พรีวิวรูปภาพหน้าปก</p>
                       </div>
                     </div>
                   ) : (
-                    <div className="w-full md:w-64 h-32 border-2 border-dashed border-border flex flex-col items-center justify-center text-muted-foreground shrink-0 bg-card brut-card">
-                      <ImageIcon className="w-8 h-8 mb-2 opacity-50" />
-                      <span className="text-xs font-medium">ยังไม่มีรูปภาพ</span>
+                    <div className="w-full md:w-56 h-28 border border-dashed border-zinc-850 bg-zinc-950/20 rounded-md flex flex-col items-center justify-center text-zinc-600 shrink-0">
+                      <ImageIcon className="w-6 h-6 mb-1 opacity-50" />
+                      <span className="text-[10px] font-medium">ยังไม่ได้ใส่ลิงก์รูป</span>
                     </div>
                   )}
                 </div>
               </div>
             </div>
             
-            <div className="flex gap-3 justify-end pt-6 mb-2 border-t border-border border-2">
-              <button onClick={() => { setIsAdding(false); setEditingCategory(null); }} className="px-6 py-3 font-bold bg-card border border-border border-2 text-muted-foreground hover:bg-[#121212] hover:text-white transition-colors brut-card">
+            <div className="flex gap-2 justify-end pt-5 border-t border-zinc-850">
+              <button 
+                onClick={() => { setIsAdding(false); setEditingCategory(null); }} 
+                className="border border-zinc-800 bg-zinc-900/60 hover:bg-zinc-800 text-zinc-400 hover:text-white px-4 py-2 text-xs font-bold rounded-md transition-colors"
+              >
                 ยกเลิก
               </button>
-              <button onClick={saveCategory} className="px-6 py-3 font-bold bg-primary text-primary-foreground text-white hover:bg-[#1D4ED8] flex items-center gap-2 transition-all active:scale-95">
-                <Save className="w-5 h-5"/> {editingCategory ? 'อัปเดตหมวดหมู่' : 'สร้างหมวดหมู่'}
+              <button 
+                onClick={saveCategory} 
+                className="bg-[#3B82F6] hover:bg-[#2563EB] text-white px-4 py-2 text-xs font-bold flex items-center gap-2 rounded-md transition-colors active:scale-95"
+              >
+                <Save className="w-4 h-4"/> {editingCategory ? 'อัปเดตหมวดหมู่' : 'สร้างหมวดหมู่'}
               </button>
             </div>
           </div>
         </div>
       )}
 
-      <div className="bg-card border text-sm border-border border-2 overflow-hidden brut-card">
+      <div className="bg-card border border-zinc-800 rounded-lg overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead className="bg-card border-b border-border border-2 text-muted-foreground uppercase text-xs tracking-wider brut-card">
+          <table className="w-full text-left border-collapse text-sm text-zinc-400">
+            <thead className="bg-[#0B0C0E] border-b border-zinc-800 text-zinc-500 uppercase text-xs tracking-wider">
               <tr>
-                <th className="px-6 py-5 font-black whitespace-nowrap">แบนเนอร์</th>
-                <th className="px-6 py-5 font-black whitespace-nowrap">ข้อมูลหมวดหมู่</th>
-                <th className="px-6 py-5 font-black whitespace-nowrap">รายละเอียดเพิ่มเติม</th>
-                <th className="px-6 py-5 font-black text-right whitespace-nowrap">จัดการ</th>
+                <th className="px-6 py-4 font-bold whitespace-nowrap">แบนเนอร์</th>
+                <th className="px-6 py-4 font-bold whitespace-nowrap">ข้อมูลหมวดหมู่</th>
+                <th className="px-6 py-4 font-bold whitespace-nowrap">รายละเอียดเพิ่มเติม</th>
+                <th className="px-6 py-4 font-bold text-right whitespace-nowrap">จัดการ</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-100">
+            <tbody className="divide-y divide-zinc-850/60">
               {categories.map((c) => (
-                <tr key={c.id} className="hover:bg-[#121212]/80 transition-colors group">
+                <tr key={c.id} className="hover:bg-zinc-900/10 transition-all group">
                   <td className="px-6 py-4">
                     {c.bannerUrl ? (
-                      <div className="w-24 h-14 overflow-hidden relative border border-border border-2 group-hover:border-[#3B82F6]/30 transition-colors">
-                        <img loading="lazy" src={c.bannerUrl || undefined} alt={c.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      <div className="w-20 h-11 overflow-hidden rounded-md border border-zinc-850 group-hover:border-[#3B82F6]/40 transition-colors">
+                        <img loading="lazy" src={c.bannerUrl || undefined} alt={c.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                       </div>
                     ) : (
-                      <div className="w-24 h-14 bg-card flex flex-col items-center justify-center text-muted-foreground border border-border border-2 border-dashed brut-card">
-                        <ImageIcon className="w-4 h-4 mb-1 opacity-50" />
-                        <span className="text-[10px] font-bold uppercase">ไม่มีรูป</span>
+                      <div className="w-20 h-11 bg-zinc-950 flex flex-col items-center justify-center text-zinc-700 border border-dashed border-zinc-800 rounded-md">
+                        <ImageIcon className="w-3.5 h-3.5 mb-0.5 opacity-40" />
+                        <span className="text-[9px] font-bold">ไม่มีรูป</span>
                       </div>
                     )}
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex flex-col">
-                      <span className="font-black text-white text-base">{c.title}</span>
-                      <div className="flex items-center gap-1.5 mt-1">
-                        <span className="inline-flex items-center px-2 py-0.5 text-[10px] font-bold bg-card text-muted-foreground font-mono brut-card">
+                      <span className="font-bold text-white text-sm">{c.title}</span>
+                      <div className="mt-1">
+                        <span className="inline-flex items-center px-1.5 py-0.5 text-[9px] font-bold bg-zinc-950 text-zinc-500 font-mono border border-zinc-800/80 rounded">
                           {c.name}
                         </span>
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <p className="text-muted-foreground text-sm max-w-[250px] truncate" title={c.subtitle}>
-                      {c.subtitle || <span className="text-muted-foreground italic">ไม่ได้ระบุรายละเอียด</span>}
+                    <p className="text-zinc-500 text-xs max-w-[240px] truncate" title={c.subtitle}>
+                      {c.subtitle || <span className="text-zinc-600 italic">ไม่มีข้อมูลคำอธิบาย</span>}
                     </p>
                   </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center justify-end gap-2 opacity-100 md:opacity-50 md:group-hover:opacity-100 transition-opacity">
-                      <button onClick={() => setManagingProductsForCategory(c)} className="p-2 border border-purple-500/30 bg-primary text-primary-foreground text-blue-600 hover:bg-blue-600 hover:text-white transition-colors flex items-center gap-2 px-3" title="เพิ่ม/จัดการสินค้าในหมวดหมู่นี้">
-                        <ShoppingCart className="w-4 h-4" />
-                        <span className="text-xs font-bold hidden sm:inline">จัดการสินค้า</span>
+                  <td className="px-6 py-4 text-right">
+                    <div className="flex items-center justify-end gap-2">
+                      <button 
+                        onClick={() => setManagingProductsForCategory(c)} 
+                        className="p-2 border border-emerald-500/30 bg-emerald-500/5 text-emerald-400 hover:bg-emerald-500/15 hover:border-emerald-500/60 rounded-md transition-all duration-150 flex items-center gap-1 px-3" 
+                        title="จัดการสินค้าในหมวดหมู่นี้"
+                      >
+                        <ShoppingCart className="w-3.5 h-3.5" />
+                        <span className="text-[10px] font-bold">จัดการสินค้า</span>
                       </button>
-                      <button onClick={() => { setEditingCategory(c); setFormData(c); setIsAdding(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="p-2 border border-[#3B82F6]/30 bg-primary text-primary-foreground text-white hover:bg-purple-600 hover:text-white transition-colors" title="แก้ไข">
-                        <Edit className="w-4 h-4" />
+                      <button 
+                        onClick={() => { setEditingCategory(c); setFormData(c); setIsAdding(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }} 
+                        className="p-2 border border-amber-500/30 bg-amber-500/5 text-amber-400 hover:bg-amber-500/15 hover:border-amber-500/60 rounded-md transition-all duration-150" 
+                        title="แก้ไขรายละเอียด"
+                      >
+                        <Edit className="w-3.5 h-3.5" />
                       </button>
-                      <button onClick={() => deleteCategory(c.id)} className="p-2 border border-red-500/30 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-colors" title="ลบ">
-                        <Trash2 className="w-4 h-4" />
+                      <button 
+                        onClick={() => deleteCategory(c.id)} 
+                        className="p-2 border border-rose-500/30 bg-rose-500/5 text-rose-400 hover:bg-rose-500/15 hover:border-rose-500/60 rounded-md transition-all duration-150" 
+                        title="ลบหมวดหมู่"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   </td>
@@ -319,10 +344,10 @@ export const AdminCategoriesManagement: React.FC<AdminCategoriesManagementProps>
               {categories.length === 0 && (
                 <tr>
                   <td colSpan={4} className="px-6 py-12 text-center">
-                    <div className="flex flex-col items-center justify-center text-muted-foreground">
-                      <Package className="w-12 h-12 mb-3 opacity-20" />
-                      <p className="font-bold text-muted-foreground">ยังไม่มีข้อมูลหมวดหมู่สินค้าในระบบ</p>
-                      <p className="text-sm mt-1">คลิกปุ่ม "เพิ่มหมวดหมู่" เพื่อเริ่มต้นสร้างหมวดหมู่แรกของคุณ</p>
+                    <div className="flex flex-col items-center justify-center text-zinc-500">
+                      <Package className="w-10 h-10 mb-2 opacity-35" />
+                      <p className="font-bold">ยังไม่มีหมวดหมู่สินค้าในระบบ</p>
+                      <p className="text-xs text-zinc-650 mt-1">คลิกปุ่ม "เพิ่มหมวดหมู่" ด้านบนขวาเพื่อเริ่มสร้างสรรค์เนื้อหา</p>
                     </div>
                   </td>
                 </tr>
@@ -333,73 +358,84 @@ export const AdminCategoriesManagement: React.FC<AdminCategoriesManagementProps>
       </div>
 
       {managingProductsForCategory && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-end p-0 z-50">
-          <div className="bg-card border-l border-border border-2 w-full max-w-2xl h-full relative p-6 sm:p-8 flex flex-col overflow-y-auto animate-in slide-in-from-right-full duration-300 brut-card">
+        <div className="fixed inset-0 bg-black/75 backdrop-blur-sm flex items-center justify-end p-0 z-50">
+          <div className="bg-zinc-950 border-l border-zinc-800 w-full max-w-xl h-full relative p-6 sm:p-8 flex flex-col justify-between overflow-hidden shadow-2xl">
             <button 
               onClick={() => setManagingProductsForCategory(null)}
-              className="absolute top-4 right-4 p-2 text-muted-foreground hover:text-white bg-card border border-border border-2 hover:bg-[#1e1e1e] transition-colors brut-card"
+              className="absolute top-5 right-5 p-2 text-zinc-400 hover:text-white bg-zinc-900 border border-zinc-800 hover:bg-zinc-850 rounded-md transition-colors"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4" />
             </button>
-            <h2 className="text-xl font-bold text-white mb-2 flex items-center gap-2 shrink-0">
-              <ShoppingCart className="w-5 h-5 text-blue-600" />
-              จัดการสินค้าในหมวดหมู่
-            </h2>
-            <p className="text-sm font-medium text-muted-foreground mb-6 shrink-0">
-              เลือกสินค้าที่คุณต้องการให้แสดงในหมวดหมู่ <span className="text-blue-600 font-bold">{managingProductsForCategory.title}</span>
-            </p>
+            
+            <div className="flex flex-col min-h-0 flex-1">
+              <h2 className="text-base font-bold text-white mb-1 flex items-center gap-2">
+                <ShoppingCart className="w-5 h-5 text-emerald-400" />
+                จัดของเข้าหมวดหมู่: {managingProductsForCategory.title}
+              </h2>
+              <p className="text-xs text-zinc-500 mb-6 font-medium">
+                ติ๊กตระกร้าหน้าสินค้าที่คุณต้องการผูกเข้ากับหมวดหมู่นี้
+              </p>
 
-            <div className="flex-1 overflow-y-auto mb-6 pr-2 space-y-2">
-              {products.length === 0 ? (
-                <div className="text-center py-12 text-muted-foreground">
-                  <Package className="w-12 h-12 mb-3 opacity-20 mx-auto" />
-                  <p className="font-bold">ยังไม่มีสินค้าในระบบ</p>
-                  <p className="text-sm mt-1">กรุณาเพิ่มสินค้าก่อนจัดการหมวดหมู่</p>
-                </div>
-              ) : (
-                products.map((p) => {
-                  const isChecked = selectedProductIds.has(p.id);
-                  return (
-                    <div 
-                      key={p.id} 
-                      onClick={() => toggleProductSelection(p.id)}
-                      className={`flex items-center gap-4 p-3 border cursor-pointer transition-colors ${ isChecked ? 'bg-blue-600/10 border-purple-500/30' : 'bg-[#0a0a0a]/50 border-border border-2 hover:bg-[#0a0a0a] hover:border-white/10' }`}
-                    >
-                      <div className={`w-6 h-6 flex items-center justify-center shrink-0 border ${ isChecked ? 'bg-purple-600 border-purple-500 text-white' : 'bg-[#0a0a0a] border-white/10' }`}>
-                        {isChecked && <Check className="w-4 h-4" />}
+              <div className="flex-1 overflow-y-auto mb-6 pr-2 space-y-2 max-h-[calc(100vh-210px)]">
+                {products.length === 0 ? (
+                  <div className="text-center py-12 text-zinc-600">
+                    <Package className="w-10 h-10 mb-2 opacity-30 mx-auto" />
+                    <p className="font-bold">ไม่มีสินค้าชิ้นใดในคลัง</p>
+                    <p className="text-xs mt-1">กรุณาสร้างสินค้าในหน้าสินค้าก่อน</p>
+                  </div>
+                ) : (
+                  products.map((p) => {
+                    const isChecked = selectedProductIds.has(p.id);
+                    return (
+                      <div 
+                        key={p.id} 
+                        onClick={() => toggleProductSelection(p.id)}
+                        className={`flex items-center gap-3.5 p-3 rounded-lg border cursor-pointer transition-all ${ 
+                          isChecked 
+                            ? 'bg-emerald-500/5 border-emerald-500/30 shadow-[0_0_12px_rgba(16,185,129,0.05)]' 
+                            : 'bg-zinc-900/30 border-zinc-900 hover:bg-zinc-900/60 hover:border-zinc-800' 
+                        }`}
+                      >
+                        <div className={`w-5 h-5 flex items-center justify-center shrink-0 rounded border transition-colors ${ 
+                          isChecked 
+                            ? 'bg-emerald-500 border-emerald-400 text-black' 
+                            : 'bg-zinc-950 border-zinc-800' 
+                        }`}>
+                          {isChecked && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                        </div>
+                        <div className="w-11 h-11 bg-zinc-900 rounded-md overflow-hidden shrink-0 border border-zinc-850">
+                           {p.imageUrl ? (
+                              <img loading="lazy" src={p.imageUrl} alt={p.name} className="w-full h-full object-cover" />
+                           ) : (
+                              <div className="w-full h-full flex items-center justify-center text-zinc-700">
+                                <ImageIcon className="w-4 h-4" />
+                              </div>
+                           )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-bold text-white text-xs truncate">{p.name}</p>
+                          <p className="text-[10px] text-emerald-400 font-bold font-mono tracking-wide mt-0.5">฿{(p.price || 0).toLocaleString()}</p>
+                        </div>
                       </div>
-                      <div className="w-12 h-12 bg-card overflow-hidden shrink-0 brut-card">
-                         {p.imageUrl ? (
-                            <img loading="lazy" src={p.imageUrl} alt={p.name} className="w-full h-full object-cover" />
-                         ) : (
-                            <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                              <ImageIcon className="w-5 h-5" />
-                            </div>
-                         )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-bold text-white text-sm truncate">{p.name}</p>
-                        <p className="text-xs text-muted-foreground truncate">฿{p.price}</p>
-                      </div>
-                    </div>
-                  );
-                })
-              )}
+                    );
+                  })
+                )}
+              </div>
             </div>
 
-            <div className="flex gap-3 justify-end pt-4 border-t border-border border-2 shrink-0">
+            <div className="flex gap-2 justify-end pt-4 border-t border-zinc-900 shrink-0">
               <button 
                 onClick={() => setManagingProductsForCategory(null)} 
-                className="px-6 py-3 font-bold bg-card border border-border border-2 text-muted-foreground hover:text-white transition-colors brut-card"
+                className="px-4 py-2 text-xs font-bold border border-zinc-800 bg-zinc-900/60 hover:bg-zinc-800 text-zinc-400 hover:text-white rounded-md transition-colors"
               >
                 ยกเลิก
               </button>
               <button 
                 onClick={saveCategoryProducts} 
                 disabled={isUpdatingProducts}
-                className="px-6 py-3 font-bold bg-primary text-primary-foreground text-white hover:bg-blue-600 flex items-center gap-2 transition-colors disabled:opacity-50"
+                className="px-5 py-2 text-xs font-bold bg-[#3B82F6] hover:bg-[#2563EB] text-white flex items-center gap-2 rounded-md transition-colors disabled:opacity-50"
               >
-                {isUpdatingProducts ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
+                {isUpdatingProducts ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
                 บันทึกสินค้า
               </button>
             </div>

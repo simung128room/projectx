@@ -2389,7 +2389,7 @@ const diskUpload = multer({ dest: uploadDir });
         if (doc.exists) {
           exists = true;
           existingData = doc.data()!;
-          t.update(docRef, { isDeleted: true, active: false });
+          t.delete(docRef);
         }
       });
       
@@ -2400,12 +2400,12 @@ const diskUpload = multer({ dest: uploadDir });
         writeAuditLog('PRODUCT_DELETE', (req as any).user?.uid || 'admin', req.params.id, req, {
           changes: { 
             before: existingData,
-            after: { isDeleted: true }
+            after: { isDeleted: true, hardDeleted: true }
           }
         });
       }
       
-      res.json({ success: true, softDeleted: true, existed: exists });
+      res.json({ success: true, softDeleted: false, deleted: true, existed: exists });
     } catch (err: any) {
       console.error('Internal server error deleting product:', err);
       res.status(500).json({ error: String(err && err.message ? err.message : err) });

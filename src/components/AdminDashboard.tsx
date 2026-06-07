@@ -810,21 +810,31 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     return items[id] || id;
   };
 
-  const NavItem = ({ id, label, icon: Icon, color }: any) => (
-    <button
-      onClick={() => {
-        setAdminTab(id);
-        setIsNavOpen(false);
-      }}
-      className={`w-full flex items-center gap-3 px-4 py-3 transition-all duration-300 ${ adminTab === id ? 'bg-purple-600/10 border border-[#3B82F6]/20 text-blue-600 font-bold' : 'text-zinc-400 hover:bg-[#121212] hover:text-white border-transparent' }`}
-    >
-      <Icon className={`w-5 h-5 ${adminTab === id ? 'text-blue-600' : 'text-zinc-500'}`} />
-      <span className="text-xs font-semibold tracking-wide">{label}</span>
-      {adminTab === id && (
-        <ChevronRight className="w-4 h-4 ml-auto opacity-50" />
-      )}
-    </button>
-  );
+  const NavItem = ({ id, label, icon: Icon, color }: any) => {
+    const isActive = adminTab === id;
+    return (
+      <button
+        onClick={() => {
+          setAdminTab(id);
+          setIsNavOpen(false);
+        }}
+        className={`w-full flex items-center gap-3 px-4 py-2.5 transition-all duration-200 relative group rounded-md ${
+          isActive 
+            ? 'bg-zinc-900/60 text-[#3B82F6] font-bold shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]' 
+            : 'text-zinc-400 hover:bg-zinc-900/20 hover:text-white'
+        }`}
+      >
+        {isActive && (
+          <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-[#3B82F6] rounded-r-md shadow-[0_0_10px_#3B82F6]" />
+        )}
+        <Icon className={`w-4 h-4 transition-transform duration-200 group-hover:scale-105 ${isActive ? 'text-[#3B82F6]' : 'text-zinc-500 group-hover:text-zinc-300'}`} />
+        <span className="text-xs font-semibold tracking-wide">{label}</span>
+        {isActive && (
+          <ChevronRight className="w-3 h-3 ml-auto opacity-75 text-[#3B82F6]" />
+        )}
+      </button>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-card flex font-sans text-white brut-card">
@@ -846,23 +856,23 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         {/* Brand/Logo Area */}
         <div className="p-6 flex items-center justify-between border-b border-border border-2 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-primary text-primary-foreground flex items-center justify-center flex-shrink-0">
-              <Crown className="w-6 h-6 text-white" />
+            <div className="w-10 h-10 bg-[#3B82F6] text-white flex items-center justify-center flex-shrink-0 rounded-sm shadow-[0_0_15px_rgba(59,130,246,0.3)]">
+              <Crown className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h2 className="text-white font-black tracking-tight leading-none text-lg uppercase">APEXSTORE</h2>
-              <p className="text-[9px] text-blue-600 font-bold uppercase tracking-widest mt-1">Admin Console</p>
+              <h2 className="text-white font-black tracking-tight leading-none text-md uppercase">APEXSTORE</h2>
+              <p className="text-[9px] text-[#3B82F6] font-bold uppercase tracking-widest mt-1">Admin Console</p>
             </div>
           </div>
-          <button onClick={() => setIsNavOpen(false)} className="lg:hidden p-2 text-muted-foreground hover:text-white bg-card brut-card">
+          <button onClick={() => setIsNavOpen(false)} className="lg:hidden p-2 text-zinc-400 hover:text-white bg-card brut-card rounded-md">
              <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Navigation Links */}
-        <div className="flex-1 overflow-y-auto w-full p-4 space-y-8 no-scrollbar">
+        <div className="flex-1 overflow-y-auto w-full p-4 space-y-6 progress-track scrollbar-none">
           <div className="space-y-1">
-            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-3 px-4">ระบบจัดการหลัก</p>
+            <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2 px-3">ระบบจัดการหลัก</p>
             <NavItem id="overview" label="หน้าภาพรวม" icon={LayoutDashboard} />
             <NavItem id="analytics" label="ข้อมูลวิเคราะห์" icon={LineChart} />
             <NavItem id="settings" label="ตั้งค่าเว็บไซต์" icon={Settings} />
@@ -870,7 +880,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           </div>
 
           <div className="space-y-1">
-            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-3 px-4">ร้านค้า & สินค้า</p>
+            <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2 px-3">ร้านค้า & สินค้า</p>
             <NavItem id="store" label="สินค้าในร้าน" icon={Package} />
             <NavItem id="categories" label="หมวดหมู่สินค้า" icon={LayoutDashboard} />
             <NavItem id="stock" label="จัดการสต็อก" icon={Database} />
@@ -879,7 +889,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           </div>
 
           <div className="space-y-1">
-            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-3 px-4">ผู้ใช้งาน & ประวัติ</p>
+            <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2 px-3">ผู้ใช้งาน & ประวัติ</p>
             <NavItem id="users" label="สมาชิกทั้งหมด" icon={Users} />
             <NavItem id="keys" label="LICENSE KEYS" icon={Key} />
             <NavItem id="history" label="ประวัติรายการ" icon={History} />
@@ -887,7 +897,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           </div>
 
           <div className="space-y-1">
-            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-3 px-4">เครื่องมือเสริม</p>
+            <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2 px-3">เครื่องมือเสริม</p>
             <NavItem id="bot" label="ระบบบอท" icon={Terminal} />
             <NavItem id="tools" label="ตัวช่วยแจกของ" icon={Gift} />
             <NavItem id="api_keys" label="ระบบ API" icon={Key} />
@@ -954,22 +964,22 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 exit={{ opacity: 0, y: -10 }}
                 className="space-y-8"
               >
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                 {[
-                  { label: 'ผู้ใช้งานทั้งหมด', value: (siteStats?.users || 0).toLocaleString(), icon: Users, color: 'text-white', bg: 'bg-[#121212]' },
-                  { label: 'ยอดขายทั้งหมด (สินค้า)', value: totalOrders.toLocaleString(), icon: Package, color: 'text-[#2563EB]', bg: 'bg-purple-600/10' },
-                  { label: 'คำสั่งซื้อที่สำเร็จ', value: totalOrders.toLocaleString(), icon: ShoppingCart, color: 'text-blue-500', bg: 'bg-emerald-50' },
-                  { label: 'รายได้รวม (บาท)', value: totalRevenue.toLocaleString(), icon: Activity, color: 'text-blue-600', bg: 'bg-purple-600/10' },
+                  { label: 'ผู้ใช้งานทั้งหมด', value: (siteStats?.users || 0).toLocaleString(), icon: Users, color: 'text-[#3B82F6]', bg: 'bg-[#3B82F6]/5', border: 'hover:border-[#3B82F6]/40' },
+                  { label: 'ยอดขายทั้งหมด (สินค้า)', value: totalOrders.toLocaleString(), icon: Package, color: 'text-purple-400', bg: 'bg-purple-500/5', border: 'hover:border-purple-500/40' },
+                  { label: 'คำสั่งซื้อที่สำเร็จ', value: totalOrders.toLocaleString(), icon: ShoppingCart, color: 'text-amber-400', bg: 'bg-amber-500/5', border: 'hover:border-amber-500/40' },
+                  { label: 'รายได้รวม (บาท)', value: totalRevenue.toLocaleString(), icon: Activity, color: 'text-emerald-400', bg: 'bg-emerald-500/5', border: 'hover:border-emerald-500/40' },
                 ].map((stat, i) => (
-                  <div key={i} className="bg-card border border-border border-2 p-6 relative overflow-hidden group hover: transition-all brut-card">
-                    <div className={`absolute top-0 right-0 w-24 h-24 ${stat.bg} blur-3xl opacity-50 -mr-8 -mt-8 transition-all group-hover:scale-150`}></div>
+                  <div key={i} className={`bg-card border border-zinc-800 rounded-lg p-6 relative overflow-hidden group transition-all duration-300 hover:translate-y-[-2px] hover:shadow-[0_4px_20px_rgba(0,0,0,0.4)] ${stat.border} brut-card`}>
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-zinc-900/40 blur-3xl rounded-full -mr-8 -mt-8 transition-transform duration-500 group-hover:scale-125"></div>
                     <div className="flex items-center justify-between relative z-10">
                       <div>
-                        <p className="text-muted-foreground text-[11px] font-bold uppercase tracking-widest mb-1">{stat.label}</p>
-                        <h3 className="text-3xl font-black text-white tracking-tighter">{stat.value}</h3>
+                        <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-wider mb-2">{stat.label}</p>
+                        <h3 className="text-3xl font-black text-white tracking-tight font-mono">{stat.value}</h3>
                       </div>
-                      <div className={`p-4 ${stat.bg} ${stat.color}`}>
-                        <stat.icon className="w-6 h-6" />
+                      <div className={`w-12 h-12 rounded-lg flex items-center justify-center transition-transform duration-300 group-hover:scale-110 ${stat.bg} ${stat.color} shadow-[0_2px_8px_rgba(0,0,0,0.2)]`}>
+                        <stat.icon className="w-5 h-5" />
                       </div>
                     </div>
                   </div>
@@ -978,52 +988,52 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2 space-y-6">
-                  <div className="bg-card border border-border border-2 overflow-hidden  brut-card">
-                    <div className="p-6 border-b border-border border-2 flex justify-between items-center bg-card brut-card">
+                  <div className="bg-card border border-zinc-800 rounded-lg overflow-hidden brut-card">
+                    <div className="p-6 border-b border-zinc-800/80 flex justify-between items-center bg-card brut-card">
                       <h3 className="font-bold flex items-center gap-2 text-white">
-                        <LineChart className="w-5 h-5 text-[#2563EB]" /> รายงานสรุปยอดขาย (Sales Summary)
+                        <LineChart className="w-5 h-5 text-[#3B82F6]" /> รายงานสรุปยอดขาย (Sales Summary)
                       </h3>
                     </div>
                     <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-                      <div className="bg-card border border-border border-2 p-6 text-center group hover:bg-[#0d1522] transition-colors brut-card">
-                        <p className="text-muted-foreground text-[10px] font-black uppercase mb-2 tracking-widest">วันนี้</p>
-                        <p className="text-2xl font-black text-blue-600">{salesToday.toLocaleString()} <span className="text-[10px] font-bold text-muted-foreground uppercase ml-1">THB</span></p>
+                      <div className="bg-zinc-900/40 border border-zinc-800/60 p-6 text-center group hover:bg-zinc-900/80 hover:border-zinc-700/60 transition-all duration-200 rounded-lg brut-card">
+                        <p className="text-zinc-500 text-[10px] font-black uppercase mb-2 tracking-widest">วันนี้</p>
+                        <p className="text-2xl font-black text-[#3B82F6] font-mono">{salesToday.toLocaleString()} <span className="text-[10px] font-bold text-zinc-500 uppercase ml-1">THB</span></p>
                       </div>
-                      <div className="bg-card border border-border border-2 p-6 text-center group hover:bg-[#0d1522] transition-colors brut-card">
-                        <p className="text-muted-foreground text-[10px] font-black uppercase mb-2 tracking-widest">สัปดาห์นี้</p>
-                        <p className="text-2xl font-black text-blue-600">{salesWeek.toLocaleString()} <span className="text-[10px] font-bold text-muted-foreground uppercase ml-1">THB</span></p>
+                      <div className="bg-zinc-900/40 border border-zinc-800/60 p-6 text-center group hover:bg-zinc-900/80 hover:border-zinc-700/60 transition-all duration-200 rounded-lg brut-card">
+                        <p className="text-zinc-500 text-[10px] font-black uppercase mb-2 tracking-widest">สัปดาห์นี้</p>
+                        <p className="text-2xl font-black text-[#3B82F6] font-mono">{salesWeek.toLocaleString()} <span className="text-[10px] font-bold text-zinc-500 uppercase ml-1">THB</span></p>
                       </div>
-                      <div className="bg-card border border-border border-2 p-6 text-center group hover:bg-[#0d1522] transition-colors brut-card">
-                        <p className="text-muted-foreground text-[10px] font-black uppercase mb-2 tracking-widest">เดือนนี้</p>
-                        <p className="text-2xl font-black text-blue-600">{salesMonth.toLocaleString()} <span className="text-[10px] font-bold text-muted-foreground uppercase ml-1">THB</span></p>
+                      <div className="bg-zinc-900/40 border border-zinc-800/60 p-6 text-center group hover:bg-zinc-900/80 hover:border-zinc-700/60 transition-all duration-200 rounded-lg brut-card">
+                        <p className="text-zinc-500 text-[10px] font-black uppercase mb-2 tracking-widest">เดือนนี้</p>
+                        <p className="text-2xl font-black text-[#3B82F6] font-mono">{salesMonth.toLocaleString()} <span className="text-[10px] font-bold text-zinc-500 uppercase ml-1">THB</span></p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="bg-card border border-border border-2 p-6  brut-card">
+                  <div className="bg-card border border-zinc-800 rounded-lg p-6 brut-card">
                     <h3 className="font-bold flex items-center gap-2 mb-6 text-white uppercase text-xs tracking-widest">
-                      <Cpu className="w-4 h-4 text-[#2563EB]" /> ระบบจัดการด่วน (Quick Management)
+                      <Cpu className="w-4 h-4 text-[#3B82F6]" /> ระบบจัดการด่วน (Quick Management)
                     </h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {[
-                            { id: 'store', label: 'จัดการสินค้า', desc: 'เพิ่ม ลบ แก้ไข สินค้าในร้าน', icon: Package, color: 'text-blue-500', bg: 'bg-blue-600/10' },
-                            { id: 'keys', label: 'จัดการ License', desc: 'เพิ่มคีย์และดูประวัติ', icon: Key, color: 'text-blue-600', bg: 'bg-purple-600/10' },
-                            { id: 'users', label: 'จัดการสมาชิก', desc: 'ดูรายชื่อและแก้ไขยอดเงิน', icon: Users, color: 'text-blue-600', bg: 'bg-blue-600/10' },
-                            { id: 'settings', label: 'ตั้งค่าเว็บไซต์', desc: 'แก้ไขชื่อเว็บ ช่องทางติดต่อ', icon: Settings, color: 'text-amber-500', bg: 'bg-amber-500/10' },
+                            { id: 'store', label: 'จัดการสินค้า', desc: 'เพิ่ม ลบ แก้ไข สินค้าในร้าน', icon: Package, color: 'text-[#3B82F6]', bg: 'bg-[#3B82F6]/5' },
+                            { id: 'keys', label: 'จัดการ License', desc: 'เพิ่มคีย์และดูประวัติ', icon: Key, color: 'text-purple-400', bg: 'bg-purple-500/5' },
+                            { id: 'users', label: 'จัดการสมาชิก', desc: 'ดูรายชื่อและแก้ไขยอดเงิน', icon: Users, color: 'text-amber-400', bg: 'bg-amber-500/5' },
+                            { id: 'settings', label: 'ตั้งค่าเว็บไซต์', desc: 'แก้ไขชื่อเว็บ ช่องทางติดต่อ', icon: Settings, color: 'text-emerald-400', bg: 'bg-emerald-500/5' },
                         ].map((item, i) => (
                            <button 
                              key={i}
                              onClick={() => setAdminTab(item.id)}
-                             className="flex items-center gap-4 p-4 border border-border border-2 bg-card hover:bg-[#121b2a] transition-all text-left group brut-card"
+                             className="flex items-center gap-4 p-4 border border-zinc-800/80 bg-zinc-900/30 hover:bg-zinc-950 hover:border-zinc-600 transition-all text-left group rounded-lg brut-card"
                            >
-                             <div className={`w-12 h-12 ${item.bg} ${item.color} flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform`}>
-                               <item.icon className="w-6 h-6" />
+                             <div className={`w-12 h-12 rounded-lg ${item.bg} ${item.color} flex items-center justify-center shrink-0 group-hover:scale-105 transition-all duration-200 shadow-sm`}>
+                               <item.icon className="w-5 h-5" />
                              </div>
                              <div className="flex-1 min-w-0">
-                               <p className="text-sm font-black text-white">{item.label}</p>
-                               <p className="text-[10px] text-muted-foreground font-bold truncate mt-0.5">{item.desc}</p>
+                               <p className="text-sm font-bold text-white group-hover:text-[#3B82F6] transition-colors">{item.label}</p>
+                               <p className="text-[10px] text-zinc-500 font-semibold truncate mt-0.5">{item.desc}</p>
                              </div>
-                             <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-white transition-colors" />
+                             <ChevronRight className="w-4 h-4 text-zinc-600 group-hover:text-white transition-colors" />
                            </button>
                         ))}
                     </div>
@@ -1031,37 +1041,37 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 </div>
 
                 <div className="space-y-6">
-                  <div className="bg-card border border-border border-2 p-6  brut-card">
+                  <div className="bg-card border border-zinc-800 rounded-lg p-6 brut-card">
                     <h3 className="font-bold flex items-center gap-2 mb-6 text-white uppercase text-xs tracking-widest">
-                      <Settings className="w-4 h-4 text-[#2563EB]" /> อื่นๆ
+                      <Settings className="w-4 h-4 text-[#3B82F6]" /> เครื่องมือเพิ่มเติม
                     </h3>
                     <div className="space-y-3">
-                      <button onClick={() => setAdminTab('banners')} className="w-full bg-card hover:bg-[#121212] border border-border border-2 p-4 flex items-center justify-between group transition-all brut-card">
+                      <button onClick={() => setAdminTab('banners')} className="w-full bg-zinc-900/30 hover:bg-zinc-950 border border-zinc-800/80 rounded-lg p-4 flex items-center justify-between group transition-all brut-card">
                         <div className="flex items-center gap-3">
-                          <Image className="w-5 h-5 text-muted-foreground" />
+                          <Image className="w-5 h-5 text-zinc-500 group-hover:text-white transition-colors" />
                           <div className="text-left">
-                            <p className="text-sm font-bold text-white uppercase">ป้ายโฆษณา</p>
+                            <p className="text-sm font-bold text-white group-hover:text-[#3B82F6] transition-colors uppercase">ป้ายโฆษณา</p>
                           </div>
                         </div>
-                        <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                        <ChevronRight className="w-4 h-4 text-zinc-600 group-hover:text-white transition-colors" />
                       </button>
-                      <button onClick={() => setAdminTab('pages')} className="w-full bg-card hover:bg-[#121212] border border-border border-2 p-4 flex items-center justify-between group transition-all brut-card">
+                      <button onClick={() => setAdminTab('pages')} className="w-full bg-zinc-900/30 hover:bg-zinc-950 border border-zinc-800/80 rounded-lg p-4 flex items-center justify-between group transition-all brut-card">
                         <div className="flex items-center gap-3">
-                          <FileText className="w-5 h-5 text-muted-foreground" />
+                          <FileText className="w-5 h-5 text-zinc-500 group-hover:text-white transition-colors" />
                           <div className="text-left">
-                            <p className="text-sm font-bold text-white uppercase">หน้าเพจ</p>
+                            <p className="text-sm font-bold text-white group-hover:text-[#3B82F6] transition-colors uppercase">หน้าเพจ</p>
                           </div>
                         </div>
-                        <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                        <ChevronRight className="w-4 h-4 text-zinc-600 group-hover:text-white transition-colors" />
                       </button>
-                      <button onClick={() => setAdminTab('history')} className="w-full bg-card hover:bg-[#121212] border border-border border-2 p-4 flex items-center justify-between group transition-all brut-card">
+                      <button onClick={() => setAdminTab('history')} className="w-full bg-zinc-900/30 hover:bg-zinc-950 border border-zinc-800/80 rounded-lg p-4 flex items-center justify-between group transition-all brut-card">
                         <div className="flex items-center gap-3">
-                          <History className="w-5 h-5 text-muted-foreground" />
+                          <History className="w-5 h-5 text-zinc-500 group-hover:text-white transition-colors" />
                           <div className="text-left">
-                            <p className="text-sm font-bold text-white uppercase">LOGS</p>
+                            <p className="text-sm font-bold text-white group-hover:text-[#3B82F6] transition-colors uppercase">LOGS ของระบบ</p>
                           </div>
                         </div>
-                        <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                        <ChevronRight className="w-4 h-4 text-zinc-600 group-hover:text-white transition-colors" />
                       </button>
                     </div>
                   </div>
@@ -1168,9 +1178,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               className="space-y-6"
             >
               {/* Site Stats */}
-              <div className="bg-card border border-border border-2 p-6 relative overflow-hidden brut-card">
+              <div className="bg-card border border-zinc-800 rounded-lg p-6 relative overflow-hidden brut-card">
                 <div className="flex justify-between items-center mb-6">
-                  <h3 className="font-bold text-white flex items-center gap-2"><BarChart3 className="w-5 h-5 text-[#2563EB]" /> ตั้งค่าสถิติหน้าแรก</h3>
+                  <h3 className="font-bold text-white flex items-center gap-2">
+                    <BarChart3 className="w-5 h-5 text-[#3B82F6]" /> ตั้งค่าสถิติหน้าแรก
+                  </h3>
                   <button 
                     onClick={() => {
                         let currentUsers = (siteStats?.users || 0);
@@ -1186,7 +1198,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                               <input id="swal-sales" class="swal2-input" placeholder="ยอดขาย" value="${currentSales}">
                             `,
                             focusConfirm: false,
-                            confirmButtonColor: '#dc2626',
+                            confirmButtonColor: '#3B82F6',
                             preConfirm: () => {
                               return {
                                 users: parseInt((document.getElementById('swal-users') as HTMLInputElement).value),
@@ -1218,66 +1230,65 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                     });
                                   }
                                   
-                                  Swal.fire({ title: 'บันทึกสำเร็จ', text: 'รีเฟรชหน้าเว็บเพื่อดูผลลัพธ์', icon: 'success', confirmButtonColor: '#16a34a' });
-                                } catch (error) {
-                                  Swal.fire({ title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถบันทึกสถิติได้: ' + (error.response?.data?.error || error.message), icon: 'error', confirmButtonColor: '#dc2626' });
+                                  Swal.fire({ title: 'บันทึกสำเร็จ', text: 'รีเฟรชหน้าเว็บเพื่อดูผลลัพธ์', icon: 'success', confirmButtonColor: '#10B981', background: '#09090b', color: '#fff' });
+                                } catch (error: any) {
+                                  Swal.fire({ title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถบันทึกสถิติได้: ' + (error.response?.data?.error || error.message), icon: 'error', confirmButtonColor: '#EF4444', background: '#09090b', color: '#fff' });
                                 }
                             }
                         });
                     }}
-                    className="bg-primary text-primary-foreground hover:bg-purple-600/20 text-blue-600 font-bold py-2 px-4 text-xs transition-colors"
+                    className="border border-zinc-800 bg-zinc-900/60 hover:bg-zinc-800 text-zinc-300 hover:text-white font-bold py-1.5 px-3 text-xs rounded-md transition-all duration-150"
                   >
                     แก้ไขสถิติ
                   </button>
                 </div>
                 <div className="grid grid-cols-3 gap-4">
-                  <div className="bg-card p-4 border border-border border-2 flex flex-col items-center justify-center brut-card">
-                    <span className="text-3xl font-black text-white">{(siteStats?.users || 0).toLocaleString()}</span>
-                    <span className="text-muted-foreground text-xs font-bold uppercase tracking-wider mt-1">ผู้ใช้งาน</span>
+                  <div className="bg-zinc-950 p-4 border border-zinc-800/80 flex flex-col items-center justify-center rounded-lg">
+                    <span className="text-2xl font-black text-white font-mono">{(siteStats?.users || 0).toLocaleString()}</span>
+                    <span className="text-zinc-500 text-[10px] font-bold uppercase tracking-wider mt-1">ผู้ใช้งาน</span>
                   </div>
-                  <div className="bg-card p-4 border border-border border-2 flex flex-col items-center justify-center brut-card">
-                    <span className="text-3xl font-black text-white">{(siteStats?.stock || 0).toLocaleString()}</span>
-                    <span className="text-muted-foreground text-xs font-bold uppercase tracking-wider mt-1">สต๊อกสินค้า</span>
+                  <div className="bg-zinc-950 p-4 border border-zinc-800/80 flex flex-col items-center justify-center rounded-lg">
+                    <span className="text-2xl font-black text-white font-mono">{(siteStats?.stock || 0).toLocaleString()}</span>
+                    <span className="text-zinc-500 text-[10px] font-bold uppercase tracking-wider mt-1">สต๊อกสินค้า</span>
                   </div>
-                  <div className="bg-card p-4 border border-border border-2 flex flex-col items-center justify-center brut-card">
-                    <span className="text-3xl font-black text-white">{(siteStats?.sales || 0).toLocaleString()}</span>
-                    <span className="text-muted-foreground text-xs font-bold uppercase tracking-wider mt-1">ยอดขาย</span>
+                  <div className="bg-zinc-950 p-4 border border-zinc-800/80 flex flex-col items-center justify-center rounded-lg">
+                    <span className="text-2xl font-black text-white font-mono">{(siteStats?.sales || 0).toLocaleString()}</span>
+                    <span className="text-zinc-500 text-[10px] font-bold uppercase tracking-wider mt-1">ยอดขาย</span>
                   </div>
                 </div>
               </div>
-
-              {/* Products List */}
-              <div className="bg-card border border-border border-2 p-6 relative overflow-hidden brut-card">
+                  {/* Products List */}
+              <div className="bg-card border border-zinc-800 rounded-lg p-6 relative overflow-hidden brut-card">
                 <div className="flex justify-between items-center mb-6">
-                  <h3 className="font-bold text-white flex items-center gap-2"><Package className="w-5 h-5 text-[#2563EB]" /> จัดการสินค้า</h3>
+                  <h3 className="font-bold text-white flex items-center gap-2"><Package className="w-5 h-5 text-[#3B82F6]" /> จัดการสินค้า</h3>
                   <button 
                     onClick={() => setIsAddingProduct(true)}
-                    className="bg-primary text-primary-foreground hover:bg-[#1D4ED8] text-white font-bold py-2 px-4 text-xs transition-colors flex items-center gap-2"
+                    className="bg-[#3B82F6] hover:bg-[#2563EB] text-white font-bold py-2 px-4 text-xs transition-colors flex items-center gap-2 rounded-md shadow-[0_2px_10px_rgba(59,130,246,0.2)]"
                   >
                     <Plus className="w-4 h-4"/> เพิ่มสินค้า
                   </button>
                 </div>
 
                 <div className="overflow-x-auto">
-                  <table className="w-full min-w-[700px] text-left text-sm text-muted-foreground hidden md:table">
-                    <thead className="text-xs uppercase bg-card text-muted-foreground font-bold tracking-wider brut-card">
+                  <table className="w-full min-w-[700px] text-left text-sm text-zinc-400 hidden md:table">
+                    <thead className="text-xs uppercase bg-zinc-950 text-zinc-500 font-bold tracking-wider rounded-md border-b border-zinc-800">
                       <tr>
-                        <th className="px-4 py-3">สินค้า</th>
-                        <th className="px-4 py-3">ราคา</th>
-                        <th className="px-4 py-3">สต๊อก</th>
-                        <th className="px-4 py-3 text-right">จัดการ</th>
+                        <th className="px-5 py-4">สินค้า</th>
+                        <th className="px-5 py-4">ราคา</th>
+                        <th className="px-5 py-4">สต๊อก</th>
+                        <th className="px-5 py-4 text-right">จัดการ</th>
                       </tr>
                     </thead>
                     <tbody>
                       {products.map((p, i) => (
-                        <tr key={i} className="border-b border-border border-2 hover:bg-[#121212]/50 transition-colors">
-                          <td className="px-4 py-4 flex items-center gap-3">
-                            <img loading="lazy" src={p.imageUrl || undefined} alt={p.name} className="w-10 h-10 object-cover bg-card brut-card" />
+                        <tr key={i} className="border-b border-zinc-800/80 hover:bg-zinc-900/30 transition-all duration-200">
+                          <td className="px-5 py-4 flex items-center gap-3">
+                            <img loading="lazy" src={p.imageUrl || undefined} alt={p.name} className="w-12 h-12 object-cover bg-zinc-950 border border-zinc-800 rounded-md shadow-sm" />
                             <div>
                                 <div className="text-white font-bold flex items-center gap-2">
                                   {p.name}
                                   {p.tag && (
-                                    <span className="bg-gradient-to-r from-red-500 to-orange-500 text-white text-[9px] font-black uppercase tracking-widest px-1.5 py-0.5">
+                                    <span className="bg-gradient-to-r from-red-500 to-orange-500 text-white text-[9px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-sm">
                                       {p.tag}
                                     </span>
                                   )}
@@ -1286,28 +1297,32 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                       navigator.clipboard.writeText(p.name);
                                       Swal.fire({ title: 'Copied!', text: 'คัดลอกชื่อสินค้าแล้ว', icon: 'success', timer: 1000, showConfirmButton: false, background: '#09090b', color: '#fff' });
                                     }}
-                                    className="text-muted-foreground hover:text-zinc-500 transition-colors"
+                                    className="text-zinc-500 hover:text-white transition-colors"
                                   >
                                     <Copy className="w-3 h-3" />
                                   </button>
                                 </div>
-                                <div className="text-xs text-muted-foreground truncate max-w-[200px]">{p.description}</div>
+                                <div className="text-xs text-zinc-500 truncate max-w-[240px] mt-0.5">{p.description}</div>
                             </div>
                           </td>
-                          <td className="px-4 py-4 font-bold">
+                          <td className="px-5 py-4 font-bold">
                             <div className="flex flex-col">
                               {p.originalPrice && p.price && p.originalPrice > p.price && (
-                                <span className="text-[10px] text-muted-foreground line-through">฿{p.originalPrice.toLocaleString()}</span>
+                                <span className="text-[10px] text-zinc-500 line-through">฿{p.originalPrice.toLocaleString()}</span>
                               )}
-                              <span className="text-emerald-600">฿{(p.price || 0).toLocaleString()}</span>
+                              <span className="text-emerald-400 font-mono">฿{(p.price || 0).toLocaleString()}</span>
                             </div>
                           </td>
-                          <td className="px-4 py-4">
-                            <span className={`px-2 py-1 rounded text-xs font-bold ${p.stock > 0 ? 'bg-blue-600/10 text-emerald-600' : 'bg-purple-600/10 text-blue-600'}`}>
-                              {p.stock}
+                          <td className="px-5 py-4">
+                            <span className={`px-2.5 py-1 rounded-full text-xs font-bold font-mono tracking-wide ${
+                              p.stock > 0 
+                                ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' 
+                                : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
+                            }`}>
+                              {p.stock > 0 ? `พร้อมส่ง (${p.stock})` : 'สินค้าหมด'}
                             </span>
                           </td>
-                          <td className="px-4 py-4 text-right">
+                          <td className="px-5 py-4 text-right">
                              <div className="flex items-center justify-end gap-2">
                                 <button 
                                   onClick={async () => {
@@ -1332,24 +1347,24 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                       Swal.fire('ข้อผิดพลาด', err.response?.data?.error || err.message, 'error');
                                     }
                                   }}
-                                  className="p-2 border border-blue-200 bg-primary text-primary-foreground text-blue-600 hover:bg-blue-100 transition-colors"
+                                  className="p-2 border border-[#3B82F6]/30 bg-[#3B82F6]/5 text-[#3B82F6] hover:bg-[#3B82F6]/15 hover:border-[#3B82F6]/60 rounded-md transition-all duration-150"
                                   title="โหลดสต๊อก TXT เพื่อดูรายบรรทัด"
                                 >
-                                    <FileText className="w-4 h-4" />
+                                     <FileText className="w-4 h-4" />
                                 </button>
                                 <button 
                                   onClick={() => setStockProduct(p)}
-                                  className="p-2 border border-border border-2 bg-card text-muted-foreground hover:bg-[#121212] hover:border-white/20 transition-colors brut-card"
+                                  className="p-2 border border-emerald-500/30 bg-emerald-500/5 text-emerald-400 hover:bg-emerald-500/15 hover:border-emerald-500/60 rounded-md transition-all duration-150"
                                   title="เพิ่มสต๊อก"
                                 >
-                                    <Database className="w-4 h-4" />
+                                     <Database className="w-4 h-4" />
                                 </button>
                                 <button 
                                   onClick={() => setEditingProduct(p)}
-                                  className="p-2 border border-border border-2 bg-card text-muted-foreground hover:bg-[#121212] hover:border-white/20 transition-colors brut-card"
+                                  className="p-2 border border-amber-500/30 bg-amber-500/5 text-amber-400 hover:bg-amber-500/15 hover:border-amber-500/60 rounded-md transition-all duration-150"
                                   title="แก้ไขสินค้า"
                                 >
-                                    <Settings className="w-4 h-4" />
+                                     <Settings className="w-4 h-4" />
                                 </button>
                                 <button
                                   onClick={() => {
@@ -1381,10 +1396,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                       });
                                     }
                                   }}
-                                  className="p-2 border border-red-500/30 bg-red-500/10 text-red-500 hover:bg-red-500/20 transition-colors"
+                                  className="p-2 border border-rose-500/30 bg-rose-500/5 text-rose-400 hover:bg-rose-500/15 hover:border-rose-500/60 rounded-md transition-all duration-150"
                                   title="ลบสินค้า"
                                 >
-                                    <Trash2 className="w-4 h-4" />
+                                     <Trash2 className="w-4 h-4" />
                                 </button>
                              </div>
                           </td>
