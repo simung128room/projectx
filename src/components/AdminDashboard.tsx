@@ -655,7 +655,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     popup_enabled: true,
     popup_link: '',
     banners: ["https://img2.pic.in.th/24B843A8-C705-48F6-84FB-50AAA5EFAAA6.png"],
-    proxies: ['http://e7221fa7-20b7-43a7-9f76-c69fbc35cdef@lv3.gen5.netmld.shop:8080'],
+    proxies: [],
     auto_proxy: true,
     spotify_url: '',
     spotify_autoplay: false,

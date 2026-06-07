@@ -4,6 +4,7 @@ import { Folder, Lock, Search, Download, FileText, Image as ImageIcon, ChevronRi
 import Swal from 'sweetalert2';
 import axios from 'axios';
 import { LogCategory, ContentItem, AdminToolsManagement } from './AdminToolsManagement';
+import { escapeHtml, safeExternalUrl } from '../lib/url';
 
 interface LogCategoriesViewProps {
   userPlan: any;
@@ -59,11 +60,9 @@ export const LogCategoriesView: React.FC<LogCategoriesViewProps> = ({ userPlan, 
         return;
     }
 
-    // Modal to display attachments with HTML Injection & XSS prevention
+    // Modal to display attachments. Escape text and allow only http(s)/mailto URLs.
     const htmlAttachments = item.attachments.map((att: any) => {
-        const cleanData = (att.data || '').trim().replace(/"/g, '&quot;');
-        // Prevent javascript: protocol execution in URLs
-        const safeUrl = /^javascript:/i.test(cleanData) ? '#' : cleanData;
+        const safeUrl = escapeHtml(safeExternalUrl((att.data || '').trim()));
         
         if (att.type === 'image') {
           return `<img loading="lazy" src="${safeUrl}" class="w-full rounded-lg mb-2" />`;
@@ -71,11 +70,11 @@ export const LogCategoriesView: React.FC<LogCategoriesViewProps> = ({ userPlan, 
         if (att.type === 'file') {
           return `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="block w-full py-2 bg-[#2563EB] text-white rounded-lg text-center font-bold mb-2">ดาวน์โหลดไฟล์</a>`;
         }
-        return `<div class="bg-[#0a0a0a] border border-white/10 p-3 rounded-lg mb-2 text-left text-sm text-zinc-300 break-all select-all font-mono max-h-48 overflow-y-auto">${(att.data || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>`;
+        return `<div class="bg-[#0a0a0a] border border-white/10 p-3 rounded-lg mb-2 text-left text-sm text-zinc-300 break-all select-all font-mono max-h-48 overflow-y-auto">${escapeHtml(att.data || '')}</div>`;
     }).join('');
 
     Swal.fire({
-        title: item.title,
+        title: escapeHtml(item.title),
         html: `<div class="mt-4">${htmlAttachments}</div>`,
         background: '#09090b',
         color: '#fff',
