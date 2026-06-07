@@ -2189,13 +2189,7 @@ function AppContent() {
   return (
     <div className="min-h-screen w-full bg-[#030303] text-white font-sans selection:bg-[#050505]/80 flex flex-col relative">
       {useCustomCursor && <CustomCursor />}
-      <Suspense fallback={null}>
-        <PopupBanner
-          enabled={siteSettings?.popup_enabled ?? false}
-          imgUrl={siteSettings?.popup_img_url ?? ""}
-          linkUrl={siteSettings?.popup_link ?? ""}
-        />
-      </Suspense>
+      {/* Popup banner removed as requested */}
 
       {/* Desktop Sidebar */}
       <aside className="hidden">

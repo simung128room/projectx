@@ -495,7 +495,11 @@ class SupabaseQuery {
   _selectFields: string | null = null;
 
   select(...fields: string[]) {
-    this._selectFields = fields.join(',');
+    const mapped = fields.map(field => {
+      if (forwardMap[field]) return forwardMap[field];
+      return field.toLowerCase();
+    });
+    this._selectFields = mapped.join(',');
     return this;
   }
   async get() {
