@@ -372,18 +372,6 @@ function AppContent() {
   // Home Store State (Moved up to prevent TDZ)
   const defaultProducts: Product[] = [
     {
-      id: "netflix_4k",
-      name: "Netflix Premium Ultra HD 4K (30 วัน - จอส่วนตัว)",
-      price: 139,
-      originalPrice: 199,
-      category: "แอปพรีเมียม / บันเทิง",
-      stock: 12,
-      soldCount: 945,
-      imageUrl: "https://upload.wikimedia.org/wikipedia/commons/f/ff/Netflix-new-icon.png",
-      description: "ความละเอียด 4K HDR เสียงรอบทิศทาง ใช้งานส่วนตัว เสถียรสูง 100% ตลอดทั้งเดือน",
-      isPopular: true
-    },
-    {
       id: "rov_standard",
       name: "ไอดีเกม RoV ระดับพรีเมียม (สกินอลังการ พร้อมไต่แรงก์)",
       price: 390,
@@ -393,6 +381,18 @@ function AppContent() {
       soldCount: 142,
       imageUrl: "https://seeklogo.com/images/A/arena-of-valor-logo-1BDD4A191C-seeklogo.com.png",
       description: "ประวัติขาวสะอาด ไม่เคยโดนแบน ฮีโร่ครบ สกินเพียบพร้อมรูนเลเวล 90 ทุกสาย",
+      isPopular: true
+    },
+    {
+      id: "netflix_4k",
+      name: "Netflix Premium Ultra HD 4K (30 วัน - จอส่วนตัว)",
+      price: 139,
+      originalPrice: 199,
+      category: "แอปพรีเมียม / บันเทิง",
+      stock: 12,
+      soldCount: 945,
+      imageUrl: "https://upload.wikimedia.org/wikipedia/commons/f/ff/Netflix-new-icon.png",
+      description: "ความละเอียด 4K HDR เสียงรอบทิศทาง ใช้งานส่วนตัว เสถียรสูง 100% ตลอดทั้งเดือน",
       isPopular: true
     },
     {
@@ -448,7 +448,7 @@ function AppContent() {
     const defaultStats = {
       users: 1548,
       stock: 890,
-      sales: 4562,
+      sales: 332,
       topups: 125400,
     };
     try {

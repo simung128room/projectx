@@ -97,11 +97,10 @@ function StatCard({
   delay?: number;
   index?: number;
 }) {
-  const isEven = index % 2 === 0;
   return (
     <motion.div 
-      initial={{ opacity: 0, x: isEven ? -40 : 40, y: 15 }}
-      whileInView={{ opacity: 1, x: 0, y: 0 }}
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: false, amount: 0.1 }}
       transition={{ duration: 0.5, delay }}
       className="relative bg-[#0d0d0d] border border-white/[0.06] rounded-xl p-5 overflow-hidden group hover:border-white/[0.12] transition-colors duration-300"
@@ -149,11 +148,10 @@ function ShortcutBtn({
   delay = 0,
   index = 0,
 }: ShortcutBtnProps & { index?: number }) {
-  const isEven = index % 2 === 0;
   return (
     <motion.button
-      initial={{ opacity: 0, x: isEven ? -40 : 40, scale: 0.95 }}
-      whileInView={{ opacity: 1, x: 0, scale: 1 }}
+      initial={{ opacity: 0, y: 20, scale: 0.95 }}
+      whileInView={{ opacity: 1, y: 0, scale: 1 }}
       viewport={{ once: false, amount: 0.1 }}
       transition={{ duration: 0.4, delay }}
       whileHover={{ y: -2, transition: { duration: 0.2 } }}
@@ -215,11 +213,10 @@ function CategoryChip({
         : `${minPrice.toFixed(2)} - ${maxPrice.toFixed(2)}`)
     : "0.00";
 
-  const isEven = index % 2 === 0;
   return (
     <motion.div
-      initial={{ opacity: 0, x: isEven ? -50 : 50, y: 20 }}
-      whileInView={{ opacity: 1, x: 0, y: 0 }}
+      initial={{ opacity: 0, y: 25 }}
+      whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: false, amount: 0.1 }}
       transition={{ duration: 0.5, delay }}
       onClick={onClick}
@@ -295,11 +292,10 @@ function ProductCard({
 
   const isHot = product.price > 100 || (discount !== null && discount >= 20) || product.stock > 0;
 
-  const isEven = index % 2 === 0;
   return (
     <motion.div
-      initial={{ opacity: 0, x: isEven ? -50 : 50, y: 20 }}
-      whileInView={{ opacity: 1, x: 0, y: 0 }}
+      initial={{ opacity: 0, y: 25 }}
+      whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: false, amount: 0.1 }}
       transition={{ duration: 0.5, delay }}
       className="group relative bg-[#0c0c0e] border border-white/[0.08] rounded-2xl overflow-hidden hover:border-white/20 transition-all duration-300 flex flex-col hover:-translate-y-1 shadow-lg"
