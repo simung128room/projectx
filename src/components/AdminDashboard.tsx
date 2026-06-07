@@ -1413,58 +1413,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         }).then(async (result) => {
                             if (result.isConfirmed) {
                                 try {
-                                  const rawUsers = usersList?.length || 0;
-                                  const rawStock = products ? products.reduce((acc, p) => acc + (p.stock > 0 && p.stock < 999999 ? Number(p.stock) : 0), 0) : 0;
-                                  const rawSales = purchaseHistory ? purchaseHistory.reduce((acc, curr) => acc + (curr.price || 0), 0) : 0;
-
                                   const targetUsers = result.value?.users;
                                   const targetSales = result.value?.sales;
                                   const targetStock = result.value?.stock;
                                   const targetCategories = result.value?.categories;
 
-                                  let users_override = null;
-                                  let users_offset = 0;
-                                  if (targetUsers !== null) {
-                                    if (result.value?.usersType === 'override') {
-                                      users_override = targetUsers;
-                                      users_offset = 0;
-                                    } else {
-                                      users_override = null;
-                                      users_offset = Math.max(0, targetUsers - rawUsers);
-                                    }
-                                  }
-
-                                  let sales_override = null;
-                                  let sales_offset = 0;
-                                  if (targetSales !== null) {
-                                    if (result.value?.salesType === 'override') {
-                                      sales_override = targetSales;
-                                      sales_offset = 0;
-                                    } else {
-                                      sales_override = null;
-                                      sales_offset = Math.max(0, targetSales - rawSales);
-                                    }
-                                  }
-
-                                  let stock_override = null;
-                                  let stock_offset = 0;
-                                  if (targetStock !== null) {
-                                    if (result.value?.stockType === 'override') {
-                                      stock_override = targetStock;
-                                      stock_offset = 0;
-                                    } else {
-                                      stock_override = null;
-                                      stock_offset = Math.max(0, targetStock - rawStock);
-                                    }
-                                  }
-
                                   await axios.post('/api/settings', {
-                                    stats_users_override: users_override,
-                                    stats_users_offset: users_offset,
-                                    stats_sales_override: sales_override,
-                                    stats_sales_offset: sales_offset,
-                                    stats_stock_override: stock_override,
-                                    stats_stock_offset: stock_offset,
+                                    stats_users_target: targetUsers,
+                                    stats_users_type: result.value?.usersType,
+                                    stats_sales_target: targetSales,
+                                    stats_sales_type: result.value?.salesType,
+                                    stats_stock_target: targetStock,
+                                    stats_stock_type: result.value?.stockType,
                                     stats_categories_override: targetCategories
                                   });
                                   

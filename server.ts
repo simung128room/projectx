@@ -931,18 +931,117 @@ import healthRoute from './src/routes/health.route.js';
 
   app.post('/api/settings', requireAdmin, async (req: any, res: any) => {
     console.log("=== POST /api/settings REACHED ===", req.body);
-    const { truewallet_phone, site_name, contact_line, stats_users_offset, stats_sales_offset, stats_categories_offset, stats_stock_offset, stats_users_override, stats_stock_override, stats_sales_override, stats_categories_override, popup_img_url, popup_enabled, popup_link, banners, proxies, auto_proxy, spotify_url, spotify_autoplay } = req.body;
+    const { 
+      truewallet_phone, 
+      site_name, 
+      contact_line, 
+      stats_users_offset, 
+      stats_sales_offset, 
+      stats_categories_offset, 
+      stats_stock_offset, 
+      stats_users_override, 
+      stats_stock_override, 
+      stats_sales_override, 
+      stats_categories_override, 
+      stats_users_target,
+      stats_users_type,
+      stats_sales_target,
+      stats_sales_type,
+      stats_stock_target,
+      stats_stock_type,
+      popup_img_url, 
+      popup_enabled, 
+      popup_link, 
+      banners, 
+      proxies, 
+      auto_proxy, 
+      spotify_url, 
+      spotify_autoplay 
+    } = req.body;
+    
     if (truewallet_phone !== undefined) siteSettings.truewallet_phone = truewallet_phone;
     if (site_name !== undefined) siteSettings.site_name = site_name;
     if (contact_line !== undefined) siteSettings.contact_line = contact_line;
-    if (stats_users_offset !== undefined) siteSettings.stats_users_offset = parseInt(stats_users_offset) || 0;
-    if (stats_sales_offset !== undefined) siteSettings.stats_sales_offset = parseInt(stats_sales_offset) || 0;
+    
+    // Server-side precise statistics calculation to avoid frontend offset loops
+    let realUsersCount = 0;
+    try {
+      const users = await getCachedCollection('users', 60000);
+      realUsersCount = users.length;
+    } catch (e) {
+      try {
+        const { count } = await supabaseAdmin.from('users').select('*', { count: 'exact', head: true });
+        if (count !== null) realUsersCount = count;
+      } catch (se) {}
+    }
+
+    let realSales = 0;
+    try {
+      const { data: pData, error: pError } = await supabaseAdmin.from('purchases').select('price');
+      if (!pError && pData) {
+        for (const p of pData) realSales += (Number(p.price) || 0);
+      } else {
+        const purchases = await getCachedCollection('purchases', 60000);
+        purchases.forEach((p: any) => realSales += (Number(p.price) || 0));
+      }
+    } catch(e) {}
+
+    let realStock = 0;
+    try {
+      const pData = await getCachedCollection('products', 300000);
+      pData.forEach((p: any) => {
+        if (p.stock > 0 && p.stock < 999999) realStock += Number(p.stock);
+      });
+    } catch (e) {}
+
+    // 1. Users Override / Offset setup
+    if (stats_users_target !== undefined && stats_users_type !== undefined) {
+      const target = parseInt(stats_users_target) || 0;
+      if (stats_users_type === 'override') {
+        siteSettings.stats_users_override = target;
+        siteSettings.stats_users_offset = 0;
+      } else {
+        siteSettings.stats_users_override = null;
+        siteSettings.stats_users_offset = Math.max(0, target - realUsersCount);
+      }
+    } else {
+      if (stats_users_offset !== undefined) siteSettings.stats_users_offset = parseInt(stats_users_offset) || 0;
+      if (stats_users_override !== undefined) siteSettings.stats_users_override = stats_users_override === null || isNaN(parseInt(stats_users_override)) ? null : parseInt(stats_users_override);
+    }
+
+    // 2. Sales Override / Offset setup
+    if (stats_sales_target !== undefined && stats_sales_type !== undefined) {
+      const target = parseInt(stats_sales_target) || 0;
+      if (stats_sales_type === 'override') {
+        siteSettings.stats_sales_override = target;
+        siteSettings.stats_sales_offset = 0;
+      } else {
+        siteSettings.stats_sales_override = null;
+        siteSettings.stats_sales_offset = Math.max(0, target - realSales);
+      }
+    } else {
+      if (stats_sales_offset !== undefined) siteSettings.stats_sales_offset = parseInt(stats_sales_offset) || 0;
+      if (stats_sales_override !== undefined) siteSettings.stats_sales_override = stats_sales_override === null || isNaN(parseInt(stats_sales_override)) ? null : parseInt(stats_sales_override);
+    }
+
+    // 3. Stock Override / Offset setup
+    if (stats_stock_target !== undefined && stats_stock_type !== undefined) {
+      const target = parseInt(stats_stock_target) || 0;
+      if (stats_stock_type === 'override') {
+        siteSettings.stats_stock_override = target;
+        siteSettings.stats_stock_offset = 0;
+      } else {
+        siteSettings.stats_stock_override = null;
+        siteSettings.stats_stock_offset = Math.max(0, target - realStock);
+      }
+    } else {
+      if (stats_stock_offset !== undefined) siteSettings.stats_stock_offset = parseInt(stats_stock_offset) || 0;
+      if (stats_stock_override !== undefined) siteSettings.stats_stock_override = stats_stock_override === null || isNaN(parseInt(stats_stock_override)) ? null : parseInt(stats_stock_override);
+    }
+
     if (stats_categories_offset !== undefined) siteSettings.stats_categories_offset = parseInt(stats_categories_offset) || 0;
-    if (stats_stock_offset !== undefined) siteSettings.stats_stock_offset = parseInt(stats_stock_offset) || 0;
-    if (stats_users_override !== undefined) siteSettings.stats_users_override = stats_users_override === null || isNaN(parseInt(stats_users_override)) ? null : parseInt(stats_users_override);
-    if (stats_stock_override !== undefined) siteSettings.stats_stock_override = stats_stock_override === null || isNaN(parseInt(stats_stock_override)) ? null : parseInt(stats_stock_override);
-    if (stats_sales_override !== undefined) siteSettings.stats_sales_override = stats_sales_override === null || isNaN(parseInt(stats_sales_override)) ? null : parseInt(stats_sales_override);
     if (stats_categories_override !== undefined) siteSettings.stats_categories_override = stats_categories_override === null || isNaN(parseInt(stats_categories_override)) ? null : parseInt(stats_categories_override);
+
     if (popup_img_url !== undefined) siteSettings.popup_img_url = popup_img_url;
     if (popup_enabled !== undefined) siteSettings.popup_enabled = popup_enabled === true || popup_enabled === 'true';
     if (popup_link !== undefined) siteSettings.popup_link = popup_link;
@@ -1887,104 +1986,112 @@ if (process.env.REDIS_URL) {
           data = data.filter((d: any) => !d.isDeleted && d.active !== false);
           
           if (collectionName === 'products' && data.length === 0) {
-            console.log("Seeding default products because Firestore 'products' collection is empty...");
             try {
-              const rovRef = admin.firestore().collection('products').doc('rov_standard');
-              const rovData = {
-                name: "ไอดีเกม RoV ระดับพรีเมียม (สกินอลังการ พร้อมไต่แรงก์)",
-                price: 390,
-                originalPrice: 450,
-                category: "ไอดีเกมส์ยอดนิยม",
-                stock: 5,
-                soldCount: 142,
-                imageUrl: "https://seeklogo.com/images/A/arena-of-valor-logo-1BDD4A191C-seeklogo.com.png",
-                description: "ประวัติขาวสะอาด ไม่เคยโดนแบน ฮีโร่ครบ สกินเพียบพร้อมรูนเลเวล 90 ทุกสาย",
-                isPopular: true,
-                isDeleted: false,
-                stockData: ["rov_user1:rov_pass1", "rov_user2:rov_pass2", "rov_user3:rov_pass3", "rov_user4:rov_pass4", "rov_user5:rov_pass5"],
-                created_at: new Date().toISOString(),
-                _version: 1
-              };
-              const rovCompressed = await compressStock(rovData.stockData);
-              rovData.stockData = rovCompressed as any;
-              await rovRef.set(rovData);
-              
-              const netflixRef = admin.firestore().collection('products').doc('netflix_4k');
-              const netflixData = {
-                name: "Netflix Premium Ultra HD 4K (30 วัน - จอส่วนตัว)",
-                price: 139,
-                originalPrice: 199,
-                category: "แอปพรีเมียม / บันเทิง",
-                stock: 12,
-                soldCount: 945,
-                imageUrl: "https://upload.wikimedia.org/wikipedia/commons/f/ff/Netflix-new-icon.png",
-                description: "ความละเอียด 4K HDR เสียงรอบทิศทาง ใช้งานส่วนตัว เสถียรสูง 100% ตลอดทั้งเดือน",
-                isPopular: true,
-                isDeleted: false,
-                stockData: [
-                  "netflix_user1:password", "netflix_user2:password", "netflix_user3:password",
-                  "netflix_user4:password", "netflix_user5:password", "netflix_user6:password",
-                  "netflix_user7:password", "netflix_user8:password", "netflix_user9:password",
-                  "netflix_user10:password", "netflix_user11:password", "netflix_user12:password"
-                ],
-                created_at: new Date().toISOString(),
-                _version: 1
-              };
-              const netflixCompressed = await compressStock(netflixData.stockData);
-              netflixData.stockData = netflixCompressed as any;
-              await netflixRef.set(netflixData);
+              const seedingRef = admin.firestore().collection('system_metadata').doc('seeding');
+              const seedingDoc = await seedingRef.get();
+              if (seedingDoc.exists && seedingDoc.data()?.has_seeded) {
+                console.log("Products are empty, but seeding has already run before. Respecting empty collection.");
+              } else {
+                console.log("Seeding default products because Firestore 'products' collection is empty and has_seeded is false...");
+                await seedingRef.set({ has_seeded: true, seeded_at: new Date().toISOString() }, { merge: true });
+                
+                const rovRef = admin.firestore().collection('products').doc('rov_standard');
+                const rovData = {
+                  name: "ไอดีเกม RoV ระดับพรีเมียม (สกินอลังการ พร้อมไต่แรงก์)",
+                  price: 390,
+                  originalPrice: 450,
+                  category: "ไอดีเกมส์ยอดนิยม",
+                  stock: 5,
+                  soldCount: 142,
+                  imageUrl: "https://seeklogo.com/images/A/arena-of-valor-logo-1BDD4A191C-seeklogo.com.png",
+                  description: "ประวัติขาวสะอาด ไม่เคยโดนแบน ฮีโร่ครบ สกินเพียบพร้อมรูนเลเวล 90 ทุกสาย",
+                  isPopular: true,
+                  isDeleted: false,
+                  stockData: ["rov_user1:rov_pass1", "rov_user2:rov_pass2", "rov_user3:rov_pass3", "rov_user4:rov_pass4", "rov_user5:rov_pass5"],
+                  created_at: new Date().toISOString(),
+                  _version: 1
+                };
+                const rovCompressed = await compressStock(rovData.stockData);
+                rovData.stockData = rovCompressed as any;
+                await rovRef.set(rovData);
+                
+                const netflixRef = admin.firestore().collection('products').doc('netflix_4k');
+                const netflixData = {
+                  name: "Netflix Premium Ultra HD 4K (30 วัน - จอส่วนตัว)",
+                  price: 139,
+                  originalPrice: 199,
+                  category: "แอปพรีเมียม / บันเทิง",
+                  stock: 12,
+                  soldCount: 945,
+                  imageUrl: "https://upload.wikimedia.org/wikipedia/commons/f/ff/Netflix-new-icon.png",
+                  description: "ความละเอียด 4K HDR เสียงรอบทิศทาง ใช้งานส่วนตัว เสถียรสูง 100% ตลอดทั้งเดือน",
+                  isPopular: true,
+                  isDeleted: false,
+                  stockData: [
+                    "netflix_user1:password", "netflix_user2:password", "netflix_user3:password",
+                    "netflix_user4:password", "netflix_user5:password", "netflix_user6:password",
+                    "netflix_user7:password", "netflix_user8:password", "netflix_user9:password",
+                    "netflix_user10:password", "netflix_user11:password", "netflix_user12:password"
+                  ],
+                  created_at: new Date().toISOString(),
+                  _version: 1
+                };
+                const netflixCompressed = await compressStock(netflixData.stockData);
+                netflixData.stockData = netflixCompressed as any;
+                await netflixRef.set(netflixData);
 
-              const youtubeRef = admin.firestore().collection('products').doc('youtube_premium');
-              const youtubeData = {
-                name: "YouTube Premium 4K (30 วัน - บัญชีส่วนตัวความปลอดภัยสูง)",
-                price: 39,
-                originalPrice: 69,
-                category: "แอปพรีเมียม / บันเทิง",
-                stock: 15,
-                soldCount: 1248,
-                imageUrl: "https://upload.wikimedia.org/wikipedia/commons/e/e1/Logo_of_YouTube_%282015-2017%29.svg",
-                description: "ไม่มีโฆษณาคั่นอย่างสมบูรณ์ เล่นขณะปิดหน้าจอได้ แถมบริการเสริม Youtube Music HQ",
-                isPopular: true,
-                isDeleted: false,
-                stockData: [
-                  "yt_user1:pass1", "yt_user2:pass2", "yt_user3:pass3", "yt_user4:pass4", "yt_user5:pass5"
-                ],
-                created_at: new Date().toISOString(),
-                _version: 1
-              };
-              const youtubeCompressed = await compressStock(youtubeData.stockData);
-              youtubeData.stockData = youtubeCompressed as any;
-              await youtubeRef.set(youtubeData);
+                const youtubeRef = admin.firestore().collection('products').doc('youtube_premium');
+                const youtubeData = {
+                  name: "YouTube Premium 4K (30 วัน - บัญชีส่วนตัวความปลอดภัยสูง)",
+                  price: 39,
+                  originalPrice: 69,
+                  category: "แอปพรีเมียม / บันเทิง",
+                  stock: 15,
+                  soldCount: 1248,
+                  imageUrl: "https://upload.wikimedia.org/wikipedia/commons/e/e1/Logo_of_YouTube_%282015-2017%29.svg",
+                  description: "ไม่มีโฆษณาคั่นอย่างสมบูรณ์ เล่นขณะปิดหน้าจอได้ แถมบริการเสริม Youtube Music HQ",
+                  isPopular: true,
+                  isDeleted: false,
+                  stockData: [
+                    "yt_user1:pass1", "yt_user2:pass2", "yt_user3:pass3", "yt_user4:pass4", "yt_user5:pass5"
+                  ],
+                  created_at: new Date().toISOString(),
+                  _version: 1
+                };
+                const youtubeCompressed = await compressStock(youtubeData.stockData);
+                youtubeData.stockData = youtubeCompressed as any;
+                await youtubeRef.set(youtubeData);
 
-              const discordRef = admin.firestore().collection('products').doc('discord_nitro');
-              const discordData = {
-                name: "Discord Nitro Premium Gift (1 เดือน - บัญชีแท้ 100%)",
-                price: 119,
-                originalPrice: 320,
-                category: "แอปพรีเมียม / บันเทิง",
-                stock: 8,
-                soldCount: 231,
-                imageUrl: "https://upload.wikimedia.org/wikipedia/commons/c/ca/Discord_Color_Logo.svg",
-                description: "รับบูสเซิร์ฟเวอร์ฟรี x2 สติกเกอร์เคลื่นไหว อีโมจิพิเศษทุกเซิร์ฟ และแชร์จอ 1080p 60fps",
-                isPopular: true,
-                isDeleted: false,
-                stockData: [
-                  "nitro_gift_link_1", "nitro_gift_link_2", "nitro_gift_link_3", "nitro_gift_link_4"
-                ],
-                created_at: new Date().toISOString(),
-                _version: 1
-              };
-              const discordCompressed = await compressStock(discordData.stockData);
-              discordData.stockData = discordCompressed as any;
-              await discordRef.set(discordData);
-              
-              console.log("Successfully seeded default products into Firestore.");
-              
-              const newSnapshot = await admin.firestore().collection('products').get();
-              data = newSnapshot.docs.map((doc: any) => {
-                const d = doc.data();
-                return { id: doc.id, ...d };
-              }).filter((d: any) => !d.isDeleted && d.active !== false);
+                const discordRef = admin.firestore().collection('products').doc('discord_nitro');
+                const discordData = {
+                  name: "Discord Nitro Premium Gift (1 เดือน - บัญชีแท้ 100%)",
+                  price: 119,
+                  originalPrice: 320,
+                  category: "แอปพรีเมียม / บันเทิง",
+                  stock: 8,
+                  soldCount: 231,
+                  imageUrl: "https://upload.wikimedia.org/wikipedia/commons/c/ca/Discord_Color_Logo.svg",
+                  description: "รับบูสเซิร์ฟเวอร์ฟรี x2 สติกเกอร์เคลื่นไหว อีโมจิพิเศษทุกเซิร์ฟ และแชร์จอ 1080p 60fps",
+                  isPopular: true,
+                  isDeleted: false,
+                  stockData: [
+                    "nitro_gift_link_1", "nitro_gift_link_2", "nitro_gift_link_3", "nitro_gift_link_4"
+                  ],
+                  created_at: new Date().toISOString(),
+                  _version: 1
+                };
+                const discordCompressed = await compressStock(discordData.stockData);
+                discordData.stockData = discordCompressed as any;
+                await discordRef.set(discordData);
+                
+                console.log("Successfully seeded default products into Firestore.");
+                
+                const newSnapshot = await admin.firestore().collection('products').get();
+                data = newSnapshot.docs.map((doc: any) => {
+                  const d = doc.data();
+                  return { id: doc.id, ...d };
+                }).filter((d: any) => !d.isDeleted && d.active !== false);
+              }
             } catch (seedErr) {
               console.error("Error seeding default products:", seedErr);
             }
