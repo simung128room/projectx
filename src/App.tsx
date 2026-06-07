@@ -166,21 +166,6 @@ const HistoryLogsView = lazy(() =>
     default: module.HistoryLogsView,
   })),
 );
-const DiscordCatcherTool = lazy(() =>
-  import("./components/DiscordCatcherTool").then((module) => ({
-    default: module.DiscordCatcherTool,
-  })),
-);
-const DiscordBadgeTool = lazy(() =>
-  import("./components/DiscordBadgeTool").then((module) => ({
-    default: module.DiscordBadgeTool,
-  })),
-);
-const DiscordTokenOnTool = lazy(() =>
-  import("./components/DiscordTokenOnTool").then((module) => ({
-    default: module.DiscordTokenOnTool,
-  })),
-);
 const WalletView = lazy(() =>
   import("./components/WalletView").then((module) => ({
     default: module.WalletView,
@@ -208,11 +193,6 @@ const ContactView = lazy(() =>
     default: module.ContactView,
   })),
 );
-const TelegramCatcherTool = lazy(() =>
-  import("./components/TelegramCatcherTool").then((module) => ({
-    default: module.TelegramCatcherTool,
-  })),
-);
 const ApiProxyGenTool = lazy(() =>
   import("./components/ApiProxyGenTool").then((module) => ({
     default: module.ApiProxyGenTool,
@@ -226,11 +206,6 @@ const AutoDeployTool = lazy(() =>
 const ProxyFreeTool = lazy(() =>
   import("./components/ProxyFreeTool").then((module) => ({
     default: module.ProxyFreeTool,
-  })),
-);
-const ProxyFreeFireIOSTool = lazy(() =>
-  import("./components/ProxyFreeFireIOSTool").then((module) => ({
-    default: module.ProxyFreeFireIOSTool,
   })),
 );
 const settingsImport = () => import("./components/SettingsView");
@@ -3055,18 +3030,7 @@ function AppContent() {
                 )}
               />
             )}
-            {activeView === "telegram_catcher" && (
-              <TelegramCatcherTool userPlan={userPlan} />
-            )}
-            {activeView === "discord_catcher" && (
-              <DiscordCatcherTool userPlan={userPlan} />
-            )}
-            {activeView === "discord_on" && (
-              <DiscordTokenOnTool userPlan={userPlan} />
-            )}
-            {activeView === "discord_badge" && <DiscordBadgeTool />}
             {activeView === "two_fa_generator" && <TwoFAGenerator />}
-            {activeView === "proxy_ff_ios" && <ProxyFreeFireIOSTool />}
             {activeView === "proxy_free" && <ProxyFreeTool />}
             {activeView === "api_proxy_gen" && <ApiProxyGenTool />}
             {activeView === "auto_deploy" && (

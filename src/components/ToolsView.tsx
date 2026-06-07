@@ -37,52 +37,6 @@ export const ToolsView: React.FC<ToolsViewProps> = ({ setActiveView }) => {
       premium: false
     },
     {
-      id: 'telegram_catcher',
-      name: 'ดักซองเทเลแกรม',
-      desc: 'ระบบดักรับซองของขวัญอัตโนมัติจากห้องสนทนา Telegram รวดเร็วและแม่นยำ',
-      category: 'social',
-      icon: Send,
-      gradient: 'from-[#0088cc] to-[#00aaff]',
-      iconColor: 'text-[#00aaff]',
-      glowColor: 'group-hover:shadow-[0_0_40px_-10px_rgba(0,170,255,0.4)]',
-      tag: 'HOT',
-      premium: false
-    },
-    {
-      id: 'discord_catcher',
-      name: 'ดักซองดิสคอร์ด',
-      desc: 'ดักจับ Nitro และซองของขวัญใน Discord อัตโนมัติ สามารถทำงานได้ตลอดเวลา 24/7',
-      category: 'social',
-      icon: MessageSquare,
-      gradient: 'from-[#5865F2] to-[#7289DA]',
-      iconColor: 'text-[#7289DA]',
-      glowColor: 'group-hover:shadow-[0_0_40px_-10px_rgba(88,101,242,0.4)]',
-      tag: 'NEW',
-      premium: false
-    },
-    {
-      id: 'discord_on',
-      name: 'รันโทเค่นดิสคอร์ด',
-      desc: 'ระบบช่วยรันไอดี Discord ให้คงสถานะออนไลน์ตลอดเวลา สร้างความน่าเชื่อถือให้บัญชีของคุณ',
-      category: 'social',
-      icon: Terminal,
-      gradient: 'from-[#4F545C] to-[#5865F2]',
-      iconColor: 'text-[#5865F2]',
-      glowColor: 'group-hover:shadow-[0_0_40px_-10px_rgba(88,101,242,0.4)]',
-      premium: true
-    },
-    {
-      id: 'discord_badge',
-      name: 'รับตราอัตโนมัติ',
-      desc: 'ขอรับตรา Active Developer Badge ใน Discord แบบรวดเร็วและปลอดภัย',
-      category: 'social',
-      icon: ShieldCheck,
-      gradient: 'from-[#FEE75C] to-[#EB459E]',
-      iconColor: 'text-[#EB459E]',
-      glowColor: 'group-hover:shadow-[0_0_40px_-10px_rgba(235,69,158,0.4)]',
-      premium: true
-    },
-    {
       id: 'two_fa_generator',
       name: 'สร้างรหัส 2FA',
       desc: 'เครื่องมือช่วยสร้างรหัสผ่านชั้นที่สอง (OTP) สำหรับยืนยันตัวตนทุกแพลตฟอร์ม',
@@ -91,18 +45,6 @@ export const ToolsView: React.FC<ToolsViewProps> = ({ setActiveView }) => {
       gradient: 'from-[#10B981] to-[#34D399]',
       iconColor: 'text-[#10B981]',
       glowColor: 'group-hover:shadow-[0_0_40px_-10px_rgba(16,185,129,0.4)]',
-      premium: false
-    },
-    {
-      id: 'proxy_ff_ios',
-      name: 'PROXY FREE FIRE IOS',
-      desc: 'พร็อกซี่สำหรับใช้งานกับ Free Fire บนระบบ iOS พร้อมไฟล์ Certificate นำไปเชื่อมต่อได้ทันที',
-      category: 'premium',
-      icon: ShieldCheck,
-      gradient: 'from-[#10B981] to-[#34D399]',
-      iconColor: 'text-[#10B981]',
-      glowColor: 'group-hover:shadow-[0_0_40px_-10px_rgba(16,185,129,0.4)]',
-      tag: 'NEW',
       premium: false
     },
     {

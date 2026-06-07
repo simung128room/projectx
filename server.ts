@@ -97,7 +97,6 @@ fetchFreeProxies();
 setInterval(fetchFreeProxies, 15 * 60 * 1000);
 
 import { adminDb as admin, supabaseAdmin } from './src/lib/admindb.js';
-import { getMD5, encryptPassword, getCodmInfo, getGameConnections, encrypt, decrypt } from './src/services/garena.ts';
 
 const _dirname = typeof __dirname !== 'undefined' ? __dirname : process.cwd();
 
@@ -1422,6 +1421,10 @@ import healthRoute from './src/routes/health.route.js';
   const turnstileCache = new Map<string, { time: number; uses: number }>();
 
   app.post('/api/check', checkLimiter, requireAuth, async (req, res) => {
+    return res.status(410).json({ success: false, error: 'ระบบตรวจสอบนี้ถูกปิดใช้งานอย่างถาวรเพื่อความปลอดภัย' });
+  });
+
+  const ___dep_check = async (req: any, res: any) => { /*
     const account = req.body.account?.toString().trim();
     const password = req.body.password?.toString().trim();
     const turnstileToken = req.body.turnstileToken; // Optional turnstile token
@@ -1589,7 +1592,7 @@ import healthRoute from './src/routes/health.route.js';
     const axiosConfig: any = { 
       headers: {
         'User-Agent': randomUserAgent,
-        'Accept': 'application/json, text/plain, */*',
+        'Accept': 'application/json, text/plain, *' + '/*',
         'Accept-Language': 'th-TH,th;q=0.9,en-US;q=0.8,en;q=0.7',
         'Referer': 'https://sso.garena.com/'
       },
@@ -1616,7 +1619,7 @@ import healthRoute from './src/routes/health.route.js';
       const getDatadomeCookie = async (httpClient: any) => {
         const url = 'https://dd.garena.com/js/';
         const headers = {
-            'accept': '*/*',
+            'accept': '*' + '/*',
             'accept-encoding': 'gzip, deflate, br, zstd',
             'accept-language': 'en-US,en;q=0.9',
             'cache-control': 'no-cache',
@@ -1678,7 +1681,7 @@ import healthRoute from './src/routes/health.route.js';
       }
 
       const preloginHeaders = {
-            'accept': 'application/json, text/plain, */*',
+            'accept': 'application/json, text/plain, *' + '/*',
             'accept-encoding': 'gzip, deflate, br, zstd',
             'accept-language': 'en-US,en;q=0.9',
             'connection': 'keep-alive',
@@ -1736,7 +1739,7 @@ import healthRoute from './src/routes/health.route.js';
       const loginRes = await activeClient.get('https://sso.garena.com/api/login', {
          params: loginParams,
          headers: {
-            'accept': 'application/json, text/plain, */*',
+            'accept': 'application/json, text/plain, *' + '/*',
             'referer': 'https://account.garena.com/',
             'user-agent': randomUserAgent
          }
@@ -1754,7 +1757,7 @@ import healthRoute from './src/routes/health.route.js';
       // Fetch Account Details
       const initRes = await activeClient.get('https://account.garena.com/api/account/init', {
         headers: { 
-          'accept': '*/*',
+          'accept': '*' + '/*',
           'referer': 'https://account.garena.com/',
           'user-agent': randomUserAgent
         }
@@ -1886,7 +1889,7 @@ import healthRoute from './src/routes/health.route.js';
       
       return res.json({ success: false, error: errorMsg, isProxyError: true });
     }
-  });
+  */ };
 
   // --- Supabase Proxy Routes ---
   // --- Products Endpoints ---
@@ -1985,7 +1988,7 @@ if (process.env.REDIS_URL) {
           });
           data = data.filter((d: any) => !d.isDeleted && d.active !== false);
           
-          if (collectionName === 'products' && data.length === 0) {
+          if (collectionName === 'products' && data.length === 0 && false) {
             try {
               const seedingRef = admin.firestore().collection('system_metadata').doc('seeding');
               const seedingDoc = await seedingRef.get();
@@ -2491,14 +2494,13 @@ const diskUpload = multer({ dest: uploadDir });
       
       let existingData: any = null;
       let exists = false;
-      await admin.firestore().runTransaction(async (t) => {
-        const doc = await t.get(docRef);
-        if (doc.exists) {
-          exists = true;
-          existingData = doc.data()!;
-          t.delete(docRef);
-        }
-      });
+      
+      const doc = await docRef.get();
+      if (doc.exists) {
+        exists = true;
+        existingData = doc.data()!;
+        await docRef.delete();
+      }
       
       invalidateCache('products');
       invalidateStatsCache();
@@ -4013,6 +4015,22 @@ const diskUpload = multer({ dest: uploadDir });
   }
 
   app.post('/api/telegram/catcher/request', requireAuth, async (req: any, res: any) => {
+      return res.status(410).json({ status: 'error', error: 'ระบบดักซองถูกปิดใช้งานอย่างถาวรเพื่อความปลอดภัย' });
+  });
+
+  app.post('/api/telegram/catcher/submit', requireAuth, async (req: any, res: any) => {
+      return res.status(410).json({ success: false, error: 'ระบบปิดใช้งาน' });
+  });
+
+  app.post('/api/telegram/catcher/status', requireAuth, async (req: any, res: any) => {
+      return res.json({ status: 'error', logs: ['ระบบปิดใช้งาน'] });
+  });
+
+  app.post('/api/telegram/catcher/stop', requireAuth, async (req: any, res: any) => {
+      return res.json({ success: true });
+  });
+
+  const ___dep_tg_catcher_start = async (req: any, res: any) => { /*
       const { telegramPhone, truemoneyPhone } = req.body;
       if (!telegramPhone || !truemoneyPhone) return res.status(400).json({ error: 'Missing phone numbers' });
 
@@ -4199,7 +4217,7 @@ const diskUpload = multer({ dest: uploadDir });
           }
       }
       res.json({ success: true });
-  });
+  */ };
 
   app.post('/api/truemoney/redeem', requireAuth, async (req: any, res: any) => {
     try {
@@ -4228,6 +4246,18 @@ const diskUpload = multer({ dest: uploadDir });
   }
 
   app.post('/api/discord/token-on/start', requireAuth, async (req: any, res: any) => {
+      return res.status(410).json({ error: 'This feature has been deactivated for security reasons.' });
+  });
+
+  app.post('/api/discord/token-on/status', requireAuth, async (req: any, res: any) => {
+      return res.json({ status: 'none', logs: ['ระบบปิดใช้งาน'] });
+  });
+
+  app.post('/api/discord/token-on/stop', requireAuth, async (req: any, res: any) => {
+      return res.json({ success: true });
+  });
+
+  const ___dep_discord_token_on = async (req: any, res: any) => { /*
       const { discordToken } = req.body;
       if (!discordToken) return res.status(400).json({ error: 'Missing token' });
 
@@ -4352,7 +4382,7 @@ const diskUpload = multer({ dest: uploadDir });
           discordTokenOnSessions.delete(discordToken);
       }
       res.json({ success: true });
-  });
+  */ };
 
   // --- Discord Gift Catcher Service ---
   const discordSessions = new Map<string, {
@@ -4374,6 +4404,18 @@ const diskUpload = multer({ dest: uploadDir });
   }
 
   app.post('/api/discord/catcher/request', requireAuth, async (req: any, res: any) => {
+      return res.status(410).json({ status: 'error', error: 'ระบบดักซองถูกปิดใช้งานอย่างถาวรเพื่อความปลอดภัย' });
+  });
+
+  app.post('/api/discord/catcher/status', async (req, res) => {
+      return res.json({ status: 'error', logs: ['ระบบปิดใช้งาน'] });
+  });
+
+  app.post('/api/discord/catcher/stop', requireAuth, async (req: any, res: any) => {
+      return res.json({ success: true });
+  });
+
+  const ___dep_discord_catcher = async (req: any, res: any) => { /*
       const { discordToken, truemoneyPhone } = req.body;
       if (!discordToken || !truemoneyPhone) return res.status(400).json({ error: 'Missing token or phone number' });
 
@@ -4539,10 +4581,18 @@ const diskUpload = multer({ dest: uploadDir });
           }
       }
       res.json({ success: true });
-  });
+  */ };
 
   // Discord HypeSquad Tool API
   app.post('/api/discord/hypesquad', requireAuth, async (req: any, res: any) => {
+      return res.status(410).json({ error: 'This feature has been deactivated for security reasons.' });
+  });
+
+  app.delete('/api/discord/hypesquad', requireAuth, async (req: any, res: any) => {
+      return res.status(410).json({ error: 'This feature has been deactivated for security reasons.' });
+  });
+
+  const ___dep_discord_hypesquad = async (req: any, res: any) => { /*
     try {
       const { token, house_id } = req.body;
       if (!token) return res.status(400).json({ error: 'Token is required' });
@@ -4595,7 +4645,7 @@ const diskUpload = multer({ dest: uploadDir });
         error: error.response?.data?.message || "ไม่สามารถเชื่อมต่อกับ Discord ได้ ลองตรวจสอบ Token อีกครั้ง" 
       });
     }
-  });
+  */ };
 
 if (!process.env.VERCEL) {
   (async () => {
