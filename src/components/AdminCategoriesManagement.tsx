@@ -54,27 +54,21 @@ export const AdminCategoriesManagement: React.FC<AdminCategoriesManagementProps>
       
       const updatedProducts = [...products];
 
-      // Execute updates concurrently
-      const updatePromises = [];
-
+      await axios.put('/api/products/bulk/category', {
+        idsToAdd: idsToAddCategory,
+        idsToRemove: idsToRemoveCategory,
+        categoryId: managingProductsForCategory.id
+      });
+      
+      // Update local state safely
       for (const id of idsToAddCategory) {
-          updatePromises.push(
-            axios.put(`/api/products/${id}`, { category: managingProductsForCategory.id }).then(() => {
-              const pIndex = updatedProducts.findIndex(p => p.id === id);
-              if(pIndex > -1) updatedProducts[pIndex] = { ...updatedProducts[pIndex], category: managingProductsForCategory.id };
-            })
-          );
+        const pIndex = updatedProducts.findIndex(p => p.id === id);
+        if(pIndex > -1) updatedProducts[pIndex] = { ...updatedProducts[pIndex], category: managingProductsForCategory.id };
       }
       for (const id of idsToRemoveCategory) {
-          updatePromises.push(
-            axios.put(`/api/products/${id}`, { category: '' }).then(() => {
-              const pIndex = updatedProducts.findIndex(p => p.id === id);
-              if(pIndex > -1) updatedProducts[pIndex] = { ...updatedProducts[pIndex], category: '' };
-            })
-          );
+        const pIndex = updatedProducts.findIndex(p => p.id === id);
+        if(pIndex > -1) updatedProducts[pIndex] = { ...updatedProducts[pIndex], category: '' };
       }
-      
-      await Promise.all(updatePromises);
       
       setProducts(updatedProducts);
       Swal.fire({ title: 'สำเร็จ', text: 'อัปเดตสินค้าในหมวดหมู่เรียบร้อย', icon: 'success', background: '#09090b', color: '#fff', confirmButtonColor: '#3B82F6' });

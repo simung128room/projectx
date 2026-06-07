@@ -76,10 +76,10 @@ const ProductManagerModal = ({
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center sm:justify-end p-0 z-[100]" onClick={onClose}>
       <div 
-        className="bg-card border-none sm:border-l border-border border-2 w-full sm:max-w-md h-full relative overflow-y-auto p-6 sm:p-8 animate-in slide-in-from-bottom-full sm:slide-in-from-right-full duration-300 brut-card"
+        className="bg-card border-none sm:border-l border-border border w-full sm:max-w-md h-full relative overflow-y-auto p-6 sm:p-8 animate-in slide-in-from-bottom-full sm:slide-in-from-right-full duration-300"
         onClick={e => e.stopPropagation()}
       >
-        <button onClick={onClose} className="absolute top-6 right-6 text-muted-foreground hover:text-white transition-colors bg-card p-2 brut-card">
+        <button onClick={onClose} className="absolute top-6 right-6 text-muted-foreground hover:text-white transition-colors bg-card p-2">
           <X className="w-5 h-5" />
         </button>
         <h2 className="text-xl font-black text-white mb-6 flex items-center gap-2">
@@ -94,7 +94,7 @@ const ProductManagerModal = ({
               type="text" 
               value={formData.name} 
               onChange={e => setFormData({...formData, name: e.target.value})}
-              className="w-full bg-card border border-border border-2 px-4 py-3 text-white font-medium focus:outline-none focus:border-[#3B82F6] focus:ring-1 focus:ring-[#3B82F6]/50 transition-all text-sm brut-card"
+              className="w-full bg-card border border-border border px-4 py-3 text-white font-medium focus:outline-none focus:border-[#3B82F6] focus:ring-1 focus:ring-[#3B82F6]/50 transition-all text-sm"
               placeholder="e.g. Netflix Premium"
             />
           </div>
@@ -103,7 +103,7 @@ const ProductManagerModal = ({
             <textarea 
               value={formData.description} 
               onChange={e => setFormData({...formData, description: e.target.value})}
-              className="w-full bg-card border border-border border-2 px-4 py-3 text-white font-medium focus:outline-none focus:border-[#3B82F6] focus:ring-1 focus:ring-[#3B82F6]/50 transition-all text-sm h-24 resize-none brut-card"
+              className="w-full bg-card border border-border border px-4 py-3 text-white font-medium focus:outline-none focus:border-[#3B82F6] focus:ring-1 focus:ring-[#3B82F6]/50 transition-all text-sm h-24 resize-none"
               placeholder="รายละเอียดสินค้า..."
             />
           </div>
@@ -114,7 +114,7 @@ const ProductManagerModal = ({
                 type="number" 
                 value={formData.price} 
                 onChange={e => setFormData({...formData, price: e.target.value === '' ? '' : Number(e.target.value)})}
-                className="w-full bg-card border border-border border-2 px-4 py-3 text-white font-medium focus:outline-none focus:border-[#3B82F6] focus:ring-1 focus:ring-[#3B82F6]/50 transition-all text-sm brut-card"
+                className="w-full bg-card border border-border border px-4 py-3 text-white font-medium focus:outline-none focus:border-[#3B82F6] focus:ring-1 focus:ring-[#3B82F6]/50 transition-all text-sm"
                 placeholder="0"
               />
             </div>
@@ -124,7 +124,7 @@ const ProductManagerModal = ({
                 type="number" 
                 value={formData.originalPrice} 
                 onChange={e => setFormData({...formData, originalPrice: e.target.value === '' ? '' : Number(e.target.value)})}
-                className="w-full bg-card border border-border border-2 px-4 py-3 text-white/70 font-medium focus:outline-none focus:border-zinc-500 transition-all text-sm brut-card"
+                className="w-full bg-card border border-border border px-4 py-3 text-white/70 font-medium focus:outline-none focus:border-zinc-500 transition-all text-sm"
                 placeholder="0"
               />
             </div>
@@ -136,7 +136,7 @@ const ProductManagerModal = ({
                 type="number" 
                 value={formData.stock} 
                 onChange={e => setFormData({...formData, stock: e.target.value === '' ? '' : Number(e.target.value)})}
-                className="w-full bg-card border border-border border-2 px-4 py-3 text-white font-medium focus:outline-none focus:border-[#3B82F6] focus:ring-1 focus:ring-[#3B82F6]/50 transition-all text-sm brut-card"
+                className="w-full bg-card border border-border border px-4 py-3 text-white font-medium focus:outline-none focus:border-[#3B82F6] focus:ring-1 focus:ring-[#3B82F6]/50 transition-all text-sm"
                 placeholder="0"
               />
             </div>
@@ -145,7 +145,7 @@ const ProductManagerModal = ({
               <select 
                 value={formData.category} 
                 onChange={e => setFormData({...formData, category: e.target.value})}
-                className="w-full bg-card border border-border border-2 px-4 py-3 text-white font-medium focus:outline-none focus:border-[#3B82F6] focus:ring-1 focus:ring-[#3B82F6]/50 transition-all text-sm appearance-none brut-card"
+                className="w-full bg-card border border-border border px-4 py-3 text-white font-medium focus:outline-none focus:border-[#3B82F6] focus:ring-1 focus:ring-[#3B82F6]/50 transition-all text-sm appearance-none"
               >
                 <option value="">เลือกหมวดหมู่</option>
                 {categories.map((cat: any) => (
@@ -159,7 +159,7 @@ const ProductManagerModal = ({
             <select 
               value={formData.tag || ''} 
               onChange={e => setFormData({...formData, tag: e.target.value})}
-              className="w-full bg-card border border-border border-2 px-4 py-3 text-white font-medium focus:outline-none focus:border-[#3B82F6] focus:ring-1 focus:ring-[#3B82F6]/50 transition-all text-sm appearance-none brut-card"
+              className="w-full bg-card border border-border border px-4 py-3 text-white font-medium focus:outline-none focus:border-[#3B82F6] focus:ring-1 focus:ring-[#3B82F6]/50 transition-all text-sm appearance-none"
             >
               <option value="">ไม่มี (ว่าง)</option>
               <option value="HOT">HOT</option>
@@ -174,7 +174,7 @@ const ProductManagerModal = ({
               type="text" 
               value={formData.imageUrl} 
               onChange={e => setFormData({...formData, imageUrl: e.target.value})}
-              className="w-full bg-card border border-border border-2 px-4 py-3 text-white font-medium focus:outline-none focus:border-[#3B82F6] focus:ring-1 focus:ring-[#3B82F6]/50 transition-all text-sm brut-card"
+              className="w-full bg-card border border-border border px-4 py-3 text-white font-medium focus:outline-none focus:border-[#3B82F6] focus:ring-1 focus:ring-[#3B82F6]/50 transition-all text-sm"
               placeholder="https://..."
             />
           </div>
@@ -213,7 +213,7 @@ const ProductManagerModal = ({
                     preOrderOptions: opts
                   });
                 }}
-                className="w-full bg-card border border-border border-2 px-3 py-2 text-white font-medium focus:outline-none focus:border-[#3B82F6] transition-all text-xs brut-card"
+                className="w-full bg-card border border-border border px-3 py-2 text-white font-medium focus:outline-none focus:border-[#3B82F6] transition-all text-xs"
                 placeholder="เช่น: Garena Account, Facebook Account, ID Level 30"
               />
               <div className="text-[10px] text-zinc-500 flex flex-wrap gap-1">
@@ -230,7 +230,7 @@ const ProductManagerModal = ({
           )}
 
           {formData.imageUrl && (
-            <div className="mt-2 overflow-hidden border border-border border-2 aspect-video bg-card relative flex items-center justify-center brut-card">
+            <div className="mt-2 overflow-hidden border border-border border aspect-video bg-card relative flex items-center justify-center">
                <img src={formData.imageUrl} alt="Preview" className="max-w-full max-h-full object-contain" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
             </div>
           )}
@@ -239,7 +239,7 @@ const ProductManagerModal = ({
         <div className="mt-8 flex items-center gap-3">
           <button 
             onClick={onClose}
-            className="flex-1 px-4 py-3 bg-card hover:bg-[#1e1e1e] text-white text-sm font-bold transition-all active:scale-95 brut-card"
+            className="flex-1 px-4 py-3 bg-card hover:bg-[#1e1e1e] text-white text-sm font-bold transition-all active:scale-95"
           >
             ยกเลิก
           </button>
@@ -460,13 +460,13 @@ const AddStockModal = ({
 
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-end p-0 z-50">
-      <div className="bg-card border-l border-border border-2 w-full max-w-md h-full relative p-6 sm:p-8 overflow-y-auto animate-in slide-in-from-right-full duration-300 brut-card">
+      <div className="bg-card border-l border-border border w-full max-w-md h-full relative p-6 sm:p-8 overflow-y-auto animate-in slide-in-from-right-full duration-300">
         <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
           <Database className="w-5 h-5 text-indigo-400" />
           เพิ่มสต๊อก: {product.name}
         </h2>
         
-        <div className="flex bg-card p-1 mb-6 brut-card">
+        <div className="flex bg-card p-1 mb-6">
           <button 
             onClick={() => setMode('file')}
             className={`flex-1 py-2 text-xs font-bold transition-all ${mode === 'file' ? 'bg-[#121212] text-white' : 'text-zinc-500 hover:text-zinc-300'}`}
@@ -491,7 +491,7 @@ const AddStockModal = ({
           <div className="space-y-4">
             <div 
               onClick={() => fileRef.current?.click()}
-              className="border-2 border-dashed border-border hover:border-indigo-500/50 bg-card p-8 flex flex-col items-center justify-center cursor-pointer transition-colors brut-card"
+              className="border border-dashed border-border hover:border-indigo-500/50 bg-card p-8 flex flex-col items-center justify-center cursor-pointer transition-colors"
             >
               <Upload className="w-8 h-8 text-indigo-400 mb-3" />
               <p className="text-sm font-bold text-muted-foreground">คลิกเพื่ออัพโหลดไฟล์ .txt</p>
@@ -506,25 +506,25 @@ const AddStockModal = ({
             </div>
 
             {uploadProgress >= 0 && (
-              <div className="bg-card border border-border border-2 p-4 mt-2 brut-card">
+              <div className="bg-card border border-border border p-4 mt-2">
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-xs font-bold text-muted-foreground">กำลังประมวลผลไฟล์...</span>
                   <span className="text-xs font-bold text-indigo-400">{uploadProgress}%</span>
                 </div>
-                <div className="w-full bg-card h-1.5 object-cover overflow-hidden brut-card">
+                <div className="w-full bg-card h-1.5 object-cover overflow-hidden">
                   <div className="bg-indigo-500 h-1.5 transition-all duration-300" style={{ width: `${uploadProgress}%` }}></div>
                 </div>
               </div>
             )}
             
-            <div className="flex items-center justify-between bg-card p-3 border border-border border-2 brut-card">
+            <div className="flex items-center justify-between bg-card p-3 border border-border border">
               <label className="text-sm font-bold text-muted-foreground">จำนวนบรรทัดต่อ 1 สต๊อก</label>
               <input 
                 type="number" 
                 min="1" 
                 value={linesPerStock} 
                 onChange={(e) => setLinesPerStock(Math.max(1, parseInt(e.target.value) || 1))} 
-                className="w-20 bg-card border border-zinc-700 px-3 py-1 text-white text-center font-bold brut-card"
+                className="w-20 bg-card border border-zinc-700 px-3 py-1 text-white text-center font-bold"
               />
             </div>
 
@@ -546,7 +546,7 @@ const AddStockModal = ({
           <div className="space-y-4">
             <div 
               onClick={() => singleFileRef.current?.click()}
-              className="border-2 border-dashed border-border hover:border-indigo-500/50 bg-card p-8 flex flex-col items-center justify-center cursor-pointer transition-colors brut-card"
+              className="border border-dashed border-border hover:border-indigo-500/50 bg-card p-8 flex flex-col items-center justify-center cursor-pointer transition-colors"
             >
               <Upload className="w-8 h-8 text-indigo-400 mb-3" />
               <p className="text-sm font-bold text-muted-foreground">อัพโหลดไฟล์สินค้า</p>
@@ -562,7 +562,7 @@ const AddStockModal = ({
             {singleFilesPreview.length > 0 && (
               <div className="flex flex-col gap-2 max-h-32 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-zinc-800">
                 {singleFilesPreview.map((f, i) => (
-                  <div key={i} className="bg-card border border-border border-2 p-2.5 flex items-center justify-between brut-card">
+                  <div key={i} className="bg-card border border-border border p-2.5 flex items-center justify-between">
                     <span className="text-xs font-medium truncate max-w-[200px] text-muted-foreground">{f.name}</span>
                     <span className="text-[10px] text-blue-500 font-bold bg-primary text-primary-foreground px-2 py-0.5 rounded">Ready</span>
                   </div>
@@ -574,14 +574,14 @@ const AddStockModal = ({
 
         {mode === 'text' && (
           <div className="space-y-4">
-            <div className="flex items-center justify-between bg-card p-3 border border-border border-2 brut-card">
+            <div className="flex items-center justify-between bg-card p-3 border border-border border">
               <label className="text-sm font-bold text-muted-foreground">จำนวนบรรทัดต่อ 1 สต๊อก</label>
               <input 
                 type="number" 
                 min="1" 
                 value={linesPerStock} 
                 onChange={(e) => setLinesPerStock(Math.max(1, parseInt(e.target.value) || 1))} 
-                className="w-20 bg-card border border-zinc-700 px-3 py-1 text-white text-center font-bold brut-card"
+                className="w-20 bg-card border border-zinc-700 px-3 py-1 text-white text-center font-bold"
               />
             </div>
             
@@ -594,7 +594,7 @@ const AddStockModal = ({
                       ล้างข้อมูล (Clear)
                     </button>
                   )}
-                  <span className="text-[10px] text-muted-foreground bg-card px-2 py-0.5 rounded brut-card">
+                  <span className="text-[10px] text-muted-foreground bg-card px-2 py-0.5 rounded">
                     คำนวณได้: {stockCount} สต๊อก
                   </span>
                 </div>
@@ -604,7 +604,7 @@ const AddStockModal = ({
                 onChange={updateTextCount}
                 onPaste={handlePaste}
                 disabled={isBigTextMode}
-                className="w-full bg-card border border-border border-2 p-4 text-white focus:outline-none focus:border-indigo-500 text-sm h-40 resize-none font-mono text-xs leading-relaxed disabled:opacity-50 brut-card"
+                className="w-full bg-card border border-border border p-4 text-white focus:outline-none focus:border-indigo-500 text-sm h-40 resize-none font-mono text-xs leading-relaxed disabled:opacity-50"
                 placeholder="ข้อมูลบรรทัดที่ 1&#10;ข้อมูลบรรทัดที่ 2&#10;ข้อมูลบรรทัดที่ 3&#10;..."
               />
             </div>
@@ -614,7 +614,7 @@ const AddStockModal = ({
         <div className="mt-8 flex items-center gap-3">
           <button 
             onClick={onClose}
-            className="flex-1 px-4 py-3 bg-card hover:bg-[#1e1e1e] text-white text-sm font-bold transition-colors brut-card"
+            className="flex-1 px-4 py-3 bg-card hover:bg-[#1e1e1e] text-white text-sm font-bold transition-colors"
           >
             ยกเลิก
           </button>
@@ -632,7 +632,7 @@ const AddStockModal = ({
 
 
 const DatabaseSetupGuide = ({ dbErrorDetail }: { dbErrorDetail?: string | null }) => (
-  <div className="bg-card border border-amber-500/20 p-8 max-w-2xl mx-auto mt-12 animate-in fade-in slide-in-from-bottom-4 duration-500  brut-card">
+  <div className="bg-card border border-amber-500/20 p-8 max-w-2xl mx-auto mt-12 animate-in fade-in slide-in-from-bottom-4 duration-500 ">
     <div className="flex items-center gap-4 mb-8">
       <div className="p-4 bg-amber-500/20">
         <Database className="w-8 h-8 text-amber-500" />
@@ -649,12 +649,12 @@ const DatabaseSetupGuide = ({ dbErrorDetail }: { dbErrorDetail?: string | null }
           <ShieldAlert className="w-4 h-4 text-[#2563EB]" />
           <h4 className="text-[#2563EB] text-[10px] font-black uppercase tracking-widest">สถานะปัจจุบัน (Status):</h4>
         </div>
-        <p className="text-muted-foreground text-xs font-mono break-all bg-black/40 backdrop-blur-sm p-3 border border-border border-2">{dbErrorDetail}</p>
+        <p className="text-muted-foreground text-xs font-mono break-all bg-black/40 backdrop-blur-sm p-3 border border-border border">{dbErrorDetail}</p>
       </div>
     )}
     
     <div className="space-y-4">
-      <div className="bg-black/40 backdrop-blur-sm border border-border border-2 p-6">
+      <div className="bg-black/40 backdrop-blur-sm border border-border border p-6">
         <h3 className="text-white font-bold mb-2">Troubleshooting Steps</h3>
         <ul className="list-disc list-inside text-sm text-muted-foreground space-y-2">
           <li>Ensure the backend server is running correctly.</li>
@@ -980,7 +980,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-card flex font-sans text-white brut-card">
+    <div className="min-h-screen bg-card flex font-sans text-white">
       {/* Mobile Nav Overlay */}
       <AnimatePresence>
         {isNavOpen && (
@@ -995,9 +995,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       </AnimatePresence>
 
       {/* Sidebar Navigation */}
-      <aside className={`fixed inset-y-0 left-0 bg-card border-r border-border border-2 w-[280px] z-50 transform transition-transform duration-300 lg:translate-x-0 ${isNavOpen ? 'translate-x-0' : '-translate-x-full'} flex flex-col h-full overflow-hidden brut-card`}>
+      <aside className={`fixed inset-y-0 left-0 bg-card border-r border-border border w-[280px] z-50 transform transition-transform duration-300 lg:translate-x-0 ${isNavOpen ? 'translate-x-0' : '-translate-x-full'} flex flex-col h-full overflow-hidden`}>
         {/* Brand/Logo Area */}
-        <div className="p-6 flex items-center justify-between border-b border-border border-2 shrink-0">
+        <div className="p-6 flex items-center justify-between border-b border-border border shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-[#3B82F6] text-white flex items-center justify-center flex-shrink-0 rounded-sm shadow-[0_0_15px_rgba(59,130,246,0.3)]">
               <Crown className="w-5 h-5 text-white" />
@@ -1007,7 +1007,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <p className="text-[9px] text-[#3B82F6] font-bold uppercase tracking-widest mt-1">Admin Console</p>
             </div>
           </div>
-          <button onClick={() => setIsNavOpen(false)} className="lg:hidden p-2 text-zinc-400 hover:text-white bg-card brut-card rounded-md">
+          <button onClick={() => setIsNavOpen(false)} className="lg:hidden p-2 text-zinc-400 hover:text-white bg-card rounded-md">
              <X className="w-5 h-5" />
           </button>
         </div>
@@ -1049,8 +1049,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         </div>
 
         {/* Admin User Profile Bottom */}
-        <div className="p-4 border-t border-border border-2 bg-card shrink-0 brut-card">
-          <div className="flex items-center gap-3 p-3 bg-card brut-card">
+        <div className="p-4 border-t border-border border bg-card shrink-0">
+          <div className="flex items-center gap-3 p-3 bg-card">
             <div className="w-10 h-10 bg-gradient-to-br from-[#3B82F6] to-[#1D4ED8] flex flex-shrink-0 items-center justify-center text-white font-bold">
               {adminUsername.charAt(0).toUpperCase()}
             </div>
@@ -1072,11 +1072,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden lg:pl-[280px]">
         {/* Top Header */}
-        <header className="h-[72px] bg-card backdrop-blur-md border-b border-border border-2 flex items-center justify-between px-4 lg:px-8 shrink-0 z-30 sticky top-0 brut-card">
+        <header className="h-[72px] bg-card backdrop-blur-md border-b border-border border flex items-center justify-between px-4 lg:px-8 shrink-0 z-30 sticky top-0">
           <div className="flex items-center gap-4">
             <button 
               onClick={() => setIsNavOpen(true)}
-              className="lg:hidden p-2 text-muted-foreground hover:text-white bg-card brut-card"
+              className="lg:hidden p-2 text-muted-foreground hover:text-white bg-card"
             >
               <Menu className="w-5 h-5" />
             </button>
@@ -1087,7 +1087,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           </div>
           
           <div className="flex items-center gap-3">
-             <div className="hidden sm:flex items-center gap-2 text-[10px] font-mono text-muted-foreground bg-card px-3 py-1.5 border border-border border-2 brut-card">
+             <div className="hidden sm:flex items-center gap-2 text-[10px] font-mono text-muted-foreground bg-card px-3 py-1.5 border border-border border">
                <Activity className="w-3 h-3 text-blue-500" />
                SYSTEM ONLINE
              </div>
@@ -1115,7 +1115,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   { label: 'คำสั่งซื้อที่สำเร็จ', value: totalOrders.toLocaleString(), icon: ShoppingCart, color: 'text-amber-400', bg: 'bg-amber-500/5', border: 'hover:border-amber-500/40' },
                   { label: 'รายได้รวม (บาท)', value: totalRevenue.toLocaleString(), icon: Activity, color: 'text-emerald-400', bg: 'bg-emerald-500/5', border: 'hover:border-emerald-500/40' },
                 ].map((stat, i) => (
-                  <div key={i} className={`bg-card border border-zinc-800 rounded-lg p-6 relative overflow-hidden group transition-all duration-300 hover:translate-y-[-2px] hover:shadow-[0_4px_20px_rgba(0,0,0,0.4)] ${stat.border} brut-card`}>
+                  <div key={i} className={`bg-card border border-zinc-800 rounded-lg p-6 relative overflow-hidden group transition-all duration-300 hover:translate-y-[-2px] hover:shadow-[0_4px_20px_rgba(0,0,0,0.4)] ${stat.border}`}>
                     <div className="absolute top-0 right-0 w-32 h-32 bg-zinc-900/40 blur-3xl rounded-full -mr-8 -mt-8 transition-transform duration-500 group-hover:scale-125"></div>
                     <div className="flex items-center justify-between relative z-10">
                       <div>
@@ -1132,29 +1132,29 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2 space-y-6">
-                  <div className="bg-card border border-zinc-800 rounded-lg overflow-hidden brut-card">
-                    <div className="p-6 border-b border-zinc-800/80 flex justify-between items-center bg-card brut-card">
+                  <div className="bg-card border border-zinc-800 rounded-lg overflow-hidden">
+                    <div className="p-6 border-b border-zinc-800/80 flex justify-between items-center bg-card">
                       <h3 className="font-bold flex items-center gap-2 text-white">
                         <LineChart className="w-5 h-5 text-[#3B82F6]" /> รายงานสรุปยอดขาย (Sales Summary)
                       </h3>
                     </div>
                     <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-                      <div className="bg-zinc-900/40 border border-zinc-800/60 p-6 text-center group hover:bg-zinc-900/80 hover:border-zinc-700/60 transition-all duration-200 rounded-lg brut-card">
+                      <div className="bg-zinc-900/40 border border-zinc-800/60 p-6 text-center group hover:bg-zinc-900/80 hover:border-zinc-700/60 transition-all duration-200 rounded-lg">
                         <p className="text-zinc-500 text-[10px] font-black uppercase mb-2 tracking-widest">วันนี้</p>
                         <p className="text-2xl font-black text-[#3B82F6] font-mono">{salesToday.toLocaleString()} <span className="text-[10px] font-bold text-zinc-500 uppercase ml-1">THB</span></p>
                       </div>
-                      <div className="bg-zinc-900/40 border border-zinc-800/60 p-6 text-center group hover:bg-zinc-900/80 hover:border-zinc-700/60 transition-all duration-200 rounded-lg brut-card">
+                      <div className="bg-zinc-900/40 border border-zinc-800/60 p-6 text-center group hover:bg-zinc-900/80 hover:border-zinc-700/60 transition-all duration-200 rounded-lg">
                         <p className="text-zinc-500 text-[10px] font-black uppercase mb-2 tracking-widest">สัปดาห์นี้</p>
                         <p className="text-2xl font-black text-[#3B82F6] font-mono">{salesWeek.toLocaleString()} <span className="text-[10px] font-bold text-zinc-500 uppercase ml-1">THB</span></p>
                       </div>
-                      <div className="bg-zinc-900/40 border border-zinc-800/60 p-6 text-center group hover:bg-zinc-900/80 hover:border-zinc-700/60 transition-all duration-200 rounded-lg brut-card">
+                      <div className="bg-zinc-900/40 border border-zinc-800/60 p-6 text-center group hover:bg-zinc-900/80 hover:border-zinc-700/60 transition-all duration-200 rounded-lg">
                         <p className="text-zinc-500 text-[10px] font-black uppercase mb-2 tracking-widest">เดือนนี้</p>
                         <p className="text-2xl font-black text-[#3B82F6] font-mono">{salesMonth.toLocaleString()} <span className="text-[10px] font-bold text-zinc-500 uppercase ml-1">THB</span></p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="bg-card border border-zinc-800 rounded-lg p-6 brut-card">
+                  <div className="bg-card border border-zinc-800 rounded-lg p-6">
                     <h3 className="font-bold flex items-center gap-2 mb-6 text-white uppercase text-xs tracking-widest">
                       <Cpu className="w-4 h-4 text-[#3B82F6]" /> ระบบจัดการด่วน (Quick Management)
                     </h3>
@@ -1168,7 +1168,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                            <button 
                              key={i}
                              onClick={() => setAdminTab(item.id)}
-                             className="flex items-center gap-4 p-4 border border-zinc-800/80 bg-zinc-900/30 hover:bg-zinc-950 hover:border-zinc-600 transition-all text-left group rounded-lg brut-card"
+                             className="flex items-center gap-4 p-4 border border-zinc-800/80 bg-zinc-900/30 hover:bg-zinc-950 hover:border-zinc-600 transition-all text-left group rounded-lg"
                            >
                              <div className={`w-12 h-12 rounded-lg ${item.bg} ${item.color} flex items-center justify-center shrink-0 group-hover:scale-105 transition-all duration-200 shadow-sm`}>
                                <item.icon className="w-5 h-5" />
@@ -1185,12 +1185,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 </div>
 
                 <div className="space-y-6">
-                  <div className="bg-card border border-zinc-800 rounded-lg p-6 brut-card">
+                  <div className="bg-card border border-zinc-800 rounded-lg p-6">
                     <h3 className="font-bold flex items-center gap-2 mb-6 text-white uppercase text-xs tracking-widest">
                       <Settings className="w-4 h-4 text-[#3B82F6]" /> เครื่องมือเพิ่มเติม
                     </h3>
                     <div className="space-y-3">
-                      <button onClick={() => setAdminTab('banners')} className="w-full bg-zinc-900/30 hover:bg-zinc-950 border border-zinc-800/80 rounded-lg p-4 flex items-center justify-between group transition-all brut-card">
+                      <button onClick={() => setAdminTab('banners')} className="w-full bg-zinc-900/30 hover:bg-zinc-950 border border-zinc-800/80 rounded-lg p-4 flex items-center justify-between group transition-all">
                         <div className="flex items-center gap-3">
                           <Image className="w-5 h-5 text-zinc-500 group-hover:text-white transition-colors" />
                           <div className="text-left">
@@ -1199,7 +1199,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         </div>
                         <ChevronRight className="w-4 h-4 text-zinc-600 group-hover:text-white transition-colors" />
                       </button>
-                      <button onClick={() => setAdminTab('pages')} className="w-full bg-zinc-900/30 hover:bg-zinc-950 border border-zinc-800/80 rounded-lg p-4 flex items-center justify-between group transition-all brut-card">
+                      <button onClick={() => setAdminTab('pages')} className="w-full bg-zinc-900/30 hover:bg-zinc-950 border border-zinc-800/80 rounded-lg p-4 flex items-center justify-between group transition-all">
                         <div className="flex items-center gap-3">
                           <FileText className="w-5 h-5 text-zinc-500 group-hover:text-white transition-colors" />
                           <div className="text-left">
@@ -1208,7 +1208,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         </div>
                         <ChevronRight className="w-4 h-4 text-zinc-600 group-hover:text-white transition-colors" />
                       </button>
-                      <button onClick={() => setAdminTab('history')} className="w-full bg-zinc-900/30 hover:bg-zinc-950 border border-zinc-800/80 rounded-lg p-4 flex items-center justify-between group transition-all brut-card">
+                      <button onClick={() => setAdminTab('history')} className="w-full bg-zinc-900/30 hover:bg-zinc-950 border border-zinc-800/80 rounded-lg p-4 flex items-center justify-between group transition-all">
                         <div className="flex items-center gap-3">
                           <History className="w-5 h-5 text-zinc-500 group-hover:text-white transition-colors" />
                           <div className="text-left">
@@ -1233,7 +1233,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               exit={{ opacity: 0, x: -20 }}
               className="space-y-6"
             >
-              <div className="bg-card border border-border border-2 p-6 relative overflow-hidden brut-card">
+              <div className="bg-card border border-border border p-6 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 blur-3xl opacity-50 translate-x-1/2 -translate-y-1/2"></div>
                 
                 <div className="mb-6">
@@ -1275,18 +1275,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   </ResponsiveContainer>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8 pt-8 border-t border-border border-2">
-                  <div className="bg-card p-4 border border-border border-2 brut-card">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8 pt-8 border-t border-border border">
+                  <div className="bg-card p-4 border border-border border">
                     <p className="text-muted-foreground text-xs font-bold uppercase mb-1">Total Revenue</p>
                     <p className="text-2xl font-black text-indigo-400">฿19,550</p>
                     <p className="text-blue-500 text-[10px] mt-1 font-bold">+12% from last month</p>
                   </div>
-                  <div className="bg-card p-4 border border-border border-2 brut-card">
+                  <div className="bg-card p-4 border border-border border">
                     <p className="text-muted-foreground text-xs font-bold uppercase mb-1">Active Users</p>
                     <p className="text-2xl font-black text-blue-600">2,420</p>
                     <p className="text-blue-500 text-[10px] mt-1 font-bold">+5% from last month</p>
                   </div>
-                  <div className="bg-card p-4 border border-border border-2 brut-card">
+                  <div className="bg-card p-4 border border-border border">
                     <p className="text-muted-foreground text-xs font-bold uppercase mb-1">Conversion Rate</p>
                     <p className="text-2xl font-black text-amber-400">4.2%</p>
                     <p className="text-[#2563EB] text-[10px] mt-1 font-bold">-1% from last month</p>
@@ -1322,7 +1322,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               className="space-y-6"
             >
               {/* Site Stats */}
-              <div className="bg-card border border-zinc-800 rounded-lg p-6 relative overflow-hidden brut-card">
+              <div className="bg-card border border-zinc-800 rounded-lg p-6 relative overflow-hidden">
                 <div className="flex justify-between items-center mb-6">
                   <h3 className="font-bold text-white flex items-center gap-2">
                     <BarChart3 className="w-5 h-5 text-[#3B82F6]" /> ตั้งค่าสถิติหน้าแรก
@@ -1465,7 +1465,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 </div>
               </div>
                   {/* Products List */}
-              <div className="bg-card border border-zinc-800 rounded-lg p-6 relative overflow-hidden brut-card">
+              <div className="bg-card border border-zinc-800 rounded-lg p-6 relative overflow-hidden">
                 <div className="flex justify-between items-center mb-6">
                   <h3 className="font-bold text-white flex items-center gap-2"><Package className="w-5 h-5 text-[#3B82F6]" /> จัดการสินค้า</h3>
                   <button 
@@ -1618,9 +1618,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   {/* Mobile Card Layout */}
                   <div className="grid grid-cols-1 gap-4 md:hidden p-4">
                     {products.map((p, i) => (
-                      <div key={i} className="bg-card border border-border border-2 p-4 flex flex-col gap-3 brut-card">
+                      <div key={i} className="bg-card border border-border border p-4 flex flex-col gap-3">
                         <div className="flex items-center gap-3">
-                          <img loading="lazy" src={p.imageUrl || undefined} alt={p.name} className="w-12 h-12 object-cover bg-card brut-card" />
+                          <img loading="lazy" src={p.imageUrl || undefined} alt={p.name} className="w-12 h-12 object-cover bg-card" />
                           <div className="flex-1 min-w-0">
                             <div className="text-white font-bold flex items-center gap-2 truncate">
                               <span className="truncate">{p.name}</span>
@@ -1634,7 +1634,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           </div>
                         </div>
                         
-                        <div className="flex items-center justify-between mt-2 pt-3 border-t border-border border-2">
+                        <div className="flex items-center justify-between mt-2 pt-3 border-t border-border border">
                           <div>
                             <div className="text-xs text-muted-foreground">ราคา</div>
                             <div className="font-bold flex items-center gap-1.5">
@@ -1652,7 +1652,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           </div>
                         </div>
 
-                        <div className="grid grid-cols-4 gap-2 mt-2 pt-3 border-t border-border border-2">
+                        <div className="grid grid-cols-4 gap-2 mt-2 pt-3 border-t border-border border">
                             <button 
                               onClick={async () => {
                                 if (p.stock === 0) {
@@ -1682,13 +1682,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                             </button>
                             <button 
                               onClick={() => setStockProduct(p)}
-                              className="p-2 border border-border border-2 bg-card text-muted-foreground hover:bg-[#121212] hover:border-white/20 flex justify-center items-center brut-card"
+                              className="p-2 border border-border border bg-card text-muted-foreground hover:bg-[#121212] hover:border-white/20 flex justify-center items-center"
                             >
                                 <Database className="w-4 h-4" />
                             </button>
                             <button 
                               onClick={() => setEditingProduct(p)}
-                              className="p-2 border border-border border-2 bg-card text-muted-foreground hover:bg-[#121212] hover:border-white/20 flex justify-center items-center brut-card"
+                              className="p-2 border border-border border bg-card text-muted-foreground hover:bg-[#121212] hover:border-white/20 flex justify-center items-center"
                             >
                                 <Settings className="w-4 h-4" />
                             </button>
@@ -1739,9 +1739,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="bg-card border border-border border-2 overflow-hidden brut-card"
+              className="bg-card border border-border border overflow-hidden"
             >
-              <div className="p-6 border-b border-border border-2 flex justify-between items-center bg-card brut-card">
+              <div className="p-6 border-b border-border border flex justify-between items-center bg-card">
                 <div>
                   <h3 className="font-bold text-white flex items-center gap-2"><Key className="w-5 h-5 text-[#2563EB]" /> Key Management</h3>
                   <p className="text-muted-foreground text-xs mt-1">จัดการคีย์และสต๊อก</p>
@@ -1759,7 +1759,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     link.download = `license_keys_${new Date().toISOString().slice(0, 10)}.txt`;
                     link.click();
                     URL.revokeObjectURL(url);
-                  }} className="bg-card hover:bg-[#0a0a0a] text-white px-4 py-2.5 text-xs font-bold transition-all flex items-center gap-2  brut-card">
+                  }} className="bg-card hover:bg-[#0a0a0a] text-white px-4 py-2.5 text-xs font-bold transition-all flex items-center gap-2 ">
                     <Download className="w-4 h-4" /> บันทึกเป็น TXT
                   </button>
                   <button onClick={bulkDeleteKeys} className="bg-red-500 hover:bg-red-600 text-white px-4 py-2.5 text-xs font-bold transition-all flex items-center gap-2 ">
@@ -1772,7 +1772,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[700px] text-left text-sm text-muted-foreground">
-                  <thead className="text-xs uppercase bg-card text-muted-foreground font-bold tracking-wider brut-card">
+                  <thead className="text-xs uppercase bg-card text-muted-foreground font-bold tracking-wider">
                     <tr>
                       <th className="p-4">License Key</th>
                       <th className="p-4">Type</th>
@@ -1783,7 +1783,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   </thead>
                   <tbody className="text-xs">
                     {licenseKeys.length > 0 ? licenseKeys.map((key, i) => (
-                      <tr key={i} className="border-b border-border border-2 hover:bg-[#121212]/50 transition-colors">
+                      <tr key={i} className="border-b border-border border hover:bg-[#121212]/50 transition-colors">
                         <td className="p-4">
                           <div className="flex items-center gap-3">
                              <div className="w-2 h-2 bg-cyan-500"></div>
@@ -1801,7 +1801,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           </div>
                         </td>
                         <td className="p-4">
-                          <span className="bg-card text-muted-foreground px-2 py-0.5 rounded text-[10px] uppercase font-bold brut-card">{key.plan}</span>
+                          <span className="bg-card text-muted-foreground px-2 py-0.5 rounded text-[10px] uppercase font-bold">{key.plan}</span>
                         </td>
                         <td className="p-4">
                           <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase ${key.status === 'active' ? 'bg-blue-600/10 text-emerald-600' : 'bg-[#121212] text-muted-foreground'}`}>
@@ -1830,15 +1830,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="bg-card border border-border border-2 overflow-hidden brut-card"
+              className="bg-card border border-border border overflow-hidden"
             >
-               <div className="p-6 border-b border-border border-2 bg-card brut-card">
+               <div className="p-6 border-b border-border border bg-card">
                   <h3 className="font-bold text-white flex items-center gap-2"><History className="w-5 h-5 text-[#2563EB]" /> Redeem Logs</h3>
                   <p className="text-muted-foreground text-xs mt-1">ประวัติการใช้งานคีย์</p>
                </div>
                <div className="overflow-x-auto">
                 <table className="w-full min-w-[700px] text-left text-sm text-muted-foreground">
-                  <thead className="text-xs uppercase bg-card text-muted-foreground font-bold tracking-wider brut-card">
+                  <thead className="text-xs uppercase bg-card text-muted-foreground font-bold tracking-wider">
                     <tr>
                       <th className="p-4">Key Used</th>
                       <th className="p-4">User IP</th>
@@ -1848,7 +1848,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   </thead>
                   <tbody className="text-xs font-mono">
                     {usedKeysHistory.length > 0 ? usedKeysHistory.map((h, i) => (
-                      <tr key={i} className="border-b border-border border-2 hover:bg-[#121212]/50 transition-colors">
+                      <tr key={i} className="border-b border-border border hover:bg-[#121212]/50 transition-colors">
                         <td className="p-4">
                           <span className="text-white font-bold">{h.key}</span>
                         </td>
@@ -1876,7 +1876,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               className="space-y-6"
             >
               {/* Header */}
-              <div className="bg-card border border-border border-2 p-6 rounded-xl brut-card flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="bg-card border border-border border p-6 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                   <h3 className="font-bold text-white text-lg flex items-center gap-2">
                     <Clock className="w-5 h-5 text-[#2563EB]" /> ระบบจัดการ Pre-Order
@@ -1946,10 +1946,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               </div>
 
               {/* Preorders List Table */}
-              <div className="bg-card border border-border border-2 overflow-hidden brut-card">
+              <div className="bg-card border border-border border overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full min-w-[900px] text-left text-sm text-zinc-400">
-                    <thead className="text-xs uppercase bg-card text-muted-foreground font-bold tracking-wider brut-card border-b border-border border-2">
+                    <thead className="text-xs uppercase bg-card text-muted-foreground font-bold tracking-wider border-b border-border border">
                       <tr>
                         <th className="p-4">บิลจัดซื้อ / ผู้ใช้</th>
                         <th className="p-4">สินค้าพรีออเดอร์</th>
@@ -1973,7 +1973,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           const inlineInputKey = `input_${purchase.id}`;
                           
                           return (
-                            <tr key={purchase.id} className="border-b border-border border-2 hover:bg-zinc-900/10 transition-colors">
+                            <tr key={purchase.id} className="border-b border-border border hover:bg-zinc-900/10 transition-colors">
                               {/* Order ID & User */}
                               <td className="p-4">
                                 <p className="text-white font-bold">{purchase.billNumber || `#${purchase.id?.slice(0, 8)}`}</p>
@@ -2107,9 +2107,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="bg-card border border-border border-2 overflow-hidden brut-card"
+              className="bg-card border border-border border overflow-hidden"
             >
-               <div className="p-6 border-b border-border border-2 flex justify-between items-center bg-card brut-card">
+               <div className="p-6 border-b border-border border flex justify-between items-center bg-card">
                   <div>
                     <h3 className="font-bold text-white flex items-center gap-2"><Ban className="w-5 h-5 text-[#2563EB]" /> IP Access Control</h3>
                     <p className="text-muted-foreground text-xs mt-1">แบนผู้ใช้งานที่ไม่พึงประสงค์</p>
@@ -2120,7 +2120,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                </div>
                <div className="overflow-x-auto">
                   <table className="w-full min-w-[700px] text-left text-sm text-muted-foreground">
-                    <thead className="text-xs uppercase bg-card text-muted-foreground font-bold tracking-wider brut-card">
+                    <thead className="text-xs uppercase bg-card text-muted-foreground font-bold tracking-wider">
                       <tr>
                         <th className="p-4">IP Address</th>
                         <th className="p-4">Reason</th>
@@ -2130,7 +2130,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     </thead>
                     <tbody className="font-mono text-xs">
                       {blockedIPs.length > 0 ? blockedIPs.map((ip, i) => (
-                        <tr key={i} className="border-b border-border border-2 hover:bg-[#121212]/50 transition-colors">
+                        <tr key={i} className="border-b border-border border hover:bg-[#121212]/50 transition-colors">
                           <td className="p-4">
                             <div className="flex items-center gap-2">
                               <span className="text-blue-600 font-bold tracking-tight">{ip.ip}</span>
@@ -2233,13 +2233,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               exit={{ opacity: 0, x: -20 }}
               className="space-y-6"
             >
-              <div className="bg-card border border-border border-2 overflow-hidden brut-card">
-                <div className="p-6 border-b border-border border-2 bg-card brut-card">
+              <div className="bg-card border border-border border overflow-hidden">
+                <div className="p-6 border-b border-border border bg-card">
                   <h3 className="font-bold text-white flex items-center gap-2"><Settings className="w-5 h-5 text-muted-foreground" /> Site Settings</h3>
                   <p className="text-muted-foreground text-xs mt-1">ตั้งค่าพารามิเตอร์ต่างๆ ของระบบ</p>
                 </div>
                 <div className="p-6 space-y-8">
-                   <div className="p-6 bg-card border border-border border-2 brut-card">
+                   <div className="p-6 bg-card border border-border border">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
                       <div className="space-y-4">
                         <label className="block text-sm font-bold text-muted-foreground flex items-center gap-2">
@@ -2249,7 +2249,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           type="text"
                           value={siteSettings.site_name}
                           onChange={(e) => setSiteSettings({ ...siteSettings, site_name: e.target.value })}
-                          className="w-full bg-card border border-border border-2 px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-indigo-500 brut-card"
+                          className="w-full bg-card border border-border border px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-indigo-500"
                           placeholder="APEXSTORE"
                         />
                       </div>
@@ -2261,7 +2261,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           type="text"
                           value={siteSettings.truewallet_phone}
                           onChange={(e) => setSiteSettings({ ...siteSettings, truewallet_phone: e.target.value })}
-                          className="w-full bg-card border border-border border-2 px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-emerald-500 brut-card"
+                          className="w-full bg-card border border-border border px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-emerald-500"
                           placeholder="095xxxxxxx"
                         />
                       </div>
@@ -2274,7 +2274,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           type="text"
                           value={siteSettings.bank_name || ''}
                           onChange={(e) => setSiteSettings({ ...siteSettings, bank_name: e.target.value })}
-                          className="w-full bg-card border border-border border-2 px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-emerald-500 brut-card"
+                          className="w-full bg-card border border-border border px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-emerald-500"
                           placeholder="ธนาคารกสิกรไทย"
                         />
                       </div>
@@ -2287,7 +2287,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           type="text"
                           value={siteSettings.bank_account_number || ''}
                           onChange={(e) => setSiteSettings({ ...siteSettings, bank_account_number: e.target.value })}
-                          className="w-full bg-card border border-border border-2 px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-emerald-500 brut-card"
+                          className="w-full bg-card border border-border border px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-emerald-500"
                           placeholder="196-3-87032-5"
                         />
                       </div>
@@ -2300,7 +2300,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           type="text"
                           value={siteSettings.bank_account_holder || ''}
                           onChange={(e) => setSiteSettings({ ...siteSettings, bank_account_holder: e.target.value })}
-                          className="w-full bg-card border border-border border-2 px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-emerald-500 brut-card"
+                          className="w-full bg-card border border-border border px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-emerald-500"
                           placeholder="นาย กรวิชญ์"
                         />
                       </div>
@@ -2313,7 +2313,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           type="text"
                           value={siteSettings.bank_qr_image || ''}
                           onChange={(e) => setSiteSettings({ ...siteSettings, bank_qr_image: e.target.value })}
-                          className="w-full bg-card border border-border border-2 px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-emerald-500 brut-card"
+                          className="w-full bg-card border border-border border px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-emerald-500"
                           placeholder="https://..."
                         />
                       </div>
@@ -2325,7 +2325,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           type="text"
                           value={siteSettings.discord_link}
                           onChange={(e) => setSiteSettings({ ...siteSettings, discord_link: e.target.value })}
-                          className="w-full bg-card border border-border border-2 px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-indigo-500 brut-card"
+                          className="w-full bg-card border border-border border px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-indigo-500"
                           placeholder="https://discord.gg/..."
                         />
                       </div>
@@ -2338,7 +2338,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           type="text"
                           value={siteSettings.facebook_link || siteSettings.contact_line}
                           onChange={(e) => setSiteSettings({ ...siteSettings, facebook_link: e.target.value, contact_line: e.target.value })}
-                          className="w-full bg-card border border-border border-2 px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-blue-500 brut-card"
+                          className="w-full bg-card border border-border border px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-blue-500"
                           placeholder="https://www.facebook.com/..."
                         />
                       </div>
@@ -2351,7 +2351,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           type="text"
                           value={siteSettings.instagram_link}
                           onChange={(e) => setSiteSettings({ ...siteSettings, instagram_link: e.target.value })}
-                          className="w-full bg-card border border-border border-2 px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-pink-500 brut-card"
+                          className="w-full bg-card border border-border border px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-pink-500"
                           placeholder="https://www.instagram.com/..."
                         />
                       </div>
@@ -2364,7 +2364,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           type="text"
                           value={siteSettings.announcement_text || ''}
                           onChange={(e) => setSiteSettings({ ...siteSettings, announcement_text: e.target.value })}
-                          className="w-full bg-card border border-border border-2 px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-emerald-500 brut-card"
+                          className="w-full bg-card border border-border border px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-emerald-500"
                           placeholder="พิมพ์ข้อความที่ต้องการให้วิ่งบนแถบประกาศ..."
                         />
                       </div>
@@ -2377,7 +2377,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           type="email"
                           value={siteSettings.contact_email}
                           onChange={(e) => setSiteSettings({ ...siteSettings, contact_email: e.target.value })}
-                          className="w-full bg-card border border-border border-2 px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-zinc-500 brut-card"
+                          className="w-full bg-card border border-border border px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-zinc-500"
                           placeholder="support@example.com"
                         />
                       </div>
@@ -2385,14 +2385,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       <div className="flex items-end">
                         <button 
                           onClick={handleSaveSettings}
-                          className="w-full bg-card text-white px-8 py-5 text-sm font-black hover:bg-[#1e1e1e] transition-all active:scale-[0.98] uppercase tracking-widest flex items-center justify-center gap-3 brut-card"
+                          className="w-full bg-card text-white px-8 py-5 text-sm font-black hover:bg-[#1e1e1e] transition-all active:scale-[0.98] uppercase tracking-widest flex items-center justify-center gap-3"
                         >
                           <Settings className="w-5 h-5" /> บันทึกการตั้งค่า
                         </button>
                       </div>
                     </div>
 
-                    <div className="mt-8 p-6 bg-card border border-border border-2 brut-card">
+                    <div className="mt-8 p-6 bg-card border border-border border">
                       <div className="mb-6">
                         <h4 className="text-white font-bold flex items-center gap-2"><Globe className="w-5 h-5 text-blue-500" /> แผงควบคุมเพลงพื้นหลัง (Background Music)</h4>
                         <p className="text-muted-foreground text-sm mt-1">ใส่ลิ้งค์ YouTube, Spotify หรืออัพโหลดไฟล์เสียงโดยตรง (.mp3) เพื่อเปิดเพลงอัตโนมัติเมื่อผู้ใช้เข้าเว็บ</p>
@@ -2426,7 +2426,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                             type="text"
                             value={siteSettings.spotify_url || ''}
                             onChange={(e) => setSiteSettings({ ...siteSettings, spotify_url: e.target.value })}
-                            className="w-full bg-card border border-border border-2 px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-emerald-500 brut-card"
+                            className="w-full bg-card border border-border border px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-emerald-500"
                             placeholder="https://... YouTube, Spotify หรือ ไฟล์อัพโหลด"
                           />
                         </div>
@@ -2474,14 +2474,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     </div>
                   </div>
 
-                  <div className="p-6 border border-border border-2 mt-8">
+                  <div className="p-6 border border-border border mt-8">
                     <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-4">API Configuration</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-[11px]">
-                      <div className="flex items-center justify-between p-3 bg-card border border-border border-2 brut-card">
+                      <div className="flex items-center justify-between p-3 bg-card border border-border border">
                         <span className="text-muted-foreground font-bold uppercase">Angpao API</span>
                         <span className="text-emerald-600 font-black">ACTIVE</span>
                       </div>
-                      <div className="flex items-center justify-between p-3 bg-card border border-border border-2 brut-card">
+                      <div className="flex items-center justify-between p-3 bg-card border border-border border">
                         <span className="text-muted-foreground font-bold uppercase">Bank Slip API</span>
                         <span className="text-emerald-600 font-black">ACTIVE</span>
                       </div>
@@ -2500,13 +2500,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               exit={{ opacity: 0, x: -20 }}
               className="space-y-6"
             >
-              <div className="bg-card border border-border border-2 overflow-hidden brut-card">
-                <div className="p-6 border-b border-border border-2 bg-card brut-card">
+              <div className="bg-card border border-border border overflow-hidden">
+                <div className="p-6 border-b border-border border bg-card">
                   <h3 className="font-bold text-white flex items-center gap-2"><Image className="w-5 h-5 text-muted-foreground" /> จัดการป้ายโฆษณา & ป็อปอัพ</h3>
                   <p className="text-muted-foreground text-xs mt-1">ตั้งค่ารูปภาพแบนเนอร์และป็อปอัพประกาศ</p>
                 </div>
                 <div className="p-6 space-y-8">
-                  <div className="p-6 bg-card border border-border border-2 brut-card">
+                  <div className="p-6 bg-card border border-border border">
                     <div className="mb-6">
                       <h4 className="text-white font-bold flex items-center gap-2"><Globe className="w-5 h-5 text-muted-foreground" /> Popup Banner Announcement</h4>
                       <p className="text-muted-foreground text-sm mt-1">ตั้งค่าป็อปอัพประกาศหน้าแรก แนะนำรูปขนาด 1500x1500px</p>
@@ -2537,7 +2537,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                             type="text"
                             value={siteSettings.popup_img_url}
                             onChange={(e) => setSiteSettings({ ...siteSettings, popup_img_url: e.target.value })}
-                            className="flex-1 w-full bg-card border border-border border-2 px-4 py-3 text-white text-sm focus:outline-none focus:border-[#3B82F6] transition-all brut-card"
+                            className="flex-1 w-full bg-card border border-border border px-4 py-3 text-white text-sm focus:outline-none focus:border-[#3B82F6] transition-all"
                             placeholder="https://images.unsplash.com/photo-..."
                           />
                           <button
@@ -2577,13 +2577,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                            type="text"
                            value={siteSettings.popup_link}
                            onChange={(e) => setSiteSettings({ ...siteSettings, popup_link: e.target.value })}
-                           className="w-full bg-card border border-border border-2 px-4 py-3 text-white text-sm focus:outline-none focus:border-[#3B82F6] transition-all brut-card"
+                           className="w-full bg-card border border-border border px-4 py-3 text-white text-sm focus:outline-none focus:border-[#3B82F6] transition-all"
                            placeholder="https://facebook.com/..."
                          />
                       </div>
                     </div>
 
-                    <div className="p-6 bg-card border border-border border-2 mt-6 brut-card">
+                    <div className="p-6 bg-card border border-border border mt-6">
                       <div className="mb-6">
                         <h4 className="text-white font-bold flex items-center gap-2"><Globe className="w-5 h-5 text-indigo-500" /> Proxy Settings</h4>
                         <p className="text-muted-foreground text-xs mt-1">ตั้งค่า Proxy สำหรับระบบเช็คไอดี (หากปล่อยว่าง ระบบจะดึง Free Proxy อัตโนมัติ)</p>
@@ -2638,7 +2638,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                          <textarea 
                            value={(siteSettings.proxies || []).join('\n')}
                            onChange={(e) => setSiteSettings({ ...siteSettings, proxies: e.target.value.split('\n') })}
-                           className="w-full bg-card border border-border border-2 px-4 py-3 text-white text-sm focus:outline-none focus:border-indigo-500 transition-all h-32 resize-none leading-relaxed brut-card"
+                           className="w-full bg-card border border-border border px-4 py-3 text-white text-sm focus:outline-none focus:border-indigo-500 transition-all h-32 resize-none leading-relaxed"
                            placeholder="http://user:pass@127.0.0.1:8080&#10;http://user:pass@127.0.0.2:8080"
                            onBlur={(e) => setSiteSettings({ ...siteSettings, proxies: e.target.value.split('\n').map(url => typeof url === 'string' ? url.trim() : '').filter(Boolean) })}
                          />
@@ -2665,7 +2665,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     </div>
                   </div>
 
-                  <div className="p-6 bg-card border border-border border-2 brut-card">
+                  <div className="p-6 bg-card border border-border border">
                     <div className="mb-6">
                       <h4 className="text-white font-bold flex items-center gap-2"><Image className="w-5 h-5 text-muted-foreground" /> Banners Announcement</h4>
                       <p className="text-muted-foreground text-sm mt-1">ป้ายสไลด์โฆษณาในหน้าแรกของเว็บไซต์</p>
@@ -2677,7 +2677,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                          <textarea 
                            value={(siteSettings.banners || []).join('\n')}
                            onChange={(e) => setSiteSettings({ ...siteSettings, banners: e.target.value.split('\n') })}
-                           className="w-full bg-card border border-border border-2 px-4 py-3 text-white text-sm focus:outline-none focus:border-[#3B82F6] transition-all h-32 resize-none leading-relaxed brut-card"
+                           className="w-full bg-card border border-border border px-4 py-3 text-white text-sm focus:outline-none focus:border-[#3B82F6] transition-all h-32 resize-none leading-relaxed"
                            placeholder="https://img.th/banner1.png&#10;https://img.th/banner2.png"
                            onBlur={(e) => setSiteSettings({ ...siteSettings, banners: e.target.value.split('\n').map(url => url.trim()).filter(Boolean) })}
                          />
@@ -2706,8 +2706,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               exit={{ opacity: 0, x: -20 }}
               className="space-y-6"
             >
-              <div className="bg-card border border-border border-2 overflow-hidden brut-card">
-                <div className="p-6 border-b border-border border-2 flex justify-between items-center bg-card brut-card">
+              <div className="bg-card border border-border border overflow-hidden">
+                <div className="p-6 border-b border-border border flex justify-between items-center bg-card">
                   <div>
                     <h3 className="font-bold text-white flex items-center gap-2"><Cpu className="w-5 h-5 text-indigo-500" /> System Monitoring</h3>
                     <p className="text-muted-foreground text-xs mt-1">Realtime node state and resource allocation</p>
@@ -2721,7 +2721,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       { label: "Network IO", value: "24 Mbps", icon: Activity, color: "text-emerald-600", bg: "bg-emerald-50" },
                       { label: "Uptime", value: "94 Days", icon: BarChart3, color: "text-cyan-600", bg: "bg-cyan-50" }
                     ].map((stat, i) => (
-                      <div key={i} className="bg-card border border-border border-2 p-4 flex items-center gap-4 transition-colors hover:bg-[#121212]/50 brut-card">
+                      <div key={i} className="bg-card border border-border border p-4 flex items-center gap-4 transition-colors hover:bg-[#121212]/50">
                         <div className={`p-3 ${stat.bg} ${stat.color}`}>
                           <stat.icon className="w-5 h-5" />
                         </div>
@@ -2733,13 +2733,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     ))}
                   </div>
 
-                  <div className="mt-8 border-t border-border border-2 pt-8">
+                  <div className="mt-8 border-t border-border border pt-8">
                     <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-4 flex items-center gap-2">
                        <Gift className="w-4 h-4 text-[#2563EB]" /> Third-party Integrations
                     </h4>
-                    <div className="bg-card border border-border border-2 p-6 flex flex-col sm:flex-row items-center justify-between gap-4 brut-card">
+                    <div className="bg-card border border-border border p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
                        <div className="flex items-center gap-4">
-                         <div className="w-12 h-12 bg-card border border-border border-2 flex items-center justify-center brut-card">
+                         <div className="w-12 h-12 bg-card border border-border border flex items-center justify-center">
                            <Globe className="w-6 h-6 text-muted-foreground" />
                          </div>
                          <div className="text-center sm:text-left">
@@ -2747,7 +2747,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                            <p className="text-xs font-medium text-muted-foreground select-all">https://github.com/manybaht/Manybaht-Truewallet-API</p>
                          </div>
                        </div>
-                       <a href="https://github.com/manybaht/Manybaht-Truewallet-API" target="_blank" rel="noopener noreferrer" className="bg-card border border-border border-2 text-muted-foreground px-6 py-2.5 text-xs font-bold hover:bg-[#121212] transition-all flex items-center gap-2 brut-card">
+                       <a href="https://github.com/manybaht/Manybaht-Truewallet-API" target="_blank" rel="noopener noreferrer" className="bg-card border border-border border text-muted-foreground px-6 py-2.5 text-xs font-bold hover:bg-[#121212] transition-all flex items-center gap-2">
                          <Copy className="w-4 h-4" /> View Source
                        </a>
                     </div>
@@ -2757,7 +2757,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-4 flex items-center gap-2">
                        <Database className="w-4 h-4" /> Environment Information
                     </h4>
-                    <div className="bg-card border border-border border-2 p-4 font-mono text-xs space-y-3 brut-card">
+                    <div className="bg-card border border-border border p-4 font-mono text-xs space-y-3">
                       <div className="flex justify-between border-b border-white/10/60 pb-2">
                          <span className="text-muted-foreground font-bold">Node JS</span>
                          <span className="text-muted-foreground">v22.x.x</span>

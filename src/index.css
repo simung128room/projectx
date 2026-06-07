@@ -390,31 +390,31 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --radius-sm: 0px;
-  --radius-md: 0px;
-  --radius-lg: 0px;
-  --radius-xl: 0px;
-  --radius: 0px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius: 8px;
 
-  --color-background: oklch(0.06 0 0);
-  --color-foreground: oklch(0.97 0 0);
-  --color-card: oklch(0.09 0 0);
-  --color-card-foreground: oklch(0.97 0 0);
-  --color-popover: oklch(0.09 0 0);
-  --color-popover-foreground: oklch(0.97 0 0);
-  --color-primary: oklch(0.97 0 0);
-  --color-primary-foreground: oklch(0.06 0 0);
-  --color-secondary: oklch(0.13 0 0);
-  --color-secondary-foreground: oklch(0.97 0 0);
-  --color-muted: oklch(0.13 0 0);
-  --color-muted-foreground: oklch(0.55 0 0);
-  --color-accent: oklch(0.97 0 0);
-  --color-accent-foreground: oklch(0.06 0 0);
-  --color-destructive: oklch(0.55 0.22 25);
-  --color-destructive-foreground: oklch(0.97 0 0);
-  --color-border: oklch(0.22 0 0);
-  --color-input: oklch(0.13 0 0);
-  --color-ring: oklch(0.97 0 0);
+  --color-background: #09090b;
+  --color-foreground: #fafafa;
+  --color-card: #09090b;
+  --color-card-foreground: #fafafa;
+  --color-popover: #09090b;
+  --color-popover-foreground: #fafafa;
+  --color-primary: #3b82f6;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #27272a;
+  --color-secondary-foreground: #fafafa;
+  --color-muted: #27272a;
+  --color-muted-foreground: #a1a1aa;
+  --color-accent: #27272a;
+  --color-accent-foreground: #fafafa;
+  --color-destructive: #ef4444;
+  --color-destructive-foreground: #fafafa;
+  --color-border: #27272a;
+  --color-input: #27272a;
+  --color-ring: #3b82f6;
 
   /* Brutalist accent colors */
   --color-neon-green: oklch(0.82 0.22 142);
@@ -739,6 +739,19 @@
     letter-spacing: 0.15em;
     text-transform: uppercase;
     color: oklch(0.45 0 0);
+  }
+
+  /* Brutalist Toast */
+  .brutalist-toast {
+    background: oklch(0.09 0 0) !important;
+    border: 1px solid oklch(0.18 0 0) !important;
+    color: oklch(0.97 0 0) !important;
+    font-family: var(--font-sans) !important;
+    border-radius: 8px !important;
+    padding: 12px 16px !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+    margin-top: 16px !important;
+    margin-right: 16px !important;
   }
 }
 

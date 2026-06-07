@@ -225,6 +225,7 @@ function CategoryChip({
             alt={cat.name || cat.title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-60 group-hover:opacity-85"
             referrerPolicy="no-referrer"
+            loading="lazy"
           />
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-zinc-900 to-black flex items-center justify-center">
@@ -297,6 +298,7 @@ function ProductCard({
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             onError={() => setImgError(true)}
             referrerPolicy="no-referrer"
+            loading="lazy"
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center select-none">
@@ -420,10 +422,15 @@ export const HomeView: React.FC<HomeViewProps> = ({
       ? Number(siteSettings.stats_users_override)
       : stats?.users ?? 0;
 
-  const totalStock = useMemo(
-    () => safeProducts.reduce((acc, p) => acc + Math.max(0, p.stock ?? 0), 0),
-    [safeProducts]
-  );
+  const totalStock = useMemo(() => {
+    if (siteSettings?.stats_stock_override != null) return Number(siteSettings.stats_stock_override);
+    const calculated = safeProducts.reduce((acc, p) => acc + Math.max(0, p.stock ?? 0), 0);
+    return calculated + (siteSettings?.stats_stock_offset ? Number(siteSettings.stats_stock_offset) : 0);
+  }, [safeProducts, siteSettings]);
+
+  const totalCategories = siteSettings?.stats_categories_override != null 
+    ? Number(siteSettings.stats_categories_override) 
+    : categories.length + (siteSettings?.stats_categories_offset ? Number(siteSettings.stats_categories_offset) : 0);
 
   const getRelativeTime = (dateStr: string) => {
     try {
@@ -470,6 +477,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             src="https://img2.pic.in.th/IMG_7177176d5344301b32a1.png"
             alt="APEX STORE"
             className="w-full h-full object-cover"
+            fetchPriority="high"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-transparent" />
         </motion.div>
@@ -514,7 +522,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
           />
           <StatCard
             label="หมวดหมู่ทั้งหมด"
-            value={categories.length}
+            value={totalCategories}
             unit="หมวดหมู่"
             icon={LayoutGrid}
             accent="rgba(16,185,129,0.4)"
@@ -670,6 +678,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                                 (e.target as HTMLImageElement).src =
                                   "https://img2.pic.in.th/IMG_718032ab9d504326a436.png";
                               }}
+                              loading="lazy"
                             />
                           </div>
 

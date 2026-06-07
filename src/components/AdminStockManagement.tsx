@@ -40,7 +40,8 @@ export default function AdminStockManagement({ products, categories, setProducts
   const handleSaveAllStock = async (newStockItems: string[]) => {
       try {
          setLoading(true);
-         const payload = { ...selectedProduct, stockData: newStockItems, stock: newStockItems.length };
+         const { _version, ...productData } = selectedProduct;
+         const payload = { ...productData, stockData: newStockItems, stock: newStockItems.length };
          await axios.put(`/api/products/${selectedProduct.id}`, payload);
          
          const fresh = await axios.get(`/api/products/${selectedProduct.id}`);

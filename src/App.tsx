@@ -114,8 +114,6 @@ axios.interceptors.response.use(
   }
 );
 
-import jsQR from "jsqr";
-
 type SupabaseUser = any;
 import { Turnstile } from "@marsidev/react-turnstile";
 import { Analytics } from "@vercel/analytics/react";
@@ -143,13 +141,13 @@ import {
   SunnyBuxLogo,
 } from "./components/SunnyComponents";
 
-import { ProfileView } from "./components/ProfileView";
-import { CategoriesView } from "./components/CategoriesView";
-import { AuthView } from "./components/AuthView";
-import { HomeView } from "./components/HomeView";
-import { ProductDetailView } from "./components/ProductDetailView";
-import { CategoryProductsView } from "./components/CategoryProductsView";
-import { SearchView } from "./components/SearchView";
+const ProfileView = lazy(() => import("./components/ProfileView").then((m) => ({ default: m.ProfileView })));
+const CategoriesView = lazy(() => import("./components/CategoriesView").then((m) => ({ default: m.CategoriesView })));
+const AuthView = lazy(() => import("./components/AuthView").then((m) => ({ default: m.AuthView })));
+const HomeView = lazy(() => import("./components/HomeView").then((m) => ({ default: m.HomeView })));
+const ProductDetailView = lazy(() => import("./components/ProductDetailView").then((m) => ({ default: m.ProductDetailView })));
+const CategoryProductsView = lazy(() => import("./components/CategoryProductsView").then((m) => ({ default: m.CategoryProductsView })));
+const SearchView = lazy(() => import("./components/SearchView").then((m) => ({ default: m.SearchView })));
 
 const AdminDashboard = lazy(() =>
   import("./components/AdminDashboard").then((module) => ({
@@ -282,7 +280,7 @@ function ElapsedTimeDisplay({
 
   if (elapsedTime === "00:00:00.000") return null;
   return (
-    <div className="px-3 py-1 bg-card border border-border border-2 text-xs font-mono text-muted-foreground font-bold brut-card">
+    <div className="px-3 py-1 bg-card border border-border border text-xs font-mono text-muted-foreground font-bold">
       {elapsedTime}
     </div>
   );
@@ -321,7 +319,7 @@ function ComboTextarea({
       onChange={handleChange}
       rows={12}
       disabled={disabled}
-      className={`w-full bg-card border border-border border-2 p-3 text-[11px] font-mono text-blue-600 focus:border-emerald-500/50 focus:outline-none resize-none transition-all scrollbar-thin scrollbar-thumb-zinc-800 h-[320px] ${disabled ? "opacity-50 cursor-not-allowed" : ""} brut-card`}
+      className={`w-full bg-card border border-border border p-3 text-[11px] font-mono text-blue-600 focus:border-emerald-500/50 focus:outline-none resize-none transition-all scrollbar-thin scrollbar-thumb-zinc-800 h-[320px] ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
       placeholder={"user:pass\nuser|pass"}
       spellCheck="false"
     />
@@ -2189,7 +2187,7 @@ function AppContent() {
 
   if (isIPBlocked)
     return (
-      <div className="min-h-screen bg-card flex items-center justify-center p-4 brut-card">
+      <div className="min-h-screen bg-card flex items-center justify-center p-4">
         <div className="w-full max-w-lg bg-primary text-primary-foreground border border-[#3B82F6]/20 p-12 text-center relative overflow-hidden">
           <ShieldAlert className="w-20 h-20 text-[#2563EB] mx-auto mb-6 animate-pulse" />
           <h1 className="text-3xl font-bold text-[#2563EB] mb-4 uppercase tracking-tighter">
@@ -2200,7 +2198,7 @@ function AppContent() {
             ถูกระงับการเข้าถึงระบบเนื่องจากละเมิดข้อตกลงการใช้งานหรือพบพฤติกรรมที่น่าสงสัย
             หากคุณคิดว่าเป็นความผิดพลาด กรุณาติดต่อผู้ดูแลระบบ APEXSTORE
           </p>
-          <div className="bg-card p-4 text-[10px] text-muted-foreground font-mono mb-8 brut-card">
+          <div className="bg-card p-4 text-[10px] text-muted-foreground font-mono mb-8">
             Error Code: APEXSTORE_SECURITY_BLOCK_L4
           </div>
           <button
@@ -2235,13 +2233,13 @@ function AppContent() {
         </div>
         <div className="flex-1 space-y-1">
           <div className="flex items-center py-[8px] my-1">
-            <div className="flex-grow border-t border-border border-2"></div>
+            <div className="flex-grow border-t border-border border"></div>
             <span className="shrink-0 px-3 text-[10px] font-medium text-muted-foreground uppercase tracking-[0.2em]">เมนู</span>
-            <div className="flex-grow border-t border-border border-2"></div>
+            <div className="flex-grow border-t border-border border"></div>
           </div>
           <button
             onClick={() => setActiveView("home")}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-all ${activeView === "home" ? "bg-[#121212] text-white border border-border border-2" : "text-zinc-500 hover:bg-[#0a0a0a] hover:text-white border-transparent"}`}
+            className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-all ${activeView === "home" ? "bg-[#121212] text-white border border-border border" : "text-zinc-500 hover:bg-[#0a0a0a] hover:text-white border-transparent"}`}
           >
             <Home className="w-[18px] h-[18px]" /> หน้าแรก
           </button>
@@ -2250,7 +2248,7 @@ function AppContent() {
               setActiveView("categories");
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-all ${activeView === "categories" ? "bg-[#121212] text-white border border-border border-2" : "text-zinc-500 hover:bg-[#0a0a0a] hover:text-white border-transparent"}`}
+            className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-all ${activeView === "categories" ? "bg-[#121212] text-white border border-border border" : "text-zinc-500 hover:bg-[#0a0a0a] hover:text-white border-transparent"}`}
           >
             <ShoppingCart className="w-[18px] h-[18px]" /> สินค้าทั้งหมด
           </button>
@@ -2259,14 +2257,14 @@ function AppContent() {
               setActiveView(user ? "wallet" : "login");
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-all ${activeView === "wallet" ? "bg-[#121212] text-white border border-border border-2" : "text-zinc-500 hover:bg-[#0a0a0a] hover:text-white border-transparent"}`}
+            className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-all ${activeView === "wallet" ? "bg-[#121212] text-white border border-border border" : "text-zinc-500 hover:bg-[#0a0a0a] hover:text-white border-transparent"}`}
           >
             <Wallet className="w-[18px] h-[18px]" /> เติมเงิน
           </button>
 
           {!user && (
             <>
-              <div className="w-full h-[1px] bg-card my-4 brut-card" />
+              <div className="w-full h-[1px] bg-card my-4" />
               <div className="flex flex-col gap-2">
                 <button
                   onClick={() => {
@@ -2278,16 +2276,16 @@ function AppContent() {
                   <LogIn className="w-[18px] h-[18px]" /> เข้าสู่ระบบ
                 </button>
                 <div className="flex items-center gap-3 px-2 py-1">
-                  <div className="flex-1 h-[1px] bg-card brut-card" />
+                  <div className="flex-1 h-[1px] bg-card" />
                   <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-widest">or</span>
-                  <div className="flex-1 h-[1px] bg-card brut-card" />
+                  <div className="flex-1 h-[1px] bg-card" />
                 </div>
                 <button
                   onClick={() => {
                     setActiveView("signup");
                     window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
-                  className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium transition-all active:scale-95 border ${activeView === "signup" ? "bg-[#121212] text-white border-[#333333]" : "bg-transparent hover:bg-[#0a0a0a] text-muted-foreground border-border border-2 hover:text-white"}`}
+                  className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium transition-all active:scale-95 border ${activeView === "signup" ? "bg-[#121212] text-white border-[#333333]" : "bg-transparent hover:bg-[#0a0a0a] text-muted-foreground border-border border hover:text-white"}`}
                 >
                   <UserPlus className="w-[18px] h-[18px]" /> สมัครสมาชิก
                 </button>
@@ -2311,7 +2309,7 @@ function AppContent() {
               <div
                 className={`overflow-hidden transition-all duration-300 ease-in-out ${isDesktopToolsOpen ? "max-h-[800px] opacity-100" : "max-h-0 opacity-0"}`}
               >
-                <div className="flex flex-col gap-1 mt-1 pl-3 border-l border-border border-2 ml-6">
+                <div className="flex flex-col gap-1 mt-1 pl-3 border-l border-border border ml-6">
                   <button
                     onClick={() => setActiveView("telegram_catcher")}
                     className={`w-full flex items-center gap-3 px-3 py-2 text-xs font-medium transition-all ${activeView === "telegram_catcher" ? "bg-[#121212] text-white" : "text-zinc-500 hover:bg-[#0a0a0a] hover:text-white"}`}
@@ -2358,7 +2356,7 @@ function AppContent() {
               setActiveView(user ? "history" : "login");
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-all ${activeView === "history" ? "bg-[#121212] text-white border border-border border-2" : "text-zinc-500 hover:bg-[#0a0a0a] hover:text-white border-transparent"}`}
+            className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-all ${activeView === "history" ? "bg-[#121212] text-white border border-border border" : "text-zinc-500 hover:bg-[#0a0a0a] hover:text-white border-transparent"}`}
           >
             <History className="w-[18px] h-[18px]" /> ประวัติสั่งซื้อ
           </button>
@@ -2391,7 +2389,7 @@ function AppContent() {
                     setSelectedPage(page);
                     setActiveView("custom_page");
                   }}
-                  className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-all ${activeView === "custom_page" && selectedPage?.id === page.id ? "bg-[#121212] text-white border border-border border-2" : "text-zinc-500 hover:bg-[#0a0a0a] hover:text-white border-transparent"}`}
+                  className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-all ${activeView === "custom_page" && selectedPage?.id === page.id ? "bg-[#121212] text-white border border-border border" : "text-zinc-500 hover:bg-[#0a0a0a] hover:text-white border-transparent"}`}
                 >
                   <FileText className="w-[18px] h-[18px]" />{" "}
                   {page.title.replace(/^#+\s*/, "")}
@@ -2886,7 +2884,7 @@ function AppContent() {
 
         {/* Global Page Header (Based on activeView) for Mobile */}
         {activeView !== "home" && (
-          <div className="lg:hidden px-[18px] pt-[14px] pb-[10px] flex gap-[12px] items-center shrink-0 border-b border-border border-2 bg-card brut-card">
+          <div className="lg:hidden px-[18px] pt-[14px] pb-[10px] flex gap-[12px] items-center shrink-0 border-b border-border border bg-card">
             <div>
               <div className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest leading-none mb-1">
                 {activeView === "categories" ? "Main Shop" :
@@ -3198,7 +3196,7 @@ function AppContent() {
         </div>
 
         {/* Footer */}
-        <footer className="mt-auto pt-16 pb-8 border-t border-[#3B82F6]/10 relative overflow-hidden bg-card brut-card">
+        <footer className="mt-auto pt-16 pb-8 border-t border-[#3B82F6]/10 relative overflow-hidden bg-card">
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-px from-transparent via-[#3B82F6]/50 to-transparent"></div>
 
           <div className="max-w-7xl mx-auto px-6 md:px-12 w-full">
@@ -3222,7 +3220,7 @@ function AppContent() {
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 exit={{ scale: 0.95, opacity: 0, y: 20 }}
                 transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                className="bg-card border border-border border-2 p-6 sm:p-8 max-w-3xl w-full max-h-[90vh] flex flex-col relative brut-card"
+                className="bg-card border border-border border p-6 sm:p-8 max-w-3xl w-full max-h-[90vh] flex flex-col relative"
               >
                 <h2 className="text-xl sm:text-2xl font-bold mb-6 text-white flex items-center gap-2">
                   <Shield className="w-6 h-6 shrink-0 text-[#2563EB]" />{" "}
@@ -3357,7 +3355,7 @@ function AppContent() {
                     </p>
                   </div>
                 </div>
-                <div className="pt-6 mt-6 border-t border-border border-2 flex gap-3 flex-col sm:flex-row justify-end">
+                <div className="pt-6 mt-6 border-t border-border border flex gap-3 flex-col sm:flex-row justify-end">
                   <button
                     onClick={() => setShowPrivacy(false)}
                     className="bg-primary text-primary-foreground hover:bg-purple-600/25 text-blue-600 font-bold py-3 px-8 transition-colors w-full sm:w-auto"
@@ -3381,7 +3379,7 @@ function AppContent() {
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 exit={{ scale: 0.95, opacity: 0, y: 20 }}
                 transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                className="bg-card border border-border border-2 p-6 sm:p-8 max-w-3xl w-full max-h-[90vh] flex flex-col relative brut-card"
+                className="bg-card border border-border border p-6 sm:p-8 max-w-3xl w-full max-h-[90vh] flex flex-col relative"
               >
                 <h2 className="text-xl sm:text-2xl font-bold mb-6 flex items-center gap-2 text-white">
                   <ListChecks className="w-6 h-6 shrink-0 text-[#2563EB]" />{" "}
@@ -3572,7 +3570,7 @@ function AppContent() {
                     </p>
                   </div>
                 </div>
-                <div className="pt-6 mt-6 border-t border-border border-2 flex justify-end w-full">
+                <div className="pt-6 mt-6 border-t border-border border flex justify-end w-full">
                   <button
                     onClick={() => setShowAboutUs(false)}
                     className="bg-primary text-primary-foreground hover:bg-purple-600/25 text-blue-600 font-bold py-3 px-8 transition-all w-full sm:w-auto"
@@ -3596,7 +3594,7 @@ function AppContent() {
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 exit={{ scale: 0.95, opacity: 0, y: 20 }}
                 transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                className="bg-card border border-border border-2 p-6 sm:p-8 max-w-md w-full flex flex-col relative brut-card"
+                className="bg-card border border-border border p-6 sm:p-8 max-w-md w-full flex flex-col relative"
               >
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-xl sm:text-2xl font-bold flex items-center gap-2 text-white">
@@ -3616,9 +3614,9 @@ function AppContent() {
                     href="https://discord.gg/EvFjgkSB4W"
                     target="_blank"
                     rel="noreferrer"
-                    className="flex items-center gap-4 p-4 bg-card hover:bg-[#5865F2]/20 border border-[#5865F2]/20 text-white transition-all group brut-card"
+                    className="flex items-center gap-4 p-4 bg-card hover:bg-[#5865F2]/20 border border-[#5865F2]/20 text-white transition-all group"
                   >
-                    <div className="w-12 h-12 bg-card flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform brut-card">
+                    <div className="w-12 h-12 bg-card flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                       <span className="font-bold text-xl block">D</span>
                     </div>
                     <div>
@@ -3632,9 +3630,9 @@ function AppContent() {
                   {siteSettings?.contact_email && (
                     <a
                       href={`mailto:${siteSettings.contact_email}`}
-                      className="flex items-center gap-4 p-4 bg-card hover:bg-[#1e1e1e] border border-border border-2 hover:border-white/10 text-white transition-all group brut-card"
+                      className="flex items-center gap-4 p-4 bg-card hover:bg-[#1e1e1e] border border-border border hover:border-white/10 text-white transition-all group"
                     >
-                      <div className="w-12 h-12 bg-card flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform brut-card">
+                      <div className="w-12 h-12 bg-card flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                         <Mail className="w-6 h-6" />
                       </div>
                       <div>
@@ -3647,7 +3645,7 @@ function AppContent() {
                   )}
                 </div>
 
-                <div className="pt-6 mt-6 border-t border-border border-2 flex justify-end w-full">
+                <div className="pt-6 mt-6 border-t border-border border flex justify-end w-full">
                   <button
                     onClick={() => setShowContactUs(false)}
                     className="bg-primary text-primary-foreground hover:bg-purple-600/25 text-blue-600 font-bold py-3 px-8 transition-all w-full sm:w-auto"
@@ -3673,8 +3671,8 @@ function AppContent() {
         {/* Turnstile Modal */}
         {showTurnstileModal && (
           <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-[70] font-sans animate-in zoom-in-95 duration-200">
-            <div className="bg-card border border-border border-2 p-6 sm:p-8 max-w-sm w-full relative overflow-hidden flex flex-col items-center brut-card">
-              <div className="bg-card border border-border border-2 mb-2 relative overflow-hidden w-full h-[58px] brut-card">
+            <div className="bg-card border border-border border p-6 sm:p-8 max-w-sm w-full relative overflow-hidden flex flex-col items-center">
+              <div className="bg-card border border-border border mb-2 relative overflow-hidden w-full h-[58px]">
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[110%] scale-[0.92] flex justify-center">
                   {TURNSTILE_SITE_KEY ? (
                     <Turnstile

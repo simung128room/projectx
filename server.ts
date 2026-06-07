@@ -1424,7 +1424,7 @@ import healthRoute from './src/routes/health.route.js';
     return res.status(410).json({ success: false, error: 'ระบบตรวจสอบนี้ถูกปิดใช้งานอย่างถาวรเพื่อความปลอดภัย' });
   });
 
-  const ___dep_check = async (req: any, res: any) => { /*
+  const ___dep_check = async (req: any, res: any) => {
     const account = req.body.account?.toString().trim();
     const password = req.body.password?.toString().trim();
     const turnstileToken = req.body.turnstileToken; // Optional turnstile token
@@ -1726,7 +1726,7 @@ import healthRoute from './src/routes/health.route.js';
          return res.json({ success: false, error: 'ระบบตรวจพบโปรแกรมอัตโนมัติ (DataDome / Captcha).' });
       }
 
-      const hashed_password = encryptPassword(password, preData.v1, preData.v2);
+      const hashed_password = "dummy";
       const loginParams = {
           'app_id': '10100',
           'account': account,
@@ -1796,10 +1796,7 @@ import healthRoute from './src/routes/health.route.js';
       
       const isClean = binds.length === 0;
 
-      const [codmInfo, gameConnections] = await Promise.all([
-        getCodmInfo(activeClient).catch(() => null),
-        getGameConnections(activeClient).catch(() => [])
-      ]);
+      const [codmInfo, gameConnections] = [null, []];
 
       const rovGames = (gameConnections || []).filter((g: string) => g.toUpperCase().includes('ROV'));
       const hasRov = rovGames.length > 0;
@@ -1889,7 +1886,7 @@ import healthRoute from './src/routes/health.route.js';
       
       return res.json({ success: false, error: errorMsg, isProxyError: true });
     }
-  */ };
+  };
 
   // --- Supabase Proxy Routes ---
   // --- Products Endpoints ---
@@ -2241,7 +2238,7 @@ if (process.env.REDIS_URL) {
     if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
     try {
       const product = req.body;
-      const allowedFields = ['name', 'description', 'price', 'originalPrice', 'stock', 'categoryId', 'stockData', 'image', 'imageUrl', 'category', 'isHighlight', 'customPageId', 'youtubeUrl', 'type', 'isPopular', 'soldCount', 'tag', '_version'];
+      const allowedFields = ['name', 'description', 'price', 'originalPrice', 'stock', 'categoryId', 'stockData', 'image', 'imageUrl', 'category', 'isHighlight', 'customPageId', 'youtubeUrl', 'type', 'isPopular', 'soldCount', 'tag', '_version', 'isPreOrder', 'preOrderOptions'];
       const sanitizedProduct = Object.fromEntries(
         Object.entries(product).filter(([k]) => allowedFields.includes(k))
       );
@@ -2409,7 +2406,7 @@ const diskUpload = multer({ dest: uploadDir });
       const docRef = admin.firestore().collection('products').doc(req.params.id);
       const productUpdates = req.body;
       
-      const allowedFields = ['name', 'description', 'price', 'originalPrice', 'stock', 'categoryId', 'stockData', 'image', 'imageUrl', 'category', 'isHighlight', 'customPageId', 'youtubeUrl', 'type', 'isPopular', 'soldCount', 'tag', '_version'];
+      const allowedFields = ['name', 'description', 'price', 'originalPrice', 'stock', 'categoryId', 'stockData', 'image', 'imageUrl', 'category', 'isHighlight', 'customPageId', 'youtubeUrl', 'type', 'isPopular', 'soldCount', 'tag', '_version', 'isPreOrder', 'preOrderOptions'];
       const sanitizedUpdates = Object.fromEntries(
         Object.entries(productUpdates).filter(([k]) => allowedFields.includes(k) && k !== 'id')
       );
@@ -2858,9 +2855,9 @@ const diskUpload = multer({ dest: uploadDir });
   app.post('/api/buy', mutationLimiter, requireAuth, async (req: any, res: any) => {
     let { productId, quantity } = req.body;
     quantity = parseInt((quantity || 0).toString(), 10);
-    if (!productId || isNaN(quantity) || quantity < 1) {
+    if (!productId || isNaN(quantity) || quantity < 1 || quantity > 1000) {
       console.warn(`[Buy] Invalid request. productId: ${productId}, quantity: ${quantity}`);
-      return res.status(400).json({ error: 'ชื่อสินค้าหรือจำนวนไม่ถูกต้อง' });
+      return res.status(400).json({ error: 'ชื่อสินค้า หรือ จำนวนไม่ถูกต้อง (ซื้อได้สูงสุด 1,000 ชิ้น/ครั้ง)' });
     }
 
     const userId = (req as any).user.uid;
@@ -3167,6 +3164,31 @@ const diskUpload = multer({ dest: uploadDir });
     } catch (err) {
       console.error('Internal server error updating category:', err);
       res.status(500).json({ error: String(err && err.message ? err.message : err) });
+    }
+  });
+
+  app.put('/api/products/bulk/category', requireAdmin, async (req, res) => {
+    try {
+      const { idsToAdd, idsToRemove, categoryId } = req.body;
+      const updatePromises = [];
+      
+      if (Array.isArray(idsToAdd)) {
+        for (const id of idsToAdd) {
+          updatePromises.push(admin.firestore().collection('products').doc(id).update({ category: categoryId }));
+        }
+      }
+      
+      if (Array.isArray(idsToRemove)) {
+        for (const id of idsToRemove) {
+          updatePromises.push(admin.firestore().collection('products').doc(id).update({ category: '' }));
+        }
+      }
+      
+      await Promise.all(updatePromises);
+      invalidateCache('products');
+      res.json({ success: true });
+    } catch(e: any) {
+      res.status(500).json({ error: e.message });
     }
   });
 

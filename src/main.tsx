@@ -4,6 +4,30 @@ import App from './App.tsx';
 import './index.css';
 import { ErrorBoundary } from './components/ErrorBoundary';
 
+import Swal from 'sweetalert2';
+const originalFire = Swal.fire;
+(Swal as any).fire = function(...args: any[]) {
+  let opts = args[0] || {};
+  if (typeof args[0] === 'string') {
+    opts = { title: args[0], text: args[1], icon: args[2] };
+  } else {
+    opts = { ...args[0] };
+  }
+  
+  if (!opts.showCancelButton && !opts.input && !opts.confirmButtonText && opts.showConfirmButton !== true) {
+    opts.toast = true;
+    opts.position = 'top-end';
+    opts.showConfirmButton = false;
+    opts.timer = opts.timer || 3000;
+    opts.timerProgressBar = true;
+    opts.customClass = {
+      popup: 'brutalist-toast',
+    };
+  }
+  return originalFire.call(Swal, opts);
+};
+
+
 if (import.meta.env.MODE !== 'production') {
   import('eruda').then((eruda) => eruda.default.init()).catch(() => {});
 }
