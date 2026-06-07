@@ -97,6 +97,7 @@ fetchFreeProxies();
 setInterval(fetchFreeProxies, 15 * 60 * 1000);
 
 import { adminDb as admin, supabaseAdmin } from './src/lib/admindb.js';
+import { isSafeExternalUrl, isSafeSupabaseRowId, pickSanitizedFields, requireSafeSupabaseRowId, sanitizeText } from './src/lib/security.ts';
 import { getMD5, encryptPassword, getCodmInfo, getGameConnections, encrypt, decrypt } from './src/services/garena.ts';
 
 const _dirname = typeof __dirname !== 'undefined' ? __dirname : process.cwd();
@@ -199,16 +200,6 @@ const maskSecret = (value: string = ''): string => {
   return `${value.slice(0, 4)}***${value.slice(-4)}`;
 };
 
-const isSafeExternalUrl = (value: unknown): value is string => {
-  if (typeof value !== 'string' || value.length > 2048) return false;
-  try {
-    const parsed = new URL(value);
-    return parsed.protocol === 'https:' || parsed.protocol === 'http:' || parsed.protocol === 'mailto:';
-  } catch {
-    return false;
-  }
-};
-
 const safeTimingEqual = (left: string, right: string): boolean => {
   const leftBuffer = Buffer.from(left);
   const rightBuffer = Buffer.from(right);
@@ -227,8 +218,8 @@ async function writeAuditLog(action: string, actor: string, target: string, req:
       requestId: req.id || 'N/A',
       ...extraContext
     };
-    // Write to sys_audit_logs collection
-    await admin.firestore().collection('sys_audit_logs').add(logEntry);
+    // Write to sys_audit_logs table through the Supabase data adapter
+    await admin.supabase().collection('sys_audit_logs').add(logEntry);
   } catch (err) {
     console.error('[Audit Log] Failed to write audit log:', err);
   }
@@ -511,10 +502,10 @@ app.set('trust proxy', 1);
     try {
       // Validate Database Connectivity with a fast fail CircuitBreaker-like timeout pattern
       // To ensure readiness checks do not hang indefinitely and fool the orchestrator
-      const firestorePromise = admin.firestore().collection('products').limit(1).get();
-      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Firestore Connection Timeout')), 15000));
+      const supabasePromise = admin.supabase().collection('products').limit(1).get();
+      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Supabase Connection Timeout')), 15000));
       
-      await Promise.race([firestorePromise, timeoutPromise]);
+      await Promise.race([supabasePromise, timeoutPromise]);
       
       res.json({ 
         status: 'ready', 
@@ -586,7 +577,7 @@ app.set('trust proxy', 1);
 
   app.use('/api/', globalLimiter);
 
-const userTokenCache = new LRUCache<string, { user: any, isAdmin: boolean, timestamp: number } | Promise<{ user: any, isAdmin: boolean, timestamp: number }>>({ max: 1000, ttl: 60000 });
+const userTokenCache = new LRUCache<string, { user: any, isAdmin: boolean, adminRole: string, timestamp: number } | Promise<{ user: any, isAdmin: boolean, adminRole: string, timestamp: number }>>({ max: 1000, ttl: 60000 });
 
 const invalidateUserTokenCache = (uid: string) => {
   for (const [token, cached] of userTokenCache.entries()) {
@@ -615,6 +606,7 @@ const cleanupTokenCache = () => {
               const result = await cached;
               req.user = result.user;
               req.isAdmin = result.isAdmin;
+              req.adminRole = result.adminRole;
               return next();
             } catch (e) {
               // fall through and try again
@@ -622,6 +614,7 @@ const cleanupTokenCache = () => {
           } else if (now - cached.timestamp < 60000) {
             req.user = cached.user;
             req.isAdmin = cached.isAdmin;
+            req.adminRole = cached.adminRole;
             return next();
           }
         }
@@ -629,28 +622,32 @@ const cleanupTokenCache = () => {
         const resolveAuth = async () => {
           let userObj = null;
           let isAdminObj = false;
+          let adminRole = '';
           const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
           if (error) throw error;
           if (user) {
             userObj = user;
-            (userObj as any).uid = user.id; // Map Supabase user.id to Firebase user.uid
+            (userObj as any).uid = user.id; // Preserve uid alias for existing Supabase-authenticated request handlers
             let adminEmails: string[] = [];
             if (process.env.ADMIN_EMAILS) {
               adminEmails = process.env.ADMIN_EMAILS.split(',').map(e => e.trim().toLowerCase());
             }
             if (adminEmails.includes((user.email || '').toLowerCase().trim())) {
               isAdminObj = true;
+              adminRole = 'owner';
             } else {
-              const userDoc = await admin.firestore().collection('users').doc(user.id).get();
+              const userDoc = await admin.supabase().collection('users').doc(user.id).get();
               if (userDoc.exists) {
                 const userData = typeof userDoc.data === 'function' ? userDoc.data() : null;
-                isAdminObj = userData && typeof userData.role === 'string' && (userData.role.toLowerCase() === 'admin' || userData.role.toLowerCase() === 'owner');
+                const role = userData && typeof userData.role === 'string' ? userData.role.toLowerCase() : '';
+                isAdminObj = role === 'admin' || role === 'owner';
+                adminRole = isAdminObj ? role : '';
               } else {
                 isAdminObj = false;
               }
             }
           }
-          return { user: userObj, isAdmin: isAdminObj, timestamp: Date.now() };
+          return { user: userObj, isAdmin: isAdminObj, adminRole, timestamp: Date.now() };
         };
 
         const authPromise = resolveAuth();
@@ -662,6 +659,7 @@ const cleanupTokenCache = () => {
           if (result.user) {
             req.user = result.user;
             req.isAdmin = result.isAdmin;
+            req.adminRole = result.adminRole;
           }
         } catch (error: any) {
           userTokenCache.delete(token);
@@ -687,6 +685,14 @@ const cleanupTokenCache = () => {
     if (!req.user || !req.isAdmin) {
       console.error(`[AdminCheck] Access Denied for ${(req as any).user?.email || 'Unknown'}. isAdmin: ${req.isAdmin}`);
       return res.status(403).json({ error: 'Forbidden: Admin access required. Please re-login.' });
+    }
+    next();
+  };
+
+  const requireOwner = async (req: any, res: any, next: any) => {
+    if (!req.user || !req.isAdmin || req.adminRole !== 'owner') {
+      console.error(`[OwnerCheck] Access Denied for ${(req as any).user?.email || 'Unknown'}. role: ${req.adminRole || 'none'}`);
+      return res.status(403).json({ error: 'Forbidden: Owner access required.' });
     }
     next();
   };
@@ -933,7 +939,7 @@ import healthRoute from './src/routes/health.route.js';
       }
       
       try {
-        await admin.firestore().collection('users').doc(data.user.id).set({
+        await admin.supabase().collection('users').doc(data.user.id).set({
           email,
           recoveryEmail: recoveryEmail || null,
           username: email.split('@')[0],
@@ -1054,7 +1060,7 @@ import healthRoute from './src/routes/health.route.js';
       console.log(`[TrueWallet] Attempting redeem. voucherHash=${hashSecret(voucherHash).slice(0, 12)} phone=${maskSecret(phone)}`);
 
       // Atomic duplicate protection: vouchers.id has a unique/primary-key constraint in database_security_hardening.sql
-      voucherRef = admin.firestore().collection('vouchers').doc(voucherHash);
+      voucherRef = admin.supabase().collection('vouchers').doc(voucherHash);
       const { error: voucherReserveError } = await supabaseAdmin.from('vouchers').insert([{
         id: voucherHash,
         voucher_hash: voucherHash,
@@ -1101,10 +1107,10 @@ import healthRoute from './src/routes/health.route.js';
 
           if (uid) {
             try {
-              const userRef = admin.firestore().collection('users').doc(uid);
+              const userRef = admin.supabase().collection('users').doc(uid);
               let finalBalance = 0;
               let topupDoc: any = null;
-              await admin.firestore().runTransaction(async (t) => {
+              await admin.supabase().runTransaction(async (t) => {
                  const uDoc = await t.get(userRef);
                  if (uDoc.exists) {
                     const currentBalance = uDoc.data().balance || 0;
@@ -1122,7 +1128,7 @@ import healthRoute from './src/routes/health.route.js';
                       title: 'เติมเงินสำเร็จ',
                       image: 'https://img1.pic.in.th/images/IMG_6162.png'
                     };
-                    const topupRef = admin.firestore().collection('topups').doc(topupDoc.id);
+                    const topupRef = admin.supabase().collection('topups').doc(topupDoc.id);
                     t.set(topupRef, topupDoc);
                     
                     t.update(voucherRef, {
@@ -1279,10 +1285,10 @@ import healthRoute from './src/routes/health.route.js';
 
         if (uid) {
           try {
-            const userRef = admin.firestore().collection('users').doc(uid);
+            const userRef = admin.supabase().collection('users').doc(uid);
             let finalBalance = 0;
             let topupDoc: any = null;
-            await admin.firestore().runTransaction(async (t) => {
+            await admin.supabase().runTransaction(async (t) => {
                const uDoc = await t.get(userRef);
                if (uDoc.exists) {
                   const currentBalance = uDoc.data().balance || 0;
@@ -1300,7 +1306,7 @@ import healthRoute from './src/routes/health.route.js';
                     title: 'เติมเงินสำเร็จ',
                     image: 'https://img2.pic.in.th/IMG_6166.png'
                   };
-                  const topupRef = admin.firestore().collection('topups').doc(topupDoc.id);
+                  const topupRef = admin.supabase().collection('topups').doc(topupDoc.id);
                   t.set(topupRef, topupDoc);
                } else {
                   throw new Error('USER_NOT_FOUND');
@@ -1356,26 +1362,26 @@ import healthRoute from './src/routes/health.route.js';
 
     let isApiKeyValid = false;
     if (apiKey) {
-      if (!admin.firestore()) {
+      if (!admin.supabase()) {
         return res.status(500).json({ error: 'Database connection error' });
       }
       try {
         const apiKeyHash = hashSecret(apiKey);
-        let apiKeyDoc = await admin.firestore().collection('api_keys').doc(apiKeyHash).get();
+        let apiKeyDoc = await admin.supabase().collection('api_keys').doc(apiKeyHash).get();
         if (!apiKeyDoc.exists) {
           // Temporary compatibility with legacy plaintext API-key documents.
-          apiKeyDoc = await admin.firestore().collection('api_keys').doc(apiKey).get();
+          apiKeyDoc = await admin.supabase().collection('api_keys').doc(apiKey).get();
         }
         if (apiKeyDoc.exists) {
           const data = apiKeyDoc.data();
           if (data?.status === 'active') {
             if (data?.expires_at && new Date(data.expires_at) < new Date()) {
-               await admin.firestore().collection('api_keys').doc(apiKeyDoc.id).update({ status: 'expired' }).catch(() => {});
+               await admin.supabase().collection('api_keys').doc(apiKeyDoc.id).update({ status: 'expired' }).catch(() => {});
                return res.status(401).json({ error: 'API Key has expired' });
             }
             isApiKeyValid = true;
             // Fire and forget updating last_used
-            admin.firestore().collection('api_keys').doc(apiKeyDoc.id).update({ last_used: new Date().toISOString() }).catch(() => {});
+            admin.supabase().collection('api_keys').doc(apiKeyDoc.id).update({ last_used: new Date().toISOString() }).catch(() => {});
           } else {
              return res.status(401).json({ error: 'API Key is disabled or expired' });
           }
@@ -1886,7 +1892,7 @@ if (process.env.REDIS_URL) {
         const fetchRevisionBeforeStart = cacheRevisionCounter;
         const fetchPromise = (async () => {
           const fetchFromDB = async () => {
-            let query: any = admin.firestore().collection(collectionName);
+            let query: any = admin.supabase().collection(collectionName);
             if (collectionName === 'products') {
               query = query.select('id', 'name', 'price', 'originalPrice', 'stock', 'description', 'image', 'imageUrl', 'category', 'isHighlight', 'isPopular', 'soldCount', 'tag', 'customPageId', 'created_at', '_version', 'isDeleted');
             }
@@ -1908,9 +1914,9 @@ if (process.env.REDIS_URL) {
           data = data.filter((d: any) => !d.isDeleted && d.active !== false);
           
           if (collectionName === 'products' && data.length === 0) {
-            console.log("Seeding default products because Firestore 'products' collection is empty...");
+            console.log("Seeding default products because Supabase 'products' collection is empty...");
             try {
-              const rovRef = admin.firestore().collection('products').doc('rov_standard');
+              const rovRef = admin.supabase().collection('products').doc('rov_standard');
               const rovData = {
                 name: "ไอดีเกม RoV ระดับพรีเมียม (สกินอลังการ พร้อมไต่แรงก์)",
                 price: 390,
@@ -1930,7 +1936,7 @@ if (process.env.REDIS_URL) {
               rovData.stockData = rovCompressed as any;
               await rovRef.set(rovData);
               
-              const netflixRef = admin.firestore().collection('products').doc('netflix_4k');
+              const netflixRef = admin.supabase().collection('products').doc('netflix_4k');
               const netflixData = {
                 name: "Netflix Premium Ultra HD 4K (30 วัน - จอส่วนตัว)",
                 price: 139,
@@ -1955,7 +1961,7 @@ if (process.env.REDIS_URL) {
               netflixData.stockData = netflixCompressed as any;
               await netflixRef.set(netflixData);
 
-              const youtubeRef = admin.firestore().collection('products').doc('youtube_premium');
+              const youtubeRef = admin.supabase().collection('products').doc('youtube_premium');
               const youtubeData = {
                 name: "YouTube Premium 4K (30 วัน - บัญชีส่วนตัวความปลอดภัยสูง)",
                 price: 39,
@@ -1977,7 +1983,7 @@ if (process.env.REDIS_URL) {
               youtubeData.stockData = youtubeCompressed as any;
               await youtubeRef.set(youtubeData);
 
-              const discordRef = admin.firestore().collection('products').doc('discord_nitro');
+              const discordRef = admin.supabase().collection('products').doc('discord_nitro');
               const discordData = {
                 name: "Discord Nitro Premium Gift (1 เดือน - บัญชีแท้ 100%)",
                 price: 119,
@@ -1999,9 +2005,9 @@ if (process.env.REDIS_URL) {
               discordData.stockData = discordCompressed as any;
               await discordRef.set(discordData);
               
-              console.log("Successfully seeded default products into Firestore.");
+              console.log("Successfully seeded default products into Supabase.");
               
-              const newSnapshot = await admin.firestore().collection('products').get();
+              const newSnapshot = await admin.supabase().collection('products').get();
               data = newSnapshot.docs.map((doc: any) => {
                 const d = doc.data();
                 return { id: doc.id, ...d };
@@ -2075,7 +2081,7 @@ if (process.env.REDIS_URL) {
 
   app.get('/api/debug-products', requireAdmin, async (req: any, res: any) => {
     try {
-      const snap = await admin.firestore().collection('products').get();
+      const snap = await admin.supabase().collection('products').get();
       const docs = snap.docs.map((d: any) => d.data()).filter((p:any) => p.stock > 0);
       res.json({ count: docs.length, products: docs.map((p:any) => ({ id: p.id, name: p.name, stock: p.stock, stockDataLen: Array.isArray(p.stockData) ? p.stockData.length : typeof p.stockData, compressedCheck: p.stockData && Array.isArray(p.stockData) && p.stockData[0] ? Object.keys(p.stockData[0]) : null })) });
     } catch(e: any) { res.status(500).json({ error: e.message }); }
@@ -2103,9 +2109,10 @@ if (process.env.REDIS_URL) {
   });
 
   app.get('/api/products/:id', requireAdmin, async (req: any, res: any) => {
-    if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
+    if (!admin.supabase()) return res.status(500).json({ error: 'DB not connected' });
     try {
-      const doc: any = await admin.firestore().collection('products').doc(req.params.id).get();
+      if (!requireSafeSupabaseRowId(res, req.params.id)) return;
+      const doc: any = await admin.supabase().collection('products').doc(req.params.id).get();
       if (!doc.exists) return res.status(404).json({ error: 'Product not found' });
       const data = doc.data();
       const { stockData, ...safeProductData } = data;
@@ -2117,9 +2124,10 @@ if (process.env.REDIS_URL) {
   });
 
   app.get('/api/products/:id/stock', requireAdmin, async (req: any, res: any) => {
-    if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
+    if (!admin.supabase()) return res.status(500).json({ error: 'DB not connected' });
     try {
-      const docRef = admin.firestore().collection('products').doc(req.params.id);
+      if (!requireSafeSupabaseRowId(res, req.params.id)) return;
+      const docRef = admin.supabase().collection('products').doc(req.params.id);
       const doc = await docRef.get();
       if (!doc.exists) {
         return res.status(404).json({ error: 'Product not found' });
@@ -2132,7 +2140,7 @@ if (process.env.REDIS_URL) {
       if (!Array.isArray(stockData)) stockData = [];
 
       // Also get from chunks
-      const chunksSnapshot = await admin.firestore().collection('product_stock_chunks').where('productId', '==', req.params.id).get();
+      const chunksSnapshot = await admin.supabase().collection('product_stock_chunks').where('productId', '==', req.params.id).get();
       for (const chunkDoc of chunksSnapshot.docs) {
          const chunkItems = chunkDoc.data().items;
          if (chunkItems) {
@@ -2149,23 +2157,21 @@ if (process.env.REDIS_URL) {
   });
 
   app.post('/api/products', requireAdmin, async (req, res) => {
-    if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
+    if (!admin.supabase()) return res.status(500).json({ error: 'DB not connected' });
     try {
       const product = req.body;
       const allowedFields = ['name', 'description', 'price', 'originalPrice', 'stock', 'categoryId', 'stockData', 'image', 'imageUrl', 'category', 'isHighlight', 'customPageId', 'youtubeUrl', 'type', 'isPopular', 'soldCount', 'tag', '_version'];
-      const sanitizedProduct = Object.fromEntries(
-        Object.entries(product).filter(([k]) => allowedFields.includes(k))
-      );
-      
+      const sanitizedProduct = pickSanitizedFields(product, allowedFields, ['image', 'imageUrl', 'youtubeUrl']);
+      if (!sanitizedProduct.name) return res.status(400).json({ error: 'Product name is required' });
       sanitizedProduct._version = 1;
 
       const { id, ...dataToSaveRaw } = sanitizedProduct as any;
       if (dataToSaveRaw.stockData) {
         dataToSaveRaw.stockData = await compressStock(dataToSaveRaw.stockData);
       }
-      // Deep strip undefined values to please Firestore
+      // Deep strip undefined values to please Supabase
       const dataToSave = JSON.parse(JSON.stringify(dataToSaveRaw));
-      const docRef = await admin.firestore().collection('products').add(dataToSave);
+      const docRef = await admin.supabase().collection('products').add(dataToSave);
       invalidateCache('products');
       invalidateStatsCache();
       
@@ -2187,8 +2193,9 @@ const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 102
 
   // Stream-based large file stock upload
   app.post('/api/products/:id/stock-file', requireAdmin, diskUpload.single('file'), async (req, res) => {
-    if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
+    if (!admin.supabase()) return res.status(500).json({ error: 'DB not connected' });
     try {
+      if (!requireSafeSupabaseRowId(res, req.params.id)) return;
       if (!req.file) {
         return res.status(400).json({ error: 'No file uploaded' });
       }
@@ -2232,10 +2239,10 @@ const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 102
          return res.status(400).json({ error: 'No valid data found in file' });
       }
 
-      const docRef = admin.firestore().collection('products').doc(req.params.id);
+      const docRef = admin.supabase().collection('products').doc(req.params.id);
       let finalProductData: any = {};
       
-      await admin.firestore().runTransaction(async (t) => {
+      await admin.supabase().runTransaction(async (t) => {
         const doc = await t.get(docRef);
         if (!doc.exists) {
           throw new Error('NOT_FOUND');
@@ -2274,17 +2281,20 @@ const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 102
   });
 
   app.post('/api/products/:id/stock', requireAdmin, async (req, res) => {
-    if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
+    if (!admin.supabase()) return res.status(500).json({ error: 'DB not connected' });
     try {
-      const { newItems } = req.body;
-      if (!Array.isArray(newItems) || newItems.length === 0) {
+      if (!requireSafeSupabaseRowId(res, req.params.id)) return;
+      const newItems = Array.isArray(req.body?.newItems)
+        ? req.body.newItems.slice(0, 100_000).map((item: unknown) => sanitizeText(item, 5000)).filter(Boolean)
+        : [];
+      if (newItems.length === 0) {
         return res.json({ success: true });
       }
 
-      const docRef = admin.firestore().collection('products').doc(req.params.id);
+      const docRef = admin.supabase().collection('products').doc(req.params.id);
       let finalProductData: any = {};
       
-      await admin.firestore().runTransaction(async (t) => {
+      await admin.supabase().runTransaction(async (t) => {
         const doc = await t.get(docRef);
         if (!doc.exists) {
           throw new Error('NOT_FOUND');
@@ -2321,21 +2331,21 @@ const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 102
   });
 
   app.put('/api/products/:id', requireAdmin, async (req, res) => {
-    if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
+    if (!admin.supabase()) return res.status(500).json({ error: 'DB not connected' });
     try {
-      const docRef = admin.firestore().collection('products').doc(req.params.id);
+      if (!requireSafeSupabaseRowId(res, req.params.id)) return;
+      const docRef = admin.supabase().collection('products').doc(req.params.id);
       const productUpdates = req.body;
       
       const allowedFields = ['name', 'description', 'price', 'originalPrice', 'stock', 'categoryId', 'stockData', 'image', 'imageUrl', 'category', 'isHighlight', 'customPageId', 'youtubeUrl', 'type', 'isPopular', 'soldCount', 'tag', '_version'];
-      const sanitizedUpdates = Object.fromEntries(
-        Object.entries(productUpdates).filter(([k]) => allowedFields.includes(k) && k !== 'id')
-      );
+      const sanitizedUpdates = pickSanitizedFields(productUpdates, allowedFields.filter((field) => field !== 'id'), ['image', 'imageUrl', 'youtubeUrl']);
+      if ('name' in sanitizedUpdates && !sanitizedUpdates.name) return res.status(400).json({ error: 'Product name is required' });
 
       let finalData: any;
       let deltaBefore: any = {};
       let deltaAfter: any = {};
 
-      await admin.firestore().runTransaction(async (t) => {
+      await admin.supabase().runTransaction(async (t) => {
         const currentDoc = await t.get(docRef);
         if (!currentDoc.exists) {
           throw new Error('NOT_FOUND');
@@ -2405,13 +2415,14 @@ const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 102
   });
 
   app.delete('/api/products/:id', requireAdmin, async (req, res) => {
-    if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
+    if (!admin.supabase()) return res.status(500).json({ error: 'DB not connected' });
     try {
-      const docRef = admin.firestore().collection('products').doc(req.params.id);
+      if (!requireSafeSupabaseRowId(res, req.params.id)) return;
+      const docRef = admin.supabase().collection('products').doc(req.params.id);
       
       let existingData: any = null;
       let exists = false;
-      await admin.firestore().runTransaction(async (t) => {
+      await admin.supabase().runTransaction(async (t) => {
         const doc = await t.get(docRef);
         if (doc.exists) {
           exists = true;
@@ -2476,7 +2487,7 @@ const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 102
         } catch (e) {}
       }
 
-      const adminDb = admin.firestore();
+      const adminDb = admin.supabase();
       
       let totalStock = 0;
       try {
@@ -2526,11 +2537,11 @@ const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 102
         })(),
         (async () => {
           try {
-            // Since we insert user profile documents in Firestore on signup, Firestore is our primary database
+            // Since we insert user profile documents in Supabase on signup, Supabase is our primary database
             const users = await getCachedCollection('users', 60000);
             totalUsersCount = users.length;
           } catch (e) {
-            console.error('Firestore users count error, trying fallback:', e);
+            console.error('Supabase users count error, trying fallback:', e);
             try {
               const { count, error } = await supabaseAdmin.from('users').select('*', { count: 'exact', head: true });
               if (!error && count !== null) {
@@ -2576,7 +2587,7 @@ const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 102
   // --- Purchases Endpoints ---
   app.get('/api/latest-purchases', async (req: any, res: any) => {
     try {
-      const adminDb = admin.firestore();
+      const adminDb = admin.supabase();
       const limit = 10;
       const q = adminDb.collection('purchases').orderBy('date', 'desc').limit(limit);
       const snap = await q.get();
@@ -2600,7 +2611,7 @@ const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 102
 
   app.get('/api/purchases', requireAuth, async (req: any, res: any) => {
     try {
-      const adminDb = admin.firestore();
+      const adminDb = admin.supabase();
       const limit = Math.min(100, parseInt(req.query.limit as string) || 20);
       const afterDocId = req.query.after as string | undefined; // cursor = doc ID ของรายการสุดท้าย
 
@@ -2616,7 +2627,7 @@ const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 102
 
       // Filter by user if not admin
       if (!req.isAdmin) {
-        // NOTE: Firestore requires composite index for where + orderBy on different fields
+        // NOTE: Supabase requires composite index for where + orderBy on different fields
         // Create index: purchases -> userId ASC, date DESC
         q = adminDb
           .collection('purchases')
@@ -2647,10 +2658,10 @@ const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 102
 
   app.post('/api/purchases', requireAdmin, async (req, res) => {
     // Legacy endpoint, we can leave it to avoid breaking changes, or just require admin.
-    if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
+    if (!admin.supabase()) return res.status(500).json({ error: 'DB not connected' });
     try {
       const data = req.body;
-      const docRef = await admin.firestore().collection('purchases').add(data);
+      const docRef = await admin.supabase().collection('purchases').add(data);
       res.json({ id: docRef.id, dbId: docRef.id, ...data });
     } catch (err) {
       console.error('Internal server error creating purchase:', err);
@@ -2669,7 +2680,7 @@ const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 102
     }
     try {
       const newDoc = { key, plan: plan || 'premium', status: 'active', created_at: new Date().toISOString() };
-      await admin.firestore().collection('license_keys').add(newDoc);
+      await admin.supabase().collection('license_keys').add(newDoc);
       res.json({ success: true, message: `เพิ่มคีย์ ${key} สำเร็จ!`, plan: newDoc.plan });
     } catch (error) {
       res.status(500).json({ error: 'Internal server error while adding key' });
@@ -2703,7 +2714,7 @@ const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 102
 
       if (claimError) throw claimError;
       if (claimedLicense) {
-        await admin.firestore().collection('used_keys').add({
+        await admin.supabase().collection('used_keys').add({
             key_hash: hashSecret(key),
             used_by_discord: true,
             uid: req.body.uid || null,
@@ -2744,7 +2755,7 @@ const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 102
       }
 
       // Mark as claimed
-      await admin.firestore().collection('purchases').doc(foundDoc.id).update({ ...foundDoc, discordClaimed: true });
+      await admin.supabase().collection('purchases').doc(foundDoc.id).update({ ...foundDoc, discordClaimed: true });
 
       res.json({ success: true, message: 'รับยศสำเร็จ!' });
       writeAuditLog('DISCORD_ROLE_CLAIM', (req as any).user?.uid || 'system', 'discord_role', req, { keyHash: hashSecret(req.body.key || '') });
@@ -2767,19 +2778,19 @@ const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 102
     const productLockKey = `product:${productId}`;
     
     try {
-      const userRef = admin.firestore().collection('users').doc(userId);
-      const productRef = admin.firestore().collection('products').doc(productId);
-      const purchasesRef = admin.firestore().collection('purchases').doc(); // Auto-gen transaction docref
+      const userRef = admin.supabase().collection('users').doc(userId);
+      const productRef = admin.supabase().collection('products').doc(productId);
+      const purchasesRef = admin.supabase().collection('purchases').doc(); // Auto-gen transaction docref
       
       console.log('buy request for user', userId, 'product', productId, 'qty', quantity);
 
       const idempotencyKey = req.headers['idempotency-key'] as string | undefined;
 
-      const result = await admin.firestore().runTransaction(async (t) => {
+      const result = await admin.supabase().runTransaction(async (t) => {
         let idempRef: any;
         let idempPromise = Promise.resolve(null);
         if (idempotencyKey) {
-           idempRef = admin.firestore().collection('idempotency_keys').doc(idempotencyKey);
+           idempRef = admin.supabase().collection('idempotency_keys').doc(idempotencyKey);
            idempPromise = t.get(idempRef);
         }
 
@@ -2829,7 +2840,7 @@ const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 102
 
         // If still need more, read chunks
         if (claimedItems.length < quantity) {
-           const chunksQuery = admin.firestore().collection('product_stock_chunks').where('productId', '==', productId);
+           const chunksQuery = admin.supabase().collection('product_stock_chunks').where('productId', '==', productId);
            const chunksSnap = await t.get(chunksQuery);
            for (const chunkDoc of chunksSnap.docs) {
               if (claimedItems.length >= quantity) break;
@@ -2954,9 +2965,9 @@ const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 102
   });
 
   // --- Topups Endpoints ---
-  app.get('/api/topups', async (req: any, res: any) => {
+  app.get('/api/topups', requireAuth, async (req: any, res: any) => {
     try {
-      const adminDb = admin.firestore();
+      const adminDb = admin.supabase();
       let q: any = adminDb.collection('topups');
       if (req.isAdmin) {
         // Omitting orderBy to prevent Postgres statement timeout
@@ -2995,10 +3006,10 @@ const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 102
   });
 
   app.post('/api/topups', requireAdmin, async (req, res) => {
-    if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
+    if (!admin.supabase()) return res.status(500).json({ error: 'DB not connected' });
     try {
       const data = req.body;
-      const docRef = await admin.firestore().collection('topups').add(data);
+      const docRef = await admin.supabase().collection('topups').add(data);
       res.json({ id: docRef.id, dbId: docRef.id, ...data });
     } catch (err) {
       console.error('Internal server error creating topup:', err);
@@ -3019,11 +3030,11 @@ const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 102
   });
 
   app.post('/api/categories', requireAdmin, async (req, res) => {
-    if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
+    if (!admin.supabase()) return res.status(500).json({ error: 'DB not connected' });
     try {
-      const data = req.body;
-      const { id, ...dataToSave } = data;
-      const docRef = await admin.firestore().collection('categories').add(dataToSave);
+      const dataToSave = pickSanitizedFields(req.body, ['name', 'title', 'subtitle', 'bannerUrl', 'imageUrl'], ['bannerUrl', 'imageUrl']);
+      if (!dataToSave.name || !dataToSave.title) return res.status(400).json({ error: 'Category name and title are required' });
+      const docRef = await admin.supabase().collection('categories').add(dataToSave);
       invalidateCache('categories');
       res.json({ id: docRef.id, dbId: docRef.id, ...dataToSave });
     } catch (err) {
@@ -3033,11 +3044,13 @@ const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 102
   });
 
   app.put('/api/categories/:id', requireAdmin, async (req, res) => {
-    if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
+    if (!admin.supabase()) return res.status(500).json({ error: 'DB not connected' });
     try {
-      const data = req.body;
-      const { id, ...dataToSave } = data;
-      const docRef = admin.firestore().collection('categories').doc(req.params.id);
+      if (!requireSafeSupabaseRowId(res, req.params.id)) return;
+      const dataToSave = pickSanitizedFields(req.body, ['name', 'title', 'subtitle', 'bannerUrl', 'imageUrl'], ['bannerUrl', 'imageUrl']);
+      if ('name' in dataToSave && !dataToSave.name) return res.status(400).json({ error: 'Category name is required' });
+      if ('title' in dataToSave && !dataToSave.title) return res.status(400).json({ error: 'Category title is required' });
+      const docRef = admin.supabase().collection('categories').doc(req.params.id);
       await docRef.update(dataToSave);
       invalidateCache('categories');
       res.json({ id: req.params.id, ...dataToSave });
@@ -3048,9 +3061,10 @@ const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 102
   });
 
   app.delete('/api/categories/:id', requireAdmin, async (req, res) => {
-    if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
+    if (!admin.supabase()) return res.status(500).json({ error: 'DB not connected' });
     try {
-      await admin.firestore().collection('categories').doc(req.params.id).delete();
+      if (!requireSafeSupabaseRowId(res, req.params.id)) return;
+      await admin.supabase().collection('categories').doc(req.params.id).delete();
       invalidateCache('categories');
       res.json({ success: true });
     } catch (err) {
@@ -3072,11 +3086,11 @@ const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 102
   });
 
   app.post('/api/pages', requireAdmin, async (req, res) => {
-    if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
+    if (!admin.supabase()) return res.status(500).json({ error: 'DB not connected' });
     try {
-      const pageData = req.body;
-      const { id, ...dataToSave } = pageData;
-      const docRef = await admin.firestore().collection('custom_pages').add({ ...dataToSave, created_at: new Date().toISOString() });
+      const dataToSave = pickSanitizedFields(req.body, ['title', 'subtitle', 'description', 'content', 'slug', 'imageUrl', 'bannerUrl', 'fileUrl', 'type'], ['imageUrl', 'bannerUrl', 'fileUrl']);
+      if (!dataToSave.title) return res.status(400).json({ error: 'Page title is required' });
+      const docRef = await admin.supabase().collection('custom_pages').add({ ...dataToSave, created_at: new Date().toISOString() });
       invalidateCache('custom_pages');
       res.json({ id: docRef.id, dbId: docRef.id, ...dataToSave });
     } catch (err) {
@@ -3086,11 +3100,12 @@ const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 102
   });
 
   app.put('/api/pages/:id', requireAdmin, async (req, res) => {
-    if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
+    if (!admin.supabase()) return res.status(500).json({ error: 'DB not connected' });
     try {
-      const pageData = req.body;
-      const { id, ...dataToSave } = pageData;
-      const docRef = admin.firestore().collection('custom_pages').doc(req.params.id);
+      if (!requireSafeSupabaseRowId(res, req.params.id)) return;
+      const dataToSave = pickSanitizedFields(req.body, ['title', 'subtitle', 'description', 'content', 'slug', 'imageUrl', 'bannerUrl', 'fileUrl', 'type'], ['imageUrl', 'bannerUrl', 'fileUrl']);
+      if ('title' in dataToSave && !dataToSave.title) return res.status(400).json({ error: 'Page title is required' });
+      const docRef = admin.supabase().collection('custom_pages').doc(req.params.id);
       await docRef.update(dataToSave);
       invalidateCache('custom_pages');
       res.json({ id: req.params.id, ...dataToSave });
@@ -3101,9 +3116,10 @@ const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 102
   });
 
   app.delete('/api/pages/:id', requireAdmin, async (req, res) => {
-    if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
+    if (!admin.supabase()) return res.status(500).json({ error: 'DB not connected' });
     try {
-      await admin.firestore().collection('custom_pages').doc(req.params.id).delete();
+      if (!requireSafeSupabaseRowId(res, req.params.id)) return;
+      await admin.supabase().collection('custom_pages').doc(req.params.id).delete();
       invalidateCache('custom_pages');
       res.json({ success: true });
     } catch (err: any) {
@@ -3119,7 +3135,7 @@ const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 102
     try {
       let dbData;
       try {
-        const doc = await admin.firestore().collection('settings').doc('log_system_data').get();
+        const doc = await admin.supabase().collection('settings').doc('log_system_data').get();
         if (doc.exists) {
            const d = doc.data();
            dbData = d?.data; 
@@ -3136,7 +3152,7 @@ const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 102
          isVip = true;
       } else if (req.user) {
          try {
-           const userDoc = await admin.firestore().collection('users').doc(req.user.uid).get();
+           const userDoc = await admin.supabase().collection('users').doc(req.user.uid).get();
            if (userDoc.exists) {
               const u = userDoc.data();
               if (u && u.isPremium === true) isVip = true;
@@ -3168,8 +3184,8 @@ const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 102
       const data = req.body;
       memoryLogSystemData = data;
       try {
-        if (admin.firestore()) {
-          await admin.firestore().collection('settings').doc('log_system_data').set({ data }, { merge: false });
+        if (admin.supabase()) {
+          await admin.supabase().collection('settings').doc('log_system_data').set({ data }, { merge: false });
         }
       } catch (e: any) {
         console.warn('Failed to save log system data to DB, keeping in memory:', e.message);
@@ -3187,7 +3203,7 @@ const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 102
       const limit = Math.min(500, parseInt(req.query.limit) || 100);
       const offset = (page - 1) * limit;
 
-      let q: any = admin.firestore().collection('license_keys').limit(limit).offset(offset);
+      let q: any = admin.supabase().collection('license_keys').limit(limit).offset(offset);
       
       const snapshot = await q.get();
       const data = snapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() }));
@@ -3207,7 +3223,7 @@ const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 102
     try {
       const { key, plan, status } = req.body;
       const newDoc = { key, plan, status, created_at: new Date().toISOString() };
-      const docRef = await admin.firestore().collection('license_keys').add(newDoc);
+      const docRef = await admin.supabase().collection('license_keys').add(newDoc);
       res.json({ id: docRef.id, dbId: docRef.id, ...newDoc });
     } catch (err) {
       console.error('Internal server error inserting license_key:', err);
@@ -3217,7 +3233,7 @@ const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 102
 
   app.delete('/api/license_keys/:id', requireAdmin, async (req, res) => {
     try {
-      await admin.firestore().collection('license_keys').doc(req.params.id).delete();
+      await admin.supabase().collection('license_keys').doc(req.params.id).delete();
       res.json({ success: true });
     } catch (err) {
       console.error('Internal server error deleting license_key:', err);
@@ -3229,7 +3245,7 @@ const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 102
     try {
       const { ids } = req.body;
       if (!Array.isArray(ids)) return res.status(400).json({ error: 'ids must be an array' });
-      await Promise.all(ids.map(id => admin.firestore().collection('license_keys').doc(id).delete()));
+      await Promise.all(ids.map(id => admin.supabase().collection('license_keys').doc(id).delete()));
       res.json({ success: true, deletedCount: ids.length });
     } catch (err) {
       console.error('Internal server error bulk deleting license_keys:', err);
@@ -3240,7 +3256,7 @@ const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 102
   app.patch('/api/license_keys/:id', requireAdmin, async (req, res) => {
     try {
       const { status } = req.body;
-      const docRef = admin.firestore().collection('license_keys').doc(req.params.id);
+      const docRef = admin.supabase().collection('license_keys').doc(req.params.id);
       await docRef.update({ status });
       res.json({ id: req.params.id, status });
     } catch (err) {
@@ -3262,7 +3278,7 @@ const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 102
       
       const results = await Promise.all(
         keys.map(async (k) => {
-          const docRef = await admin.firestore().collection('license_keys').add({ 
+          const docRef = await admin.supabase().collection('license_keys').add({ 
             ...k, 
             created_at: new Date().toISOString() 
           });
@@ -3278,7 +3294,7 @@ const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 102
 
   app.get('/api/validate_key/:key', requireAuth, async (req: any, res: any) => {
     try {
-      const snapshot = await admin.firestore().collection('license_keys').where('key', '==', req.params.key).limit(1).get();
+      const snapshot = await admin.supabase().collection('license_keys').where('key', '==', req.params.key).limit(1).get();
       if (!snapshot || !snapshot.docs || snapshot.docs.length === 0) {
         return res.status(404).json({ valid: false, error: 'Key not found' });
       }
@@ -3291,7 +3307,7 @@ const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 102
 
   app.get('/api/used_keys', async (req: any, res: any) => {
     try {
-      const db = admin.firestore();
+      const db = admin.supabase();
       let q = db.collection('used_keys');
       
       const targetUID = req.query.uid;
@@ -3338,7 +3354,7 @@ const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 102
     try {
       const { key, ip, details, uid } = req.body;
       const newDoc = { key, ip, details, uid: uid || null, used_at: new Date().toISOString() };
-      const docRef = await admin.firestore().collection('used_keys').add(newDoc);
+      const docRef = await admin.supabase().collection('used_keys').add(newDoc);
       res.json({ id: docRef.id, dbId: docRef.id, ...newDoc });
     } catch (err) {
       console.error('Internal server error inserting used_key:', err);
@@ -3348,7 +3364,7 @@ const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 102
 
   app.get('/api/blocked_ips', requireAdmin, async (req: any, res: any) => {
     try {
-      const snapshot = await admin.firestore().collection('blocked_ips').limit(500).get();
+      const snapshot = await admin.supabase().collection('blocked_ips').limit(500).get();
       const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       data.sort((a: any, b: any) => new Date(b.blocked_at || 0).getTime() - new Date(a.blocked_at || 0).getTime());
       res.json(data);
@@ -3360,10 +3376,12 @@ const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 102
 
   app.post('/api/blocked_ips', requireAdmin, async (req, res) => {
     try {
-      const { ip, reason } = req.body;
+      const ip = sanitizeText(req.body?.ip, 64);
+      const reason = sanitizeText(req.body?.reason, 300);
+      if (!/^[A-Fa-f0-9:.]{3,64}$/.test(ip)) return res.status(400).json({ error: 'Invalid IP address' });
       const newDoc = { ip, reason, blocked_at: new Date().toISOString() };
-      // Note: simplistic upsert simulation using ip as doc ID
-      const docRef = admin.firestore().collection('blocked_ips').doc(ip);
+      // Note: simplistic upsert simulation using encoded ip as doc ID
+      const docRef = admin.supabase().collection('blocked_ips').doc(encodeURIComponent(ip));
       await docRef.set(newDoc);
       res.json({ id: ip, ...newDoc });
     } catch (err) {
@@ -3374,7 +3392,7 @@ const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 102
 
   app.delete('/api/blocked_ips/:ip', requireAdmin, async (req, res) => {
     try {
-      await admin.firestore().collection('blocked_ips').doc(req.params.ip).delete();
+      await admin.supabase().collection('blocked_ips').doc(encodeURIComponent(req.params.ip)).delete();
       res.json({ success: true });
     } catch (err) {
       console.error('Internal server error deleting blocked_ip:', err);
@@ -3384,7 +3402,7 @@ const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 102
 
   app.get('/api/check_ip/:ip', async (req, res) => {
     try {
-      const doc = await admin.firestore().collection('blocked_ips').doc(req.params.ip).get();
+      const doc = await admin.supabase().collection('blocked_ips').doc(encodeURIComponent(req.params.ip)).get();
       res.json({ blocked: !!doc.exists });
     } catch (err) {
       console.error('Internal server error checking IP:', err);
@@ -3395,7 +3413,7 @@ const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 102
   // --- API Keys Endpoints ---
   app.get('/api/api_keys', requireAdmin, async (req: any, res: any) => {
     try {
-      const snapshot = await admin.firestore().collection('api_keys').limit(500).get();
+      const snapshot = await admin.supabase().collection('api_keys').limit(500).get();
       const keys = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       keys.sort((a: any, b: any) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
       res.json(keys);
@@ -3425,7 +3443,7 @@ const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 102
          expires_at,
          last_used: null
       };
-      await admin.firestore().collection('api_keys').doc(keyHash).set(newKey);
+      await admin.supabase().collection('api_keys').doc(keyHash).set(newKey);
       res.json({ ...newKey, key: keyString });
     } catch (err: any) {
        res.status(500).json({ error: String(err && err.message ? err.message : err) });
@@ -3435,7 +3453,7 @@ const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 102
   app.delete('/api/api_keys/:key', requireAdmin, async (req: any, res: any) => {
     try {
       const keyId = req.params.key.startsWith('apx_') ? hashSecret(req.params.key) : req.params.key;
-      await admin.firestore().collection('api_keys').doc(keyId).delete();
+      await admin.supabase().collection('api_keys').doc(keyId).delete();
       res.json({ success: true });
     } catch (err: any) {
       res.status(500).json({ error: String(err && err.message ? err.message : err) });
@@ -3449,29 +3467,30 @@ const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 102
         return res.status(400).json({ error: 'Invalid API key status' });
       }
       const keyId = req.params.key.startsWith('apx_') ? hashSecret(req.params.key) : req.params.key;
-      await admin.firestore().collection('api_keys').doc(keyId).update({ status });
+      await admin.supabase().collection('api_keys').doc(keyId).update({ status });
       res.json({ success: true, status });
     } catch (err: any) {
       res.status(500).json({ error: String(err && err.message ? err.message : err) });
     }
   });
 
-  app.post('/api/admins', requireAdmin, async (req: any, res: any) => {
+  app.post('/api/admins', requireOwner, async (req: any, res: any) => {
     try {
       const { uid, username, role } = req.body;
       const principal = typeof uid === 'string' && uid.trim() ? uid.trim() : (typeof username === 'string' ? username.trim() : '');
-      if (!principal || !['admin', 'owner', 'user'].includes(String(role).toLowerCase())) {
+      if (!isSafeSupabaseRowId(principal) || !['admin', 'owner', 'user'].includes(String(role).toLowerCase())) {
         return res.status(400).json({ error: 'Invalid admin grant request' });
       }
 
       const normalizedRole = String(role).toLowerCase();
-      await admin.firestore().collection('users').doc(principal).set({
+      const safeUsername = sanitizeText(username || principal, 80);
+      await admin.supabase().collection('users').doc(principal).set({
         role: normalizedRole,
         updatedAt: new Date().toISOString()
       }, { merge: true });
-      await admin.firestore().collection('admins').doc(principal).set({
+      await admin.supabase().collection('admins').doc(principal).set({
         uid: principal,
-        username: username || principal,
+        username: safeUsername,
         role: normalizedRole,
         granted_at: new Date().toISOString()
       });
@@ -3488,7 +3507,7 @@ const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 102
   
   (async () => {
     try {
-      const communityDoc = await admin.firestore().collection('settings').doc('community_data').get();
+      const communityDoc = await admin.supabase().collection('settings').doc('community_data').get();
       if (communityDoc.exists) {
         const stored = communityDoc.data()?.data;
         if (stored && stored.categories) {
@@ -3497,18 +3516,18 @@ const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 102
         }
       }
     } catch (e) {
-      console.warn('Could not load communityData from Firestore:', e);
+      console.warn('Could not load communityData from Supabase:', e);
     }
   })();
 
   const saveCommunity = async () => {
     try {
-      await admin.firestore().collection('settings').doc('community_data').set(
+      await admin.supabase().collection('settings').doc('community_data').set(
         { data: communityData },
         { merge: false }
       );
     } catch (e) {
-      console.warn('Could not save communityData to Firestore:', e);
+      console.warn('Could not save communityData to Supabase:', e);
       // Fallback: keep in memory only
     }
   };
@@ -3524,7 +3543,7 @@ const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 102
 
   // Community endpoints removed
 
-// Mutex for key redemption (removed as standard Firestore transactions handle this natively)
+// Mutex for key redemption (removed as Supabase adapter transactions handle this natively)
 
   app.post('/api/redeem', mutationLimiter, requireAuth, async (req: any, res: any) => {
     const { key } = req.body;
@@ -3540,7 +3559,7 @@ const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 102
       let isProductKey = false;
 
       // 1. ลองหาคีย์ใน license_keys (ระบบคีย์ระดับ Premium/VIP แบบเก่า)
-      const snapshot = await admin.firestore().collection('license_keys').where('key', '==', key).where('status', '==', 'active').get();
+      const snapshot = await admin.supabase().collection('license_keys').where('key', '==', key).where('status', '==', 'active').get();
       if (!snapshot.docs || snapshot.docs.length === 0) {
         
         // 2. ถ้าไม่เจอ ลองหาในประวัติการสั่งซื้อ (เผื่อเป็นคีย์แรนด้อม/คีย์สินค้าที่ซื้อไป)
@@ -3559,7 +3578,7 @@ const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 102
                  const keysInPurchase = p.secretData.split('\n').map((k: string) => k.trim());
                  if (keysInPurchase.includes(key.trim())) {
                    foundDoc = { id: p.id || p.dbId, ...p };
-                   keyDocRef = admin.firestore().collection('purchases').doc(p.id || p.dbId);
+                   keyDocRef = admin.supabase().collection('purchases').doc(p.id || p.dbId);
                    break;
                  }
               }
@@ -3576,13 +3595,13 @@ const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 102
 
       } else {
         keyData = snapshot.docs[0].data();
-        keyDocRef = admin.firestore().collection('license_keys').doc(snapshot.docs[0].id);
+        keyDocRef = admin.supabase().collection('license_keys').doc(snapshot.docs[0].id);
       }
       
       let rankToGive = 'premium';
       let expireDate = new Date();
 
-      await admin.firestore().runTransaction(async (t) => {
+      await admin.supabase().runTransaction(async (t) => {
           const docSnap = await t.get(keyDocRef);
           if (!docSnap.exists) throw new Error('Key not found');
           const docData = docSnap.data();
@@ -3601,7 +3620,7 @@ const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 102
         rankToGive = keyData.productName?.replace(/ \(.+\)/g, '') || 'VIP';
         
         // เพิ่มลงในประวัติ (optional)
-        await admin.firestore().collection('used_keys').add({
+        await admin.supabase().collection('used_keys').add({
           key: key,
           ip: req.ip || '',
           uid: uid,
@@ -3614,7 +3633,7 @@ const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 102
 
       } else {
         // เพิ่มลงในประวัติ 
-        await admin.firestore().collection('used_keys').add({
+        await admin.supabase().collection('used_keys').add({
           key: key,
           ip: req.ip || '',
           uid: uid,
@@ -3635,7 +3654,7 @@ const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 102
       communityData.userRanks[uid] = rankToGive;
       saveCommunity();
 
-      await admin.firestore().collection('users').doc(uid).set({
+      await admin.supabase().collection('users').doc(uid).set({
         isPremium: true,
         rank: rankToGive,
         premiumExpireDate: expireDate.toISOString()
@@ -3652,9 +3671,9 @@ const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 102
     if ((req as any).user.uid !== req.params.uid && !req.isAdmin) {
       return res.status(403).json({ error: 'Forbidden' });
     }
-    if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
+    if (!admin.supabase()) return res.status(500).json({ error: 'DB not connected' });
     try {
-      const docRef = admin.firestore().collection('users').doc(req.params.uid);
+      const docRef = admin.supabase().collection('users').doc(req.params.uid);
       const snapshot = await docRef.get();
       if (snapshot.exists) {
         const data = snapshot.data();
@@ -3673,21 +3692,19 @@ const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 102
     if ((req as any).user.uid !== req.params.uid && !req.isAdmin) {
       return res.status(403).json({ error: 'Forbidden' });
     }
-    if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
+    if (!admin.supabase()) return res.status(500).json({ error: 'DB not connected' });
     try {
       const { uid } = req.params;
-      const data = req.body;
+      if (!requireSafeSupabaseRowId(res, uid)) return;
+      const userWritableFields = ['avatar', 'displayName', 'bio', 'username', 'fullName'];
+      const adminWritableFields = [...userWritableFields, 'balance', 'status', 'isPremium', 'rank', 'premiumExpireDate'];
+      const dataToUpdate = pickSanitizedFields(
+        req.body,
+        req.isAdmin ? adminWritableFields : userWritableFields,
+        ['avatar']
+      );
       
-      // Prevent privilege escalation and balance spoofing via whitelisting for non-admin
-      let dataToUpdate = data;
-      if (!req.isAdmin) {
-        const allowedFields = ['avatar', 'displayName', 'bio', 'username', 'fullName', 'email', 'registeredAt']; 
-        dataToUpdate = Object.fromEntries(
-          Object.entries(data).filter(([k]) => allowedFields.includes(k))
-        );
-      }
-      
-      const docRef = admin.firestore().collection('users').doc(uid);
+      const docRef = admin.supabase().collection('users').doc(uid);
       await docRef.set({ ...dataToUpdate, updatedAt: new Date().toISOString() }, { merge: true });
       invalidateUserTokenCache(uid);
       invalidateCache('users');
@@ -3719,7 +3736,7 @@ const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 102
         return res.status(403).json({ error: 'Forbidden' });
       }
       await supabaseAdmin.auth.admin.deleteUser(uid).catch(() => {});
-      await admin.firestore().collection('users').doc(uid).delete();
+      await admin.supabase().collection('users').doc(uid).delete();
       invalidateUserTokenCache(uid);
       invalidateCache('users');
       invalidateStatsCache();
@@ -3735,7 +3752,7 @@ const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 102
       const limit = Math.min(200, parseInt(req.query.limit as string) || 100);
       const offset = (page - 1) * limit;
 
-      const snapshot = await admin.firestore().collection('users').limit(limit).offset(offset).get();
+      const snapshot = await admin.supabase().collection('users').limit(limit).offset(offset).get();
       const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       res.json(data);
     } catch (err: any) {
@@ -3920,7 +3937,7 @@ const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 102
       if (!telegramPhone || !truemoneyPhone) return res.status(400).json({ error: 'Missing phone numbers' });
 
       // Verify Premium
-      const userRef = admin.firestore().collection('users').doc((req as any).user.uid);
+      const userRef = admin.supabase().collection('users').doc((req as any).user.uid);
       const userDoc = await userRef.get();
       const isPremium = req.isAdmin || (userDoc.exists && userDoc.data()?.isPremium);
 
@@ -4136,7 +4153,7 @@ const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 102
       if (!discordToken) return res.status(400).json({ error: 'Missing token' });
 
       // Verify Premium (since it's a 24/7 process that drains memory, we MUST protect it)
-      const userRef = admin.firestore().collection('users').doc((req as any).user.uid);
+      const userRef = admin.supabase().collection('users').doc((req as any).user.uid);
       const userDoc = await userRef.get();
       if (!req.isAdmin && (!userDoc.exists || !userDoc.data()?.isPremium)) {
           return res.status(403).json({ error: 'Premium feature only' });
@@ -4289,7 +4306,7 @@ const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 102
       if (!discordToken || !truemoneyPhone) return res.status(400).json({ error: 'Missing token or phone number' });
 
       // Verify Premium
-      const userRef = admin.firestore().collection('users').doc((req as any).user.uid);
+      const userRef = admin.supabase().collection('users').doc((req as any).user.uid);
       const userDoc = await userRef.get();
       const isPremium = req.isAdmin || (userDoc.exists && userDoc.data()?.isPremium);
 

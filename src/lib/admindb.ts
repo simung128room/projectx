@@ -813,6 +813,9 @@ const auth = {
 };
 
 export const adminDb = {
+  // Supabase-backed data adapter. `firestore` remains as a compatibility alias
+  // for older call sites while the server migrates to the clearer `supabase` name.
+  supabase: () => db,
   firestore: () => db,
   auth: () => auth
 };
