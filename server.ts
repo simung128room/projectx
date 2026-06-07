@@ -105,7 +105,7 @@ const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 50 
 const communityUpload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } }); // 5MB limit
 
 async function uploadToSupabaseStorage(buffer: Buffer, originalName: string, mimeType: string): Promise<string> {
-  const isSupabaseConfigured = !!(process.env.SUPABASE_URL && process.env.SUPABASE_URL.startsWith('http') && (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY));
+  const isSupabaseConfigured = !!(process.env.SUPABASE_URL && process.env.SUPABASE_URL.startsWith('http') && process.env.SUPABASE_SERVICE_ROLE_KEY);
   if (!isSupabaseConfigured) {
     throw new Error('Supabase is not configured');
   }
@@ -189,6 +189,31 @@ async function sendAlert(title: string, message: string, color: number = 1671168
     console.error('Failed to send discord alert:', err.message);
   }
 }
+
+const hashSecret = (value: string): string =>
+  crypto.createHash('sha256').update(value).digest('hex');
+
+const maskSecret = (value: string = ''): string => {
+  if (!value) return '';
+  if (value.length <= 8) return '***';
+  return `${value.slice(0, 4)}***${value.slice(-4)}`;
+};
+
+const isSafeExternalUrl = (value: unknown): value is string => {
+  if (typeof value !== 'string' || value.length > 2048) return false;
+  try {
+    const parsed = new URL(value);
+    return parsed.protocol === 'https:' || parsed.protocol === 'http:' || parsed.protocol === 'mailto:';
+  } catch {
+    return false;
+  }
+};
+
+const safeTimingEqual = (left: string, right: string): boolean => {
+  const leftBuffer = Buffer.from(left);
+  const rightBuffer = Buffer.from(right);
+  return leftBuffer.length === rightBuffer.length && crypto.timingSafeEqual(leftBuffer, rightBuffer);
+};
 
 // Immutable Audit Logging
 async function writeAuditLog(action: string, actor: string, target: string, req: express.Request | any, extraContext: any = {}) {
@@ -732,8 +757,11 @@ import healthRoute from './src/routes/health.route.js';
     }
     
     try {
-      const image = sharp(req.file.buffer);
+      const image = sharp(req.file.buffer, { limitInputPixels: 25_000_000, failOn: 'warning' });
       const metadata = await image.metadata();
+      if (!metadata.width || !metadata.height || metadata.width > 5000 || metadata.height > 5000) {
+        return res.status(400).json({ error: 'Image dimensions too large.' });
+      }
       
       const sanitizedBuffer = await image.webp({ quality: 80 }).toBuffer();
       const mimeType = 'image/webp';
@@ -775,8 +803,11 @@ import healthRoute from './src/routes/health.route.js';
     }
     
     try {
-      const image = sharp(req.file.buffer);
+      const image = sharp(req.file.buffer, { limitInputPixels: 25_000_000, failOn: 'warning' });
       const metadata = await image.metadata();
+      if (!metadata.width || !metadata.height || metadata.width > 5000 || metadata.height > 5000) {
+        return res.status(400).json({ error: 'Image dimensions too large.' });
+      }
       
       const sanitizedBuffer = await image.webp({ quality: 80 }).toBuffer();
       const mimeType = 'image/webp';
@@ -838,7 +869,7 @@ import healthRoute from './src/routes/health.route.js';
   };
 
   // Load from DB (HIGH-05: blocking start until loaded to prevent race conditions)
-  const isSupabaseConfigured = !!(process.env.SUPABASE_URL && process.env.SUPABASE_URL.startsWith('http') && (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY));
+  const isSupabaseConfigured = !!(process.env.SUPABASE_URL && process.env.SUPABASE_URL.startsWith('http') && process.env.SUPABASE_SERVICE_ROLE_KEY);
   if (isSupabaseConfigured) {
     try {
       const docName = process.env.NODE_ENV === 'production' ? 'sys_site' : 'sys_site_dev';
@@ -862,31 +893,29 @@ import healthRoute from './src/routes/health.route.js';
   });
 
   app.post('/api/reset-password', authLimiter, async (req, res) => {
-    const { username, email, newPassword } = req.body;
     try {
-      const generatedEmail = `${username.toLowerCase().replace(/\s+/g, '')}@apex-studio.com`;
-      const usersSnapshot = await admin.firestore().collection('users')
-        .where('email', '==', generatedEmail)
-        .where('recoveryEmail', '==', email)
-        .limit(1)
-        .get();
+      const { username, email } = req.body || {};
+      const resetEmail = typeof username === 'string' && username.trim()
+        ? `${username.toLowerCase().replace(/\s+/g, '')}@apex-studio.com`
+        : (typeof email === 'string' ? email.trim().toLowerCase() : '');
 
-      if (usersSnapshot.empty) {
-        return res.status(404).json({ error: 'ไม่พบผู้ใช้นี้ หรือข้อมูลไม่ถูกต้อง' });
+      if (!resetEmail || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(resetEmail)) {
+        return res.status(400).json({ error: 'Invalid reset request' });
       }
 
-      const userId = usersSnapshot.docs[0].id;
-      const { error } = await supabaseAdmin.auth.admin.updateUserById(userId, {
-        password: newPassword
-      });
-
+      const redirectTo = process.env.PASSWORD_RESET_REDIRECT_URL;
+      const { error } = await supabaseAdmin.auth.resetPasswordForEmail(resetEmail, redirectTo ? { redirectTo } : undefined);
       if (error) {
-        return res.status(400).json({ error: error.message });
+        console.warn('[PasswordReset] Provider rejected reset request:', error.message);
       }
 
-      res.json({ success: true });
+      return res.json({
+        success: true,
+        message: 'If the account exists, a secure password reset email has been sent.'
+      });
     } catch (err: any) {
-      res.status(500).json({ error: err.message || 'Internal error' });
+      console.error('[PasswordReset] Error:', err.message || err);
+      return res.status(500).json({ error: 'Unable to process reset request' });
     }
   });
 
@@ -930,11 +959,11 @@ import healthRoute from './src/routes/health.route.js';
   });
 
   app.post('/api/settings', requireAdmin, async (req: any, res: any) => {
-    console.log("=== POST /api/settings REACHED ===", req.body);
+    console.log("=== POST /api/settings REACHED ===");
     const { truewallet_phone, site_name, contact_line, stats_users_offset, stats_sales_offset, stats_categories_offset, stats_stock_offset, stats_users_override, stats_stock_override, stats_sales_override, stats_categories_override, popup_img_url, popup_enabled, popup_link, banners, proxies, auto_proxy, spotify_url, spotify_autoplay } = req.body;
     if (truewallet_phone !== undefined) siteSettings.truewallet_phone = truewallet_phone;
     if (site_name !== undefined) siteSettings.site_name = site_name;
-    if (contact_line !== undefined) siteSettings.contact_line = contact_line;
+    if (contact_line !== undefined) siteSettings.contact_line = isSafeExternalUrl(contact_line) ? contact_line : '';
     if (stats_users_offset !== undefined) siteSettings.stats_users_offset = parseInt(stats_users_offset) || 0;
     if (stats_sales_offset !== undefined) siteSettings.stats_sales_offset = parseInt(stats_sales_offset) || 0;
     if (stats_categories_offset !== undefined) siteSettings.stats_categories_offset = parseInt(stats_categories_offset) || 0;
@@ -943,23 +972,23 @@ import healthRoute from './src/routes/health.route.js';
     if (stats_stock_override !== undefined) siteSettings.stats_stock_override = stats_stock_override === null || isNaN(parseInt(stats_stock_override)) ? null : parseInt(stats_stock_override);
     if (stats_sales_override !== undefined) siteSettings.stats_sales_override = stats_sales_override === null || isNaN(parseInt(stats_sales_override)) ? null : parseInt(stats_sales_override);
     if (stats_categories_override !== undefined) siteSettings.stats_categories_override = stats_categories_override === null || isNaN(parseInt(stats_categories_override)) ? null : parseInt(stats_categories_override);
-    if (popup_img_url !== undefined) siteSettings.popup_img_url = popup_img_url;
+    if (popup_img_url !== undefined) siteSettings.popup_img_url = isSafeExternalUrl(popup_img_url) ? popup_img_url : '';
     if (popup_enabled !== undefined) siteSettings.popup_enabled = popup_enabled === true || popup_enabled === 'true';
-    if (popup_link !== undefined) siteSettings.popup_link = popup_link;
-    if (req.body.discord_link !== undefined) siteSettings.discord_link = req.body.discord_link;
-    if (req.body.facebook_link !== undefined) siteSettings.facebook_link = req.body.facebook_link;
-    if (req.body.instagram_link !== undefined) siteSettings.instagram_link = req.body.instagram_link;
+    if (popup_link !== undefined) siteSettings.popup_link = isSafeExternalUrl(popup_link) ? popup_link : '';
+    if (req.body.discord_link !== undefined) siteSettings.discord_link = isSafeExternalUrl(req.body.discord_link) ? req.body.discord_link : '';
+    if (req.body.facebook_link !== undefined) siteSettings.facebook_link = isSafeExternalUrl(req.body.facebook_link) ? req.body.facebook_link : '';
+    if (req.body.instagram_link !== undefined) siteSettings.instagram_link = isSafeExternalUrl(req.body.instagram_link) ? req.body.instagram_link : '';
     if (req.body.contact_email !== undefined) siteSettings.contact_email = req.body.contact_email;
     if (req.body.announcement_text !== undefined) siteSettings.announcement_text = req.body.announcement_text;
-    if (req.body.spotify_url !== undefined) siteSettings.spotify_url = req.body.spotify_url;
+    if (req.body.spotify_url !== undefined) siteSettings.spotify_url = isSafeExternalUrl(req.body.spotify_url) ? req.body.spotify_url : '';
     if (req.body.spotify_autoplay !== undefined) siteSettings.spotify_autoplay = req.body.spotify_autoplay === true || req.body.spotify_autoplay === 'true';
-    if (req.body.banners !== undefined && Array.isArray(req.body.banners)) siteSettings.banners = req.body.banners;
+    if (req.body.banners !== undefined && Array.isArray(req.body.banners)) siteSettings.banners = req.body.banners.filter(isSafeExternalUrl);
     if (req.body.proxies !== undefined && Array.isArray(req.body.proxies)) siteSettings.proxies = req.body.proxies;
     if (req.body.auto_proxy !== undefined) siteSettings.auto_proxy = req.body.auto_proxy === true || req.body.auto_proxy === 'true';
     if (req.body.bank_name !== undefined) siteSettings.bank_name = req.body.bank_name;
     if (req.body.bank_account_number !== undefined) siteSettings.bank_account_number = req.body.bank_account_number;
     if (req.body.bank_account_holder !== undefined) siteSettings.bank_account_holder = req.body.bank_account_holder;
-    if (req.body.bank_qr_image !== undefined) siteSettings.bank_qr_image = req.body.bank_qr_image;
+    if (req.body.bank_qr_image !== undefined) siteSettings.bank_qr_image = isSafeExternalUrl(req.body.bank_qr_image) ? req.body.bank_qr_image : '';
     
     // Clear cached stats so they refresh next time someone calls /api/stats
     invalidateStatsCache();
@@ -1022,27 +1051,22 @@ import healthRoute from './src/routes/health.route.js';
       // Final cleanup: just in case there's whitespace or extra chars
       voucherHash = voucherHash.replace(/[^a-zA-Z0-9]/g, '');
 
-      console.log(`[TrueWallet] Attempting to redeem via XPLUEM: "${voucherHash}" for phone: ${phone}`);
+      console.log(`[TrueWallet] Attempting redeem. voucherHash=${hashSecret(voucherHash).slice(0, 12)} phone=${maskSecret(phone)}`);
 
-      // Transaction protection for duplicates (HIGH-02)
+      // Atomic duplicate protection: vouchers.id has a unique/primary-key constraint in database_security_hardening.sql
       voucherRef = admin.firestore().collection('vouchers').doc(voucherHash);
-      try {
-        await admin.firestore().runTransaction(async (t) => {
-           const doc = await t.get(voucherRef);
-           if (doc.exists) {
-               throw new Error('DUPLICATE_VOUCHER');
-           }
-           t.set(voucherRef, {
-               usedAt: new Date().toISOString(),
-               uid,
-               status: 'pending'
-           });
-        });
-      } catch (err: any) {
-        if (err.message === 'DUPLICATE_VOUCHER') {
-           return res.json({ success: false, error: 'ซองของขวัญนี้ถูกใช้งานไปแล้วในระบบของเรา' });
+      const { error: voucherReserveError } = await supabaseAdmin.from('vouchers').insert([{
+        id: voucherHash,
+        voucher_hash: voucherHash,
+        used_at: new Date().toISOString(),
+        uid,
+        status: 'pending'
+      }]);
+      if (voucherReserveError) {
+        if (voucherReserveError.code === '23505') {
+          return res.json({ success: false, error: 'ซองของขวัญนี้ถูกใช้งานไปแล้วในระบบของเรา' });
         }
-        throw err;
+        throw voucherReserveError;
       }
 
       // Using the new API: https://api.xpluem.com/:link/:phone
@@ -1069,7 +1093,7 @@ import healthRoute from './src/routes/health.route.js';
       }
 
       const result = response.data;
-      console.log(`[TrueWallet] XPLUEM Response:`, JSON.stringify(result));
+      console.log(`[TrueWallet] XPLUEM Response status:`, result?.success === true ? 'success' : 'failed');
 
       if (result.success === true) {
           const amount = parseFloat(result.data?.amount || 0);
@@ -1237,26 +1261,18 @@ import healthRoute from './src/routes/health.route.js';
         }
         
         if (transRef) {
-          // Check if used in DB using a transaction to prevent race conditions
-          try {
-             await admin.firestore().runTransaction(async (t) => {
-               const docRef = admin.firestore().collection('slips').doc(transRef);
-               const existingRef = await t.get(docRef);
-               if (existingRef.exists) {
-                  throw new Error('SLIP_USED');
-               }
-               t.set(docRef, {
-                 uid,
-                 amount,
-                 used_at: new Date().toISOString()
-               });
-             });
-          } catch(e: any) {
-             if (e.message === 'SLIP_USED') {
+          const { error: slipReserveError } = await supabaseAdmin.from('slips').insert([{
+            id: transRef,
+            trans_ref: transRef,
+            uid,
+            amount,
+            used_at: new Date().toISOString()
+          }]);
+          if (slipReserveError) {
+             if (slipReserveError.code === '23505') {
                 return res.json({ success: false, error: 'สลิปนี้ถูกใช้งานไปแล้ว (ตรวจสอบจากระบบ)' });
              }
-             // If DB transaction fails for reasons other than SLIP_USED, we must not proceed.
-             console.error("Slip transaction failed:", e);
+             console.error("Slip reserve failed:", slipReserveError);
              return res.status(500).json({ success: false, error: 'ระบบขัดข้องชั่วคราว ไม่สามารถตรวจสอบสลิปได้ กรุณาลองใหม่อีกครั้ง' });
           }
         }
@@ -1344,17 +1360,22 @@ import healthRoute from './src/routes/health.route.js';
         return res.status(500).json({ error: 'Database connection error' });
       }
       try {
-        const apiKeyDoc = await admin.firestore().collection('api_keys').doc(apiKey).get();
+        const apiKeyHash = hashSecret(apiKey);
+        let apiKeyDoc = await admin.firestore().collection('api_keys').doc(apiKeyHash).get();
+        if (!apiKeyDoc.exists) {
+          // Temporary compatibility with legacy plaintext API-key documents.
+          apiKeyDoc = await admin.firestore().collection('api_keys').doc(apiKey).get();
+        }
         if (apiKeyDoc.exists) {
           const data = apiKeyDoc.data();
           if (data?.status === 'active') {
             if (data?.expires_at && new Date(data.expires_at) < new Date()) {
-               await admin.firestore().collection('api_keys').doc(apiKey).update({ status: 'expired' }).catch(() => {});
+               await admin.firestore().collection('api_keys').doc(apiKeyDoc.id).update({ status: 'expired' }).catch(() => {});
                return res.status(401).json({ error: 'API Key has expired' });
             }
             isApiKeyValid = true;
             // Fire and forget updating last_used
-            admin.firestore().collection('api_keys').doc(apiKey).update({ last_used: new Date().toISOString() }).catch(() => {});
+            admin.firestore().collection('api_keys').doc(apiKeyDoc.id).update({ last_used: new Date().toISOString() }).catch(() => {});
           } else {
              return res.status(401).json({ error: 'API Key is disabled or expired' });
           }
@@ -2162,7 +2183,7 @@ const uploadDir = path.join(os.tmpdir(), 'uploads');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
-const diskUpload = multer({ dest: uploadDir });
+const diskUpload = multer({ dest: uploadDir, limits: { fileSize: 10 * 1024 * 1024, files: 1 } });
 
   // Stream-based large file stock upload
   app.post('/api/products/:id/stock-file', requireAdmin, diskUpload.single('file'), async (req, res) => {
@@ -2173,6 +2194,9 @@ const diskUpload = multer({ dest: uploadDir });
       }
 
       const linesPerItem = parseInt(req.body.linesPerItem || '1') || 1;
+      if (!Number.isInteger(linesPerItem) || linesPerItem < 1 || linesPerItem > 20) {
+        return res.status(400).json({ error: 'Invalid linesPerItem' });
+      }
       const fileStream = fs.createReadStream(req.file.path);
       
       const rl = readline.createInterface({
@@ -2189,6 +2213,9 @@ const diskUpload = multer({ dest: uploadDir });
           currentLines.push(trimmed);
           if (currentLines.length >= linesPerItem) {
             chunkedItems.push(currentLines.join('\n'));
+            if (chunkedItems.length > 100000) {
+              throw new Error('TOO_MANY_STOCK_ITEMS');
+            }
             currentLines = [];
           }
         }
@@ -2637,7 +2664,7 @@ const diskUpload = multer({ dest: uploadDir });
     if (!expectedSecret) {
       return res.status(500).json({ error: 'DISCORD_BOT_SECRET is not configured' });
     }
-    if (secret !== expectedSecret) {
+    if (typeof secret !== 'string' || !safeTimingEqual(secret, expectedSecret)) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
     try {
@@ -2656,7 +2683,7 @@ const diskUpload = multer({ dest: uploadDir });
     if (!expectedSecret) {
       return res.status(500).json({ error: 'DISCORD_BOT_SECRET is not configured' });
     }
-    if (secret !== expectedSecret) {
+    if (typeof secret !== 'string' || !safeTimingEqual(secret, expectedSecret)) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
     
@@ -2665,15 +2692,19 @@ const diskUpload = multer({ dest: uploadDir });
     }
 
     try {
-      // 1. ลองหา key ใน license_keys
-      const licenseSnapshot = await admin.firestore().collection('license_keys').where('key', '==', key).where('status', '==', 'active').get();
-      if (!licenseSnapshot.empty) {
-        const docId = licenseSnapshot.docs[0].id;
-        const docRef = admin.firestore().collection('license_keys').doc(docId);
-        await docRef.update({ status: 'used' });
-        // บันทึกประวัติ
+      // 1. Atomically claim key in license_keys
+      const { data: claimedLicense, error: claimError } = await supabaseAdmin
+        .from('license_keys')
+        .update({ status: 'used', used_at: new Date().toISOString() })
+        .eq('key', key)
+        .eq('status', 'active')
+        .select('id')
+        .maybeSingle();
+
+      if (claimError) throw claimError;
+      if (claimedLicense) {
         await admin.firestore().collection('used_keys').add({
-            key,
+            key_hash: hashSecret(key),
             used_by_discord: true,
             uid: req.body.uid || null,
             used_at: new Date().toISOString()
@@ -2716,7 +2747,7 @@ const diskUpload = multer({ dest: uploadDir });
       await admin.firestore().collection('purchases').doc(foundDoc.id).update({ ...foundDoc, discordClaimed: true });
 
       res.json({ success: true, message: 'รับยศสำเร็จ!' });
-      writeAuditLog('DISCORD_ROLE_CLAIM', (req as any).user?.uid || 'system', 'discord_role', req, { key: req.body.key });
+      writeAuditLog('DISCORD_ROLE_CLAIM', (req as any).user?.uid || 'system', 'discord_role', req, { keyHash: hashSecret(req.body.key || '') });
     } catch (e: any) {
       console.error(e);
       res.status(500).json({ error: e?.details || e?.message || 'Internal server error' });
@@ -3095,7 +3126,8 @@ const diskUpload = multer({ dest: uploadDir });
         }
       } catch (e) {}
 
-      let payload = dbData || memoryLogSystemData;
+      const rawPayload = dbData || memoryLogSystemData;
+      let payload = rawPayload ? JSON.parse(JSON.stringify(rawPayload)) : { categories: [], items: [] };
       if (!payload || !payload.categories) payload = { categories: [], items: [] };
       
       // Auto-filter based on user VIP status
@@ -3376,7 +3408,8 @@ const diskUpload = multer({ dest: uploadDir });
   app.post('/api/api_keys', requireAdmin, async (req: any, res: any) => {
     try {
       const { name, is_lifetime, expire_days } = req.body;
-      const keyString = 'apx_' + crypto.randomBytes(16).toString('hex');
+      const keyString = 'apx_' + crypto.randomBytes(32).toString('base64url');
+      const keyHash = hashSecret(keyString);
       const now = new Date();
       let expires_at = null;
       if (!is_lifetime && expire_days) {
@@ -3384,15 +3417,16 @@ const diskUpload = multer({ dest: uploadDir });
          expires_at = now.toISOString();
       }
       const newKey = {
-         key: keyString,
+         keyHash,
+         keyPrefix: keyString.slice(0, 12),
          name: name || 'Unnamed Key',
          status: 'active',
          created_at: new Date().toISOString(),
          expires_at,
          last_used: null
       };
-      await admin.firestore().collection('api_keys').doc(keyString).set(newKey);
-      res.json(newKey);
+      await admin.firestore().collection('api_keys').doc(keyHash).set(newKey);
+      res.json({ ...newKey, key: keyString });
     } catch (err: any) {
        res.status(500).json({ error: String(err && err.message ? err.message : err) });
     }
@@ -3400,7 +3434,8 @@ const diskUpload = multer({ dest: uploadDir });
 
   app.delete('/api/api_keys/:key', requireAdmin, async (req: any, res: any) => {
     try {
-      await admin.firestore().collection('api_keys').doc(req.params.key).delete();
+      const keyId = req.params.key.startsWith('apx_') ? hashSecret(req.params.key) : req.params.key;
+      await admin.firestore().collection('api_keys').doc(keyId).delete();
       res.json({ success: true });
     } catch (err: any) {
       res.status(500).json({ error: String(err && err.message ? err.message : err) });
@@ -3410,7 +3445,11 @@ const diskUpload = multer({ dest: uploadDir });
   app.patch('/api/api_keys/:key', requireAdmin, async (req: any, res: any) => {
     try {
       const { status } = req.body;
-      await admin.firestore().collection('api_keys').doc(req.params.key).update({ status });
+      if (!['active', 'disabled', 'expired'].includes(status)) {
+        return res.status(400).json({ error: 'Invalid API key status' });
+      }
+      const keyId = req.params.key.startsWith('apx_') ? hashSecret(req.params.key) : req.params.key;
+      await admin.firestore().collection('api_keys').doc(keyId).update({ status });
       res.json({ success: true, status });
     } catch (err: any) {
       res.status(500).json({ error: String(err && err.message ? err.message : err) });
@@ -3419,12 +3458,25 @@ const diskUpload = multer({ dest: uploadDir });
 
   app.post('/api/admins', requireAdmin, async (req: any, res: any) => {
     try {
-      const { username, role } = req.body;
-      const newDoc = { username, role, granted_at: new Date().toISOString() };
-      const docRef = admin.firestore().collection('admins').doc(username);
-      await docRef.set(newDoc);
-      invalidateUserTokenCache(username);
-      res.json({ id: username, ...newDoc });
+      const { uid, username, role } = req.body;
+      const principal = typeof uid === 'string' && uid.trim() ? uid.trim() : (typeof username === 'string' ? username.trim() : '');
+      if (!principal || !['admin', 'owner', 'user'].includes(String(role).toLowerCase())) {
+        return res.status(400).json({ error: 'Invalid admin grant request' });
+      }
+
+      const normalizedRole = String(role).toLowerCase();
+      await admin.firestore().collection('users').doc(principal).set({
+        role: normalizedRole,
+        updatedAt: new Date().toISOString()
+      }, { merge: true });
+      await admin.firestore().collection('admins').doc(principal).set({
+        uid: principal,
+        username: username || principal,
+        role: normalizedRole,
+        granted_at: new Date().toISOString()
+      });
+      invalidateUserTokenCache(principal);
+      res.json({ id: principal, uid: principal, role: normalizedRole });
     } catch (err) {
       console.error('Internal server error upserting admin:', err);
       res.status(500).json({ error: String(err && err.message ? err.message : err) });
@@ -3748,10 +3800,13 @@ const diskUpload = multer({ dest: uploadDir });
   });
 
   app.post('/api/bot/save', requireAdmin, (req, res) => {
-    // Save config first if provided
-    if (req.body.config) {
-        fs.writeFileSync(path.join(os.tmpdir(), 'bot.py'), req.body.config);
+    if (typeof req.body.config !== 'string') {
+      return res.status(400).json({ error: 'Bot config must be text' });
     }
+    if (req.body.config.length > 100_000) {
+      return res.status(413).json({ error: 'Bot config is too large' });
+    }
+    fs.writeFileSync(path.join(os.tmpdir(), 'bot.py'), req.body.config, { mode: 0o600 });
     res.json({ success: true, message: 'Bot config saved' });
   });
 
@@ -4036,7 +4091,7 @@ const diskUpload = multer({ dest: uploadDir });
   app.post('/api/telegram/catcher/stop', requireAuth, async (req: any, res: any) => {
       const { sessionId } = req.body;
       const sess = tgSessions.get(sessionId);
-      if (sess) {
+      if (sess && sess.uid === req.user.uid) {
           try { await sess.client.disconnect(); } catch (e) {}
           tgSessions.delete(sessionId);
           for (const [hash, sid] of tgPhoneHashToSessionId.entries()) {
@@ -4062,13 +4117,14 @@ const diskUpload = multer({ dest: uploadDir });
 
   // --- Discord Token On Service ---
   const discordTokenOnSessions = new Map<string, {
+      ownerUid: string,
       ws: WebSocket,
       status: 'idle' | 'connected' | 'error',
       logs: string[]
   }>();
 
-  function pushDiscordOnLog(token: string, msg: string) {
-      const sess = discordTokenOnSessions.get(token);
+  function pushDiscordOnLog(sessionKey: string, msg: string) {
+      const sess = discordTokenOnSessions.get(sessionKey);
       if (sess) {
           sess.logs.push(`[${new Date().toLocaleTimeString()}] ${msg}`);
           if (sess.logs.length > 50) sess.logs.shift();
@@ -4090,7 +4146,11 @@ const diskUpload = multer({ dest: uploadDir });
           if (discordTokenOnSessions.size >= 50) {
               return res.status(503).json({ error: 'Server reached maximum concurrent active connections. Please try again later.' });
           }
-          let sess = discordTokenOnSessions.get(discordToken);
+          const sessionKey = hashSecret(discordToken);
+          let sess = discordTokenOnSessions.get(sessionKey);
+          if (sess && sess.ownerUid !== (req as any).user.uid) {
+             return res.status(403).json({ error: 'Forbidden' });
+          }
           if (sess && sess.status === 'connected') {
              return res.json({ status: 'connected' });
           }
@@ -4098,17 +4158,18 @@ const diskUpload = multer({ dest: uploadDir });
           const ws = new WebSocket('wss://gateway.discord.gg/?encoding=json&v=9&compress=json');
           
           sess = { 
+              ownerUid: (req as any).user.uid,
               ws, 
               status: 'idle', 
               logs: ['🎯 เริ่มระบบ Token On (24/7)...']
           };
-          discordTokenOnSessions.set(discordToken, sess);
+          discordTokenOnSessions.set(sessionKey, sess);
 
           let hbInterval: NodeJS.Timeout | null = null;
 
           ws.on('open', () => {
               sess!.status = 'connected';
-              pushDiscordOnLog(discordToken, '✅ เชื่อมต่อ Discord Gateway สำเร็จ! ไอดีของคุณออนไลน์แล้ว');
+              pushDiscordOnLog(sessionKey, '✅ เชื่อมต่อ Discord Gateway สำเร็จ! ไอดีของคุณออนไลน์แล้ว');
               // Identify Payload
               ws.send(JSON.stringify({
                   "op": 2,
@@ -4155,24 +4216,24 @@ const diskUpload = multer({ dest: uploadDir });
               }
               
               if (payload.t === 'READY') {
-                  pushDiscordOnLog(discordToken, `✅ ยืนยันตัวตนสำเร็จ: ${payload.d.user.username}#${payload.d.user.discriminator}`);
+                  pushDiscordOnLog(sessionKey, `✅ ยืนยันตัวตนสำเร็จ: ${payload.d.user.username}#${payload.d.user.discriminator}`);
               }
           });
 
           ws.on('close', () => {
               if (hbInterval) clearInterval(hbInterval);
-              const curSess = discordTokenOnSessions.get(discordToken);
+              const curSess = discordTokenOnSessions.get(sessionKey);
               if (curSess) {
                  curSess.status = 'error';
-                 pushDiscordOnLog(discordToken, '❌ ตัดการเชื่อมต่อจาก Discord Gateway แล้ว');
+                 pushDiscordOnLog(sessionKey, '❌ ตัดการเชื่อมต่อจาก Discord Gateway แล้ว');
               }
           });
 
           ws.on('error', (err: any) => {
-              const curSess = discordTokenOnSessions.get(discordToken);
+              const curSess = discordTokenOnSessions.get(sessionKey);
               if (curSess) {
                   curSess.status = 'error';
-                  pushDiscordOnLog(discordToken, `❌ ข้อผิดพลาด WebSocket: ${err.message}`);
+                  pushDiscordOnLog(sessionKey, `❌ ข้อผิดพลาด WebSocket: ${err.message}`);
               }
           });
 
@@ -4187,23 +4248,25 @@ const diskUpload = multer({ dest: uploadDir });
   app.post('/api/discord/token-on/status', requireAuth, async (req: any, res: any) => {
       const token = req.body.token as string;
       if (!token) return res.status(400).json({ error: 'Missing token' });
-      const sess = discordTokenOnSessions.get(token);
-      if (!sess) return res.json({ status: 'none', logs: [] });
+      const sess = discordTokenOnSessions.get(hashSecret(token));
+      if (!sess || sess.ownerUid !== (req as any).user.uid) return res.json({ status: 'none', logs: [] });
       res.json({ status: sess.status, logs: sess.logs });
   });
 
   app.post('/api/discord/token-on/stop', requireAuth, async (req: any, res: any) => {
       const { discordToken } = req.body;
-      const sess = discordTokenOnSessions.get(discordToken);
-      if (sess) {
+      const sessionKey = typeof discordToken === 'string' ? hashSecret(discordToken) : '';
+      const sess = sessionKey ? discordTokenOnSessions.get(sessionKey) : null;
+      if (sess && sess.ownerUid === (req as any).user.uid) {
           try { sess.ws.close(); } catch (e) {}
-          discordTokenOnSessions.delete(discordToken);
+          discordTokenOnSessions.delete(sessionKey);
       }
       res.json({ success: true });
   });
 
   // --- Discord Gift Catcher Service ---
   const discordSessions = new Map<string, {
+      ownerUid: string,
       ws: WebSocket,
       status: 'idle' | 'connected' | 'error',
       encryptedToken: string,
@@ -4251,6 +4314,9 @@ const diskUpload = multer({ dest: uploadDir });
           const tokenHash = crypto.createHash('sha256').update(discordToken).digest('hex');
           let sessionId = discordTokenHashToSessionId.get(tokenHash);
           let sess = sessionId ? discordSessions.get(sessionId) : null;
+          if (sess && sess.ownerUid !== (req as any).user.uid) {
+             return res.status(403).json({ error: 'Forbidden' });
+          }
           if (sess && sess.status === 'connected') {
              return res.json({ status: 'connected', sessionId });
           }
@@ -4263,6 +4329,7 @@ const diskUpload = multer({ dest: uploadDir });
           const ws = new WebSocket('wss://gateway.discord.gg/?encoding=json&v=9&compress=json');
           
           sess = { 
+              ownerUid: (req as any).user.uid,
               ws, 
               status: 'idle', 
               encryptedToken: encrypt(discordToken),
@@ -4366,17 +4433,17 @@ const diskUpload = multer({ dest: uploadDir });
       }
   });
 
-  app.post('/api/discord/catcher/status', async (req, res) => {
+  app.post('/api/discord/catcher/status', requireAuth, async (req: any, res: any) => {
       const { sessionId } = req.body;
       const sess = discordSessions.get(sessionId);
-      if (!sess) return res.json({ status: 'none', logs: [] });
+      if (!sess || sess.ownerUid !== (req as any).user.uid) return res.json({ status: 'none', logs: [] });
       res.json({ status: sess.status, logs: sess.logs });
   });
 
   app.post('/api/discord/catcher/stop', requireAuth, async (req: any, res: any) => {
       const { sessionId } = req.body;
       const sess = discordSessions.get(sessionId);
-      if (sess) {
+      if (sess && sess.ownerUid === (req as any).user.uid) {
           try { sess.ws.close(); } catch (e) {}
           discordSessions.delete(sessionId);
           for (const [hash, sid] of discordTokenHashToSessionId.entries()) {

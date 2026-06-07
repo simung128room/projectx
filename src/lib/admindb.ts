@@ -47,7 +47,7 @@ async function saveLocalTable(collection: string, data: any) {
 }
 
 const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
-const supabaseKey = (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY || '').trim();
+const supabaseKey = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
 
 // Ensure the key is an actual JWT/ASCII string and not Thai text to prevent Node Headers ByteString crash
 const isValidKey = /^[A-Za-z0-9\-_.]+$/.test(supabaseKey);
@@ -55,7 +55,7 @@ const isValidKey = /^[A-Za-z0-9\-_.]+$/.test(supabaseKey);
 const isSupabaseAdminConfigured = !!(supabaseUrl && supabaseUrl.startsWith('http') && supabaseKey && isValidKey);
 
 if (!isSupabaseAdminConfigured) {
-  console.warn('Supabase service role variables are missing, invalid, or contain non-ascii characters');
+  console.warn('Supabase service role variables are missing, invalid, or contain non-ascii characters. Backend admin access is disabled until SUPABASE_SERVICE_ROLE_KEY is configured.');
 }
 
 const safeUrl = isSupabaseAdminConfigured ? supabaseUrl : 'https://placeholder.supabase.co';
@@ -94,7 +94,11 @@ const camelMap: Record<string, string> = {
   web_claimed: 'webClaimed',
   product_id: 'productId',
   is_deleted: 'isDeleted',
-  isdeleted: 'isDeleted'
+  isdeleted: 'isDeleted',
+  key_hash: 'keyHash',
+  keyhash: 'keyHash',
+  key_prefix: 'keyPrefix',
+  keyprefix: 'keyPrefix'
 };
 
 const forwardMap: Record<string, string> = {
@@ -114,7 +118,9 @@ const forwardMap: Record<string, string> = {
   discordClaimed: 'discord_claimed',
   webClaimed: 'web_claimed',
   productId: 'product_id',
-  isDeleted: 'is_deleted'
+  isDeleted: 'is_deleted',
+  keyHash: 'key_hash',
+  keyPrefix: 'key_prefix'
 };
 
 const missingColumns = new Set<string>();
