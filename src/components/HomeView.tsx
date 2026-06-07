@@ -215,7 +215,10 @@ function CategoryChip({
       className="relative group overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0c0c0e] hover:border-white/20 transition-all duration-300 flex flex-col cursor-pointer hover:-translate-y-1 shadow-lg"
     >
       {/* Banner Area */}
-      <div className="relative aspect-[21/5] w-full overflow-hidden shrink-0 bg-[#141416]">
+      <div 
+        className="relative w-full overflow-hidden shrink-0 bg-[#141416]"
+        style={{ aspectRatio: '2100 / 500' }}
+      >
         {cat.bannerUrl ? (
           <img
             src={cat.bannerUrl}
@@ -460,7 +463,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
-          className="relative overflow-hidden rounded-2xl border border-white/[0.07] mb-3 aspect-[21/5] bg-[#0d0d0d]"
+          className="relative overflow-hidden rounded-2xl border border-white/[0.07] mb-3 bg-[#0d0d0d]"
+          style={{ aspectRatio: '2100 / 500' }}
         >
           <img
             src="https://img2.pic.in.th/IMG_7177176d5344301b32a1.png"

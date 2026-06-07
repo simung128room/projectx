@@ -2381,7 +2381,7 @@ function AppContent() {
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
           >
-            <img src="https://img2.pic.in.th/IMG_718032ab9d504326a436.png" alt="APEXSTORE Logo" className="h-[36px] md:h-[42px] object-contain" />
+            <img src="https://img2.pic.in.th/IMG_718032ab9d504326a436.png" alt="APEXSTORE Logo" className="h-[28px] md:h-[34px] object-contain" />
           </div>
 
           {/* Desktop Navigation */}
@@ -2462,16 +2462,7 @@ function AppContent() {
           </nav>
 
           {/* Right Section */}
-          <div className="flex items-center gap-3">
-            {/* Search Button */}
-            <button
-              onClick={() => setActiveView("search")}
-              className="w-10 h-10 rounded-xl flex items-center justify-center text-white/50 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] transition-all duration-200 cursor-pointer"
-              aria-label="Search"
-            >
-              <Search className="w-4.5 h-4.5" />
-            </button>
-
+          <div className="flex items-center gap-2 sm:gap-3">
             {/* Profile / Status */}
             <div className="hidden lg:flex items-center gap-3">
               {user ? (
@@ -2520,15 +2511,27 @@ function AppContent() {
               </span>
             </div>
 
-            {/* Mobile Burger Trigger */}
-            <motion.button
-              whileTap={{ scale: 0.9 }}
-              onClick={() => setIsMobileMenuOpen(true)}
-              className="lg:hidden w-10 h-10 rounded-xl flex items-center justify-center text-white/50 hover:text-white bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.05] transition-all duration-200 active:scale-95 cursor-pointer"
-              aria-label="Menu"
-            >
-              <Menu className="w-5 h-5" />
-            </motion.button>
+            {/* Menu Controls Group - Placed close together like in the picture */}
+            <div className="flex items-center gap-1 sm:gap-1.5">
+              {/* Search Button */}
+              <button
+                onClick={() => setActiveView("search")}
+                className="w-10 h-10 rounded-xl flex items-center justify-center text-white/50 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] transition-all duration-200 cursor-pointer"
+                aria-label="Search"
+              >
+                <Search className="w-4.5 h-4.5" />
+              </button>
+
+              {/* Mobile Burger Trigger */}
+              <motion.button
+                whileTap={{ scale: 0.9 }}
+                onClick={() => setIsMobileMenuOpen(true)}
+                className="lg:hidden w-10 h-10 rounded-xl flex items-center justify-center text-white/50 hover:text-white bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.05] transition-all duration-200 active:scale-95 cursor-pointer"
+                aria-label="Menu"
+              >
+                <Menu className="w-5 h-5" />
+              </motion.button>
+            </div>
           </div>
         </div>
       </header>

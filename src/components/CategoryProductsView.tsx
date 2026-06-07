@@ -75,6 +75,22 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
         </div>
       </div>
 
+      {/* Category Banner Image (2100 x 500 style) */}
+      {category !== "all" && categoryInfo?.bannerUrl && (
+        <div 
+          className="relative w-full rounded-2xl overflow-hidden border border-white/[0.08] bg-[#0d0d0d] mb-10 group shadow-lg"
+          style={{ aspectRatio: '2100 / 500' }}
+        >
+          <img
+            src={categoryInfo.bannerUrl}
+            alt={categoryInfo.title || "Banner"}
+            className="w-full h-full object-cover transition-transform duration-500 opacity-75 group-hover:opacity-90"
+            referrerPolicy="no-referrer"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+        </div>
+      )}
+
       {!filteredProducts || filteredProducts.length === 0 ? (
         <div className="border-2 border-dashed border-border bg-card p-16 text-center brut-card">
           <div className="animate-pulse mb-6 flex justify-center">
