@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Check } from 'lucide-react';
-import { safeExternalUrl } from '../lib/url';
 
 interface PopupBannerProps {
   enabled: boolean;
@@ -36,9 +35,9 @@ export const PopupBanner: React.FC<PopupBannerProps> = ({ enabled, imgUrl, linkU
   };
 
   const ImageContent = () => (
-    <img loading="lazy"
-      src={safeExternalUrl(imgUrl, "https://images.unsplash.com/photo-1607083206968-13611e3d76db?auto=format&fit=crop&q=80&w=1500&h=1500")}
-      alt="Announcement"
+    <img loading="lazy" 
+      src={imgUrl || "https://images.unsplash.com/photo-1607083206968-13611e3d76db?auto=format&fit=crop&q=80&w=1500&h=1500"} 
+      alt="Announcement" 
       className="w-full max-h-[70vh] object-contain"
     />
   );
@@ -46,7 +45,7 @@ export const PopupBanner: React.FC<PopupBannerProps> = ({ enabled, imgUrl, linkU
   return (
     <AnimatePresence>
       {isOpen && (
-        <div
+        <div 
           className="fixed top-24 right-4 sm:top-28 sm:right-6 z-[100] pointer-events-none flex"
         >
           <motion.div
@@ -62,10 +61,10 @@ export const PopupBanner: React.FC<PopupBannerProps> = ({ enabled, imgUrl, linkU
             >
               <X className="w-5 h-5" />
             </button>
-
+            
             <div className="w-full flex-1 overflow-auto bg-card flex items-center justify-center brut-card">
-              {safeExternalUrl(linkUrl, '') ? (
-                <a href={safeExternalUrl(linkUrl, '')} target="_blank" rel="noopener noreferrer" className="w-full h-full flex items-center justify-center">
+              {linkUrl ? (
+                <a href={linkUrl} target="_blank" rel="noopener noreferrer" className="w-full h-full flex items-center justify-center">
                   <ImageContent />
                 </a>
               ) : (
@@ -76,9 +75,9 @@ export const PopupBanner: React.FC<PopupBannerProps> = ({ enabled, imgUrl, linkU
             <div className="p-4 sm:px-6 bg-card flex-shrink-0 flex flex-wrap items-center justify-between border-t border-border border-2 gap-4 brut-card">
               <label className="flex items-center gap-3 cursor-pointer group">
                 <div className="relative flex items-center justify-center">
-                  <input
-                    type="checkbox"
-                    className="sr-only"
+                  <input 
+                    type="checkbox" 
+                    className="sr-only" 
                     checked={dontShow}
                     onChange={(e) => setDontShow(e.target.checked)}
                   />

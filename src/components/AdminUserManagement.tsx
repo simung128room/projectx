@@ -4,16 +4,6 @@ import Swal from 'sweetalert2';
 import { motion, AnimatePresence } from 'motion/react';
 import axios from 'axios';
 
-
-const escapeHtml = (value: unknown) => String(value ?? '')
-  .replace(/&/g, '&amp;')
-  .replace(/</g, '&lt;')
-  .replace(/>/g, '&gt;')
-  .replace(/"/g, '&quot;')
-  .replace(/'/g, '&#39;');
-
-const editableRoles = ['user', 'admin', 'owner'];
-
 interface AdminUserManagementProps {
   purchaseHistory: any[];
   topupHistory: any[];
@@ -64,14 +54,9 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
     const { value } = await Swal.fire({
       title: 'แก้ไขข้อมูลผู้ใช้',
       html: `
-        <div class="space-y-4 text-left">
-          <label class="text-xs font-bold uppercase tracking-wide text-slate-500" for="swal-role">Security role</label>
-          <select id="swal-role" class="swal2-input w-full" aria-label="Security role">
-            ${editableRoles.map(role => `<option value="${role}" ${String(user.role || 'user').toLowerCase() === role ? 'selected' : ''}>${role}</option>`).join('')}
-          </select>
-          <p class="text-xs text-slate-500">การเปลี่ยน Admin/Owner ต้องใช้สิทธิ์ Owner และบันทึกผ่าน API แยกต่างหาก</p>
-          <label class="text-xs font-bold uppercase tracking-wide text-slate-500" for="swal-username">Display name</label>
-          <input id="swal-username" class="swal2-input w-full" placeholder="Display Name" value="${escapeHtml(user.username || '')}">
+        <div class="space-y-4">
+          <input id="swal-role" class="swal2-input w-full" placeholder="Role (Member, Admin, Premium)" value="${user.role || 'Member'}">
+          <input id="swal-username" class="swal2-input w-full" placeholder="Display Name" value="${user.username || ''}">
         </div>
       `,
       showCancelButton: true,
@@ -88,12 +73,8 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
     if (value) {
       try {
         Swal.showLoading();
-        const uid = user.id || user.uid;
-        await axios.post(`/api/users/${uid}`, { username: value.username });
-        if (String(value.role || '').toLowerCase() !== String(user.role || '').toLowerCase()) {
-          await axios.post('/api/admins', { uid, username: value.username, role: value.role });
-        }
-        setSelectedUser({ ...user, username: value.username, role: value.role });
+        await axios.post(`/api/users/${user.id || user.uid}`, value);
+        setSelectedUser({ ...user, ...value });
         onRefresh();
         Swal.fire({ icon: 'success', title: 'อัปเดตข้อมูลแล้ว', showConfirmButton: false, timer: 1500 });
       } catch (err) {

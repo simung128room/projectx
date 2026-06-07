@@ -1,7 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { ArrowLeft, MessageSquare, Mail } from 'lucide-react';
-import { safeExternalUrl } from '../lib/url';
 
 interface ContactViewProps {
   onBack: () => void;
@@ -11,8 +10,8 @@ interface ContactViewProps {
   contactEmail?: string;
 }
 
-export const ContactView: React.FC<ContactViewProps> = ({
-  onBack,
+export const ContactView: React.FC<ContactViewProps> = ({ 
+  onBack, 
   facebookLink = '#',
   discordLink = 'https://discord.gg/2NSuSmkzun',
   instagramLink = '#',
@@ -20,7 +19,7 @@ export const ContactView: React.FC<ContactViewProps> = ({
 }) => {
   return (
     <div className="w-full max-w-5xl mx-auto p-4 md:p-8 animate-in fade-in duration-500 font-sans text-white">
-      <button
+      <button 
         onClick={onBack}
         className="mb-6 flex items-center gap-2 text-muted-foreground hover:text-white transition-colors font-medium bg-card px-4 py-2 border border-border border-2 w-fit brut-card"
       >
@@ -41,9 +40,9 @@ export const ContactView: React.FC<ContactViewProps> = ({
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Discord */}
-        <a
-          href={safeExternalUrl(discordLink)}
-          target={discordLink !== '#' ? "_blank" : "_self"}
+        <a 
+          href={discordLink} 
+          target={discordLink !== '#' ? "_blank" : "_self"} 
           rel="noopener noreferrer"
           className="bg-card border border-border border-2 hover:border-[#5865F2] transition-all p-8 flex flex-col items-center justify-center text-center group cursor-pointer relative overflow-hidden brut-card"
           onClick={(e) => {
@@ -70,9 +69,9 @@ export const ContactView: React.FC<ContactViewProps> = ({
         </a>
 
         {/* Facebook */}
-        <a
-          href={safeExternalUrl(facebookLink)}
-          target={facebookLink !== '#' ? "_blank" : "_self"}
+        <a 
+          href={facebookLink} 
+          target={facebookLink !== '#' ? "_blank" : "_self"} 
           rel="noopener noreferrer"
           className="bg-card border border-border border-2 hover:border-[#1877F2] transition-all p-8 flex flex-col items-center justify-center text-center group cursor-pointer relative overflow-hidden brut-card"
           onClick={(e) => {
@@ -99,9 +98,9 @@ export const ContactView: React.FC<ContactViewProps> = ({
         </a>
 
         {/* Instagram */}
-        <a
-          href={safeExternalUrl(instagramLink)}
-          target={instagramLink !== '#' ? "_blank" : "_self"}
+        <a 
+          href={instagramLink} 
+          target={instagramLink !== '#' ? "_blank" : "_self"} 
           rel="noopener noreferrer"
           className="bg-card border border-border border-2 hover:border-[#E4405F] transition-all p-8 flex flex-col items-center justify-center text-center group cursor-pointer relative overflow-hidden brut-card"
           onClick={(e) => {
@@ -128,8 +127,8 @@ export const ContactView: React.FC<ContactViewProps> = ({
         </a>
 
         {/* Email Support */}
-        <a
-          href={safeExternalUrl(`mailto:${contactEmail}`)}
+        <a 
+          href={`mailto:${contactEmail}`} 
           className="bg-card border border-border border-2 hover:border-zinc-500 transition-all p-8 flex flex-col items-center justify-center text-center group cursor-pointer relative overflow-hidden brut-card"
           onClick={(e) => {
             if (!contactEmail) {

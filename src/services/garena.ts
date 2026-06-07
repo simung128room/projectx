@@ -1,18 +1,14 @@
 import crypto from 'crypto';
 
+const ENCRYPTION_KEY = process.env.BACKEND_ENCRYPTION_KEY;
+if (!ENCRYPTION_KEY) {
+  throw new Error('BACKEND_ENCRYPTION_KEY not set in environment variables');
+}
 const IV_LENGTH = 12; // GCM mode uses 96-bit (12 bytes) IV
-
-const getEncryptionKey = (): string => {
-  const encryptionKey = process.env.BACKEND_ENCRYPTION_KEY;
-  if (!encryptionKey) {
-    throw new Error('BACKEND_ENCRYPTION_KEY not set in environment variables');
-  }
-  return encryptionKey;
-};
 
 export function encrypt(text: string): string {
   try {
-    const key = crypto.createHash('sha256').update(getEncryptionKey()).digest();
+    const key = crypto.createHash('sha256').update(ENCRYPTION_KEY).digest();
     const iv = crypto.randomBytes(IV_LENGTH);
     const cipher = crypto.createCipheriv('aes-256-gcm', key, iv);
     let encrypted = cipher.update(text, 'utf8', 'hex');
@@ -31,7 +27,7 @@ export function decrypt(text: string): string {
     const iv = Buffer.from(textParts[0], 'hex');
     const encryptedText = textParts[1];
     const authTag = Buffer.from(textParts[2], 'hex');
-    const key = crypto.createHash('sha256').update(getEncryptionKey()).digest();
+    const key = crypto.createHash('sha256').update(ENCRYPTION_KEY).digest();
     const decipher = crypto.createDecipheriv('aes-256-gcm', key, iv);
     decipher.setAuthTag(authTag);
     let decrypted = decipher.update(encryptedText, 'hex', 'utf8');

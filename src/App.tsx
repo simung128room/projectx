@@ -2181,7 +2181,7 @@ function AppContent() {
       </div>
     );
 
-  const isHomeViewReady = (products.length > 0 && categories.length > 0 && siteSettings !== null) || forceReveal;
+  const isHomeViewReady = (Array.isArray(products) && Array.isArray(categories) && siteSettings !== null) || forceReveal;
   if (!isLoaded || (!isHomeViewReady && !dbErrorDetail)) {
     return <PortalLoader />;
   }
