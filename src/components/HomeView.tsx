@@ -87,6 +87,7 @@ function StatCard({
   icon: Icon,
   accent,
   delay = 0,
+  index = 0,
 }: {
   label: string;
   value: string | number;
@@ -94,11 +95,14 @@ function StatCard({
   icon: React.ElementType;
   accent: string;
   delay?: number;
+  index?: number;
 }) {
+  const isEven = index % 2 === 0;
   return (
     <motion.div 
-      initial={{ opacity: 0, y: 15 }}
-      animate={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, x: isEven ? -40 : 40, y: 15 }}
+      whileInView={{ opacity: 1, x: 0, y: 0 }}
+      viewport={{ once: false, amount: 0.1 }}
       transition={{ duration: 0.5, delay }}
       className="relative bg-[#0d0d0d] border border-white/[0.06] rounded-xl p-5 overflow-hidden group hover:border-white/[0.12] transition-colors duration-300"
     >
@@ -143,12 +147,15 @@ function ShortcutBtn({
   glowColor,
   onClick,
   delay = 0,
-}: ShortcutBtnProps) {
+  index = 0,
+}: ShortcutBtnProps & { index?: number }) {
+  const isEven = index % 2 === 0;
   return (
     <motion.button
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.3, delay }}
+      initial={{ opacity: 0, x: isEven ? -40 : 40, scale: 0.95 }}
+      whileInView={{ opacity: 1, x: 0, scale: 1 }}
+      viewport={{ once: false, amount: 0.1 }}
+      transition={{ duration: 0.4, delay }}
       whileHover={{ y: -2, transition: { duration: 0.2 } }}
       whileTap={{ scale: 0.95 }}
       onClick={onClick}
@@ -185,11 +192,13 @@ function CategoryChip({
   products,
   onClick,
   delay = 0,
+  index = 0,
 }: {
   cat: Category;
   products: Product[];
   onClick: () => void;
   delay?: number;
+  index?: number;
 }) {
   const catProducts = products.filter(
     (p) => p.category === cat.id || p.category === cat.name || p.category === cat.title
@@ -206,10 +215,12 @@ function CategoryChip({
         : `${minPrice.toFixed(2)} - ${maxPrice.toFixed(2)}`)
     : "0.00";
 
+  const isEven = index % 2 === 0;
   return (
     <motion.div
-      initial={{ opacity: 0, y: 15 }}
-      animate={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, x: isEven ? -50 : 50, y: 20 }}
+      whileInView={{ opacity: 1, x: 0, y: 0 }}
+      viewport={{ once: false, amount: 0.1 }}
       transition={{ duration: 0.5, delay }}
       onClick={onClick}
       className="relative group overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0c0c0e] hover:border-white/20 transition-all duration-300 flex flex-col cursor-pointer hover:-translate-y-1 shadow-lg"
@@ -267,10 +278,12 @@ function ProductCard({
   product,
   onClick,
   delay = 0,
+  index = 0,
 }: {
   product: Product;
   onClick: () => void;
   delay?: number;
+  index?: number;
 }) {
   const [imgError, setImgError] = useState(false);
   const hasImage = product.imageUrl && product.imageUrl.trim() !== "" && !imgError;
@@ -282,10 +295,12 @@ function ProductCard({
 
   const isHot = product.price > 100 || (discount !== null && discount >= 20) || product.stock > 0;
 
+  const isEven = index % 2 === 0;
   return (
     <motion.div
-      initial={{ opacity: 0, y: 15 }}
-      animate={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, x: isEven ? -50 : 50, y: 20 }}
+      whileInView={{ opacity: 1, x: 0, y: 0 }}
+      viewport={{ once: false, amount: 0.1 }}
       transition={{ duration: 0.5, delay }}
       className="group relative bg-[#0c0c0e] border border-white/[0.08] rounded-2xl overflow-hidden hover:border-white/20 transition-all duration-300 flex flex-col hover:-translate-y-1 shadow-lg"
     >
@@ -511,6 +526,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             icon={Users}
             accent="rgba(99,102,241,0.4)"
             delay={0.1}
+            index={0}
           />
           <StatCard
             label="พร้อมจำหน่าย"
@@ -519,6 +535,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             icon={Package}
             accent="rgba(245,158,11,0.4)"
             delay={0.2}
+            index={1}
           />
           <StatCard
             label="หมวดหมู่ทั้งหมด"
@@ -527,6 +544,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             icon={LayoutGrid}
             accent="rgba(16,185,129,0.4)"
             delay={0.3}
+            index={2}
           />
           <StatCard
             label="ยอดขาย"
@@ -535,6 +553,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             icon={ShoppingCart}
             accent="rgba(239,68,68,0.4)"
             delay={0.4}
+            index={3}
           />
         </div>
 
@@ -549,6 +568,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
               glowColor="rgba(16,185,129,0.15)"
               onClick={() => setActiveView("categories")}
               delay={0.1}
+              index={0}
             />
             <ShortcutBtn
               label="ประวัติสั่งซื้อ"
@@ -558,6 +578,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
               glowColor="rgba(99,102,241,0.15)"
               onClick={() => setActiveView("order_history")}
               delay={0.2}
+              index={1}
             />
             <ShortcutBtn
               label="ติดต่อ ADMIN"
@@ -567,6 +588,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
               glowColor="rgba(244,63,94,0.15)"
               onClick={() => setActiveView("contact")}
               delay={0.3}
+              index={2}
             />
             <ShortcutBtn
               label="เติมเงิน TOPUP"
@@ -576,6 +598,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
               glowColor="rgba(245,158,11,0.15)"
               onClick={() => setActiveView("wallet")}
               delay={0.4}
+              index={3}
             />
           </div>
         </section>
@@ -584,8 +607,9 @@ export const HomeView: React.FC<HomeViewProps> = ({
         {categories.length > 0 && (
           <section className="mb-10">
             <motion.div
-              initial={{ opacity: 0, x: -15 }}
-              animate={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: false, amount: 0.1 }}
               transition={{ duration: 0.5 }}
               className="flex items-center justify-between mb-4"
             >
@@ -602,7 +626,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             </motion.div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {categories.slice(0, 4).map((cat, idx) => (
-                <CategoryChip key={cat.id} cat={cat} products={products} onClick={() => onSelectCategory(cat.id)} delay={idx * 0.1} />
+                <CategoryChip key={cat.id} cat={cat} products={products} onClick={() => onSelectCategory(cat.id)} delay={idx * 0.1} index={idx} />
               ))}
             </div>
           </section>
@@ -619,8 +643,9 @@ export const HomeView: React.FC<HomeViewProps> = ({
         {/* ── Latest Purchases ── */}
         <section className="mb-10 overflow-hidden">
           <motion.div
-            initial={{ opacity: 0, x: -15 }}
-            animate={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: false, amount: 0.1 }}
             transition={{ duration: 0.5 }}
             className="flex items-center justify-between mb-4 bg-zinc-950/20 px-1.5 py-1.5 rounded-lg border border-white/[0.03]"
           >
@@ -725,8 +750,9 @@ export const HomeView: React.FC<HomeViewProps> = ({
         {/* ── Products ── */}
         <section>
           <motion.div
-            initial={{ opacity: 0, x: -15 }}
-            animate={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: false, amount: 0.1 }}
             transition={{ duration: 0.5 }}
             className="flex items-center justify-between mb-5"
           >
@@ -752,7 +778,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
               {safeProducts.map((p, idx) => (
-                <ProductCard key={p.id} product={p} onClick={() => onProductClick(p.id)} delay={idx * 0.05} />
+                <ProductCard key={p.id} product={p} onClick={() => onProductClick(p.id)} delay={idx * 0.05} index={idx} />
               ))}
             </div>
           )}

@@ -856,7 +856,7 @@ import healthRoute from './src/routes/health.route.js';
   }
 
   app.get('/api/settings', (req, res) => {
-    res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=300, stale-while-revalidate=86400');
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
     res.json(siteSettings);
   });
 
@@ -2168,8 +2168,7 @@ if (process.env.REDIS_URL) {
   });
 
   app.get('/api/products', async (req: any, res: any) => {
-    // Increase edge caching to handle traffic spikes naturally
-    res.setHeader('Cache-Control', 'public, max-age=30, s-maxage=120, stale-while-revalidate=59');
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
     try {
       // Opt-in for public caching of products with up to 5 minutes (300000ms) Redis TTL
       // Cache remains fresh because any mutation (buy/update) instantly calls invalidateCache('products')
@@ -2523,7 +2522,7 @@ const diskUpload = multer({ dest: uploadDir });
   });
 
   app.get('/api/stats', async (req, res) => {
-    res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=120, stale-while-revalidate=59');
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
     try {
       const now = Date.now();
       
@@ -3128,7 +3127,7 @@ const diskUpload = multer({ dest: uploadDir });
 
   // --- Categories Endpoints ---
   app.get('/api/categories', async (req, res) => {
-    res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=120, stale-while-revalidate=86400');
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
     try {
       const data = await getCachedCollection('categories', 60000, res, req);
       if (data) res.json(data);
@@ -3206,7 +3205,7 @@ const diskUpload = multer({ dest: uploadDir });
 
   // --- Custom Pages Endpoints ---
   app.get('/api/pages', async (req, res) => {
-    res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=120, stale-while-revalidate=86400');
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
     try {
       const data = await getCachedCollection('custom_pages', 60000, res, req);
       if (data) res.json(data);

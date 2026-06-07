@@ -2882,27 +2882,7 @@ function AppContent() {
 
         {/* Verification Banner Removed */}
 
-        {/* Global Page Header (Based on activeView) for Mobile */}
-        {activeView !== "home" && (
-          <div className="lg:hidden px-[18px] pt-[14px] pb-[10px] flex gap-[12px] items-center shrink-0 border-b border-border border bg-card">
-            <div>
-              <div className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest leading-none mb-1">
-                {activeView === "categories" ? "Main Shop" :
-                 activeView === "wallet" ? "Billing" :
-                 activeView === "profile" ? "Profile Info" :
-                 activeView === "history" ? "History" : "Activity"}
-              </div>
-              <div className="text-[20px] font-black text-white leading-none">
-                {activeView === "categories" ? "สินค้าทั่วไป" :
-                 activeView === "category_products" ? "รายการสินค้า" :
-                 activeView === "wallet" ? "เติมเงิน" :
-                 activeView === "profile" ? "โปรไฟล์" :
-                 activeView === "history" ? "ประวัติ" :
-                 activeView === "admin" ? "ระบบหลังบ้าน" : ""}
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Global Page Header Removed */}
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-0 sm:pt-2 pb-6 lg:pb-0 w-full flex-1 flex flex-col">
           <Suspense

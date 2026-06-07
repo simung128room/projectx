@@ -394,13 +394,13 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
             >
               <div className="text-center max-w-xl mx-auto mb-10 select-none">
                 <span className="px-3 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-black tracking-widest rounded-full uppercase">
-                  METAVERSE GATEWAY
+                  ระบบเติมเงินอัตโนมัติ
                 </span>
-                <h1 className="text-3xl md:text-5xl font-black mt-3 leading-tight tracking-tight">
+                <h1 className="text-3xl md:text-4xl font-black mt-3 leading-tight tracking-tight">
                   ช่องทางการชำระเงิน
                 </h1>
                 <p className="text-zinc-400 text-xs sm:text-sm mt-2.5 max-w-md mx-auto leading-relaxed">
-                  เลือกช่องทางการเติมเงินเครดิตที่รวดเร็ว ลื่นไหล ปลอดภัยสูงสุด ธุรกรรมได้รับการยืนยันโดยระบบคอมพิวเตอร์แบบอัตโนมัติ
+                  เลือกช่องทางการชำระเงินที่สะดวกสบายเพื่อเติมเครดิตเข้าสู่บัญชีของคุณทันที
                 </p>
               </div>
 
@@ -498,14 +498,14 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
               </div>
 
               {/* Security Shield Note */}
-              <div className="max-w-xl mx-auto bg-zinc-950/40 border border-white/[0.04] p-5 rounded-2xl flex gap-3.5 items-center select-none">
-                <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-500/20">
-                  <ShieldCheck className="w-5.5 h-5.5" />
+              <div className="max-w-xl mx-auto bg-zinc-950/20 border border-white/[0.03] p-4 rounded-xl flex gap-3 items-center select-none">
+                <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-500/20">
+                  <ShieldCheck className="w-4.5 h-4.5" />
                 </div>
                 <div>
-                  <p className="text-xs text-white font-extrabold uppercase tracking-wide">SECURE SSL TRANSACTION SECURITY</p>
+                  <p className="text-xs text-white/95 font-extrabold uppercase tracking-wide">ระบบเติมเงินอัตโนมัติปลอดภัย 100%</p>
                   <p className="text-[11px] text-zinc-400 leading-relaxed font-semibold">
-                    ทุกธุรกรรมการเงินและประวัติบันทึกมีการลงรหัสป้องกัน AES-256 บิต ครบถ้วน เพื่อความปลอดภัยด้านข้อมูลผู้ใช้งานและความน่าเชื่อถือ 100%
+                    ทำธุรกรรมได้อย่างรวดเร็วและปลอดภัย บันทึกประวัติแม่นยำด้วยระบบอัตโนมัติ
                   </p>
                 </div>
               </div>
@@ -718,21 +718,9 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
 
                 </div>
 
-                {/* Right Bank QR & upload column (5 columns) */}
+                {/* Right Bank upload column (5 columns) */}
                 <div className="md:col-span-5 space-y-6">
                   
-                  {/* Dynamic simulated QR code */}
-                  <div className="p-4 bg-zinc-950 border border-white/[0.05] rounded-3xl relative flex flex-col items-center justify-center group select-none shadow-inner">
-                    <div className="relative w-36 h-36 border border-white/5 rounded-2xl overflow-hidden bg-white p-2">
-                      <img loading="lazy" src={bankQrImage} alt="PromptPay" className="w-full h-full object-contain" />
-                      {/* Laserscan sweeping overlay animation */}
-                      <span className="absolute left-0 w-full h-[3px] bg-emerald-500 shadow-[0_0_8px_#10b981] animate-[bounce_2.5s_infinite]" />
-                    </div>
-                    <span className="text-[10px] text-emerald-400 font-black font-mono tracking-widest mt-3 uppercase flex items-center gap-1.5">
-                      <QrCode className="w-3.5 h-3.5 shrink-0" /> MOBILE SCAN DETECT
-                    </span>
-                  </div>
-
                   {/* Drag & Drop slip box */}
                   <div className="relative">
                     <input 
@@ -750,7 +738,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
                       onDragOver={handleDragOver}
                       onDragLeave={handleDragLeave}
                       onDrop={handleDrop}
-                      className={`flex flex-col items-center justify-center w-full py-10 rounded-[2.25rem] transition-all duration-300 border-2 border-dashed relative shadow-xl ${
+                      className={`flex flex-col items-center justify-center w-full py-14 rounded-[2.25rem] transition-all duration-300 border-2 border-dashed relative shadow-xl ${
                         isDragActive 
                           ? 'bg-emerald-500/10 border-emerald-400 scale-[0.99] shadow-emerald-500/5' 
                           : 'bg-zinc-950 hover:bg-zinc-950/80 border-white/[0.08] hover:border-emerald-500/30 cursor-pointer active:scale-[0.98]'
@@ -762,10 +750,10 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
                       
                       <div className="text-center px-4">
                         <span className="text-sm font-black text-white block leading-none">
-                          {isVerifying ? 'กำลังสแกนสลิป...' : 'อัปโหลดสลิปตรวจสอบ'}
+                          {isVerifying ? 'กำลังสแกนสลิป...' : 'ส่งตรวจสลิปโอนเงิน'}
                         </span>
                         <span className="text-[10px] text-zinc-500 font-bold mt-2.5 block leading-relaxed max-w-[200px] mx-auto">
-                          คลิกหน้าต่างนี้ หรือลากรูปภาพมาวาง (รองรับ PNG, JPEG, JPG)
+                          คลิกที่นี่ หรือดากรูปภาพมาวาง (PNG, JPEG, JPG)
                         </span>
                       </div>
                     </label>
@@ -773,12 +761,6 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
 
                 </div>
 
-              </div>
-
-              {/* Bottom protection signatures */}
-              <div className="pt-6 mt-4 border-t border-white/[0.04] flex items-center justify-center gap-2 select-none opacity-40">
-                <ShieldCheck className="w-4 h-4 text-emerald-400 animate-pulse" />
-                <span className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em]">REALTIME AUTOMATIC BANK SLIP REDEMPTION INTEGRATED</span>
               </div>
             </motion.div>
           )}
