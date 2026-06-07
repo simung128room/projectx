@@ -727,15 +727,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   };
 
   useEffect(() => {
-    if (adminTab === 'settings' || adminTab === 'banners') {
-      const fetchSettings = async () => {
-        try {
-          const res = await axios.get('/api/settings');
-          if (res.data) setSiteSettings(res.data);
-        } catch (err) {}
-      };
-      fetchSettings();
-    }
+    const fetchSettings = async () => {
+      try {
+        const res = await axios.get('/api/settings');
+        if (res.data) setSiteSettings(res.data);
+      } catch (err) {}
+    };
+    fetchSettings();
   }, [adminTab]);
 
   const handleSaveSettings = async () => {
@@ -1190,47 +1188,150 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         let currentSales = (siteStats?.sales || 0);
                         let currentCategories = categories?.length || 0;
                         Swal.fire({
-                            title: 'แก้ไขสถิติ (Override)',
+                            title: 'แก้ไขสถิติระบบ',
                             html: `
-                              <input id="swal-users" class="swal2-input" placeholder="จำนวนผู้ใช้งาน" value="${currentUsers}">
-                              <input id="swal-categories" class="swal2-input" placeholder="จำนวนหมวดหมู่" value="${currentCategories}">
-                              <input id="swal-stock" class="swal2-input" placeholder="สต๊อกสินค้า" value="${currentStock}">
-                              <input id="swal-sales" class="swal2-input" placeholder="ยอดขาย" value="${currentSales}">
+                              <div class="text-left space-y-4 font-sans text-sm text-zinc-300 px-1 py-2">
+                                <div class="p-3 bg-blue-500/10 border border-blue-500/20 rounded-md text-xs text-blue-400 mb-4 leading-relaxed">
+                                  💡 แนะนำสั่งใช้ <b>"โตอัตโนมัติ (Auto-Grow)"</b> เมื่อมีสมาชิกสมัครใหม่หรือซื้อสินค้าจริงเข้ามา ตัวเลขจะบวกเพิ่มขึ้นเรื่อยๆ เสมอ!
+                                </div>
+                                
+                                <div class="mb-4">
+                                  <label class="block text-xs font-bold text-zinc-400 uppercase mb-1.5">👥 จำนวนผู้ใช้งานสะสม</label>
+                                  <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                                    <input id="swal-users" type="number" class="col-span-2 bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-white outline-none focus:border-blue-500 text-sm font-semibold" placeholder="เช่น 1500" value="${currentUsers}">
+                                    <select id="swal-users-type" class="bg-zinc-950 border border-zinc-800 rounded px-2 py-2 text-white text-xs font-bold outline-none focus:border-blue-500 cursor-pointer">
+                                      <option value="offset" ${siteSettings.stats_users_override === null || siteSettings.stats_users_override === undefined ? 'selected' : ''}>📈 โตอัตโนมัติ</option>
+                                      <option value="override" ${siteSettings.stats_users_override !== null && siteSettings.stats_users_override !== undefined ? 'selected' : ''}>🔒 ล็อกตายตัว</option>
+                                    </select>
+                                  </div>
+                                </div>
+
+                                <div class="mb-4">
+                                  <label class="block text-xs font-bold text-zinc-400 uppercase mb-1.5">💰 ยอดขายสะสมรวม</label>
+                                  <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                                    <input id="swal-sales" type="number" class="col-span-2 bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-white outline-none focus:border-blue-500 text-sm font-semibold" placeholder="เช่น 45000" value="${currentSales}">
+                                    <select id="swal-sales-type" class="bg-zinc-950 border border-zinc-800 rounded px-2 py-2 text-white text-xs font-bold outline-none focus:border-blue-500 cursor-pointer">
+                                      <option value="offset" ${siteSettings.stats_sales_override === null || siteSettings.stats_sales_override === undefined ? 'selected' : ''}>📈 โตอัตโนมัติ</option>
+                                      <option value="override" ${siteSettings.stats_sales_override !== null && siteSettings.stats_sales_override !== undefined ? 'selected' : ''}>🔒 ล็อกตายตัว</option>
+                                    </select>
+                                  </div>
+                                </div>
+
+                                <div class="mb-4">
+                                  <label class="block text-xs font-bold text-zinc-400 uppercase mb-1.5">📦 คลังสินค้าสะสมรวม</label>
+                                  <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                                    <input id="swal-stock" type="number" class="col-span-2 bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-white outline-none focus:border-blue-500 text-sm font-semibold" placeholder="เช่น 850" value="${currentStock}">
+                                    <select id="swal-stock-type" class="bg-zinc-950 border border-zinc-800 rounded px-2 py-2 text-white text-xs font-bold outline-none focus:border-blue-500 cursor-pointer">
+                                      <option value="offset" ${siteSettings.stats_stock_override === null || siteSettings.stats_stock_override === undefined ? 'selected' : ''}>📈 โตอัตโนมัติ</option>
+                                      <option value="override" ${siteSettings.stats_stock_override !== null && siteSettings.stats_stock_override !== undefined ? 'selected' : ''}>🔒 ล็อกตายตัว</option>
+                                    </select>
+                                  </div>
+                                </div>
+
+                                <div class="mb-2">
+                                  <label class="block text-xs font-bold text-zinc-400 uppercase mb-1.5">📂 จำนวนหมวดหมู่สินค้า</label>
+                                  <input id="swal-categories" type="number" class="w-full bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-white outline-none focus:border-blue-500 text-sm font-semibold" placeholder="เช่น 5" value="${currentCategories}">
+                                </div>
+                              </div>
                             `,
+                            background: '#09090b',
+                            color: '#fff',
                             focusConfirm: false,
                             confirmButtonColor: '#3B82F6',
+                            cancelButtonColor: '#27272a',
+                            showCancelButton: true,
+                            confirmButtonText: 'บันทึกสถิติ',
+                            cancelButtonText: 'ยกเลิก',
                             preConfirm: () => {
+                              const uVal = parseInt((document.getElementById('swal-users') as HTMLInputElement).value);
+                              const uType = (document.getElementById('swal-users-type') as HTMLSelectElement).value;
+                              
+                              const sVal = parseInt((document.getElementById('swal-sales') as HTMLInputElement).value);
+                              const sType = (document.getElementById('swal-sales-type') as HTMLSelectElement).value;
+
+                              const stVal = parseInt((document.getElementById('swal-stock') as HTMLInputElement).value);
+                              const stType = (document.getElementById('swal-stock-type') as HTMLSelectElement).value;
+
+                              const cVal = parseInt((document.getElementById('swal-categories') as HTMLInputElement).value);
+
                               return {
-                                users: parseInt((document.getElementById('swal-users') as HTMLInputElement).value),
-                                categories: parseInt((document.getElementById('swal-categories') as HTMLInputElement).value),
-                                stock: parseInt((document.getElementById('swal-stock') as HTMLInputElement).value),
-                                sales: parseInt((document.getElementById('swal-sales') as HTMLInputElement).value)
+                                users: isNaN(uVal) ? null : uVal,
+                                usersType: uType,
+                                sales: isNaN(sVal) ? null : sVal,
+                                salesType: sType,
+                                stock: isNaN(stVal) ? null : stVal,
+                                stockType: stType,
+                                categories: isNaN(cVal) ? null : cVal
                               }
                             }
                         }).then(async (result) => {
                             if (result.isConfirmed) {
                                 try {
-                                  const u = isNaN(result.value?.users) ? null : result.value?.users;
-                                  const c = isNaN(result.value?.categories) ? null : result.value?.categories;
-                                  const st = isNaN(result.value?.stock) ? null : result.value?.stock;
-                                  const sa = isNaN(result.value?.sales) ? null : result.value?.sales;
+                                  const rawUsers = usersList?.length || 0;
+                                  const rawStock = products ? products.reduce((acc, p) => acc + (p.stock > 0 && p.stock < 999999 ? Number(p.stock) : 0), 0) : 0;
+                                  const rawSales = purchaseHistory ? purchaseHistory.reduce((acc, curr) => acc + (curr.price || 0), 0) : 0;
+
+                                  const targetUsers = result.value?.users;
+                                  const targetSales = result.value?.sales;
+                                  const targetStock = result.value?.stock;
+                                  const targetCategories = result.value?.categories;
+
+                                  let users_override = null;
+                                  let users_offset = 0;
+                                  if (targetUsers !== null) {
+                                    if (result.value?.usersType === 'override') {
+                                      users_override = targetUsers;
+                                      users_offset = 0;
+                                    } else {
+                                      users_override = null;
+                                      users_offset = Math.max(0, targetUsers - rawUsers);
+                                    }
+                                  }
+
+                                  let sales_override = null;
+                                  let sales_offset = 0;
+                                  if (targetSales !== null) {
+                                    if (result.value?.salesType === 'override') {
+                                      sales_override = targetSales;
+                                      sales_offset = 0;
+                                    } else {
+                                      sales_override = null;
+                                      sales_offset = Math.max(0, targetSales - rawSales);
+                                    }
+                                  }
+
+                                  let stock_override = null;
+                                  let stock_offset = 0;
+                                  if (targetStock !== null) {
+                                    if (result.value?.stockType === 'override') {
+                                      stock_override = targetStock;
+                                      stock_offset = 0;
+                                    } else {
+                                      stock_override = null;
+                                      stock_offset = Math.max(0, targetStock - rawStock);
+                                    }
+                                  }
+
                                   await axios.post('/api/settings', {
-                                    stats_users_override: u,
-                                    stats_categories_override: c,
-                                    stats_stock_override: st,
-                                    stats_sales_override: sa
+                                    stats_users_override: users_override,
+                                    stats_users_offset: users_offset,
+                                    stats_sales_override: sales_override,
+                                    stats_sales_offset: sales_offset,
+                                    stats_stock_override: stock_override,
+                                    stats_stock_offset: stock_offset,
+                                    stats_categories_override: targetCategories
                                   });
                                   
                                   if (setSiteStats) {
                                     setSiteStats({
                                       ...(siteStats || { users: 0, stock: 0, sales: 0, topups: 0 }),
-                                      users: u !== null ? u : (siteStats?.users || 0),
-                                      stock: st !== null ? st : (siteStats?.stock || 0),
-                                      sales: sa !== null ? sa : (siteStats?.sales || 0)
+                                      users: targetUsers !== null ? targetUsers : (siteStats?.users || 0),
+                                      stock: targetStock !== null ? targetStock : (siteStats?.stock || 0),
+                                      sales: targetSales !== null ? targetSales : (siteStats?.sales || 0)
                                     });
                                   }
                                   
-                                  Swal.fire({ title: 'บันทึกสำเร็จ', text: 'รีเฟรชหน้าเว็บเพื่อดูผลลัพธ์', icon: 'success', confirmButtonColor: '#10B981', background: '#09090b', color: '#fff' });
+                                  Swal.fire({ title: 'บันทึกสำเร็จ', text: 'สถิติระบบปรับปรุงเรียบร้อยแล้ว', icon: 'success', confirmButtonColor: '#10B981', background: '#09090b', color: '#fff' });
                                 } catch (error: any) {
                                   Swal.fire({ title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถบันทึกสถิติได้: ' + (error.response?.data?.error || error.message), icon: 'error', confirmButtonColor: '#EF4444', background: '#09090b', color: '#fff' });
                                 }
