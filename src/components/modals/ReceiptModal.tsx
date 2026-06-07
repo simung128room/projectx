@@ -70,6 +70,61 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ selectedItem, setSel
                 </div>
               </div>
 
+              {selectedItem.isPreOrder && (
+                <div className="bg-zinc-950/40 border border-border border-2 p-5 rounded-xl space-y-3">
+                  <h4 className="text-xs font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-[#3B82F6] animate-pulse" />
+                     สถานะพรีออเดอร์ (Track Status)
+                  </h4>
+                  
+                  <div className="space-y-3 pt-2 text-sm">
+                    {/* Step 1: Paid */}
+                    <div className="flex items-center gap-3">
+                      <span className="text-lg">✅</span>
+                      <div>
+                        <p className="font-bold text-white text-xs">ชำระเงินแล้ว</p>
+                        <p className="text-[10px] text-muted-foreground">บันทึกคำสั่งซื้อพรีออเดอร์สำเร็จ</p>
+                      </div>
+                    </div>
+                    
+                    {/* Step 2: Procuring */}
+                    <div className="flex items-center gap-3">
+                      {selectedItem.preOrderStatus === 'delivered' ? (
+                        <span className="text-lg">✅</span>
+                      ) : (
+                        <span className="text-lg animate-pulse">⏳</span>
+                      )}
+                      <div>
+                        <p className="font-bold text-white text-xs">กำลังจัดหาไอดี</p>
+                        <p className="text-[10px] text-muted-foreground">แอดมินอยู่ระหว่างการจัดหาไอดีตามที่ท่านเลือก</p>
+                      </div>
+                    </div>
+                    
+                    {/* Step 3: Delivered */}
+                    <div className="flex items-center gap-3">
+                      {selectedItem.preOrderStatus === 'delivered' ? (
+                        <span className="text-lg">✅</span>
+                      ) : (
+                        <span className="text-lg opacity-40">⬜</span>
+                      )}
+                      <div>
+                        <p className="font-bold text-white text-xs flex items-center gap-1">ส่งข้อมูลแล้ว</p>
+                        <p className="text-[10px] text-muted-foreground">
+                          {selectedItem.preOrderStatus === 'delivered' ? 'ท่านสามารถคัดลอกข้อมูลไอดีได้ที่คอลัมน์ขวาขวา' : 'เมื่อจัดหาสำเร็จ คีย์/รหัสจะแสดงในข้อมูลลับด้านขวา'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {selectedItem.preOrderOption && (
+                    <div className="mt-4 pt-3 border-t border-border border-dashed text-xs flex items-center justify-between text-zinc-400">
+                      <span>ประเภทที่เลือก:</span>
+                      <span className="bg-blue-600/10 text-blue-400 px-2 py-0.5 rounded font-black">{selectedItem.preOrderOption}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {!isPurchase && selectedItem.status && (
                 <div className="flex justify-between items-center bg-card border border-border border-2 p-4 brut-card">
                    <span className="text-sm font-bold text-muted-foreground">สถานะรายการ</span>

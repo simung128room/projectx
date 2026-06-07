@@ -2631,6 +2631,29 @@ const diskUpload = multer({ dest: uploadDir });
     }
   });
 
+  app.put('/api/purchases/:id', requireAdmin, async (req, res) => {
+    if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
+    try {
+      const { id } = req.params;
+      const { secretData, preOrderStatus } = req.body;
+      const docRef = admin.firestore().collection('purchases').doc(id);
+      const doc = await docRef.get();
+      if (!doc.exists) {
+        return res.status(404).json({ error: 'Order not found' });
+      }
+      
+      const payload: any = {};
+      if (secretData !== undefined) payload.secretData = secretData;
+      if (preOrderStatus !== undefined) payload.preOrderStatus = preOrderStatus;
+      
+      await docRef.update(payload);
+      res.json({ success: true, id, ...payload });
+    } catch (err: any) {
+      console.error('Error updating purchase:', err);
+      res.status(500).json({ error: err.message || 'Internal server error' });
+    }
+  });
+
   app.post('/api/discord-rekey', async (req: any, res: any) => {
     const { key, secret, plan } = req.body;
     const expectedSecret = process.env.DISCORD_BOT_SECRET;
@@ -2774,89 +2797,111 @@ const diskUpload = multer({ dest: uploadDir });
         if ((Number(userData.balance) || 0) < totalCost) {
           return { isError: true, message: 'ยอดเงินไม่เพียงพอ' };
         }
-        if (quantity > (Number(productData.stock) || 0)) {
+        if (!productData.isPreOrder && quantity > (Number(productData.stock) || 0)) {
           return { isError: true, message: 'สินค้าในสต๊อกไม่เพียงพอ' };
         }
 
         // --- Start of Stock Extraction ---
-        let existingStock = productData.stockData;
-        if (existingStock) {
-           existingStock = await decompressStock(existingStock);
-        }
-        if (!Array.isArray(existingStock)) { existingStock = []; }
-
         let claimedItems: string[] = [];
         let chunkDocsToUpdate: { ref: any, remainingItems: any[] }[] = [];
         let chunkDocsToDelete: any[] = [];
+        let remainingBuffer = [];
 
-        // Try to take from main doc first
-        if (existingStock.length > 0) {
-           const needed = quantity;
-           const taken = existingStock.splice(0, needed);
-           claimedItems.push(...taken);
+        if (productData.isPreOrder) {
+          // Pre-order products do not have immediate file key stock.
+          claimedItems = [];
+        } else {
+          let existingStock = productData.stockData;
+          if (existingStock) {
+             existingStock = await decompressStock(existingStock);
+          }
+          if (!Array.isArray(existingStock)) { existingStock = []; }
+
+          // Try to take from main doc first
+          if (existingStock.length > 0) {
+             const needed = quantity;
+             const taken = existingStock.splice(0, needed);
+             claimedItems.push(...taken);
+          }
+
+          // If still need more, read chunks
+          if (claimedItems.length < quantity) {
+             const chunksQuery = admin.firestore().collection('product_stock_chunks').where('productId', '==', productId);
+             const chunksSnap = await t.get(chunksQuery);
+             for (const chunkDoc of chunksSnap.docs) {
+                if (claimedItems.length >= quantity) break;
+                
+                let chunkItems = chunkDoc.data().items;
+                if (chunkItems) {
+                   chunkItems = await decompressStock(chunkItems);
+                }
+                if (!Array.isArray(chunkItems)) chunkItems = [];
+                
+                if (chunkItems.length > 0) {
+                   const needed = quantity - claimedItems.length;
+                   const taken = chunkItems.splice(0, needed);
+                   claimedItems.push(...taken);
+                   
+                   if (chunkItems.length > 0) {
+                      chunkDocsToUpdate.push({ ref: chunkDoc.ref, remainingItems: chunkItems });
+                   } else {
+                      chunkDocsToDelete.push(chunkDoc.ref);
+                   }
+                } else {
+                   chunkDocsToDelete.push(chunkDoc.ref);
+                }
+             }
+          }
+
+          if (claimedItems.length < quantity) { 
+             // Data desync detected (chunks were lost or corrupted). Fix the stock count.
+             const actualRealStock = existingStock.length + claimedItems.length;
+             t.update(productRef, { stock: actualRealStock });
+             return { isError: true, message: 'สินค้าในสต๊อกไม่เพียงพอ' }; 
+          }
+          remainingBuffer = existingStock;
         }
-
-        // If still need more, read chunks
-        if (claimedItems.length < quantity) {
-           const chunksQuery = admin.firestore().collection('product_stock_chunks').where('productId', '==', productId);
-           const chunksSnap = await t.get(chunksQuery);
-           for (const chunkDoc of chunksSnap.docs) {
-              if (claimedItems.length >= quantity) break;
-              
-              let chunkItems = chunkDoc.data().items;
-              if (chunkItems) {
-                 chunkItems = await decompressStock(chunkItems);
-              }
-              if (!Array.isArray(chunkItems)) chunkItems = [];
-              
-              if (chunkItems.length > 0) {
-                 const needed = quantity - claimedItems.length;
-                 const taken = chunkItems.splice(0, needed);
-                 claimedItems.push(...taken);
-                 
-                 if (chunkItems.length > 0) {
-                    chunkDocsToUpdate.push({ ref: chunkDoc.ref, remainingItems: chunkItems });
-                 } else {
-                    chunkDocsToDelete.push(chunkDoc.ref);
-                 }
-              } else {
-                 chunkDocsToDelete.push(chunkDoc.ref);
-              }
-           }
-        }
-
-        if (claimedItems.length < quantity) { 
-           // Data desync detected (chunks were lost or corrupted). Fix the stock count.
-           const actualRealStock = existingStock.length + claimedItems.length;
-           t.update(productRef, { stock: actualRealStock });
-           return { isError: true, message: 'สินค้าในสต๊อกไม่เพียงพอ' }; 
-        }
-
-        const remainingBuffer = existingStock; // What's left in the main doc
         // --- End of Stock Extraction ---
 
         const newBalance = (Number(userData.balance) || 0) - totalCost;
 
-        const newHistoryItem = {
+        const newHistoryItem: any = {
           id: purchasesRef.id,
           userId: userId,
           username: userData.username || (req.user && (req as any).user.email ? (req as any).user.email.split('@')[0] : 'Unknown'),
           productId: productId,
-          productName: `${productData.name || 'Unknown Product'} (x${quantity})`,
+          productName: req.body.preOrderOption 
+            ? `${productData.name || 'Unknown Product'} [${req.body.preOrderOption}] (x${quantity})` 
+            : `${productData.name || 'Unknown Product'} (x${quantity})`,
           price: totalCost,
-          secretData: claimedItems.join('\n'),
+          secretData: productData.isPreOrder ? "ระบบอยู่ระหว่างกำลังจัดหาไอดีให้ท่าน..." : claimedItems.join('\n'),
           date: new Date().toISOString(),
           billNumber: 'B-' + Math.floor(Math.random()*1000000).toString().padStart(6, '0'),
           is_special: false
         };
 
+        if (productData.isPreOrder) {
+          newHistoryItem.isPreOrder = true;
+          newHistoryItem.preOrderOption = req.body.preOrderOption || '';
+          newHistoryItem.preOrderStatus = 'pending'; // 'pending' | 'delivered'
+        }
+
         const userUpdatePayload = JSON.parse(JSON.stringify({ balance: newBalance }));
-        const productUpdatePayload = JSON.parse(JSON.stringify({ 
+        
+        const finalProductStock = productData.isPreOrder 
+          ? (productData.stock !== undefined ? Math.max(0, (Number(productData.stock) || 0) - quantity) : 0)
+          : (Number(productData.stock) || 0) - quantity;
+
+        const productUpdatePayload: any = {
           ...productData,
-          stock: (productData.stock || 0) - quantity, 
-          stockData: await compressStock(remainingBuffer.filter((v: any) => v !== undefined && v !== null)), 
+          stock: finalProductStock,
           soldCount: (Number(productData.soldCount) || 0) + quantity 
-        }));
+        };
+
+        if (!productData.isPreOrder) {
+          productUpdatePayload.stockData = await compressStock(remainingBuffer.filter((v: any) => v !== undefined && v !== null));
+        }
+
         const historyPayload = JSON.parse(JSON.stringify(newHistoryItem));
 
         for (const update of chunkDocsToUpdate) {
@@ -2873,7 +2918,7 @@ const diskUpload = multer({ dest: uploadDir });
         const resultPayload = {
           purchase: newHistoryItem,
           updatedUser: { ...userData, balance: newBalance },
-          updatedProduct: { id: productId, ...safeProductData, stock: (productData.stock || 0) - quantity, soldCount: (productData.soldCount || 0) + quantity },
+          updatedProduct: { id: productId, ...safeProductData, stock: finalProductStock, soldCount: (productData.soldCount || 0) + quantity },
         };
 
         if (idempRef) {

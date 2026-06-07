@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Copy, Database, LogOut, BarChart3, Key, History, ShieldAlert, Activity, Ban, ChevronRight, Settings, Plus, Trash2, Crown, X, Menu, Upload, FileText, LayoutDashboard, LineChart, Cpu, HardDrive, ShoppingCart, Package, Users, Wallet, Gift, Globe, Phone, AlertTriangle, Download, Check, Image, MessageSquare, Terminal, RefreshCw } from 'lucide-react';
+import { Copy, Database, LogOut, BarChart3, Key, History, ShieldAlert, Activity, Ban, ChevronRight, Settings, Plus, Trash2, Crown, X, Menu, Upload, FileText, LayoutDashboard, LineChart, Cpu, HardDrive, ShoppingCart, Package, Users, Wallet, Gift, Globe, Phone, AlertTriangle, Download, Check, Image, MessageSquare, Terminal, RefreshCw, Clock } from 'lucide-react';
 import Swal from 'sweetalert2';
 import axios from 'axios';
 import { AccountResult, Product, SiteStats } from '../types';
@@ -53,14 +53,24 @@ const ProductManagerModal = ({
   isEdit: boolean,
   categories?: any[]
 }) => {
-  const [formData, setFormData] = useState<any>(product || {
-    name: '',
-    description: '',
-    price: '',
-    originalPrice: '',
-    imageUrl: '',
-    stock: '',
-    category: categories.length > 0 ? categories[0].id : ''
+  const [formData, setFormData] = useState<any>(() => {
+    if (product) {
+      return {
+        ...product,
+        preOrderOptionsInput: product.preOrderOptions ? product.preOrderOptions.join(', ') : ''
+      };
+    }
+    return {
+      name: '',
+      description: '',
+      price: '',
+      originalPrice: '',
+      imageUrl: '',
+      stock: '',
+      category: (categories && categories.length > 0) ? categories[0].id : '',
+      isPreOrder: false,
+      preOrderOptionsInput: ''
+    };
   });
 
   return (
@@ -168,6 +178,57 @@ const ProductManagerModal = ({
               placeholder="https://..."
             />
           </div>
+
+          {/* Pre-Order Selection Toggle & Config */}
+          <div className="flex items-start gap-3 p-3 bg-zinc-900/60 rounded border border-border/80 my-2">
+            <input 
+              type="checkbox"
+              id="isPreOrder"
+              checked={formData.isPreOrder || false}
+              onChange={e => setFormData({ ...formData, isPreOrder: e.target.checked })}
+              className="mt-0.5 w-4 h-4 text-blue-600 bg-black border-border rounded focus:ring-blue-500 focus:ring-offset-0"
+            />
+            <div className="flex-1">
+              <label htmlFor="isPreOrder" className="text-xs font-bold text-white select-none cursor-pointer block">
+                สินค้า Pre-Order (กำลังจัดหาไอดี)
+              </label>
+              <span className="text-[10px] text-muted-foreground block mt-0.5">เปิดใช้งานหากสินค้าประเภทนี้ต้องการให้แอดมินจัดหาไอดีให้ภายหลังชำระเงิน</span>
+            </div>
+          </div>
+
+          {formData.isPreOrder && (
+            <div className="p-3 bg-zinc-900/30 border border-border/40 rounded space-y-2 animate-in fade-in slide-in-from-top-2 duration-200">
+              <label className="block text-[11px] font-bold text-muted-foreground">
+                ตัวเลือกประเภทไอดี (แยกด้วยเครื่องหมายจุลภาค , เช่น: AR10, AR30, Garena, Gmail)
+              </label>
+              <input 
+                type="text" 
+                value={formData.preOrderOptionsInput || ''} 
+                onChange={e => {
+                  const val = e.target.value;
+                  const opts = val.split(',').map(s => s.trim()).filter(Boolean);
+                  setFormData({
+                    ...formData,
+                    preOrderOptionsInput: val,
+                    preOrderOptions: opts
+                  });
+                }}
+                className="w-full bg-card border border-border border-2 px-3 py-2 text-white font-medium focus:outline-none focus:border-[#3B82F6] transition-all text-xs brut-card"
+                placeholder="เช่น: Garena Account, Facebook Account, ID Level 30"
+              />
+              <div className="text-[10px] text-zinc-500 flex flex-wrap gap-1">
+                <span className="font-semibold">ตัวอย่างที่จะแสดง:</span>
+                {(formData.preOrderOptions || []).length > 0 ? (
+                  (formData.preOrderOptions || []).map((o: string, idx: number) => (
+                    <span key={idx} className="bg-zinc-800 text-zinc-300 px-1.5 py-0.5 rounded text-[9px]">{o}</span>
+                  ))
+                ) : (
+                  <span className="italic">ระบบจะให้ลูกค้าพิมเลือกประเภทเองหากว่างไว้</span>
+                )}
+              </div>
+            </div>
+          )}
+
           {formData.imageUrl && (
             <div className="mt-2 overflow-hidden border border-border border-2 aspect-video bg-card relative flex items-center justify-center brut-card">
                <img src={formData.imageUrl} alt="Preview" className="max-w-full max-h-full object-contain" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
@@ -187,11 +248,14 @@ const ProductManagerModal = ({
               if(!formData.name || formData.price === '' || formData.price === null || formData.price === undefined) {
                  return Swal.fire({title: 'ข้อมูลไม่ครบ', text: 'กรุณากรอกชื่อและราคาปัจจุบัน', icon: 'warning', background: '#09090b', color: '#fff'});
               }
+              const { preOrderOptionsInput, ...cleanFormData } = formData;
               const p = {
-                ...formData,
+                ...cleanFormData,
                 price: Number(formData.price) || 0,
                 originalPrice: Number(formData.originalPrice) || 0,
                 stock: Number(formData.stock) || 0,
+                isPreOrder: !!formData.isPreOrder,
+                preOrderOptions: formData.preOrderOptions || []
               };
               
               if (isEdit && product) {
@@ -641,7 +705,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     return [];
   });
 
-  const [siteSettings, setSiteSettings] = useState({ 
+  const [siteSettings, setSiteSettings] = useState<{ [key: string]: any }>({ 
     site_name: 'APEXSTORE',
     truewallet_phone: '',
     contact_line: 'https://www.facebook.com/share/18emwBsqUf/?mibextid=wwXIfr',
@@ -663,11 +727,92 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     bank_name: 'ธนาคารกสิกรไทย',
     bank_account_number: '196-3-87032-5',
     bank_account_holder: 'นาย กรวิชญ์',
-    bank_qr_image: ''
+    bank_qr_image: '',
+    stats_users_override: null,
+    stats_sales_override: null,
+    stats_stock_override: null
   });
 
   const [uploadingMusic, setUploadingMusic] = useState(false);
   const musicFileRef = useRef<HTMLInputElement>(null);
+
+  const [purchases, setPurchases] = useState<any[]>([]);
+  const [isPurchasesLoading, setIsPurchasesLoading] = useState(false);
+  const [preorderFilter, setPreorderFilter] = useState<'all' | 'pending' | 'delivered'>('all');
+  const [preorderSearch, setPreorderSearch] = useState('');
+
+  useEffect(() => {
+    if (adminTab === 'preorders') {
+      setIsPurchasesLoading(true);
+      axios.get('/api/purchases?limit=100')
+        .then(res => {
+          setPurchases(res.data.data || []);
+        })
+        .catch(err => {
+          console.error('Error loading purchases in admin:', err);
+        })
+        .finally(() => {
+          setIsPurchasesLoading(false);
+        });
+    }
+  }, [adminTab]);
+
+  const handleFulfillPreorder = async (purchaseId: string, secretData: string) => {
+    try {
+      Swal.fire({
+        title: 'กำลังบันทึกข้อมูล...',
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+      
+      await axios.put(`/api/purchases/${purchaseId}`, {
+        secretData,
+        preOrderStatus: 'delivered'
+      });
+      
+      setPurchases(prev => prev.map(p => p.id === purchaseId ? { ...p, secretData, preOrderStatus: 'delivered' } : p));
+      
+      Swal.fire({
+        icon: 'success',
+        title: 'ส่งมอบพรีออเดอร์สำเร็จ!',
+        text: 'ระบบได้ส่งรหัสสินค้าไปยังลูกค้าและปรับสถานะเป็น "ส่งข้อมูลแล้ว" เรียบร้อยแล้ว',
+        confirmButtonColor: '#3B82F6',
+        background: '#09090b',
+        color: '#fff'
+      });
+    } catch (err: any) {
+      console.error(err);
+      Swal.fire({
+        icon: 'error',
+        title: 'เกิดข้อผิดพลาด',
+        text: err.response?.data?.error || 'ไม่สามารถติดต่อเซิร์ฟเวอร์ได้',
+        confirmButtonColor: '#dc2626',
+        background: '#09090b',
+        color: '#fff'
+      });
+    }
+  };
+
+  const filteredPreorders = purchases.filter(purchase => {
+    // Only pre-orders
+    if (!purchase.isPreOrder) return false;
+    
+    // Status filter
+    if (preorderFilter === 'pending' && purchase.preOrderStatus === 'delivered') return false;
+    if (preorderFilter === 'delivered' && purchase.preOrderStatus !== 'delivered') return false;
+    
+    // Search filter
+    if (preorderSearch.trim()) {
+      const q = preorderSearch.toLowerCase();
+      const matchBill = (purchase.billNumber || '').toLowerCase().includes(q);
+      const matchProduct = (purchase.productName || '').toLowerCase().includes(q);
+      const matchUser = (purchase.username || purchase.userId || '').toLowerCase().includes(q);
+      return matchBill || matchProduct || matchUser;
+    }
+    return true;
+  });
 
   const handleMusicUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -884,6 +1029,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             <NavItem id="stock" label="จัดการสต็อก" icon={Database} />
             <NavItem id="banners" label="ตั้งค่าแบนเนอร์" icon={Image} />
             <NavItem id="pages" label="ตั้งค่าหน้าเพจ" icon={FileText} />
+            <NavItem id="preorders" label="จัดการ Pre-Order" icon={Clock} />
           </div>
 
           <div className="space-y-1">
@@ -1758,6 +1904,240 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   </tbody>
                 </table>
                </div>
+            </motion.div>
+          )}
+
+          {adminTab === 'preorders' && (
+            <motion.div 
+              key="preorders"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="space-y-6"
+            >
+              {/* Header */}
+              <div className="bg-card border border-border border-2 p-6 rounded-xl brut-card flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                  <h3 className="font-bold text-white text-lg flex items-center gap-2">
+                    <Clock className="w-5 h-5 text-[#2563EB]" /> ระบบจัดการ Pre-Order
+                  </h3>
+                  <p className="text-muted-foreground text-xs mt-1">
+                    จัดการ ยืนยันการสั่งซื้อ เสาะหาไอดี และนำส่งคีย์ข้อมูลให้กับลูกค้า
+                  </p>
+                </div>
+                <button
+                  onClick={async () => {
+                    try {
+                      setIsPurchasesLoading(true);
+                      const res = await axios.get('/api/purchases?limit=100');
+                      setPurchases(res.data.data || []);
+                      Swal.fire({
+                        icon: 'success',
+                        title: 'รีเฟรชข้อมูลสำเร็จ',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 1500,
+                        background: '#09090b',
+                        color: '#fff'
+                      });
+                    } catch (e) {
+                      console.error(e);
+                    } finally {
+                      setIsPurchasesLoading(false);
+                    }
+                  }}
+                  className="bg-zinc-900 hover:bg-zinc-850 text-white px-4 py-2 border border-zinc-805 text-xs font-bold transition-all flex items-center gap-2"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${isPurchasesLoading ? 'animate-spin' : ''}`} />
+                  ดึงข้อมูลล่าสุด
+                </button>
+              </div>
+
+              {/* Filtering bar */}
+              <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
+                <div className="flex gap-2 w-full sm:w-auto">
+                  {['all', 'pending', 'delivered'].map((filter) => (
+                    <button
+                      key={filter}
+                      onClick={() => setPreorderFilter(filter as any)}
+                      className={`flex-1 sm:flex-initial px-4 py-2.5 text-xs font-bold transition-all border ${
+                        preorderFilter === filter
+                          ? 'bg-blue-600/10 text-blue-400 border-blue-500/30 font-bold'
+                          : 'bg-zinc-950/40 text-zinc-400 border-zinc-800 hover:bg-zinc-900 font-bold'
+                      }`}
+                    >
+                      {filter === 'all' && 'ทั้งหมด'}
+                      {filter === 'pending' && '⏳ กำลังจัดหาไอดี'}
+                      {filter === 'delivered' && '✅ ส่งข้อมูลแล้ว'}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="w-full sm:w-72">
+                  <input
+                    type="text"
+                    placeholder="ค้นหาบิล, ชื่อสินค้า, หรือลูกค้า..."
+                    value={preorderSearch}
+                    onChange={(e) => setPreorderSearch(e.target.value)}
+                    className="w-full px-4 py-2 bg-zinc-950 border border-zinc-800 text-xs font-medium rounded-sm text-white placeholder-zinc-500 focus:outline-none focus:border-blue-500/50"
+                  />
+                </div>
+              </div>
+
+              {/* Preorders List Table */}
+              <div className="bg-card border border-border border-2 overflow-hidden brut-card">
+                <div className="overflow-x-auto">
+                  <table className="w-full min-w-[900px] text-left text-sm text-zinc-400">
+                    <thead className="text-xs uppercase bg-card text-muted-foreground font-bold tracking-wider brut-card border-b border-border border-2">
+                      <tr>
+                        <th className="p-4">บิลจัดซื้อ / ผู้ใช้</th>
+                        <th className="p-4">สินค้าพรีออเดอร์</th>
+                        <th className="p-4">ประเภทที่เลือก</th>
+                        <th className="p-4">ยอดเงิน</th>
+                        <th className="p-4">สถานะสั่งพรี</th>
+                        <th className="p-4">ข้อมูลลับ (ส่งให้ลูกค้า)</th>
+                        <th className="p-4 text-right">ดำเนินการ</th>
+                      </tr>
+                    </thead>
+                    <tbody className="text-xs font-mono">
+                      {isPurchasesLoading ? (
+                        <tr>
+                          <td colSpan={7} className="p-12 text-center text-muted-foreground">
+                            กำลังโหลดออเดอร์พรีออเดอร์...
+                          </td>
+                        </tr>
+                      ) : filteredPreorders.length > 0 ? (
+                        filteredPreorders.map((purchase) => {
+                          const isDelivered = purchase.preOrderStatus === 'delivered';
+                          const inlineInputKey = `input_${purchase.id}`;
+                          
+                          return (
+                            <tr key={purchase.id} className="border-b border-border border-2 hover:bg-zinc-900/10 transition-colors">
+                              {/* Order ID & User */}
+                              <td className="p-4">
+                                <p className="text-white font-bold">{purchase.billNumber || `#${purchase.id?.slice(0, 8)}`}</p>
+                                <p className="text-[10px] text-zinc-400 font-semibold mt-0.5">{purchase.username || purchase.userId}</p>
+                                <p className="text-[9px] text-zinc-500 mt-0.5">{new Date(purchase.date || purchase.timestamp).toLocaleString()}</p>
+                              </td>
+                              
+                              {/* Product Info */}
+                              <td className="p-4 font-sans max-w-[200px]">
+                                <p className="text-zinc-200 font-bold truncate" title={purchase.productName}>
+                                  {purchase.productName}
+                                </p>
+                                <p className="text-[9px] text-zinc-500 font-mono mt-0.5">ID: {purchase.productId}</p>
+                              </td>
+
+                              {/* Selected option */}
+                              <td className="p-4">
+                                <span className="bg-zinc-900 border border-zinc-800 text-zinc-300 px-2.5 py-1 rounded-sm text-[10px] font-black">
+                                  {purchase.preOrderOption || 'ไม่ได้เลือก'}
+                                </span>
+                              </td>
+
+                              {/* Price */}
+                              <td className="p-4 font-sans font-bold text-emerald-400">
+                                ฿{(purchase.price || purchase.money || 0).toLocaleString()}
+                              </td>
+
+                              {/* Stock status indicator */}
+                              <td className="p-4 font-sans">
+                                {isDelivered ? (
+                                  <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-1 rounded-md text-[10px] font-bold inline-flex items-center gap-1">
+                                    ✅ ส่งข้อมูลแล้ว
+                                  </span>
+                                ) : (
+                                  <span className="bg-blue-500/10 text-blue-400 border border-blue-500/20 px-2.5 py-1 rounded-md text-[10px] font-bold inline-flex items-center gap-1 animate-pulse">
+                                    ⏳ กำลังจัดหาไอดี
+                                  </span>
+                                )}
+                              </td>
+
+                              {/* Secret Input or Output */}
+                              <td className="p-4 w-[280px]">
+                                {isDelivered ? (
+                                  <div className="space-y-1">
+                                    <div className="bg-zinc-950 border border-zinc-800 text-zinc-400 p-2 text-[10px] max-h-16 overflow-y-auto font-mono whitespace-pre-wrap break-all rounded">
+                                      {purchase.secretData}
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <textarea
+                                    id={inlineInputKey}
+                                    placeholder="ใส่ข้อมูลไอดีที่จะจัดส่ง เช่น Username:Password..."
+                                    className="w-full h-12 px-2 py-1.5 bg-zinc-950 border border-zinc-800 text-[11px] rounded focus:outline-none focus:border-blue-500/40 text-white placeholder-zinc-600 font-mono resize-none"
+                                  />
+                                )}
+                              </td>
+
+                              {/* Submit/Edit Action */}
+                              <td className="p-4 text-right">
+                                <div className="flex justify-end gap-1.5">
+                                  {isDelivered ? (
+                                    <button
+                                      onClick={() => {
+                                        Swal.fire({
+                                          title: 'แก้ไขข้อมูลที่จัดส่งเลี้ยว',
+                                          input: 'textarea',
+                                          inputValue: purchase.secretData,
+                                          inputPlaceholder: 'กรอกชุดข้อมูลใหม่...',
+                                          showCancelButton: true,
+                                          confirmButtonText: 'บันทึกใหม่',
+                                          cancelButtonText: 'ยกเลิก',
+                                          background: '#09090b',
+                                          color: '#fff',
+                                          confirmButtonColor: '#3B82F6',
+                                          cancelButtonColor: '#27272a'
+                                        }).then((result) => {
+                                          if (result.isConfirmed && result.value !== undefined) {
+                                            handleFulfillPreorder(purchase.id, result.value);
+                                          }
+                                        });
+                                      }}
+                                      className="px-2 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-sans font-bold text-[10px] rounded hover:text-white transition-colors cursor-pointer"
+                                    >
+                                      แก้ไข
+                                    </button>
+                                  ) : (
+                                    <button
+                                      onClick={() => {
+                                        const inputElem = document.getElementById(inlineInputKey) as HTMLTextAreaElement;
+                                        const codeInput = inputElem?.value || '';
+                                        if (!codeInput.trim()) {
+                                          Swal.fire({
+                                            icon: 'warning',
+                                            title: 'โปรดกรอกข้อมูลไอดีก่อนส่ง',
+                                            text: 'ท่านจำเป็นต้องป้อนข้อมูลที่จะจัดส่งให้กับลูกค้า',
+                                            confirmButtonColor: '#dc2626',
+                                            background: '#09090b',
+                                            color: '#fff'
+                                          });
+                                          return;
+                                        }
+                                        handleFulfillPreorder(purchase.id, codeInput);
+                                      }}
+                                      className="px-3 py-1.5 bg-[#2563EB] hover:bg-blue-500 text-white font-sans font-bold text-[10px] rounded transition-colors cursor-pointer"
+                                    >
+                                      ส่งข้อมูลสำเร็จ
+                                    </button>
+                                  )}
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })
+                      ) : (
+                        <tr>
+                          <td colSpan={7} className="p-12 text-center text-muted-foreground">
+                            ไม่พบรายการ Pre-Order ที่ค้นหา
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </motion.div>
           )}
 

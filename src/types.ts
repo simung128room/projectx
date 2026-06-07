@@ -87,6 +87,8 @@ export interface Product {
   tag?: string;
   stockData?: string[];
   _version?: number;
+  isPreOrder?: boolean;
+  preOrderOptions?: string[];
 }
 
 export interface SiteStats {

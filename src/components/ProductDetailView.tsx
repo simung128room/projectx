@@ -108,7 +108,12 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
               <span className="px-2.5 py-0.75 bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 text-[10px] font-mono font-black rounded-md tracking-widest uppercase">
                 PRODUCT
               </span>
-              {product.stock > 0 ? (
+              {product.isPreOrder ? (
+                <span className="px-2.5 py-0.75 bg-blue-500/10 text-blue-400 border border-blue-500/20 text-[10px] font-mono font-black rounded-md tracking-wider flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-ping" />
+                  PRE-ORDER
+                </span>
+              ) : product.stock > 0 ? (
                 <span className="px-2.5 py-0.75 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-mono font-black rounded-md tracking-wider flex items-center gap-1">
                   <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-ping" />
                   INSTOCK
@@ -159,7 +164,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
                   คงเหลือในคลัง
                 </div>
                 <div className="text-lg font-black text-white font-mono">
-                  {product.stock >= 999999 ? 'UNLIMITED' : `${product.stock} ชิ้น`}
+                  {product.isPreOrder ? 'เปิดรับ PRE-ORDER' : product.stock >= 999999 ? 'UNLIMITED' : `${product.stock} ชิ้น`}
                 </div>
               </div>
               <div className="bg-black/20 border border-white/[0.04] p-4 rounded-xl">
@@ -224,19 +229,19 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
                     <input
                       type="number"
                       min="1"
-                      max={product.stock >= 999999 ? 999 : product.stock}
+                      max={product.isPreOrder ? 999 : (product.stock >= 999999 ? 999 : product.stock)}
                       value={purchaseQuantity}
                       onChange={(e) => {
                         const val = parseInt(e.target.value);
-                        if (!isNaN(val)) setPurchaseQuantity(Math.min(product.stock >= 999999 ? 999 : product.stock, Math.max(1, val)));
+                        if (!isNaN(val)) setPurchaseQuantity(Math.min(product.isPreOrder ? 999 : (product.stock >= 999999 ? 999 : product.stock), Math.max(1, val)));
                       }}
                       className="w-14 h-10 bg-transparent text-center font-black text-sm text-white outline-none font-mono"
-                      disabled={product.stock === 0}
+                      disabled={!product.isPreOrder && product.stock === 0}
                     />
                     <button
-                      onClick={() => setPurchaseQuantity(Math.min(product.stock >= 999999 ? 999 : product.stock, purchaseQuantity + 1))}
+                      onClick={() => setPurchaseQuantity(Math.min(product.isPreOrder ? 999 : (product.stock >= 999999 ? 999 : product.stock), purchaseQuantity + 1))}
                       className="w-10 h-10 bg-zinc-900/40 hover:bg-zinc-900 flex items-center justify-center font-extrabold text-sm rounded-lg hover:text-emerald-400 transition-colors disabled:opacity-30 active:scale-95 text-white cursor-pointer"
-                      disabled={product.stock === 0 || purchaseQuantity >= product.stock}
+                      disabled={!product.isPreOrder && (product.stock === 0 || purchaseQuantity >= product.stock)}
                     >
                       +
                     </button>
@@ -265,18 +270,18 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
                       });
                       return;
                     }
-                    if (product.stock <= 0) return;
+                    if (!product.isPreOrder && product.stock <= 0) return;
                     setShowConfirmPurchase(true);
                   }}
-                  disabled={product.stock <= 0}
+                  disabled={!product.isPreOrder && product.stock <= 0}
                   className={`w-full py-4 text-sm font-black tracking-widest uppercase transition-all duration-300 flex items-center justify-center gap-2 rounded-2xl shadow-lg border ${
-                    product.stock > 0 
+                    product.isPreOrder || product.stock > 0 
                       ? 'bg-emerald-500 hover:bg-emerald-400 text-black border-emerald-400/20 cursor-pointer active:scale-98 shadow-emerald-500/10 font-bold' 
                       : 'bg-zinc-900 text-zinc-500 border-white/[0.02] cursor-not-allowed'
                   }`}
                 >
                   <ShoppingCart className="w-4 h-4 text-black" />
-                  {product.stock > 0 ? 'ยืนยันสั่งชื้อสินค้า' : 'สินค้าหมดชั่วคราว'}
+                  {product.isPreOrder ? 'สั่งซื้อ PRE-ORDER' : product.stock > 0 ? 'ยืนยันสั่งชื้อสินค้า' : 'สินค้าหมดชั่วคราว'}
                 </button>
               </div>
             ) : (

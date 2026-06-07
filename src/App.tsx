@@ -759,7 +759,7 @@ function AppContent() {
   }, [topupHistory]);
 
   const handlePurchase = async (product: Product, quantity: number = 1) => {
-    if (product.stock < quantity) {
+    if (!product.isPreOrder && product.stock < quantity) {
       Swal.fire({
         icon: "error",
         title: "สินค้าไม่เพียงพอ",
@@ -781,11 +781,68 @@ function AppContent() {
       return;
     }
 
+    // Capture Pre-order option selection
+    let selectedOption = "";
+    if (product.isPreOrder) {
+      const opts = product.preOrderOptions || [];
+      if (opts.length > 0) {
+        const optionsObject: any = {};
+        opts.forEach(o => {
+          optionsObject[o] = o;
+        });
+
+        const result = await Swal.fire({
+          title: 'เลือกประเภทไอดีที่ต้องการ Pre-Order',
+          input: 'select',
+          inputOptions: optionsObject,
+          inputPlaceholder: 'กรุณาเลือกประเภทไอดี...',
+          showCancelButton: true,
+          confirmButtonText: 'ยืนยัน',
+          cancelButtonText: 'ยกเลิก',
+          inputValidator: (value) => {
+            return !value ? 'กรุณาเลือกประเภทไอดีเพื่อดำเนินการต่อ' : '';
+          },
+          background: '#09090b',
+          color: '#fff',
+          confirmButtonColor: '#3B82F6',
+          cancelButtonColor: '#27272a'
+        });
+
+        if (result.isDismissed || !result.value) {
+          return; // Cancel purchase
+        }
+        selectedOption = result.value;
+      } else {
+        // Text input as fallback
+        const result = await Swal.fire({
+          title: 'ระบุประเภทไอดีที่ต้องการ Pre-Order',
+          input: 'text',
+          inputPlaceholder: 'ระบุประเภทรหัส/ไอดี เช่น เลเวล 30, ไอดีสะอาด...',
+          showCancelButton: true,
+          confirmButtonText: 'ยืนยัน',
+          cancelButtonText: 'ยกเลิก',
+          inputValidator: (value) => {
+            return !value ? 'กรุณาระบุรายละเอียดเพื่อดำเนินการต่อ' : '';
+          },
+          background: '#09090b',
+          color: '#fff',
+          confirmButtonColor: '#3B82F6',
+          cancelButtonColor: '#27272a'
+        });
+
+        if (result.isDismissed || !result.value) {
+          return; // Cancel purchase
+        }
+        selectedOption = result.value;
+      }
+    }
+
     try {
       const idempotencyKey = `buy_${product.id}_${Date.now()}_${Math.random()}`;
       const res = await axios.post("/api/buy", {
         productId: product.id,
         quantity,
+        preOrderOption: selectedOption
       }, {
         headers: {
           'Idempotency-Key': idempotencyKey
