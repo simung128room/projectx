@@ -146,6 +146,7 @@ const CategoriesView = lazy(() => import("./components/CategoriesView").then((m)
 const AuthView = lazy(() => import("./components/AuthView").then((m) => ({ default: m.AuthView })));
 const HomeView = lazy(() => import("./components/HomeView").then((m) => ({ default: m.HomeView })));
 const ProductDetailView = lazy(() => import("./components/ProductDetailView").then((m) => ({ default: m.ProductDetailView })));
+const MyOrdersView = lazy(() => import("./components/MyOrdersView").then((m) => ({ default: m.MyOrdersView })));
 const CategoryProductsView = lazy(() => import("./components/CategoryProductsView").then((m) => ({ default: m.CategoryProductsView })));
 const SearchView = lazy(() => import("./components/SearchView").then((m) => ({ default: m.SearchView })));
 
@@ -530,11 +531,34 @@ function AppContent() {
     | "log_categories"
     | "tools"
     | "vip_logs"
-    | "free_logs";
+    | "free_logs"
+    | "my_orders";
+  
+  const [language, setLanguage] = useState<"th" | "en">("th");
+
   const [activeView, setRawActiveView] = useState<ViewType>(() => {
+    let path = window.location.pathname;
+    if (path.startsWith("/accounts/signin")) return "login";
+    
+    let targetPath = path.replace("/", "");
+    const parts = targetPath.split('/').filter(Boolean);
+    if (parts[0] === "th" || parts[0] === "en") {
+      targetPath = parts[1] || "home";
+    }
+    if (targetPath === "" || targetPath === "th" || targetPath === "en") return "home";
+
     const hostname = window.location.hostname;
     if (hostname.startsWith("account.")) return "login";
     if (hostname.startsWith("dash.")) return "dashboard";
+    
+    // Fallback views mapping handled in useEffect mostly, but initial load logic here:
+    if (targetPath === "register") return "signup";
+    if (targetPath === "topup") return "wallet";
+    if (targetPath === "store") return "categories";
+    
+    const validViews = ["landing", "home", "search", "categories", "category_products", "dashboard", "admin", "profile", "logs", "checker_logs", "history", "wallet_history", "order_history", "random_history", "settings", "contact", "login", "signup", "wallet", "redeem", "product_detail", "custom_page", "log_categories", "tools", "vip_logs", "free_logs", "my_orders"];
+    if (validViews.includes(targetPath)) return targetPath as ViewType;
+    
     return "home";
   });
   const [selectedProductId, setSelectedProductId] = useState<string | null>(
@@ -548,28 +572,48 @@ function AppContent() {
   const setActiveView = useCallback(
     (view: any) => {
       if (activeView === view) return;
-      const pathSuffix = view === "home" ? "" : view;
-      window.history.pushState(null, "", "/" + pathSuffix);
+      let newPath = "";
+      if (view === "login" || view === "signup") {
+        newPath = "/accounts/signin";
+      } else {
+        const pathSuffix = view === "home" ? "" : view;
+        newPath = `/${language}${pathSuffix ? '/' + pathSuffix : ''}`;
+      }
+      window.history.pushState(null, "", newPath);
       setRawActiveView(view);
     },
-    [activeView],
+    [activeView, language],
   );
 
   // Handle URL pathname routing
   useEffect(() => {
     const handlePopState = () => {
-      let path = window.location.pathname.replace("/", "");
-      if (path === "") {
+      let path = window.location.pathname;
+      if (path.startsWith("/accounts/signin")) {
+        setRawActiveView("login");
+        return;
+      }
+      
+      const parts = path.split('/').filter(Boolean);
+      let targetPath = "home";
+      if (parts[0] === "th" || parts[0] === "en") {
+        setLanguage(parts[0] as "th" | "en");
+        targetPath = parts[1] || "home";
+      } else {
+        targetPath = parts[0] || "home";
+      }
+
+      if (targetPath === "") {
         const hostname = window.location.hostname;
-        if (hostname.startsWith("account.")) path = "login";
-        else if (hostname.startsWith("dash.")) path = "dashboard";
-        else path = "home";
+        if (hostname.startsWith("account.")) targetPath = "login";
+        else if (hostname.startsWith("dash.")) targetPath = "dashboard";
+        else targetPath = "home";
       }
 
       // Routing aliases
-      if (path === "register") path = "signup";
-      if (path === "topup") path = "wallet";
-      if (path === "store") path = "categories";
+      if (targetPath === "register") targetPath = "signup";
+      if (targetPath === "topup") targetPath = "wallet";
+      if (targetPath === "store") targetPath = "categories";
 
       const validViews = [
         "landing",
@@ -598,13 +642,21 @@ function AppContent() {
         "redeem",
         "product_detail",
         "custom_page",
+        "log_categories",
+        "tools",
+        "vip_logs",
+        "free_logs",
+        "order_history",
+        "random_history",
+        "wallet_history",
+        "my_orders"
       ];
 
-      if (path && validViews.includes(path)) {
-        if (path !== activeView) {
-          setRawActiveView(path as any);
+      if (targetPath && validViews.includes(targetPath)) {
+        if (targetPath !== activeView) {
+          setRawActiveView(targetPath as any);
         }
-      } else if (path === "home" && activeView !== "home") {
+      } else if (targetPath === "home" && activeView !== "home") {
         setRawActiveView("home");
       }
     };
@@ -2402,166 +2454,172 @@ function AppContent() {
 
       {/* Top Header */}
       <header className="sticky top-0 z-[65] w-full bg-[#030303]/95 backdrop-blur-md border-b border-white/[0.08] shadow-lg shadow-black/80 flex-shrink-0 select-none">
-        <div className="flex items-center justify-between h-[72px] px-4 md:px-8 max-w-7xl mx-auto w-full">
+        <div className="flex items-center justify-between h-[80px] px-4 md:px-8 max-w-7xl mx-auto w-full">
           {/* Logo with matching Icon size */}
           <div 
-            className="flex items-center gap-3.5 flex-shrink-0 cursor-pointer hover:opacity-90 transition-all group" 
+            className="flex items-center gap-3.5 flex-shrink-0 cursor-pointer hover:scale-105 active:scale-95 transition-all group" 
             onClick={() => {
               setActiveView("home");
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
           >
-            <img src="https://img2.pic.in.th/IMG_718032ab9d504326a436.png" alt="APEXSTORE Logo" className="h-[28px] md:h-[34px] object-contain" />
+            <div className="w-12 h-12 rounded-full border-2 border-red-600 overflow-hidden flex items-center justify-center bg-black shadow-[0_0_15px_rgba(220,38,38,0.3)]">
+              <img src="https://img2.pic.in.th/IMG_718032ab9d504326a436.png" alt="APEXSTORE Logo" className="w-[120%] h-[120%] object-contain scale-[1.2]" />
+            </div>
           </div>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center gap-1 bg-white/[0.02] border border-white/[0.04] p-1 rounded-xl">
-            <button
-              onClick={() => {
-                setActiveView("home");
-                window.scrollTo({ top: 0, behavior: "smooth" });
-              }}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-mono text-xs font-bold tracking-wider uppercase transition-all duration-150 cursor-pointer ${
-                activeView === "home"
-                  ? "bg-white text-black font-extrabold"
-                  : "text-white/60 hover:text-white hover:bg-white/[0.02]"
-              }`}
-            >
-              <Home size={12} />
-              HOME
-            </button>
-            <button
-              onClick={() => {
-                setActiveView("categories");
-                window.scrollTo({ top: 0, behavior: "smooth" });
-              }}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-mono text-xs font-bold tracking-wider uppercase transition-all duration-150 cursor-pointer ${
-                activeView === "categories" || activeView === "category_products" || activeView === "product_detail"
-                  ? "bg-white text-black font-extrabold"
-                  : "text-white/60 hover:text-white hover:bg-white/[0.02]"
-              }`}
-            >
-              <ShoppingBag size={12} />
-              SHOP
-            </button>
-            <button
-              onClick={() => {
-                setActiveView(user ? "wallet" : "login");
-                window.scrollTo({ top: 0, behavior: "smooth" });
-              }}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-mono text-xs font-bold tracking-wider uppercase transition-all duration-150 cursor-pointer ${
-                activeView === "wallet"
-                  ? "bg-white text-black font-extrabold"
-                  : "text-white/60 hover:text-white hover:bg-white/[0.02]"
-              }`}
-            >
-              <CreditCard size={12} />
-              WALLET
-            </button>
-
-            <button
-              onClick={() => {
-                setActiveView(user ? "log_categories" : "login");
-                window.scrollTo({ top: 0, behavior: "smooth" });
-              }}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-mono text-xs font-bold tracking-wider uppercase transition-all duration-150 cursor-pointer ${
-                activeView === "log_categories" || activeView === "vip_logs" || activeView === "free_logs" || activeView === "logs" || activeView === "history" || activeView === "order_history" || activeView === "random_history" || activeView === "wallet_history" || activeView === "checker_logs"
-                  ? "bg-white text-black font-extrabold"
-                  : "text-white/60 hover:text-white hover:bg-white/[0.02]"
-              }`}
-            >
-              <History size={12} />
-              LOGS
-            </button>
-            {isAdmin && (
-              <button
-                onClick={() => {
-                  setActiveView("admin");
-                  window.scrollTo({ top: 0, behavior: "smooth" });
-                }}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-mono text-xs font-bold tracking-wider uppercase transition-all duration-150 cursor-pointer ${
-                  activeView === "admin"
-                    ? "text-[#0a0a0a] bg-neon-yellow font-extrabold"
-                    : "text-neon-yellow hover:text-neon-green hover:bg-white/[0.02]"
-                }`}
-              >
-                <Settings size={12} />
-                ADMIN
-              </button>
-            )}
-          </nav>
-
           {/* Right Section */}
-          <div className="flex items-center gap-2 sm:gap-3">
-            {/* Profile / Status */}
-            <div className="hidden lg:flex items-center gap-3">
-              {user ? (
-                <>
-                  <div 
-                    className="flex items-center gap-3 px-3 py-1.5 rounded-full border border-white/[0.06] hover:border-white/[0.12] transition-colors cursor-pointer bg-white/[0.02] hover:bg-white/[0.04]"
-                    onClick={() => setActiveView("profile")}
-                  >
-                    <div className="flex flex-col text-right font-mono pr-1">
-                      <span className="text-[10px] font-bold leading-none text-white/40 mb-1">
-                        {userPlan?.username || user.email?.split("@")[0] || "User"}
-                      </span>
-                      <span className="text-xs font-black text-neon-yellow leading-none">
-                        ฿{userPlan?.balance ? Math.floor(userPlan.balance).toLocaleString() : "0"}
-                      </span>
-                    </div>
-                    <div className="w-8 h-8 md:w-[34px] md:h-[34px] rounded-full overflow-hidden bg-[#111] border border-white/[0.1] shrink-0">
-                      <img
-                        src={getAvatarUrl(user?.id || userPlan?.username || user?.email?.split("@")[0] || "guest")}
-                        alt="avatar"
-                        className="w-full h-full object-cover"
-                        referrerPolicy="no-referrer"
-                      />
-                    </div>
-                  </div>
-                  <button
-                    onClick={handleLogout}
-                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-rose-500/10 bg-rose-500/5 hover:bg-rose-500/15 font-mono text-xs font-bold tracking-widest uppercase transition-all duration-150 text-rose-450 hover:text-rose-400 cursor-pointer"
-                  >
-                    <LogOut size={12} />
-                    LOGOUT
-                  </button>
-                </>
-              ) : (
-                <button
-                  onClick={() => setActiveView("login")}
-                  className="px-5 py-2.5 bg-white text-black font-extrabold text-[11px] tracking-wider rounded-xl uppercase hover:bg-zinc-200 transition-all duration-150 cursor-pointer shadow-lg shadow-white/5 active:scale-95"
-                >
-                  ลงชื่อเข้าใช้
-                </button>
-              )}
-              {/* Online Indicator */}
-              <div className="h-4 w-px bg-white/[0.08] animate-fade-in" />
-              <span className="font-mono text-xs text-white/40 whitespace-nowrap animate-fade-in flex items-center gap-1.5">
-                <span className="text-neon-green animate-blink">▮</span> ONLINE
-              </span>
+          <div className="flex items-center gap-2 md:gap-4">
+            
+            {/* Language Switcher */}
+            <div className="flex items-center bg-white/[0.04] p-1 rounded-xl border border-white/[0.05]">
+              <button 
+                onClick={() => { setLanguage("th"); window.history.pushState(null, "", `/th/${activeView === 'home' ? '' : activeView}`); }}
+                className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${language === 'th' ? 'bg-white text-black' : 'text-zinc-400 hover:text-white'}`}
+              >
+                TH
+              </button>
+              <button 
+                onClick={() => { setLanguage("en"); window.history.pushState(null, "", `/en/${activeView === 'home' ? '' : activeView}`); }}
+                className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${language === 'en' ? 'bg-white text-black' : 'text-zinc-400 hover:text-white'}`}
+              >
+                EN
+              </button>
             </div>
 
-            {/* Menu Controls Group - Placed close together like in the picture */}
-            <div className="flex items-center gap-1 sm:gap-1.5">
-              {/* Search Button */}
+            {/* Search Button */}
+            <button
+              onClick={() => {
+                setActiveView("search");
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+              className="w-[44px] h-[44px] rounded-xl flex items-center justify-center text-white/50 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] transition-all duration-200 active:scale-95 cursor-pointer"
+              aria-label="Search"
+            >
+              <Search className="w-5 h-5 stroke-[2.5px]" />
+            </button>
+
+            {/* Profile Avatar (Dropdown) */}
+            <div className="relative">
               <button
-                onClick={() => setActiveView("search")}
-                className="w-10 h-10 rounded-xl flex items-center justify-center text-white/50 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] transition-all duration-200 cursor-pointer"
-                aria-label="Search"
+                onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                className="w-[44px] h-[44px] rounded-xl overflow-hidden shadow-lg transition-all duration-300 active:scale-95 bg-[#111] flex items-center justify-center text-gray-400 cursor-pointer border border-white/[0.06] hover:border-white/[0.12]"
               >
-                <Search className="w-4.5 h-4.5" />
+                {user ? (
+                  <img
+                    src={getAvatarUrl(user?.id || userPlan?.username || user?.email?.split("@")[0] || "guest")}
+                    alt="avatar"
+                    className="w-full h-full object-cover"
+                    referrerPolicy="no-referrer"
+                  />
+                ) : (
+                  <User className="w-5 h-5 stroke-[2.5px]" />
+                )}
               </button>
 
-              {/* Mobile Burger Trigger */}
-              <motion.button
-                whileTap={{ scale: 0.9 }}
-                onClick={() => setIsMobileMenuOpen(true)}
-                className="lg:hidden w-10 h-10 rounded-xl flex items-center justify-center text-white/50 hover:text-white bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.05] transition-all duration-200 active:scale-95 cursor-pointer"
-                aria-label="Menu"
-              >
-                <Menu className="w-5 h-5" />
-              </motion.button>
+              {/* Profile Dropdown */}
+              <AnimatePresence>
+                {isUserMenuOpen && (
+                  <>
+                    <motion.div 
+                      key="overlay"
+                      className="fixed inset-0 z-[70] bg-transparent" 
+                      onClick={() => setIsUserMenuOpen(false)} 
+                    />
+                    <motion.div
+                      key="dropdown"
+                      initial={{ opacity: 0, y: 15, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                      className="absolute right-0 top-[60px] w-[240px] bg-[#0a0a0a] border border-white/[0.08] shadow-[0_10px_40px_-10px_rgba(0,0,0,0.5)] rounded-2xl overflow-hidden z-[75] flex flex-col p-2 text-white"
+                    >
+                      {user ? (
+                        <>
+                          <div className="px-3 pt-3 pb-4 mb-2 border-b border-white/[0.05] text-center flex flex-col items-center">
+                            <div className="w-14 h-14 rounded-full overflow-hidden bg-[#111] border border-white/[0.1] shadow-sm mb-2">
+                              <img
+                                src={getAvatarUrl(user?.id || userPlan?.username || user?.email?.split("@")[0] || "guest")}
+                                alt="avatar"
+                                className="w-full h-full object-cover"
+                                referrerPolicy="no-referrer"
+                              />
+                            </div>
+                            <span className="text-sm font-bold mb-0.5 truncate w-full">
+                              {userPlan?.username || user.email?.split("@")[0] || "User"}
+                            </span>
+                            <span className="text-[11px] font-black text-neon-green bg-neon-green/10 px-2 py-0.5 rounded-full mt-1 border border-neon-green/20">
+                              ยอดเงิน: ฿{userPlan?.balance ? Math.floor(userPlan.balance).toLocaleString() : "0"}
+                            </span>
+                          </div>
+                          
+                          <button
+                            onClick={() => { setIsUserMenuOpen(false); setActiveView("profile"); window.scrollTo(0,0); }}
+                            className="flex items-center gap-3 px-3 py-2.5 text-[13px] font-bold text-zinc-300 hover:text-white hover:bg-white/[0.04] rounded-xl transition-colors text-left"
+                          >
+                            <User size={16} className="text-zinc-500" /> บัญชีของฉัน
+                          </button>
+                          <button
+                            onClick={() => { setIsUserMenuOpen(false); setActiveView("my_orders"); window.scrollTo(0,0); }}
+                            className="flex items-center gap-3 px-3 py-2.5 text-[13px] font-bold text-zinc-300 hover:text-white hover:bg-white/[0.04] rounded-xl transition-colors text-left"
+                          >
+                            <Package size={16} className="text-zinc-500" /> คำสั่งซื้อของฉัน
+                          </button>
+                          <button
+                            onClick={() => { setIsUserMenuOpen(false); setActiveView("wallet"); window.scrollTo(0,0); }}
+                            className="flex items-center gap-3 px-3 py-2.5 text-[13px] font-bold text-zinc-300 hover:text-white hover:bg-white/[0.04] rounded-xl transition-colors text-left"
+                          >
+                            <CreditCard size={16} className="text-zinc-500" /> เติมเงิน
+                          </button>
+                          <button
+                            onClick={() => { setIsUserMenuOpen(false); setActiveView(isAdmin ? "log_categories" : "history"); window.scrollTo(0,0); }}
+                            className="flex items-center gap-3 px-3 py-2.5 text-[13px] font-bold text-zinc-300 hover:text-white hover:bg-white/[0.04] rounded-xl transition-colors text-left"
+                          >
+                            <History size={16} className="text-zinc-500" /> ประวัติการใช้อื่นๆ
+                          </button>
+                          {isAdmin && (
+                            <button
+                              onClick={() => { setIsUserMenuOpen(false); setActiveView("admin"); window.scrollTo(0,0); }}
+                              className="flex items-center gap-3 px-3 py-2.5 text-[13px] font-bold text-neon-yellow hover:text-white hover:bg-white/[0.04] rounded-xl transition-colors text-left mt-1 border border-neon-yellow/20 bg-neon-yellow/10"
+                            >
+                              <Settings size={16} className="text-neon-yellow" /> แอดมินจัดการ
+                            </button>
+                          )}
+                          <div className="h-px w-full bg-white/[0.05] my-1" />
+                          <button
+                            onClick={() => { setIsUserMenuOpen(false); handleLogout(); }}
+                            className="flex items-center gap-3 px-3 py-2.5 text-[13px] font-bold text-rose-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-xl transition-colors text-left"
+                          >
+                            <LogOut size={16} className="text-rose-400" /> ออกจากระบบ
+                          </button>
+                        </>
+                      ) : (
+                        <div className="p-1">
+                          <button
+                            onClick={() => { setIsUserMenuOpen(false); setActiveView("login"); window.scrollTo(0,0); }}
+                            className="w-full flex items-center justify-center py-3 bg-white text-black rounded-xl font-bold text-[13px] hover:bg-zinc-200 transition-colors"
+                          >
+                            เข้าสู่ระบบ / สมัครสมาชิก
+                          </button>
+                        </div>
+                      )}
+                    </motion.div>
+                  </>
+                )}
+              </AnimatePresence>
             </div>
+
+            {/* Hamburger Trigger */}
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              onClick={() => setIsMobileMenuOpen(true)}
+              className="w-10 h-10 flex flex-col justify-center items-center gap-1.5 transition-all duration-200 active:scale-95 cursor-pointer hover:bg-white/[0.04] rounded-xl ml-1 lg:hidden text-white"
+              aria-label="Menu"
+            >
+              <div className="w-[20px] h-[2px] bg-white rounded-full" />
+              <div className="w-[20px] h-[2px] bg-white rounded-full" />
+              <div className="w-[20px] h-[2px] bg-white rounded-full" />
+            </motion.button>
           </div>
         </div>
       </header>
@@ -3116,6 +3174,13 @@ function AppContent() {
                   (h) => h.uid === user?.id,
                 )}
                 defaultTab="topup_gift"
+              />
+            )}
+            {activeView === "my_orders" && (
+              <MyOrdersView
+                purchaseHistory={purchaseHistory.filter(
+                  (h) => h.uid === user?.id || h.userId === user?.id,
+                )}
               />
             )}
             {activeView === "settings" && (
