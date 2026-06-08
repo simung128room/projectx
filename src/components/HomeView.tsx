@@ -87,7 +87,6 @@ function StatCard({
   icon: Icon,
   accent,
   delay = 0,
-  index = 0,
 }: {
   label: string;
   value: string | number;
@@ -95,7 +94,6 @@ function StatCard({
   icon: React.ElementType;
   accent: string;
   delay?: number;
-  index?: number;
 }) {
   return (
     <motion.div 
@@ -146,8 +144,7 @@ function ShortcutBtn({
   glowColor,
   onClick,
   delay = 0,
-  index = 0,
-}: ShortcutBtnProps & { index?: number }) {
+}: ShortcutBtnProps) {
   return (
     <motion.button
       initial={{ opacity: 0, y: 20, scale: 0.95 }}
@@ -190,13 +187,11 @@ function CategoryChip({
   products,
   onClick,
   delay = 0,
-  index = 0,
 }: {
   cat: Category;
   products: Product[];
   onClick: () => void;
   delay?: number;
-  index?: number;
 }) {
   const catProducts = products.filter(
     (p) => p.category === cat.id || p.category === cat.name || p.category === cat.title
@@ -275,12 +270,10 @@ function ProductCard({
   product,
   onClick,
   delay = 0,
-  index = 0,
 }: {
   product: Product;
   onClick: () => void;
   delay?: number;
-  index?: number;
 }) {
   const [imgError, setImgError] = useState(false);
   const hasImage = product.imageUrl && product.imageUrl.trim() !== "" && !imgError;
@@ -486,7 +479,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
         >
           <img
             src="https://img2.pic.in.th/IMG_7177176d5344301b32a1.png"
-            alt="APEX STORE"
+            alt={siteSettings?.site_title || "ร้านค้า"}
             className="w-full h-full object-cover"
             fetchPriority="high"
           />
@@ -494,7 +487,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
         </motion.div>
 
         {/* ── Announcement Bar ── */}
-        {((siteSettings?.announcement_text ?? "ยินดีต้อนรับทุกท่านเข้าสู่ APEX STORE จำหน่ายไอดีราคาถูก | มีปัญหาติดต่อดิสอคร์ดเร็วที่สุด").trim() !== '') && (
+        {((siteSettings?.announcement_text ?? `ยินดีต้อนรับทุกท่านเข้าสู่ ${siteSettings?.site_title || 'ร้านค้าของเรา'} จำหน่ายไอดีราคาถูก | มีปัญหาติดต่อแอดมิน`).trim() !== '') && (
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -507,7 +500,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             </div>
             <div className="flex-1 overflow-hidden relative" style={{ minWidth: 0 }}>
               <div className="text-sm font-semibold text-white/90 tracking-wide pt-0.5 animate-marquee-css inline-block whitespace-nowrap">
-                {siteSettings?.announcement_text ?? "ยินดีต้อนรับทุกท่านเข้าสู่ APEX STORE จำหน่ายไอดีราคาถูก | มีปัญหาติดต่อดิสอคร์ดเร็วที่สุด"}
+                {siteSettings?.announcement_text ?? `ยินดีต้อนรับทุกท่านเข้าสู่ ${siteSettings?.site_title || 'ร้านค้าของเรา'} จำหน่ายไอดีราคาถูก | มีปัญหาติดต่อแอดมิน`}
               </div>
             </div>
           </motion.div>
@@ -522,7 +515,6 @@ export const HomeView: React.FC<HomeViewProps> = ({
             icon={Users}
             accent="rgba(99,102,241,0.4)"
             delay={0.1}
-            index={0}
           />
           <StatCard
             label="พร้อมจำหน่าย"
@@ -531,7 +523,6 @@ export const HomeView: React.FC<HomeViewProps> = ({
             icon={Package}
             accent="rgba(245,158,11,0.4)"
             delay={0.2}
-            index={1}
           />
           <StatCard
             label="หมวดหมู่ทั้งหมด"
@@ -540,7 +531,6 @@ export const HomeView: React.FC<HomeViewProps> = ({
             icon={LayoutGrid}
             accent="rgba(16,185,129,0.4)"
             delay={0.3}
-            index={2}
           />
           <StatCard
             label="ยอดขาย"
@@ -549,7 +539,6 @@ export const HomeView: React.FC<HomeViewProps> = ({
             icon={ShoppingCart}
             accent="rgba(239,68,68,0.4)"
             delay={0.4}
-            index={3}
           />
         </div>
 
@@ -564,7 +553,6 @@ export const HomeView: React.FC<HomeViewProps> = ({
               glowColor="rgba(16,185,129,0.15)"
               onClick={() => setActiveView("categories")}
               delay={0.1}
-              index={0}
             />
             <ShortcutBtn
               label="ประวัติสั่งซื้อ"
@@ -574,7 +562,6 @@ export const HomeView: React.FC<HomeViewProps> = ({
               glowColor="rgba(99,102,241,0.15)"
               onClick={() => setActiveView("order_history")}
               delay={0.2}
-              index={1}
             />
             <ShortcutBtn
               label="ติดต่อ ADMIN"
@@ -584,7 +571,6 @@ export const HomeView: React.FC<HomeViewProps> = ({
               glowColor="rgba(244,63,94,0.15)"
               onClick={() => setActiveView("contact")}
               delay={0.3}
-              index={2}
             />
             <ShortcutBtn
               label="เติมเงิน TOPUP"
@@ -594,7 +580,6 @@ export const HomeView: React.FC<HomeViewProps> = ({
               glowColor="rgba(245,158,11,0.15)"
               onClick={() => setActiveView("wallet")}
               delay={0.4}
-              index={3}
             />
           </div>
         </section>
@@ -622,7 +607,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             </motion.div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {categories.slice(0, 4).map((cat, idx) => (
-                <CategoryChip key={cat.id} cat={cat} products={products} onClick={() => onSelectCategory(cat.id)} delay={idx * 0.1} index={idx} />
+                <CategoryChip key={cat.id} cat={cat} products={products} onClick={() => onSelectCategory(cat.id)} delay={idx * 0.1} />
               ))}
             </div>
           </section>
@@ -774,7 +759,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
               {safeProducts.map((p, idx) => (
-                <ProductCard key={p.id} product={p} onClick={() => onProductClick(p.id)} delay={idx * 0.05} index={idx} />
+                <ProductCard key={p.id} product={p} onClick={() => onProductClick(p.id)} delay={idx * 0.05} />
               ))}
             </div>
           )}

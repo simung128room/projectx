@@ -1171,6 +1171,9 @@ import healthRoute from './src/routes/health.route.js';
 
       if (result.success === true) {
           const amount = parseFloat(result.data?.amount || 0);
+          if (isNaN(amount) || amount <= 0) {
+             return res.json({ success: false, error: 'ข้อมูลซองอั่งเปาไม่ถูกต้อง (ยอดเงินไม่ถูกต้อง)' });
+          }
           console.log(`[TrueWallet] Successfully redeemed ฿${amount}`);
 
           if (uid) {
@@ -1307,7 +1310,11 @@ import healthRoute from './src/routes/health.route.js';
 
       // Checking response format from SlipOK
       if (response.data.success === true || response.data.code === '0000' || response.data.data?.amount !== undefined) {
-        const amount = response.data.data?.amount;
+        const amount = parseFloat(response.data.data?.amount || 0);
+        if (isNaN(amount) || amount <= 0) {
+            return res.json({ success: false, error: 'ยอดเงินในสลิปไม่ถูกต้อง' });
+        }
+        
         const transRef = response.data.data?.transRef;
         const receiverProxy = response.data.data?.receiver?.proxy?.value || '';
         const receiverName = response.data.data?.receiver?.displayName || response.data.data?.receiver?.name || '';
@@ -1322,16 +1329,13 @@ import healthRoute from './src/routes/health.route.js';
         if (EXPECTED_PROMPTPAY) {
            isMatch = receiverProxy.includes(EXPECTED_PROMPTPAY) || receiverProxy.replace(/-/g, '').includes(EXPECTED_PROMPTPAY);
         } else {
-           // เช็คชื่อผู้รับเงินแบบยืดหยุ่นสูง เพื่อความสะดวกของลูกค้า (เช่น ด.ช. กรวิชญ์ ม. หรือ กรวิชญ์ มาตขาว)
+           // เช็คชื่อผู้รับเงินแบบยืดหยุ่น โดยอาศัยตัวแปรแวดล้อมเพื่อความปลอดภัย
            const normalizedReceiver = (receiverName || "").toLowerCase().replace(/[\s\-\.]/g, "");
            const normalizedExpectedTh = EXPECTED_NAME_TH.toLowerCase().replace(/[\s\-\.]/g, "");
            const normalizedExpectedEn = EXPECTED_NAME_EN.toLowerCase().replace(/[\s\-\.]/g, "");
            
            isMatch = 
-             normalizedReceiver.includes("กรวิชญ์") ||
-             normalizedReceiver.includes("kornwich") ||
              normalizedReceiver.includes(normalizedExpectedTh) ||
-             (normalizedExpectedTh.includes("กรวิชญ์") && normalizedReceiver.includes("กรวิชญ์")) ||
              (EXPECTED_NAME_EN !== "NO_NAME_EN" && normalizedReceiver.includes(normalizedExpectedEn));
         }
         

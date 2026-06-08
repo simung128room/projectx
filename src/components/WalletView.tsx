@@ -56,9 +56,9 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Take values from site settings or default to user's realistic values
-  const bankName = siteSettings?.bank_name || 'ธนาคารกสิกรไทย';
-  const bankAccountNumber = siteSettings?.bank_account_number || '196-3-87032-5';
-  const bankAccountHolder = siteSettings?.bank_account_holder || 'กรวิชญ์ มาตขาว';
+  const bankName = siteSettings?.bank_name || 'ธนาคารของคุณ';
+  const bankAccountNumber = siteSettings?.bank_account_number || '000-0-00000-0';
+  const bankAccountHolder = siteSettings?.bank_account_holder || 'ชื่อบัญชีร้านค้า';
 
   const handleCopyAccount = () => {
     setIsCopying(true);
@@ -506,7 +506,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
 
               {/* Mobile Domain Footer Visual from kiddyxstore mockup */}
               <div className="pt-6 border-t border-slate-100 text-center select-none text-slate-400 text-[10px] font-black uppercase tracking-widest">
-                kiddyxstore.com
+                {siteSettings?.site_title || 'APEX STORE'}
               </div>
             </motion.div>
           )}
@@ -584,7 +584,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
 
               {/* Footer Domain Text */}
               <div className="mt-8 text-center select-none text-slate-300 text-[9px] font-black uppercase tracking-widest">
-                kiddyxstore.com
+                {siteSettings?.site_title || 'APEX STORE'}
               </div>
             </motion.div>
           )}
@@ -752,7 +752,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
 
               {/* Footer Domain Text */}
               <div className="pt-2 text-center select-none text-slate-300 text-[9px] font-black uppercase tracking-widest">
-                kiddyxstore.com
+                {siteSettings?.site_title || 'APEX STORE'}
               </div>
             </motion.div>
           )}
