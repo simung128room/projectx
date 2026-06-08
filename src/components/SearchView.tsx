@@ -1,24 +1,32 @@
-import React, { useState, useEffect } from 'react';
-import { Search, ArrowLeft, ShoppingCart } from 'lucide-react';
-import { motion } from 'motion/react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Search, X, Package } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { generateGradient } from '../utils';
 
 interface SearchViewProps {
   products: any[];
-  onBack: () => void;
+  onClose: () => void;
   onProductClick: (id: string) => void;
+  isOpen: boolean;
 }
 
-export const SearchView: React.FC<SearchViewProps> = ({ products, onBack, onProductClick }) => {
+export const SearchView: React.FC<SearchViewProps> = ({ products, onClose, onProductClick, isOpen }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedQuery(searchQuery);
-    }, 300);
+    const timer = setTimeout(() => setDebouncedQuery(searchQuery), 300);
     return () => clearTimeout(timer);
   }, [searchQuery]);
+
+  useEffect(() => {
+    if (isOpen) {
+      setTimeout(() => inputRef.current?.focus(), 100);
+    } else {
+      setSearchQuery('');
+    }
+  }, [isOpen]);
 
   const filteredProducts = products.filter(p => 
     p.name.toLowerCase().includes(debouncedQuery.toLowerCase()) || 
@@ -26,102 +34,118 @@ export const SearchView: React.FC<SearchViewProps> = ({ products, onBack, onProd
   );
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -10 }}
-      className="max-w-4xl mx-auto w-full"
-    >
-      <div className="flex items-center gap-4 mb-8">
-        <button 
-          onClick={onBack}
-          className="w-10 h-10 bg-card border border-border border-2 flex items-center justify-center text-muted-foreground hover:text-white hover:bg-white/10 transition-colors brut-card"
-        >
-          <ArrowLeft className="w-5 h-5" />
-        </button>
-        <div className="relative flex-1">
-          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-            <Search className="w-5 h-5 text-muted-foreground" />
-          </div>
-          <input 
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="ค้นหาสินค้า..."
-            className="w-full bg-card border border-border border-2 py-3 pl-12 pr-4 outline-none focus:border-[#1D4ED8]/50 focus:bg-[#050505] transition-colors text-white placeholder:text-zinc-500 brut-card"
-            autoFocus
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-[100] flex items-start justify-center pt-[10vh] px-4">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
           />
-        </div>
-      </div>
-
-      <div className="space-y-4">
-        {searchQuery && filteredProducts.length === 0 ? (
-          <div className="text-center py-20 bg-card border border-border border-2 brut-card">
-            <Search className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-white mb-2">ไม่พบสินค้า</h3>
-            <p className="text-muted-foreground">ไม่พบสินค้าที่ตรงกับ "{searchQuery}"</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredProducts.map(product => (
-              <div 
-                key={product.id}
-                onClick={() => onProductClick(product.id)}
-                className="bg-card border border-border border-2 p-4 cursor-pointer hover:border-white/10 transition-all group overflow-hidden relative flex flex-col h-full brut-card"
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95, y: -20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: -20 }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            className="w-full max-w-3xl bg-[#0a0a0a] border border-white/[0.08] shadow-2xl rounded-2xl overflow-hidden relative z-10 flex flex-col max-h-[80vh]"
+          >
+            {/* Header / Search Input */}
+            <div className="p-4 border-b border-white/[0.08] flex items-center gap-3 bg-[#111]">
+              <Search className="w-5 h-5 text-zinc-500 flex-shrink-0" />
+              <input 
+                ref={inputRef}
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="ค้นหาสินค้า..."
+                className="flex-1 bg-transparent border-none outline-none text-lg text-white placeholder:text-zinc-500"
+              />
+              <button 
+                onClick={onClose}
+                className="w-8 h-8 rounded-full bg-white/[0.05] hover:bg-white/[0.1] flex items-center justify-center text-zinc-400 hover:text-white transition-colors"
               >
-                {product.imageUrl && product.imageUrl.trim() !== "" ? (
-                  <div className="w-full aspect-video overflow-hidden mb-4 relative bg-card border border-border border-2 brut-card">
-                    <img loading="lazy" src={product.imageUrl} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
-                      onError={(e) => {
-                        e.currentTarget.style.display = 'none';
-                        if (e.currentTarget.nextElementSibling) {
-                          (e.currentTarget.nextElementSibling as HTMLElement).style.display = 'flex';
-                        }
-                      }}
-                    />
-                    <div 
-                      className="w-full h-full flex items-center justify-center absolute inset-0 opacity-80"
-                      style={{ 
-                        display: 'none',
-                        background: generateGradient(product.name || product.id)
-                      }}
-                    >
-                      <span className="text-5xl font-black text-white mix-blend-overlay opacity-60">
-                        {(product.name || "P")[0].toUpperCase()}
-                      </span>
-                    </div>
-                  </div>
-                ) : (
-                  <div 
-                    className="w-full aspect-video overflow-hidden mb-4 relative bg-card flex items-center justify-center border border-border border-2 group-hover:border-white/10 opacity-80 transition-all brut-card"
-                    style={{ background: generateGradient(product.name || product.id) }}
-                  >
-                     <span className="text-5xl font-black text-white mix-blend-overlay opacity-60">
-                        {(product.name || "P")[0].toUpperCase()}
-                     </span>
-                  </div>
-                )}
-                
-                <h3 className="font-bold text-white text-lg mb-2 line-clamp-2 leading-tight group-hover:text-blue-600 transition-colors flex-1">{product.name}</h3>
-                
-                <div className="flex items-end justify-between mt-auto pt-4 border-t border-border border-2">
-                  <div className="flex flex-col">
-                    <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mb-1">ราคา</span>
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-blue-600 font-medium text-sm">฿</span>
-                      <span className="text-xl font-black text-white leading-none">{(product.price || 0).toLocaleString()}</span>
-                    </div>
-                  </div>
-                  <div className="flex flex-col items-end">
-                     <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mb-1">คงเหลือ</span>
-                     <span className="text-sm font-bold text-blue-500">{product.stock > 0 ? `${product.stock} ชิ้น` : 'หมด'}</span>
-                  </div>
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Results Area */}
+            <div className="p-4 flex-1 overflow-y-auto no-scrollbar bg-[#0a0a0a]">
+              {searchQuery && filteredProducts.length === 0 ? (
+                <div className="text-center py-16">
+                  <Search className="w-10 h-10 text-zinc-600 mx-auto mb-3" />
+                  <h3 className="text-lg font-bold text-white mb-1">ไม่พบสินค้า</h3>
+                  <p className="text-zinc-500 text-sm">ลองใช้คำค้นหาอื่นดูอีกครั้ง</p>
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </motion.div>
+              ) : !searchQuery ? (
+                <div className="text-center py-16">
+                  <p className="text-zinc-500 text-sm">พิมพ์ชื่อสินค้าที่คุณต้องการค้นหา</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {filteredProducts.map(product => (
+                    <div 
+                      key={product.id}
+                      onClick={() => {
+                        onProductClick(product.id);
+                        onClose();
+                      }}
+                      className="bg-[#111] border border-white/[0.05] rounded-xl p-3 cursor-pointer hover:border-white/[0.15] hover:bg-white/[0.02] transition-all flex gap-3 items-center group"
+                    >
+                      {/* Image Thumbnail */}
+                      <div className="w-16 h-16 rounded-lg overflow-hidden relative shrink-0 bg-zinc-900 border border-white/[0.05]">
+                        {product.imageUrl && product.imageUrl.trim() !== "" ? (
+                          <img 
+                            src={product.imageUrl} 
+                            alt={product.name} 
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none';
+                              (e.currentTarget.nextElementSibling as HTMLElement).style.display = 'flex';
+                            }}
+                          />
+                        ) : null}
+                        <div 
+                          className="absolute inset-0 w-full h-full items-center justify-center"
+                          style={{ 
+                            display: (!product.imageUrl || product.imageUrl.trim() === "") ? 'flex' : 'none',
+                            background: generateGradient(product.name || product.id)
+                          }}
+                        >
+                          <span className="text-xl font-black text-white mix-blend-overlay opacity-60">
+                            {(product.name || "P")[0].toUpperCase()}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      {/* Details */}
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-bold text-white truncate mb-1">{product.name}</div>
+                        <div className="flex items-center gap-2 text-xs">
+                          <span className="font-mono text-neon-yellow font-bold">
+                            ฿{product.price > 0 ? product.price.toLocaleString() : "ฟรี"}
+                          </span>
+                          {product.stock > 0 ? (
+                            <span className="text-emerald-500 flex items-center gap-1">
+                              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500/50 relative">
+                                <div className="absolute inset-0 rounded-full bg-emerald-500 animate-ping opacity-75"></div>
+                              </div>
+                              สต็อก {product.stock}
+                            </span>
+                          ) : (
+                            <span className="text-red-500">หมดชั่วคราว</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
   );
 };
