@@ -1429,7 +1429,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                   });
                                   
                                   if (setSiteSettings) {
-                                    setSiteSettings(res.data);
+                                    setSiteSettings(res.data.settings || res.data);
                                   }
                                   
                                   if (setSiteStats) {

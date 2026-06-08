@@ -2170,6 +2170,7 @@ if (process.env.REDIS_URL) {
   const invalidateCache = async (collectionName: string) => {
     cacheRevisionCounter++;
     memoryCache.delete(collectionName);
+    inflightRequests.delete(collectionName);
     if (redis && redis.status === 'ready') {
       try {
         await redis.del(`cache:${collectionName}`);
