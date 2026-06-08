@@ -1418,7 +1418,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                   const targetStock = result.value?.stock;
                                   const targetCategories = result.value?.categories;
 
-                                  await axios.post('/api/settings', {
+                                  const res = await axios.post('/api/settings', {
                                     stats_users_target: targetUsers,
                                     stats_users_type: result.value?.usersType,
                                     stats_sales_target: targetSales,
@@ -1427,6 +1427,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                     stats_stock_type: result.value?.stockType,
                                     stats_categories_override: targetCategories
                                   });
+                                  
+                                  if (setSiteSettings) {
+                                    setSiteSettings(res.data);
+                                  }
                                   
                                   if (setSiteStats) {
                                     setSiteStats({

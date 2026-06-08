@@ -839,15 +839,23 @@ import healthRoute from './src/routes/health.route.js';
   // Load from DB (HIGH-05: blocking start until loaded to prevent race conditions)
   const isSupabaseConfigured = !!(process.env.SUPABASE_URL && process.env.SUPABASE_URL.startsWith('http') && (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY));
   if (isSupabaseConfigured) {
+    const docName = process.env.NODE_ENV === 'production' ? 'sys_site' : 'sys_site_dev';
+    
+    const loadSiteSettings = async () => {
+      try {
+        const { data } = await supabaseAdmin.from('custom_pages').select('*').eq('slug', docName).single();
+        if (data && data.content) {
+          let parsed = {};
+          try { parsed = JSON.parse(data.content); } catch(e) {}
+          siteSettings = { ...siteSettings, ...parsed };
+        }
+      } catch (err: any) {}
+    };
+    
     try {
-      const docName = process.env.NODE_ENV === 'production' ? 'sys_site' : 'sys_site_dev';
-      const { data } = await supabaseAdmin.from('custom_pages').select('*').eq('slug', docName).single();
-      if (data && data.content) {
-        let parsed = {};
-        try { parsed = JSON.parse(data.content); } catch(e) {}
-        siteSettings = { ...siteSettings, ...parsed };
-        console.log("Loaded initial site settings from DB", siteSettings);
-      }
+      await loadSiteSettings();
+      console.log("Loaded initial site settings from DB", siteSettings);
+      setInterval(loadSiteSettings, 10000); // refresh every 10s for multi-instance sync
     } catch (err: any) {
       console.warn("Could not load initial site settings from DB (might not exist yet).", err.message || err);
     }
@@ -2186,7 +2194,7 @@ if (process.env.REDIS_URL) {
     try {
       // Opt-in for public caching of products with up to 5 minutes (300000ms) Redis TTL
       // Cache remains fresh because any mutation (buy/update) instantly calls invalidateCache('products')
-      const data = await getCachedCollection('products', 300000, res, req);
+      const data = await getCachedCollection('products', 10000, res, req);
       if (data) {
         const processedData = data.map((item: any) => {
           // ALWAYS strip stockData to prevent RAM blowout (both for admin and public)
@@ -2546,7 +2554,7 @@ const diskUpload = multer({ dest: uploadDir });
       };
 
       // 1. Try Memory cache (5 mins)
-      if (cachedStats && now - lastStatsFetch < 300000) {
+      if (cachedStats && now - lastStatsFetch < 10000) {
         return sendCachedStats();
       }
 
@@ -2645,7 +2653,7 @@ const diskUpload = multer({ dest: uploadDir });
         // Save to Redis cache for 5 minutes
         if (redis && redis.status === 'ready') {
           try {
-            await redis.set(redisKey, JSON.stringify(cachedStats), 'PX', 300000);
+            await redis.set(redisKey, JSON.stringify(cachedStats), 'PX', 10000);
           } catch (e) {}
         }
       }
@@ -3142,7 +3150,7 @@ const diskUpload = multer({ dest: uploadDir });
   app.get('/api/categories', async (req, res) => {
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
     try {
-      const data = await getCachedCollection('categories', 60000, res, req);
+      const data = await getCachedCollection('categories', 10000, res, req);
       if (data) res.json(data);
     } catch (err: any) {
       console.error('Internal server error fetching categories:', err.message || err);
@@ -3220,7 +3228,7 @@ const diskUpload = multer({ dest: uploadDir });
   app.get('/api/pages', async (req, res) => {
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
     try {
-      const data = await getCachedCollection('custom_pages', 60000, res, req);
+      const data = await getCachedCollection('custom_pages', 10000, res, req);
       if (data) res.json(data);
     } catch (err: any) {
       console.error('Internal server error fetching pages:', err.message || err);
