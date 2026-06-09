@@ -2454,7 +2454,7 @@ function AppContent() {
       </aside>
 
       {/* Top Header */}
-      <header className="sticky top-0 z-[65] w-full bg-[#030303]/95 backdrop-blur-md border-b border-white/[0.08] shadow-lg shadow-black/80 flex-shrink-0 select-none">
+      <header className="sticky top-0 z-[80] w-full bg-black/50 backdrop-blur-lg border-b border-white/[0.08] shadow-lg shadow-black/80 flex-shrink-0 select-none">
         <div className="flex items-center justify-between h-[80px] px-4 md:px-8 max-w-7xl mx-auto w-full">
           {/* Logo with matching Icon size */}
           <div 
@@ -2481,33 +2481,34 @@ function AppContent() {
 
             {/* Hamburger Trigger */}
             <motion.button
-              whileHover="hover"
               whileTap={{ scale: 0.9 }}
-              onClick={() => setIsMobileMenuOpen(true)}
-              className="w-11 h-11 flex flex-col justify-center items-center gap-[5px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] transition-all duration-200 active:scale-95 cursor-pointer rounded-xl ml-1 lg:hidden text-white"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="w-11 h-11 flex flex-col justify-center items-center gap-[5px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] transition-all duration-200 active:scale-95 cursor-pointer rounded-xl ml-1 lg:hidden text-white relative z-[85]"
               aria-label="Menu"
             >
               <motion.div 
-                variants={{
-                  hover: { width: "20px", x: 0 }
+                animate={{
+                  rotate: isMobileMenuOpen ? 45 : 0,
+                  y: isMobileMenuOpen ? 7.2 : 0,
                 }}
-                transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                className="w-[20px] h-[1.8px] bg-white rounded-full" 
+                transition={{ type: "spring", stiffness: 350, damping: 23 }}
+                className="w-6 h-[2px] bg-white rounded-full" 
               />
               <motion.div 
-                variants={{
-                  hover: { width: "13px", x: 3 }
+                animate={{
+                  opacity: isMobileMenuOpen ? 0 : 1,
+                  scale: isMobileMenuOpen ? 0 : 1,
                 }}
-                initial={{ width: "16px" }}
-                transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                className="h-[1.8px] bg-neon-green rounded-full self-start ml-[11px]" 
+                transition={{ type: "spring", stiffness: 350, damping: 23 }}
+                className="w-6 h-[2px] bg-white rounded-full" 
               />
               <motion.div 
-                variants={{
-                  hover: { width: "20px", x: 0 }
+                animate={{
+                  rotate: isMobileMenuOpen ? -45 : 0,
+                  y: isMobileMenuOpen ? -7.2 : 0,
                 }}
-                transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                className="w-[18px] h-[1.8px] bg-white rounded-full" 
+                transition={{ type: "spring", stiffness: 350, damping: 23 }}
+                className="w-6 h-[2px] bg-white rounded-full" 
               />
             </motion.button>
           </div>
@@ -2534,16 +2535,8 @@ function AppContent() {
                 transition={{ type: "tween", ease: [0.32, 0.72, 0, 1], duration: 0.3 }}
                 className="fixed top-0 right-0 bottom-0 w-[290px] bg-[#070707] z-[71] flex flex-col lg:hidden overflow-y-auto no-scrollbar border-l border-white/[0.08]"
               >
-                {/* Close button */}
-                <button
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="absolute top-[20px] right-[20px] z-[80] w-9 h-9 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.05] flex items-center justify-center cursor-pointer text-white/50 hover:text-white transition-all duration-200"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-                
                 {/* Header / Logo */}
-                <div className="flex flex-col items-start px-6 pt-8 pb-5 shrink-0 relative z-[70]">
+                <div className="flex flex-col items-start px-6 pt-[100px] pb-5 shrink-0 relative z-[70]">
                   <div 
                     className="flex items-center gap-2.5 cursor-pointer select-none"
                     onClick={() => {
