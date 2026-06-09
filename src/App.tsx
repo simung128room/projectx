@@ -2483,32 +2483,32 @@ function AppContent() {
             <motion.button
               whileTap={{ scale: 0.9 }}
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="w-11 h-11 flex flex-col justify-center items-center gap-[5px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] transition-all duration-200 active:scale-95 cursor-pointer rounded-xl ml-1 lg:hidden text-white relative z-[85]"
+              className="w-11 h-11 flex flex-col justify-center items-center gap-[5px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] transition-all duration-200 active:scale-95 cursor-pointer rounded-xl ml-1 lg:hidden text-white relative z-[100]"
               aria-label="Menu"
             >
               <motion.div 
                 animate={{
                   rotate: isMobileMenuOpen ? 45 : 0,
-                  y: isMobileMenuOpen ? 7.2 : 0,
+                  y: isMobileMenuOpen ? 6.5 : 0,
                 }}
-                transition={{ type: "spring", stiffness: 350, damping: 23 }}
-                className="w-6 h-[2px] bg-white rounded-full" 
+                transition={{ type: "spring", stiffness: 400, damping: 26 }}
+                className="w-6 h-[1.5px] bg-white rounded-[1px]" 
               />
               <motion.div 
                 animate={{
                   opacity: isMobileMenuOpen ? 0 : 1,
                   scale: isMobileMenuOpen ? 0 : 1,
                 }}
-                transition={{ type: "spring", stiffness: 350, damping: 23 }}
-                className="w-6 h-[2px] bg-white rounded-full" 
+                transition={{ type: "spring", stiffness: 400, damping: 26 }}
+                className="w-6 h-[1.5px] bg-white rounded-[1px]" 
               />
               <motion.div 
                 animate={{
                   rotate: isMobileMenuOpen ? -45 : 0,
-                  y: isMobileMenuOpen ? -7.2 : 0,
+                  y: isMobileMenuOpen ? -6.5 : 0,
                 }}
-                transition={{ type: "spring", stiffness: 350, damping: 23 }}
-                className="w-6 h-[2px] bg-white rounded-full" 
+                transition={{ type: "spring", stiffness: 400, damping: 26 }}
+                className="w-6 h-[1.5px] bg-white rounded-[1px]" 
               />
             </motion.button>
           </div>
@@ -2526,14 +2526,14 @@ function AppContent() {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="fixed inset-0 bg-black/70 backdrop-blur-md z-[70] lg:hidden"
+                className="fixed inset-0 bg-black/60 backdrop-blur-md z-[90] lg:hidden"
               />
               <motion.div
                 initial={{ x: "100%" }}
                 animate={{ x: 0 }}
                 exit={{ x: "100%" }}
-                transition={{ type: "tween", ease: [0.32, 0.72, 0, 1], duration: 0.3 }}
-                className="fixed top-0 right-0 bottom-0 w-[290px] bg-[#070707] z-[71] flex flex-col lg:hidden overflow-y-auto no-scrollbar border-l border-white/[0.08]"
+                transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                className="fixed top-0 right-0 bottom-0 h-screen w-full max-w-[320px] bg-[#0c0c0e]/95 backdrop-blur-2xl z-[95] flex flex-col lg:hidden overflow-y-auto no-scrollbar border-l border-white/[0.08] shadow-[0_0_50px_rgba(0,0,0,0.8)]"
               >
                 {/* Header / Logo */}
                 <div className="flex flex-col items-start px-6 pt-[100px] pb-5 shrink-0 relative z-[70]">
@@ -2544,9 +2544,9 @@ function AppContent() {
                       setIsMobileMenuOpen(false);
                     }}
                   >
-                    <img src="https://img2.pic.in.th/IMG_718032ab9d504326a436.png" alt="APEXSTORE Logo" className="h-[32px] object-contain" />
+                    <img src="https://img2.pic.in.th/IMG_718032ab9d504326a436.png" alt="APEXSTORE Logo" className="h-[36px] object-contain" />
                   </div>
-                  <span className="text-[9px] font-mono font-semibold text-white/20 tracking-[0.2em] uppercase mt-1 ml-8.5">
+                  <span className="text-[9px] font-mono font-semibold text-white/20 tracking-[0.2em] uppercase mt-1.5 ml-0.5">
                     PREMIUM STOREFRONT
                   </span>
                 </div>
@@ -2567,7 +2567,6 @@ function AppContent() {
                   >
                     <Home className={`w-[15px] h-[15px] ${activeView === "home" ? "text-neon-green" : "text-white/40"}`} />
                     <span className="text-sm">หน้าหลัก</span>
-                    {activeView === "home" && <div className="ml-auto w-1.5 h-1.5 bg-neon-green rounded-full animate-pulse" />}
                   </div>
 
                   <div
@@ -2610,8 +2609,6 @@ function AppContent() {
                     <Package className={`w-[15px] h-[15px] ${activeView === "my_orders" ? "text-neon-green" : "text-white/40"}`} />
                     <span className="text-sm">คำสั่งซื้อของฉัน</span>
                   </div>
-
-
 
                   <div
                     className="flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all duration-200 text-white/50 hover:text-white hover:bg-white/[0.02]"
