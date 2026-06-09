@@ -2264,176 +2264,299 @@ function AppContent() {
       </div>
     );
 
+  const getViewTitle = () => {
+    switch (activeView) {
+      case "home": return "หน้าหลัก";
+      case "categories": return "สินค้าทั้งหมด";
+      case "category_products": return "หมวดหมู่สินค้า";
+      case "product_detail": return "รายละเอียดสินค้า";
+      case "wallet": return "เติมเงิน";
+      case "my_orders": return "คำสั่งซื้อของฉัน";
+      case "settings": return "การตั้งค่าผู้ใช้";
+      case "wallet_history": return "ประวัติเติมเงิน";
+      case "random_history": return "ประวัติการสุ่มสินค้า";
+      case "admin": return "จัดการหลังบ้าน";
+      case "telegram_catcher": return "ดักซองเทเลแกรม";
+      case "discord_catcher": return "ดักซองดิสคอร์ด";
+      case "discord_on": return "รันโทเค่นดิสคอร์ด";
+      case "discord_badge": return "รับตราอัตโนมัติ";
+      case "two_fa_generator": return "สร้างรหัส 2FA";
+      case "proxy_free": return "พร็อกซี่ฟรี (Proxy)";
+      default: return "APEXSTORE";
+    }
+  };
+
   const isHomeViewReady = (Array.isArray(products) && Array.isArray(categories) && siteSettings !== null) || forceReveal;
   if (!isLoaded || (!isHomeViewReady && !dbErrorDetail)) {
     return <PortalLoader />;
   }
 
   return (
-    <div className="min-h-screen w-full bg-[#030303] text-white font-sans selection:bg-[#050505]/80 flex flex-col relative">
+    <div className="min-h-screen w-full bg-[#030303] text-white font-sans selection:bg-[#050505]/80 flex flex-col lg:flex-row relative">
       {useCustomCursor && <CustomCursor />}
       {/* Popup banner removed as requested */}
 
       {/* Desktop Sidebar */}
-      <aside className="hidden">
-        <div className="mb-10 w-full flex justify-start">
+      <aside className="hidden lg:flex flex-col w-[280px] bg-[#0c0c0e]/95 backdrop-blur-md border-r border-white/[0.08] p-5 h-screen sticky top-0 shrink-0 overflow-y-auto no-scrollbar z-[70]">
+        {/* Brand Header */}
+        <div className="mb-6 w-full flex flex-col justify-start shrink-0">
           <img
             src="https://img2.pic.in.th/IMG_718032ab9d504326a436.png"
             alt="APEXSTORE Logo"
-            className="h-[42px] object-contain hover:scale-105 active:scale-95 transition-all duration-205 cursor-pointer"
+            className="h-[42px] object-contain hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer self-start"
             onClick={handleLogoClick}
           />
+          <span className="text-[9px] font-mono font-semibold text-white/20 tracking-[0.2em] uppercase mt-1.5 ml-0.5 select-none">
+            PREMIUM STOREFRONT
+          </span>
         </div>
-        <div className="flex-1 space-y-1">
-          <div className="flex items-center py-[8px] my-1">
-            <div className="flex-grow border-t border-border border"></div>
-            <span className="shrink-0 px-3 text-[10px] font-medium text-muted-foreground uppercase tracking-[0.2em]">เมนู</span>
-            <div className="flex-grow border-t border-border border"></div>
+
+        {/* User Card inside Sidebar */}
+        {user && (
+          <div className="mb-6 p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.06] flex flex-col gap-3 shrink-0">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-full border border-white/[0.1] shrink-0 overflow-hidden bg-black/40">
+                <img
+                  src={getAvatarUrl(user?.id || userPlan?.username || user?.email?.split("@")[0] || "guest")}
+                  alt="avatar"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-bold text-white truncate">
+                  {userPlan?.username || user?.email?.split("@")[0]}
+                </p>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  {userPlan?.isPremium ? (
+                    <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-neon-yellow/10 text-neon-yellow border border-neon-yellow/20 text-[8px] font-black uppercase tracking-wider">
+                      <Crown className="w-2 h-2 text-neon-yellow" /> Premium
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-white/5 text-white/50 border border-white/[0.08] text-[8px] font-medium uppercase tracking-wider">
+                      <User className="w-2 h-2" /> {getUserRank(userPlan, user)}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+            
+            {/* Balance Widget inside Sidebar */}
+            <div className="flex items-center gap-2 bg-black/40 p-2.5 rounded-lg border border-white/[0.04]">
+              <div className="w-7 h-7 rounded-full bg-white/[0.02] flex items-center justify-center shrink-0 border border-white/[0.06]">
+                <Coins className="w-3.5 h-3.5 text-neon-yellow" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[8px] font-bold text-white/30 uppercase tracking-widest leading-none">
+                  ยอดเงินคงเหลือ
+                </span>
+                <div className="flex items-baseline gap-0.5 mt-1">
+                  <span className="text-xs font-black text-white leading-none">
+                    {userPlan?.balance ? Math.floor(userPlan.balance).toLocaleString() : "0"}
+                  </span>
+                  <span className="text-[9px] font-bold text-neon-green">
+                    ฿
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
+        )}
+
+        <div className="flex-1 space-y-1.5">
+          <div className="flex items-center py-[4px] my-1">
+            <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-[0.15em]">เมนูหลัก / MAIN MENU</span>
+            <div className="flex-grow border-t border-white/[0.05] ml-3"></div>
+          </div>
+          
           <button
             onClick={() => setActiveView("home")}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-all ${activeView === "home" ? "bg-[#121212] text-white border border-border border" : "text-zinc-500 hover:bg-[#0a0a0a] hover:text-white border-transparent"}`}
+            className={`w-full flex items-center gap-3 px-4 py-2 rounded-xl text-xs font-medium transition-all ${activeView === "home" ? "bg-white/5 text-white border border-white/10 font-bold" : "text-zinc-500 hover:bg-[#0a0a0a] hover:text-white border-transparent"}`}
           >
-            <Home className="w-[18px] h-[18px]" /> หน้าแรก
+            <Home className="w-4 h-4 text-neon-green" /> หน้าแรก
           </button>
+          
           <button
             onClick={() => {
               setActiveView("categories");
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-all ${activeView === "categories" ? "bg-[#121212] text-white border border-border border" : "text-zinc-500 hover:bg-[#0a0a0a] hover:text-white border-transparent"}`}
+            className={`w-full flex items-center gap-3 px-4 py-2 rounded-xl text-xs font-medium transition-all ${activeView === "categories" || activeView === "category_products" ? "bg-white/5 text-white border border-white/10 font-bold" : "text-zinc-500 hover:bg-[#0a0a0a] hover:text-white border-transparent"}`}
           >
-            <ShoppingCart className="w-[18px] h-[18px]" /> สินค้าทั้งหมด
+            <ShoppingCart className="w-4 h-4 text-white" /> สินค้าทั้งหมด
           </button>
+          
           <button
             onClick={() => {
               setActiveView(user ? "wallet" : "login");
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-all ${activeView === "wallet" ? "bg-[#121212] text-white border border-border border" : "text-zinc-500 hover:bg-[#0a0a0a] hover:text-white border-transparent"}`}
+            className={`w-full flex items-center gap-3 px-4 py-2 rounded-xl text-xs font-medium transition-all ${activeView === "wallet" ? "bg-white/5 text-white border border-white/10 font-bold" : "text-zinc-500 hover:bg-[#0a0a0a] hover:text-white border-transparent"}`}
           >
-            <Wallet className="w-[18px] h-[18px]" /> เติมเงิน
+            <Wallet className="w-4 h-4 text-white" /> เติมเงิน
           </button>
-
-          {!user && (
-            <>
-              <div className="w-full h-[1px] bg-card my-4" />
-              <div className="flex flex-col gap-2">
-                <button
-                  onClick={() => {
-                    setActiveView("login");
-                    window.scrollTo({ top: 0, behavior: "smooth" });
-                  }}
-                  className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium transition-all active:scale-95 ${activeView === "login" ? "bg-black text-white" : "bg-[#1e1e1e] hover:bg-black hover:text-white text-white"}`}
-                >
-                  <LogIn className="w-[18px] h-[18px]" /> เข้าสู่ระบบ
-                </button>
-                <div className="flex items-center gap-3 px-2 py-1">
-                  <div className="flex-1 h-[1px] bg-card" />
-                  <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-widest">or</span>
-                  <div className="flex-1 h-[1px] bg-card" />
-                </div>
-                <button
-                  onClick={() => {
-                    setActiveView("signup");
-                    window.scrollTo({ top: 0, behavior: "smooth" });
-                  }}
-                  className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium transition-all active:scale-95 border ${activeView === "signup" ? "bg-[#121212] text-white border-[#333333]" : "bg-transparent hover:bg-[#0a0a0a] text-muted-foreground border-border border hover:text-white"}`}
-                >
-                  <UserPlus className="w-[18px] h-[18px]" /> สมัครสมาชิก
-                </button>
-              </div>
-            </>
-          )}
-
-          {user && (
-            <>
-              <button
-                onClick={() => setIsDesktopToolsOpen(!isDesktopToolsOpen)}
-                className="w-full flex items-center justify-between px-4 py-2.5 text-sm font-medium text-muted-foreground hover:bg-[#0a0a0a] hover:text-white transition-all group mt-2"
-              >
-                <div className="flex items-center gap-3">
-                  <Bot className="w-[18px] h-[18px]" /> เครื่องมือย่อย
-                </div>
-                <ChevronDown
-                  className={`w-4 h-4 transition-transform duration-300 ${isDesktopToolsOpen ? "rotate-180" : ""}`}
-                />
-              </button>
-              <div
-                className={`overflow-hidden transition-all duration-300 ease-in-out ${isDesktopToolsOpen ? "max-h-[800px] opacity-100" : "max-h-0 opacity-0"}`}
-              >
-                <div className="flex flex-col gap-1 mt-1 pl-3 border-l border-border border ml-6">
-                  <button
-                    onClick={() => setActiveView("telegram_catcher")}
-                    className={`w-full flex items-center gap-3 px-3 py-2 text-xs font-medium transition-all ${activeView === "telegram_catcher" ? "bg-[#121212] text-white" : "text-zinc-500 hover:bg-[#0a0a0a] hover:text-white"}`}
-                  >
-                    <ArrowUpRight className="w-[14px] h-[14px]" /> ดักซองเทเลแกรม
-                  </button>
-                  <button
-                    onClick={() => setActiveView("discord_catcher")}
-                    className={`w-full flex items-center gap-3 px-3 py-2 text-xs font-medium transition-all ${activeView === "discord_catcher" ? "bg-[#121212] text-white" : "text-zinc-500 hover:bg-[#0a0a0a] hover:text-white"}`}
-                  >
-                    <ArrowUpRight className="w-[14px] h-[14px]" /> ดักซองดิสคอร์ด
-                  </button>
-                  <button
-                    onClick={() => setActiveView("discord_on")}
-                    className={`w-full flex items-center gap-3 px-3 py-2 text-xs font-medium transition-all ${activeView === "discord_on" ? "bg-[#121212] text-white" : "text-zinc-500 hover:bg-[#0a0a0a] hover:text-white"}`}
-                  >
-                    <ArrowUpRight className="w-[14px] h-[14px]" /> รันโทเค่นดิสคอร์ด
-                  </button>
-                  <button
-                    onClick={() => setActiveView("discord_badge")}
-                    className={`w-full flex items-center gap-3 px-3 py-2 text-xs font-medium transition-all ${activeView === "discord_badge" ? "bg-[#121212] text-white" : "text-zinc-500 hover:bg-[#0a0a0a] hover:text-white"}`}
-                  >
-                    <ArrowUpRight className="w-[14px] h-[14px]" /> รับตราอัตโนมัติ
-                  </button>
-                  <button
-                    onClick={() => setActiveView("two_fa_generator")}
-                    className={`w-full flex items-center gap-3 px-3 py-2 text-xs font-medium transition-all ${activeView === "two_fa_generator" ? "bg-[#121212] text-white" : "text-zinc-500 hover:bg-[#0a0a0a] hover:text-white"}`}
-                  >
-                    <ArrowUpRight className="w-[14px] h-[14px]" /> สร้างรหัส 2FA
-                  </button>
-                  <button
-                    onClick={() => setActiveView("proxy_free")}
-                    className={`w-full flex items-center gap-3 px-3 py-2 text-xs font-medium transition-all ${activeView === "proxy_free" ? "bg-[#121212] text-white" : "text-zinc-500 hover:bg-[#0a0a0a] hover:text-white"}`}
-                  >
-                    <ArrowUpRight className="w-[14px] h-[14px]" /> พร็อกซี่ฟรี (Proxy)
-                  </button>
-                </div>
-              </div>
-            </>
-          )}
 
           <button
             onClick={() => {
               setActiveView(user ? "my_orders" : "login");
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-all ${activeView === "my_orders" ? "bg-[#121212] text-white border border-border border" : "text-zinc-500 hover:bg-[#0a0a0a] hover:text-white border-transparent"}`}
+            className={`w-full flex items-center gap-3 px-4 py-2 rounded-xl text-xs font-medium transition-all ${activeView === "my_orders" ? "bg-white/5 text-white border border-white/10 font-bold" : "text-zinc-500 hover:bg-[#0a0a0a] hover:text-white border-transparent"}`}
           >
-            <Package className="w-[18px] h-[18px]" /> คำสั่งซื้อของฉัน
+            <Package className="w-4 h-4 text-white" /> คำสั่งซื้อของฉัน
           </button>
+
+          {!user ? (
+            <>
+              <div className="flex items-center py-[4px] my-2">
+                <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-[0.15em]">เข้าสู่ระบบ / MEMBER</span>
+                <div className="flex-grow border-t border-white/[0.05] ml-3"></div>
+              </div>
+              <button
+                onClick={() => {
+                  setActiveView("login");
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+                className={`w-full flex items-center justify-center gap-2 px-4 py-2 text-xs font-bold transition-all rounded-xl hover:bg-zinc-200 active:scale-95 bg-white text-black`}
+              >
+                <LogIn className="w-3.5 h-3.5" /> ลงชื่อเข้าใช้
+              </button>
+              <button
+                onClick={() => {
+                  setActiveView("signup");
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+                className={`w-full flex items-center justify-center gap-2 px-4 py-2 text-xs font-bold transition-all border rounded-xl hover:bg-white/10 active:scale-95 bg-white/5 text-white border-white/10 mt-1.5`}
+              >
+                <UserPlus className="w-3.5 h-3.5" /> สมัครสมาชิก
+              </button>
+            </>
+          ) : (
+            <>
+              <div className="flex items-center py-[4px] my-2">
+                <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-[0.15em]">บริการหลัก / ACCOUNT</span>
+                <div className="flex-grow border-t border-white/[0.05] ml-3"></div>
+              </div>
+              <button
+                onClick={() => setActiveView("settings")}
+                className={`w-full flex items-center gap-3 px-4 py-2 rounded-xl text-xs font-medium transition-all ${activeView === "settings" ? "bg-white/5 text-white border border-white/10 font-bold" : "text-zinc-500 hover:bg-[#0a0a0a] hover:text-white border-transparent"}`}
+              >
+                <Settings className="w-4 h-4 text-white" /> การตั้งค่าผู้ใช้
+              </button>
+              <button
+                onClick={() => setActiveView("wallet_history")}
+                className={`w-full flex items-center gap-3 px-4 py-2 rounded-xl text-xs font-medium transition-all ${activeView === "wallet_history" ? "bg-white/5 text-white border border-white/10 font-bold" : "text-zinc-500 hover:bg-[#0a0a0a] hover:text-white border-transparent"}`}
+              >
+                <Wallet className="w-4 h-4 text-white" /> ประวัติเติมเงิน
+              </button>
+              <button
+                onClick={() => setActiveView("random_history")}
+                className={`w-full flex items-center gap-3 px-4 py-2 rounded-xl text-xs font-medium transition-all ${activeView === "random_history" ? "bg-white/5 text-white border border-white/10 font-bold" : "text-zinc-500 hover:bg-[#0a0a0a] hover:text-white border-transparent"}`}
+              >
+                <Gift className="w-4 h-4 text-white" /> ประวัติการสุ่มสินค้า
+              </button>
+
+              <button
+                onClick={() => setIsDesktopToolsOpen(!isDesktopToolsOpen)}
+                className="w-full flex items-center justify-between px-4 py-2 rounded-xl text-xs font-medium text-zinc-500 hover:bg-[#0a0a0a] hover:text-white transition-all group mt-1"
+              >
+                <div className="flex items-center gap-3">
+                  <Bot className="w-4 h-4 text-white" /> เครื่องมือย่อย
+                </div>
+                <ChevronDown
+                  className={`w-3.5 h-3.5 transition-transform duration-300 ${isDesktopToolsOpen ? "rotate-180" : ""}`}
+                />
+              </button>
+              <div
+                className={`overflow-hidden transition-all duration-300 ease-in-out ${isDesktopToolsOpen ? "max-h-[800px] opacity-100" : "max-h-0 opacity-0"}`}
+              >
+                <div className="flex flex-col gap-0.5 mt-0.5 pl-3 border-l border-white/[0.08] ml-6">
+                  <button
+                    onClick={() => setActiveView("telegram_catcher")}
+                    className={`w-full flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${activeView === "telegram_catcher" ? "bg-white/5 text-white font-semibold" : "text-zinc-500 hover:bg-[#050505] hover:text-white"}`}
+                  >
+                    <ArrowUpRight className="w-3.5 h-3.5" /> ดักซองเทเลแกรม
+                  </button>
+                  <button
+                    onClick={() => setActiveView("discord_catcher")}
+                    className={`w-full flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${activeView === "discord_catcher" ? "bg-white/5 text-white font-semibold" : "text-zinc-500 hover:bg-[#050505] hover:text-white"}`}
+                  >
+                    <ArrowUpRight className="w-3.5 h-3.5" /> ดักซองดิสคอร์ด
+                  </button>
+                  <button
+                    onClick={() => setActiveView("discord_on")}
+                    className={`w-full flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${activeView === "discord_on" ? "bg-white/5 text-white font-semibold" : "text-zinc-500 hover:bg-[#050505] hover:text-white"}`}
+                  >
+                    <ArrowUpRight className="w-3.5 h-3.5" /> รันโทเค่นดิสคอร์ด
+                  </button>
+                  <button
+                    onClick={() => setActiveView("discord_badge")}
+                    className={`w-full flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${activeView === "discord_badge" ? "bg-white/5 text-white font-semibold" : "text-zinc-500 hover:bg-[#050505] hover:text-white"}`}
+                  >
+                    <ArrowUpRight className="w-3.5 h-3.5 text-neon-green" /> รับตราอัตโนมัติ
+                  </button>
+                  <button
+                    onClick={() => setActiveView("two_fa_generator")}
+                    className={`w-full flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${activeView === "two_fa_generator" ? "bg-white/5 text-white font-semibold" : "text-zinc-500 hover:bg-[#050505] hover:text-white"}`}
+                  >
+                    <ArrowUpRight className="w-3.5 h-3.5" /> สร้างรหัส 2FA
+                  </button>
+                  <button
+                    onClick={() => setActiveView("proxy_free")}
+                    className={`w-full flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${activeView === "proxy_free" ? "bg-white/5 text-white font-semibold" : "text-zinc-500 hover:bg-[#050505] hover:text-white"}`}
+                  >
+                    <ArrowUpRight className="w-3.5 h-3.5" /> พร็อกซี่ฟรี (Proxy)
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
+
+          <div className="flex items-center py-[4px] my-2">
+            <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-[0.15em]">ช่วยเหลือ / HELP</span>
+            <div className="flex-grow border-t border-white/[0.05] ml-3"></div>
+          </div>
+
           <button
             onClick={() => {
               setShowContactUs(true);
             }}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-all text-muted-foreground hover:bg-[#0a0a0a] hover:text-white border border-transparent`}
+            className={`w-full flex items-center gap-3 px-4 py-2 rounded-xl text-xs font-medium transition-all text-zinc-500 hover:bg-[#0a0a0a] hover:text-white border border-transparent`}
           >
-            <Phone className="w-[18px] h-[18px]" /> ติดต่อแอดมิน
+            <Phone className="w-4 h-4 text-white" /> ติดต่อแอดมิน
           </button>
+          
           {user && (
             <button
               onClick={handleLogout}
-              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-all text-red-500 hover:bg-red-500/10 mt-2 border border-transparent"
+              className="w-full flex items-center gap-3 px-4 py-2 rounded-xl text-xs font-medium transition-all text-red-500 hover:bg-red-500/10 mt-2 border border-transparent"
             >
-              <LogOut className="w-[18px] h-[18px]" /> ออกจากระบบ
+              <LogOut className="w-4 h-4 text-red-500" /> ออกจากระบบ
             </button>
+          )}
+
+          {isAdmin && (
+            <>
+              <div className="flex items-center py-[4px] my-2">
+                <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-[0.15em]">ผู้ดูแลระบบ / ADMIN</span>
+                <div className="flex-grow border-t border-white/[0.05] ml-3"></div>
+              </div>
+              <button
+                onClick={() => {
+                  setActiveView("admin");
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+                className={`w-full flex items-center gap-3 px-4 py-2 rounded-xl text-xs font-bold transition-all ${activeView === "admin" ? "bg-neon-green/10 text-neon-green border border-neon-green/20" : "text-neon-green/80 hover:bg-neon-green/5 hover:text-neon-green"}`}
+              >
+                <ShieldCheck className="w-4 h-4 text-neon-green animate-pulse" /> จัดการหลังบ้าน
+              </button>
+            </>
           )}
 
           {user && customPages && customPages.length > 0 && (
             <>
-              <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-widest mt-6 mb-3 pl-3">
-                หน้าอื่นๆ
+              <div className="flex items-center py-[4px] my-2">
+                <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-[0.15em]">หน้าอื่นๆ / PAGES</span>
+                <div className="flex-grow border-t border-white/[0.05] ml-3"></div>
               </div>
               {customPages.map((page) => (
                 <button
@@ -2442,9 +2565,9 @@ function AppContent() {
                     setSelectedPage(page);
                     setActiveView("custom_page");
                   }}
-                  className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-all ${activeView === "custom_page" && selectedPage?.id === page.id ? "bg-[#121212] text-white border border-border border" : "text-zinc-500 hover:bg-[#0a0a0a] hover:text-white border-transparent"}`}
+                  className={`w-full flex items-center gap-3 px-4 py-2 rounded-xl text-xs font-medium transition-all ${activeView === "custom_page" && selectedPage?.id === page.id ? "bg-white/5 text-white border border-white/10 font-bold" : "text-zinc-500 hover:bg-[#0a0a0a] hover:text-white border-transparent"}`}
                 >
-                  <FileText className="w-[18px] h-[18px]" />{" "}
+                  <FileText className="w-4 h-4 text-white" />{" "}
                   {page.title.replace(/^#+\s*/, "")}
                 </button>
               ))}
@@ -2453,70 +2576,75 @@ function AppContent() {
         </div>
       </aside>
 
-      {/* Top Header */}
-      <header className="sticky top-0 z-[80] w-full bg-black/50 backdrop-blur-lg border-b border-white/[0.08] shadow-lg shadow-black/80 flex-shrink-0 select-none">
-        <div className="flex items-center justify-between h-[80px] px-4 md:px-8 max-w-7xl mx-auto w-full">
-          {/* Logo with matching Icon size */}
-          <div 
-            className="flex items-center gap-3 select-none flex-shrink-0 cursor-pointer hover:scale-[1.02] active:scale-95 transition-all duration-200 group" 
-            onClick={() => {
-              setActiveView("home");
-              window.scrollTo({ top: 0, behavior: "smooth" });
-            }}
-          >
-            <img src="https://img2.pic.in.th/IMG_718032ab9d504326a436.png" alt="APEXSTORE Logo" className="h-[44px] md:h-[50px] object-contain" />
-          </div>
-
-          {/* Right Section */}
-          <div className="flex items-center gap-2 md:gap-4">
-            
-            {/* Search Button */}
-            <button
-              onClick={() => setShowSearchPopup(true)}
-              className="w-[44px] h-[44px] rounded-xl flex items-center justify-center text-white/50 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] transition-all duration-200 active:scale-95 cursor-pointer"
-              aria-label="Search"
-            >
-              <Search className="w-5 h-5 stroke-[2.5px]" />
-            </button>
-
-            {/* Hamburger Trigger */}
-            <motion.button
-              whileTap={{ scale: 0.9 }}
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="w-11 h-11 flex flex-col justify-center items-center gap-[5px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] transition-all duration-200 active:scale-95 cursor-pointer rounded-xl ml-1 lg:hidden text-white relative z-[100]"
-              aria-label="Menu"
-            >
-              <motion.div 
-                animate={{
-                  rotate: isMobileMenuOpen ? 45 : 0,
-                  y: isMobileMenuOpen ? 6.5 : 0,
-                }}
-                transition={{ type: "spring", stiffness: 400, damping: 26 }}
-                className="w-6 h-[1.5px] bg-white rounded-[1px]" 
-              />
-              <motion.div 
-                animate={{
-                  opacity: isMobileMenuOpen ? 0 : 1,
-                  scale: isMobileMenuOpen ? 0 : 1,
-                }}
-                transition={{ type: "spring", stiffness: 400, damping: 26 }}
-                className="w-6 h-[1.5px] bg-white rounded-[1px]" 
-              />
-              <motion.div 
-                animate={{
-                  rotate: isMobileMenuOpen ? -45 : 0,
-                  y: isMobileMenuOpen ? -6.5 : 0,
-                }}
-                transition={{ type: "spring", stiffness: 400, damping: 26 }}
-                className="w-6 h-[1.5px] bg-white rounded-[1px]" 
-              />
-            </motion.button>
-          </div>
-        </div>
-      </header>
-
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-h-screen min-w-0 relative overflow-x-hidden">
+        {/* Top Header */}
+        <header className="sticky top-0 z-[60] w-full bg-black/50 backdrop-blur-lg border-b border-white/[0.08] shadow-lg shadow-black/80 flex-shrink-0 select-none">
+          <div className="flex items-center justify-between h-[80px] px-4 md:px-8 max-w-7xl mx-auto w-full">
+            {/* Logo with matching Icon size */}
+            <div 
+              className="flex items-center gap-3 select-none flex-shrink-0 cursor-pointer hover:scale-[1.02] active:scale-95 transition-all duration-200 group lg:hidden" 
+              onClick={() => {
+                setActiveView("home");
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+            >
+              <img src="https://img2.pic.in.th/IMG_718032ab9d504326a436.png" alt="APEXSTORE Logo" className="h-[44px] md:h-[50px] object-contain" />
+            </div>
+
+            <div className="hidden lg:flex items-center gap-2 select-none">
+              <span className="text-sm font-black tracking-[0.1em] text-white/90 uppercase">
+                {getViewTitle()}
+              </span>
+            </div>
+
+            {/* Right Section */}
+            <div className="flex items-center gap-2 md:gap-4">
+              
+              {/* Search Button */}
+              <button
+                onClick={() => setShowSearchPopup(true)}
+                className="w-[44px] h-[44px] rounded-xl flex items-center justify-center text-white/50 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] transition-all duration-200 active:scale-95 cursor-pointer"
+                aria-label="Search"
+              >
+                <Search className="w-5 h-5 stroke-[2.5px]" />
+              </button>
+
+              {/* Hamburger Trigger */}
+              <motion.button
+                whileTap={{ scale: 0.9 }}
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="w-11 h-11 flex flex-col justify-center items-center gap-[5px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] transition-all duration-200 active:scale-95 cursor-pointer rounded-xl ml-1 lg:hidden text-white relative z-[100]"
+                aria-label="Menu"
+              >
+                <motion.div 
+                  animate={{
+                    rotate: isMobileMenuOpen ? 45 : 0,
+                    y: isMobileMenuOpen ? 6.5 : 0,
+                  }}
+                  transition={{ type: "spring", stiffness: 400, damping: 26 }}
+                  className="w-6 h-[1.5px] bg-white rounded-[1px]" 
+                />
+                <motion.div 
+                  animate={{
+                    opacity: isMobileMenuOpen ? 0 : 1,
+                    scale: isMobileMenuOpen ? 0 : 1,
+                  }}
+                  transition={{ type: "spring", stiffness: 400, damping: 26 }}
+                  className="w-6 h-[1.5px] bg-white rounded-[1px]" 
+                />
+                <motion.div 
+                  animate={{
+                    rotate: isMobileMenuOpen ? -45 : 0,
+                    y: isMobileMenuOpen ? -6.5 : 0,
+                  }}
+                  transition={{ type: "spring", stiffness: 400, damping: 26 }}
+                  className="w-6 h-[1.5px] bg-white rounded-[1px]" 
+                />
+              </motion.button>
+            </div>
+          </div>
+        </header>
         {/* Mobile Menu Dropdown */}
         <AnimatePresence>
           {isMobileMenuOpen && (
