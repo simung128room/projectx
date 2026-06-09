@@ -2746,8 +2746,8 @@ function AppContent() {
                 className="fixed top-0 right-0 bottom-0 h-screen w-full max-w-[320px] bg-[#101014] z-[95] flex flex-col lg:hidden overflow-y-auto no-scrollbar border-l border-white/[0.06] shadow-[[-10px_0_30px_rgba(0,0,0,0.8)]]"
               >
                 {/* Header */}
-                <div className="flex items-center justify-between px-6 pt-[80px] pb-5 shrink-0 relative z-[70] border-b border-white/[0.04]">
-                  <span className="text-xl font-black text-white hover:opacity-90 transition-opacity">เมนูหลัก</span>
+                <div className="flex items-center justify-between px-6 pt-5 pb-5 shrink-0 relative z-[70] border-b border-white/[0.04]">
+                  <span className="text-2xl font-black text-white hover:opacity-90 transition-opacity">เมนูหลัก</span>
                   <button
                     onClick={() => setIsMobileMenuOpen(false)}
                     className="w-10 h-10 rounded-full flex items-center justify-center bg-white/[0.04] hover:bg-white/[0.08] text-zinc-400 hover:text-white border border-white/[0.06] transition-all cursor-pointer active:scale-95"
@@ -2758,43 +2758,43 @@ function AppContent() {
 
                 {/* Nav items */}
                 <div className="px-5 flex flex-col gap-1.5 shrink-0 mt-6">
-                  <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.15em] mb-2 px-1 select-none">
+                  <div className="text-[11px] font-semibold text-zinc-500 uppercase tracking-[0.15em] mb-2 px-1 select-none">
                     NAVIGATION
                   </div>
                   
                   {/* หน้าหลัก */}
                   <div
-                    className={`flex items-center gap-4 px-4 py-3 rounded-xl cursor-pointer transition-all duration-200 relative ${activeView === "home" ? "bg-[#00a2ff]/10 text-white font-bold border border-[#00a2ff]/20" : "text-zinc-400 hover:text-white hover:bg-white/[0.02]"}`}
+                    className={`flex items-center gap-4 px-4 py-3.5 rounded-xl cursor-pointer transition-all duration-200 relative ${activeView === "home" ? "bg-[#00a2ff]/10 text-white font-bold border border-[#00a2ff]/20" : "text-zinc-400 hover:text-white hover:bg-white/[0.02]"}`}
                     onClick={() => {
-                      setActiveView("home");
-                      setIsMobileMenuOpen(false);
+                       setActiveView("home");
+                       setIsMobileMenuOpen(false);
                     }}
                   >
                     {activeView === "home" && (
-                      <div className="absolute left-0 top-3 bottom-3 w-[3.5px] bg-[#00a2ff] rounded-r shadow-[0_0_8px_rgba(0,162,255,0.6)]" />
+                      <div className="absolute left-0 top-3.5 bottom-3.5 w-[3.5px] bg-[#00a2ff] rounded-r shadow-[0_0_8px_rgba(0,162,255,0.6)]" />
                     )}
-                    <Home className={`w-[18px] h-[18px] ${activeView === "home" ? "text-[#00a2ff]" : "text-zinc-400"}`} />
-                    <span className="text-sm font-semibold">หน้าหลัก</span>
+                    <Home className={`w-5 h-5 ${activeView === "home" ? "text-[#00a2ff]" : "text-zinc-400"}`} />
+                    <span className="text-base font-bold">หน้าหลัก</span>
                   </div>
 
                   {/* ร้านค้า */}
                   <div
-                    className={`flex items-center gap-4 px-4 py-3 rounded-xl cursor-pointer transition-all duration-200 relative ${activeView === "categories" || activeView === "category_products" ? "bg-[#00a2ff]/10 text-white font-bold border border-[#00a2ff]/20" : "text-zinc-400 hover:text-white hover:bg-white/[0.02]"}`}
+                    className={`flex items-center gap-4 px-4 py-3.5 rounded-xl cursor-pointer transition-all duration-200 relative ${activeView === "categories" || activeView === "category_products" ? "bg-[#00a2ff]/10 text-white font-bold border border-[#00a2ff]/20" : "text-zinc-400 hover:text-white hover:bg-white/[0.02]"}`}
                     onClick={() => {
                       setActiveView("categories");
                       setIsMobileMenuOpen(false);
                     }}
                   >
                     {((activeView === "categories") || (activeView === "category_products")) && (
-                      <div className="absolute left-0 top-3 bottom-3 w-[3.5px] bg-[#00a2ff] rounded-r shadow-[0_0_8px_rgba(0,162,255,0.6)]" />
+                      <div className="absolute left-0 top-3.5 bottom-3.5 w-[3.5px] bg-[#00a2ff] rounded-r shadow-[0_0_8px_rgba(0,162,255,0.6)]" />
                     )}
-                    <ShoppingCart className={`w-[18px] h-[18px] ${activeView === "categories" || activeView === "category_products" ? "text-[#00a2ff]" : "text-zinc-400"}`} />
-                    <span className="text-sm font-semibold">ร้านค้า</span>
+                    <ShoppingCart className={`w-5 h-5 ${activeView === "categories" || activeView === "category_products" ? "text-[#00a2ff]" : "text-zinc-400"}`} />
+                    <span className="text-base font-bold">ร้านค้า</span>
                   </div>
 
                   {/* เติมเงิน */}
                   <div
-                    className={`flex items-center gap-4 px-4 py-3 rounded-xl cursor-pointer transition-all duration-200 relative ${activeView === "wallet" ? "bg-[#00a2ff]/10 text-white font-bold border border-[#00a2ff]/20" : "text-zinc-400 hover:text-white hover:bg-white/[0.02]"}`}
+                    className={`flex items-center gap-4 px-4 py-3.5 rounded-xl cursor-pointer transition-all duration-200 relative ${activeView === "wallet" ? "bg-[#00a2ff]/10 text-white font-bold border border-[#00a2ff]/20" : "text-zinc-400 hover:text-white hover:bg-white/[0.02]"}`}
                     onClick={() => {
                       if (!user) {
                         setActiveView("login");
@@ -2805,15 +2805,15 @@ function AppContent() {
                     }}
                   >
                     {activeView === "wallet" && (
-                      <div className="absolute left-0 top-3 bottom-3 w-[3.5px] bg-[#00a2ff] rounded-r shadow-[0_0_8px_rgba(0,162,255,0.6)]" />
+                      <div className="absolute left-0 top-3.5 bottom-3.5 w-[3.5px] bg-[#00a2ff] rounded-r shadow-[0_0_8px_rgba(0,162,255,0.6)]" />
                     )}
-                    <Wallet className={`w-[18px] h-[18px] ${activeView === "wallet" ? "text-[#00a2ff]" : "text-zinc-400"}`} />
-                    <span className="text-sm font-semibold">เติมเงิน</span>
+                    <Wallet className={`w-5 h-5 ${activeView === "wallet" ? "text-[#00a2ff]" : "text-zinc-400"}`} />
+                    <span className="text-base font-bold">เติมเงิน</span>
                   </div>
 
                   {/* มินิเกม */}
                   <div
-                    className={`flex items-center gap-4 px-4 py-3 rounded-xl cursor-pointer transition-all duration-200 relative ${activeView === "random_history" ? "bg-[#00a2ff]/10 text-white font-bold border border-[#00a2ff]/20" : "text-zinc-400 hover:text-white hover:bg-white/[0.02]"}`}
+                    className={`flex items-center gap-4 px-4 py-3.5 rounded-xl cursor-pointer transition-all duration-200 relative ${activeView === "random_history" ? "bg-[#00a2ff]/10 text-white font-bold border border-[#00a2ff]/20" : "text-zinc-400 hover:text-white hover:bg-white/[0.02]"}`}
                     onClick={() => {
                       if (!user) {
                         setActiveView("login");
@@ -2824,15 +2824,15 @@ function AppContent() {
                     }}
                   >
                     {activeView === "random_history" && (
-                      <div className="absolute left-0 top-3 bottom-3 w-[3.5px] bg-[#00a2ff] rounded-r shadow-[0_0_8px_rgba(0,162,255,0.6)]" />
+                      <div className="absolute left-0 top-3.5 bottom-3.5 w-[3.5px] bg-[#00a2ff] rounded-r shadow-[0_0_8px_rgba(0,162,255,0.6)]" />
                     )}
-                    <Gamepad2 className={`w-[18px] h-[18px] ${activeView === "random_history" ? "text-[#00a2ff]" : "text-zinc-400"}`} />
-                    <span className="text-sm font-semibold">มินิเกม</span>
+                    <Gamepad2 className={`w-5 h-5 ${activeView === "random_history" ? "text-[#00a2ff]" : "text-zinc-400"}`} />
+                    <span className="text-base font-bold">มินิเกม</span>
                   </div>
 
                   {/* เติมเกม */}
                   <div
-                    className="flex items-center gap-4 px-4 py-3 rounded-xl cursor-pointer transition-all duration-200 relative text-zinc-400 hover:text-white hover:bg-white/[0.02]"
+                    className="flex items-center gap-4 px-4 py-3.5 rounded-xl cursor-pointer transition-all duration-200 relative text-zinc-400 hover:text-white hover:bg-white/[0.02]"
                     onClick={() => {
                       Swal.fire({
                         title: "ระบบเติมเกม",
@@ -2847,13 +2847,13 @@ function AppContent() {
                       setIsMobileMenuOpen(false);
                     }}
                   >
-                    <Gamepad2 className="w-[18px] h-[18px] text-zinc-400" />
-                    <span className="text-sm font-semibold">เติมเกม</span>
+                    <Gamepad2 className="w-5 h-5 text-zinc-400" />
+                    <span className="text-base font-bold">เติมเกม</span>
                   </div>
 
                   {/* ออเดอร์ */}
                   <div
-                    className={`flex items-center gap-4 px-4 py-3 rounded-xl cursor-pointer transition-all duration-200 relative ${activeView === "my_orders" ? "bg-[#00a2ff]/10 text-white font-bold border border-[#00a2ff]/20" : "text-[#d1d5db] hover:text-white hover:bg-white/[0.02]"}`}
+                    className={`flex items-center gap-4 px-4 py-3.5 rounded-xl cursor-pointer transition-all duration-200 relative ${activeView === "my_orders" ? "bg-[#00a2ff]/10 text-white font-bold border border-[#00a2ff]/20" : "text-[#d1d5db] hover:text-white hover:bg-white/[0.02]"}`}
                     onClick={() => {
                       if (!user) {
                         setActiveView("login");
@@ -2864,22 +2864,22 @@ function AppContent() {
                     }}
                   >
                     {activeView === "my_orders" && (
-                      <div className="absolute left-0 top-3 bottom-3 w-[3.5px] bg-[#00a2ff] rounded-r shadow-[0_0_8px_rgba(0,162,255,0.6)]" />
+                      <div className="absolute left-0 top-3.5 bottom-3.5 w-[3.5px] bg-[#00a2ff] rounded-r shadow-[0_0_8px_rgba(0,162,255,0.6)]" />
                     )}
-                    <Package className={`w-[18px] h-[18px] ${activeView === "my_orders" ? "text-[#00a2ff]" : "text-zinc-400"}`} />
-                    <span className="text-sm font-semibold">ออเดอร์</span>
+                    <Package className={`w-5 h-5 ${activeView === "my_orders" ? "text-[#00a2ff]" : "text-zinc-400"}`} />
+                    <span className="text-base font-bold">ออเดอร์</span>
                   </div>
 
                   {/* ค้นหาชื่อสินค้า */}
                   <div
-                    className="flex items-center gap-4 px-4 py-3 rounded-xl cursor-pointer transition-all duration-200 text-[#d1d5db] hover:text-white hover:bg-white/[0.02]"
+                    className="flex items-center gap-4 px-4 py-3.5 rounded-xl cursor-pointer transition-all duration-200 text-[#d1d5db] hover:text-white hover:bg-white/[0.02]"
                     onClick={() => {
                       setShowSearchPopup(true);
                       setIsMobileMenuOpen(false);
                     }}
                   >
-                    <Search className="w-[18px] h-[18px] text-zinc-400" />
-                    <span className="text-sm font-semibold">ค้นหาชื่อสินค้า</span>
+                    <Search className="w-5 h-5 text-zinc-400" />
+                    <span className="text-base font-bold">ค้นหาชื่อสินค้า</span>
                   </div>
                 </div>
 
