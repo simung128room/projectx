@@ -3087,7 +3087,7 @@ function AppContent() {
           <Suspense
             fallback={
               <div className="flex-1 w-full flex items-center justify-center min-h-[50vh]">
-                <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent flex items-center justify-center animate-spin" />
+                <div className="w-8 h-8 border-2 border-white/20 border-t-white rounded-full animate-spin" />
               </div>
             }
           >
@@ -3101,11 +3101,9 @@ function AppContent() {
               className="flex-1 w-full flex flex-col min-h-0"
             >
             {isLoadingSkeleton ? (
-              activeView === "home" ? (
-                <SkeletonHomeLoader />
-              ) : (
-                <SkeletonGenericLoader />
-              )
+              <div className="flex-grow w-full flex items-center justify-center min-h-[50vh]">
+                <div className="w-8 h-8 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+              </div>
             ) : (
               <>
                 {activeView === "categories" && (
