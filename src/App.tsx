@@ -2631,7 +2631,7 @@ function AppContent() {
           {user && customPages && customPages.length > 0 && (
             <>
               <div className="flex items-center gap-2 py-1.5 mt-4 mb-1 select-none">
-                <span className="w-1 h-3 rounded-full bg-[#00a2ff] shadow-[0_0_8px_rgba(0,162,255,0.6)]" />
+                <span className="w-1 h-3 rounded-full bg-neon-green shadow-[0_0_8px_#00FF66]" />
                 <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.15em] font-mono">
                   หน้าข้อมูลสำคัญ • PAGES
                 </span>
@@ -2646,9 +2646,9 @@ function AppContent() {
                   className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200 relative group select-none active:scale-[0.98] cursor-pointer ${activeView === "custom_page" && selectedPage?.id === page.id ? "bg-white/[0.03] text-white border border-white/10 font-bold shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]" : "text-zinc-500 hover:text-white hover:bg-[#0a0a0c]"}`}
                 >
                   {activeView === "custom_page" && selectedPage?.id === page.id && (
-                    <div className="absolute left-0 top-1/4 bottom-1/4 w-[3.5px] bg-[#00a2ff] rounded-r shadow-[0_0_8px_rgba(0,162,255,0.6)]" />
+                    <div className="absolute left-0 top-1/4 bottom-1/4 w-[3.5px] bg-neon-green rounded-r shadow-[0_0_8px_#00FF66]" />
                   )}
-                  <FileText className={`w-4 h-4 transition-transform duration-200 group-hover:scale-110 ${activeView === "custom_page" && selectedPage?.id === page.id ? "text-[#00a2ff]" : "text-zinc-500"}`} />
+                  <FileText className={`w-4 h-4 transition-transform duration-200 group-hover:scale-110 ${activeView === "custom_page" && selectedPage?.id === page.id ? "text-neon-green" : "text-zinc-500"}`} />
                   <span className="truncate pr-1">{page.title.replace(/^#+\s*/, "")}</span>
                 </button>
               ))}
@@ -2764,37 +2764,37 @@ function AppContent() {
                   
                   {/* หน้าหลัก */}
                   <div
-                    className={`flex items-center gap-4 px-4 py-3.5 rounded-xl cursor-pointer transition-all duration-200 relative ${activeView === "home" ? "bg-[#00a2ff]/10 text-white font-bold border border-[#00a2ff]/20" : "text-zinc-400 hover:text-white hover:bg-white/[0.02]"}`}
+                    className={`flex items-center gap-4 px-4 py-3.5 rounded-xl cursor-pointer transition-all duration-200 relative ${activeView === "home" ? "bg-neon-green/10 text-white font-bold border border-neon-green/20" : "text-zinc-400 hover:text-white hover:bg-white/[0.02]"}`}
                     onClick={() => {
                        setActiveView("home");
                        setIsMobileMenuOpen(false);
                     }}
                   >
                     {activeView === "home" && (
-                      <div className="absolute left-0 top-3.5 bottom-3.5 w-[3.5px] bg-[#00a2ff] rounded-r shadow-[0_0_8px_rgba(0,162,255,0.6)]" />
+                      <div className="absolute left-0 top-3.5 bottom-3.5 w-[3.5px] bg-neon-green rounded-r shadow-[0_0_8px_#00FF66]" />
                     )}
-                    <Home className={`w-5 h-5 ${activeView === "home" ? "text-[#00a2ff]" : "text-zinc-400"}`} />
+                    <Home className={`w-5 h-5 ${activeView === "home" ? "text-neon-green" : "text-zinc-400"}`} />
                     <span className="text-base font-bold">หน้าหลัก</span>
                   </div>
 
                   {/* ร้านค้า */}
                   <div
-                    className={`flex items-center gap-4 px-4 py-3.5 rounded-xl cursor-pointer transition-all duration-200 relative ${activeView === "categories" || activeView === "category_products" ? "bg-[#00a2ff]/10 text-white font-bold border border-[#00a2ff]/20" : "text-zinc-400 hover:text-white hover:bg-white/[0.02]"}`}
+                    className={`flex items-center gap-4 px-4 py-3.5 rounded-xl cursor-pointer transition-all duration-200 relative ${activeView === "categories" || activeView === "category_products" ? "bg-neon-green/10 text-white font-bold border border-neon-green/20" : "text-zinc-400 hover:text-white hover:bg-white/[0.02]"}`}
                     onClick={() => {
                       setActiveView("categories");
                       setIsMobileMenuOpen(false);
                     }}
                   >
                     {((activeView === "categories") || (activeView === "category_products")) && (
-                      <div className="absolute left-0 top-3.5 bottom-3.5 w-[3.5px] bg-[#00a2ff] rounded-r shadow-[0_0_8px_rgba(0,162,255,0.6)]" />
+                      <div className="absolute left-0 top-3.5 bottom-3.5 w-[3.5px] bg-neon-green rounded-r shadow-[0_0_8px_#00FF66]" />
                     )}
-                    <ShoppingCart className={`w-5 h-5 ${activeView === "categories" || activeView === "category_products" ? "text-[#00a2ff]" : "text-zinc-400"}`} />
+                    <ShoppingCart className={`w-5 h-5 ${activeView === "categories" || activeView === "category_products" ? "text-neon-green" : "text-zinc-400"}`} />
                     <span className="text-base font-bold">ร้านค้า</span>
                   </div>
 
                   {/* เติมเงิน */}
                   <div
-                    className={`flex items-center gap-4 px-4 py-3.5 rounded-xl cursor-pointer transition-all duration-200 relative ${activeView === "wallet" ? "bg-[#00a2ff]/10 text-white font-bold border border-[#00a2ff]/20" : "text-zinc-400 hover:text-white hover:bg-white/[0.02]"}`}
+                    className={`flex items-center gap-4 px-4 py-3.5 rounded-xl cursor-pointer transition-all duration-200 relative ${activeView === "wallet" ? "bg-neon-green/10 text-white font-bold border border-neon-green/20" : "text-zinc-400 hover:text-white hover:bg-white/[0.02]"}`}
                     onClick={() => {
                       if (!user) {
                         setActiveView("login");
@@ -2805,15 +2805,15 @@ function AppContent() {
                     }}
                   >
                     {activeView === "wallet" && (
-                      <div className="absolute left-0 top-3.5 bottom-3.5 w-[3.5px] bg-[#00a2ff] rounded-r shadow-[0_0_8px_rgba(0,162,255,0.6)]" />
+                      <div className="absolute left-0 top-3.5 bottom-3.5 w-[3.5px] bg-neon-green rounded-r shadow-[0_0_8px_#00FF66]" />
                     )}
-                    <Wallet className={`w-5 h-5 ${activeView === "wallet" ? "text-[#00a2ff]" : "text-zinc-400"}`} />
+                    <Wallet className={`w-5 h-5 ${activeView === "wallet" ? "text-neon-green" : "text-zinc-400"}`} />
                     <span className="text-base font-bold">เติมเงิน</span>
                   </div>
 
                   {/* มินิเกม */}
                   <div
-                    className={`flex items-center gap-4 px-4 py-3.5 rounded-xl cursor-pointer transition-all duration-200 relative ${activeView === "random_history" ? "bg-[#00a2ff]/10 text-white font-bold border border-[#00a2ff]/20" : "text-zinc-400 hover:text-white hover:bg-white/[0.02]"}`}
+                    className={`flex items-center gap-4 px-4 py-3.5 rounded-xl cursor-pointer transition-all duration-200 relative ${activeView === "random_history" ? "bg-neon-green/10 text-white font-bold border border-neon-green/20" : "text-zinc-400 hover:text-white hover:bg-white/[0.02]"}`}
                     onClick={() => {
                       if (!user) {
                         setActiveView("login");
@@ -2824,9 +2824,9 @@ function AppContent() {
                     }}
                   >
                     {activeView === "random_history" && (
-                      <div className="absolute left-0 top-3.5 bottom-3.5 w-[3.5px] bg-[#00a2ff] rounded-r shadow-[0_0_8px_rgba(0,162,255,0.6)]" />
+                      <div className="absolute left-0 top-3.5 bottom-3.5 w-[3.5px] bg-neon-green rounded-r shadow-[0_0_8px_#00FF66]" />
                     )}
-                    <Gamepad2 className={`w-5 h-5 ${activeView === "random_history" ? "text-[#00a2ff]" : "text-zinc-400"}`} />
+                    <Gamepad2 className={`w-5 h-5 ${activeView === "random_history" ? "text-neon-green" : "text-zinc-400"}`} />
                     <span className="text-base font-bold">มินิเกม</span>
                   </div>
 
@@ -2841,7 +2841,7 @@ function AppContent() {
                         confirmButtonText: "รับทราบ",
                         customClass: {
                           popup: "bg-[#0f0f12] border border-white/10 text-white rounded-2xl font-sans",
-                          confirmButton: "bg-[#00a2ff] hover:bg-[#008ce0] text-white font-bold py-2.5 px-6 rounded-xl cursor-pointer border border-[#00a2ff]/20"
+                          confirmButton: "bg-neon-green hover:bg-emerald-500 text-black font-black py-2.5 px-6 rounded-xl cursor-pointer border border-neon-green/20"
                         }
                       });
                       setIsMobileMenuOpen(false);
@@ -2853,7 +2853,7 @@ function AppContent() {
 
                   {/* ออเดอร์ */}
                   <div
-                    className={`flex items-center gap-4 px-4 py-3.5 rounded-xl cursor-pointer transition-all duration-200 relative ${activeView === "my_orders" ? "bg-[#00a2ff]/10 text-white font-bold border border-[#00a2ff]/20" : "text-[#d1d5db] hover:text-white hover:bg-white/[0.02]"}`}
+                    className={`flex items-center gap-4 px-4 py-3.5 rounded-xl cursor-pointer transition-all duration-200 relative ${activeView === "my_orders" ? "bg-neon-green/10 text-white font-bold border border-neon-green/20" : "text-[#d1d5db] hover:text-white hover:bg-white/[0.02]"}`}
                     onClick={() => {
                       if (!user) {
                         setActiveView("login");
@@ -2864,9 +2864,9 @@ function AppContent() {
                     }}
                   >
                     {activeView === "my_orders" && (
-                      <div className="absolute left-0 top-3.5 bottom-3.5 w-[3.5px] bg-[#00a2ff] rounded-r shadow-[0_0_8px_rgba(0,162,255,0.6)]" />
+                      <div className="absolute left-0 top-3.5 bottom-3.5 w-[3.5px] bg-neon-green rounded-r shadow-[0_0_8px_#00FF66]" />
                     )}
-                    <Package className={`w-5 h-5 ${activeView === "my_orders" ? "text-[#00a2ff]" : "text-zinc-400"}`} />
+                    <Package className={`w-5 h-5 ${activeView === "my_orders" ? "text-neon-green" : "text-zinc-400"}`} />
                     <span className="text-base font-bold">ออเดอร์</span>
                   </div>
 
@@ -2888,7 +2888,7 @@ function AppContent() {
                   {user ? (
                     <div className="flex flex-col gap-2 shrink-0">
                       <div className="flex items-center gap-2 py-1 mb-1 select-none">
-                        <span className="w-1 h-3 rounded-full bg-[#00a2ff] shadow-[0_0_8px_rgba(0,162,255,0.6)]" />
+                        <span className="w-1 h-3 rounded-full bg-neon-green shadow-[0_0_8px_#00FF66]" />
                         <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.15em] font-mono">
                           ข้อมูลบัญชี • ACCOUNT
                         </span>
@@ -2949,7 +2949,7 @@ function AppContent() {
                                 <span className="text-sm font-black text-white leading-none">
                                   {userPlan?.balance ? Math.floor(userPlan.balance).toLocaleString() : "0"}
                                 </span>
-                                <span className="text-[10px] font-bold text-[#00a2ff]">
+                                <span className="text-[10px] font-bold text-neon-green">
                                   ฿
                                 </span>
                               </div>
@@ -2969,7 +2969,7 @@ function AppContent() {
                       >
                         <div className="bg-[#0b0b0d] border border-white/[0.05] rounded-xl overflow-hidden mt-1 flex flex-col shadow-2xl relative">
                           <div
-                            className={`flex items-center gap-3.5 px-4 py-3.5 text-xs font-semibold cursor-pointer transition-all ${activeView === "settings" ? "bg-white/[0.03] text-white border-l-2 border-[#00a2ff] pl-[14px]" : "text-zinc-400 hover:text-white"}`}
+                            className={`flex items-center gap-3.5 px-4 py-3.5 text-xs font-semibold cursor-pointer transition-all ${activeView === "settings" ? "bg-white/[0.03] text-white border-l-2 border-neon-green pl-[14px]" : "text-zinc-400 hover:text-white"}`}
                             onMouseEnter={() => settingsImport()}
                             onClick={() => {
                               setActiveView("settings");
@@ -2981,7 +2981,7 @@ function AppContent() {
                           </div>
                           
                           <div
-                            className={`flex items-center gap-3.5 px-4 py-3.5 text-xs font-semibold cursor-pointer transition-all ${activeView === "wallet_history" ? "bg-white/[0.03] text-white border-l-2 border-[#00a2ff] pl-[14px]" : "text-zinc-400 hover:text-white"}`}
+                            className={`flex items-center gap-3.5 px-4 py-3.5 text-xs font-semibold cursor-pointer transition-all ${activeView === "wallet_history" ? "bg-white/[0.03] text-white border-l-2 border-neon-green pl-[14px]" : "text-zinc-400 hover:text-white"}`}
                             onMouseEnter={() => historyImport()}
                             onClick={() => {
                               setActiveView("wallet_history");
@@ -2993,14 +2993,14 @@ function AppContent() {
                           </div>
                           
                           <div
-                            className={`flex items-center gap-3.5 px-4 py-3.5 text-xs font-semibold cursor-pointer transition-all ${activeView === "random_history" ? "bg-white/[0.03] text-white border-l-2 border-[#00a2ff] pl-[14px]" : "text-zinc-400 hover:text-white"}`}
+                            className={`flex items-center gap-3.5 px-4 py-3.5 text-xs font-semibold cursor-pointer transition-all ${activeView === "random_history" ? "bg-white/[0.03] text-white border-l-2 border-neon-green pl-[14px]" : "text-zinc-400 hover:text-white"}`}
                             onMouseEnter={() => historyImport()}
                             onClick={() => {
                               setActiveView("random_history");
                               setIsMobileMenuOpen(false);
                             }}
                           >
-                            <Gift className={`w-4 h-4 transition-colors ${activeView === "random_history" ? "text-[#00a2ff]" : "text-zinc-500"}`} />
+                            <Gift className={`w-4 h-4 transition-colors ${activeView === "random_history" ? "text-neon-green" : "text-zinc-500"}`} />
                             ประวัติการสุ่มสินค้า
                           </div>
 
@@ -3012,37 +3012,37 @@ function AppContent() {
                           <div className="flex flex-col gap-0.5 pb-2">
                              <div
                                onClick={() => { setActiveView("telegram_catcher"); setIsMobileMenuOpen(false); }}
-                               className={`flex items-center gap-3.5 px-6 py-2 text-xs font-semibold cursor-pointer transition-all ${activeView === "telegram_catcher" ? "text-[#00a2ff] font-bold" : "text-zinc-500 hover:text-white"}`}
+                               className={`flex items-center gap-3.5 px-6 py-2 text-xs font-semibold cursor-pointer transition-all ${activeView === "telegram_catcher" ? "text-neon-green font-bold" : "text-zinc-500 hover:text-white"}`}
                              >
                                <ArrowUpRight className="w-3.5 h-3.5" /> ดักซองเทเลแกรม
                              </div>
                              <div
                                onClick={() => { setActiveView("discord_catcher"); setIsMobileMenuOpen(false); }}
-                               className={`flex items-center gap-3.5 px-6 py-2 text-xs font-semibold cursor-pointer transition-all ${activeView === "discord_catcher" ? "text-[#00a2ff] font-bold" : "text-zinc-500 hover:text-white"}`}
+                               className={`flex items-center gap-3.5 px-6 py-2 text-xs font-semibold cursor-pointer transition-all ${activeView === "discord_catcher" ? "text-neon-green font-bold" : "text-zinc-500 hover:text-white"}`}
                              >
                                <ArrowUpRight className="w-3.5 h-3.5" /> ดักซองดิสคอร์ด
                              </div>
                              <div
                                onClick={() => { setActiveView("discord_on"); setIsMobileMenuOpen(false); }}
-                               className={`flex items-center gap-3.5 px-6 py-2 text-xs font-semibold cursor-pointer transition-all ${activeView === "discord_on" ? "text-[#00a2ff] font-bold" : "text-zinc-500 hover:text-white"}`}
+                               className={`flex items-center gap-3.5 px-6 py-2 text-xs font-semibold cursor-pointer transition-all ${activeView === "discord_on" ? "text-neon-green font-bold" : "text-zinc-500 hover:text-white"}`}
                              >
                                <ArrowUpRight className="w-3.5 h-3.5" /> รันโทเค่นดิสคอร์ด
                              </div>
                              <div
                                onClick={() => { setActiveView("discord_badge"); setIsMobileMenuOpen(false); }}
-                               className={`flex items-center gap-3.5 px-6 py-2 text-xs font-semibold cursor-pointer transition-all ${activeView === "discord_badge" ? "text-[#00a2ff] font-bold animate-pulse" : "text-zinc-500 hover:text-white"}`}
+                               className={`flex items-center gap-3.5 px-6 py-2 text-xs font-semibold cursor-pointer transition-all ${activeView === "discord_badge" ? "text-neon-green font-bold animate-pulse" : "text-zinc-500 hover:text-white"}`}
                              >
-                               <ArrowUpRight className="w-3.5 h-3.5 text-[#00a2ff]" /> รับตราอัตโนมัติ
+                               <ArrowUpRight className="w-3.5 h-3.5 text-neon-green" /> รับตราอัตโนมัติ
                              </div>
                              <div
                                onClick={() => { setActiveView("two_fa_generator"); setIsMobileMenuOpen(false); }}
-                               className={`flex items-center gap-3.5 px-6 py-2 text-xs font-semibold cursor-pointer transition-all ${activeView === "two_fa_generator" ? "text-[#00a2ff] font-bold" : "text-zinc-500 hover:text-white"}`}
+                               className={`flex items-center gap-3.5 px-6 py-2 text-xs font-semibold cursor-pointer transition-all ${activeView === "two_fa_generator" ? "text-neon-green font-bold" : "text-zinc-500 hover:text-white"}`}
                              >
                                <ArrowUpRight className="w-3.5 h-3.5" /> สร้างรหัส 2FA
                              </div>
                              <div
                                onClick={() => { setActiveView("proxy_free"); setIsMobileMenuOpen(false); }}
-                               className={`flex items-center gap-3.5 px-6 py-2 text-xs font-semibold cursor-pointer transition-all ${activeView === "proxy_free" ? "text-[#00a2ff] font-bold" : "text-zinc-500 hover:text-white"}`}
+                               className={`flex items-center gap-3.5 px-6 py-2 text-xs font-semibold cursor-pointer transition-all ${activeView === "proxy_free" ? "text-neon-green font-bold" : "text-zinc-500 hover:text-white"}`}
                              >
                                <ArrowUpRight className="w-3.5 h-3.5" /> พร็อกซี่ฟรี (Proxy)
                              </div>
@@ -3077,7 +3077,7 @@ function AppContent() {
                   ) : (
                     <div className="flex flex-col gap-2 shrink-0">
                       <div className="flex items-center gap-2 py-1 select-none">
-                        <span className="w-1 h-3 rounded-full bg-[#00a2ff]" />
+                        <span className="w-1 h-3 rounded-full bg-neon-green shadow-[0_0_8px_#00FF66]" />
                         <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.15em] font-mono">
                           เข้าสู่ระบบ • VISITOR
                         </span>
@@ -3089,7 +3089,7 @@ function AppContent() {
                             setActiveView("login");
                             setIsMobileMenuOpen(false);
                           }}
-                          className="py-3 px-4 rounded-xl border border-[#00a2ff]/40 text-[#00a2ff] hover:text-white hover:bg-[#00a2ff]/10 hover:border-[#00a2ff] font-bold text-xs tracking-wider transition-all duration-150 cursor-pointer active:scale-95 text-center flex items-center justify-center gap-1.5"
+                          className="py-3 px-4 rounded-xl border border-neon-green/40 text-neon-green hover:text-black hover:bg-neon-green hover:border-neon-green font-bold text-xs tracking-wider transition-all duration-150 cursor-pointer active:scale-95 text-center flex items-center justify-center gap-1.5"
                         >
                           <LogIn className="w-3.5 h-3.5" /> เข้าสู่ระบบ
                         </button>
@@ -3099,7 +3099,7 @@ function AppContent() {
                             setActiveView("signup");
                             setIsMobileMenuOpen(false);
                           }}
-                          className="py-3 px-4 rounded-xl bg-[#00a2ff] hover:bg-[#008ce0] text-white font-bold text-xs tracking-wider transition-all duration-150 cursor-pointer active:scale-95 text-center flex items-center justify-center gap-1.5 shadow-[0_4px_12px_rgba(0,162,255,0.25)] hover:shadow-[0_4px_16px_rgba(0,162,255,0.4)]"
+                          className="py-3 px-4 rounded-xl bg-neon-green hover:bg-emerald-400 text-black font-black text-xs tracking-wider transition-all duration-150 cursor-pointer active:scale-95 text-center flex items-center justify-center gap-1.5 shadow-[0_4px_12px_rgba(0,255,102,0.25)] hover:shadow-[0_4px_16px_rgba(0,255,102,0.4)]"
                         >
                           <UserPlus className="w-3.5 h-3.5" /> สมัครสมาชิก
                         </button>
