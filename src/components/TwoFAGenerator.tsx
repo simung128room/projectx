@@ -53,7 +53,7 @@ export function TwoFAGenerator() {
 
     setResults(newResults);
     if (hasError && newResults.length === 0) {
-      setError("Secret Key  ( Base32)");
+      setError("Secret Key ไม่ถูกต้อง (ต้องเป็น Base32)");
     } else {
       setError(null);
     }
@@ -85,7 +85,8 @@ export function TwoFAGenerator() {
     setError(null);
   };
 
-  return (<div className="w-full max-w-4xl mx-auto p-4 md:p-8">
+  return (
+    <div className="w-full max-w-4xl mx-auto p-4 md:p-8">
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -99,10 +100,10 @@ export function TwoFAGenerator() {
             </div>
             <div>
               <h2 className="text-2xl font-bold text-white tracking-tight">2FA Generator</h2>
-              <p className="text-indigo-400/80 text-sm font-medium">OTP  Secret Key</p>
+              <p className="text-indigo-400/80 text-sm font-medium">สร้างรหัส OTP จาก Secret Key</p>
             </div>
           </div>
-          <p className="text-muted-foreground text-sm">(Two-Factor Authentication)</p>
+          <p className="text-muted-foreground text-sm">สร้างรหัสสำหรับการยืนยันตัวตนแบบสองขั้นตอน (Two-Factor Authentication)</p>
         </div>
 
         <div className="p-8 space-y-8">
@@ -118,14 +119,16 @@ export function TwoFAGenerator() {
                 className="text-muted-foreground hover:text-red-400 transition-colors flex items-center gap-1 text-xs font-bold"
               >
                 <Trash2 className="w-3.5 h-3.5" />
-                </button>
+                ล้างข้อมูล
+              </button>
             </div>
             <textarea
               value={secretsInput}
               onChange={(e) => setSecretsInput(e.target.value)}
-              placeholder=" Secret Key  "
+              placeholder="กรอก Secret Key หลายตัวได้ โดยแยกบรรทัด"
               className="w-full h-40 bg-card border border-border border-2 p-4 text-white focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/30 outline-none resize-none transition-all placeholder:text-zinc-500 font-mono text-sm leading-relaxed brut-card"
-            /><div className="h-px bg-card my-2 brut-card" />
+            />
+            <div className="h-px bg-card my-2 brut-card" />
             <button
               onClick={generateCodes}
               disabled={!secretsInput.trim()}
@@ -146,10 +149,11 @@ export function TwoFAGenerator() {
                 className="space-y-4"
               >
                 <div className="flex items-center justify-between px-2">
-                  <h3 className="text-muted-foreground text-xs font-black uppercase tracking-widest"></h3>
+                  <h3 className="text-muted-foreground text-xs font-black uppercase tracking-widest">รหัสที่สร้างสำเร็จ</h3>
                   <div className="flex items-center gap-2 text-indigo-400 text-xs font-bold">
                     <Clock className="w-3.5 h-3.5" />
-                    {timeLeftGlobal}</div>
+                    เปลี่ยนรหัสใน {timeLeftGlobal} วินาที
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -211,7 +215,7 @@ export function TwoFAGenerator() {
               <div className="w-20 h-20 bg-card flex items-center justify-center mb-4 brut-card">
                 <KeyIcon className="w-8 h-8" />
               </div>
-              <p className="text-sm font-medium">Secret Key  OTP</p>
+              <p className="text-sm font-medium">กรอก Secret Key เพื่อเริ่มสร้างรหัส OTP</p>
             </div>
           )}
         </div>
@@ -230,16 +234,20 @@ export function TwoFAGenerator() {
         <div className="bg-card border border-border border-2 p-6 brut-card">
           <h4 className="text-white font-bold mb-2 flex items-center gap-2">
             <div className="w-1.5 h-1.5 bg-indigo-500" />
-            2FA ?</h4>
+            2FA คืออะไร?
+          </h4>
           <p className="text-muted-foreground text-xs leading-relaxed">
-            2FA (Two-Factor Authentication)    30</p>
+            2FA (Two-Factor Authentication) คือการยืนยันตัวตนแบบสองขั้นตอน เพื่อความปลอดภัยสูงสุดของบัญชีของคุณ รหัสจะเปลี่ยนไปทุกๆ 30 วินาที
+          </p>
         </div>
         <div className="bg-card border border-border border-2 p-6 brut-card">
           <h4 className="text-white font-bold mb-2 flex items-center gap-2">
             <div className="w-1.5 h-1.5 bg-indigo-500" />
-            </h4>
+            ความปลอดภัย
+          </h4>
           <p className="text-muted-foreground text-xs leading-relaxed">
-            2FA  (Client-side)  Secret Key   100%</p>
+            รหัส 2FA ถูกสร้างขึ้นบนบราวเซอร์ของคุณโดยตรง (Client-side) ไม่มีการส่ง Secret Key ไปยังเซิร์ฟเวอร์ของเรา ข้อมูลของคุณปลอดภัย 100%
+          </p>
         </div>
       </div>
     </div>

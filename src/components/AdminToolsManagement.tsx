@@ -67,14 +67,14 @@ export const AdminToolsManagement = () => {
       await axios.post('/api/logs-system', { categories: newCats, items: newItems });
       setCategories(newCats);
       setItems(newItems);
-      Swal.fire({title: '!', icon: 'success', timer: 1500, showConfirmButton: false, background:'#09090b', color:'#fff'});
+      Swal.fire({title: 'บันทึกสำเร็จ!', icon: 'success', timer: 1500, showConfirmButton: false, background:'#09090b', color:'#fff'});
     } catch (err) {
-      Swal.fire({title: '', icon: 'error', background:'#09090b', color:'#fff'});
+      Swal.fire({title: 'เกิดข้อผิดพลาด', icon: 'error', background:'#09090b', color:'#fff'});
     }
   };
 
   const handleSaveCategory = () => {
-    if (!catName) return Swal.fire({title:'', icon:'error', background:'#09090b', color:'#fff'});
+    if (!catName) return Swal.fire({title:'กรอกข้อมูลให้ครบ', icon:'error', background:'#09090b', color:'#fff'});
     const newCat: LogCategory = {
       id: Math.random().toString(36).substring(2,9),
       name: catName,
@@ -90,7 +90,7 @@ export const AdminToolsManagement = () => {
   };
 
   const handleDeleteCategory = (id: string) => {
-    Swal.fire({ title: '?', showCancelButton: true, background: '#09090b', color: '#fff' }).then(r => {
+    Swal.fire({ title: 'ยืนยันการลบ?', showCancelButton: true, background: '#09090b', color: '#fff' }).then(r => {
       if (r.isConfirmed) {
         saveData(categories.filter(x => x.id !== id), items.filter(x => x.categoryId !== id));
       }
@@ -103,8 +103,8 @@ export const AdminToolsManagement = () => {
   };
 
   const handleSaveItem = () => {
-    if (!title || !itemCategoryId) return Swal.fire({title:'', icon:'error', background:'#09090b', color:'#fff'});
-    if (attachments.length === 0) return Swal.fire({title:' 1 /', icon:'error', background:'#09090b', color:'#fff'});
+    if (!title || !itemCategoryId) return Swal.fire({title:'กรอกข้อมูลให้ครบ', icon:'error', background:'#09090b', color:'#fff'});
+    if (attachments.length === 0) return Swal.fire({title:'ต้องมีอย่างน้อย 1 ไฟล์/เนื้อหา', icon:'error', background:'#09090b', color:'#fff'});
     
     let unlockAt: string | undefined = undefined;
     if (unlockAtDate && unlockAtTime) {
@@ -128,50 +128,54 @@ export const AdminToolsManagement = () => {
   };
 
   const handleDeleteItem = (id: string) => {
-    Swal.fire({ title: '?', showCancelButton: true, background: '#09090b', color: '#fff' }).then(r => {
+    Swal.fire({ title: 'ยืนยันการลบ?', showCancelButton: true, background: '#09090b', color: '#fff' }).then(r => {
       if (r.isConfirmed) saveData(categories, items.filter(x => x.id !== id));
     });
   };
 
-  return (<div className="space-y-6">
+  return (
+    <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-white flex items-center gap-3">
           <Gift className="w-6 h-6 text-indigo-400" />
-          /</h2>
+          ระบบหมวดหมู่ / เนื้อหา
+        </h2>
         <div className="flex bg-card border border-border border-2 p-1 brut-card">
-          <button onClick={() => setActiveTab('categories')} className={`px-4 py-1.5 text-sm font-bold transition-all ${activeTab === 'categories' ? 'bg-[#050505]/10 text-white' : 'text-zinc-500 hover:text-white'}`}></button>
-          <button onClick={() => setActiveTab('items')} className={`px-4 py-1.5 text-sm font-bold transition-all ${activeTab === 'items' ? 'bg-[#050505]/10 text-white' : 'text-zinc-500 hover:text-white'}`}> /</button>
+          <button onClick={() => setActiveTab('categories')} className={`px-4 py-1.5 text-sm font-bold transition-all ${activeTab === 'categories' ? 'bg-[#050505]/10 text-white' : 'text-zinc-500 hover:text-white'}`}>หมวดหมู่</button>
+          <button onClick={() => setActiveTab('items')} className={`px-4 py-1.5 text-sm font-bold transition-all ${activeTab === 'items' ? 'bg-[#050505]/10 text-white' : 'text-zinc-500 hover:text-white'}`}>เนื้อหา / ไฟล์</button>
         </div>
       </div>
 
       {activeTab === 'categories' && (
         <div className="space-y-4">
           <div className="flex justify-end">
-            {!isAddingCategory && <button onClick={() => setIsAddingCategory(true)} className="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 text-sm font-bold flex items-center gap-2"><Plus className="w-4 h-4"/> </button>}
+            {!isAddingCategory && <button onClick={() => setIsAddingCategory(true)} className="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 text-sm font-bold flex items-center gap-2"><Plus className="w-4 h-4"/> เพิ่มหมวดหมู่</button>}
           </div>
 
           {isAddingCategory && (
             <div className="bg-card border border-border border-2 p-6 brut-card">
-              <h3 className="text-lg font-bold text-white mb-4"></h3>
+              <h3 className="text-lg font-bold text-white mb-4">สร้างหมวดหมู่ใหม่</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                 <div>
-                  <label className="block text-xs font-bold text-muted-foreground mb-1"></label>
-                  <input value={catName} onChange={e=>setCatName(e.target.value)} className="w-full bg-card border border-border border-2 px-4 py-2 text-white brut-card" placeholder=" VIP PH LOG" /></div>
+                  <label className="block text-xs font-bold text-muted-foreground mb-1">ชื่อหมวดหมู่</label>
+                  <input value={catName} onChange={e=>setCatName(e.target.value)} className="w-full bg-card border border-border border-2 px-4 py-2 text-white brut-card" placeholder="เช่น VIP PH LOG" />
+                </div>
                 <div>
-                  <label className="block text-xs font-bold text-muted-foreground mb-1">(Subtitle)</label>
-                  <input value={catSubtitle} onChange={e=>setCatSubtitle(e.target.value)} className="w-full bg-card border border-border border-2 px-4 py-2 text-white brut-card" placeholder="..." /></div>
+                  <label className="block text-xs font-bold text-muted-foreground mb-1">ชื่อย่อย (Subtitle)</label>
+                  <input value={catSubtitle} onChange={e=>setCatSubtitle(e.target.value)} className="w-full bg-card border border-border border-2 px-4 py-2 text-white brut-card" placeholder="คำอธิบาย..." />
+                </div>
                 <div className="flex items-center gap-2 mt-4">
                   <input type="checkbox" id="isVipCheck" checked={catIsVip} onChange={e=>setCatIsVip(e.target.checked)} className="w-4 h-4 rounded border-border border-2" />
-                  <label htmlFor="isVipCheck" className="text-sm text-amber-400 font-bold">VIP</label>
+                  <label htmlFor="isVipCheck" className="text-sm text-amber-400 font-bold">VIP หมวดหมู่</label>
                 </div>
                 <div className="flex items-center gap-2 mt-4">
                   <input type="checkbox" id="isVisibleCheck" checked={catIsVisible} onChange={e=>setCatIsVisible(e.target.checked)} className="w-4 h-4 rounded border-border border-2" />
-                  <label htmlFor="isVisibleCheck" className="text-sm text-blue-600 font-bold"></label>
+                  <label htmlFor="isVisibleCheck" className="text-sm text-blue-600 font-bold">เปิดใช้งาน</label>
                 </div>
               </div>
               <div className="flex justify-end gap-2 mt-4">
-                <button onClick={() => setIsAddingCategory(false)} className="px-4 py-2 text-sm text-muted-foreground font-bold hover:text-white"></button>
-                <button onClick={handleSaveCategory} className="bg-primary text-primary-foreground hover:bg-blue-600 text-white px-6 py-2 text-sm font-bold flex items-center gap-2"><Check className="w-4 h-4"/> </button>
+                <button onClick={() => setIsAddingCategory(false)} className="px-4 py-2 text-sm text-muted-foreground font-bold hover:text-white">ยกเลิก</button>
+                <button onClick={handleSaveCategory} className="bg-primary text-primary-foreground hover:bg-blue-600 text-white px-6 py-2 text-sm font-bold flex items-center gap-2"><Check className="w-4 h-4"/> บันทึก</button>
               </div>
             </div>
           )}
@@ -199,38 +203,40 @@ export const AdminToolsManagement = () => {
       {activeTab === 'items' && (
         <div className="space-y-4">
           <div className="flex justify-end">
-            {!isAddingItem && <button onClick={() => setIsAddingItem(true)} className="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 text-sm font-bold flex items-center gap-2"><Plus className="w-4 h-4"/> </button>}
+            {!isAddingItem && <button onClick={() => setIsAddingItem(true)} className="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 text-sm font-bold flex items-center gap-2"><Plus className="w-4 h-4"/> เพิ่มเนื้อหา</button>}
           </div>
 
           {isAddingItem && (
             <div className="bg-card border border-border border-2 p-6 brut-card">
-              <h3 className="text-lg font-bold text-white mb-4"></h3>
+              <h3 className="text-lg font-bold text-white mb-4">สร้างเนื้อหาใหม่</h3>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
-                  <label className="block text-xs font-bold text-muted-foreground mb-1"></label>
-                  <input value={title} onChange={e=>setTitle(e.target.value)} className="w-full bg-card border border-border border-2 px-4 py-2 text-white brut-card" placeholder="..." /></div>
+                  <label className="block text-xs font-bold text-muted-foreground mb-1">หัวข้อ</label>
+                  <input value={title} onChange={e=>setTitle(e.target.value)} className="w-full bg-card border border-border border-2 px-4 py-2 text-white brut-card" placeholder="อักษรสวยๆ..." />
+                </div>
                 <div>
-                  <label className="block text-xs font-bold text-muted-foreground mb-1"></label>
+                  <label className="block text-xs font-bold text-muted-foreground mb-1">หมวดหมู่</label>
                   <select value={itemCategoryId} onChange={e=>setItemCategoryId(e.target.value)} className="w-full bg-card border border-border border-2 px-4 py-2 text-white brut-card">
-                    <option value="">--  --</option>
+                    <option value="">-- เลือกหมวดหมู่ --</option>
                     {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-muted-foreground mb-1">( / )</label>
+                  <label className="block text-xs font-bold text-muted-foreground mb-1">สิทธิ์การโหลด (ฟรี / พรีเมียม)</label>
                   <select value={itemType} onChange={e=>setItemType(e.target.value as any)} className="w-full bg-card border border-border border-2 px-4 py-2 text-white brut-card">
-                    <option value="free">()</option>
-                    <option value="premium">()</option>
+                    <option value="free">ของฟรี (ทุกคนโหลดได้)</option>
+                    <option value="premium">พรีเมียม (เฉพาะวีไอพีโหลดได้)</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-muted-foreground mb-1">Keyword ()</label>
-                  <input value={keyword} onChange={e=>setKeyword(e.target.value)} className="w-full bg-card border border-border border-2 px-4 py-2 text-white brut-card" placeholder=" , " /></div>
+                  <label className="block text-xs font-bold text-muted-foreground mb-1">Keyword (ป้ายกำกับ)</label>
+                  <input value={keyword} onChange={e=>setKeyword(e.target.value)} className="w-full bg-card border border-border border-2 px-4 py-2 text-white brut-card" placeholder="เช่น ฟ้อนต์, รูปภาพ" />
+                </div>
               </div>
 
               <div className="bg-card border border-border border-2 p-4 mb-4 brut-card">
-                <h4 className="text-sm font-bold text-white mb-3 flex items-center gap-2">/</h4>
+                <h4 className="text-sm font-bold text-white mb-3 flex items-center gap-2">ไฟล์แนบ / เนื้อหา</h4>
                 {attachments.length > 0 && (
                   <div className="space-y-2 mb-4">
                     {attachments.map((a, i) => (
@@ -248,17 +254,18 @@ export const AdminToolsManagement = () => {
                 )}
                 <div className="flex flex-col sm:flex-row gap-2">
                   <select value={attType} onChange={e=>setAttType(e.target.value as any)} className="bg-card border border-border border-2 px-3 py-2 text-white text-sm brut-card">
-                    <option value="text">/</option>
-                    <option value="image">(URL)</option>
-                    <option value="file"></option>
+                    <option value="text">ข้อความ/สคริปต์</option>
+                    <option value="image">รูปภาพ (URL)</option>
+                    <option value="file">ลิ้งค์ดาวน์โหลด</option>
                   </select>
-                  <input value={attData} onChange={e=>setAttData(e.target.value)} className="flex-1 bg-card border border-border border-2 px-3 py-2 text-white sm:text-sm brut-card" placeholder={attType === 'text' ? "..." : " URL"} /><button onClick={() => { if(attData) { setAttachments([...attachments, {type: attType, data: attData}]); setAttData(''); } }} className="bg-card hover:bg-[#1e1e1e] text-white px-4 py-2 text-sm font-bold flex items-center gap-1 brut-card"><Plus className="w-4 h-4"/> </button>
+                  <input value={attData} onChange={e=>setAttData(e.target.value)} className="flex-1 bg-card border border-border border-2 px-3 py-2 text-white sm:text-sm brut-card" placeholder={attType === 'text' ? "วางข้อความที่นี่..." : "วางลิ้งค์ URL"} />
+                  <button onClick={() => { if(attData) { setAttachments([...attachments, {type: attType, data: attData}]); setAttData(''); } }} className="bg-card hover:bg-[#1e1e1e] text-white px-4 py-2 text-sm font-bold flex items-center gap-1 brut-card"><Plus className="w-4 h-4"/> แอดไฟล์</button>
                 </div>
               </div>
 
               <div className="flex justify-end gap-2 mt-4">
-                <button onClick={() => setIsAddingItem(false)} className="px-4 py-2 text-sm text-muted-foreground font-bold hover:text-white"></button>
-                <button onClick={handleSaveItem} className="bg-primary text-primary-foreground hover:bg-blue-600 text-white px-6 py-2 text-sm font-bold flex items-center gap-2"><Check className="w-4 h-4"/> </button>
+                <button onClick={() => setIsAddingItem(false)} className="px-4 py-2 text-sm text-muted-foreground font-bold hover:text-white">ยกเลิก</button>
+                <button onClick={handleSaveItem} className="bg-primary text-primary-foreground hover:bg-blue-600 text-white px-6 py-2 text-sm font-bold flex items-center gap-2"><Check className="w-4 h-4"/> บันทึกเนื้อหา</button>
               </div>
             </div>
           )}
@@ -270,7 +277,7 @@ export const AdminToolsManagement = () => {
               <div key={item.id} className="bg-card border border-border border-2 p-5 relative overflow-hidden group brut-card">
                 <div className="flex justify-between items-start mb-3">
                   <div className="flex gap-2">
-                    <span className="text-[10px] font-bold bg-card text-[#2563EB] px-2 py-0.5 uppercase brut-card">{cat?.name || ''}</span>
+                    <span className="text-[10px] font-bold bg-card text-[#2563EB] px-2 py-0.5 uppercase brut-card">{cat?.name || 'ไม่ระบุ'}</span>
                     <span className={`text-[10px] font-bold px-2 py-0.5 uppercase ${item.type === 'premium' ? 'bg-amber-500/20 text-amber-400' : 'bg-blue-600/20 text-blue-600'}`}>
                       {item.type === 'premium' ? 'Premium' : 'Free'}
                     </span>
@@ -287,7 +294,7 @@ export const AdminToolsManagement = () => {
                 </div>
               </div>
             )})}
-            {items.length === 0 && <div className="col-span-full py-12 text-center text-muted-foreground border-2 border-dashed border-border"></div>}
+            {items.length === 0 && <div className="col-span-full py-12 text-center text-muted-foreground border-2 border-dashed border-border">ยังไม่มีเนื้อหา</div>}
           </div>
         </div>
       )}

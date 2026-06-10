@@ -34,7 +34,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
           className="group text-zinc-400 hover:text-white transition-colors duration-200 flex items-center gap-2 font-black text-xs uppercase tracking-wider bg-zinc-900/45 hover:bg-zinc-900/80 px-4 py-2.5 rounded-xl border border-white/[0.05]"
         >
           <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" />
-          <span></span>
+          <span>กลับสู่หน้าหลัก</span>
         </button>
         <div className="hidden sm:flex items-center gap-2 text-xs text-zinc-500 font-mono">
           <span>PORTAL</span>
@@ -136,10 +136,12 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
                 <span className="text-[10px] font-black font-mono text-zinc-500 tracking-widest block mb-1">CURRENT OFFER</span>
                 <div className="flex items-baseline gap-3">
                   <span className="text-3xl sm:text-4xl font-extrabold text-emerald-400 font-mono tracking-tight">
-                    {(product.price || 0).toLocaleString()}</span>
+                    ฿{(product.price || 0).toLocaleString()}
+                  </span>
                   {product.originalPrice && product.price && product.originalPrice > product.price && (
                     <span className="text-sm sm:text-base font-bold text-zinc-500 line-through font-mono">
-                      {(product.originalPrice || 0).toLocaleString()}</span>
+                      ฿{(product.originalPrice || 0).toLocaleString()}
+                    </span>
                   )}
                 </div>
               </div>
@@ -148,7 +150,8 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
                 <div className="text-right">
                   <span className="text-[10px] font-black font-mono text-emerald-400/60 block mb-1">YOU SAVE</span>
                   <span className="text-sm font-black text-emerald-400 font-mono bg-emerald-500/10 border border-emerald-400/20 px-2 py-1 rounded-lg">
-                    {((product.originalPrice || 0) - (product.price || 0)).toLocaleString()} ({discount}%)</span>
+                    ฿{((product.originalPrice || 0) - (product.price || 0)).toLocaleString()} ({discount}%)
+                  </span>
                 </div>
               )}
             </div>
@@ -158,16 +161,20 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
               <div className="bg-black/20 border border-white/[0.04] p-4 rounded-2xl">
                 <div className="text-zinc-500 text-[10px] font-bold font-mono tracking-wider uppercase mb-1 flex items-center gap-1.5">
                   <Box className="w-3.5 h-3.5 text-emerald-400/60" />
-                  </div>
+                  คงเหลือในคลัง
+                </div>
                 <div className="text-lg font-black text-white font-mono">
-                  {product.isPreOrder ? ' PRE-ORDER' : product.stock >= 999999 ? 'UNLIMITED' : `${product.stock} items`}</div>
+                  {product.isPreOrder ? 'เปิดรับ PRE-ORDER' : product.stock >= 999999 ? 'UNLIMITED' : `${product.stock} ชิ้น`}
+                </div>
               </div>
               <div className="bg-black/20 border border-white/[0.04] p-4 rounded-xl">
                 <div className="text-zinc-500 text-[10px] font-bold font-mono tracking-wider uppercase mb-1 flex items-center gap-1.5">
                   <ShoppingCart className="w-3.5 h-3.5 text-emerald-400/60" />
-                  </div>
+                  ขายออกไปแล้ว
+                </div>
                 <div className="text-lg font-black text-white font-mono">
-                  {(product.soldCount || 0).toLocaleString()}</div>
+                  {(product.soldCount || 0).toLocaleString()} ครั้ง
+                </div>
               </div>
             </div>
 
@@ -176,7 +183,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <FileText className="w-4 h-4 text-emerald-400" />
-                  <span className="text-xs font-black text-zinc-400 uppercase tracking-widest font-mono"></span>
+                  <span className="text-xs font-black text-zinc-400 uppercase tracking-widest font-mono">รายละเอียดสินค้า</span>
                 </div>
                 
                 {/* Share Product Button */}
@@ -184,18 +191,20 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
                   onClick={() => {
                     const shareUrl = `${window.location.origin}/?product=${product.id}`;
                     navigator.clipboard.writeText(shareUrl).then(() => {
-                      addToast({ title: "", message: "!", type: "success" });
+                      addToast({ title: "คัดลอกลิงก์แล้ว", message: "แชร์ลิงก์นี้ให้เพื่อนสิ!", type: "success" });
                     });
                   }}
                   className="text-[10px] font-black text-zinc-400 hover:text-white transition-colors flex items-center gap-1.5 bg-zinc-900/40 hover:bg-zinc-900/90 border border-white/[0.05] px-3 py-1.5 rounded-lg active:scale-95 cursor-pointer"
-                ><Share2 className="w-3 h-3 text-emerald-400" /> 
-                  <span></span>
+                >
+                  <Share2 className="w-3 h-3 text-emerald-400" /> 
+                  <span>แชร์สินค้านี้</span>
                 </button>
               </div>
 
               {/* Glowing description text body */}
               <div className="text-zinc-300 text-xs sm:text-sm leading-relaxed whitespace-pre-wrap bg-zinc-950/40 p-5 border border-white/[0.04] rounded-2xl min-h-[110px] max-h-56 overflow-y-auto no-scrollbar font-normal">
-                {product.description || ""}</div>
+                {product.description || "ไม่มีรายละเอียดสินค้าเพิ่มเติมนอกจากชื่อสินค้า"}
+              </div>
             </div>
           </div>
 
@@ -205,7 +214,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
               <div className="space-y-4 font-sans">
                 <div className="flex flex-row items-center justify-between gap-4">
                   <div className="flex items-center gap-1">
-                    <span className="text-xs font-black text-zinc-400 font-mono tracking-widest uppercase"></span>
+                    <span className="text-xs font-black text-zinc-400 font-mono tracking-widest uppercase">เลือกจำนวน</span>
                   </div>
                   
                   {/* Digital stepper widget */}
@@ -244,12 +253,12 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
                   onClick={() => {
                     if (!user) {
                       Swal.fire({ 
-                        title: 'Log In', 
-                        text: 'Log InStore', 
+                        title: 'กรุณาเข้าสู่ระบบ', 
+                        text: 'คุณต้องเข้าสู่ระบบก่อนทำการสั่งซื้อสินค้าในแพลตฟอร์ม', 
                         icon: 'warning', 
-                        confirmButtonText: 'Log In',
+                        confirmButtonText: 'เข้าสู่ระบบ',
                         showCancelButton: true,
-                        cancelButtonText: '',
+                        cancelButtonText: 'ปิดหน้านี้',
                         confirmButtonColor: '#10b981',
                         cancelButtonColor: '#1f1f2e',
                         background: '#09090b',
@@ -261,7 +270,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
                       });
                       return;
                     }
-                    if (!product.isPreOrder && product.stock<= 0) return;
+                    if (!product.isPreOrder && product.stock <= 0) return;
                     setShowConfirmPurchase(true);
                   }}
                   disabled={!product.isPreOrder && product.stock <= 0}
@@ -272,7 +281,8 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
                   }`}
                 >
                   <ShoppingCart className="w-4 h-4 text-black" />
-                  {product.isPreOrder ? 'Bought PRE-ORDER' : product.stock > 0 ? '' : ''}</button>
+                  {product.isPreOrder ? 'สั่งซื้อ PRE-ORDER' : product.stock > 0 ? 'ยืนยันสั่งชื้อสินค้า' : 'สินค้าหมดชั่วคราว'}
+                </button>
               </div>
             ) : (
               /* Transaction validation view */
@@ -288,7 +298,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
                   <div>
                     <h3 className="font-extrabold text-sm text-white uppercase tracking-wider mb-0.5 font-mono">CONFIRM CHECKOUT LIST</h3>
                     <p className="text-zinc-400 text-xs leading-relaxed">
-                      Bought<span className="font-bold text-white">{product.name}</span>  <span className="font-black text-white">{purchaseQuantity}</span> items Price <span className="font-black text-emerald-400 font-mono">{(product.price * purchaseQuantity).toLocaleString()}</span>
+                      โปรดยืนยันการซื้อ <span className="font-bold text-white">{product.name}</span> จำนวน <span className="font-black text-white">{purchaseQuantity}</span> ชิ้น ราคารวม <span className="font-black text-emerald-400 font-mono">฿{(product.price * purchaseQuantity).toLocaleString()}</span>
                     </p>
                   </div>
                 </div>
@@ -297,7 +307,9 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
                   <button 
                     onClick={() => setShowConfirmPurchase(false)}
                     className="flex-1 py-3 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 font-bold transition-all rounded-xl text-xs active:scale-95 border border-white/[0.03] cursor-pointer"
-                  ></button>
+                  >
+                    ยกเลิกขั้นตอนชำระเงิน
+                  </button>
                   <button 
                     disabled={showConfirmPurchase === 'loading' as any}
                     onClick={async () => {
@@ -311,8 +323,9 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
                     className="flex-1 py-3 bg-emerald-500 hover:bg-emerald-400 text-black font-black transition-all rounded-xl text-xs disabled:opacity-50 flex items-center justify-center gap-2 active:scale-95 border border-emerald-400/20 shadow-lg shadow-emerald-500/5 cursor-pointer"
                   >
                     {showConfirmPurchase === 'loading' as any ? (
-                      <><div className="w-3.5 h-3.5 border-2 border-black border-t-transparent rounded-full animate-spin"></div> <span>...</span></>
-                    ) : ''}</button>
+                      <><div className="w-3.5 h-3.5 border-2 border-black border-t-transparent rounded-full animate-spin"></div> <span>กำลังทำรายการคอยสักครู่...</span></>
+                    ) : 'ชำระเงินทันที'}
+                  </button>
                 </div>
               </motion.div>
             )}

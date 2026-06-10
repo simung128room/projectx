@@ -14,8 +14,8 @@ export const ToolsView: React.FC<ToolsViewProps> = ({ setActiveView }) => {
   const tools = [
     {
       id: 'auto_deploy',
-      name: '',
-      desc: '  MySQL ',
+      name: 'สร้างร้านค้าฟรี',
+      desc: 'ระบบสั่งจำลองโคลนติดตั้งเว็บไซต์ร้านค้าส่วนตัวออโต้บนซับโดเมนของคุณเอง พร้อมฐานข้อมูล MySQL และระบบจัดการครบวงจร',
       category: 'premium',
       icon: Globe,
       gradient: 'from-[#059669] to-[#10B981]',
@@ -27,7 +27,7 @@ export const ToolsView: React.FC<ToolsViewProps> = ({ setActiveView }) => {
     {
       id: 'api_proxy_gen',
       name: 'API Proxy',
-      desc: ' API  Proxy    0.1 ',
+      desc: 'สร้าง API ลิงก์สำหรับดึง Proxy ไปใช้งานกับโปรแกรมของคุณ อัปเดตเรียลไทม์ ดึงได้ทุก 0.1 วิ',
       category: 'utility',
       icon: Globe,
       gradient: 'from-[#8B5CF6] to-[#C084FC]',
@@ -38,8 +38,8 @@ export const ToolsView: React.FC<ToolsViewProps> = ({ setActiveView }) => {
     },
     {
       id: 'two_fa_generator',
-      name: ' 2FA',
-      desc: ' (OTP) ',
+      name: 'สร้างรหัส 2FA',
+      desc: 'เครื่องมือช่วยสร้างรหัสผ่านชั้นที่สอง (OTP) สำหรับยืนยันตัวตนทุกแพลตฟอร์ม',
       category: 'utility',
       icon: Zap,
       gradient: 'from-[#10B981] to-[#34D399]',
@@ -49,8 +49,8 @@ export const ToolsView: React.FC<ToolsViewProps> = ({ setActiveView }) => {
     },
     {
       id: 'proxy_free',
-      name: '',
-      desc: ' Proxy    ',
+      name: 'รายการพร็อกซี่ฟรี',
+      desc: 'แหล่งรวม Proxy สดใหม่ อัปเดตรายวัน สำหรับใช้งานทั่วไปแบบฟรีๆ ไม่จำกัด',
       category: 'utility',
       icon: Globe,
       gradient: 'from-[#06b6d4] to-[#22d3ee]',
@@ -61,10 +61,10 @@ export const ToolsView: React.FC<ToolsViewProps> = ({ setActiveView }) => {
   ];
 
   const categories = [
-    { id: 'all', label: '' },
-    { id: 'utility', label: '' },
-    { id: 'social', label: '' },
-    { id: 'premium', label: '' },
+    { id: 'all', label: 'ทั้งหมด' },
+    { id: 'utility', label: 'ยูทิลิตี้ทั่วไป' },
+    { id: 'social', label: 'โซเชียลคอมมูนิตี้' },
+    { id: 'premium', label: 'ฟีเจอร์พรีเมียม' },
   ];
 
   const filteredTools = tools.filter(tool => {
@@ -81,7 +81,8 @@ export const ToolsView: React.FC<ToolsViewProps> = ({ setActiveView }) => {
     return matchSearch && matchCategory;
   });
 
-  return (<AnimatedScroll direction="up">
+  return (
+    <AnimatedScroll direction="up">
       <div className="font-sans px-4 pb-20 w-full max-w-7xl mx-auto mt-6 lg:mt-10">
         
         {/* Header Section: Hero Style */}
@@ -93,12 +94,14 @@ export const ToolsView: React.FC<ToolsViewProps> = ({ setActiveView }) => {
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 z-10">
             <div className="max-w-2xl">
               <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-card border border-border border-2 text-blue-400 text-xs font-black uppercase tracking-widest mb-6 backdrop-blur-sm brut-card">
-                <Sparkles className="w-4 h-4 text-blue-400" /> APEX</div>
+                <Sparkles className="w-4 h-4 text-blue-400" /> ชุดเครื่องมือ APEX
+              </div>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-tight mb-6 leading-tight">
-                <br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-500"></span>
+                ขับเคลื่อน<br/>ด้วยเครื่องมือ<span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-500">คุณภาพ</span>
               </h1>
               <p className="text-muted-foreground text-base md:text-lg leading-relaxed max-w-xl">
-                </p>
+                ลดขั้นตอนที่น่าเบื่อด้วยระบบอัตโนมัติ ไม่ว่าจะเป็นโปรแกรมดึงของขวัญ หรือสร้างเว็บไซต์ส่วนตัว ทั้งหมดนี้เปิดให้ใช้งานฟรีและพรีเมียม
+              </p>
             </div>
 
             <div className="w-full lg:w-80 space-y-4 shrink-0">
@@ -106,7 +109,7 @@ export const ToolsView: React.FC<ToolsViewProps> = ({ setActiveView }) => {
                 <Search className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 <input 
                   type="text" 
-                  placeholder="..." 
+                  placeholder="ค้นหาเครื่องมือ..." 
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full bg-black/40 backdrop-blur-sm backdrop-blur-md border border-border border-2 py-4 pl-12 pr-4 text-white focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all font-medium placeholder:text-zinc-500"
@@ -120,7 +123,7 @@ export const ToolsView: React.FC<ToolsViewProps> = ({ setActiveView }) => {
         <div className="flex flex-wrap items-center gap-2 mb-8">
           <div className="hidden md:flex items-center gap-2 mr-4 text-muted-foreground">
             <Filter className="w-4 h-4" />
-            <span className="text-xs font-bold uppercase tracking-widest"></span>
+            <span className="text-xs font-bold uppercase tracking-widest">หมวดหมู่</span>
           </div>
           {categories.map((cat) => (
             <button
@@ -143,8 +146,8 @@ export const ToolsView: React.FC<ToolsViewProps> = ({ setActiveView }) => {
             <div className="w-20 h-20 bg-card flex items-center justify-center mb-6 brut-card">
               <Search className="w-8 h-8 text-muted-foreground" />
             </div>
-            <h3 className="text-xl font-bold text-white mb-2"></h3>
-            <p className="text-muted-foreground text-sm"></p>
+            <h3 className="text-xl font-bold text-white mb-2">ไม่พบเครื่องมือที่ต้องการ</h3>
+            <p className="text-muted-foreground text-sm">ลองปรับการค้นหา หรือเลือกหมวดหมู่อื่นดูอีกครั้ง</p>
           </motion.div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -202,7 +205,8 @@ export const ToolsView: React.FC<ToolsViewProps> = ({ setActiveView }) => {
                     {/* Bottom Action */}
                     <div className="mt-auto flex items-center justify-between pt-5 border-t border-border border-2">
                        <span className={`text-xs font-bold uppercase tracking-widest transition-colors ${tool.iconColor} opacity-70 group-hover:opacity-100 flex items-center gap-2`}>
-                          </span>
+                          เข้าใช้งานระบบ
+                       </span>
                        <div className="w-10 h-10 bg-card flex items-center justify-center text-muted-foreground group-hover:text-white group-hover:bg-white/10 transition-all duration-300 shrink-0 brut-card">
                           {(tool as any).link ? (
                             <ExternalLink className="w-4 h-4 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 transition-transform" />
@@ -225,7 +229,8 @@ export const ToolsView: React.FC<ToolsViewProps> = ({ setActiveView }) => {
                  <ShieldCheck className="w-5 h-5 text-amber-500" /> 
                </div>
                <p className="text-muted-foreground text-sm text-center font-medium">
-                 <span className="text-amber-500 font-black px-1">VIP</span> Premium</p>
+                 เครื่องมือที่มีตรา <span className="text-amber-500 font-black px-1">VIP</span> สงวนสิทธิ์การเข้าถึงเฉพาะสมาชิก Premium ขึ้นไป
+               </p>
             </div>
         </div>
       </div>

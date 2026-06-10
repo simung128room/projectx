@@ -42,9 +42,11 @@ export class ErrorBoundary extends Component<Props, State> {
           <div className="w-20 h-20 bg-red-500/10 flex items-center justify-center mb-6">
             <AlertTriangle className="w-10 h-10 text-red-500" />
           </div>
-          <h1 className="text-3xl font-black mb-4"></h1>
+          <h1 className="text-3xl font-black mb-4">ระบบเกิดข้อผิดพลาด</h1>
           <p className="text-muted-foreground mb-8 max-w-md">
-            </p>
+            ขออภัย มีบางอย่างผิดปกติที่ฝั่งไคลเอนต์
+            กรุณาลองรีเฟรชหน้าเว็บอีกครั้ง
+          </p>
           <div className="bg-card p-4 border border-border border-2 text-left w-full max-w-2xl mb-8 overflow-auto brut-card">
             <code className="text-sm text-red-400 font-mono">
               {this.state.error?.message}
@@ -55,7 +57,8 @@ export class ErrorBoundary extends Component<Props, State> {
             className="flex items-center gap-2 bg-card text-white px-6 py-3 font-bold hover:bg-zinc-200 transition-colors brut-card"
           >
             <RefreshCw className="w-5 h-5" />
-            </button>
+            รีเฟรชหน้าเว็บ
+          </button>
         </div>
       );
     }

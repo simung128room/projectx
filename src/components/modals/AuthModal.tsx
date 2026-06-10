@@ -66,8 +66,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
         
         Swal.fire({
           icon: 'success',
-          title: '!',
-          text: 'Log In...',
+          title: 'สร้างบัญชีสำเร็จ!',
+          text: 'กรุณาเข้าสู่ระบบอีกครั้ง...',
           timer: 1500,
           showConfirmButton: false,
           background: '#09090b',
@@ -89,7 +89,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
 
         Swal.fire({
           icon: 'success',
-          title: 'Log In',
+          title: 'เข้าสู่ระบบสำเร็จ',
           timer: 1500,
           showConfirmButton: false,
           background: '#09090b',
@@ -99,19 +99,19 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
       }
     } catch (err: any) {
       // Intentionally not logging expected auth errors to console to avoid user confusion
-      let msg = err?.message || '';
+      let msg = err?.message || 'เกิดข้อผิดพลาด';
 
-      if (msg.includes('already registered')) msg = ' ()';
-      if (msg.includes('Invalid login credentials')) msg = ' ( Sign Up)';
-      if (msg.includes('invalid email format')) msg = '';
-      if (msg.includes('Email not confirmed')) msg = 'Settings "Confirm Email"  Authentication -> Providers  Supabase Dashboard ( Username )';
-      if (msg.includes('Load failed') || msg.includes('Failed to fetch')) msg = ' ()';
-      if (msg.includes('Password should be at least')) msg = ' 6 ';
-      if (msg.includes('rate limit exceeded')) msg = 'Sign UpLog In  Settings Rate Limit  Supabase';
+      if (msg.includes('already registered')) msg = 'ชื่อผู้ใช้นี้ถูกใช้งานแล้ว (โปรดใช้ชื่ออื่น)';
+      if (msg.includes('Invalid login credentials')) msg = 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง (หากเคยใช้ระบบทดสอบเก่า กรุณาสมัครสมาชิกใหม่)';
+      if (msg.includes('invalid email format')) msg = 'รูปแบบชื่อผู้ใช้ไม่ถูกต้อง';
+      if (msg.includes('Email not confirmed')) msg = 'กรุณาปิดการตั้งค่า "Confirm Email" ในเมนู Authentication -> Providers ของ Supabase Dashboard (เพราะระบบใช้ Username ไม่ใช่อีเมลจริง)';
+      if (msg.includes('Load failed') || msg.includes('Failed to fetch')) msg = 'การเชื่อมต่อเครือข่ายล้มเหลว (ตรวจสอบอินเทอร์เน็ต)';
+      if (msg.includes('Password should be at least')) msg = 'รหัสผ่านต้องมีความยาวอย่างน้อย 6 ตัวอักษร';
+      if (msg.includes('rate limit exceeded')) msg = 'คุณสมัครสมาชิกหรือพยายามเข้าสู่ระบบถี่เกินไป โปรดรอสักครู่ หรือตั้งค่า Rate Limit ใหม่ในระบบ Supabase';
       
       Swal.fire({
         icon: 'error',
-        title: '',
+        title: 'มีบางอย่างผิดพลาด',
         text: msg,
         background: '#09090b',
         color: '#fff'
@@ -123,16 +123,18 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
 
   if (!show) return null;
 
-  return (<div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 ">
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 ">
       <div className="w-full max-w-sm bg-card border border-border border-2 p-8 animate-in fade-in zoom-in duration-300 overflow-hidden relative brut-card">
       <div className={`absolute top-0 right-0 w-32 h-32 -mr-16 -mt-16 ${authMode === 'login' ? 'bg-cyan-500/10' : 'bg-blue-600/10'}`}></div>
       <div className="flex flex-col items-center text-center mb-6 relative z-10">
         <div className={`w-16 h-16 flex items-center justify-center mb-4 border ${authMode === 'login' ? 'bg-cyan-500/10 border-cyan-500/20' : 'bg-blue-600/10 border-emerald-500/20'}`}>
           {authMode === 'login' ? <User className="w-8 h-8 text-cyan-500" /> : <User className="w-8 h-8 text-blue-500" />}
         </div>
-        <h2 className="text-xl font-bold tracking-tight">{authMode === 'login' ? 'Log In' : 'Sign Up'}</h2>
+        <h2 className="text-xl font-bold tracking-tight">{authMode === 'login' ? 'เข้าสู่ระบบ' : 'สมัครสมาชิก'}</h2>
         <p className="text-muted-foreground text-xs mt-1">
-          {authMode === 'login' ? ' APEXSTORE' : ''}</p>
+          {authMode === 'login' ? 'ลงชื่อเข้าใช้เพื่อเข้าถึง APEXSTORE' : 'เข้าร่วมกับเราเพื่อเริ่มต้นใช้งานเครื่องมือต่างๆ'}
+        </p>
       </div>
       
       {/* Mode Tabs */}
@@ -142,13 +144,15 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
           onClick={() => setAuthMode('login')}
           className={`flex-1 py-2 text-xs font-bold transition-all ${authMode === 'login' ? 'bg-cyan-500/20 text-cyan-400' : 'text-zinc-500 hover:text-white'}`}
         >
-          Log In / Login</button>
+          เข้าสู่ระบบ / Login
+        </button>
         <button
           type="button"
           onClick={() => setAuthMode('signup')}
           className={`flex-1 py-2 text-xs font-bold transition-all ${authMode === 'signup' ? 'bg-blue-600/20 text-blue-600' : 'text-zinc-500 hover:text-white'}`}
         >
-          Sign Up / Sign up</button>
+          สมัครสมาชิก / Sign up
+        </button>
       </div>
 
       <form onSubmit={handleAuth} className="space-y-4 relative z-10">
@@ -161,9 +165,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
                   value={authUsername}
                   onChange={(e) => setAuthUsername(e.target.value)}
                   className="w-full bg-card border border-border border-2 py-3.5 pl-12 pr-4 outline-none focus:border-cyan-500/50 transition-all font-sans text-sm brut-card"
-                  placeholder=" / Username"
+                  placeholder="ชื่อผู้ใช้ / Username"
                   required
-                /></div>
+                />
+              </div>
             </div>
 
             <div className="space-y-2">
@@ -174,10 +179,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
                   value={authPassword}
                   onChange={(e) => setAuthPassword(e.target.value)}
                   className="w-full bg-card border border-border border-2 py-3.5 pl-12 pr-4 outline-none focus:border-cyan-500/50 transition-all font-sans text-sm brut-card"
-                  placeholder=" / Password"
+                  placeholder="รหัสผ่าน / Password"
                   required
                   minLength={6}
-                /></div>
+                />
+              </div>
             </div>
           </>
 
@@ -189,15 +195,17 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
           {authLoading ? (
             <div className="w-5 h-5 border-2 border-border border-t-white animate-spin"></div>
           ) : (
-            authMode === 'login' ? 'Log In / Login' : 'Sign Up / Sign up'
-          )}</button>
+            authMode === 'login' ? 'เข้าสู่ระบบ / Login' : 'สมัครสมาชิก / Sign up'
+          )}
+        </button>
 
         <button 
           type="button"
           onClick={onClose}
           className="w-full text-muted-foreground hover:text-zinc-500 text-[10px] font-bold uppercase tracking-widest mt-4"
         >
-          </button>
+          ปิดหน้าต่าง
+        </button>
       </form>
     </div>
 
@@ -219,7 +227,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
                   />
                 ) : (
                   <div className="p-3 text-[#2563EB] text-center text-[10px] font-bold">
-                    Settings TURNSTILE_SITE_KEY<br/>Bypass Mode Active
+                    ยังไม่ได้ตั้งค่า TURNSTILE_SITE_KEY<br/>Bypass Mode Active
                   </div>
                 )}
               </div>
@@ -232,7 +240,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
                 }}
                 className="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3.5 transition-all mb-4 text-xs"
               >
-                 (Bypass)</button>
+                ดำเนินการต่อ (Bypass)
+              </button>
             )}
             <button 
               onClick={() => setShowTurnstileModal(false)}

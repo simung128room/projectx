@@ -16,7 +16,8 @@ export const PageView: React.FC<PageViewProps> = ({ page, onBack }) => {
       <div className="flex items-center gap-2 mb-8 text-sm">
         <button onClick={onBack} className="text-muted-foreground hover:text-white transition-colors flex items-center gap-1 font-bold">
           <ArrowLeft className="w-4 h-4" />
-          </button>
+          กลับหน้าหลัก
+        </button>
       </div>
 
       <motion.div 
@@ -31,7 +32,7 @@ export const PageView: React.FC<PageViewProps> = ({ page, onBack }) => {
         
         <div className="prose prose-zinc max-w-none prose-headings:font-black prose-a:text-blue-600 hover:prose-a:text-[#1D4ED8]">
            <div className="markdown-body">
-             <Markdown>{page.content || '**'}</Markdown>
+             <Markdown>{page.content || '*ไม่มีเนื้อหา*'}</Markdown>
            </div>
         </div>
       </motion.div>

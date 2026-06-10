@@ -84,11 +84,12 @@ const ProductManagerModal = ({
         </button>
         <h2 className="text-xl font-black text-white mb-6 flex items-center gap-2">
           <Package className="w-5 h-5 text-blue-600" />
-          {isEdit ? '' : ''}</h2>
+          {isEdit ? 'แก้ไขสินค้า' : 'เพิ่มสินค้าใหม่'}
+        </h2>
         
         <div className="space-y-4">
           <div>
-            <label className="block text-xs font-bold text-muted-foreground mb-1"></label>
+            <label className="block text-xs font-bold text-muted-foreground mb-1">ชื่อสินค้า</label>
             <input 
               type="text" 
               value={formData.name} 
@@ -98,16 +99,17 @@ const ProductManagerModal = ({
             />
           </div>
           <div>
-            <label className="block text-xs font-bold text-muted-foreground mb-1"></label>
+            <label className="block text-xs font-bold text-muted-foreground mb-1">รายละเอียด</label>
             <textarea 
               value={formData.description} 
               onChange={e => setFormData({...formData, description: e.target.value})}
               className="w-full bg-card border border-border border px-4 py-3 text-white font-medium focus:outline-none focus:border-[#3B82F6] focus:ring-1 focus:ring-[#3B82F6]/50 transition-all text-sm h-24 resize-none"
-              placeholder="..."
-            /></div>
+              placeholder="รายละเอียดสินค้า..."
+            />
+          </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-muted-foreground mb-1">Price (THB)</label>
+              <label className="block text-xs font-bold text-muted-foreground mb-1">ราคาปัจจุบัน (THB)</label>
               <input 
                 type="number" 
                 value={formData.price} 
@@ -117,7 +119,7 @@ const ProductManagerModal = ({
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-muted-foreground mb-1">Price ()</label>
+              <label className="block text-xs font-bold text-muted-foreground mb-1">ราคาเต็ม (ถ้ามี)</label>
               <input 
                 type="number" 
                 value={formData.originalPrice} 
@@ -129,7 +131,7 @@ const ProductManagerModal = ({
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-muted-foreground mb-1"></label>
+              <label className="block text-xs font-bold text-muted-foreground mb-1">สต๊อก</label>
               <input 
                 type="number" 
                 value={formData.stock} 
@@ -139,13 +141,13 @@ const ProductManagerModal = ({
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-muted-foreground mb-1"></label>
+              <label className="block text-xs font-bold text-muted-foreground mb-1">หมวดหมู่</label>
               <select 
                 value={formData.category} 
                 onChange={e => setFormData({...formData, category: e.target.value})}
                 className="w-full bg-card border border-border border px-4 py-3 text-white font-medium focus:outline-none focus:border-[#3B82F6] focus:ring-1 focus:ring-[#3B82F6]/50 transition-all text-sm appearance-none"
               >
-                <option value=""></option>
+                <option value="">เลือกหมวดหมู่</option>
                 {categories.map((cat: any) => (
                   <option key={cat.id} value={cat.id}>{cat.name}</option>
                 ))}
@@ -153,21 +155,21 @@ const ProductManagerModal = ({
             </div>
           </div>
           <div>
-            <label className="block text-xs font-bold text-muted-foreground mb-1">(Tag)</label>
+            <label className="block text-xs font-bold text-muted-foreground mb-1">ป้ายกำกับ (Tag)</label>
             <select 
               value={formData.tag || ''} 
               onChange={e => setFormData({...formData, tag: e.target.value})}
               className="w-full bg-card border border-border border px-4 py-3 text-white font-medium focus:outline-none focus:border-[#3B82F6] focus:ring-1 focus:ring-[#3B82F6]/50 transition-all text-sm appearance-none"
             >
-              <option value="">()</option>
+              <option value="">ไม่มี (ว่าง)</option>
               <option value="HOT">HOT</option>
               <option value="NEW">NEW</option>
-              <option value=""></option>
-              <option value=""></option>
+              <option value="แนะนำ">แนะนำ</option>
+              <option value="ขายดี">ขายดี</option>
             </select>
           </div>
           <div>
-            <label className="block text-xs font-bold text-muted-foreground mb-1">URL</label>
+            <label className="block text-xs font-bold text-muted-foreground mb-1">URL รูปภาพ</label>
             <input 
               type="text" 
               value={formData.imageUrl} 
@@ -188,15 +190,17 @@ const ProductManagerModal = ({
             />
             <div className="flex-1">
               <label htmlFor="isPreOrder" className="text-xs font-bold text-white select-none cursor-pointer block">
-                Pre-Order ()</label>
-              <span className="text-[10px] text-muted-foreground block mt-0.5"></span>
+                สินค้า Pre-Order (กำลังจัดหาไอดี)
+              </label>
+              <span className="text-[10px] text-muted-foreground block mt-0.5">เปิดใช้งานหากสินค้าประเภทนี้ต้องการให้แอดมินจัดหาไอดีให้ภายหลังชำระเงิน</span>
             </div>
           </div>
 
           {formData.isPreOrder && (
             <div className="p-3 bg-zinc-900/30 border border-border/40 rounded space-y-2 animate-in fade-in slide-in-from-top-2 duration-200">
               <label className="block text-[11px] font-bold text-muted-foreground">
-                ( , : AR10, AR30, Garena, Gmail)</label>
+                ตัวเลือกประเภทไอดี (แยกด้วยเครื่องหมายจุลภาค , เช่น: AR10, AR30, Garena, Gmail)
+              </label>
               <input 
                 type="text" 
                 value={formData.preOrderOptionsInput || ''} 
@@ -210,15 +214,16 @@ const ProductManagerModal = ({
                   });
                 }}
                 className="w-full bg-card border border-border border px-3 py-2 text-white font-medium focus:outline-none focus:border-[#3B82F6] transition-all text-xs"
-                placeholder=": Garena Account, Facebook Account, ID Level 30"
-              /><div className="text-[10px] text-zinc-500 flex flex-wrap gap-1">
-                <span className="font-semibold">:</span>
+                placeholder="เช่น: Garena Account, Facebook Account, ID Level 30"
+              />
+              <div className="text-[10px] text-zinc-500 flex flex-wrap gap-1">
+                <span className="font-semibold">ตัวอย่างที่จะแสดง:</span>
                 {(formData.preOrderOptions || []).length > 0 ? (
                   (formData.preOrderOptions || []).map((o: string, idx: number) => (
                     <span key={idx} className="bg-zinc-800 text-zinc-300 px-1.5 py-0.5 rounded text-[9px]">{o}</span>
                   ))
                 ) : (
-                  <span className="italic"></span>
+                  <span className="italic">ระบบจะให้ลูกค้าพิมเลือกประเภทเองหากว่างไว้</span>
                 )}
               </div>
             </div>
@@ -236,11 +241,12 @@ const ProductManagerModal = ({
             onClick={onClose}
             className="flex-1 px-4 py-3 bg-card hover:bg-[#1e1e1e] text-white text-sm font-bold transition-all active:scale-95"
           >
-            </button>
+            ยกเลิก
+          </button>
           <button 
             onClick={() => {
               if(!formData.name || formData.price === '' || formData.price === null || formData.price === undefined) {
-                 return Swal.fire({title: '', text: 'Price', icon: 'warning', background: '#09090b', color: '#fff'});
+                 return Swal.fire({title: 'ข้อมูลไม่ครบ', text: 'กรุณากรอกชื่อและราคาปัจจุบัน', icon: 'warning', background: '#09090b', color: '#fff'});
               }
               const { preOrderOptionsInput, ...cleanFormData } = formData;
               const p = {
@@ -265,8 +271,10 @@ const ProductManagerModal = ({
               }
             }}
             className="flex-1 px-4 py-3 bg-primary text-primary-foreground hover:bg-[#2563EB] text-white text-sm font-bold transition-all active:scale-95 flex items-center justify-center gap-2"
-          ><Check className="w-4 h-4" />
-            </button>
+          >
+             <Check className="w-4 h-4" />
+            บันทึกสินค้า
+          </button>
         </div>
       </div>
     </div>
@@ -352,9 +360,9 @@ const AddStockModal = ({
 
     if (rejectedFiles.length > 0) {
       if (rejectedFiles.length === 1) {
-        Swal.fire({title: '', text: ` ${rejectedFiles[0]}  5MB. `, icon: 'error', background: '#09090b', color: '#fff'});
+        Swal.fire({title: 'ไฟล์ใหญ่เกินไป', text: `ไฟล์ ${rejectedFiles[0]} มีขนาดใหญ่กว่า 5MB. ให้ใช้วิธีอัพโหลดไฟล์แล้ววางลิงก์แทน`, icon: 'error', background: '#09090b', color: '#fff'});
       } else {
-        Swal.fire({title: ' 5MB', text: ` ${rejectedFiles.length}  5MB  ${rejectedFiles[0]} `, icon: 'warning', background: '#09090b', color: '#fff'});
+        Swal.fire({title: 'พบไฟล์ใหญ่เกิน 5MB', text: `มี ${rejectedFiles.length} ไฟล์ที่มีขนาดใหญ่กว่า 5MB เช่น ${rejectedFiles[0]} ระบบจึงต้องข้ามไฟล์เหล่านี้ไป`, icon: 'warning', background: '#09090b', color: '#fff'});
       }
     }
   };
@@ -388,7 +396,7 @@ const AddStockModal = ({
       largeTextRef.current = text;
       setIsBigTextMode(true);
       if (textRef.current) {
-         textRef.current.value = "===  ( Big Data) ===\n\n  3,000,000+ \n\n()";
+         textRef.current.value = "=== พบข้อมูลขนาดใหญ่มาก (โหมด Big Data) ===\n\nระบบซ่อนตัวอย่างเพื่อความลื่นไหล รองรับแล้ว 3,000,000+ บรรทัด\n\n(หากต้องการแก้ไขกรุณากดปุ่มล้างข้อมูลด้านล่าง)";
       }
       setTimeout(updateTextCount, 0);
     }
@@ -415,7 +423,7 @@ const AddStockModal = ({
       
       let lines: string[] = [];
       const splitLines = sourceText.split('\n');
-      for (let i = 0; i< splitLines.length; i++) {
+      for (let i = 0; i < splitLines.length; i++) {
          const t = splitLines[i].trim();
          if (t.length > 0) lines.push(t);
       }
@@ -433,13 +441,13 @@ const AddStockModal = ({
     }
 
     if (newItems.length === 0) {
-      return Swal.fire({title: '', text: '', icon: 'error', background: '#09090b', color: '#fff'});
+      return Swal.fire({title: 'ข้อมูลว่างเปล่า', text: 'ไม่ได้เพิ่มสต๊อกใหม่', icon: 'error', background: '#09090b', color: '#fff'});
     }
 
     if (newItems.length > 500) {
       Swal.fire({
-        title: '',
-        text: ` ${newItems.length.toLocaleString()}  ...`,
+        title: 'กำลังประมวลผล',
+        text: `กำลังเตรียมบันทึกสต๊อก ${newItems.length.toLocaleString()} รายการ โปรดรอสักครู่และห้ามปิดหน้าต่างนี้...`,
         icon: 'info',
         showConfirmButton: false,
         allowOutsideClick: false,
@@ -450,27 +458,33 @@ const AddStockModal = ({
     onAppendStock(newItems);
   };
 
-  return (<div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-end p-0 z-50">
+  return (
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-end p-0 z-50">
       <div className="bg-card border-l border-border border w-full max-w-md h-full relative p-6 sm:p-8 overflow-y-auto animate-in slide-in-from-right-full duration-300">
         <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
           <Database className="w-5 h-5 text-indigo-400" />
-          : {product.name}</h2>
+          เพิ่มสต๊อก: {product.name}
+        </h2>
         
         <div className="flex bg-card p-1 mb-6">
           <button 
             onClick={() => setMode('file')}
             className={`flex-1 py-2 text-xs font-bold transition-all ${mode === 'file' ? 'bg-[#121212] text-white' : 'text-zinc-500 hover:text-zinc-300'}`}
           >
-             .txt ()</button>
+            ไฟล์ .txt (หลายสต๊อก)
+          </button>
           <button 
             onClick={() => setMode('single-file')}
             className={`flex-1 py-2 text-xs font-bold transition-all ${mode === 'single-file' ? 'bg-[#121212] text-white' : 'text-zinc-500 hover:text-zinc-300'}`}
           >
-             (1  = 1 )</button>
+            ไฟล์ทั่วไป (1 ไฟล์ = 1 สต๊อก)
+          </button>
           <button 
             onClick={() => setMode('text')}
             className={`flex-1 py-2 text-xs font-bold transition-all ${mode === 'text' ? 'bg-[#121212] text-white' : 'text-zinc-500 hover:text-zinc-300'}`}
-          ></button>
+          >
+            วางข้อความ
+          </button>
         </div>
 
         {mode === 'file' && (
@@ -480,8 +494,8 @@ const AddStockModal = ({
               className="border border-dashed border-border hover:border-indigo-500/50 bg-card p-8 flex flex-col items-center justify-center cursor-pointer transition-colors"
             >
               <Upload className="w-8 h-8 text-indigo-400 mb-3" />
-              <p className="text-sm font-bold text-muted-foreground">.txt</p>
-              <p className="text-xs text-muted-foreground mt-1">1  = 1</p>
+              <p className="text-sm font-bold text-muted-foreground">คลิกเพื่ออัพโหลดไฟล์ .txt</p>
+              <p className="text-xs text-muted-foreground mt-1">1 บรรทัด = 1 สต๊อก</p>
               <input 
                 type="file" 
                 accept=".txt" 
@@ -494,7 +508,7 @@ const AddStockModal = ({
             {uploadProgress >= 0 && (
               <div className="bg-card border border-border border p-4 mt-2">
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-xs font-bold text-muted-foreground">...</span>
+                  <span className="text-xs font-bold text-muted-foreground">กำลังประมวลผลไฟล์...</span>
                   <span className="text-xs font-bold text-indigo-400">{uploadProgress}%</span>
                 </div>
                 <div className="w-full bg-card h-1.5 object-cover overflow-hidden">
@@ -504,7 +518,7 @@ const AddStockModal = ({
             )}
             
             <div className="flex items-center justify-between bg-card p-3 border border-border border">
-              <label className="text-sm font-bold text-muted-foreground">1</label>
+              <label className="text-sm font-bold text-muted-foreground">จำนวนบรรทัดต่อ 1 สต๊อก</label>
               <input 
                 type="number" 
                 min="1" 
@@ -519,8 +533,8 @@ const AddStockModal = ({
                 <div className="flex items-center gap-3">
                   <FileText className="w-5 h-5 text-indigo-400" />
                   <div>
-                    <p className="text-sm font-bold text-indigo-400"></p>
-                    <p className="text-xs text-indigo-400/80">{Math.ceil(fileStockPreview.length / linesPerStock)}  ( {fileStockPreview.length} )</p>
+                    <p className="text-sm font-bold text-indigo-400">พบข้อมูลสต๊อก</p>
+                    <p className="text-xs text-indigo-400/80">พร้อมเพิ่ม {Math.ceil(fileStockPreview.length / linesPerStock)} รายการ (จาก {fileStockPreview.length} บรรทัด)</p>
                   </div>
                 </div>
               </div>
@@ -535,8 +549,8 @@ const AddStockModal = ({
               className="border border-dashed border-border hover:border-indigo-500/50 bg-card p-8 flex flex-col items-center justify-center cursor-pointer transition-colors"
             >
               <Upload className="w-8 h-8 text-indigo-400 mb-3" />
-              <p className="text-sm font-bold text-muted-foreground"></p>
-              <p className="text-xs text-muted-foreground mt-1">5MB  ()</p>
+              <p className="text-sm font-bold text-muted-foreground">อัพโหลดไฟล์สินค้า</p>
+              <p className="text-xs text-muted-foreground mt-1">สูงสุด 5MB ต่อไฟล์ (เลือกหลายไฟล์ได้)</p>
               <input 
                 type="file" 
                 multiple
@@ -561,7 +575,7 @@ const AddStockModal = ({
         {mode === 'text' && (
           <div className="space-y-4">
             <div className="flex items-center justify-between bg-card p-3 border border-border border">
-              <label className="text-sm font-bold text-muted-foreground">1</label>
+              <label className="text-sm font-bold text-muted-foreground">จำนวนบรรทัดต่อ 1 สต๊อก</label>
               <input 
                 type="number" 
                 min="1" 
@@ -573,14 +587,16 @@ const AddStockModal = ({
             
             <div>
               <div className="flex items-center justify-between mb-2">
-                <label className="text-xs font-bold text-muted-foreground"></label>
+                <label className="text-xs font-bold text-muted-foreground">วางข้อมูลสต๊อก</label>
                 <div className="flex items-center gap-2">
                   {isBigTextMode && (
                     <button onClick={resetBigData} className="text-[10px] bg-red-500/20 text-red-400 hover:bg-red-500/30 px-2 py-0.5 rounded font-bold transition-colors">
-                      (Clear)</button>
+                      ล้างข้อมูล (Clear)
+                    </button>
                   )}
                   <span className="text-[10px] text-muted-foreground bg-card px-2 py-0.5 rounded">
-                    : {stockCount}</span>
+                    คำนวณได้: {stockCount} สต๊อก
+                  </span>
                 </div>
               </div>
               <textarea 
@@ -589,7 +605,7 @@ const AddStockModal = ({
                 onPaste={handlePaste}
                 disabled={isBigTextMode}
                 className="w-full bg-card border border-border border p-4 text-white focus:outline-none focus:border-indigo-500 text-sm h-40 resize-none font-mono text-xs leading-relaxed disabled:opacity-50"
-                placeholder="1&#10; 2&#10; 3&#10;..."
+                placeholder="ข้อมูลบรรทัดที่ 1&#10;ข้อมูลบรรทัดที่ 2&#10;ข้อมูลบรรทัดที่ 3&#10;..."
               />
             </div>
           </div>
@@ -600,12 +616,14 @@ const AddStockModal = ({
             onClick={onClose}
             className="flex-1 px-4 py-3 bg-card hover:bg-[#1e1e1e] text-white text-sm font-bold transition-colors"
           >
-            </button>
+            ยกเลิก
+          </button>
           <button 
             onClick={handleSaveStock}
             className="flex-1 px-4 py-3 bg-indigo-500 hover:bg-indigo-400 text-white text-sm font-bold transition-colors"
           >
-            Log In</button>
+            เพิ่มสต๊อกเข้าสู่ระบบ
+          </button>
         </div>
       </div>
     </div>
@@ -629,7 +647,7 @@ const DatabaseSetupGuide = ({ dbErrorDetail }: { dbErrorDetail?: string | null }
       <div className="mb-8 p-4 bg-primary text-primary-foreground border border-[#3B82F6]/20">
         <div className="flex items-center gap-2 mb-2">
           <ShieldAlert className="w-4 h-4 text-[#2563EB]" />
-          <h4 className="text-[#2563EB] text-[10px] font-black uppercase tracking-widest">(Status):</h4>
+          <h4 className="text-[#2563EB] text-[10px] font-black uppercase tracking-widest">สถานะปัจจุบัน (Status):</h4>
         </div>
         <p className="text-muted-foreground text-xs font-mono break-all bg-black/40 backdrop-blur-sm p-3 border border-border border">{dbErrorDetail}</p>
       </div>
@@ -705,10 +723,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     auto_proxy: true,
     spotify_url: '',
     spotify_autoplay: false,
-    announcement_text: 'Welcome APEXSTORE  Bought 24  - ',
-    bank_name: '',
+    announcement_text: 'ยินดีต้อนรับสู่ APEXSTORE ศูนย์รวมสินค้าไอดีและข้อเสนอยอดฮิต ระบบซื้อขายทำงานอัตโนมัติ 24 ชั่วโมง - กรณีมีปัญหาโปรดติดต่อแอดมิน',
+    bank_name: 'ธนาคารกสิกรไทย',
     bank_account_number: '196-3-87032-5',
-    bank_account_holder: ' ',
+    bank_account_holder: 'นาย กรวิชญ์',
     bank_qr_image: '',
     stats_users_override: null,
     stats_sales_override: null,
@@ -742,7 +760,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const handleFulfillPreorder = async (purchaseId: string, secretData: string) => {
     try {
       Swal.fire({
-        title: '...',
+        title: 'กำลังบันทึกข้อมูล...',
         allowOutsideClick: false,
         didOpen: () => {
           Swal.showLoading();
@@ -758,8 +776,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       
       Swal.fire({
         icon: 'success',
-        title: '!',
-        text: ' "" ',
+        title: 'ส่งมอบพรีออเดอร์สำเร็จ!',
+        text: 'ระบบได้ส่งรหัสสินค้าไปยังลูกค้าและปรับสถานะเป็น "ส่งข้อมูลแล้ว" เรียบร้อยแล้ว',
         confirmButtonColor: '#3B82F6',
         background: '#09090b',
         color: '#fff'
@@ -768,8 +786,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       console.error(err);
       Swal.fire({
         icon: 'error',
-        title: '',
-        text: err.response?.data?.error || '',
+        title: 'เกิดข้อผิดพลาด',
+        text: err.response?.data?.error || 'ไม่สามารถติดต่อเซิร์ฟเวอร์ได้',
         confirmButtonColor: '#dc2626',
         background: '#09090b',
         color: '#fff'
@@ -802,8 +820,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
     if (file.size > 50 * 1024 * 1024) {
       Swal.fire({
-        title: '',
-        text: ' ( 50MB)',
+        title: 'เกิดข้อผิดพลาด',
+        text: 'ไฟล์มีขนาดใหญ่เกินไป (จำกัด 50MB)',
         icon: 'error',
         background: '#0B0D0F',
         color: '#fff',
@@ -827,8 +845,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       if (response.data?.url) {
         setSiteSettings(prev => ({ ...prev, spotify_url: response.data.url }));
         Swal.fire({
-          title: '',
-          text: '',
+          title: 'สำเร็จ',
+          text: 'อัพโหลดเพลงสำเร็จแล้ว',
           icon: 'success',
           background: '#0B0D0F',
           color: '#fff',
@@ -838,9 +856,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       }
     } catch (err: any) {
       console.error('Music upload error:', err);
-      const errorMsg = err.response?.data?.error || '';
+      const errorMsg = err.response?.data?.error || 'ไม่สามารถอัพโหลดเพลงได้';
       Swal.fire({
-        title: '',
+        title: 'เกิดข้อผิดพลาด',
         text: errorMsg,
         icon: 'error',
         background: '#0B0D0F',
@@ -874,8 +892,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       const res = await axios.post('/api/settings', payload);
       if (res.data.success || res.status === 200) {
         Swal.fire({ 
-          title: '', 
-          text: 'Settings', 
+          title: 'สำเร็จ', 
+          text: 'บันทึกการตั้งค่าระบบเรียบร้อยแล้ว', 
           icon: 'success', 
           confirmButtonColor: '#3B82F6',
           background: '#0B0D0F',
@@ -884,9 +902,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       }
     } catch (err: any) {
       console.error('Save Settings Error:', err);
-      const errorMsg = err.response?.data?.error || err.message || '';
+      const errorMsg = err.response?.data?.error || err.message || 'ไม่สามารถบันทึกข้อมูลได้';
       Swal.fire({
-        title: '',
+        title: 'ผิดพลาด',
         text: errorMsg,
         icon: 'error',
         background: '#0B0D0F',
@@ -916,28 +934,29 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
   const getTabLabel = (id: string) => {
     const items: Record<string, string> = {
-      overview: '',
-      analytics: '',
-      store: '',
-      categories: '',
-      banners: 'Settings',
-      pages: 'Settings',
-      users: '',
+      overview: 'หน้าภาพรวม',
+      analytics: 'ข้อมูลวิเคราะห์',
+      store: 'สินค้าในร้าน',
+      categories: 'หมวดหมู่สินค้า',
+      banners: 'ตั้งค่าแบนเนอร์',
+      pages: 'ตั้งค่าหน้าเพจ',
+      users: 'สมาชิกทั้งหมด',
       keys: 'LICENSE KEYS',
-      history: '',
-      ips: '',
-      bot: '',
-      tools: '',
-      api_keys: ' API',
-      settings: 'Settings',
-      system: ''
+      history: 'ประวัติรายการ',
+      ips: 'ความปลอดภัย',
+      bot: 'ระบบบอท',
+      tools: 'ตัวช่วยแจกของ',
+      api_keys: 'ระบบ API',
+      settings: 'ตั้งค่าเว็บไซต์',
+      system: 'สถานะระบบ'
     };
     return items[id] || id;
   };
 
   const NavItem = ({ id, label, icon: Icon, color }: any) => {
     const isActive = adminTab === id;
-    return (<button
+    return (
+      <button
         onClick={() => {
           setAdminTab(id);
           setIsNavOpen(false);
@@ -996,36 +1015,36 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         {/* Navigation Links */}
         <div className="flex-1 overflow-y-auto w-full p-4 space-y-6 progress-track scrollbar-none">
           <div className="space-y-1">
-            <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2 px-3"></p>
-            <NavItem id="overview" label="" icon={LayoutDashboard} />
-            <NavItem id="analytics" label="" icon={LineChart} />
-            <NavItem id="settings" label="Settings" icon={Settings} />
-            <NavItem id="system" label="" icon={Cpu} />
+            <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2 px-3">ระบบจัดการหลัก</p>
+            <NavItem id="overview" label="หน้าภาพรวม" icon={LayoutDashboard} />
+            <NavItem id="analytics" label="ข้อมูลวิเคราะห์" icon={LineChart} />
+            <NavItem id="settings" label="ตั้งค่าเว็บไซต์" icon={Settings} />
+            <NavItem id="system" label="สถานะระบบ" icon={Cpu} />
           </div>
 
           <div className="space-y-1">
-            <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2 px-3">&</p>
-            <NavItem id="store" label="" icon={Package} />
-            <NavItem id="categories" label="" icon={LayoutDashboard} />
-            <NavItem id="stock" label="" icon={Database} />
-            <NavItem id="banners" label="Settings" icon={Image} />
-            <NavItem id="pages" label="Settings" icon={FileText} />
-            <NavItem id="preorders" label=" Pre-Order" icon={Clock} />
+            <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2 px-3">ร้านค้า & สินค้า</p>
+            <NavItem id="store" label="สินค้าในร้าน" icon={Package} />
+            <NavItem id="categories" label="หมวดหมู่สินค้า" icon={LayoutDashboard} />
+            <NavItem id="stock" label="จัดการสต็อก" icon={Database} />
+            <NavItem id="banners" label="ตั้งค่าแบนเนอร์" icon={Image} />
+            <NavItem id="pages" label="ตั้งค่าหน้าเพจ" icon={FileText} />
+            <NavItem id="preorders" label="จัดการ Pre-Order" icon={Clock} />
           </div>
 
           <div className="space-y-1">
-            <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2 px-3">&</p>
-            <NavItem id="users" label="" icon={Users} />
+            <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2 px-3">ผู้ใช้งาน & ประวัติ</p>
+            <NavItem id="users" label="สมาชิกทั้งหมด" icon={Users} />
             <NavItem id="keys" label="LICENSE KEYS" icon={Key} />
-            <NavItem id="history" label="" icon={History} />
-            <NavItem id="ips" label="" icon={ShieldAlert} />
+            <NavItem id="history" label="ประวัติรายการ" icon={History} />
+            <NavItem id="ips" label="ความปลอดภัย" icon={ShieldAlert} />
           </div>
 
           <div className="space-y-1">
-            <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2 px-3"></p>
-            <NavItem id="bot" label="" icon={Terminal} />
-            <NavItem id="tools" label="" icon={Gift} />
-            <NavItem id="api_keys" label=" API" icon={Key} />
+            <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2 px-3">เครื่องมือเสริม</p>
+            <NavItem id="bot" label="ระบบบอท" icon={Terminal} />
+            <NavItem id="tools" label="ตัวช่วยแจกของ" icon={Gift} />
+            <NavItem id="api_keys" label="ระบบ API" icon={Key} />
           </div>
         </div>
 
@@ -1042,8 +1061,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             <button 
               onClick={() => setIsAdmin(false)}
               className="p-2 text-red-400 hover:text-white hover:bg-red-500/20 transition-colors flex-shrink-0"
-              title="Log Out"
-            ><LogOut className="w-4 h-4" />
+              title="ออกจากระบบ"
+            >
+              <LogOut className="w-4 h-4" />
             </button>
           </div>
         </div>
@@ -1090,11 +1110,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               >
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                 {[
-                  { label: '', value: (siteStats?.users || 0).toLocaleString(), icon: Users, color: 'text-[#3B82F6]', bg: 'bg-[#3B82F6]/5', border: 'hover:border-[#3B82F6]/40' },
-                  { label: ' ()', value: totalOrders.toLocaleString(), icon: Package, color: 'text-purple-400', bg: 'bg-purple-500/5', border: 'hover:border-purple-500/40' },
-                  { label: 'Bought', value: totalOrders.toLocaleString(), icon: ShoppingCart, color: 'text-amber-400', bg: 'bg-amber-500/5', border: 'hover:border-amber-500/40' },
-                  { label: ' ()', value: totalRevenue.toLocaleString(), icon: Activity, color: 'text-emerald-400', bg: 'bg-emerald-500/5', border: 'hover:border-emerald-500/40' },
-                ].map((stat, i) => (<div key={i} className={`bg-card border border-zinc-800 rounded-lg p-6 relative overflow-hidden group transition-all duration-300 hover:translate-y-[-2px] hover:shadow-[0_4px_20px_rgba(0,0,0,0.4)] ${stat.border}`}>
+                  { label: 'ผู้ใช้งานทั้งหมด', value: (siteStats?.users || 0).toLocaleString(), icon: Users, color: 'text-[#3B82F6]', bg: 'bg-[#3B82F6]/5', border: 'hover:border-[#3B82F6]/40' },
+                  { label: 'ยอดขายทั้งหมด (สินค้า)', value: totalOrders.toLocaleString(), icon: Package, color: 'text-purple-400', bg: 'bg-purple-500/5', border: 'hover:border-purple-500/40' },
+                  { label: 'คำสั่งซื้อที่สำเร็จ', value: totalOrders.toLocaleString(), icon: ShoppingCart, color: 'text-amber-400', bg: 'bg-amber-500/5', border: 'hover:border-amber-500/40' },
+                  { label: 'รายได้รวม (บาท)', value: totalRevenue.toLocaleString(), icon: Activity, color: 'text-emerald-400', bg: 'bg-emerald-500/5', border: 'hover:border-emerald-500/40' },
+                ].map((stat, i) => (
+                  <div key={i} className={`bg-card border border-zinc-800 rounded-lg p-6 relative overflow-hidden group transition-all duration-300 hover:translate-y-[-2px] hover:shadow-[0_4px_20px_rgba(0,0,0,0.4)] ${stat.border}`}>
                     <div className="absolute top-0 right-0 w-32 h-32 bg-zinc-900/40 blur-3xl rounded-full -mr-8 -mt-8 transition-transform duration-500 group-hover:scale-125"></div>
                     <div className="flex items-center justify-between relative z-10">
                       <div>
@@ -1114,19 +1135,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <div className="bg-card border border-zinc-800 rounded-lg overflow-hidden">
                     <div className="p-6 border-b border-zinc-800/80 flex justify-between items-center bg-card">
                       <h3 className="font-bold flex items-center gap-2 text-white">
-                        <LineChart className="w-5 h-5 text-[#3B82F6]" /> (Sales Summary)</h3>
+                        <LineChart className="w-5 h-5 text-[#3B82F6]" /> รายงานสรุปยอดขาย (Sales Summary)
+                      </h3>
                     </div>
                     <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
                       <div className="bg-zinc-900/40 border border-zinc-800/60 p-6 text-center group hover:bg-zinc-900/80 hover:border-zinc-700/60 transition-all duration-200 rounded-lg">
-                        <p className="text-zinc-500 text-[10px] font-black uppercase mb-2 tracking-widest"></p>
+                        <p className="text-zinc-500 text-[10px] font-black uppercase mb-2 tracking-widest">วันนี้</p>
                         <p className="text-2xl font-black text-[#3B82F6] font-mono">{salesToday.toLocaleString()} <span className="text-[10px] font-bold text-zinc-500 uppercase ml-1">THB</span></p>
                       </div>
                       <div className="bg-zinc-900/40 border border-zinc-800/60 p-6 text-center group hover:bg-zinc-900/80 hover:border-zinc-700/60 transition-all duration-200 rounded-lg">
-                        <p className="text-zinc-500 text-[10px] font-black uppercase mb-2 tracking-widest"></p>
+                        <p className="text-zinc-500 text-[10px] font-black uppercase mb-2 tracking-widest">สัปดาห์นี้</p>
                         <p className="text-2xl font-black text-[#3B82F6] font-mono">{salesWeek.toLocaleString()} <span className="text-[10px] font-bold text-zinc-500 uppercase ml-1">THB</span></p>
                       </div>
                       <div className="bg-zinc-900/40 border border-zinc-800/60 p-6 text-center group hover:bg-zinc-900/80 hover:border-zinc-700/60 transition-all duration-200 rounded-lg">
-                        <p className="text-zinc-500 text-[10px] font-black uppercase mb-2 tracking-widest"></p>
+                        <p className="text-zinc-500 text-[10px] font-black uppercase mb-2 tracking-widest">เดือนนี้</p>
                         <p className="text-2xl font-black text-[#3B82F6] font-mono">{salesMonth.toLocaleString()} <span className="text-[10px] font-bold text-zinc-500 uppercase ml-1">THB</span></p>
                       </div>
                     </div>
@@ -1134,14 +1156,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
                   <div className="bg-card border border-zinc-800 rounded-lg p-6">
                     <h3 className="font-bold flex items-center gap-2 mb-6 text-white uppercase text-xs tracking-widest">
-                      <Cpu className="w-4 h-4 text-[#3B82F6]" /> (Quick Management)</h3>
+                      <Cpu className="w-4 h-4 text-[#3B82F6]" /> ระบบจัดการด่วน (Quick Management)
+                    </h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {[
-                            { id: 'store', label: '', desc: '   ', icon: Package, color: 'text-[#3B82F6]', bg: 'bg-[#3B82F6]/5' },
-                            { id: 'keys', label: ' License', desc: '', icon: Key, color: 'text-purple-400', bg: 'bg-purple-500/5' },
-                            { id: 'users', label: '', desc: '', icon: Users, color: 'text-amber-400', bg: 'bg-amber-500/5' },
-                            { id: 'settings', label: 'Settings', desc: ' ', icon: Settings, color: 'text-emerald-400', bg: 'bg-emerald-500/5' },
-                        ].map((item, i) => (<button 
+                            { id: 'store', label: 'จัดการสินค้า', desc: 'เพิ่ม ลบ แก้ไข สินค้าในร้าน', icon: Package, color: 'text-[#3B82F6]', bg: 'bg-[#3B82F6]/5' },
+                            { id: 'keys', label: 'จัดการ License', desc: 'เพิ่มคีย์และดูประวัติ', icon: Key, color: 'text-purple-400', bg: 'bg-purple-500/5' },
+                            { id: 'users', label: 'จัดการสมาชิก', desc: 'ดูรายชื่อและแก้ไขยอดเงิน', icon: Users, color: 'text-amber-400', bg: 'bg-amber-500/5' },
+                            { id: 'settings', label: 'ตั้งค่าเว็บไซต์', desc: 'แก้ไขชื่อเว็บ ช่องทางติดต่อ', icon: Settings, color: 'text-emerald-400', bg: 'bg-emerald-500/5' },
+                        ].map((item, i) => (
+                           <button 
                              key={i}
                              onClick={() => setAdminTab(item.id)}
                              className="flex items-center gap-4 p-4 border border-zinc-800/80 bg-zinc-900/30 hover:bg-zinc-950 hover:border-zinc-600 transition-all text-left group rounded-lg"
@@ -1163,13 +1187,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 <div className="space-y-6">
                   <div className="bg-card border border-zinc-800 rounded-lg p-6">
                     <h3 className="font-bold flex items-center gap-2 mb-6 text-white uppercase text-xs tracking-widest">
-                      <Settings className="w-4 h-4 text-[#3B82F6]" /> </h3>
+                      <Settings className="w-4 h-4 text-[#3B82F6]" /> เครื่องมือเพิ่มเติม
+                    </h3>
                     <div className="space-y-3">
                       <button onClick={() => setAdminTab('banners')} className="w-full bg-zinc-900/30 hover:bg-zinc-950 border border-zinc-800/80 rounded-lg p-4 flex items-center justify-between group transition-all">
                         <div className="flex items-center gap-3">
                           <Image className="w-5 h-5 text-zinc-500 group-hover:text-white transition-colors" />
                           <div className="text-left">
-                            <p className="text-sm font-bold text-white group-hover:text-[#3B82F6] transition-colors uppercase"></p>
+                            <p className="text-sm font-bold text-white group-hover:text-[#3B82F6] transition-colors uppercase">ป้ายโฆษณา</p>
                           </div>
                         </div>
                         <ChevronRight className="w-4 h-4 text-zinc-600 group-hover:text-white transition-colors" />
@@ -1178,7 +1203,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         <div className="flex items-center gap-3">
                           <FileText className="w-5 h-5 text-zinc-500 group-hover:text-white transition-colors" />
                           <div className="text-left">
-                            <p className="text-sm font-bold text-white group-hover:text-[#3B82F6] transition-colors uppercase"></p>
+                            <p className="text-sm font-bold text-white group-hover:text-[#3B82F6] transition-colors uppercase">หน้าเพจ</p>
                           </div>
                         </div>
                         <ChevronRight className="w-4 h-4 text-zinc-600 group-hover:text-white transition-colors" />
@@ -1187,7 +1212,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         <div className="flex items-center gap-3">
                           <History className="w-5 h-5 text-zinc-500 group-hover:text-white transition-colors" />
                           <div className="text-left">
-                            <p className="text-sm font-bold text-white group-hover:text-[#3B82F6] transition-colors uppercase">LOGS</p>
+                            <p className="text-sm font-bold text-white group-hover:text-[#3B82F6] transition-colors uppercase">LOGS ของระบบ</p>
                           </div>
                         </div>
                         <ChevronRight className="w-4 h-4 text-zinc-600 group-hover:text-white transition-colors" />
@@ -1240,7 +1265,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         </linearGradient>
                       </defs>
                       <XAxis dataKey="name" stroke="#52525b" fontSize={12} tickLine={false} axisLine={false} />
-                      <YAxis stroke="#52525b" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `${value}`} /><Tooltip 
+                      <YAxis stroke="#52525b" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `฿${value}`} />
+                      <Tooltip 
                         contentStyle={{ backgroundColor: '#09090b', borderColor: '#27272a', borderRadius: '12px' }}
                         itemStyle={{ color: '#e4e4e7', fontSize: '14px', fontWeight: 'bold' }}
                       />
@@ -1252,7 +1278,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8 pt-8 border-t border-border border">
                   <div className="bg-card p-4 border border-border border">
                     <p className="text-muted-foreground text-xs font-bold uppercase mb-1">Total Revenue</p>
-                    <p className="text-2xl font-black text-indigo-400">19,550</p>
+                    <p className="text-2xl font-black text-indigo-400">฿19,550</p>
                     <p className="text-blue-500 text-[10px] mt-1 font-bold">+12% from last month</p>
                   </div>
                   <div className="bg-card p-4 border border-border border">
@@ -1299,7 +1325,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <div className="bg-card border border-zinc-800 rounded-lg p-6 relative overflow-hidden">
                 <div className="flex justify-between items-center mb-6">
                   <h3 className="font-bold text-white flex items-center gap-2">
-                    <BarChart3 className="w-5 h-5 text-[#3B82F6]" /> SettingsHome</h3>
+                    <BarChart3 className="w-5 h-5 text-[#3B82F6]" /> ตั้งค่าสถิติหน้าแรก
+                  </h3>
                   <button 
                     onClick={() => {
                         let currentUsers = (siteStats?.users || 0);
@@ -1307,47 +1334,49 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         let currentSales = (siteStats?.sales || 0);
                         let currentCategories = categories?.length || 0;
                         Swal.fire({
-                            title: '',
-                            html: `<div class="text-left space-y-4 font-sans text-sm text-zinc-300 px-1 py-2">
+                            title: 'แก้ไขสถิติระบบ',
+                            html: `
+                              <div class="text-left space-y-4 font-sans text-sm text-zinc-300 px-1 py-2">
                                 <div class="p-3 bg-blue-500/10 border border-blue-500/20 rounded-md text-xs text-blue-400 mb-4 leading-relaxed">
-                                  💡<b>" (Auto-Grow)"</b> Bought  !</div>
+                                  💡 แนะนำสั่งใช้ <b>"โตอัตโนมัติ (Auto-Grow)"</b> เมื่อมีสมาชิกสมัครใหม่หรือซื้อสินค้าจริงเข้ามา ตัวเลขจะบวกเพิ่มขึ้นเรื่อยๆ เสมอ!
+                                </div>
                                 
                                 <div class="mb-4">
-                                  <label class="block text-xs font-bold text-zinc-400 uppercase mb-1.5">👥</label>
+                                  <label class="block text-xs font-bold text-zinc-400 uppercase mb-1.5">👥 จำนวนผู้ใช้งานสะสม</label>
                                   <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                                    <input id="swal-users" type="number" class="col-span-2 bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-white outline-none focus:border-blue-500 text-sm font-semibold" placeholder=" 1500" value="${currentUsers}">
+                                    <input id="swal-users" type="number" class="col-span-2 bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-white outline-none focus:border-blue-500 text-sm font-semibold" placeholder="เช่น 1500" value="${currentUsers}">
                                     <select id="swal-users-type" class="bg-zinc-950 border border-zinc-800 rounded px-2 py-2 text-white text-xs font-bold outline-none focus:border-blue-500 cursor-pointer">
-                                      <option value="offset" ${siteSettings.stats_users_override === null || siteSettings.stats_users_override === undefined ? 'selected' : ''}>📈</option>
-                                      <option value="override" ${siteSettings.stats_users_override !== null && siteSettings.stats_users_override !== undefined ? 'selected' : ''}>🔒</option>
+                                      <option value="offset" ${siteSettings.stats_users_override === null || siteSettings.stats_users_override === undefined ? 'selected' : ''}>📈 โตอัตโนมัติ</option>
+                                      <option value="override" ${siteSettings.stats_users_override !== null && siteSettings.stats_users_override !== undefined ? 'selected' : ''}>🔒 ล็อกตายตัว</option>
                                     </select>
                                   </div>
                                 </div>
 
                                 <div class="mb-4">
-                                  <label class="block text-xs font-bold text-zinc-400 uppercase mb-1.5">💰</label>
+                                  <label class="block text-xs font-bold text-zinc-400 uppercase mb-1.5">💰 ยอดขายสะสมรวม</label>
                                   <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                                    <input id="swal-sales" type="number" class="col-span-2 bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-white outline-none focus:border-blue-500 text-sm font-semibold" placeholder=" 45000" value="${currentSales}">
+                                    <input id="swal-sales" type="number" class="col-span-2 bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-white outline-none focus:border-blue-500 text-sm font-semibold" placeholder="เช่น 45000" value="${currentSales}">
                                     <select id="swal-sales-type" class="bg-zinc-950 border border-zinc-800 rounded px-2 py-2 text-white text-xs font-bold outline-none focus:border-blue-500 cursor-pointer">
-                                      <option value="offset" ${siteSettings.stats_sales_override === null || siteSettings.stats_sales_override === undefined ? 'selected' : ''}>📈</option>
-                                      <option value="override" ${siteSettings.stats_sales_override !== null && siteSettings.stats_sales_override !== undefined ? 'selected' : ''}>🔒</option>
+                                      <option value="offset" ${siteSettings.stats_sales_override === null || siteSettings.stats_sales_override === undefined ? 'selected' : ''}>📈 โตอัตโนมัติ</option>
+                                      <option value="override" ${siteSettings.stats_sales_override !== null && siteSettings.stats_sales_override !== undefined ? 'selected' : ''}>🔒 ล็อกตายตัว</option>
                                     </select>
                                   </div>
                                 </div>
 
                                 <div class="mb-4">
-                                  <label class="block text-xs font-bold text-zinc-400 uppercase mb-1.5">📦</label>
+                                  <label class="block text-xs font-bold text-zinc-400 uppercase mb-1.5">📦 คลังสินค้าสะสมรวม</label>
                                   <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                                    <input id="swal-stock" type="number" class="col-span-2 bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-white outline-none focus:border-blue-500 text-sm font-semibold" placeholder=" 850" value="${currentStock}">
+                                    <input id="swal-stock" type="number" class="col-span-2 bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-white outline-none focus:border-blue-500 text-sm font-semibold" placeholder="เช่น 850" value="${currentStock}">
                                     <select id="swal-stock-type" class="bg-zinc-950 border border-zinc-800 rounded px-2 py-2 text-white text-xs font-bold outline-none focus:border-blue-500 cursor-pointer">
-                                      <option value="offset" ${siteSettings.stats_stock_override === null || siteSettings.stats_stock_override === undefined ? 'selected' : ''}>📈</option>
-                                      <option value="override" ${siteSettings.stats_stock_override !== null && siteSettings.stats_stock_override !== undefined ? 'selected' : ''}>🔒</option>
+                                      <option value="offset" ${siteSettings.stats_stock_override === null || siteSettings.stats_stock_override === undefined ? 'selected' : ''}>📈 โตอัตโนมัติ</option>
+                                      <option value="override" ${siteSettings.stats_stock_override !== null && siteSettings.stats_stock_override !== undefined ? 'selected' : ''}>🔒 ล็อกตายตัว</option>
                                     </select>
                                   </div>
                                 </div>
 
                                 <div class="mb-2">
-                                  <label class="block text-xs font-bold text-zinc-400 uppercase mb-1.5">📂</label>
-                                  <input id="swal-categories" type="number" class="w-full bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-white outline-none focus:border-blue-500 text-sm font-semibold" placeholder=" 5" value="${currentCategories}">
+                                  <label class="block text-xs font-bold text-zinc-400 uppercase mb-1.5">📂 จำนวนหมวดหมู่สินค้า</label>
+                                  <input id="swal-categories" type="number" class="w-full bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-white outline-none focus:border-blue-500 text-sm font-semibold" placeholder="เช่น 5" value="${currentCategories}">
                                 </div>
                               </div>
                             `,
@@ -1357,8 +1386,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                             confirmButtonColor: '#3B82F6',
                             cancelButtonColor: '#27272a',
                             showCancelButton: true,
-                            confirmButtonText: '',
-                            cancelButtonText: '',
+                            confirmButtonText: 'บันทึกสถิติ',
+                            cancelButtonText: 'ยกเลิก',
                             preConfirm: () => {
                               const uVal = parseInt((document.getElementById('swal-users') as HTMLInputElement).value);
                               const uType = (document.getElementById('swal-users-type') as HTMLSelectElement).value;
@@ -1412,50 +1441,53 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                     });
                                   }
                                   
-                                  Swal.fire({ title: '', text: '', icon: 'success', confirmButtonColor: '#10B981', background: '#09090b', color: '#fff' });
+                                  Swal.fire({ title: 'บันทึกสำเร็จ', text: 'สถิติระบบปรับปรุงเรียบร้อยแล้ว', icon: 'success', confirmButtonColor: '#10B981', background: '#09090b', color: '#fff' });
                                 } catch (error: any) {
-                                  Swal.fire({ title: '', text: ': ' + (error.response?.data?.error || error.message), icon: 'error', confirmButtonColor: '#EF4444', background: '#09090b', color: '#fff' });
+                                  Swal.fire({ title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถบันทึกสถิติได้: ' + (error.response?.data?.error || error.message), icon: 'error', confirmButtonColor: '#EF4444', background: '#09090b', color: '#fff' });
                                 }
                             }
                         });
                     }}
                     className="border border-zinc-800 bg-zinc-900/60 hover:bg-zinc-800 text-zinc-300 hover:text-white font-bold py-1.5 px-3 text-xs rounded-md transition-all duration-150"
-                  ></button>
+                  >
+                    แก้ไขสถิติ
+                  </button>
                 </div>
                 <div className="grid grid-cols-3 gap-4">
                   <div className="bg-zinc-950 p-4 border border-zinc-800/80 flex flex-col items-center justify-center rounded-lg">
                     <span className="text-2xl font-black text-white font-mono">{(siteStats?.users || 0).toLocaleString()}</span>
-                    <span className="text-zinc-500 text-[10px] font-bold uppercase tracking-wider mt-1"></span>
+                    <span className="text-zinc-500 text-[10px] font-bold uppercase tracking-wider mt-1">ผู้ใช้งาน</span>
                   </div>
                   <div className="bg-zinc-950 p-4 border border-zinc-800/80 flex flex-col items-center justify-center rounded-lg">
                     <span className="text-2xl font-black text-white font-mono">{(siteStats?.stock || 0).toLocaleString()}</span>
-                    <span className="text-zinc-500 text-[10px] font-bold uppercase tracking-wider mt-1"></span>
+                    <span className="text-zinc-500 text-[10px] font-bold uppercase tracking-wider mt-1">สต๊อกสินค้า</span>
                   </div>
                   <div className="bg-zinc-950 p-4 border border-zinc-800/80 flex flex-col items-center justify-center rounded-lg">
                     <span className="text-2xl font-black text-white font-mono">{(siteStats?.sales || 0).toLocaleString()}</span>
-                    <span className="text-zinc-500 text-[10px] font-bold uppercase tracking-wider mt-1"></span>
+                    <span className="text-zinc-500 text-[10px] font-bold uppercase tracking-wider mt-1">ยอดขาย</span>
                   </div>
                 </div>
               </div>
                   {/* Products List */}
               <div className="bg-card border border-zinc-800 rounded-lg p-6 relative overflow-hidden">
                 <div className="flex justify-between items-center mb-6">
-                  <h3 className="font-bold text-white flex items-center gap-2"><Package className="w-5 h-5 text-[#3B82F6]" /> </h3>
+                  <h3 className="font-bold text-white flex items-center gap-2"><Package className="w-5 h-5 text-[#3B82F6]" /> จัดการสินค้า</h3>
                   <button 
                     onClick={() => setIsAddingProduct(true)}
                     className="bg-[#3B82F6] hover:bg-[#2563EB] text-white font-bold py-2 px-4 text-xs transition-colors flex items-center gap-2 rounded-md shadow-[0_2px_10px_rgba(59,130,246,0.2)]"
                   >
-                    <Plus className="w-4 h-4"/> </button>
+                    <Plus className="w-4 h-4"/> เพิ่มสินค้า
+                  </button>
                 </div>
 
                 <div className="overflow-x-auto">
                   <table className="w-full min-w-[700px] text-left text-sm text-zinc-400 hidden md:table">
                     <thead className="text-xs uppercase bg-zinc-950 text-zinc-500 font-bold tracking-wider rounded-md border-b border-zinc-800">
                       <tr>
-                        <th className="px-5 py-4"></th>
-                        <th className="px-5 py-4">Price</th>
-                        <th className="px-5 py-4"></th>
-                        <th className="px-5 py-4 text-right"></th>
+                        <th className="px-5 py-4">สินค้า</th>
+                        <th className="px-5 py-4">ราคา</th>
+                        <th className="px-5 py-4">สต๊อก</th>
+                        <th className="px-5 py-4 text-right">จัดการ</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -1474,10 +1506,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                   <button 
                                     onClick={() => {
                                       navigator.clipboard.writeText(p.name);
-                                      Swal.fire({ title: 'Copied!', text: '', icon: 'success', timer: 1000, showConfirmButton: false, background: '#09090b', color: '#fff' });
+                                      Swal.fire({ title: 'Copied!', text: 'คัดลอกชื่อสินค้าแล้ว', icon: 'success', timer: 1000, showConfirmButton: false, background: '#09090b', color: '#fff' });
                                     }}
                                     className="text-zinc-500 hover:text-white transition-colors"
-                                  ><Copy className="w-3 h-3" />
+                                  >
+                                    <Copy className="w-3 h-3" />
                                   </button>
                                 </div>
                                 <div className="text-xs text-zinc-500 truncate max-w-[240px] mt-0.5">{p.description}</div>
@@ -1486,9 +1519,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           <td className="px-5 py-4 font-bold">
                             <div className="flex flex-col">
                               {p.originalPrice && p.price && p.originalPrice > p.price && (
-                                <span className="text-[10px] text-zinc-500 line-through">{p.originalPrice.toLocaleString()}</span>
+                                <span className="text-[10px] text-zinc-500 line-through">฿{p.originalPrice.toLocaleString()}</span>
                               )}
-                              <span className="text-emerald-400 font-mono">{(p.price || 0).toLocaleString()}</span>
+                              <span className="text-emerald-400 font-mono">฿{(p.price || 0).toLocaleString()}</span>
                             </div>
                           </td>
                           <td className="px-5 py-4">
@@ -1497,20 +1530,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' 
                                 : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
                             }`}>
-                              {p.stock > 0 ? ` (${p.stock})` : ''}</span>
+                              {p.stock > 0 ? `พร้อมส่ง (${p.stock})` : 'สินค้าหมด'}
+                            </span>
                           </td>
                           <td className="px-5 py-4 text-right">
                              <div className="flex items-center justify-end gap-2">
                                 <button 
                                   onClick={async () => {
                                     if (p.stock === 0) {
-                                      return Swal.fire('', '', 'error');
+                                      return Swal.fire('ไม่มีสต๊อก', 'สินค้านี้ยังไม่มีข้อมูลสต๊อกให้ดาวน์โหลด', 'error');
                                     }
                                     try {
                                       const res = await axios.get(`/api/products/${p.id}/stock`);
                                       const sd = res.data.stockData;
                                       if (!sd || sd.length === 0) {
-                                        return Swal.fire('', '', 'error');
+                                        return Swal.fire('ไม่มีสต๊อก', 'สินค้านี้ยังไม่มีข้อมูลสต๊อกให้ดาวน์โหลด', 'error');
                                       }
                                       const text = sd.join('\n');
                                       const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
@@ -1521,37 +1555,40 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                       link.click();
                                       URL.revokeObjectURL(url);
                                     } catch (err: any) {
-                                      Swal.fire('', err.response?.data?.error || err.message, 'error');
+                                      Swal.fire('ข้อผิดพลาด', err.response?.data?.error || err.message, 'error');
                                     }
                                   }}
                                   className="p-2 border border-[#3B82F6]/30 bg-[#3B82F6]/5 text-[#3B82F6] hover:bg-[#3B82F6]/15 hover:border-[#3B82F6]/60 rounded-md transition-all duration-150"
-                                  title=" TXT "
-                                ><FileText className="w-4 h-4" />
+                                  title="โหลดสต๊อก TXT เพื่อดูรายบรรทัด"
+                                >
+                                     <FileText className="w-4 h-4" />
                                 </button>
                                 <button 
                                   onClick={() => setStockProduct(p)}
                                   className="p-2 border border-emerald-500/30 bg-emerald-500/5 text-emerald-400 hover:bg-emerald-500/15 hover:border-emerald-500/60 rounded-md transition-all duration-150"
-                                  title=""
-                                ><Database className="w-4 h-4" />
+                                  title="เพิ่มสต๊อก"
+                                >
+                                     <Database className="w-4 h-4" />
                                 </button>
                                 <button 
                                   onClick={() => setEditingProduct(p)}
                                   className="p-2 border border-amber-500/30 bg-amber-500/5 text-amber-400 hover:bg-amber-500/15 hover:border-amber-500/60 rounded-md transition-all duration-150"
-                                  title=""
-                                ><Settings className="w-4 h-4" />
+                                  title="แก้ไขสินค้า"
+                                >
+                                     <Settings className="w-4 h-4" />
                                 </button>
                                 <button
                                   onClick={() => {
                                     if(setProducts && products.length > 0) {
                                       Swal.fire({
-                                        title: '',
-                                        text: '?',
+                                        title: 'ยืนยันการลบ',
+                                        text: 'คุณต้องการลบสินค้านี้ใช่หรือไม่?',
                                         icon: 'warning',
                                         showCancelButton: true,
                                         confirmButtonColor: '#dc2626',
                                         cancelButtonColor: '#71717a',
-                                        confirmButtonText: '',
-                                        cancelButtonText: '',
+                                        confirmButtonText: 'ลบ',
+                                        cancelButtonText: 'ยกเลิก',
                                         background: '#09090b',
                                         color: '#fff'
                                       }).then(async (result) => {
@@ -1562,17 +1599,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                             });
                                             setProducts(prev => prev.filter(prod => prod.id !== p.id));
                                             if (onRefreshData) onRefreshData();
-                                            Swal.fire({ title: '', icon: 'success', background: '#09090b', color: '#fff', showConfirmButton: false, timer: 1000 });
+                                            Swal.fire({ title: 'ลบสำเร็จ', icon: 'success', background: '#09090b', color: '#fff', showConfirmButton: false, timer: 1000 });
                                           } catch (err: any) {
-                                            Swal.fire('Error', ': ' + (err?.response?.data?.error || err.message), 'error');
+                                            Swal.fire('Error', 'ไม่สามารถลบสินค้าได้: ' + (err?.response?.data?.error || err.message), 'error');
                                           }
                                         }
                                       });
                                     }
                                   }}
                                   className="p-2 border border-rose-500/30 bg-rose-500/5 text-rose-400 hover:bg-rose-500/15 hover:border-rose-500/60 rounded-md transition-all duration-150"
-                                  title=""
-                                ><Trash2 className="w-4 h-4" />
+                                  title="ลบสินค้า"
+                                >
+                                     <Trash2 className="w-4 h-4" />
                                 </button>
                              </div>
                           </td>
@@ -1602,16 +1640,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         
                         <div className="flex items-center justify-between mt-2 pt-3 border-t border-border border">
                           <div>
-                            <div className="text-xs text-muted-foreground">Price</div>
+                            <div className="text-xs text-muted-foreground">ราคา</div>
                             <div className="font-bold flex items-center gap-1.5">
                               {p.originalPrice && p.price && p.originalPrice > p.price && (
-                                <span className="text-[10px] text-muted-foreground line-through">{p.originalPrice.toLocaleString()}</span>
+                                <span className="text-[10px] text-muted-foreground line-through">฿{p.originalPrice.toLocaleString()}</span>
                               )}
-                              <span className="text-emerald-600">{(p.price || 0).toLocaleString()}</span>
+                              <span className="text-emerald-600">฿{(p.price || 0).toLocaleString()}</span>
                             </div>
                           </div>
                           <div className="text-right">
-                            <div className="text-xs text-muted-foreground"></div>
+                            <div className="text-xs text-muted-foreground">สต๊อก</div>
                             <span className={`px-2 py-0.5 rounded text-xs font-bold mt-1 inline-block ${p.stock > 0 ? 'bg-blue-600/10 text-emerald-600' : 'bg-purple-600/10 text-blue-600'}`}>
                               {p.stock}
                             </span>
@@ -1622,13 +1660,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                             <button 
                               onClick={async () => {
                                 if (p.stock === 0) {
-                                  return Swal.fire('', '', 'error');
+                                  return Swal.fire('ไม่มีสต๊อก', 'สินค้านี้ยังไม่มีข้อมูลสต๊อกให้ดาวน์โหลด', 'error');
                                 }
                                 try {
                                   const res = await axios.get(`/api/products/${p.id}/stock`);
                                   const sd = res.data.stockData;
                                   if (!sd || sd.length === 0) {
-                                    return Swal.fire('', '', 'error');
+                                    return Swal.fire('ไม่มีสต๊อก', 'สินค้านี้ยังไม่มีข้อมูลสต๊อกให้ดาวน์โหลด', 'error');
                                   }
                                   const text = sd.join('\n');
                                   const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
@@ -1639,11 +1677,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                   link.click();
                                   URL.revokeObjectURL(url);
                                 } catch (err: any) {
-                                  Swal.fire('', err.response?.data?.error || err.message, 'error');
+                                  Swal.fire('ข้อผิดพลาด', err.response?.data?.error || err.message, 'error');
                                 }
                               }}
                               className="p-2 border border-blue-200 bg-primary text-primary-foreground text-blue-600 hover:bg-blue-100 flex justify-center items-center"
-                            ><FileText className="w-4 h-4" />
+                            >
+                                <FileText className="w-4 h-4" />
                             </button>
                             <button 
                               onClick={() => setStockProduct(p)}
@@ -1661,14 +1700,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                               onClick={() => {
                                 if(setProducts && products.length > 0) {
                                   Swal.fire({
-                                    title: '',
-                                    text: '?',
+                                    title: 'ยืนยันการลบ',
+                                    text: 'คุณต้องการลบสินค้านี้ใช่หรือไม่?',
                                     icon: 'warning',
                                     showCancelButton: true,
                                     confirmButtonColor: '#dc2626',
                                     cancelButtonColor: '#71717a',
-                                    confirmButtonText: '',
-                                    cancelButtonText: '',
+                                    confirmButtonText: 'ลบ',
+                                    cancelButtonText: 'ยกเลิก',
                                     background: '#09090b',
                                     color: '#fff'
                                   }).then(async (result) => {
@@ -1677,16 +1716,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                         await axios.delete(`/api/products/${p.id}`);
                                         setProducts(prev => prev.filter(prod => prod.id !== p.id));
                                         if (onRefreshData) onRefreshData();
-                                        Swal.fire({ title: '', icon: 'success', background: '#09090b', color: '#fff', showConfirmButton: false, timer: 1000 });
+                                        Swal.fire({ title: 'ลบสำเร็จ', icon: 'success', background: '#09090b', color: '#fff', showConfirmButton: false, timer: 1000 });
                                       } catch (err: any) {
-                                        Swal.fire('Error', '', 'error');
+                                        Swal.fire('Error', 'ไม่สามารถลบสินค้าได้', 'error');
                                       }
                                     }
                                   });
                                 }
                               }}
                               className="p-2 border border-red-500/30 bg-red-500/10 text-red-500 hover:bg-red-500/20 flex justify-center items-center"
-                            ><Trash2 className="w-4 h-4" />
+                            >
+                                <Trash2 className="w-4 h-4" />
                             </button>
                         </div>
                       </div>
@@ -1708,14 +1748,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <div className="p-6 border-b border-border border flex justify-between items-center bg-card">
                 <div>
                   <h3 className="font-bold text-white flex items-center gap-2"><Key className="w-5 h-5 text-[#2563EB]" /> Key Management</h3>
-                  <p className="text-muted-foreground text-xs mt-1"></p>
+                  <p className="text-muted-foreground text-xs mt-1">จัดการคีย์และสต๊อก</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <button onClick={() => {
                     const activeKeys = licenseKeys.filter(k => k.status === 'active').map(k => k.key).join('\n');
                     const usedKeysStr = licenseKeys.filter(k => k.status === 'used').map(k => k.key).join('\n');
                     const historyKeysStr = usedKeysHistory.map(k => k.key).join('\n');
-                    const text = `=== ACTIVE () ===\n${activeKeys || ''}\n\n=== USED () ===\n${usedKeysStr || historyKeysStr ? `${usedKeysStr}${usedKeysStr && historyKeysStr ? '\n' : ''}${historyKeysStr}` : ''}`;
+                    const text = `=== ACTIVE (ยังไม่ได้ใช้) ===\n${activeKeys || 'ไม่มี'}\n\n=== USED (ใช้แล้ว) ===\n${usedKeysStr || historyKeysStr ? `${usedKeysStr}${usedKeysStr && historyKeysStr ? '\n' : ''}${historyKeysStr}` : 'ไม่มี'}`;
                     const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
                     const url = URL.createObjectURL(blob);
                     const link = document.createElement('a');
@@ -1723,11 +1763,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     link.download = `license_keys_${new Date().toISOString().slice(0, 10)}.txt`;
                     link.click();
                     URL.revokeObjectURL(url);
-                  }} className="bg-card hover:bg-[#0a0a0a] text-white px-4 py-2.5 text-xs font-bold transition-all flex items-center gap-2 "><Download className="w-4 h-4" /> TXT</button>
+                  }} className="bg-card hover:bg-[#0a0a0a] text-white px-4 py-2.5 text-xs font-bold transition-all flex items-center gap-2 ">
+                    <Download className="w-4 h-4" /> บันทึกเป็น TXT
+                  </button>
                   <button onClick={bulkDeleteKeys} className="bg-red-500 hover:bg-red-600 text-white px-4 py-2.5 text-xs font-bold transition-all flex items-center gap-2 ">
-                    <Trash2 className="w-4 h-4" /> </button>
+                    <Trash2 className="w-4 h-4" /> ลบคีย์หลายรายการ
+                  </button>
                   <button onClick={addLicenseKey} className="bg-primary text-primary-foreground hover:bg-[#1D4ED8] text-white px-4 py-2.5 text-xs font-bold transition-all flex items-center gap-2 ">
-                    <Plus className="w-4 h-4" /> </button>
+                    <Plus className="w-4 h-4" /> สร้างคีย์เพิ่ม
+                  </button>
                 </div>
               </div>
               <div className="overflow-x-auto">
@@ -1751,11 +1795,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                              <button 
                                onClick={() => {
                                  navigator.clipboard.writeText(key.key);
-                                 Swal.fire({ title: 'Copied!', text: '', icon: 'success', timer: 1000, showConfirmButton: false, confirmButtonColor: '#16a34a' });
+                                 Swal.fire({ title: 'Copied!', text: 'คัดลอกคีย์สำเร็จ', icon: 'success', timer: 1000, showConfirmButton: false, confirmButtonColor: '#16a34a' });
                                }}
                                className="text-muted-foreground hover:text-emerald-600 transition-colors p-1"
                                title="Copy Key"
-                             ><Copy className="w-4 h-4" />
+                             >
+                               <Copy className="w-4 h-4" />
                              </button>
                           </div>
                         </td>
@@ -1775,7 +1820,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         </td>
                       </tr>
                     )) : (
-                      <tr><td colSpan={5} className="p-12 text-center text-muted-foreground"> </td></tr>
+                      <tr><td colSpan={5} className="p-12 text-center text-muted-foreground"> ไม่มีข้อมูลคีย์ในระบบ </td></tr>
                     )}
                   </tbody>
                 </table>
@@ -1793,7 +1838,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             >
                <div className="p-6 border-b border-border border bg-card">
                   <h3 className="font-bold text-white flex items-center gap-2"><History className="w-5 h-5 text-[#2563EB]" /> Redeem Logs</h3>
-                  <p className="text-muted-foreground text-xs mt-1"></p>
+                  <p className="text-muted-foreground text-xs mt-1">ประวัติการใช้งานคีย์</p>
                </div>
                <div className="overflow-x-auto">
                 <table className="w-full min-w-[700px] text-left text-sm text-muted-foreground">
@@ -1818,7 +1863,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         </td>
                       </tr>
                     )) : (
-                      <tr><td colSpan={4} className="p-12 text-center text-muted-foreground"> </td></tr>
+                      <tr><td colSpan={4} className="p-12 text-center text-muted-foreground"> ไม่มีประวัติการใช้งาน </td></tr>
                     )}
                   </tbody>
                 </table>
@@ -1838,9 +1883,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <div className="bg-card border border-border border p-6 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                   <h3 className="font-bold text-white text-lg flex items-center gap-2">
-                    <Clock className="w-5 h-5 text-[#2563EB]" /> Pre-Order</h3>
+                    <Clock className="w-5 h-5 text-[#2563EB]" /> ระบบจัดการ Pre-Order
+                  </h3>
                   <p className="text-muted-foreground text-xs mt-1">
-                    Bought</p>
+                    จัดการ ยืนยันการสั่งซื้อ เสาะหาไอดี และนำส่งคีย์ข้อมูลให้กับลูกค้า
+                  </p>
                 </div>
                 <button
                   onClick={async () => {
@@ -1850,7 +1897,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       setPurchases(res.data.data || []);
                       Swal.fire({
                         icon: 'success',
-                        title: '',
+                        title: 'รีเฟรชข้อมูลสำเร็จ',
                         toast: true,
                         position: 'top-end',
                         showConfirmButton: false,
@@ -1865,8 +1912,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     }
                   }}
                   className="bg-zinc-900 hover:bg-zinc-850 text-white px-4 py-2 border border-zinc-805 text-xs font-bold transition-all flex items-center gap-2"
-                ><RefreshCw className={`w-3.5 h-3.5 ${isPurchasesLoading ? 'animate-spin' : ''}`} />
-                  </button>
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${isPurchasesLoading ? 'animate-spin' : ''}`} />
+                  ดึงข้อมูลล่าสุด
+                </button>
               </div>
 
               {/* Filtering bar */}
@@ -1882,16 +1931,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           : 'bg-zinc-950/40 text-zinc-400 border-zinc-800 hover:bg-zinc-900 font-bold'
                       }`}
                     >
-                      {filter === 'all' && ''}
-                      {filter === 'pending' && '⏳ '}
-                      {filter === 'delivered' && '✅ '}</button>
+                      {filter === 'all' && 'ทั้งหมด'}
+                      {filter === 'pending' && '⏳ กำลังจัดหาไอดี'}
+                      {filter === 'delivered' && '✅ ส่งข้อมูลแล้ว'}
+                    </button>
                   ))}
                 </div>
 
                 <div className="w-full sm:w-72">
                   <input
                     type="text"
-                    placeholder=", , ..."
+                    placeholder="ค้นหาบิล, ชื่อสินค้า, หรือลูกค้า..."
                     value={preorderSearch}
                     onChange={(e) => setPreorderSearch(e.target.value)}
                     className="w-full px-4 py-2 bg-zinc-950 border border-zinc-800 text-xs font-medium rounded-sm text-white placeholder-zinc-500 focus:outline-none focus:border-blue-500/50"
@@ -1905,20 +1955,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <table className="w-full min-w-[900px] text-left text-sm text-zinc-400">
                     <thead className="text-xs uppercase bg-card text-muted-foreground font-bold tracking-wider border-b border-border border">
                       <tr>
-                        <th className="p-4">Bought /</th>
-                        <th className="p-4"></th>
-                        <th className="p-4"></th>
-                        <th className="p-4"></th>
-                        <th className="p-4"></th>
-                        <th className="p-4">()</th>
-                        <th className="p-4 text-right"></th>
+                        <th className="p-4">บิลจัดซื้อ / ผู้ใช้</th>
+                        <th className="p-4">สินค้าพรีออเดอร์</th>
+                        <th className="p-4">ประเภทที่เลือก</th>
+                        <th className="p-4">ยอดเงิน</th>
+                        <th className="p-4">สถานะสั่งพรี</th>
+                        <th className="p-4">ข้อมูลลับ (ส่งให้ลูกค้า)</th>
+                        <th className="p-4 text-right">ดำเนินการ</th>
                       </tr>
                     </thead>
                     <tbody className="text-xs font-mono">
                       {isPurchasesLoading ? (
                         <tr>
                           <td colSpan={7} className="p-12 text-center text-muted-foreground">
-                            ...</td>
+                            กำลังโหลดออเดอร์พรีออเดอร์...
+                          </td>
                         </tr>
                       ) : filteredPreorders.length > 0 ? (
                         filteredPreorders.map((purchase) => {
@@ -1945,21 +1996,25 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                               {/* Selected option */}
                               <td className="p-4">
                                 <span className="bg-zinc-900 border border-zinc-800 text-zinc-300 px-2.5 py-1 rounded-sm text-[10px] font-black">
-                                  {purchase.preOrderOption || ''}</span>
+                                  {purchase.preOrderOption || 'ไม่ได้เลือก'}
+                                </span>
                               </td>
 
                               {/* Price */}
                               <td className="p-4 font-sans font-bold text-emerald-400">
-                                {(purchase.price || purchase.money || 0).toLocaleString()}</td>
+                                ฿{(purchase.price || purchase.money || 0).toLocaleString()}
+                              </td>
 
                               {/* Stock status indicator */}
                               <td className="p-4 font-sans">
                                 {isDelivered ? (
                                   <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-1 rounded-md text-[10px] font-bold inline-flex items-center gap-1">
-                                    ✅</span>
+                                    ✅ ส่งข้อมูลแล้ว
+                                  </span>
                                 ) : (
                                   <span className="bg-blue-500/10 text-blue-400 border border-blue-500/20 px-2.5 py-1 rounded-md text-[10px] font-bold inline-flex items-center gap-1 animate-pulse">
-                                    ⏳</span>
+                                    ⏳ กำลังจัดหาไอดี
+                                  </span>
                                 )}
                               </td>
 
@@ -1974,7 +2029,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                 ) : (
                                   <textarea
                                     id={inlineInputKey}
-                                    placeholder="Username:Password..."
+                                    placeholder="ใส่ข้อมูลไอดีที่จะจัดส่ง เช่น Username:Password..."
                                     className="w-full h-12 px-2 py-1.5 bg-zinc-950 border border-zinc-800 text-[11px] rounded focus:outline-none focus:border-blue-500/40 text-white placeholder-zinc-600 font-mono resize-none"
                                   />
                                 )}
@@ -1987,13 +2042,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                     <button
                                       onClick={() => {
                                         Swal.fire({
-                                          title: '',
+                                          title: 'แก้ไขข้อมูลที่จัดส่งเลี้ยว',
                                           input: 'textarea',
                                           inputValue: purchase.secretData,
-                                          inputPlaceholder: '...',
+                                          inputPlaceholder: 'กรอกชุดข้อมูลใหม่...',
                                           showCancelButton: true,
-                                          confirmButtonText: '',
-                                          cancelButtonText: '',
+                                          confirmButtonText: 'บันทึกใหม่',
+                                          cancelButtonText: 'ยกเลิก',
                                           background: '#09090b',
                                           color: '#fff',
                                           confirmButtonColor: '#3B82F6',
@@ -2005,7 +2060,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                         });
                                       }}
                                       className="px-2 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-sans font-bold text-[10px] rounded hover:text-white transition-colors cursor-pointer"
-                                    ></button>
+                                    >
+                                      แก้ไข
+                                    </button>
                                   ) : (
                                     <button
                                       onClick={() => {
@@ -2014,8 +2071,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                         if (!codeInput.trim()) {
                                           Swal.fire({
                                             icon: 'warning',
-                                            title: '',
-                                            text: '',
+                                            title: 'โปรดกรอกข้อมูลไอดีก่อนส่ง',
+                                            text: 'ท่านจำเป็นต้องป้อนข้อมูลที่จะจัดส่งให้กับลูกค้า',
                                             confirmButtonColor: '#dc2626',
                                             background: '#09090b',
                                             color: '#fff'
@@ -2025,7 +2082,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                         handleFulfillPreorder(purchase.id, codeInput);
                                       }}
                                       className="px-3 py-1.5 bg-[#2563EB] hover:bg-blue-500 text-white font-sans font-bold text-[10px] rounded transition-colors cursor-pointer"
-                                    ></button>
+                                    >
+                                      ส่งข้อมูลสำเร็จ
+                                    </button>
                                   )}
                                 </div>
                               </td>
@@ -2035,7 +2094,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       ) : (
                         <tr>
                           <td colSpan={7} className="p-12 text-center text-muted-foreground">
-                            Pre-Order</td>
+                            ไม่พบรายการ Pre-Order ที่ค้นหา
+                          </td>
                         </tr>
                       )}
                     </tbody>
@@ -2056,10 +2116,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                <div className="p-6 border-b border-border border flex justify-between items-center bg-card">
                   <div>
                     <h3 className="font-bold text-white flex items-center gap-2"><Ban className="w-5 h-5 text-[#2563EB]" /> IP Access Control</h3>
-                    <p className="text-muted-foreground text-xs mt-1"></p>
+                    <p className="text-muted-foreground text-xs mt-1">แบนผู้ใช้งานที่ไม่พึงประสงค์</p>
                   </div>
                   <button onClick={blockIP} className="bg-primary text-primary-foreground hover:bg-[#1D4ED8] text-white px-6 py-2.5 text-xs font-bold transition-all flex items-center gap-2 ">
-                     <Ban className="w-4 h-4" /> IP</button>
+                     <Ban className="w-4 h-4" /> แบน IP ใหม่
+                  </button>
                </div>
                <div className="overflow-x-auto">
                   <table className="w-full min-w-[700px] text-left text-sm text-muted-foreground">
@@ -2077,18 +2138,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           <td className="p-4">
                             <div className="flex items-center gap-2">
                               <span className="text-blue-600 font-bold tracking-tight">{ip.ip}</span>
-                              <button onClick={() => { navigator.clipboard.writeText(ip.ip); Swal.fire({ title: 'Copied!', text: ' IP ', icon: 'success', timer: 1000, showConfirmButton: false, confirmButtonColor: '#16a34a' }); }} className="text-muted-foreground hover:text-blue-600"><Copy className="w-3 h-3" /></button>
+                              <button onClick={() => { navigator.clipboard.writeText(ip.ip); Swal.fire({ title: 'Copied!', text: 'คัดลอก IP สำเร็จ', icon: 'success', timer: 1000, showConfirmButton: false, confirmButtonColor: '#16a34a' }); }} className="text-muted-foreground hover:text-blue-600"><Copy className="w-3 h-3" /></button>
                             </div>
                           </td>
                           <td className="p-4 text-muted-foreground italic">"{ip.reason}"</td>
                           <td className="p-4 text-muted-foreground">{new Date(ip.blocked_at).toLocaleDateString()}</td>
                           <td className="p-4 text-right">
                              <button onClick={() => unblockIP(ip.ip)} className="text-emerald-600 hover:text-emerald-700 text-[10px] font-bold uppercase tracking-widest bg-primary text-primary-foreground hover:bg-emerald-100 px-3 py-1.5 border border-emerald-100 transition-all">
-                                 (Unblock)</button>
+                                ปลดแบน (Unblock)
+                             </button>
                           </td>
                         </tr>
                       )) : (
-                        <tr><td colSpan={4} className="p-12 text-center text-muted-foreground"></td></tr>
+                        <tr><td colSpan={4} className="p-12 text-center text-muted-foreground">ไม่มีรายการแบน</td></tr>
                       )}
                     </tbody>
                   </table>
@@ -2178,14 +2240,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <div className="bg-card border border-border border overflow-hidden">
                 <div className="p-6 border-b border-border border bg-card">
                   <h3 className="font-bold text-white flex items-center gap-2"><Settings className="w-5 h-5 text-muted-foreground" /> Site Settings</h3>
-                  <p className="text-muted-foreground text-xs mt-1">Settings</p>
+                  <p className="text-muted-foreground text-xs mt-1">ตั้งค่าพารามิเตอร์ต่างๆ ของระบบ</p>
                 </div>
                 <div className="p-6 space-y-8">
                    <div className="p-6 bg-card border border-border border">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
                       <div className="space-y-4">
                         <label className="block text-sm font-bold text-muted-foreground flex items-center gap-2">
-                           <Globe className="w-4 h-4 text-indigo-500" /> (Site Name)</label>
+                           <Globe className="w-4 h-4 text-indigo-500" /> ชื่อเว็บไซต์ (Site Name)
+                        </label>
                         <input 
                           type="text"
                           value={siteSettings.site_name}
@@ -2196,7 +2259,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       </div>
                       <div className="space-y-4">
                         <label className="block text-sm font-bold text-muted-foreground flex items-center gap-2">
-                           <Phone className="w-4 h-4 text-blue-500" /> </label>
+                           <Phone className="w-4 h-4 text-blue-500" /> เบอร์รับเงินวอลเล็ต
+                        </label>
                         <input 
                           type="text"
                           value={siteSettings.truewallet_phone}
@@ -2208,18 +2272,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
                       <div className="space-y-4">
                         <label className="block text-sm font-bold text-muted-foreground flex items-center gap-2">
-                           <Globe className="w-4 h-4 text-emerald-500" /> ( )</label>
+                           <Globe className="w-4 h-4 text-emerald-500" /> ชื่อธนาคาร (เช่น ธนาคารกสิกรไทย)
+                        </label>
                         <input 
                           type="text"
                           value={siteSettings.bank_name || ''}
                           onChange={(e) => setSiteSettings({ ...siteSettings, bank_name: e.target.value })}
                           className="w-full bg-card border border-border border px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-emerald-500"
-                          placeholder=""
-                        /></div>
+                          placeholder="ธนาคารกสิกรไทย"
+                        />
+                      </div>
 
                       <div className="space-y-4">
                         <label className="block text-sm font-bold text-muted-foreground flex items-center gap-2">
-                           <Globe className="w-4 h-4 text-emerald-500" /> ( 196-3-87032-5)</label>
+                           <Globe className="w-4 h-4 text-emerald-500" /> เลขบัญชีบัญชาการ (เช่น 196-3-87032-5)
+                        </label>
                         <input 
                           type="text"
                           value={siteSettings.bank_account_number || ''}
@@ -2231,18 +2298,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
                       <div className="space-y-4">
                         <label className="block text-sm font-bold text-muted-foreground flex items-center gap-2">
-                           <Globe className="w-4 h-4 text-emerald-500" /> (  )</label>
+                           <Globe className="w-4 h-4 text-emerald-500" /> ชื่อเจ้าของบัญชี (เช่น นาย กรวิชญ์)
+                        </label>
                         <input 
                           type="text"
                           value={siteSettings.bank_account_holder || ''}
                           onChange={(e) => setSiteSettings({ ...siteSettings, bank_account_holder: e.target.value })}
                           className="w-full bg-card border border-border border px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-emerald-500"
-                          placeholder=" "
-                        /></div>
+                          placeholder="นาย กรวิชญ์"
+                        />
+                      </div>
 
                       <div className="space-y-4">
                         <label className="block text-sm font-bold text-muted-foreground flex items-center gap-2">
-                           <Globe className="w-4 h-4 text-emerald-500" /> QR Code  /  ( Dynamic QR)</label>
+                           <Globe className="w-4 h-4 text-emerald-500" /> ลิงก์รูปภาพ QR Code พร้อมเพย์ / ธนาคาร (ปล่อยว่างเพื่อใช้แบบ Dynamic QR)
+                        </label>
                         <input 
                           type="text"
                           value={siteSettings.bank_qr_image || ''}
@@ -2253,7 +2323,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       </div>
                       <div className="space-y-4">
                         <label className="block text-sm font-bold text-muted-foreground flex items-center gap-2">
-                           <Users className="w-4 h-4 text-blue-500" /> Discord</label>
+                           <Users className="w-4 h-4 text-blue-500" /> ลิงก์ Discord
+                        </label>
                         <input 
                           type="text"
                           value={siteSettings.discord_link}
@@ -2265,7 +2336,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
                       <div className="space-y-4">
                         <label className="block text-sm font-bold text-muted-foreground flex items-center gap-2">
-                           <Users className="w-4 h-4 text-blue-500" /> Facebook Page</label>
+                           <Users className="w-4 h-4 text-blue-500" /> ลิงก์ Facebook Page
+                        </label>
                         <input 
                           type="text"
                           value={siteSettings.facebook_link || siteSettings.contact_line}
@@ -2277,7 +2349,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
                       <div className="space-y-4">
                         <label className="block text-sm font-bold text-muted-foreground flex items-center gap-2">
-                           <Users className="w-4 h-4 text-pink-500" /> Instagram</label>
+                           <Users className="w-4 h-4 text-pink-500" /> ลิงก์ Instagram
+                        </label>
                         <input 
                           type="text"
                           value={siteSettings.instagram_link}
@@ -2289,18 +2362,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
                       <div className="space-y-4">
                         <label className="block text-sm font-bold text-muted-foreground flex items-center gap-2">
-                           <MessageSquare className="w-4 h-4 text-emerald-500" /> (Announcement Bar)</label>
+                           <MessageSquare className="w-4 h-4 text-emerald-500" /> ข้อความประกาศ (Announcement Bar)
+                        </label>
                         <input 
                           type="text"
                           value={siteSettings.announcement_text || ''}
                           onChange={(e) => setSiteSettings({ ...siteSettings, announcement_text: e.target.value })}
                           className="w-full bg-card border border-border border px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-emerald-500"
-                          placeholder="..."
-                        /></div>
+                          placeholder="พิมพ์ข้อความที่ต้องการให้วิ่งบนแถบประกาศ..."
+                        />
+                      </div>
 
                       <div className="space-y-4">
                         <label className="block text-sm font-bold text-muted-foreground flex items-center gap-2">
-                           <Users className="w-4 h-4 text-muted-foreground" /> (Support)</label>
+                           <Users className="w-4 h-4 text-muted-foreground" /> อีเมลติดต่อ (Support)
+                        </label>
                         <input 
                           type="email"
                           value={siteSettings.contact_email}
@@ -2315,28 +2391,32 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           onClick={handleSaveSettings}
                           className="w-full bg-card text-white px-8 py-5 text-sm font-black hover:bg-[#1e1e1e] transition-all active:scale-[0.98] uppercase tracking-widest flex items-center justify-center gap-3"
                         >
-                          <Settings className="w-5 h-5" /> Settings</button>
+                          <Settings className="w-5 h-5" /> บันทึกการตั้งค่า
+                        </button>
                       </div>
                     </div>
 
                     <div className="mt-8 p-6 bg-card border border-border border">
                       <div className="mb-6">
-                        <h4 className="text-white font-bold flex items-center gap-2"><Globe className="w-5 h-5 text-blue-500" /> (Background Music)</h4>
-                        <p className="text-muted-foreground text-sm mt-1">YouTube, Spotify  (.mp3)</p>
+                        <h4 className="text-white font-bold flex items-center gap-2"><Globe className="w-5 h-5 text-blue-500" /> แผงควบคุมเพลงพื้นหลัง (Background Music)</h4>
+                        <p className="text-muted-foreground text-sm mt-1">ใส่ลิ้งค์ YouTube, Spotify หรืออัพโหลดไฟล์เสียงโดยตรง (.mp3) เพื่อเปิดเพลงอัตโนมัติเมื่อผู้ใช้เข้าเว็บ</p>
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div className="space-y-4">
                           <div className="flex items-center justify-between">
                             <label className="block text-sm font-bold text-muted-foreground flex items-center gap-2">
-                               ( YouTube )</label>
+                               ลิ้งค์เพลง (แนะนำ YouTube หรือไฟล์อัพโหลดเพื่อเพลงเต็ม)
+                            </label>
                             <div className="relative group">
                               <button 
                                 onClick={() => musicFileRef.current?.click()}
                                 disabled={uploadingMusic}
                                 className="flex items-center gap-2 text-xs font-bold text-blue-600 hover:text-blue-600/80 transition-colors disabled:opacity-50"
                               >
-                                {uploadingMusic ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5" />}</button>
+                                {uploadingMusic ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5" />}
+                                อัพโหลดไฟล์เสียง
+                              </button>
                               <input 
                                 type="file" 
                                 ref={musicFileRef} 
@@ -2351,8 +2431,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                             value={siteSettings.spotify_url || ''}
                             onChange={(e) => setSiteSettings({ ...siteSettings, spotify_url: e.target.value })}
                             className="w-full bg-card border border-border border px-5 py-4 text-white text-sm font-bold focus:outline-none focus:border-emerald-500"
-                            placeholder="https://... YouTube, Spotify  "
-                          /></div>
+                            placeholder="https://... YouTube, Spotify หรือ ไฟล์อัพโหลด"
+                          />
+                        </div>
                         <div className="flex items-center space-y-4">
                           <label className="flex items-center gap-3 cursor-pointer group mt-8">
                             <div className="relative flex items-center justify-center">
@@ -2367,8 +2448,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                               </div>
                             </div>
                             <div className="flex flex-col">
-                              <span className="text-sm font-bold text-white">(Autoplay)</span>
-                              <span className="text-[10px] text-muted-foreground mt-0.5">*  YouTube   (Spotify  30 )</span>
+                              <span className="text-sm font-bold text-white">เปิดใช้งานเล่นอัตโนมัติ (Autoplay)</span>
+                              <span className="text-[10px] text-muted-foreground mt-0.5">* แนะนำใช้ YouTube หรือ ไฟล์อัพโหลดเพื่อให้ได้เพลงเต็ม (Spotify จะติดพรีวิว 30 วิ)</span>
                             </div>
                           </label>
                         </div>
@@ -2378,7 +2459,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           onClick={handleSaveSettings}
                           className="w-full md:w-auto px-8 py-4 bg-primary text-primary-foreground hover:bg-blue-600 text-white text-sm font-black transition-all flex items-center justify-center gap-2"
                         >
-                          <Check className="w-4 h-4" /> Settings</button>
+                          <Check className="w-4 h-4" /> บันทึกการตั้งค่าเพลง
+                        </button>
                       </div>
                     </div>
 
@@ -2387,10 +2469,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         <AlertTriangle className="w-5 h-5 text-amber-600" />
                       </div>
                       <div>
-                        <p className="text-xs font-bold text-amber-800"></p>
+                        <p className="text-xs font-bold text-amber-800">หมายเหตุเกี่ยวกับข้อมูลสถิติ</p>
                         <p className="text-[10px] text-amber-700/80 mt-1 leading-relaxed">
-                          =  (Offset) + Bought<br/>
-                          =  (Offset) +</p>
+                          ผู้ใช้งาน = ยอดปรับแต่ง (Offset) + ผู้ใช้งานจริงที่เคยสั่งซื้อ <br/>
+                          ยอดขาย = ยอดปรับแต่ง (Offset) + ยอดเงินจริงจากออเดอร์
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -2423,14 +2506,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             >
               <div className="bg-card border border-border border overflow-hidden">
                 <div className="p-6 border-b border-border border bg-card">
-                  <h3 className="font-bold text-white flex items-center gap-2"><Image className="w-5 h-5 text-muted-foreground" /> &</h3>
-                  <p className="text-muted-foreground text-xs mt-1">Settings</p>
+                  <h3 className="font-bold text-white flex items-center gap-2"><Image className="w-5 h-5 text-muted-foreground" /> จัดการป้ายโฆษณา & ป็อปอัพ</h3>
+                  <p className="text-muted-foreground text-xs mt-1">ตั้งค่ารูปภาพแบนเนอร์และป็อปอัพประกาศ</p>
                 </div>
                 <div className="p-6 space-y-8">
                   <div className="p-6 bg-card border border-border border">
                     <div className="mb-6">
                       <h4 className="text-white font-bold flex items-center gap-2"><Globe className="w-5 h-5 text-muted-foreground" /> Popup Banner Announcement</h4>
-                      <p className="text-muted-foreground text-sm mt-1">SettingsHome  1500x1500px</p>
+                      <p className="text-muted-foreground text-sm mt-1">ตั้งค่าป็อปอัพประกาศหน้าแรก แนะนำรูปขนาด 1500x1500px</p>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -2447,12 +2530,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                               {siteSettings.popup_enabled && <Check className="w-3.5 h-3.5 text-white" />}
                             </div>
                           </div>
-                          <span className="text-sm font-bold text-white"></span>
+                          <span className="text-sm font-bold text-white">เปิดใช้งานป็อปอัพประกาศ</span>
                         </label>
                       </div>
 
                       <div className="space-y-4 col-span-1 md:col-span-2">
-                        <label className="block text-sm font-bold text-muted-foreground">( 940 x 480 px)</label>
+                        <label className="block text-sm font-bold text-muted-foreground">รูปภาพประกาศ (ขนาดที่แนะนำ 940 x 480 px)</label>
                         <div className="flex flex-col sm:flex-row gap-2">
                           <input 
                             type="text"
@@ -2473,25 +2556,27 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                 try {
                                   const formData = new FormData();
                                   formData.append('file', file);
-                                  Swal.fire({ title: '...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                                  Swal.fire({ title: 'กำลังอัพโหลด...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
                                   const res = await axios.post('/api/upload', formData);
                                   if (res.data?.url) {
                                      setSiteSettings({ ...siteSettings, popup_img_url: res.data.url });
-                                     Swal.fire({ icon: 'success', title: '', timer: 1500, showConfirmButton: false });
+                                     Swal.fire({ icon: 'success', title: 'อัพโหลดสำเร็จ', timer: 1500, showConfirmButton: false });
                                   }
                                 } catch (err: any) {
-                                  Swal.fire('Error', ': ' + (err.response?.data?.error || err.message), 'error');
+                                  Swal.fire('Error', 'อัพโหลดล้มเหลว: ' + (err.response?.data?.error || err.message), 'error');
                                 }
                               };
                               input.click();
                             }}
                             className="px-6 bg-primary text-primary-foreground text-blue-600 font-bold hover:bg-purple-600/20 flex items-center justify-center whitespace-nowrap gap-2 transition-all"
-                          ><Upload className="w-4 h-4"/> </button>
+                          >
+                            <Upload className="w-4 h-4"/> อัพโหลดภาพ
+                          </button>
                         </div>
                       </div>
 
                       <div className="space-y-4 col-span-1 md:col-span-2">
-                         <label className="block text-sm font-bold text-muted-foreground">()</label>
+                         <label className="block text-sm font-bold text-muted-foreground">ลิ้งค์ปลายทางเมื่อคลิกรูปภาพป็อปอัพ (ปล่อยว่างได้)</label>
                          <input 
                            type="text"
                            value={siteSettings.popup_link}
@@ -2505,19 +2590,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     <div className="p-6 bg-card border border-border border mt-6">
                       <div className="mb-6">
                         <h4 className="text-white font-bold flex items-center gap-2"><Globe className="w-5 h-5 text-indigo-500" /> Proxy Settings</h4>
-                        <p className="text-muted-foreground text-xs mt-1">Settings Proxy  (  Free Proxy )</p>
+                        <p className="text-muted-foreground text-xs mt-1">ตั้งค่า Proxy สำหรับระบบเช็คไอดี (หากปล่อยว่าง ระบบจะดึง Free Proxy อัตโนมัติ)</p>
                       </div>
                       
                       <div className="space-y-4">
                          <div className="flex items-center justify-between">
-                           <label className="block text-sm font-bold text-muted-foreground">Custom Proxy URLs (1  1 Proxy -  Free Proxy)</label>
+                           <label className="block text-sm font-bold text-muted-foreground">Custom Proxy URLs (1 บรรทัดต่อ 1 Proxy - ปล่อยว่างเพื่อใช้ Free Proxy)</label>
                            <button
                              type="button"
                              onClick={async () => {
                                try {
                                  Swal.fire({
-                                   title: '...',
-                                   text: '',
+                                   title: 'กำลังโหลดข้อมูล...',
+                                   text: 'กรุณารอสักครู่',
                                    allowOutsideClick: false,
                                    didOpen: () => {
                                      Swal.showLoading();
@@ -2532,8 +2617,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                    setSiteSettings({ ...siteSettings, proxies: px });
                                    Swal.fire({
                                      icon: 'success',
-                                     title: '',
-                                     text: ` Proxy  ${px.length} `,
+                                     title: 'สำเร็จ',
+                                     text: `ดึง Proxy ได้ทั้งหมด ${px.length} รายการ`,
                                      background: '#0B0D0F',
                                      color: '#fff',
                                      confirmButtonColor: '#3B82F6'
@@ -2542,7 +2627,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                } catch (err: any) {
                                  Swal.fire({
                                    icon: 'error',
-                                   title: '',
+                                   title: 'เกิดข้อผิดพลาด',
                                    text: err.message,
                                    background: '#0B0D0F',
                                    color: '#fff'
@@ -2550,7 +2635,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                }
                              }}
                              className="text-xs font-bold text-blue-600 hover:text-blue-600/80 flex items-center gap-1.5"
-                           ><Globe className="w-4 h-4" /> Proxy  (Proxifly)</button>
+                           >
+                             <Globe className="w-4 h-4" /> ดึง Proxy ล่าสุด (Proxifly)
+                           </button>
                          </div>
                          <textarea 
                            value={(siteSettings.proxies || []).join('\n')}
@@ -2559,7 +2646,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                            placeholder="http://user:pass@127.0.0.1:8080&#10;http://user:pass@127.0.0.2:8080"
                            onBlur={(e) => setSiteSettings({ ...siteSettings, proxies: e.target.value.split('\n').map(url => typeof url === 'string' ? url.trim() : '').filter(Boolean) })}
                          />
-                         <p className="text-xs text-muted-foreground mt-2">: http://[user]:[password]@[ip]:[port]  http://[ip]:[port]</p>
+                         <p className="text-xs text-muted-foreground mt-2">รูปแบบ: http://[user]:[password]@[ip]:[port] หรือ http://[ip]:[port]</p>
                          
                          <label className="flex items-center gap-3 cursor-pointer group mt-4">
                            <div className="relative flex items-center justify-center">
@@ -2574,8 +2661,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                              </div>
                            </div>
                            <div className="flex flex-col">
-                             <span className="text-sm font-bold text-white">Free Proxies  Proxy  ()</span>
-                             <span className="text-xs text-muted-foreground mt-0.5">Proxifly  ()</span>
+                             <span className="text-sm font-bold text-white">ใช้ Free Proxies อัตโนมัติร่วมกับ Proxy ด้านบน (รวมกัน)</span>
+                             <span className="text-xs text-muted-foreground mt-0.5">ระบบจะดึงจาก Proxifly และสลับให้อัตโนมัติในพื้นหลัง (แนะนำให้เปิดไว้เพื่อกันบล็อก)</span>
                            </div>
                          </label>
                       </div>
@@ -2585,12 +2672,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <div className="p-6 bg-card border border-border border">
                     <div className="mb-6">
                       <h4 className="text-white font-bold flex items-center gap-2"><Image className="w-5 h-5 text-muted-foreground" /> Banners Announcement</h4>
-                      <p className="text-muted-foreground text-sm mt-1">Home</p>
+                      <p className="text-muted-foreground text-sm mt-1">ป้ายสไลด์โฆษณาในหน้าแรกของเว็บไซต์</p>
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                       <div className="space-y-4 col-span-1 md:col-span-2">
-                         <label className="block text-sm font-bold text-muted-foreground">Home (URL 1  1 )</label>
+                         <label className="block text-sm font-bold text-muted-foreground">รูปภาพป้ายโฆษณาหน้าแรก (URL 1 บรรทัดต่อ 1 รูปภาพ)</label>
                          <textarea 
                            value={(siteSettings.banners || []).join('\n')}
                            onChange={(e) => setSiteSettings({ ...siteSettings, banners: e.target.value.split('\n') })}
@@ -2607,7 +2694,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       onClick={handleSaveSettings}
                       className="w-full bg-primary text-primary-foreground text-white px-8 py-4 text-sm font-black hover:bg-purple-600/80 transition-all flex items-center justify-center gap-3 "
                     >
-                      <Image className="w-5 h-5" /> Settings</button>
+                      <Image className="w-5 h-5" /> บันทึกการตั้งค่าป้ายโฆษณา
+                    </button>
                   </div>
                 </div>
               </div>
@@ -2729,18 +2817,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   setProducts(prev => [...prev, res.data]);
                   if (onRefreshData) onRefreshData();
                   setIsAddingProduct(false);
-                  Swal.fire({ title: '', icon: 'success', background: '#09090b', color: '#fff' });
+                  Swal.fire({ title: 'เพิ่มสินค้าสำเร็จ', icon: 'success', background: '#09090b', color: '#fff' });
                 } catch (err: any) {
                   const errMsg = err?.response?.data?.error || err.message || 'Unknown error';
                   console.error('Error adding product:', err);
-                  Swal.fire('Error', `: ${errMsg}`, 'error');
+                  Swal.fire('Error', `ไม่สามารถเพิ่มสินค้าได้: ${errMsg}`, 'error');
                 }
               }
             }}
           />
         )}
         
-        {editingProduct && (<ProductManagerModal 
+        {editingProduct && (
+          <ProductManagerModal 
             product={editingProduct}
             isEdit={true}
             categories={categories}
@@ -2754,16 +2843,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   setProducts(prev => prev.map(prod => prod.id === p.id ? res.data : prod));
                   if (onRefreshData) onRefreshData();
                   setEditingProduct(undefined);
-                  Swal.fire({ title: '', icon: 'success', background: '#09090b', color: '#fff' });
+                  Swal.fire({ title: 'แก้ไขสินค้าสำเร็จ', icon: 'success', background: '#09090b', color: '#fff' });
                 } catch (err: any) {
                   const status = err?.response?.status;
                   const errMsg = err?.response?.data?.error || err.message || 'Unknown error';
                   if (status === 409) {
-                    Swal.fire('', errMsg, 'warning');
+                    Swal.fire('ข้อขัดข้อง', errMsg, 'warning');
                     if (onRefreshData) onRefreshData();
                   } else {
                     console.error('Error updating product:', err);
-                    Swal.fire('Error', `: ${errMsg}`, 'error');
+                    Swal.fire('Error', `ไม่สามารถแก้ไขสินค้าได้: ${errMsg}`, 'error');
                   }
                 }
               }
@@ -2771,7 +2860,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           />
         )}
 
-        {stockProduct && (<AddStockModal 
+        {stockProduct && (
+          <AddStockModal 
             product={stockProduct}
             onClose={() => setStockProduct(undefined)}
             onAppendStock={async (newItems) => {
@@ -2800,8 +2890,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   
                   if (chunks.length > 1) {
                     Swal.fire({
-                      title: '',
-                      text: ` ${chunks.length}  ...`,
+                      title: 'กำลังอัพโหลดสต๊อก',
+                      text: `กำลังส่งข้อมูล ${chunks.length} ชุด ป้องกันขนาดเกินกำหนด...`,
                       icon: 'info',
                       showConfirmButton: false,
                       allowOutsideClick: false,
@@ -2811,7 +2901,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
                   let lastRes;
                   let addedCount = 0;
-                  for (let i = 0; i< chunks.length; i++) {
+                  for (let i = 0; i < chunks.length; i++) {
                     lastRes = await axios.post(`/api/products/${stockProduct.id}/stock`, { newItems: chunks[i] });
                     addedCount += chunks[i].length;
                   }
@@ -2824,16 +2914,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   }
 
                   setStockProduct(undefined);
-                  Swal.fire({ title: '', text: ` ${addedCount} `, icon: 'success', background: '#09090b', color: '#fff' });
+                  Swal.fire({ title: 'เพิ่มสต๊อกสำเร็จ', text: `เพิ่มแล้ว ${addedCount} รายการ`, icon: 'success', background: '#09090b', color: '#fff' });
                 } catch (err: any) {
                   const errorExt = err.response?.data?.error || err.message || JSON.stringify(err);
                   console.error("Update stock error:", err.response?.data || err);
-                  Swal.fire('Error', `: ${typeof errorExt === 'object' ? JSON.stringify(errorExt) : errorExt}`, 'error');
+                  Swal.fire('Error', `ไม่สามารถอัพเดตสต๊อกได้: ${typeof errorExt === 'object' ? JSON.stringify(errorExt) : errorExt}`, 'error');
                 }
               }
             }}
           />
-        )}</div>
+        )}
+      </div>
       </main>
     </div>
   );

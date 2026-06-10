@@ -50,21 +50,24 @@ export class GlobalErrorBoundary extends React.Component<ErrorBoundaryProps, Err
                     <AlertTriangle className="w-10 h-10" />
                 </div>
                 
-                <h1 className="text-3xl font-black text-white mb-4 tracking-tight"></h1>
+                <h1 className="text-3xl font-black text-white mb-4 tracking-tight">เกิดข้อผิดพลาด</h1>
                 <p className="text-muted-foreground text-sm leading-relaxed mb-10">
-                    </p>
+                    ขออภัย ระบบขัดข้องกะทันหัน ข้อมูลข้อผิดพลาดถูกส่งไปยังทีมพัฒนาแล้ว โปรดลองใหม่อีกครั้งหรือกลับหน้าหลัก
+                </p>
 
                 <div className="flex flex-col gap-3">
                     <button
                         onClick={this.handleReload}
                         className="w-full flex items-center justify-center gap-2 py-4 bg-primary text-primary-foreground hover:bg-[#1D4ED8] text-white font-black text-sm transition-all active:scale-[0.98] uppercase tracking-wider"
                     >
-                        <RefreshCcw className="w-4 h-4" /> </button>
+                        <RefreshCcw className="w-4 h-4" /> รีเฟรชหน้านี้
+                    </button>
                     <button
                         onClick={this.handleGoHome}
                         className="w-full flex items-center justify-center gap-2 py-4 bg-card hover:bg-white/10 text-muted-foreground hover:text-white font-bold text-sm transition-all brut-card"
                     >
-                        <Home className="w-4 h-4" /> </button>
+                        <Home className="w-4 h-4" /> กลับสู่หน้าหลัก
+                    </button>
                 </div>
 
                 <div className="mt-8 pt-8 border-t border-border border-2 text-[10px] text-muted-foreground font-mono uppercase tracking-widest">

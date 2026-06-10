@@ -38,11 +38,11 @@ export const LogCategoriesView: React.FC<LogCategoriesViewProps> = ({ userPlan, 
     if (item.type === 'premium' && !isVip) {
        Swal.fire({
           icon: 'warning',
-          title: ' VIP !',
-          text: ' VIP ',
+          title: 'สำหรับสมาชิก VIP เท่านั้น!',
+          text: 'คุณต้องเป็น VIP จึงจะสามารถดูหรือดาวน์โหลดได้',
           background: '#09090b',
           color: '#fff',
-          confirmButtonText: '',
+          confirmButtonText: 'ตกลง',
           confirmButtonColor: '#2563EB'
        });
        return;
@@ -51,8 +51,8 @@ export const LogCategoriesView: React.FC<LogCategoriesViewProps> = ({ userPlan, 
     if (!item.attachments || item.attachments.length === 0) {
         Swal.fire({
             icon: 'error',
-            title: '',
-            text: '',
+            title: 'ไม่พบเนื้อหา',
+            text: 'ถูกซ่อนหรือไม่มีข้อมูล',
             background: '#09090b',
             color: '#fff'
         });
@@ -69,7 +69,7 @@ export const LogCategoriesView: React.FC<LogCategoriesViewProps> = ({ userPlan, 
           return `<img loading="lazy" src="${safeUrl}" class="w-full rounded-lg mb-2" />`;
         }
         if (att.type === 'file') {
-          return `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="block w-full py-2 bg-[#2563EB] text-white rounded-lg text-center font-bold mb-2"></a>`;
+          return `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="block w-full py-2 bg-[#2563EB] text-white rounded-lg text-center font-bold mb-2">ดาวน์โหลดไฟล์</a>`;
         }
         return `<div class="bg-[#0a0a0a] border border-white/10 p-3 rounded-lg mb-2 text-left text-sm text-zinc-300 break-all select-all font-mono max-h-48 overflow-y-auto">${(att.data || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>`;
     }).join('');
@@ -79,7 +79,7 @@ export const LogCategoriesView: React.FC<LogCategoriesViewProps> = ({ userPlan, 
         html: `<div class="mt-4">${htmlAttachments}</div>`,
         background: '#09090b',
         color: '#fff',
-        confirmButtonText: '',
+        confirmButtonText: 'ปิด',
         confirmButtonColor: '#333'
     });
   };
@@ -98,16 +98,19 @@ export const LogCategoriesView: React.FC<LogCategoriesViewProps> = ({ userPlan, 
     return true;
   });
 
-  return (<div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 pt-24">
+  return (
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 pt-24">
        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
          <div>
             <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight flex items-center gap-3">
-              <Gift className="w-8 h-8 text-[#2563EB]" /> {filterType === 'vip' ? 'VIP PH LOG' : filterType === 'free' ? 'FREE FH LOG' : ' / '}</h1>
-            <p className="text-sm font-medium text-muted-foreground mt-2">&</p>
+              <Gift className="w-8 h-8 text-[#2563EB]" /> {filterType === 'vip' ? 'VIP PH LOG' : filterType === 'free' ? 'FREE FH LOG' : 'ทรัพยากร / เครื่องมือ'}
+            </h1>
+            <p className="text-sm font-medium text-muted-foreground mt-2">ดาวน์โหลดไฟล์และเอกสารฟรี & พรีเมียม</p>
          </div>
          {isAdmin && (
            <button onClick={() => setShowAdmin(!showAdmin)} className="flex bg-card text-white px-4 py-2 text-sm font-bold self-start md:self-auto hover:-translate-y-1 transition-all brut-card">
-              {showAdmin ? '' : ' ()'}</button>
+              {showAdmin ? 'ปิดจัดการเนื้อหา' : 'เพิ่มเนื้อหา (แอดมิน)'}
+           </button>
          )}
        </div>
 
@@ -118,14 +121,17 @@ export const LogCategoriesView: React.FC<LogCategoriesViewProps> = ({ userPlan, 
        ) : selectedCategory ? (
          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
             <div className="flex items-center gap-4 mb-6">
-               <button onClick={() => setSelectedCategory(null)} className="px-4 py-2 bg-card hover:bg-white/10 border border-border border-2 text-white font-bold text-sm brut-card"></button>
+               <button onClick={() => setSelectedCategory(null)} className="px-4 py-2 bg-card hover:bg-white/10 border border-border border-2 text-white font-bold text-sm brut-card">
+                 กลับ
+               </button>
                <h2 className="text-xl font-bold text-white flex items-center gap-2">
                  {selectedCategory.name}
                  {selectedCategory.isVip && <span className="bg-amber-500/20 text-amber-400 px-2 py-0.5 text-[10px] uppercase">VIP</span>}
                </h2>
                <div className="ml-auto w-48 relative">
                  <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                 <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="..." className="w-full bg-card border border-border border-2 pl-9 pr-4 py-2 text-sm text-white brut-card" /></div>
+                 <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="ค้นหา..." className="w-full bg-card border border-border border-2 pl-9 pr-4 py-2 text-sm text-white brut-card" />
+               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -144,7 +150,7 @@ export const LogCategoriesView: React.FC<LogCategoriesViewProps> = ({ userPlan, 
                    </div>
                  );
               })}
-              {currentItems.length === 0 && <div className="col-span-full py-12 text-center text-muted-foreground"></div>}
+              {currentItems.length === 0 && <div className="col-span-full py-12 text-center text-muted-foreground">ไม่พบเนื้อหาในหมวดหมู่นี้</div>}
             </div>
          </motion.div>
        ) : (
@@ -172,7 +178,7 @@ export const LogCategoriesView: React.FC<LogCategoriesViewProps> = ({ userPlan, 
                       <p className="text-sm text-muted-foreground mt-1 mb-4 flex-1">{c.subtitle}</p>
                       
                       <div className="w-full flex items-center justify-between pt-4 border-t border-border border-2 mt-auto">
-                        <span className="text-xs font-bold text-muted-foreground">{catItemsCount}</span>
+                        <span className="text-xs font-bold text-muted-foreground">{catItemsCount} รายการ</span>
                         <div className="w-8 h-8 bg-card flex items-center justify-center text-muted-foreground group-hover:bg-purple-600/10 group-hover:text-[#2563EB] transition-all brut-card">
                           <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-all" />
                         </div>

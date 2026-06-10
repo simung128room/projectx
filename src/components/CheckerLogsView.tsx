@@ -21,8 +21,9 @@ export const CheckerLogsView: React.FC<CheckerLogsViewProps> = ({ logs, onBack }
         <div>
           <h1 className="text-2xl sm:text-3xl font-black text-white flex items-center gap-3">
             <History className="w-8 h-8 text-indigo-600" />
-            </h1>
-          <p className="text-sm font-medium text-muted-foreground mt-1">Checker Logs /</p>
+            ประวัติระบบเช็คไอดี
+          </h1>
+          <p className="text-sm font-medium text-muted-foreground mt-1">Checker Logs / รายการตรวจสอบไอดีล่าสุดของคุณ</p>
         </div>
       </div>
 
@@ -34,7 +35,7 @@ export const CheckerLogsView: React.FC<CheckerLogsViewProps> = ({ logs, onBack }
             </div>
             <div>
               <h3 className="font-bold text-white">Console Logs</h3>
-              <p className="text-xs font-medium text-muted-foreground mt-0.5">(100 )</p>
+              <p className="text-xs font-medium text-muted-foreground mt-0.5">บันทึกการทำงานล่าสุด (100 รายการ)</p>
             </div>
           </div>
         </div>
@@ -43,7 +44,7 @@ export const CheckerLogsView: React.FC<CheckerLogsViewProps> = ({ logs, onBack }
           {logs.length === 0 && (
             <div className="text-muted-foreground flex flex-col items-center justify-center h-full gap-4 opacity-70">
               <Terminal className="w-12 h-12" />
-              <span>...</span>
+              <span>ยังไม่มีประวัติการตรวจสอบไอดี...</span>
             </div>
           )}
           

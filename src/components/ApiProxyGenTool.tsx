@@ -16,8 +16,8 @@ export const ApiProxyGenTool: React.FC = () => {
   };
 
   const codeSnippets = {
-    python: `import requests\nimport time\n\nAPI_URL = "${generateApiUrl()}"\n\ndef get_proxies():\n    try:\n        res = requests.get(API_URL)\n        return res.text.split("\\n")\n    except:\n        return []\n\n#  0.1 \nwhile True:\n    proxies = get_proxies()\n    print(f"Loaded {len(proxies)} proxies")\n    time.sleep(0.1)`,
-    nodejs: `const axios = require('axios');\n\nconst API_URL = "${generateApiUrl()}";\n\nasync function getProxies() {\n    try {\n        const { data } = await axios.get(API_URL);\n        return data.split('\\n');\n    } catch (e) {\n        return [];\n    }\n}\n\n//  0.1 \nsetInterval(async () => {\n    const proxies = await getProxies();\n    console.log(\`Loaded \${proxies.length} proxies\`);\n}, 100);`,
+    python: `import requests\nimport time\n\nAPI_URL = "${generateApiUrl()}"\n\ndef get_proxies():\n    try:\n        res = requests.get(API_URL)\n        return res.text.split("\\n")\n    except:\n        return []\n\n# วนลูปดึงข้อมูลทุกๆ 0.1 วินาที\nwhile True:\n    proxies = get_proxies()\n    print(f"Loaded {len(proxies)} proxies")\n    time.sleep(0.1)`,
+    nodejs: `const axios = require('axios');\n\nconst API_URL = "${generateApiUrl()}";\n\nasync function getProxies() {\n    try {\n        const { data } = await axios.get(API_URL);\n        return data.split('\\n');\n    } catch (e) {\n        return [];\n    }\n}\n\n// วนลูปดึงข้อมูลทุกๆ 0.1 วินาที\nsetInterval(async () => {\n    const proxies = await getProxies();\n    console.log(\`Loaded \${proxies.length} proxies\`);\n}, 100);`,
     curl: `watch -n 0.1 curl -s "${generateApiUrl()}"`
   };
 
@@ -27,7 +27,7 @@ export const ApiProxyGenTool: React.FC = () => {
     navigator.clipboard.writeText(text);
     Swal.fire({
       icon: 'success',
-      title: '',
+      title: 'คัดลอกสำเร็จ',
       toast: true,
       position: 'top-end',
       showConfirmButton: false,
@@ -37,22 +37,24 @@ export const ApiProxyGenTool: React.FC = () => {
     });
   };
 
-  return (<div className="space-y-6 w-full animate-in fade-in zoom-in duration-300">
+  return (
+    <div className="space-y-6 w-full animate-in fade-in zoom-in duration-300">
       <div>
         <h2 className="text-2xl font-black text-white flex items-center gap-3">
           <Globe className="w-8 h-8 text-blue-600" />
           API Proxy Generator
         </h2>
         <p className="text-muted-foreground mt-2">
-          API  Proxy   ( 0.1 )</p>
+          สร้าง API ลิงก์สำหรับดึง Proxy ไปใช้งานกับโปรแกรมของคุณ อัปเดตเรียลไทม์ (ดึงทุก 0.1 วิได้)
+        </p>
       </div>
 
       <div className="bg-card border border-border border-2 p-6 brut-card">
-        <h3 className="text-lg font-bold text-white mb-4">Settings API</h3>
+        <h3 className="text-lg font-bold text-white mb-4">การตั้งค่า API</h3>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-bold text-muted-foreground mb-2">(Protocol)</label>
+            <label className="block text-sm font-bold text-muted-foreground mb-2">โปรโตคอล (Protocol)</label>
             <div className="grid grid-cols-2 gap-2">
               {['all', 'http', 'socks4', 'socks5'].map((p) => (
                 <button
@@ -66,7 +68,7 @@ export const ApiProxyGenTool: React.FC = () => {
             </div>
           </div>
           <div>
-            <label className="block text-sm font-bold text-muted-foreground mb-2">(Format)</label>
+            <label className="block text-sm font-bold text-muted-foreground mb-2">รูปแบบข้อมูล (Format)</label>
             <div className="grid grid-cols-2 gap-2">
               {['txt', 'json'].map((f) => (
                 <button
@@ -85,7 +87,8 @@ export const ApiProxyGenTool: React.FC = () => {
           onClick={() => setShowApi(true)}
           className="mt-6 w-full bg-primary text-primary-foreground hover:bg-blue-600 text-white font-bold py-3 border border-purple-500/50 transition-all active:scale-95 flex items-center justify-center gap-2"
         >
-          <RefreshCcw className="w-5 h-5" /> API Link</button>
+          <RefreshCcw className="w-5 h-5" /> สร้าง API Link
+        </button>
       </div>
 
       <AnimatePresence>
@@ -97,7 +100,7 @@ export const ApiProxyGenTool: React.FC = () => {
           >
             <div className="bg-card border border-purple-500/30 p-6 relative overflow-hidden brut-card">
               <div className="absolute top-0 left-0 w-1 h-full bg-primary text-primary-foreground"></div>
-              <h3 className="text-lg font-bold text-white mb-2">API URL</h3>
+              <h3 className="text-lg font-bold text-white mb-2">API URL ของคุณ</h3>
               <div className="flex flex-col sm:flex-row items-center gap-3">
                 <input 
                   type="text" 
@@ -109,14 +112,16 @@ export const ApiProxyGenTool: React.FC = () => {
                   onClick={() => copyToClipboard(generateApiUrl())}
                   className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-blue-600/30 text-blue-600 py-3 px-6 border border-purple-500/30 transition-all font-bold flex items-center justify-center gap-2 shrink-0"
                 >
-                  <Copy className="w-4 h-4" /> </button>
+                  <Copy className="w-4 h-4" /> คัดลอกลิงก์
+                </button>
               </div>
             </div>
 
             <div className="bg-card border border-border border-2 overflow-hidden brut-card">
               <div className="bg-card px-4 py-3 sm:px-6 sm:py-4 border-b border-border border-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 brut-card">
                 <h3 className="text-sm font-bold text-white flex items-center gap-2 whitespace-nowrap">
-                  <Code className="w-4 h-4 text-muted-foreground" /> ( 0.1 )</h3>
+                  <Code className="w-4 h-4 text-muted-foreground" /> ตัวอย่างโค้ด (ดึงทุก 0.1 วิ)
+                </h3>
                 <div className="flex bg-black/50 p-1 border border-border border-2 gap-1 shrink-0">
                   {['python', 'nodejs', 'curl'].map((tab) => (
                     <button
@@ -145,9 +150,10 @@ export const ApiProxyGenTool: React.FC = () => {
             <div className="bg-primary text-primary-foreground border border-blue-500/20 p-4 flex items-start gap-3">
               <AlertCircle className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" />
               <div>
-                <h4 className="text-sm font-bold text-blue-400 mb-1"></h4>
+                <h4 className="text-sm font-bold text-blue-400 mb-1">คำแนะนำการดึงข้อมูลความเร็วสูง</h4>
                 <p className="text-xs text-blue-400/80 leading-relaxed">
-                  (0.1 )  .txt format   Timeout   Threads/Memory</p>
+                  เมื่อใช้งานลูปความเร็วสูง (0.1 วินาที) แนะนำให้ใช้ .txt format เพื่อการประมวลผลที่รวดเร็วที่สุด การตั้ง Timeout ในการเชื่อมต่อก็สำคัญ เพื่อป้องกันไม่ให้ Threads/Memory ค้างเมื่อการเชื่อมต่อมีความล่าช้า
+                </p>
               </div>
             </div>
           </motion.div>

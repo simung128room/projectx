@@ -25,13 +25,13 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
 
   const handleUpdateBalance = async (user: any, type: 'add' | 'deduct') => {
     const { value } = await Swal.fire({
-      title: type === 'add' ? ' (Add Balance)' : ' (Deduct Balance)',
+      title: type === 'add' ? 'เพิ่มวงเงิน (Add Balance)' : 'หักวงเงิน (Deduct Balance)',
       input: 'number',
-      inputLabel: ' ()',
+      inputLabel: 'จำนวนเงินสะสม (บาท)',
       inputAttributes: { min: '1', step: '1' },
       showCancelButton: true,
-      confirmButtonText: '',
-      cancelButtonText: '',
+      confirmButtonText: 'อัปเดตข้อมูล',
+      cancelButtonText: 'ยกเลิก',
       confirmButtonColor: '#3B82F6',
       cancelButtonColor: '#71717a',
       background: '#09090b',
@@ -47,23 +47,24 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
         await axios.post(`/api/users/${user.id || user.uid}`, { balance: newBalance });
         setSelectedUser({ ...user, balance: newBalance });
         onRefresh();
-        Swal.fire({ icon: 'success', title: '!', showConfirmButton: false, timer: 1200, background: '#09090b', color: '#fff' });
+        Swal.fire({ icon: 'success', title: 'อัปเดตเครดิตเรียบร้อย!', showConfirmButton: false, timer: 1200, background: '#09090b', color: '#fff' });
       } catch (err) {
-        Swal.fire({ title: 'Error', text: '', icon: 'error', background: '#09090b', color: '#fff' });
+        Swal.fire({ title: 'Error', text: 'ไม่สามารถบันทึกข้อมูลได้', icon: 'error', background: '#09090b', color: '#fff' });
       }
     }
   };
 
   const handleEditUser = async (user: any) => {
     const { value } = await Swal.fire({
-      title: '',
-      html: `<div class="space-y-4">
+      title: 'แก้ไขบทบาทและสถานะ',
+      html: `
+        <div class="space-y-4">
           <input id="swal-role" class="swal2-input w-full" placeholder="Role (Member, Admin, Premium)" value="${user.role || 'Member'}">
           <input id="swal-username" class="swal2-input w-full" placeholder="Display Name" value="${user.username || ''}">
         </div>
       `,
       showCancelButton: true,
-      confirmButtonText: '',
+      confirmButtonText: 'ยืนยัน',
       confirmButtonColor: '#3B82F6',
       cancelButtonColor: '#71717a',
       background: '#09090b',
@@ -82,9 +83,9 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
         await axios.post(`/api/users/${user.id || user.uid}`, value);
         setSelectedUser({ ...user, ...value });
         onRefresh();
-        Swal.fire({ icon: 'success', title: '', showConfirmButton: false, timer: 1200, background: '#09090b', color: '#fff' });
+        Swal.fire({ icon: 'success', title: 'อัปเดตข้อมูลแล้ว', showConfirmButton: false, timer: 1200, background: '#09090b', color: '#fff' });
       } catch (err) {
-        Swal.fire({ title: 'Error', text: '', icon: 'error', background: '#09090b', color: '#fff' });
+        Swal.fire({ title: 'Error', text: 'ไม่สามารถอัปเดตได้', icon: 'error', background: '#09090b', color: '#fff' });
       }
     }
   };
@@ -92,11 +93,11 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
   const handleToggleBan = async (user: any) => {
     const isBanned = user.status === 'banned';
     const result = await Swal.fire({
-      title: isBanned ? '?' : '?',
-      text: isBanned ? 'Log InStore' : 'Store',
+      title: isBanned ? 'ปลดระงับบัญชีนี้?' : 'ระงับบัญชีผู้ใช้นี้?',
+      text: isBanned ? 'ผู้ใช้จะสามารถเข้าสู่ระบบและสั่งซื้อสินค้าได้ตามปกติ' : 'ผู้ใช้จะไม่สามารถสั่งซื้อสินค้าหรือใช้งานหน้าเว็บได้อีก',
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonText: isBanned ? '' : '',
+      confirmButtonText: isBanned ? 'ปลดระงับ' : 'สกัดกั้นบัญชี',
       confirmButtonColor: isBanned ? '#10B981' : '#EF4444',
       cancelButtonColor: '#71717a',
       background: '#09090b',
@@ -110,9 +111,9 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
         await axios.post(`/api/users/${user.id || user.uid}`, { status: newStatus });
         setSelectedUser({ ...user, status: newStatus });
         onRefresh();
-        Swal.fire({ icon: 'success', title: 'Settings', showConfirmButton: false, timer: 1200, background: '#09090b', color: '#fff' });
+        Swal.fire({ icon: 'success', title: 'เสร็จสิ้นการตั้งค่า', showConfirmButton: false, timer: 1200, background: '#09090b', color: '#fff' });
       } catch (err) {
-        Swal.fire({ title: 'Error', text: '', icon: 'error', background: '#09090b', color: '#fff' });
+        Swal.fire({ title: 'Error', text: 'ไม่สามารถเปลี่ยนสถานะได้', icon: 'error', background: '#09090b', color: '#fff' });
       }
     }
   };
@@ -122,20 +123,21 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
   const userTopupHistory = topupHistory.filter(h => (h.uid === selectedUID || h.userId === selectedUID));
   const userKeysHistory = usedKeysHistory.filter(h => h.uid === selectedUID);
 
-  return (<div className="space-y-6">
+  return (
+    <div className="space-y-6">
       {!selectedUser ? (
         <div className="bg-card border border-zinc-800 rounded-lg p-6 relative overflow-hidden flex flex-col min-h-[500px]">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 border-b border-zinc-850 pb-4">
             <div>
-               <h3 className="font-bold text-white flex items-center gap-2"><Users className="w-5 h-5 text-[#3B82F6]" /> (User Accounts)</h3>
-               <p className="text-xs text-zinc-500 mt-1">Bought</p>
+               <h3 className="font-bold text-white flex items-center gap-2"><Users className="w-5 h-5 text-[#3B82F6]" /> บัญชีสมาชิก (User Accounts)</h3>
+               <p className="text-xs text-zinc-500 mt-1">บริหารสถิติผู้ซื้อ กำหนดบทบาท หรือปรับลดพอร์ตวงเงินแบบรายบุคคล</p>
             </div>
             
             <div className="relative w-full sm:w-64">
               <Search className="w-4 h-4 text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2" />
               <input 
                 type="text" 
-                placeholder=", ..."
+                placeholder="ค้นหาชื่อ, อีเมลสมาชก..."
                 className="w-full bg-zinc-950 border border-zinc-850 focus:border-[#3B82F6] text-xs px-3 py-2 pl-9 rounded-md text-white focus:outline-none transition-colors"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
@@ -147,12 +149,12 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
             <table className="w-full text-left text-sm text-zinc-400">
               <thead className="text-xs uppercase bg-zinc-950 text-zinc-550 border-b border-zinc-850">
                 <tr>
-                  <th className="px-5 py-3 font-semibold"></th>
-                  <th className="px-5 py-3 font-semibold text-center"></th>
-                  <th className="px-5 py-3 font-semibold"></th>
-                  <th className="px-5 py-3 font-semibold"></th>
-                  <th className="px-5 py-3 font-semibold text-right"></th>
-                  <th className="px-5 py-3 font-semibold text-right"></th>
+                  <th className="px-5 py-3 font-semibold">สมาชิก</th>
+                  <th className="px-5 py-3 font-semibold text-center">ไอพีล่าสุด</th>
+                  <th className="px-5 py-3 font-semibold">บทบาท</th>
+                  <th className="px-5 py-3 font-semibold">สถานะ</th>
+                  <th className="px-5 py-3 font-semibold text-right">ยอดคงเหลือ</th>
+                  <th className="px-5 py-3 font-semibold text-right">ข้อมูลเชิงลึก</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-850/40">
@@ -165,15 +167,16 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
                            onClick={(e) => {
                              e.stopPropagation();
                              navigator.clipboard.writeText(u.email);
-                             Swal.fire({ title: 'Copied!', text: '', icon: 'success', timer: 1000, showConfirmButton: false, background: '#09090b', color: '#fff' });
+                             Swal.fire({ title: 'Copied!', text: 'คัดลอกอีเมลแล้ว', icon: 'success', timer: 1000, showConfirmButton: false, background: '#09090b', color: '#fff' });
                            }}
                            className="text-zinc-500 hover:text-white transition-colors"
-                        ><Copy className="w-3 h-3" />
+                        >
+                           <Copy className="w-3 h-3" />
                         </button>
                       </div>
                     </td>
                     <td className="px-5 py-3.5 text-center">
-                       <span className="font-mono text-xs text-zinc-500 bg-zinc-950/65 border border-zinc-850 rounded px-2.5 py-0.5">{u.lastLoginIp || u.last_login_ip || ''}</span>
+                       <span className="font-mono text-xs text-zinc-500 bg-zinc-950/65 border border-zinc-850 rounded px-2.5 py-0.5">{u.lastLoginIp || u.last_login_ip || 'ไม่ทราบ'}</span>
                     </td>
                     <td className="px-5 py-3.5">
                       <span className={`px-2 py-0.5 rounded text-[10px] uppercase tracking-wider font-bold ${
@@ -188,20 +191,21 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
                     </td>
                     <td className="px-5 py-3.5">
                       {u.status === 'banned' ? (
-                         <span className="px-2 py-0.5 text-[10px] rounded uppercase font-bold bg-rose-500/10 border border-rose-500/20 text-rose-400 inline-flex items-center gap-1"><Ban className="w-2.5 h-2.5"/> </span>
+                         <span className="px-2 py-0.5 text-[10px] rounded uppercase font-bold bg-rose-500/10 border border-rose-500/20 text-rose-400 inline-flex items-center gap-1"><Ban className="w-2.5 h-2.5"/> ระงับส่งออก</span>
                       ) : (
-                         <span className="px-2 py-0.5 text-[10px] rounded uppercase font-bold bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 inline-flex items-center gap-1"><CheckCircle className="w-2.5 h-2.5"/> </span>
+                         <span className="px-2 py-0.5 text-[10px] rounded uppercase font-bold bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 inline-flex items-center gap-1"><CheckCircle className="w-2.5 h-2.5"/> เปิดบริการ</span>
                       )}
                     </td>
-                    <td className="px-5 py-3.5 font-bold font-mono text-emerald-400 text-right">{(u.balance || 0).toLocaleString()}</td>
+                    <td className="px-5 py-3.5 font-bold font-mono text-emerald-400 text-right">฿{(u.balance || 0).toLocaleString()}</td>
                     <td className="px-5 py-3.5 text-right">
                        <button onClick={() => setSelectedUser(u)} className="px-3 py-1 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white text-xs font-bold transition-all inline-flex items-center gap-1.5 rounded border border-zinc-800">
-                          <Eye className="w-3.5 h-3.5" /> </button>
+                          <Eye className="w-3.5 h-3.5" /> ตรวจสอบ
+                       </button>
                     </td>
                   </tr>
                 )) : (
                   <tr>
-                    <td colSpan={6} className="text-center py-12 text-zinc-600 text-xs font-semibold"></td>
+                    <td colSpan={6} className="text-center py-12 text-zinc-600 text-xs font-semibold">ไม่พบข้อมูลสมาชิกตรงตามคำค้นหา</td>
                   </tr>
                 )}
               </tbody>
@@ -238,17 +242,20 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
               <button 
                 onClick={() => setSelectedUser(null)} 
                 className="px-4 py-2 border border-zinc-800 bg-zinc-900 hover:bg-zinc-850 text-zinc-400 hover:text-white text-xs font-bold transition-all rounded-md"
-              ></button>
+              >
+                กลับไปหน้ารายชื่อ
+              </button>
             </div>
 
             <div className="border-b border-zinc-850 bg-zinc-900/10 px-6 overflow-x-auto">
               <div className="flex items-center gap-2 py-3 w-max">
                 {[
-                  { id: 'info', label: '' },
-                  { id: 'purchase', label: 'Bought' },
-                  { id: 'topup', label: '' },
-                  { id: 'keys', label: '' }
-                ].map(tab => (<button
+                  { id: 'info', label: 'ฟังก์ชันการจัดการ' },
+                  { id: 'purchase', label: 'ข้อมูลจัดซื้อ' },
+                  { id: 'topup', label: 'ยอดโอนเข้า' },
+                  { id: 'keys', label: 'รหัสเติมสะสม' }
+                ].map(tab => (
+                  <button
                     key={tab.id}
                     onClick={() => setActionTab(tab.id as any)}
                     className={`px-4 py-1.5 text-xs font-bold transition-all rounded-md border ${ 
@@ -270,28 +277,31 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
                   <div className="space-y-6">
                     <div className="bg-zinc-950/45 border border-zinc-850 p-6 rounded-lg shadow-sm">
                       <h4 className="text-xs font-extrabold uppercase tracking-wider text-zinc-400 mb-4 flex items-center gap-2 border-b border-zinc-900 pb-2.5">
-                        <Wallet className="w-3.5 h-3.5 text-[#3B82F6]" /> </h4>
+                        <Wallet className="w-3.5 h-3.5 text-[#3B82F6]" /> สถานะพอร์ตและวงเงิน
+                      </h4>
                       <div className="mb-6">
-                         <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1"></p>
-                         <p className="text-2xl font-black font-mono text-emerald-400">{(selectedUser.balance || 0).toLocaleString()}</p>
+                         <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1">เงินคงค้างกระเป๋า</p>
+                         <p className="text-2xl font-black font-mono text-emerald-400">฿{(selectedUser.balance || 0).toLocaleString()}</p>
                       </div>
                       <div className="flex gap-2.5">
                         <button 
                           onClick={() => handleUpdateBalance(selectedUser, 'add')} 
                           className="flex-1 py-2 border border-emerald-500/30 bg-emerald-500/5 text-emerald-400 hover:bg-emerald-500/15 rounded-md text-xs font-bold transition-all flex items-center justify-center gap-2"
                         >
-                          <HandCoins className="w-4 h-4" /> Wallet</button>
+                          <HandCoins className="w-4 h-4" /> เพิ่มพวงกระเป๋าเงิน
+                        </button>
                         <button 
                           onClick={() => handleUpdateBalance(selectedUser, 'deduct')} 
                           className="flex-1 py-2 border border-zinc-800 bg-zinc-900 text-zinc-400 hover:bg-zinc-800 rounded-md text-xs font-bold transition-all flex items-center justify-center gap-1.5"
                         >
-                          <ArrowRightLeft className="w-4 h-4" /> </button>
+                          <ArrowRightLeft className="w-4 h-4" /> หักเครดิต
+                        </button>
                       </div>
                     </div>
 
                     <div className="p-4 border border-zinc-850 flex justify-between items-center bg-zinc-950/20 rounded-lg">
                       <div>
-                        <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest"></p>
+                        <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">วันที่สมัครสมาชก</p>
                         <p className="text-sm font-bold text-zinc-300 mt-1">{new Date(selectedUser.registered || Date.now()).toLocaleString('th-TH')}</p>
                       </div>
                       <Calendar className="w-4 h-4 text-zinc-500" />
@@ -299,17 +309,17 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
 
                     <div className="p-4 border border-zinc-850 bg-zinc-950/20 space-y-3.5 rounded-lg">
                       <div>
-                        <p className="text-[10px] font-bold text-zinc-500 uppercase"></p>
-                        <p className="text-xs font-mono text-[#3B82F6] font-bold bg-zinc-950 w-max px-2.5 py-0.5 rounded border border-zinc-850 mt-1">{selectedUser.lastLoginIp || selectedUser.last_login_ip || ''}</p>
+                        <p className="text-[10px] font-bold text-zinc-500 uppercase">ตำแหน่งไอพีสุดท้าย</p>
+                        <p className="text-xs font-mono text-[#3B82F6] font-bold bg-zinc-950 w-max px-2.5 py-0.5 rounded border border-zinc-850 mt-1">{selectedUser.lastLoginIp || selectedUser.last_login_ip || 'ไม่ระบุ'}</p>
                       </div>
                       <div className="grid grid-cols-2 gap-4 pt-1.5 border-t border-zinc-900/60">
                         <div>
-                           <p className="text-[10px] font-bold text-zinc-500 uppercase"></p>
-                           <p className="text-xs font-semibold text-zinc-400 mt-0.5">{selectedUser.lastLoginSource || selectedUser.last_login_source || ''}</p>
+                           <p className="text-[10px] font-bold text-zinc-500 uppercase">บราวเซอร์อุปกรณ์</p>
+                           <p className="text-xs font-semibold text-zinc-400 mt-0.5">{selectedUser.lastLoginSource || selectedUser.last_login_source || 'ไม่ระบุ'}</p>
                         </div>
                         <div>
-                           <p className="text-[10px] font-bold text-zinc-500 uppercase"></p>
-                           <p className="text-xs font-semibold text-zinc-400 mt-0.5">{selectedUser.lastLoginCountry || selectedUser.last_login_country || ''}</p>
+                           <p className="text-[10px] font-bold text-zinc-500 uppercase">ตำแหน่งเซสชัน</p>
+                           <p className="text-xs font-semibold text-zinc-400 mt-0.5">{selectedUser.lastLoginCountry || selectedUser.last_login_country || 'ประเทศไทย'}</p>
                         </div>
                       </div>
                     </div>
@@ -318,26 +328,26 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
                   {/* Actions column */}
                   <div className="space-y-6">
                     <div className="bg-zinc-950/45 border border-zinc-850 p-6 rounded-lg">
-                      <h4 className="text-xs font-extrabold uppercase tracking-wider text-zinc-400 mb-4 border-b border-zinc-900 pb-2.5"></h4>
+                      <h4 className="text-xs font-extrabold uppercase tracking-wider text-zinc-400 mb-4 border-b border-zinc-900 pb-2.5">การควบคุมเครือข่ายบัญชี</h4>
                       
                       <div className="space-y-3.5">
                         <button onClick={() => handleEditUser(selectedUser)} className="w-full flex items-center justify-between p-3.5 bg-zinc-900/50 border border-zinc-850 hover:border-zinc-800 rounded-lg transition-all group">
                            <div className="flex items-center gap-3">
                              <div className="p-2 bg-zinc-950 rounded-md text-zinc-500"><Edit className="w-4 h-4" /></div>
                              <div className="flex flex-col items-start text-left leading-tight">
-                                <span className="text-xs font-semibold text-white group-hover:text-blue-400 transition-colors">/</span>
-                                <span className="text-[10px] text-zinc-500 mt-1">Member / Premium / Admin</span>
+                                <span className="text-xs font-semibold text-white group-hover:text-blue-400 transition-colors">ยกระดับ/ปรับบทบาทผู้สิทธิ์</span>
+                                <span className="text-[10px] text-zinc-500 mt-1">เปลี่ยนขอบเขต Member / Premium / Admin</span>
                              </div>
                            </div>
                         </button>
                         
                         <button onClick={async () => {
                           const { value: password } = await Swal.fire({
-                            title: ' (Force Override)', 
+                            title: 'ตั้งรหัสผ่านใหม่ (Force Override)', 
                             input: 'password', 
-                            inputPlaceholder: '...', 
+                            inputPlaceholder: 'ใส่รหัสผ่านใหม่ตรงนี้...', 
                             showCancelButton: true, 
-                            confirmButtonText: '', 
+                            confirmButtonText: 'เปลี่ยนรหัส', 
                             confirmButtonColor: '#3B82F6',
                             cancelButtonColor: '#71717a',
                             background: '#09090b',
@@ -347,16 +357,17 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
                             try {
                                Swal.showLoading();
                                await axios.post(`/api/users/${selectedUser.id || selectedUser.uid}/password`, { password });
-                               Swal.fire({ icon: 'success', title: '', showConfirmButton: false, timer: 1200, background: '#09090b', color: '#fff' });
+                               Swal.fire({ icon: 'success', title: 'เปลี่ยนรหัสผ่านสำเร็จ', showConfirmButton: false, timer: 1200, background: '#09090b', color: '#fff' });
                             } catch (err: any) {
-                               Swal.fire({ title: 'Error', text: err.response?.data?.error || '', icon: 'error', background: '#09090b', color: '#fff' });
+                               Swal.fire({ title: 'Error', text: err.response?.data?.error || 'ไม่สามารถเปลี่ยนรหัสได้', icon: 'error', background: '#09090b', color: '#fff' });
                             }
                           }
-                        }} className="w-full flex items-center justify-between p-3.5 bg-zinc-900/50 border border-zinc-850 hover:border-zinc-800 rounded-lg transition-all group"><div className="flex items-center gap-3">
+                        }} className="w-full flex items-center justify-between p-3.5 bg-zinc-900/50 border border-zinc-850 hover:border-zinc-800 rounded-lg transition-all group">
+                           <div className="flex items-center gap-3">
                              <div className="p-2 bg-zinc-950 rounded-md text-zinc-500"><RefreshCw className="w-4 h-4" /></div>
                              <div className="flex flex-col items-start text-left leading-tight">
-                                <span className="text-xs font-semibold text-white group-hover:text-blue-400 transition-colors"></span>
-                                <span className="text-[10px] text-zinc-500 mt-1"></span>
+                                <span className="text-xs font-semibold text-white group-hover:text-blue-400 transition-colors">บังคับเปลี่ยนรหัสผ่าน</span>
+                                <span className="text-[10px] text-zinc-500 mt-1">กำหนดคีย์พาสเวิร์ดใหม่ทดแทนค่าเดิมทันที</span>
                              </div>
                            </div>
                         </button>
@@ -368,20 +379,22 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
                              </div>
                              <div className="flex flex-col items-start text-left leading-tight">
                                 <span className={`text-xs font-semibold ${selectedUser.status === 'banned' ? 'text-emerald-400' : 'text-rose-400'}`}>
-                                  {selectedUser.status === 'banned' ? '' : '/'}</span>
+                                  {selectedUser.status === 'banned' ? 'ปลดระงับบัญชีนี้' : 'สกัดกั้น/แบนบัญชีนี้'}
+                                </span>
                                 <span className="text-[10px] text-zinc-500 mt-1">
-                                  {selectedUser.status === 'banned' ? '' : ''}</span>
+                                  {selectedUser.status === 'banned' ? 'เปิดให้ลูกค้ากลับเข้ามาใช้งานเว็บ' : 'ล็อกอินไม่ผ่านเด็ดขาด'}
+                                </span>
                              </div>
                            </div>
                         </button>
 
                         <button onClick={async () => {
                           const result = await Swal.fire({
-                            title: '?',
-                            text: 'Bought',
+                            title: 'ลบบัญชีถาวร?',
+                            text: 'ประวัติการทำรายการทุกออเดอร์ของผู้ซื้อรายนี้จะสูญสลายถาวร',
                             icon: 'warning',
                             showCancelButton: true,
-                            confirmButtonText: '',
+                            confirmButtonText: 'ลบทันที',
                             confirmButtonColor: '#EF4444',
                             cancelButtonColor: '#71717a',
                             background: '#09090b',
@@ -391,15 +404,16 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
                             try {
                                Swal.showLoading();
                                await axios.delete(`/api/users/${selectedUser.id || selectedUser.uid}`);
-                               Swal.fire({ icon: 'success', title: '', showConfirmButton: false, timer: 1200, background: '#09090b', color: '#fff' });
+                               Swal.fire({ icon: 'success', title: 'ระเบิดบัญชีผู้ใช้แล้ว', showConfirmButton: false, timer: 1200, background: '#09090b', color: '#fff' });
                                setSelectedUser(null);
                                onRefresh();
                             } catch (err: any) {
-                               Swal.fire({ title: 'Error', text: err.response?.data?.error || '', icon: 'error', background: '#09090b', color: '#fff' });
+                               Swal.fire({ title: 'Error', text: err.response?.data?.error || 'ไม่สามารถลบผู้ใช้งานได้', icon: 'error', background: '#09090b', color: '#fff' });
                             }
                           }
-                        }} className="w-full flex items-center justify-between p-3 border border-rose-500/10 hover:border-rose-500/30 bg-rose-500/5 hover:bg-rose-500/10 text-rose-400 rounded-lg transition-all scale-[0.99] hover:scale-[1] mt-6"><div className="flex-1 text-center py-1">
-                              <span className="text-xs font-bold"></span>
+                        }} className="w-full flex items-center justify-between p-3 border border-rose-500/10 hover:border-rose-500/30 bg-rose-500/5 hover:bg-rose-500/10 text-rose-400 rounded-lg transition-all scale-[0.99] hover:scale-[1] mt-6">
+                           <div className="flex-1 text-center py-1">
+                              <span className="text-xs font-bold">ลบข้อมูลบัญชีผู้ใช้งานคนนี้ถาวร</span>
                            </div>
                         </button>
                       </div>
@@ -416,9 +430,9 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
                         <p className="text-sm font-bold text-white">{h.productName}</p>
                         <p className="text-xs text-zinc-500 mt-1">{new Date(h.date).toLocaleString('th-TH')}</p>
                       </div>
-                      <p className="font-bold text-rose-400 font-mono">-{h.price}</p>
+                      <p className="font-bold text-rose-400 font-mono">-฿{h.price}</p>
                     </div>
-                  )) : <p className="text-center text-xs font-semibold text-zinc-550 py-12">Boughtitems</p>}
+                  )) : <p className="text-center text-xs font-semibold text-zinc-550 py-12">ไม่มีบันทึกการจัดซื้อสินค้าชิ้นใดของสมาชิกลายนี้</p>}
                 </div>
               )}
 
@@ -427,12 +441,12 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
                   {userTopupHistory.length > 0 ? userTopupHistory.map((h, i) => (
                     <div key={i} className="flex justify-between items-center p-4 bg-zinc-950/40 border border-zinc-850 rounded-lg">
                       <div>
-                        <p className="text-sm font-bold text-white">({h.method})</p>
+                        <p className="text-sm font-bold text-white">เติมเงิน ({h.method})</p>
                         <p className="text-xs text-zinc-500 mt-1">{new Date(h.date).toLocaleString('th-TH')}</p>
                       </div>
-                      <p className="font-bold text-emerald-400 font-mono">+{h.amount}</p>
+                      <p className="font-bold text-emerald-400 font-mono">+฿{h.amount}</p>
                     </div>
-                  )) : <p className="text-center text-xs font-semibold text-zinc-550 py-12"></p>}
+                  )) : <p className="text-center text-xs font-semibold text-zinc-550 py-12">ไม่มีรายการสถิติการเติมเครดิตเข้าสโตร์</p>}
                 </div>
               )}
 
@@ -444,9 +458,9 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
                         <p className="text-sm font-bold font-mono text-zinc-300">{k.key || k.code || k.name || 'Key-' + i}</p>
                         <p className="text-xs text-zinc-500 mt-1">{new Date(k.used_at || k.date || new Date()).toLocaleString('th-TH')}</p>
                       </div>
-                      <span className="text-[10px] font-bold text-emerald-400 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 uppercase tracking-widest">Used /</span>
+                      <span className="text-[10px] font-bold text-emerald-400 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 uppercase tracking-widest">Used / เติมแล้ว</span>
                     </div>
-                  )) : <p className="text-center text-xs font-semibold text-zinc-550 py-12"></p>}
+                  )) : <p className="text-center text-xs font-semibold text-zinc-550 py-12">ไม่เคยพบรายการสะสมรางวัลหรือรหัสของขวัญ</p>}
                 </div>
               )}
             </div>

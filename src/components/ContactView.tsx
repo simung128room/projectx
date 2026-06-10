@@ -23,7 +23,8 @@ export const ContactView: React.FC<ContactViewProps> = ({
         onClick={onBack}
         className="mb-6 flex items-center gap-2 text-muted-foreground hover:text-white transition-colors font-medium bg-card px-4 py-2 border border-border border-2 w-fit brut-card"
       >
-        <ArrowLeft className="w-4 h-4" /> </button>
+        <ArrowLeft className="w-4 h-4" /> ย้อนกลับ
+      </button>
 
       <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-8 bg-card border border-border border-2 p-6 brut-card">
         <div className="flex items-center gap-4">
@@ -31,7 +32,7 @@ export const ContactView: React.FC<ContactViewProps> = ({
             <MessageSquare className="w-8 h-8" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-white tracking-tighter">Contact Us /</h1>
+            <h1 className="text-2xl font-bold text-white tracking-tighter">ติดต่อเรา / ขอความช่วยเหลือ</h1>
             <p className="text-muted-foreground text-xs font-bold uppercase tracking-widest mt-1">Contact & Support</p>
           </div>
         </div>
@@ -56,12 +57,14 @@ export const ContactView: React.FC<ContactViewProps> = ({
             </svg>
           </div>
           <h2 className="text-xl font-black text-white mb-2">Discord Official</h2>
-          <p className="text-muted-foreground text-sm font-medium"></p>
+          <p className="text-muted-foreground text-sm font-medium">พูดคุย สอบถามปัญหา และติดตามข่าวสารล่าสุดผ่านทางดิสคอร์ด</p>
           <div className="mt-6 px-6 py-2.5 bg-card text-white font-bold text-sm group-hover:bg-[#4752C4] transition-colors brut-card">
-            Discord</div>
+            เข้าร่วม Discord
+          </div>
           {discordLink === '#' && (
             <div className="absolute top-4 right-4 bg-card text-muted-foreground text-[10px] font-bold px-2 py-1 uppercase tracking-wide brut-card">
-              </div>
+              เร็วๆ นี้
+            </div>
           )}
         </a>
 
@@ -83,12 +86,14 @@ export const ContactView: React.FC<ContactViewProps> = ({
             </svg>
           </div>
           <h2 className="text-xl font-black text-white mb-2">Facebook Page</h2>
-          <p className="text-muted-foreground text-sm font-medium"></p>
+          <p className="text-muted-foreground text-sm font-medium">ติดตามการอัปเดตและติดต่อสอบถามผ่านทางข้อความแชทเฟสบุ๊ค</p>
           <div className="mt-6 px-6 py-2.5 bg-card text-white font-bold text-sm group-hover:bg-[#166fe5] transition-colors brut-card">
-            Facebook</div>
+            ติดต่อผ่าน Facebook
+          </div>
           {facebookLink === '#' && (
             <div className="absolute top-4 right-4 bg-card text-muted-foreground text-[10px] font-bold px-2 py-1 uppercase tracking-wide brut-card">
-              </div>
+              เร็วๆ นี้
+            </div>
           )}
         </a>
 
@@ -110,12 +115,14 @@ export const ContactView: React.FC<ContactViewProps> = ({
             </svg>
           </div>
           <h2 className="text-xl font-black text-white mb-2">Instagram</h2>
-          <p className="text-muted-foreground text-sm font-medium">Instagram</p>
+          <p className="text-muted-foreground text-sm font-medium">ติดตามบรรยากาศและโปรโมชั่นต่างๆ ผ่านทาง Instagram</p>
           <div className="mt-6 px-6 py-2.5 bg-card text-white font-bold text-sm group-hover:bg-[#d83753] transition-colors brut-card">
-            Instagram</div>
+            ติดตาม Instagram
+          </div>
           {instagramLink === '#' && (
             <div className="absolute top-4 right-4 bg-card text-muted-foreground text-[10px] font-bold px-2 py-1 uppercase tracking-wide brut-card">
-              </div>
+              เร็วๆ นี้
+            </div>
           )}
         </a>
 
@@ -133,12 +140,14 @@ export const ContactView: React.FC<ContactViewProps> = ({
              <Mail className="w-10 h-10 text-white" />
           </div>
           <h2 className="text-xl font-black text-white mb-2">Email Support</h2>
-          <p className="text-muted-foreground text-sm font-medium"></p>
+          <p className="text-muted-foreground text-sm font-medium">ติดต่อแจ้งปัญหาหรือสอบถามข้อมูลเพิ่มเติมผ่านทางอีเมล</p>
           <div className="mt-6 px-6 py-2.5 bg-card text-white font-bold text-sm group-hover:bg-[#1e1e1e] transition-colors brut-card">
-            </div>
+            ส่งอีเมลหาเรา
+          </div>
           {!contactEmail && (
             <div className="absolute top-4 right-4 bg-card text-muted-foreground text-[10px] font-bold px-2 py-1 uppercase tracking-wide brut-card">
-              </div>
+              เร็วๆ นี้
+            </div>
           )}
         </a>
       </div>

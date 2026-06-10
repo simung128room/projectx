@@ -416,16 +416,16 @@
   --color-input: #27272a;
   --color-ring: #3b82f6;
 
-  /* Clean modern accent colors */
-  --color-neon-green: #10b981; /* emerald-500 */
-  --color-neon-red: #ef4444; /* red-500 */
-  --color-neon-yellow: #f59e0b; /* amber-500 */
-  --color-neon-blue: #3b82f6; /* blue-500 */
-  --color-neon-purple: #8b5cf6; /* violet-500 */
+  /* Brutalist accent colors */
+  --color-neon-green: oklch(0.82 0.22 142);
+  --color-neon-red: oklch(0.62 0.24 25);
+  --color-neon-yellow: oklch(0.88 0.18 92);
+  --color-neon-blue: oklch(0.65 0.2 250);
+  --color-neon-purple: oklch(0.62 0.22 295);
 
-  --font-mono: "JetBrains Mono", monospace;
-  --font-sans: "Inter", system-ui, sans-serif;
-  --font-display: "Inter", system-ui, sans-serif;
+  --font-mono: "Space Mono", "Courier New", monospace;
+  --font-sans: "Prompt", "Kanit", "Inter", sans-serif;
+  --font-display: "Prompt", "Kanit", "Inter", sans-serif;
 }
 
 @layer base {
@@ -491,54 +491,78 @@
 
   /* Brutalist border */
   .brutalist-border {
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
+    border: 2px solid oklch(0.97 0 0);
   }
 
   .brutalist-border-accent {
-    border: 1px solid var(--color-neon-blue);
-    border-radius: 8px;
+    border: 2px solid var(--color-neon-green);
   }
 
-  /* Glitch text effect - disabled for clean look */
+  /* Glitch text effect */
   .glitch {
     position: relative;
   }
 
-  /* Scan line overlay - disabled for clean look */
+  .glitch::before,
+  .glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .glitch::before {
+    color: var(--color-neon-red);
+    animation: glitch-1 3s infinite;
+    clip-path: polygon(0 0, 100% 0, 100% 35%, 0 35%);
+    transform: translate(-2px, 0);
+  }
+
+  .glitch::after {
+    color: var(--color-neon-blue);
+    animation: glitch-2 3s infinite;
+    clip-path: polygon(0 65%, 100% 65%, 100% 100%, 0 100%);
+    transform: translate(2px, 0);
+  }
+
+  /* Scan line overlay */
+  .scanlines::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      oklch(0 0 0 / 0.03) 2px,
+      oklch(0 0 0 / 0.03) 4px
+    );
+    pointer-events: none;
+    z-index: 1;
+  }
 
   /* Status badge */
   .status-valid { color: var(--color-neon-green); }
   .status-invalid { color: var(--color-neon-red); }
   .status-locked { color: var(--color-neon-yellow); }
   .status-blocked { color: var(--color-neon-purple); }
-  .status-timeout { color: #6b7280; }
-  .status-error { color: #ef4444; }
-  .status-pending { color: #f59e0b; }
+  .status-timeout { color: oklch(0.55 0 0); }
+  .status-error { color: oklch(0.55 0 0); }
+  .status-pending { color: oklch(0.45 0 0); }
 
-  /* Brutalist card - mapped to clean cards */
+  /* Brutalist card */
   .brut-card {
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: 12px;
+    background: oklch(0.09 0 0);
+    border: 1px solid oklch(0.18 0 0);
     padding: 1.5rem;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-  }
-  .dark .brut-card {
-    background: #09090b;
-    border: 1px solid #27272a;
   }
 
   .brut-card-highlight {
-    background: #ffffff;
-    border: 1px solid var(--color-neon-blue);
-    border-radius: 12px;
+    background: oklch(0.09 0 0);
+    border: 2px solid oklch(0.97 0 0);
     padding: 1.5rem;
-    box-shadow: 0 4px 6px rgba(59, 130, 246, 0.1);
-  }
-  .dark .brut-card-highlight {
-    background: #09090b;
-    border: 1px solid var(--color-neon-blue);
   }
 
   /* Number display */

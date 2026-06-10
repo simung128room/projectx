@@ -23,16 +23,17 @@ export const KeyModal: React.FC<KeyModalProps> = ({ show, onClose, vipTab, redee
             </div>
             <h2 className="text-2xl font-bold text-white mb-2 tracking-tight">VIP MEMBER</h2>
             <div className="text-sm text-muted-foreground mb-6 space-y-2">
-                <p>:</p>
+                <p>สิทธิพิเศษระดับพรีเมียม:</p>
                 <ul className="text-left inline-block space-y-1">
-                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-blue-500" /> (Unlimited Checks)</li>
-                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-blue-500" /> Bypass DataDome</li>
-                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-blue-500" /> </li>
-                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-blue-500" /> Captcha (Turnstile)</li>
+                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-blue-500" /> ตรวจสอบไอดีไม่จำกัด (Unlimited Checks)</li>
+                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-blue-500" /> Bypass DataDome ความเร็วสูง</li>
+                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-blue-500" /> บันทึกประวัติการตรวจสอบย้อนหลัง</li>
+                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-blue-500" /> ไม่ต้องติด Captcha (Turnstile)</li>
                 </ul>
             </div>
             <a href="https://discord.gg/yourlink" target="_blank" rel="noopener noreferrer" className="mt-4 inline-flex items-center gap-2 px-6 py-2.5 bg-card hover:bg-[#4752C4] text-white text-sm font-bold transition-all hover:scale-105 brut-card">
-              <ShoppingCart className="w-4 h-4" /> Bought Discord</a>
+              <ShoppingCart className="w-4 h-4" /> ซื้อคีย์ได้ที่ Discord
+            </a>
         </div>
 
         <div className="relative z-10">
@@ -41,16 +42,18 @@ export const KeyModal: React.FC<KeyModalProps> = ({ show, onClose, vipTab, redee
                 e.preventDefault();
                 const formData = new FormData(e.currentTarget);
                 const key = formData.get('key') as string;
-                if (key) redeemKey(key, userEmail || '');
-              }} className="space-y-4"><div>
-                  <label className="text-[11px] text-muted-foreground font-bold uppercase tracking-wider mb-2 block">/ (Key)</label>
+                if (key) redeemKey(key, userEmail || 'ผู้ใช้งานทั่วไป');
+              }} className="space-y-4">
+              <div>
+                  <label className="text-[11px] text-muted-foreground font-bold uppercase tracking-wider mb-2 block">คีย์สำหรับรายเดือน/รายปี (Key)</label>
                   <div className="relative">
                     <KeyIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <input required name="key" type="text" className="w-full bg-card border border-border border-2 py-3 pl-10 pr-4 text-sm focus:border-[#3B82F6] outline-none text-white transition-all placeholder:text-zinc-400 brut-card" placeholder="APEXSTORE-XXXXX-XXXXX" />
                   </div>
               </div>
               <button type="submit" className="w-full from-[#3B82F6] to-blue-700 hover:from-blue-400 hover:to-blue-600 text-white font-bold py-3.5 transition-all mt-4">
-                </button>
+                เปิดใช้งาน
+              </button>
             </form>
           )}
         </div>

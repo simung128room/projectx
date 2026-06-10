@@ -251,7 +251,7 @@ function CategoryChip({
           {/* Item Count */}
           <span className="text-white/40 flex items-center gap-1.5 uppercase font-bold tracking-wider">
             <Package className="w-3.5 h-3.5 text-white/35 shrink-0" />
-            <span>All Products<span className="text-neon-green font-black">{productCount}</span> </span>
+            <span>มีสินค้าทั้งหมด <span className="text-neon-green font-black">{productCount}</span> รายการ</span>
           </span>
           
           {/* Price Range */}
@@ -339,23 +339,27 @@ function ProductCard({
           {product.name}
         </h3>
 
-        {/* "Price" subtle label */}<span className="text-[10px] font-bold text-white/30 uppercase tracking-wider block mb-1">Price</span>
+        {/* "ราคาสินค้า" subtle label */}
+        <span className="text-[10px] font-bold text-white/30 uppercase tracking-wider block mb-1">ราคาสินค้า</span>
 
         {/* Price row */}
         <div className="flex flex-wrap items-center gap-2 mb-4">
           {product.originalPrice && product.price < product.originalPrice ? (
-            <span className="text-xs text-red-500/80 line-through font-mono font-bold">{product.originalPrice.toLocaleString()}</span>
+            <span className="text-xs text-red-500/80 line-through font-mono font-bold">฿{product.originalPrice.toLocaleString()}</span>
           ) : null}
           
           <span className="text-base font-black text-amber-400 tracking-tight font-mono">
-            {product.price.toLocaleString()}</span>
+            ฿{product.price.toLocaleString()}
+          </span>
 
           {product.stock > 0 ? (
             <span className="ml-auto bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[9px] font-black px-1.5 py-0.5 rounded-md leading-none select-none">
-              </span>
+              พร้อมจำหน่าย
+            </span>
           ) : (
             <span className="ml-auto bg-red-500/10 text-red-400 border border-red-500/20 text-[9px] font-black px-1.5 py-0.5 rounded-md leading-none select-none">
-              </span>
+              สินค้าหมด
+            </span>
           )}
         </div>
 
@@ -365,12 +369,13 @@ function ProductCard({
           className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white py-2.5 rounded-xl text-xs font-black transition-all duration-200 mt-auto shadow-md"
         >
           <ShoppingCart className="w-3.5 h-3.5" />
-          Store</button>
+          สั่งซื้อสินค้า
+        </button>
 
         {/* Stock Row Box */}
         <div className="mt-3.5 py-1.5 rounded-xl bg-white/[0.02] border border-white/[0.04] flex items-center justify-center gap-2 text-[10px] text-white/40 font-black uppercase tracking-widest leading-none">
           <Package className="w-3.5 h-3.5 text-white/20 shrink-0" />
-          <span><span className="text-white/70 font-mono">{product.stock.toLocaleString()}</span> items</span>
+          <span>คงเหลือ <span className="text-white/70 font-mono">{product.stock.toLocaleString()}</span> ชิ้น</span>
         </div>
       </div>
     </motion.div>
@@ -439,12 +444,12 @@ export const HomeView: React.FC<HomeViewProps> = ({
       if (isNaN(diffMs)) return dateStr;
       const diffSec = Math.floor(diffMs / 1000);
       const diffMin = Math.floor(diffSec / 60);
-      if (diffMin < 1) return "";
-      if (diffMin < 60) return `${diffMin} `;
+      if (diffMin < 1) return "เมื่อสักครู่";
+      if (diffMin < 60) return `${diffMin} นาทีที่แล้ว`;
       const diffHrs = Math.floor(diffMin / 60);
-      if (diffHrs < 24) return `${diffHrs} `;
+      if (diffHrs < 24) return `${diffHrs} ชั่วโมงที่แล้ว`;
       const diffDays = Math.floor(diffHrs / 24);
-      if (diffDays < 7) return `${diffDays} `;
+      if (diffDays < 7) return `${diffDays} วันที่แล้ว`;
       return date.toLocaleDateString("th-TH", { month: "short", day: "numeric" });
     } catch (e) {
       return dateStr;
@@ -474,7 +479,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
         >
           <img
             src="https://img2.pic.in.th/IMG_7177176d5344301b32a1.png"
-            alt={siteSettings?.site_title || ""}
+            alt={siteSettings?.site_title || "ร้านค้า"}
             className="w-full h-full object-cover"
             fetchPriority="high"
           />
@@ -482,7 +487,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
         </motion.div>
 
         {/* ── Announcement Bar ── */}
-        {((siteSettings?.announcement_text ?? `Welcome ${siteSettings?.site_title || ''} Price | `).trim() !== '') && (<motion.div
+        {((siteSettings?.announcement_text ?? `ยินดีต้อนรับทุกท่านเข้าสู่ ${siteSettings?.site_title || 'ร้านค้าของเรา'} จำหน่ายไอดีราคาถูก | มีปัญหาติดต่อแอดมิน`).trim() !== '') && (
+          <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
@@ -490,11 +496,12 @@ export const HomeView: React.FC<HomeViewProps> = ({
           >
             <div className="flex items-center justify-center bg-red-500/10 px-2.5 py-1.5 rounded-lg border border-red-500/20 text-red-400 shrink-0 mr-3 shadow-[0_0_15px_rgba(239,68,68,0.1)] gap-1.5 font-black text-xs select-none">
               <Bell className="w-3.5 h-3.5 animate-bounce" />
-              <span></span>
+              <span>ประกาศ</span>
             </div>
             <div className="flex-1 overflow-hidden relative" style={{ minWidth: 0 }}>
               <div className="text-sm font-semibold text-white/90 tracking-wide pt-0.5 animate-marquee-css inline-block whitespace-nowrap">
-                {siteSettings?.announcement_text ?? `Welcome ${siteSettings?.site_title || ''} Price | `}</div>
+                {siteSettings?.announcement_text ?? `ยินดีต้อนรับทุกท่านเข้าสู่ ${siteSettings?.site_title || 'ร้านค้าของเรา'} จำหน่ายไอดีราคาถูก | มีปัญหาติดต่อแอดมิน`}
+              </div>
             </div>
           </motion.div>
         )}
@@ -502,33 +509,33 @@ export const HomeView: React.FC<HomeViewProps> = ({
         {/* ── Stats Row ── */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
           <StatCard
-            label=""
+            label="สมาชิกทั้งหมด"
             value={totalMembers}
-            unit=""
+            unit="คน"
             icon={Users}
             accent="rgba(99,102,241,0.4)"
             delay={0.1}
           />
           <StatCard
-            label=""
+            label="พร้อมจำหน่าย"
             value={totalStock}
-            unit="items"
+            unit="ชิ้น"
             icon={Package}
             accent="rgba(245,158,11,0.4)"
             delay={0.2}
           />
           <StatCard
-            label="All Categories"
+            label="หมวดหมู่ทั้งหมด"
             value={totalCategories}
-            unit=""
+            unit="หมวดหมู่"
             icon={LayoutGrid}
             accent="rgba(16,185,129,0.4)"
             delay={0.3}
           />
           <StatCard
-            label=""
+            label="ยอดขาย"
             value={totalSales}
-            unit=""
+            unit="ครั้ง"
             icon={ShoppingCart}
             accent="rgba(239,68,68,0.4)"
             delay={0.4}
@@ -539,7 +546,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
         <section className="mb-8">
           <div className="grid grid-cols-2 gap-3 sm:gap-4">
             <ShortcutBtn
-              label="Store"
+              label="สั่งซื้อสินค้า"
               subLabel="GO SHOPPING"
               icon={ShoppingCart}
               colorClass="text-emerald-400 group-hover:bg-emerald-500/10 group-hover:text-emerald-300"
@@ -548,7 +555,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
               delay={0.1}
             />
             <ShortcutBtn
-              label="Order History"
+              label="ประวัติสั่งซื้อ"
               subLabel="ORDER HISTORY"
               icon={History}
               colorClass="text-indigo-400 group-hover:bg-indigo-500/10 group-hover:text-indigo-300"
@@ -557,7 +564,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
               delay={0.2}
             />
             <ShortcutBtn
-              label="Contact Admin"
+              label="ติดต่อ ADMIN"
               subLabel="CONTACT ADMIN"
               icon={MessageSquare}
               colorClass="text-rose-450 group-hover:bg-rose-500/10 group-hover:text-rose-350"
@@ -566,7 +573,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
               delay={0.3}
             />
             <ShortcutBtn
-              label="Topup"
+              label="เติมเงิน TOPUP"
               subLabel="TOPUP WALLET"
               icon={Coins}
               colorClass="text-amber-400 group-hover:bg-amber-500/10 group-hover:text-amber-300"
@@ -589,13 +596,13 @@ export const HomeView: React.FC<HomeViewProps> = ({
             >
               <div className="flex items-center gap-2">
                 <LayoutGrid className="w-5 h-5 text-neon-green" />
-                <h2 className="text-base font-black text-white tracking-tight uppercase">Recommended Categories</h2>
+                <h2 className="text-base font-black text-white tracking-tight uppercase">หมวดหมู่แนะนำ</h2>
               </div>
               <button
                 className="text-xs text-white/40 hover:text-white/70 transition-colors flex items-center gap-1 font-semibold"
                 onClick={() => setActiveView("categories")}
               >
-                View All<ChevronRight className="w-3.5 h-3.5" />
+                ดูทั้งหมด <ChevronRight className="w-3.5 h-3.5" />
               </button>
             </motion.div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -625,7 +632,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
           >
             <div className="flex items-center gap-2">
               <History className="w-4 h-4 text-emerald-400 animate-pulse" />
-              <h2 className="text-sm font-black text-white/90 tracking-wider uppercase">Recent Orders (REAL-TIME UPDATES)</h2>
+              <h2 className="text-sm font-black text-white/90 tracking-wider uppercase">รายการสั่งซื้อล่าสุด (REAL-TIME UPDATES)</h2>
             </div>
             <div className="flex items-center gap-1 text-[10px] uppercase font-black text-emerald-400 tracking-widest bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
@@ -646,7 +653,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
             {latestPurchases.length === 0 ? (
               <div className="p-6 text-center text-white/40 text-sm font-medium flex flex-col items-center gap-2 bg-[#0c0c0e]/50 border border-white/[0.05] rounded-xl">
                 <Package className="w-5 h-5 text-white/20" />
-                Bought</div>
+                ยังไม่มีผู้มีประวัติการสั่งซื้อล่าสุดในตอนนี้
+              </div>
             ) : (
               <div className="w-full overflow-hidden flex py-1">
                 <div className="animate-marquee-scroll flex gap-4 pr-4">
@@ -686,7 +694,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
                               {p.product_name}
                             </span>
                             <span className="text-[10px] text-zinc-400 mt-0.5">
-                              Bought:<span className="text-emerald-400 font-extrabold font-mono">+{p.quantity}</span> items</span>
+                              ซื้อ: <span className="text-emerald-400 font-extrabold font-mono">+{p.quantity}</span> ชิ้น
+                            </span>
                             <span className="text-[9px] text-[#888] font-mono font-medium truncate mt-0.5">
                               {getRelativeTime(p.date)}
                             </span>
@@ -696,7 +705,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
                         {/* Price point */}
                         <div className="flex flex-col items-end shrink-0 pl-1 border-l border-white/[0.04]">
                           <span className="text-xs font-black text-emerald-400 font-mono tracking-tight leading-none mb-1">
-                            {p.price}</span>
+                            ฿{p.price}
+                          </span>
                           <span className="text-[8px] font-black text-emerald-400/50 bg-emerald-500/5 border border-emerald-500/10 px-1 py-0.25 rounded font-mono tracking-widest uppercase">
                             PAID
                           </span>
@@ -730,21 +740,22 @@ export const HomeView: React.FC<HomeViewProps> = ({
             <div className="flex items-center gap-2">
               <Star className="w-5 h-5 text-neon-yellow fill-neon-yellow animate-pulse" />
               <div>
-                <h2 className="text-base font-black text-white tracking-tight uppercase">Recommended Products</h2>
-                <p className="text-xs text-white/30 mt-0.5">Limited quantity available items.</p>
+                <h2 className="text-base font-black text-white tracking-tight uppercase">สินค้าแนะนำ</h2>
+                <p className="text-xs text-white/30 mt-0.5">ของดี มีจำกัด รีบเป็นเจ้าของ</p>
               </div>
             </div>
             <button
               className="text-xs text-white/40 hover:text-white/70 transition-colors flex items-center gap-1 font-semibold"
               onClick={() => setActiveView("categories")}
             >
-              View All<ChevronRight className="w-3.5 h-3.5" />
+              ดูทั้งหมด <ChevronRight className="w-3.5 h-3.5" />
             </button>
           </motion.div>
 
           {safeProducts.length === 0 ? (
             <div className="text-center py-20 text-white/30 text-sm">
-              No products available.</div>
+              ยังไม่มีสินค้าในขณะนี้
+            </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
               {safeProducts.map((p, idx) => (
