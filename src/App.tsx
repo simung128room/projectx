@@ -2850,11 +2850,8 @@ function AppContent() {
                 <div className="px-5 mt-6 pb-6">
                   {user ? (
                     <div className="flex flex-col gap-4 shrink-0">
-                      <div className="flex items-center gap-2 py-1 select-none">
-                        <span className="w-1 h-3 rounded-full bg-neon-green shadow-[0_0_8px_#00FF66]" />
-                        <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.15em] font-mono">
-                          ข้อมูลบัญชี • ACCOUNT OVERVIEW
-                        </span>
+                      <div className="text-[11px] font-semibold text-zinc-500 uppercase tracking-[0.15em] mb-2 px-1 select-none">
+                        ข้อมูลบัญชี • ACCOUNT OVERVIEW
                       </div>
                       
                       {/* Premium Mobile Profile Card */}
@@ -3015,11 +3012,8 @@ function AppContent() {
                     </div>
                   ) : (
                     <div className="flex flex-col gap-2 shrink-0">
-                      <div className="flex items-center gap-2 py-1 select-none">
-                        <span className="w-1 h-3 rounded-full bg-neon-green shadow-[0_0_8px_#00FF66]" />
-                        <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.15em] font-mono">
-                          เข้าสู่ระบบ • VISITOR
-                        </span>
+                      <div className="text-[11px] font-semibold text-zinc-500 uppercase tracking-[0.15em] mb-2 px-1 select-none">
+                        เข้าสู่ระบบ • VISITOR
                       </div>
                       
                       <div className="grid grid-cols-2 gap-3 mt-1.5">
