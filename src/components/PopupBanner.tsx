@@ -85,11 +85,10 @@ export const PopupBanner: React.FC<PopupBannerProps> = ({ enabled, imgUrl, linkU
                     {dontShow && <Check className="w-3.5 h-3.5 text-white" />}
                   </div>
                 </div>
-                <span className="text-muted-foreground text-sm font-semibold select-none group-hover:text-white transition-colors">ไม่แสดงอีกใน 24 ชั่วโมง</span>
+                <span className="text-muted-foreground text-sm font-semibold select-none group-hover:text-white transition-colors">24</span>
               </label>
               <button onClick={handleClose} className="px-5 py-2.5 bg-card hover:bg-[#050505] hover:text-white text-white text-sm font-bold transition-colors brut-card">
-                ปิดหน้าต่าง
-              </button>
+                </button>
             </div>
           </motion.div>
         </div>

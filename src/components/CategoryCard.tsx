@@ -63,14 +63,13 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
           {/* Item Count */}
           <span className="text-white/40 flex items-center gap-1.5 uppercase font-bold tracking-wider">
             <Package className="w-3.5 h-3.5 text-white/35 shrink-0" />
-            <span>มีสินค้าทั้งหมด <span className="text-neon-green font-black">{itemCountDesc?.replace(/[^0-9]/g, '') || '0'}</span> รายการ</span>
+            <span>All Products<span className="text-neon-green font-black">{itemCountDesc?.replace(/[^0-9]/g, '') || '0'}</span> </span>
           </span>
           
           {/* Price Range */}
           {priceRangeStr && (
             <span className="text-white font-mono font-black tracking-wider text-xs bg-white/[0.03] px-2.5 py-1.5 rounded-lg border border-white/[0.06] shadow-sm">
-              {priceRangeStr.replace("฿", "")}
-            </span>
+              {priceRangeStr.replace("", "")}</span>
           )}
         </div>
       </div>

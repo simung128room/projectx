@@ -55,8 +55,7 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
                   <div className="w-12 h-12 bg-primary text-primary-foreground flex items-center justify-center">
                     <Package className="w-7 h-7 text-white" />
                   </div>
-                  สินค้าทั้งหมด
-                </div>
+                  All Products</div>
               ) : (
                 <div className="flex items-center gap-3 uppercase">
                   <div className="w-12 h-12 bg-card flex items-center justify-center brut-card">
@@ -69,8 +68,7 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
             <p className="text-sm font-medium text-muted-foreground mt-3 flex items-center gap-2">
               <Star className="w-4 h-4 text-amber-500" />{" "}
               {categoryInfo?.subtitle ||
-                `พบสินค้าทั้งหมด ${filteredProducts.length} รายการ`}
-            </p>
+                `All Products ${filteredProducts.length} `}</p>
           </div>
         </div>
       </div>
@@ -97,11 +95,9 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
             <Package className="w-16 h-16 text-muted-foreground" />
           </div>
           <h3 className="text-xl font-bold text-muted-foreground">
-            ยังไม่มีสินค้าในขณะนี้
-          </h3>
+            No products available.</h3>
           <p className="text-muted-foreground text-sm mt-2 font-medium">
-            โปรดรอการอัพเดทจากผู้ดูแลระบบ
-          </p>
+            </p>
         </div>
       ) : (
         <>
@@ -175,49 +171,43 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
                       {product.name}
                     </h3>
 
-                    {/* "ราคาสินค้า" subtle label */}
-                    <span className="text-[10px] font-bold text-white/30 uppercase tracking-wider block mb-1">ราคาสินค้า</span>
+                    {/* "Price" subtle label */}<span className="text-[10px] font-bold text-white/30 uppercase tracking-wider block mb-1">Price</span>
 
                     {/* Price row */}
                     <div className="flex flex-wrap items-center gap-2 mb-4">
                       {product.originalPrice && product.price < product.originalPrice ? (
-                        <span className="text-xs text-red-500/80 line-through font-mono font-bold">฿{product.originalPrice.toLocaleString()}</span>
+                        <span className="text-xs text-red-500/80 line-through font-mono font-bold">{product.originalPrice.toLocaleString()}</span>
                       ) : null}
                       
                       <span className="text-base font-black text-amber-400 tracking-tight font-mono">
-                        ฿{(product.price || 0).toLocaleString()}
-                      </span>
+                        {(product.price || 0).toLocaleString()}</span>
 
                       {product.stock > 0 ? (
                         <span className="ml-auto bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[9px] font-black px-1.5 py-0.5 rounded-md leading-none select-none">
-                          พร้อมจำหน่าย
-                        </span>
+                          </span>
                       ) : (
                         <span className="ml-auto bg-red-500/10 text-red-400 border border-red-500/20 text-[9px] font-black px-1.5 py-0.5 rounded-md leading-none select-none">
-                          สินค้าหมด
-                        </span>
+                          </span>
                       )}
                     </div>
 
                     {/* Buy Button */}
                     {product.stock <= 0 ? (
                       <button className="w-full bg-red-600/10 text-red-400 border border-red-500/20 py-2.5 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 cursor-default mt-auto">
-                        <Package className="w-3.5 h-3.5" /> สินค้าหมด
-                      </button>
+                        <Package className="w-3.5 h-3.5" /> </button>
                     ) : (
                       <button
                         onClick={() => onProductClick(product.id)}
                         className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white py-2.5 rounded-xl text-xs font-black transition-all duration-200 mt-auto shadow-md"
                       >
                         <ShoppingCart className="w-3.5 h-3.5" />
-                        สั่งซื้อสินค้า
-                      </button>
+                        Store</button>
                     )}
 
                     {/* Stock Row Box */}
                     <div className="mt-3.5 py-1.5 rounded-xl bg-white/[0.02] border border-white/[0.04] flex items-center justify-center gap-2 text-[10px] text-white/40 font-black uppercase tracking-widest leading-none">
                       <Package className="w-3.5 h-3.5 text-white/20 shrink-0" />
-                      <span>คงเหลือ <span className="text-white/70 font-mono">{product.stock >= 999999 ? "ไม่จำกัด" : product.stock.toLocaleString()}</span> ชิ้น</span>
+                      <span><span className="text-white/70 font-mono">{product.stock >= 999999 ? "" : product.stock.toLocaleString()}</span> items</span>
                     </div>
                   </div>
                 </motion.div>
@@ -231,8 +221,7 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
                 onClick={() => setRenderLimit(prev => prev + 20)}
                 className="px-8 py-3 bg-card border border-border border-2 hover:border-white/20 text-white font-bold transition-all active:scale-95 brut-card"
               >
-                โหลดเพิ่มเติม ({filteredProducts.length - visibleProducts.length} รายการ)
-              </button>
+                 ({filteredProducts.length - visibleProducts.length} )</button>
             </div>
           )}
         </>

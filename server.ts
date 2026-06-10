@@ -85,7 +85,7 @@ const decompressStock = async (data: any) => {
 let freeProxies: string[] = [];
 let lastFreeProxyFetch = 0;
 
-// ฟังก์ชันนี้ถูกปิดการใช้งานเพื่อความปลอดภัย (CRITICAL-06)
+//  (CRITICAL-06)
 async function fetchFreeProxies() {
   if (process.env.PROXY_URL && !freeProxies.includes(process.env.PROXY_URL)) {
      freeProxies = [process.env.PROXY_URL];
@@ -515,7 +515,7 @@ app.set('trust proxy', 1);
     legacyHeaders: false,
     keyGenerator: userRateLimitKeyGenerator,
     validate: { xForwardedForHeader: false, trustProxy: false },
-    message: { error: 'ขออภัย คุณทำรายการบ่อยเกินไป กรุณารอสักครู่' },
+    message: { error: 'Success/Error' },
     handler: (req: any, res: any, next: any, options: any) => {
       sendAlert('Auth Rate Limit Triggered 🚨', `**IP**: ${req.ip}\n**User**: ${(req as any).user?.uid || 'guest'}\n**Path**: ${req.originalUrl}\n**Method**: ${req.method}`, 16711680, req.id);
       res.status(options.statusCode || 429).json({ ...options.message, requestId: req.id });
@@ -529,7 +529,7 @@ app.set('trust proxy', 1);
     legacyHeaders: false, 
     keyGenerator: userRateLimitKeyGenerator,
     validate: { xForwardedForHeader: false, trustProxy: false },
-    message: { error: 'คุณดำเนินการบางอย่างเร็วเกินไป กรุณารอสักครู่' },
+    message: { error: 'Success/Error' },
     handler: (req: any, res: any, next: any, options: any) => {
       sendAlert('Mutation Rate Limit Triggered ⚠️', `**IP**: ${req.ip}\n**User**: ${(req as any).user?.uid || 'guest'}\n**Path**: ${req.originalUrl}\n**Method**: ${req.method}`, 16753920, req.id);
       res.status(options.statusCode || 429).json({ ...options.message, requestId: req.id });
@@ -543,7 +543,7 @@ app.set('trust proxy', 1);
     legacyHeaders: false, 
     keyGenerator: userRateLimitKeyGenerator,
     validate: { xForwardedForHeader: false, trustProxy: false },
-    message: { error: 'ขออภัย คุณส่งคำร้องขอเยอะเกินไป (Anti-Bot Protection) กรุณารอสักครู่' },
+    message: { error: '(Anti-Bot Protection)' },
     handler: (req: any, res: any, next: any, options: any) => {
       res.status(options.statusCode || 429).json({ ...options.message, requestId: req.id });
     }
@@ -813,7 +813,7 @@ import healthRoute from './src/routes/health.route.js';
   let cachedStats: any = null;
   const invalidateStatsCache = () => { lastStatsFetch = 0; cachedStats = null; cacheRevisionCounter++; };
   let siteSettings: any = {
-    site_name: process.env.SITE_NAME || 'STORETH',
+    site_name: process.env.SITE_NAME || 'STORE',
     truewallet_phone: process.env.TRUEWALLET_PHONE || '',
     contact_line: process.env.CONTACT_LINE || '',
     discord_link: '',
@@ -879,7 +879,7 @@ import healthRoute from './src/routes/health.route.js';
         .get();
 
       if (usersSnapshot.empty) {
-        return res.status(404).json({ error: 'ไม่พบผู้ใช้นี้ หรือข้อมูลไม่ถูกต้อง' });
+        return res.status(404).json({ error: 'Success/Error' });
       }
 
       const userId = usersSnapshot.docs[0].id;
@@ -1106,7 +1106,7 @@ import healthRoute from './src/routes/health.route.js';
       const phone = siteSettings.truewallet_phone;
       
       if (!voucherCode) {
-        return res.status(400).json({ success: false, error: 'กรุณากรอกลิงก์ซองของขวัญ' });
+        return res.status(400).json({ success: false, error: 'Success/Error' });
       }
 
       // Extract voucher hash from URL or use as is
@@ -1146,7 +1146,7 @@ import healthRoute from './src/routes/health.route.js';
         });
       } catch (err: any) {
         if (err.message === 'DUPLICATE_VOUCHER') {
-           return res.json({ success: false, error: 'ซองของขวัญนี้ถูกใช้งานไปแล้วในระบบของเรา' });
+           return res.json({ success: false, error: 'Success/Error' });
         }
         throw err;
       }
@@ -1171,7 +1171,7 @@ import healthRoute from './src/routes/health.route.js';
       } catch (err: any) {
         console.error(`[TrueWallet] XPLUEM Circuit Breaker Error:`, err.message);
         await voucherRef.delete();
-        return res.status(503).json({ error: 'ระบบเติมเงินขัดข้อง (Circuit Breaker Open) กรุณาลองใหม่ภายหลัง', isProxyError: true });
+        return res.status(503).json({ error: '(Circuit Breaker Open)', isProxyError: true });
       }
 
       const result = response.data;
@@ -1180,9 +1180,9 @@ import healthRoute from './src/routes/health.route.js';
       if (result.success === true) {
           const amount = parseFloat(result.data?.amount || 0);
           if (isNaN(amount) || amount <= 0) {
-             return res.json({ success: false, error: 'ข้อมูลซองอั่งเปาไม่ถูกต้อง (ยอดเงินไม่ถูกต้อง)' });
+             return res.json({ success: false, error: '()' });
           }
-          console.log(`[TrueWallet] Successfully redeemed ฿${amount}`);
+          console.log(`[TrueWallet] Successfully redeemed ${amount}`);
 
           if (uid) {
             try {
@@ -1204,7 +1204,7 @@ import healthRoute from './src/routes/health.route.js';
                       date: new Date().toISOString(),
                       type: 'truewallet',
                       money: amount,
-                      title: 'เติมเงินสำเร็จ',
+                      title: 'Success/Error',
                       image: 'https://img1.pic.in.th/images/IMG_6162.png'
                     };
                     const topupRef = admin.firestore().collection('topups').doc(topupDoc.id);
@@ -1219,18 +1219,18 @@ import healthRoute from './src/routes/health.route.js';
                  }
               });
 
-              console.log(`[TrueWallet] Updated balance for user ${uid} (+฿${amount})`);
+              console.log(`[TrueWallet] Updated balance for user ${uid} (+${amount})`);
               
               return res.json({ 
                 success: true, 
                 amount,
-                message: result.message || 'รับเงินสำเร็จ',
+                message: result.message || 'Success/Error',
                 topup: topupDoc
               });
             } catch (syncErr: any) {
               if (syncErr.message === 'USER_NOT_FOUND') {
                  await voucherRef.delete().catch(() => {});
-                 return res.json({ success: false, error: 'ข้อมูลสมาชิกไม่ถูกต้อง' });
+                 return res.json({ success: false, error: 'Success/Error' });
               }
               console.error(`[TrueWallet] Balance sync error:`, syncErr);
             }
@@ -1239,10 +1239,10 @@ import healthRoute from './src/routes/health.route.js';
           return res.json({ 
             success: true, 
             amount,
-            message: result.message || 'รับเงินสำเร็จ'
+            message: result.message || 'Success/Error'
           });
       } else {
-          const errorMsg = result.message || 'ไม่สามารถรับเงินได้ (สถานะไม่สำเร็จ)';
+          const errorMsg = result.message || '()';
           console.warn(`[TrueWallet] Failed: ${errorMsg}`);
           if (voucherRef) {
              await voucherRef.delete().catch(() => {});
@@ -1256,9 +1256,9 @@ import healthRoute from './src/routes/health.route.js';
         }
         if (error.response) {
             const result = error.response.data;
-            return res.json({ success: false, error: result?.message || 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์ API' });
+            return res.json({ success: false, error: result?.message || 'API' });
         }
-        return res.status(500).json({ success: false, error: 'เกิดข้อผิดพลาดในการเชื่อมต่อเครือข่าย' });
+        return res.status(500).json({ success: false, error: 'Success/Error' });
     }
   });
 
@@ -1270,12 +1270,12 @@ import healthRoute from './src/routes/health.route.js';
       const uid = (req as any).user.uid;
 
       if (!imageBase64) {
-        return res.status(400).json({ success: false, error: 'ข้อมูลไม่ครบถ้วน' });
+        return res.status(400).json({ success: false, error: 'Success/Error' });
       }
 
       if (!process.env.SLIPOK_API_KEY) {
         console.warn(`[Slip] SLIPOK_API_KEY is missing. Rejecting slip upload.`);
-        return res.status(503).json({ success: false, error: 'ระบบสแกนสลิปปิดปรับปรุงชั่วคราว กรุณาติดต่อผู้นำเข้าระบบหรือแอดมิน' });
+        return res.status(503).json({ success: false, error: 'Success/Error' });
       }
 
       const imageBuffer = Buffer.from(imageBase64, 'base64');
@@ -1283,7 +1283,7 @@ import healthRoute from './src/routes/health.route.js';
       // Limit file size to ~5MB
       if (imageBuffer.length > 5 * 1024 * 1024) {
          console.warn(`[Security] User ${uid} attempted to upload a file too large (${imageBuffer.length} bytes).`);
-         return res.status(400).json({ success: false, error: 'ขนาดไฟล์ใหญ่เกินไป (ห้ามเกิน 5MB)' });
+         return res.status(400).json({ success: false, error: '( 5MB)' });
       }
 
       // Detect magic bytes 
@@ -1293,7 +1293,7 @@ import healthRoute from './src/routes/health.route.js';
       
       if (!isJpeg && !isPng) {
          console.warn(`[Security] User ${uid} uploaded invalid file type (magic bytes: ${hex}).`);
-         return res.status(400).json({ success: false, error: 'รูปแบบไฟล์ไม่ถูกต้อง รองรับเฉพาะ JPG หรือ PNG เท่านั้น' });
+         return res.status(400).json({ success: false, error: 'JPG  PNG' });
       }
 
       const blob = new Blob([imageBuffer], { type: isJpeg ? 'image/jpeg' : 'image/png' });
@@ -1303,7 +1303,7 @@ import healthRoute from './src/routes/health.route.js';
       const slipokApiId = process.env.SLIPOK_API_ID;
       const slipokApiKey = process.env.SLIPOK_API_KEY;
       if (!slipokApiId || !slipokApiKey) {
-        return res.status(500).json({ success: false, error: 'ระบบไม่ได้ตั้งค่า SLIPOK_API_ID หรือ SLIPOK_API_KEY ไว้' });
+        return res.status(500).json({ success: false, error: 'SLIPOK_API_ID  SLIPOK_API_KEY' });
       }
 
       const response = await axios.post(
@@ -1320,24 +1320,24 @@ import healthRoute from './src/routes/health.route.js';
       if (response.data.success === true || response.data.code === '0000' || response.data.data?.amount !== undefined) {
         const amount = parseFloat(response.data.data?.amount || 0);
         if (isNaN(amount) || amount <= 0) {
-            return res.json({ success: false, error: 'ยอดเงินในสลิปไม่ถูกต้อง' });
+            return res.json({ success: false, error: 'Success/Error' });
         }
         
         const transRef = response.data.data?.transRef;
         const receiverProxy = response.data.data?.receiver?.proxy?.value || '';
         const receiverName = response.data.data?.receiver?.displayName || response.data.data?.receiver?.name || '';
         
-        const EXPECTED_NAME_TH = process.env.SHOP_ACCOUNT_NAME_TH || "กรวิชญ์";
+        const EXPECTED_NAME_TH = process.env.SHOP_ACCOUNT_NAME_TH || "Success/Error";
         const EXPECTED_NAME_EN = process.env.SHOP_ACCOUNT_NAME_EN || "KORNWICH";
         const EXPECTED_PROMPTPAY = process.env.SHOP_PROMPTPAY_NUMBER || "";
         
         let isMatch = false;
         
-        // ถ้ามีการตั้งค่า SHOP_PROMPTPAY_NUMBER ไว้ ให้ตรวจ proxy ก่อนเสมอ (ป้องกันชื่อปลอม)
+        //  SHOP_PROMPTPAY_NUMBER   proxy  ()
         if (EXPECTED_PROMPTPAY) {
            isMatch = receiverProxy.includes(EXPECTED_PROMPTPAY) || receiverProxy.replace(/-/g, '').includes(EXPECTED_PROMPTPAY);
         } else {
-           // เช็คชื่อผู้รับเงินแบบยืดหยุ่น โดยอาศัยตัวแปรแวดล้อมเพื่อความปลอดภัย
+           //  
            const normalizedReceiver = (receiverName || "").toLowerCase().replace(/[\s\-\.]/g, "");
            const normalizedExpectedTh = EXPECTED_NAME_TH.toLowerCase().replace(/[\s\-\.]/g, "");
            const normalizedExpectedEn = EXPECTED_NAME_EN.toLowerCase().replace(/[\s\-\.]/g, "");
@@ -1350,7 +1350,7 @@ import healthRoute from './src/routes/health.route.js';
         if (!isMatch) {
             return res.json({ 
               success: false, 
-              error: `ชื่อบัญชีผู้รับเงินไม่สมบูรณ์ (สลิปโอนไปที่: ${receiverName || 'ไม่ระบุ'}) ไม่ตรงกับชื่อบัญชีของทางร้าน กรุณาติดต่อแอดมิน` 
+              error: ` (: ${receiverName || 'Success/Error'})  ` 
             });
         }
         
@@ -1371,11 +1371,11 @@ import healthRoute from './src/routes/health.route.js';
              });
           } catch(e: any) {
              if (e.message === 'SLIP_USED') {
-                return res.json({ success: false, error: 'สลิปนี้ถูกใช้งานไปแล้ว (ตรวจสอบจากระบบ)' });
+                return res.json({ success: false, error: '()' });
              }
              // If DB transaction fails for reasons other than SLIP_USED, we must not proceed.
              console.error("Slip transaction failed:", e);
-             return res.status(500).json({ success: false, error: 'ระบบขัดข้องชั่วคราว ไม่สามารถตรวจสอบสลิปได้ กรุณาลองใหม่อีกครั้ง' });
+             return res.status(500).json({ success: false, error: 'Success/Error' });
           }
         }
 
@@ -1399,7 +1399,7 @@ import healthRoute from './src/routes/health.route.js';
                     date: new Date().toISOString(),
                     type: 'slip',
                     money: amount,
-                    title: 'เติมเงินสำเร็จ',
+                    title: 'Success/Error',
                     image: 'https://img2.pic.in.th/IMG_6166.png'
                   };
                   const topupRef = admin.firestore().collection('topups').doc(topupDoc.id);
@@ -1409,11 +1409,11 @@ import healthRoute from './src/routes/health.route.js';
                }
             });
 
-            console.log(`[Slip] Updated balance for user ${uid} (+฿${amount})`);
+            console.log(`[Slip] Updated balance for user ${uid} (+${amount})`);
             return res.json({ success: true, amount, topup: topupDoc });
           } catch (syncErr: any) {
              if (syncErr.message === 'USER_NOT_FOUND') {
-                 return res.json({ success: false, error: 'ข้อมูลสมาชิกไม่ถูกต้อง' });
+                 return res.json({ success: false, error: 'Success/Error' });
              }
             console.error(`[Slip] Balance sync error:`, syncErr);
           }
@@ -1422,15 +1422,15 @@ import healthRoute from './src/routes/health.route.js';
         return res.json({ success: true, amount });
       } else {
         const errorMsg = response.data.data?.message || response.data.message;
-        return res.json({ success: false, error: errorMsg || 'ไม่สามารถรับเงินได้' });
+        return res.json({ success: false, error: errorMsg || 'Success/Error' });
       }
     } catch (error: any) {
         if (error.response) {
             const errorMsg = error.response.data?.message;
-            return res.json({ success: false, error: errorMsg || 'สลิปไม่ถูกต้อง หรือถูกใช้งานไปแล้ว' });
+            return res.json({ success: false, error: errorMsg || 'Success/Error' });
         } else {
             console.error("SlipOK API Error:", error.message);
-            return res.status(500).json({ success: false, error: 'เกิดข้อผิดพลาดในการเชื่อมต่อเครือข่าย' });
+            return res.status(500).json({ success: false, error: 'Success/Error' });
         }
     }
   });
@@ -1441,7 +1441,7 @@ import healthRoute from './src/routes/health.route.js';
   const turnstileCache = new Map<string, { time: number; uses: number }>();
 
   app.post('/api/check', checkLimiter, requireAuth, async (req, res) => {
-    return res.status(410).json({ success: false, error: 'ระบบตรวจสอบนี้ถูกปิดใช้งานอย่างถาวรเพื่อความปลอดภัย' });
+    return res.status(410).json({ success: false, error: 'Success/Error' });
   });
 
   const ___dep_check = async (req: any, res: any) => {
@@ -1452,10 +1452,10 @@ import healthRoute from './src/routes/health.route.js';
 
     // HIGH-06: Strict Input Validation
     if (!account || typeof account !== 'string' || account.length > 64 || !/^[a-zA-Z0-9_\-@.]+$/.test(account)) {
-       return res.status(400).json({ error: 'บัญชีผู้ใช้ไม่ถูกต้อง (ความยาว 1-64 ตัวอักษร, อนุญาตเฉพาะ a-z, 0-9, _, -, @, .)' });
+       return res.status(400).json({ error: '( 1-64 ,  a-z, 0-9, _, -, @, .)' });
     }
     if (!password || typeof password !== 'string' || password.length > 64) {
-       return res.status(400).json({ error: 'รหัสผ่านไม่ถูกต้อง (ความยาว 1-64 ตัวอักษร)' });
+       return res.status(400).json({ error: '( 1-64 )' });
     }
 
     if (!account || !password) return res.status(400).json({ error: 'Missing credentials' });
@@ -1735,7 +1735,7 @@ import healthRoute from './src/routes/health.route.js';
       }
 
       if (preloginRes.status === 403) {
-         return res.json({ success: false, error: 'ระบบโดนจำกัดการเข้าถึง (403 Forbidden)' });
+         return res.json({ success: false, error: '(403 Forbidden)' });
       }
 
       const preData = preloginRes.data;
@@ -1743,7 +1743,7 @@ import healthRoute from './src/routes/health.route.js';
          return res.json({ success: false, error: `Prelogin: ${preData.error}` });
       }
       if (!preData.v1 || !preData.v2) {
-         return res.json({ success: false, error: 'ระบบตรวจพบโปรแกรมอัตโนมัติ (DataDome / Captcha).' });
+         return res.json({ success: false, error: '(DataDome / Captcha).' });
       }
 
       const hashed_password = "dummy";
@@ -1767,9 +1767,9 @@ import healthRoute from './src/routes/health.route.js';
 
       const loginData = loginRes.data;
       if (loginData.error) {
-        const errorMsg = loginData.error === 'error_auth' ? 'รหัสผ่านผิด' : 
-                         loginData.error.includes('captcha') ? 'ต้องแก้ Captcha (Garena Login)' :
-                         loginData.error === 'error_not_exist' ? 'ไม่พบไอดีนี้' : 
+        const errorMsg = loginData.error === 'error_auth' ? '' : 
+                         loginData.error.includes('captcha') ? ' Captcha (Garena Login)' :
+                         loginData.error === 'error_not_exist' ? '' : 
                          loginData.error;
         return res.json({ success: false, error: errorMsg });
       }
@@ -1891,17 +1891,17 @@ import healthRoute from './src/routes/health.route.js';
       let errorMsg = 'Network Error: ' + (errMsg || 'Unknown Error');
       
       if (err?.code === 'ECONNABORTED' || errMsg.includes('timeout') || err?.code === 'ETIMEDOUT') {
-        errorMsg = 'การเชื่อมต่อถูกยกเลิก (ใช้เวลาเกิน). Proxy ช้าเกินไป หรือค้าง';
+        errorMsg = '(). Proxy';
       } else if (err?.name === 'AbortError' || err?.code === 'ERR_CANCELED' || err?.name === 'CanceledError' || errMsg === 'canceled') {
-        errorMsg = 'การเชื่อมต่อถูกยกเลิก (ใช้เวลาเกิน). Proxy ช้าเกินไป หรือค้าง';
+        errorMsg = '(). Proxy';
       } else if (err?.code === 'ECONNRESET') {
-        errorMsg = 'การเชื่อมต่อถูกตัด (ECONNRESET)';
+        errorMsg = '(ECONNRESET)';
       } else if (errMsg.includes('disconnected') || errMsg.includes('TLS')) {
-        errorMsg = 'เชื่อมต่อไม่ปลอดภัย (TLS Error/Blocked)';
+        errorMsg = '(TLS Error/Blocked)';
       } else if (err?.code === 'ECONNREFUSED' || errMsg.includes('ECONNREFUSED')) {
-        errorMsg = 'เซิร์ฟเวอร์ Proxy ออฟไลน์';
+        errorMsg = 'Proxy';
       } else if (errMsg.includes('CONNECT response')) {
-        errorMsg = 'Proxy หมดอายุหรือถูกแบน';
+        errorMsg = 'Proxy';
       }
       
       return res.json({ success: false, error: errorMsg, isProxyError: true });
@@ -2017,14 +2017,14 @@ if (process.env.REDIS_URL) {
                 
                 const rovRef = admin.firestore().collection('products').doc('rov_standard');
                 const rovData = {
-                  name: "ไอดีเกม RoV ระดับพรีเมียม (สกินอลังการ พร้อมไต่แรงก์)",
+                  name: "Battle Arena Account",
                   price: 390,
                   originalPrice: 450,
-                  category: "ไอดีเกมส์ยอดนิยม",
+                  category: "Success/Error",
                   stock: 5,
                   soldCount: 142,
                   imageUrl: "https://seeklogo.com/images/A/arena-of-valor-logo-1BDD4A191C-seeklogo.com.png",
-                  description: "ประวัติขาวสะอาด ไม่เคยโดนแบน ฮีโร่ครบ สกินเพียบพร้อมรูนเลเวล 90 ทุกสาย",
+                  description: "90",
                   isPopular: true,
                   isDeleted: false,
                   stockData: ["rov_user1:rov_pass1", "rov_user2:rov_pass2", "rov_user3:rov_pass3", "rov_user4:rov_pass4", "rov_user5:rov_pass5"],
@@ -2037,14 +2037,14 @@ if (process.env.REDIS_URL) {
                 
                 const netflixRef = admin.firestore().collection('products').doc('netflix_4k');
                 const netflixData = {
-                  name: "Netflix Premium Ultra HD 4K (30 วัน - จอส่วนตัว)",
+                  name: "Netflix Premium 4K (30 Days)",
                   price: 139,
                   originalPrice: 199,
-                  category: "แอปพรีเมียม / บันเทิง",
+                  category: "/",
                   stock: 12,
                   soldCount: 945,
                   imageUrl: "https://upload.wikimedia.org/wikipedia/commons/f/ff/Netflix-new-icon.png",
-                  description: "ความละเอียด 4K HDR เสียงรอบทิศทาง ใช้งานส่วนตัว เสถียรสูง 100% ตลอดทั้งเดือน",
+                  description: "4K HDR    100%",
                   isPopular: true,
                   isDeleted: false,
                   stockData: [
@@ -2062,14 +2062,14 @@ if (process.env.REDIS_URL) {
 
                 const youtubeRef = admin.firestore().collection('products').doc('youtube_premium');
                 const youtubeData = {
-                  name: "YouTube Premium 4K (30 วัน - บัญชีส่วนตัวความปลอดภัยสูง)",
+                  name: "YouTube Premium (30 Days)",
                   price: 39,
                   originalPrice: 69,
-                  category: "แอปพรีเมียม / บันเทิง",
+                  category: "/",
                   stock: 15,
                   soldCount: 1248,
                   imageUrl: "https://upload.wikimedia.org/wikipedia/commons/e/e1/Logo_of_YouTube_%282015-2017%29.svg",
-                  description: "ไม่มีโฆษณาคั่นอย่างสมบูรณ์ เล่นขณะปิดหน้าจอได้ แถมบริการเสริม Youtube Music HQ",
+                  description: "Youtube Music HQ",
                   isPopular: true,
                   isDeleted: false,
                   stockData: [
@@ -2084,14 +2084,14 @@ if (process.env.REDIS_URL) {
 
                 const discordRef = admin.firestore().collection('products').doc('discord_nitro');
                 const discordData = {
-                  name: "Discord Nitro Premium Gift (1 เดือน - บัญชีแท้ 100%)",
+                  name: "Discord Nitro Gift",
                   price: 119,
                   originalPrice: 320,
-                  category: "แอปพรีเมียม / บันเทิง",
+                  category: "/",
                   stock: 8,
                   soldCount: 231,
                   imageUrl: "https://upload.wikimedia.org/wikipedia/commons/c/ca/Discord_Color_Logo.svg",
-                  description: "รับบูสเซิร์ฟเวอร์ฟรี x2 สติกเกอร์เคลื่นไหว อีโมจิพิเศษทุกเซิร์ฟ และแชร์จอ 1080p 60fps",
+                  description: "x2    1080p 60fps",
                   isPopular: true,
                   isDeleted: false,
                   stockData: [
@@ -2702,11 +2702,11 @@ const diskUpload = multer({ dest: uploadDir });
     try {
       const adminDb = admin.firestore();
       const limit = Math.min(100, parseInt(req.query.limit as string) || 20);
-      const afterDocId = req.query.after as string | undefined; // cursor = doc ID ของรายการสุดท้าย
+      const afterDocId = req.query.after as string | undefined; // cursor = doc ID 
 
       let q: any = adminDb.collection('purchases').orderBy('date', 'desc').limit(limit);
 
-      // ถ้ามี cursor ให้เริ่มหลัง document นั้น
+      //  cursor  document 
       if (afterDocId) {
         const cursorDoc = await adminDb.collection('purchases').doc(afterDocId).get();
         if (cursorDoc.exists) {
@@ -2735,7 +2735,7 @@ const diskUpload = multer({ dest: uploadDir });
       const snap = await q.get();
       const data = snap.docs.map((doc: any) => ({ dbId: doc.id, ...doc.data() }));
       
-      // ส่ง nextCursor กลับไปให้ client ใช้ต่อ
+      //  nextCursor  client 
       const nextCursor = snap.docs.length === limit ? snap.docs[snap.docs.length - 1].id : null;
       
       return res.json({ data, nextCursor });
@@ -2793,7 +2793,7 @@ const diskUpload = multer({ dest: uploadDir });
     try {
       const newDoc = { key, plan: plan || 'premium', status: 'active', created_at: new Date().toISOString() };
       await admin.firestore().collection('license_keys').add(newDoc);
-      res.json({ success: true, message: `เพิ่มคีย์ ${key} สำเร็จ!`, plan: newDoc.plan });
+      res.json({ success: true, message: ` ${key} !`, plan: newDoc.plan });
     } catch (error) {
       res.status(500).json({ error: 'Internal server error while adding key' });
     }
@@ -2801,7 +2801,7 @@ const diskUpload = multer({ dest: uploadDir });
 
   app.post('/api/discord-redeem', async (req: any, res: any) => {
     const { key, secret } = req.body;
-    // ตั้งค่ารหัสลับให้ตรงกันระหว่างเว็บกับบอท
+    // 
     const expectedSecret = process.env.DISCORD_BOT_SECRET;
     if (!expectedSecret) {
       return res.status(500).json({ error: 'DISCORD_BOT_SECRET is not configured' });
@@ -2811,27 +2811,27 @@ const diskUpload = multer({ dest: uploadDir });
     }
     
     if (!key || typeof key !== 'string' || key.trim().length < 8) {
-      return res.status(400).json({ error: 'กรุณาระบุคีย์ที่ถูกต้อง (ความยาวอย่างน้อย 8 ตัวอักษร)' });
+      return res.status(400).json({ error: '( 8 )' });
     }
 
     try {
-      // 1. ลองหา key ใน license_keys
+      // 1.  key  license_keys
       const licenseSnapshot = await admin.firestore().collection('license_keys').where('key', '==', key).where('status', '==', 'active').get();
       if (!licenseSnapshot.empty) {
         const docId = licenseSnapshot.docs[0].id;
         const docRef = admin.firestore().collection('license_keys').doc(docId);
         await docRef.update({ status: 'used' });
-        // บันทึกประวัติ
+        // 
         await admin.firestore().collection('used_keys').add({
             key,
             used_by_discord: true,
             uid: req.body.uid || null,
             used_at: new Date().toISOString()
         });
-        return res.json({ success: true, message: 'รับยศสำเร็จ!' });
+        return res.json({ success: true, message: '!' });
       }
 
-      // 2. ถ้าไม่เจอ ลองหาในประวัติการสั่งซื้อ (purchases)
+      // 2.   (purchases)
       let foundDoc = null;
       try {
         const escapedKey = key.trim().replace(/[%_\\]/g, '\\$&');
@@ -2855,17 +2855,17 @@ const diskUpload = multer({ dest: uploadDir });
       } catch(e) {}
 
       if (!foundDoc) {
-        return res.status(404).json({ error: 'ไม่พบคีย์นี้ในระบบ หรือคีย์ไม่ถูกต้อง' });
+        return res.status(404).json({ error: 'Success/Error' });
       }
 
       if (foundDoc.discordClaimed) {
-        return res.status(400).json({ error: 'คีย์นี้ถูกใช้งานเพื่อรับยศไปแล้ว' });
+        return res.status(400).json({ error: 'Success/Error' });
       }
 
       // Mark as claimed
       await admin.firestore().collection('purchases').doc(foundDoc.id).update({ ...foundDoc, discordClaimed: true });
 
-      res.json({ success: true, message: 'รับยศสำเร็จ!' });
+      res.json({ success: true, message: '!' });
       writeAuditLog('DISCORD_ROLE_CLAIM', (req as any).user?.uid || 'system', 'discord_role', req, { key: req.body.key });
     } catch (e: any) {
       console.error(e);
@@ -2878,7 +2878,7 @@ const diskUpload = multer({ dest: uploadDir });
     quantity = parseInt((quantity || 0).toString(), 10);
     if (!productId || isNaN(quantity) || quantity < 1 || quantity > 1000) {
       console.warn(`[Buy] Invalid request. productId: ${productId}, quantity: ${quantity}`);
-      return res.status(400).json({ error: 'ชื่อสินค้า หรือ จำนวนไม่ถูกต้อง (ซื้อได้สูงสุด 1,000 ชิ้น/ครั้ง)' });
+      return res.status(400).json({ error: '( 1,000 /)' });
     }
 
     const userId = (req as any).user.uid;
@@ -2922,10 +2922,10 @@ const diskUpload = multer({ dest: uploadDir });
         const totalCost = price * quantity;
 
         if ((Number(userData.balance) || 0) < totalCost) {
-          return { isError: true, message: 'ยอดเงินไม่เพียงพอ' };
+          return { isError: true, message: 'Success/Error' };
         }
         if (!productData.isPreOrder && quantity > (Number(productData.stock) || 0)) {
-          return { isError: true, message: 'สินค้าในสต๊อกไม่เพียงพอ' };
+          return { isError: true, message: 'Success/Error' };
         }
 
         // --- Start of Stock Extraction ---
@@ -2984,7 +2984,7 @@ const diskUpload = multer({ dest: uploadDir });
              // Data desync detected (chunks were lost or corrupted). Fix the stock count.
              const actualRealStock = existingStock.length + claimedItems.length;
              t.update(productRef, { stock: actualRealStock });
-             return { isError: true, message: 'สินค้าในสต๊อกไม่เพียงพอ' }; 
+             return { isError: true, message: 'Success/Error' }; 
           }
           remainingBuffer = existingStock;
         }
@@ -3001,7 +3001,7 @@ const diskUpload = multer({ dest: uploadDir });
             ? `${productData.name || 'Unknown Product'} [${req.body.preOrderOption}] (x${quantity})` 
             : `${productData.name || 'Unknown Product'} (x${quantity})`,
           price: totalCost,
-          secretData: productData.isPreOrder ? "ระบบอยู่ระหว่างกำลังจัดหาไอดีให้ท่าน..." : claimedItems.join('\n'),
+          secretData: productData.isPreOrder ? "..." : claimedItems.join('\n'),
           date: new Date().toISOString(),
           billNumber: 'B-' + Math.floor(Math.random()*1000000).toString().padStart(6, '0'),
           is_special: false
@@ -3662,8 +3662,8 @@ const diskUpload = multer({ dest: uploadDir });
   if (communityData.categories.length === 0) {
      const catId = 'cat-' + Date.now();
      communityData.categories.push({ id: catId, name: 'INFORMATION', order: 0 });
-     communityData.channels.push({ id: 'ch-claim', categoryId: catId, name: 'รับยศ-basic', type: 'role_claim', order: 0 });
-     communityData.channels.push({ id: 'ch-gen', categoryId: catId, name: 'ประกาศทั่วไป', type: 'text', order: 1 });
+     communityData.channels.push({ id: 'ch-claim', categoryId: catId, name: '-basic', type: 'role_claim', order: 0 });
+     communityData.channels.push({ id: 'ch-gen', categoryId: catId, name: '', type: 'text', order: 1 });
      saveCommunity();
   }
 
@@ -3674,7 +3674,7 @@ const diskUpload = multer({ dest: uploadDir });
   app.post('/api/redeem', mutationLimiter, requireAuth, async (req: any, res: any) => {
     const { key } = req.body;
     if (!key || typeof key !== 'string' || key.trim().length < 8) {
-      return res.status(400).json({ error: 'รูปแบบคีย์ไม่ถูกต้องหรือสั้นเกินไป (ความยาวอย่างน้อย 8 ตัวอักษร)' });
+      return res.status(400).json({ error: '( 8 )' });
     }
 
     try {
@@ -3684,11 +3684,11 @@ const diskUpload = multer({ dest: uploadDir });
       let keyDocRef: any = null;
       let isProductKey = false;
 
-      // 1. ลองหาคีย์ใน license_keys (ระบบคีย์ระดับ Premium/VIP แบบเก่า)
+      // 1.  license_keys ( Premium/VIP )
       const snapshot = await admin.firestore().collection('license_keys').where('key', '==', key).where('status', '==', 'active').get();
       if (!snapshot.docs || snapshot.docs.length === 0) {
         
-        // 2. ถ้าไม่เจอ ลองหาในประวัติการสั่งซื้อ (เผื่อเป็นคีย์แรนด้อม/คีย์สินค้าที่ซื้อไป)
+        // 2.   (/)
         let foundDoc = null;
         try {
           const escapedKey = key.trim().replace(/[%_\\]/g, '\\$&');
@@ -3713,7 +3713,7 @@ const diskUpload = multer({ dest: uploadDir });
         } catch(e) {}
 
         if (!foundDoc) {
-           return res.status(400).json({ error: 'ไม่พบคีย์ในระบบ หรือคีย์นี้ถูกใช้งานไปแล้ว' });
+           return res.status(400).json({ error: 'Success/Error' });
         }
 
         isProductKey = true;
@@ -3742,10 +3742,10 @@ const diskUpload = multer({ dest: uploadDir });
       });
 
       if (isProductKey) {
-        // ให้ยศเป็นชื่อของสินค้า (หรือถ้าอยากให้เป็น premium ก็ใส่ premium)
+        //  ( premium  premium)
         rankToGive = keyData.productName?.replace(/ \(.+\)/g, '') || 'VIP';
         
-        // เพิ่มลงในประวัติ (optional)
+        //  (optional)
         await admin.firestore().collection('used_keys').add({
           key: key,
           ip: req.ip || '',
@@ -3754,11 +3754,11 @@ const diskUpload = multer({ dest: uploadDir });
           used_at: new Date().toISOString()
         });
 
-        // คีย์สินค้ารับยศได้ ให้เป็นตลอดชีพ
+        //  
         expireDate.setDate(expireDate.getDate() + 9999);
 
       } else {
-        // เพิ่มลงในประวัติ 
+        //  
         await admin.firestore().collection('used_keys').add({
           key: key,
           ip: req.ip || '',
@@ -3788,7 +3788,7 @@ const diskUpload = multer({ dest: uploadDir });
       
       res.json({ success: true, rank: rankToGive, type: isProductKey ? 'Product Rank' : keyData.type });
     } catch (e: any) {
-      res.status(500).json({ error: e.message === 'Key already used' ? 'คีย์ถูกใช้งานไปแล้ว' : e.message });
+      res.status(500).json({ error: e.message === 'Key already used' ? '' : e.message });
     }
   });
 
@@ -4058,15 +4058,15 @@ const diskUpload = multer({ dest: uploadDir });
   }
 
   app.post('/api/telegram/catcher/request', requireAuth, async (req: any, res: any) => {
-      return res.status(410).json({ status: 'error', error: 'ระบบดักซองถูกปิดใช้งานอย่างถาวรเพื่อความปลอดภัย' });
+      return res.status(410).json({ status: 'error', error: '' });
   });
 
   app.post('/api/telegram/catcher/submit', requireAuth, async (req: any, res: any) => {
-      return res.status(410).json({ success: false, error: 'ระบบปิดใช้งาน' });
+      return res.status(410).json({ success: false, error: 'Success/Error' });
   });
 
   app.post('/api/telegram/catcher/status', requireAuth, async (req: any, res: any) => {
-      return res.json({ status: 'error', logs: ['ระบบปิดใช้งาน'] });
+      return res.json({ status: 'error', logs: [''] });
   });
 
   app.post('/api/telegram/catcher/stop', requireAuth, async (req: any, res: any) => {
@@ -4091,7 +4091,7 @@ const diskUpload = multer({ dest: uploadDir });
 
       if (!isPremium) {
           if (tgDailyCount >= 100) {
-              return res.status(400).json({ error: 'โควต้าผู้ใช้งานฟรีเต็มแล้วสำหรับวันนี้ (100 คน) กรุณากลับมาใหม่พรุ่งนี้ หรืออัปเกรด VIP' });
+              return res.status(400).json({ error: '(100 )   VIP' });
           }
           tgDailyCount++;
       }
@@ -4124,7 +4124,7 @@ const diskUpload = multer({ dest: uploadDir });
               uid: (req as any).user.uid,
               encryptedPhone: encrypt(telegramPhone),
               truemoneyPhone,
-              logs: ['เริ่มเชื่อมต่อเข้าสู่ระบบ Telegram...']
+              logs: ['Telegram...']
           };
           tgSessions.set(sessionId, sess);
 
@@ -4134,7 +4134,7 @@ const diskUpload = multer({ dest: uploadDir });
               phoneCode: async () => {
                   const sessData = tgSessions.get(sessionId!)!;
                   sessData.status = 'pending_otp';
-                  sessData.logs.push('รอรหัส OTP จาก Telegram ของคุณ...');
+                  sessData.logs.push('OTP  Telegram ...');
                   const { promise, resolve } = createResolver();
                   sessData.resolveOtp = resolve;
                   return await promise as string;
@@ -4142,7 +4142,7 @@ const diskUpload = multer({ dest: uploadDir });
               password: async () => {
                    const sessData = tgSessions.get(sessionId!)!;
                    sessData.status = 'pending_password';
-                   sessData.logs.push('ต้องการรหัส 2FA Password...');
+                   sessData.logs.push('2FA Password...');
                    const { promise, resolve } = createResolver();
                    sessData.resolvePassword = resolve;
                    return await promise as string;
@@ -4151,13 +4151,13 @@ const diskUpload = multer({ dest: uploadDir });
                   const sessData = tgSessions.get(sessionId!);
                   if (sessData) {
                       sessData.status = 'error';
-                      sessData.logs.push(`ข้อผิดพลาด: ${err.message}`);
+                      sessData.logs.push(`: ${err.message}`);
                   }
               }
           }).then(() => {
               const sessData = tgSessions.get(sessionId!)!;
               sessData.status = 'connected';
-              sessData.logs.push('เชื่อมต่อบัญชีสำเร็จ! บอทกำลังดักซองในพื้นหลัง (คุณสามารถปิดหน้านี้ได้)');
+              sessData.logs.push('!  ()');
               
               // Handle New Message
               const topup = new TopupSystem(truemoneyPhone);
@@ -4170,14 +4170,14 @@ const diskUpload = multer({ dest: uploadDir });
                       if (matches && matches.length > 0) {
                           for (const vurl of matches) {
                               const startTime = Date.now();
-                              pushTgLog(sessionId!, `🎯 เจอซอง! ${vurl}`);
+                              pushTgLog(sessionId!, `🎯 ! ${vurl}`);
                               
                               try {
                                   const result = await topup.redeemVoucher(vurl);
                                   
                                   if (result.success) {
                                       const speed = Date.now() - startTime;
-                                      pushTgLog(sessionId!, `✅ รับซองสำเร็จ! +${result.amount} บาท | ${speed}ms`);
+                                      pushTgLog(sessionId!, `✅ ! +${result.amount}  | ${speed}ms`);
                                       
                                       const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
                                       if (webhookUrl) {
@@ -4186,10 +4186,10 @@ const diskUpload = multer({ dest: uploadDir });
                                                   title: "🌊 FFM Sniper Success!",
                                                   color: 0x00FF00,
                                                   fields: [
-                                                      { name: "💰 จำนวนเงิน", value: `**${result.amount}** บาท`, inline: true },
-                                                      { name: "⚡ ความเร็ว", value: `\`${speed}ms\``, inline: true },
-                                                      { name: "👤 จาก", value: `${result.ownerName}`, inline: true },
-                                                      { name: "🔗 ลิงก์", value: `[Link](${vurl})` }
+                                                      { name: "💰", value: `**${result.amount}** `, inline: true },
+                                                      { name: "⚡", value: `\`${speed}ms\``, inline: true },
+                                                      { name: "👤", value: `${result.ownerName}`, inline: true },
+                                                      { name: "🔗", value: `[Link](${vurl})` }
                                                   ],
                                                   timestamp: new Date()
                                               }]
@@ -4199,7 +4199,7 @@ const diskUpload = multer({ dest: uploadDir });
                                       pushTgLog(sessionId!, `❌ ${result.message}`);
                                   }
                               } catch(e) {
-                                  pushTgLog(sessionId!, `❌ ข้อผิดพลาดในการรับซอง`);
+                                  pushTgLog(sessionId!, `❌ `);
                               }
                           }
                       }
@@ -4210,7 +4210,7 @@ const diskUpload = multer({ dest: uploadDir });
               const sessData = tgSessions.get(sessionId!);
               if (sessData) {
                   sessData.status = 'error';
-                  sessData.logs.push(`ข้อผิดพลาดการเชื่อมต่อ: ${e.message}`);
+                  sessData.logs.push(`: ${e.message}`);
               }
           });
 
@@ -4225,7 +4225,7 @@ const diskUpload = multer({ dest: uploadDir });
   app.post('/api/telegram/catcher/submit', requireAuth, async (req: any, res: any) => {
       const { sessionId, type, value } = req.body;
       const sess = tgSessions.get(sessionId);
-      if (!sess) return res.status(400).json({ error: 'ไม่พบเซสชั่น' });
+      if (!sess) return res.status(400).json({ error: 'Success/Error' });
       if (sess.uid !== req.user.uid) return res.status(403).json({ error: 'Access denied' });
 
       if (type === 'otp' && sess.resolveOtp) {
@@ -4293,7 +4293,7 @@ const diskUpload = multer({ dest: uploadDir });
   });
 
   app.post('/api/discord/token-on/status', requireAuth, async (req: any, res: any) => {
-      return res.json({ status: 'none', logs: ['ระบบปิดใช้งาน'] });
+      return res.json({ status: 'none', logs: [''] });
   });
 
   app.post('/api/discord/token-on/stop', requireAuth, async (req: any, res: any) => {
@@ -4325,7 +4325,7 @@ const diskUpload = multer({ dest: uploadDir });
           sess = { 
               ws, 
               status: 'idle', 
-              logs: ['🎯 เริ่มระบบ Token On (24/7)...']
+              logs: ['🎯  Token On (24/7)...']
           };
           discordTokenOnSessions.set(discordToken, sess);
 
@@ -4333,7 +4333,7 @@ const diskUpload = multer({ dest: uploadDir });
 
           ws.on('open', () => {
               sess!.status = 'connected';
-              pushDiscordOnLog(discordToken, '✅ เชื่อมต่อ Discord Gateway สำเร็จ! ไอดีของคุณออนไลน์แล้ว');
+              pushDiscordOnLog(discordToken, '✅  Discord Gateway !');
               // Identify Payload
               ws.send(JSON.stringify({
                   "op": 2,
@@ -4380,7 +4380,7 @@ const diskUpload = multer({ dest: uploadDir });
               }
               
               if (payload.t === 'READY') {
-                  pushDiscordOnLog(discordToken, `✅ ยืนยันตัวตนสำเร็จ: ${payload.d.user.username}#${payload.d.user.discriminator}`);
+                  pushDiscordOnLog(discordToken, `✅ : ${payload.d.user.username}#${payload.d.user.discriminator}`);
               }
           });
 
@@ -4389,7 +4389,7 @@ const diskUpload = multer({ dest: uploadDir });
               const curSess = discordTokenOnSessions.get(discordToken);
               if (curSess) {
                  curSess.status = 'error';
-                 pushDiscordOnLog(discordToken, '❌ ตัดการเชื่อมต่อจาก Discord Gateway แล้ว');
+                 pushDiscordOnLog(discordToken, '❌  Discord Gateway');
               }
           });
 
@@ -4397,7 +4397,7 @@ const diskUpload = multer({ dest: uploadDir });
               const curSess = discordTokenOnSessions.get(discordToken);
               if (curSess) {
                   curSess.status = 'error';
-                  pushDiscordOnLog(discordToken, `❌ ข้อผิดพลาด WebSocket: ${err.message}`);
+                  pushDiscordOnLog(discordToken, `❌  WebSocket: ${err.message}`);
               }
           });
 
@@ -4447,11 +4447,11 @@ const diskUpload = multer({ dest: uploadDir });
   }
 
   app.post('/api/discord/catcher/request', requireAuth, async (req: any, res: any) => {
-      return res.status(410).json({ status: 'error', error: 'ระบบดักซองถูกปิดใช้งานอย่างถาวรเพื่อความปลอดภัย' });
+      return res.status(410).json({ status: 'error', error: '' });
   });
 
   app.post('/api/discord/catcher/status', async (req, res) => {
-      return res.json({ status: 'error', logs: ['ระบบปิดใช้งาน'] });
+      return res.json({ status: 'error', logs: [''] });
   });
 
   app.post('/api/discord/catcher/stop', requireAuth, async (req: any, res: any) => {
@@ -4476,7 +4476,7 @@ const diskUpload = multer({ dest: uploadDir });
 
       if (!isPremium) {
           if (tgDailyCount >= 100) {
-              return res.status(400).json({ error: 'โควต้าผู้ใช้งานฟรีเต็มแล้วสำหรับวันนี้ (100 คน) กรุณากลับมาใหม่พรุ่งนี้ หรืออัปเกรด VIP' });
+              return res.status(400).json({ error: '(100 )   VIP' });
           }
           tgDailyCount++;
       }
@@ -4504,7 +4504,7 @@ const diskUpload = multer({ dest: uploadDir });
               status: 'idle', 
               encryptedToken: encrypt(discordToken),
               truemoneyPhone,
-              logs: ['เริ่มเชื่อมต่อเข้าสู่ระบบ Discord (WebSocket)...']
+              logs: ['Discord (WebSocket)...']
           };
           discordSessions.set(sessionId, sess);
 
@@ -4513,7 +4513,7 @@ const diskUpload = multer({ dest: uploadDir });
           ws.on('open', () => {
               const curSess = discordSessions.get(sessionId!);
               if (curSess) curSess.status = 'connected';
-              pushDiscordLog(sessionId!, 'เชื่อมต่อ Gateway สำเร็จ กำลังรอรับข้อความซอง...');
+              pushDiscordLog(sessionId!, 'Gateway  ...');
               // Identify Payload
               ws.send(JSON.stringify({
                   "op": 2,
@@ -4550,18 +4550,18 @@ const diskUpload = multer({ dest: uploadDir });
                       const matches = message.match(voucherRegex);
                       
                       if (matches && matches.length > 0) {
-                          pushDiscordLog(sessionId!, `🎯 เจอซอง! เริ่มการรับเครดิตเข้าเบอร์ ${truemoneyPhone}`);
+                          pushDiscordLog(sessionId!, `🎯 !  ${truemoneyPhone}`);
                           for (const vurl of matches) {
                               try {
                                   const result = await twApi(vurl, truemoneyPhone);
                                   if (result?.status?.code === 'SUCCESS') {
-                                      pushDiscordLog(sessionId!, `✅ รับซองสำเร็จ! +${result.data.my_ticket.amount_baht} บาท`);
+                                      pushDiscordLog(sessionId!, `✅ ! +${result.data.my_ticket.amount_baht} `);
                                   } else {
                                       // @ts-ignore
-                                      pushDiscordLog(sessionId!, `❌ ${result?.status?.message || 'ไม่สามารถรับได้'}`);
+                                      pushDiscordLog(sessionId!, `❌ ${result?.status?.message || 'Success/Error'}`);
                                   }
                               } catch(e) {
-                                  pushDiscordLog(sessionId!, `❌ ข้อผิดพลาดในการรับซอง`);
+                                  pushDiscordLog(sessionId!, `❌ `);
                               }
                           }
                       }
@@ -4583,7 +4583,7 @@ const diskUpload = multer({ dest: uploadDir });
               const curSess = discordSessions.get(sessionId!);
               if (curSess) {
                  curSess.status = 'error';
-                 pushDiscordLog(sessionId!, '❌ ตัดการเชื่อมต่อจาก Discord Gateway แล้ว');
+                 pushDiscordLog(sessionId!, '❌  Discord Gateway');
               }
           });
 
@@ -4591,7 +4591,7 @@ const diskUpload = multer({ dest: uploadDir });
               const curSess = discordSessions.get(sessionId!);
               if (curSess) {
                   curSess.status = 'error';
-                  pushDiscordLog(sessionId!, `❌ ข้อผิดพลาด WebSocket: ${err.message}`);
+                  pushDiscordLog(sessionId!, `❌  WebSocket: ${err.message}`);
               }
           });
 
@@ -4652,14 +4652,14 @@ const diskUpload = multer({ dest: uploadDir });
       );
 
       if (response.status === 204 || response.status === 200) {
-        res.json({ success: true, message: 'รับตราสำเร็จ' });
+        res.json({ success: true, message: 'Success/Error' });
       } else {
-        res.status(response.status).json({ error: 'เกิดข้อผิดพลาดในการรับตรา', details: response.data });
+        res.status(response.status).json({ error: 'Success/Error', details: response.data });
       }
     } catch (error: any) {
       console.error("Discord hypesquad error:", error.response?.data || error.message);
       res.status(error.response?.status || 500).json({ 
-        error: error.response?.data?.message || "ไม่สามารถเชื่อมต่อกับ Discord ได้ ลองตรวจสอบ Token อีกครั้งหรือบัญชีอาจจะติด Flag" 
+        error: error.response?.data?.message || "Discord   Token  Flag" 
       });
     }
   });
@@ -4678,14 +4678,14 @@ const diskUpload = multer({ dest: uploadDir });
       });
 
       if (response.status === 204 || response.status === 200) {
-        res.json({ success: true, message: 'ลบตราสำเร็จ' });
+        res.json({ success: true, message: 'Success/Error' });
       } else {
-        res.status(response.status).json({ error: 'เกิดข้อผิดพลาดในการลบตรา', details: response.data });
+        res.status(response.status).json({ error: 'Success/Error', details: response.data });
       }
     } catch (error: any) {
       console.error("Discord hypesquad remove error:", error.response?.data || error.message);
       res.status(error.response?.status || 500).json({ 
-        error: error.response?.data?.message || "ไม่สามารถเชื่อมต่อกับ Discord ได้ ลองตรวจสอบ Token อีกครั้ง" 
+        error: error.response?.data?.message || "Discord   Token" 
       });
     }
   */ };

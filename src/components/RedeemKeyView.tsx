@@ -18,12 +18,11 @@ export const RedeemKeyView: React.FC<RedeemKeyViewProps> = ({ redeemKey, userEma
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (keyInput && isLoggedIn) {
-      redeemKey(keyInput, userEmail || 'ผู้ใช้งานทั่วไป');
+      redeemKey(keyInput, userEmail || '');
     }
   };
 
-  return (
-    <div className="min-h-[85vh] flex flex-col items-center justify-center p-4 md:p-8 font-sans">
+  return (<div className="min-h-[85vh] flex flex-col items-center justify-center p-4 md:p-8 font-sans">
       <motion.div 
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -35,8 +34,8 @@ export const RedeemKeyView: React.FC<RedeemKeyViewProps> = ({ redeemKey, userEma
             className="flex items-center gap-2 text-muted-foreground hover:text-white transition-all group font-bold px-4 py-2.5 bg-card border border-border border-2 brut-card"
           >
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-            <span className="hidden sm:inline">กลับหน้าหลัก</span>
-            <span className="sm:hidden">กลับ</span>
+            <span className="hidden sm:inline"></span>
+            <span className="sm:hidden"></span>
           </button>
           
           <div className="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground border border-border border-2">
@@ -57,21 +56,19 @@ export const RedeemKeyView: React.FC<RedeemKeyViewProps> = ({ redeemKey, userEma
                   <KeyIcon className="w-8 h-8 text-white" />
                 </div>
                 <h2 className="text-3xl font-black text-white tracking-tight mb-3">
-                  อัพเกรดเป็น <span className="text-blue-600">Premium</span>
+                  <span className="text-blue-600">Premium</span>
                 </h2>
               </div>
 
               <div className="pt-6 border-t border-border border-2 relative z-10">
                 <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mb-3 flex items-center gap-2">
-                  <ShoppingCart className="w-3 h-3" /> ต้องการสั่งซื้อคีย์?
-                </p>
+                  <ShoppingCart className="w-3 h-3" /> Bought?</p>
                 <button 
                   onClick={onGoToStore}
                   className="w-full flex items-center justify-between px-5 py-4 bg-card hover:bg-[#050505] text-white transition-all active:scale-[0.98] group brut-card"
                 >
                   <span className="text-xs font-bold flex items-center gap-2">
-                    สั่งซื้อผ่านเว็บไซต์เลย
-                  </span>
+                    Bought</span>
                   <ChevronRight className="w-4 h-4 opacity-70 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
                 </button>
               </div>
@@ -85,7 +82,7 @@ export const RedeemKeyView: React.FC<RedeemKeyViewProps> = ({ redeemKey, userEma
                      <KeyIcon className="w-3 h-3" /> Activation Center
                    </div>
                    <h3 className="text-2xl font-black text-white mb-2">Redeem Code</h3>
-                   <p className="text-muted-foreground text-sm">วางคีย์ 16 หลัก บลาๆ</p>
+                   <p className="text-muted-foreground text-sm">16</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
@@ -108,8 +105,8 @@ export const RedeemKeyView: React.FC<RedeemKeyViewProps> = ({ redeemKey, userEma
                     </div>
                     {!isLoggedIn && (
                       <div className="mt-3 text-center">
-                        <p className="text-sm font-bold text-[#2563EB] mb-2">กรุณาเข้าสู่ระบบก่อนกรอกคีย์</p>
-                        <button type="button" onClick={onLoginClick} className="px-4 py-2 bg-primary text-primary-foreground text-blue-600 text-sm font-bold hover:bg-purple-600/20 transition-colors">เข้าสู่ระบบ / สมัครสมาชิก</button>
+                        <p className="text-sm font-bold text-[#2563EB] mb-2">Log In</p>
+                        <button type="button" onClick={onLoginClick} className="px-4 py-2 bg-primary text-primary-foreground text-blue-600 text-sm font-bold hover:bg-purple-600/20 transition-colors">Log In / Sign Up</button>
                       </div>
                     )}
                   </div>
@@ -121,7 +118,6 @@ export const RedeemKeyView: React.FC<RedeemKeyViewProps> = ({ redeemKey, userEma
                   >
                     <div className="absolute inset-0 bg-primary text-primary-foreground blur-lg opacity-20 group-hover:opacity-40 transition-opacity"></div>
                     <div className="relative h-full w-full bg-primary text-primary-foreground text-white font-bold text-sm uppercase tracking-widest flex items-center justify-center gap-3 active:scale-[0.98] transition-all">
-                      เปิดใช้งานเดี๋ยวนี้
                       <Zap className="w-4 h-4 fill-white flex-shrink-0" />
                     </div>
                   </button>

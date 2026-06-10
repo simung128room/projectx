@@ -36,7 +36,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   const balance = userPlan?.balance || 0;
   const fullName = userPlan?.fullName || '-';
   const username = userPlan?.username || user?.email?.split('@')[0] || '';
-  const email = user?.email || 'เข้าสู่ระบบด้วยคีย์ (Anonymous)';
+  const email = user?.email || 'Log In (Anonymous)';
   const registeredAt = userPlan?.registeredAt ? new Date(userPlan.registeredAt).toLocaleDateString('th-TH') : new Date().toLocaleDateString('th-TH');
 
   const handleCopy = (text: string, id: string) => {
@@ -50,12 +50,10 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
     const dateStr = timestamp ? new Date(timestamp).toLocaleString('th-TH') : '-';
     const displayId = item.id.substring(0, 8).toUpperCase();
     
-    return (
-      <div key={item.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-[#0a0a0b] border border-zinc-800 hover:border-zinc-700 transition-all rounded-xl gap-3">
+    return (<div key={item.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-[#0a0a0b] border border-zinc-800 hover:border-zinc-700 transition-all rounded-xl gap-3">
         <div className="flex flex-col gap-1.5">
           <span className="text-sm font-bold text-white tracking-wide truncate max-w-[200px] sm:max-w-[400px]">
-            {type === 'purchase' ? item.productName : `เปิดใช้งานคีย์: ${item.key || 'ไม่ระบุ'}`}
-          </span>
+            {type === 'purchase' ? item.productName : `: ${item.key || ''}`}</span>
           <div className="flex flex-wrap items-center gap-2.5 text-xs text-zinc-400">
             <span className="font-mono bg-zinc-900 border border-zinc-800 px-2 py-0.5 rounded text-neon-green font-bold">#{displayId}</span>
             <span>{dateStr}</span>
@@ -64,8 +62,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
         <div className="flex items-center gap-3 self-end sm:self-auto">
           {type === 'purchase' ? (
             <span className="font-black text-rose-500 font-mono text-sm tracking-wide">
-              -{(item.price || 0).toLocaleString()} ฿
-            </span>
+              -{(item.price || 0).toLocaleString()}</span>
           ) : (
             <span className="font-bold text-neon-green text-[10px] px-2.5 py-1 bg-neon-green/10 border border-neon-green/20 rounded">
               SUCCESS
@@ -107,18 +104,17 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             <div className="w-full bg-[#0d0d0f] border border-zinc-800 p-5 rounded-xl flex flex-col items-center relative overflow-hidden shadow-inner">
               <div className="flex items-center gap-2 mb-2">
                 <Wallet className="w-4 h-4 text-neon-green" />
-                <span className="text-zinc-400 text-[10px] font-black uppercase tracking-wider">ยอดเงินคงเหลือ</span>
+                <span className="text-zinc-400 text-[10px] font-black uppercase tracking-wider"></span>
               </div>
               <div className="text-4xl font-black text-white mb-2 tracking-tight font-mono select-none">
-                <span className="text-sm font-bold text-neon-green mr-1 font-sans">฿</span>
+                <span className="text-sm font-bold text-neon-green mr-1 font-sans"></span>
                 {Math.floor(balance).toLocaleString()}
               </div>
               <button 
                 onClick={() => setActiveView('wallet')}
                 className="mt-2 w-full bg-neon-green text-black hover:bg-neon-green/90 py-2.5 rounded-lg text-xs font-black uppercase tracking-widest transition-all duration-150 cursor-pointer shadow-md shadow-neon-green/10"
               >
-                + เติมเงิน
-              </button>
+                +</button>
             </div>
           </div>
 
@@ -126,8 +122,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           <div className="md:w-2/3 p-6 sm:p-8">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-lg font-bold text-white flex items-center gap-2.5">
-                <ShieldCheck className="w-5 h-5 text-neon-green"/> ข้อมูลส่วนตัว
-              </h2>
+                <ShieldCheck className="w-5 h-5 text-neon-green"/> </h2>
             </div>
 
             <form onSubmit={async (e) => {
@@ -136,13 +131,13 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               const newFullName = formData.get('fullName') as string;
               
               if (!user) {
-                Swal.fire({ icon: 'error', title: 'ไม่พบข้อมูลผู้ใช้', text: 'กรุณาเข้าสู่ระบบก่อนอัพเดทโปรไฟล์', background: '#09090b', color: '#fff' });
+                Swal.fire({ icon: 'error', title: '', text: 'Log In', background: '#09090b', color: '#fff' });
                 return;
               }
 
               // Display loading state
               Swal.fire({
-                title: 'กำลังบันทึกข้อมูล...',
+                title: '...',
                 allowOutsideClick: false,
                 didOpen: () => { Swal.showLoading(); }
               });
@@ -153,31 +148,30 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 const newPlan = { ...userPlan, fullName: newFullName, username: userPlan?.username || username, isPremium: userPlan?.isPremium || false, premiumExpireDate: userPlan?.premiumExpireDate || null };
                 setUserPlan(newPlan);
                 if (clientIp) localStorage.setItem(`checker_userplan_${clientIp}`, JSON.stringify(newPlan));
-                Swal.fire({ icon: 'success', title: 'อัพเดทสำเร็จ', timer: 1500, showConfirmButton: false, background: '#09090b', color: '#fff' });
+                Swal.fire({ icon: 'success', title: '', timer: 1500, showConfirmButton: false, background: '#09090b', color: '#fff' });
               } catch (err: any) {
                 console.error('Error updating profile:', err);
                 Swal.fire({
                   icon: 'error',
-                  title: 'อัพเดทไม่สำเร็จ',
-                  text: err.response?.data?.error || err.message || 'เกิดข้อผิดพลาดในการบันทึกข้อมูล',
+                  title: '',
+                  text: err.response?.data?.error || err.message || '',
                   background: '#09090b',
                   color: '#fff'
                 });
               }
-            }} className="space-y-4 mb-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            }} className="space-y-4 mb-8"><div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider mb-2 block ml-1">ชื่อ-นามสกุล</label>
+                  <label className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider mb-2 block ml-1">-</label>
                   <input 
                     name="fullName" 
                     type="text" 
                     defaultValue={fullName !== '-' ? fullName : ''}
-                    placeholder="ระบุชื่อ-นามสกุล"
+                    placeholder="-"
                     className="w-full bg-[#0a0a0b] border border-zinc-800 rounded-xl py-3 px-4 text-sm text-white focus:border-neon-green/50 focus:ring-1 focus:ring-neon-green/10 outline-none transition-all placeholder:text-zinc-500 font-medium" 
                   />
                 </div>
                 <div>
-                  <label className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider mb-2 block ml-1">สมัครสมาชิกเมื่อ</label>
+                  <label className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider mb-2 block ml-1">Sign Up</label>
                   <div className="w-full bg-[#0a0a0b] border border-zinc-800 rounded-xl py-3 px-4 text-sm text-zinc-400 cursor-not-allowed flex items-center gap-2.5 font-medium">
                     <Calendar className="w-4 h-4 text-zinc-500 shrink-0" /> {registeredAt}
                   </div>
@@ -185,7 +179,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               </div>
               
               <div>
-                <label className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider mb-2 block ml-1">อีเมล</label>
+                <label className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider mb-2 block ml-1"></label>
                 <div className="w-full bg-[#0a0a0b] border border-zinc-800 rounded-xl py-3 px-4 text-sm text-zinc-400 cursor-not-allowed flex items-center justify-between gap-2 overflow-hidden font-medium">
                   <div className="flex items-center gap-2.5 truncate">
                     <Mail className="w-4 h-4 text-zinc-500 shrink-0" />
@@ -193,32 +187,30 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                   </div>
                   <button 
                     type="button"
-                    onClick={() => { navigator.clipboard.writeText(email); Swal.fire({ title: 'Copied!', text: 'คัดลอกอีเมลสำเร็จ', icon: 'success', timer: 1000, showConfirmButton: false, background: '#09090b', color: '#fff' }); }}
+                    onClick={() => { navigator.clipboard.writeText(email); Swal.fire({ title: 'Copied!', text: '', icon: 'success', timer: 1000, showConfirmButton: false, background: '#09090b', color: '#fff' }); }}
                     className="p-1.5 hover:bg-zinc-800/60 rounded-lg transition-colors text-zinc-500 hover:text-white shrink-0 cursor-pointer"
                     title="Copy Email"
-                  >
-                    <Copy className="w-4 h-4" />
+                  ><Copy className="w-4 h-4" />
                   </button>
                 </div>
               </div>
 
               <div className="flex justify-end pt-2">
                 <button type="submit" className="bg-neon-green text-black hover:bg-neon-green/90 font-extrabold py-2.5 px-6 transition-all text-sm rounded-lg cursor-pointer uppercase tracking-wider">
-                  บันทึกการแก้ไข
-                </button>
+                  </button>
               </div>
             </form>
 
             {/* Quick Menu */}
             <div className="mb-8">
-              <h3 className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider mb-3.5 ml-1">เมนูด่วน</h3>
+              <h3 className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider mb-3.5 ml-1"></h3>
               <div className="space-y-2.5">
                 <button type="button" onClick={() => setActiveView('history')} className="w-full flex items-center justify-between p-3.5 bg-[#0a0a0b] border border-zinc-800 hover:border-neon-green/30 hover:bg-[#0c0c0e] transition-all group rounded-xl cursor-pointer">
                   <div className="flex items-center gap-3">
                     <div className="p-2.5 bg-neon-green/10 text-neon-green border border-neon-green/20 rounded-lg">
                       <History className="w-4 h-4" />
                     </div>
-                    <span className="text-sm font-semibold text-zinc-300 group-hover:text-white transition-colors">ประวัติสั่งซื้อ (History)</span>
+                    <span className="text-sm font-semibold text-zinc-300 group-hover:text-white transition-colors">Order History (History)</span>
                   </div>
                   <ChevronRight className="w-4 h-4 text-zinc-500 group-hover:text-neon-green group-hover:translate-x-1 transition-all" />
                 </button>
@@ -228,7 +220,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                     <div className="p-2.5 bg-zinc-800 border border-zinc-700 text-zinc-300 rounded-lg">
                       <History className="w-4 h-4" />
                     </div>
-                    <span className="text-sm font-semibold text-zinc-300 group-hover:text-white transition-colors">ประวัติระบบเช็คไอดี (Checker Logs)</span>
+                    <span className="text-sm font-semibold text-zinc-300 group-hover:text-white transition-colors">(Checker Logs)</span>
                   </div>
                   <ChevronRight className="w-4 h-4 text-zinc-500 group-hover:text-zinc-300 group-hover:translate-x-1 transition-all" />
                 </button>
@@ -238,7 +230,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                     <div className="p-2.5 bg-neon-green/10 text-neon-green border border-neon-green/20 rounded-lg">
                       <Key className="w-4 h-4" />
                     </div>
-                    <span className="text-sm font-semibold text-zinc-300 group-hover:text-white transition-colors">เปิดใช้งานคีย์ไลเซนส์ (Redeem Key)</span>
+                    <span className="text-sm font-semibold text-zinc-300 group-hover:text-white transition-colors">(Redeem Key)</span>
                   </div>
                   <ChevronRight className="w-4 h-4 text-zinc-500 group-hover:text-neon-green group-hover:translate-x-1 transition-all" />
                 </button>
@@ -246,24 +238,23 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 {user && (
                   <button type="button" onClick={() => { 
                     Swal.fire({
-                      title: 'ยืนยันการออกจากระบบ?',
+                      title: 'Log Out?',
                       icon: 'warning',
                       showCancelButton: true,
                       confirmButtonColor: '#ef4444',
                       cancelButtonColor: '#18181b',
-                      cancelButtonText: '<span style="color:#ffffff">ยกเลิก</span>',
-                      confirmButtonText: 'ออกจากระบบ',
+                      cancelButtonText: '<span style="color:#ffffff"></span>',
+                      confirmButtonText: 'Log Out',
                     }).then((result) => {
                       if (result.isConfirmed) {
                         handleLogout();
                       }
                     });
-                  }} className="w-full flex items-center justify-between p-3.5 bg-[#0a0a0b] border border-red-500/10 hover:border-red-500/40 hover:bg-red-500/5 transition-all group rounded-xl cursor-pointer animate-none">
-                    <div className="flex items-center gap-3">
+                  }} className="w-full flex items-center justify-between p-3.5 bg-[#0a0a0b] border border-red-500/10 hover:border-red-500/40 hover:bg-red-500/5 transition-all group rounded-xl cursor-pointer animate-none"><div className="flex items-center gap-3">
                       <div className="p-2.5 bg-red-500/10 text-red-400 border border-red-500/20 rounded-lg">
                         <LogOut className="w-4 h-4" />
                       </div>
-                      <span className="text-sm font-semibold text-zinc-300 group-hover:text-red-450 transition-colors">ออกจากระบบ</span>
+                      <span className="text-sm font-semibold text-zinc-300 group-hover:text-red-450 transition-colors">Log Out</span>
                     </div>
                     <ChevronRight className="w-4 h-4 text-zinc-500 group-hover:text-red-400 group-hover:translate-x-1 transition-all" />
                   </button>
@@ -273,7 +264,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 
             {/* Linked Accounts */}
             <div className="mb-8">
-              <h3 className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider mb-4 ml-1">การเชื่อมต่อบัญชี (Linked Accounts)</h3>
+              <h3 className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider mb-4 ml-1">(Linked Accounts)</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <button className="flex items-center justify-between p-4 bg-[#0a0a0b] border border-zinc-800 hover:border-[#1877F2]/30 hover:bg-[#1877F2]/5 transition-all group rounded-xl cursor-pointer">
                   <div className="flex items-center gap-3.5">
@@ -282,10 +273,10 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                     </div>
                     <div className="flex flex-col items-start gap-0.5">
                       <span className="text-sm font-bold text-white">Facebook</span>
-                      <span className="text-[10px] text-zinc-500">ไม่ได้เชื่อมต่อ</span>
+                      <span className="text-[10px] text-zinc-500"></span>
                     </div>
                   </div>
-                  <span className="text-xs font-bold text-zinc-400 px-3 py-1.5 bg-zinc-900 border border-zinc-800 rounded-lg hover:text-white transition-colors">เชื่อมต่อ</span>
+                  <span className="text-xs font-bold text-zinc-400 px-3 py-1.5 bg-zinc-900 border border-zinc-800 rounded-lg hover:text-white transition-colors"></span>
                 </button>
                 
                 <button className="flex items-center justify-between p-4 bg-[#0a0a0b] border border-zinc-800 hover:border-[#5865F2]/30 hover:bg-[#5865F2]/5 transition-all group rounded-xl cursor-pointer">
@@ -295,10 +286,10 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                     </div>
                     <div className="flex flex-col items-start gap-0.5">
                       <span className="text-sm font-bold text-white">Discord</span>
-                      <span className="text-[10px] text-zinc-500">ไม่ได้เชื่อมต่อ</span>
+                      <span className="text-[10px] text-zinc-500"></span>
                     </div>
                   </div>
-                  <span className="text-xs font-bold text-zinc-400 px-3 py-1.5 bg-zinc-900 border border-zinc-800 rounded-lg hover:text-white transition-colors">เชื่อมต่อ</span>
+                  <span className="text-xs font-bold text-zinc-400 px-3 py-1.5 bg-zinc-900 border border-zinc-800 rounded-lg hover:text-white transition-colors"></span>
                 </button>
               </div>
             </div>
@@ -306,16 +297,15 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             {/* Purchased Items */}
             <div className="mt-8 border-t border-zinc-800 pt-8">
               <div className="flex items-center justify-between mb-4 px-1">
-                <h3 className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">รายการสินค้าที่ซื้อล่าสุด (Purchased Items)</h3>
+                <h3 className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">Bought (Purchased Items)</h3>
                 <button onClick={() => setActiveView('history')} className="text-xs font-bold text-neon-green hover:text-neon-green/80 hover:underline transition-colors cursor-pointer">
-                  ดูทั้งหมด
-                </button>
+                  View All</button>
               </div>
               
               {purchaseHistory.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-8 bg-[#0a0a0b] border border-zinc-800 border-dashed text-zinc-400 rounded-xl">
                   <Package className="w-6 h-6 opacity-40 mb-2 text-zinc-500" />
-                  <span className="text-xs font-medium">ยังไม่มีประวัติการซื้อ</span>
+                  <span className="text-xs font-medium">Bought</span>
                 </div>
               ) : (
                 <div className="flex flex-col gap-2.5">
@@ -327,16 +317,15 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             {/* Redeemed Keys */}
             <div className="mt-8 border-t border-zinc-800 pt-8">
               <div className="flex items-center justify-between mb-4 px-1">
-                <h3 className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">คีย์ที่เปิดใช้งานล่าสุด (Redeemed Keys)</h3>
+                <h3 className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">(Redeemed Keys)</h3>
                 <button onClick={() => setActiveView('history')} className="text-xs font-bold text-neon-green hover:text-neon-green/80 hover:underline transition-colors cursor-pointer">
-                  ดูทั้งหมด
-                </button>
+                  View All</button>
               </div>
               
               {usedKeysHistory.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-8 bg-[#0a0a0b] border border-zinc-800 border-dashed text-zinc-400 rounded-xl">
                   <Key className="w-6 h-6 opacity-40 mb-2 text-zinc-500" />
-                  <span className="text-xs font-medium">ยังไม่มีประวัติการใช้งานคีย์</span>
+                  <span className="text-xs font-medium"></span>
                 </div>
               ) : (
                 <div className="flex flex-col gap-2.5">

@@ -21,19 +21,18 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({ categories = [],
     const maxPrice = Math.max(...prices);
     
     if (minPrice === maxPrice) {
-      return `฿${minPrice.toLocaleString()}`;
+      return `${minPrice.toLocaleString()}`;
     }
-    return `฿${minPrice.toLocaleString()} - ฿${maxPrice.toLocaleString()}`;
+    return `${minPrice.toLocaleString()} - ${maxPrice.toLocaleString()}`;
   };
 
   const getProductCountText = (cat: any) => {
     const catProducts = cat === 'all' ? products : products.filter(p => p.category === cat.id || p.category === cat.name || p.category === cat.title);
-    return `${catProducts.length} สินค้า`;
+    return `${catProducts.length} `;
   };
 
   const allPriceInfo = getCategoryPriceInfo('all');
-  return (
-    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 pt-24">
+  return (<div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 pt-24">
       <div className="flex items-center gap-4 mb-8">
         <button 
           onClick={onBack}
@@ -43,17 +42,16 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({ categories = [],
         </button>
         <div>
           <h1 className="text-3xl sm:text-4xl font-medium text-white tracking-tight flex items-center gap-3">
-             <Package className="w-8 h-8 text-[#0066ff]" /> หมวดหมู่สินค้า
-          </h1>
-          <p className="text-sm font-medium text-muted-foreground mt-2">เลือกหมวดหมู่ที่ต้องการดูสินค้า</p>
+             <Package className="w-8 h-8 text-[#0066ff]" /> </h1>
+          <p className="text-sm font-medium text-muted-foreground mt-2"></p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <CategoryCard
-          title="ดูสินค้าทั้งหมด"
-          label="ทุกหมวดหมู่"
-          itemCountDesc={`ทั้งหมด ${getProductCountText('all')}`}
+          title="All Products"
+          label=""
+          itemCountDesc={` ${getProductCountText('all')}`}
           priceRangeStr={allPriceInfo || undefined}
           bgImage={siteSettings?.banners?.[0] || "https://img1.pic.in.th/images/-81_20260601213128.png"}
           index={0}
@@ -67,7 +65,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({ categories = [],
           <CategoryCard
             key={c.id || c.name || `category-${i}`}
             title={c.title}
-            label={c.subtitle || "หมวดหมู่"}
+            label={c.subtitle || ""}
             itemCountDesc={`${getProductCountText(c)}`}
             priceRangeStr={getCategoryPriceInfo(c) || undefined}
             bgImage={c.bannerUrl || undefined}

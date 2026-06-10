@@ -27,7 +27,7 @@ export default function AdminStockManagement({ products, categories, setProducts
         })
         .catch(err => {
            console.error("Failed to load stock data", err);
-           Swal.fire({title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถโหลดข้อมูลสต็อกได้', icon: 'error', background: '#09090b', color: '#fff'});
+           Swal.fire({title: '', text: '', icon: 'error', background: '#09090b', color: '#fff'});
         })
         .finally(() => {
            setLoading(false);
@@ -52,7 +52,7 @@ export default function AdminStockManagement({ products, categories, setProducts
          }
 
          Swal.fire({
-           title: 'บันทึกสต็อกเรียบร้อย', 
+           title: '', 
            icon: 'success', 
            toast: true, 
            position: 'top-end', 
@@ -62,7 +62,7 @@ export default function AdminStockManagement({ products, categories, setProducts
            color: '#fff'
          });
       } catch (err: any) {
-         Swal.fire({title: 'เกิดข้อผิดพลาด', text: err.response?.data?.error || err.message || 'ไม่สามารถบันทึกสต็อกได้', icon: 'error', background: '#09090b', color: '#fff'});
+         Swal.fire({title: '', text: err.response?.data?.error || err.message || '', icon: 'error', background: '#09090b', color: '#fff'});
       } finally {
          setLoading(false);
       }
@@ -70,12 +70,12 @@ export default function AdminStockManagement({ products, categories, setProducts
 
   const handleDelete = (originalIndex: number) => {
     Swal.fire({
-      title: 'ลบแถวสต็อกใช่หรือไม่?',
-      text: 'คุณกำลังจะลบสต็อกรายการนี้ออกจากฐานข้อมูลแบบถาวร',
+      title: '?',
+      text: '',
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonText: 'ลบข้อมูล',
-      cancelButtonText: 'ยกเลิก',
+      confirmButtonText: '',
+      cancelButtonText: '',
       background: '#09090b',
       color: '#fff',
       confirmButtonColor: '#EF4444',
@@ -92,12 +92,12 @@ export default function AdminStockManagement({ products, categories, setProducts
 
   const handleEdit = (originalIndex: number, val: string) => {
     Swal.fire({
-      title: 'แก้ไขรายละเอียดรหัส/ลิงก์สต็อก',
+      title: '/',
       input: 'textarea',
       inputValue: val,
       showCancelButton: true,
-      confirmButtonText: 'บันทึก',
-      cancelButtonText: 'ยกเลิก',
+      confirmButtonText: '',
+      cancelButtonText: '',
       background: '#09090b',
       color: '#fff',
       confirmButtonColor: '#3B82F6',
@@ -117,29 +117,26 @@ export default function AdminStockManagement({ products, categories, setProducts
     const totalPages = Math.ceil(filteredStock.length / ITEMS_PER_PAGE);
     const paginated = filteredStock.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
     
-    return (
-      <div className="space-y-6 animate-in fade-in zoom-in-95 duration-200">
+    return (<div className="space-y-6 animate-in fade-in zoom-in-95 duration-200">
          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-zinc-950/20 p-4 border border-zinc-900 rounded-lg">
             <div className="flex items-center gap-4">
                 <button 
                   onClick={() => setSelectedProduct(null)} 
                   className="p-2 border border-zinc-800 bg-zinc-900/60 hover:text-white text-zinc-400 hover:bg-zinc-800 rounded-md transition-colors"
-                  title="กลับ"
-                >
-                    <ArrowLeft className="w-5 h-5" />
+                  title=""
+                ><ArrowLeft className="w-5 h-5" />
                 </button>
                 <div>
                    <h2 className="text-base font-bold text-white flex items-center gap-2">
-                       <Database className="w-4 h-4 text-[#3B82F6]" /> รายการสต็อก: {selectedProduct.name}
-                   </h2>
-                   <p className="text-zinc-500 text-xs">สต็อกทั้งหมด <span className="text-[#3B82F6] font-mono font-bold">{stockItems.length}</span> แถว (ค้นพบ {filteredStock.length} แถว)</p>
+                       <Database className="w-4 h-4 text-[#3B82F6]" /> : {selectedProduct.name}</h2>
+                   <p className="text-zinc-500 text-xs"> <span className="text-[#3B82F6] font-mono font-bold">{stockItems.length}</span> ( {filteredStock.length} )</p>
                 </div>
             </div>
             <div className="w-full sm:w-64 relative">
                 <Search className="w-3.5 h-3.5 text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input 
                   type="text" 
-                  placeholder="ค้นหารหัส หรือคีย์สต็อก..."
+                  placeholder="..."
                   value={searchTerm}
                   onChange={e => { setSearchTerm(e.target.value); setPage(1); }}
                   className="w-full bg-zinc-950 border border-zinc-800 rounded-md py-2 pl-9 pr-4 text-xs text-white focus:border-[#3B82F6] focus:outline-none transition-colors"
@@ -151,13 +148,13 @@ export default function AdminStockManagement({ products, categories, setProducts
               {loading ? (
                   <div className="text-center py-20">
                      <Loader2 className="animate-spin h-8 w-8 text-[#3B82F6] mx-auto mb-3" />
-                     <p className="text-zinc-500 text-xs font-semibold">กำลังเชื่อมต่อฐานข้อมูลสต็อก...</p>
+                     <p className="text-zinc-500 text-xs font-semibold">...</p>
                   </div>
               ) : paginated.length === 0 ? (
                   <div className="text-center py-20 text-zinc-600">
                      <Database className="w-10 h-10 mx-auto mb-2 opacity-35" />
-                     <p className="font-bold text-sm">ไม่พบรายการสต็อกสินค้าชิ้นนี้</p>
-                     <p className="text-xs mt-1">กรุณากลับไปหน้า จัดการสินค้า และคลิกเพิ่มสต๊อกใหม่</p>
+                     <p className="font-bold text-sm">items</p>
+                     <p className="text-xs mt-1"></p>
                   </div>
               ) : (
                  <div className="space-y-2 max-h-[600px] overflow-y-auto pr-1">
@@ -168,16 +165,14 @@ export default function AdminStockManagement({ products, categories, setProducts
                                  <button 
                                    onClick={() => handleEdit(originalIndex, item)} 
                                    className="p-1.5 border border-amber-500/30 bg-amber-500/5 text-amber-400 hover:bg-amber-500/15 hover:border-amber-500/60 rounded transition-all"
-                                   title="แก้ไข"
-                                 >
-                                     <Edit2 className="w-3.5 h-3.5"/>
+                                   title=""
+                                 ><Edit2 className="w-3.5 h-3.5"/>
                                  </button>
                                  <button 
                                    onClick={() => handleDelete(originalIndex)} 
                                    className="p-1.5 border border-rose-500/30 bg-rose-500/5 text-rose-400 hover:bg-rose-500/15 hover:border-rose-500/60 rounded transition-all"
-                                   title="ลบแถวชิ้นนี้"
-                                 >
-                                     <Trash2 className="w-3.5 h-3.5"/>
+                                   title="items"
+                                 ><Trash2 className="w-3.5 h-3.5"/>
                                  </button>
                              </div>
                          </div>
@@ -192,17 +187,13 @@ export default function AdminStockManagement({ products, categories, setProducts
                  onClick={() => setPage(p => Math.max(1, p - 1))} 
                  disabled={page === 1} 
                  className="px-4 py-2 border border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white text-xs font-bold disabled:opacity-30 disabled:cursor-not-allowed rounded transition-colors"
-               >
-                 ก่อนหน้า
-               </button>
-               <span className="text-zinc-500 text-xs font-bold font-mono">หน้า {page} / {totalPages}</span>
+               ></button>
+               <span className="text-zinc-500 text-xs font-bold font-mono">{page} / {totalPages}</span>
                <button 
                  onClick={() => setPage(p => Math.min(totalPages, p + 1))} 
                  disabled={page === totalPages} 
                  className="px-4 py-2 border border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white text-xs font-bold disabled:opacity-30 disabled:cursor-not-allowed rounded transition-colors"
-               >
-                 ถัดไป
-               </button>
+               ></button>
             </div>
          )}
       </div>
@@ -213,15 +204,14 @@ export default function AdminStockManagement({ products, categories, setProducts
     <div className="space-y-6 animate-in fade-in duration-200">
       <div className="bg-zinc-950/20 p-4 border border-zinc-900 rounded-lg">
           <h2 className="text-lg font-bold text-white flex items-center gap-2">
-              <Database className="w-5 h-5 text-[#3B82F6]" /> จัดการคลังสต็อกหลังบ้าน
-          </h2>
-          <p className="text-xs text-zinc-500 mt-1">คุณสามารถดู ค้นหา คัดกรอง แก้ไข และลบแถวคีย์สต็อกของสินค้าทุกหมวดหมู่ได้อย่างสะดวกถ้วนทั่ว</p>
+              <Database className="w-5 h-5 text-[#3B82F6]" /> </h2>
+          <p className="text-xs text-zinc-500 mt-1"></p>
       </div>
 
       {productsByCategory.length === 0 ? (
           <div className="bg-card border border-zinc-800 p-12 text-center rounded-lg">
               <Package className="w-12 h-12 text-zinc-600 mx-auto mb-3 opacity-30" />
-              <p className="text-zinc-500 text-sm font-semibold">ยังไม่มีรายการสินค้าผูกในหมวดหมู่ต่างๆ คลังจึงว่างเปล่า</p>
+              <p className="text-zinc-500 text-sm font-semibold"></p>
           </div>
       ) : (
           <div className="space-y-6">
@@ -247,8 +237,7 @@ export default function AdminStockManagement({ products, categories, setProducts
                                               ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' 
                                               : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
                                           }`}>
-                                              <Database className="w-2.5 h-2.5" /> มีสต็อก: {stockCount}
-                                          </span>
+                                              <Database className="w-2.5 h-2.5" /> : {stockCount}</span>
                                       </div>
                                   </div>
                                   <div className="w-7 h-7 bg-zinc-900 border border-zinc-800 flex items-center justify-center rounded-md opacity-65 group-hover:opacity-100 group-hover:bg-[#3B82F6]/10 group-hover:border-[#3B82F6] transition-all shrink-0">

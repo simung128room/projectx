@@ -34,9 +34,9 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
     if (/[0-9]/.test(pass)) score += 1;
     if (/[^A-Za-z0-9]/.test(pass)) score += 1;
     
-    if (score <= 2) return { score, label: 'อ่อน (Weak)', color: 'bg-rose-500' };
-    if (score <= 3) return { score, label: 'ปานกลาง (Medium)', color: 'bg-amber-500' };
-    return { score, label: 'ปลอดภัย (Strong)', color: 'bg-neon-green' };
+    if (score <= 2) return { score, label: '(Weak)', color: 'bg-rose-500' };
+    if (score <= 3) return { score, label: '(Medium)', color: 'bg-amber-500' };
+    return { score, label: '(Strong)', color: 'bg-neon-green' };
   };
 
   const strength = getPasswordStrength(authPassword);
@@ -49,7 +49,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     if (TURNSTILE_SITE_KEY && !turnstileToken) {
-       Swal.fire({ icon: 'warning', title: 'โปรดยืนยันตัวตน', text: 'กรุณายืนยันว่าคุณไม่ใช่บอท' });
+       Swal.fire({ icon: 'warning', title: '', text: '' });
        return;
     }
     await executeAuth(turnstileToken || 'bypass');
@@ -57,7 +57,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
 
   const executeAuth = async (currentToken: string | null = turnstileToken) => {
     if ((authMode === 'signup' || authMode === 'forgot') && authPassword !== authConfirmPassword) {
-      Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'รหัสผ่านไม่ตรงกัน', confirmButtonColor: '#ef4444' });
+      Swal.fire({ icon: 'error', title: '', text: '', confirmButtonColor: '#ef4444' });
       return;
     }
 
@@ -75,7 +75,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
           throw new Error(e.response?.data?.error || e.message);
         }
         
-        Swal.fire({ icon: 'success', title: 'สมัครสมาชิกสำเร็จ', text: 'กรุณาเข้าสู่ระบบด้วยบัญชีของคุณ', timer: 1500, showConfirmButton: false });
+        Swal.fire({ icon: 'success', title: 'Sign Up', text: 'Log In', timer: 1500, showConfirmButton: false });
         setAuthMode('login');
         setActiveView('login');
       } else if (authMode === 'forgot') {
@@ -88,7 +88,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
           throw new Error(e.response?.data?.error || e.message);
         }
 
-        Swal.fire({ icon: 'success', title: 'รีเซ็ตรหัสผ่านสำเร็จ', text: 'กรุณาเข้าสู่ระบบด้วยรหัสผ่านใหม่', timer: 1500, showConfirmButton: false });
+        Swal.fire({ icon: 'success', title: '', text: 'Log In', timer: 1500, showConfirmButton: false });
         setAuthMode('login');
         setActiveView('login');
       } else {
@@ -98,27 +98,26 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
            throw new Error(error.message);
         }
 
-        Swal.fire({ icon: 'success', title: 'เข้าสู่ระบบสำเร็จ', timer: 1500, showConfirmButton: false });
+        Swal.fire({ icon: 'success', title: 'Log In', timer: 1500, showConfirmButton: false });
         setActiveView('home');
       }
     } catch (err: any) {
       let msg = err?.message || 'An error occurred';
-      if (msg.includes('already registered')) msg = 'ชื่อผู้ใช้ หรือ อีเมลนี้ถูกใช้งานแล้ว';
-      if (msg.includes('Invalid login credentials')) msg = 'ชื่อผู้ใช้ หรือ รหัสผ่านไม่ถูกต้อง';
-      if (msg.includes('invalid email format') || msg.includes('validation failed')) msg = 'รูปแบบอีเมล หรือข้อมูลไม่ถูกต้อง';
-      if (msg.includes('Email not confirmed')) msg = 'โปรดยืนยันอีเมลของคุณ';
-      if (msg.includes('Load failed') || msg.includes('Failed to fetch')) msg = 'การเชื่อมต่อเครือข่ายล้มเหลว (Network Error)';
-      if (msg.includes('Password should be at least')) msg = 'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร';
-      if (msg.toLowerCase().includes('api key')) msg = 'ตั้งค่า API Key ของระบบไม่ถูกต้อง (API Key Invalid)';
+      if (msg.includes('already registered')) msg = '  ';
+      if (msg.includes('Invalid login credentials')) msg = '  ';
+      if (msg.includes('invalid email format') || msg.includes('validation failed')) msg = ' ';
+      if (msg.includes('Email not confirmed')) msg = '';
+      if (msg.includes('Load failed') || msg.includes('Failed to fetch')) msg = ' (Network Error)';
+      if (msg.includes('Password should be at least')) msg = ' 6 ';
+      if (msg.toLowerCase().includes('api key')) msg = 'Settings API Key  (API Key Invalid)';
       
-      Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: msg, confirmButtonColor: '#ef4444' });
+      Swal.fire({ icon: 'error', title: '', text: msg, confirmButtonColor: '#ef4444' });
     } finally {
       setAuthLoading(false);
     }
   };
 
-  return (
-    <div className="min-h-screen w-full flex items-center justify-center p-4 relative overflow-hidden bg-[#030303] text-white">
+  return (<div className="min-h-screen w-full flex items-center justify-center p-4 relative overflow-hidden bg-[#030303] text-white">
       {/* Immersive Background */}
       <div className="absolute inset-0 z-0 select-none pointer-events-none">
         <img 
@@ -152,8 +151,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
             {authMode === 'login' ? 'Welcome Back' : authMode === 'forgot' ? 'Reset Password' : 'Create an Account'}
           </h1>
           <p className="text-xs text-white/40 tracking-wider font-medium uppercase">
-            {authMode === 'login' ? 'กรุณาเข้าสู่ระบบเพื่อดำเนินการต่อ' : authMode === 'forgot' ? 'กรอกอีเมลเพื่อกู้คืนรหัสผ่าน' : 'สมัครสมาชิกเพื่อเริ่มต้นใช้งาน'}
-          </p>
+            {authMode === 'login' ? 'Log In' : authMode === 'forgot' ? '' : 'Sign Up'}</p>
         </div>
 
         {/* Authentication Mode Switcher Pill */}
@@ -163,16 +161,13 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
               type="button"
               onClick={() => { setAuthMode('login'); setActiveView('login'); }}
               className={`flex-1 py-2.5 rounded-lg text-xs font-bold tracking-wider uppercase transition-all duration-300 z-10 ${authMode === 'login' ? 'text-white' : 'text-white/40 hover:text-white/70'}`}
-            >
-              ลงชื่อเข้าใช้
-            </button>
+            ></button>
             <button
               type="button"
               onClick={() => { setAuthMode('signup'); setActiveView('signup'); }}
               className={`flex-1 py-2.5 rounded-lg text-xs font-bold tracking-wider uppercase transition-all duration-300 z-10 ${authMode === 'signup' ? 'text-white' : 'text-white/40 hover:text-white/70'}`}
             >
-              สมัครสมาชิก
-            </button>
+              Sign Up</button>
             {/* Sliding Pill Background */}
             <div 
               className="absolute top-1 bottom-1 w-[calc(50%-4px)] bg-white/10 rounded-lg shadow-md transition-all duration-300 ease-out z-0"
@@ -188,7 +183,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-extrabold text-white/60 tracking-wider pl-1 flex items-center gap-1.5 select-none uppercase">
                   <User className="w-3.5 h-3.5 text-white/40" />
-                  <span>ชื่อผู้ใช้ (Username)</span>
+                  <span>(Username)</span>
                 </label>
                 <div className="relative group">
                   <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within:text-white transition-colors">
@@ -199,10 +194,9 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
                     value={authUsername}
                     onChange={(e) => setAuthUsername(e.target.value)}
                     className="w-full pl-11 pr-4 py-3.5 bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.04] focus:bg-white/[0.04] focus:border-white/20 rounded-xl outline-none transition-all text-white text-sm placeholder:text-white/20 font-sans animate-none"
-                    placeholder="กรอกชื่อผู้ใช้ของคุณ"
+                    placeholder=""
                     required
-                  />
-                </div>
+                  /></div>
               </div>
             </motion.div>
 
@@ -212,7 +206,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
                 <div className="flex flex-col gap-1.5 mt-4">
                   <label className="text-xs font-extrabold text-white/60 tracking-wider pl-1 flex items-center gap-1.5 select-none uppercase">
                     <Mail className="w-3.5 h-3.5 text-white/40" />
-                    <span>อีเมลติดต่อกลับ (Recovery Email)</span>
+                    <span>(Recovery Email)</span>
                   </label>
                   <div className="relative group">
                     <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within:text-white transition-colors">
@@ -223,10 +217,9 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
                       value={authEmail}
                       onChange={(e) => setAuthEmail(e.target.value)}
                       className="w-full pl-11 pr-4 py-3.5 bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.04] focus:bg-white/[0.04] focus:border-white/20 rounded-xl outline-none transition-all text-white text-sm placeholder:text-white/20 font-sans"
-                      placeholder="เช่น admin@yourdomain.com"
+                      placeholder=" admin@yourdomain.com"
                       required
-                    />
-                  </div>
+                    /></div>
                 </div>
               </motion.div>
             )}
@@ -236,7 +229,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-extrabold text-white/60 tracking-wider pl-1 flex items-center gap-1.5 select-none uppercase">
                   <Lock className="w-3.5 h-3.5 text-white/40" />
-                  <span>รหัสผ่าน (Password)</span>
+                  <span>(Password)</span>
                 </label>
                 <div className="relative group">
                   <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within:text-white transition-colors">
@@ -247,11 +240,10 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
                     value={authPassword}
                     onChange={(e) => setAuthPassword(e.target.value)}
                     className="w-full pl-11 pr-12 py-3.5 bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.04] focus:bg-white/[0.04] focus:border-white/20 rounded-xl outline-none transition-all text-white text-sm placeholder:text-white/20 font-sans"
-                    placeholder="กรอกรหัสผ่านของคุณ (มากกว่า 6 ตัวอักษร)"
+                    placeholder=" ( 6 )"
                     required
                     minLength={6}
-                  />
-                  <button 
+                  /><button 
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute inset-y-0 right-4 flex items-center text-white/20 hover:text-white transition-colors p-1"
@@ -266,7 +258,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
             {authMode === 'signup' && authPassword && (
               <motion.div layout key="strength" className="space-y-1.5 mt-2">
                 <div className="flex justify-between text-[11px] font-medium text-white/30 px-1">
-                  <span>ความปลอดภัย</span>
+                  <span></span>
                   <span className={strength.score >= 4 ? "text-[#39ff14]" : strength.score >= 3 ? "text-amber-400" : "text-rose-450"}>
                     {strength.label}
                   </span>
@@ -283,7 +275,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
                 <div className="flex flex-col gap-1.5 mt-4">
                   <label className="text-xs font-extrabold text-white/60 tracking-wider pl-1 flex items-center gap-1.5 select-none uppercase">
                     <Shield className="w-3.5 h-3.5 text-white/40" />
-                    <span>ยืนยันรหัสผ่านอีกครั้ง</span>
+                    <span></span>
                   </label>
                   <div className="relative group">
                     <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within:text-white transition-colors">
@@ -294,11 +286,10 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
                       value={authConfirmPassword}
                       onChange={(e) => setAuthConfirmPassword(e.target.value)}
                       className="w-full pl-11 pr-12 py-3.5 bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.04] focus:bg-white/[0.04] focus:border-white/20 rounded-xl outline-none transition-all text-white text-sm placeholder:text-white/20 font-sans"
-                      placeholder="ป้อนรหัสผ่านเดิมอีกครั้งเพื่อความถูกต้อง"
+                      placeholder=""
                       required
                       minLength={6}
-                    />
-                    <button 
+                    /><button 
                       type="button"
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                       className="absolute inset-y-0 right-4 flex items-center text-white/20 hover:text-white transition-colors p-1"
@@ -316,15 +307,14 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
             <div className="flex justify-between items-center px-1 mt-2">
               <label className="flex items-center gap-2 cursor-pointer group">
                  <input type="checkbox" className="w-3.5 h-3.5 rounded border-white/10 bg-white/5 checked:bg-white/20 text-white focus:ring-0 focus:ring-offset-0 transition-colors" />
-                 <span className="text-[11px] text-white/40 group-hover:text-white/70 transition-colors">จดจำการเข้าระบบ</span>
+                 <span className="text-[11px] text-white/40 group-hover:text-white/70 transition-colors"></span>
               </label>
               <button
                 type="button"
                 onClick={() => setAuthMode('forgot')}
                 className="text-[11px] font-medium text-white/40 hover:text-white transition-colors"
               >
-                ลืมรหัสผ่าน?
-              </button>
+                ?</button>
             </div>
           )}
 
@@ -348,12 +338,11 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
             {authLoading ? (
               <>
                 <span className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" />
-                <span>กำลังดำเนินการ...</span>
+                <span>...</span>
               </>
             ) : (
               <>
-                {authMode === 'login' ? 'เข้าสู่ระบบ' : authMode === 'forgot' ? 'รีเซ็ตรหัสผ่าน' : 'สร้างบัญชี'}
-                <ArrowLeft className="w-4 h-4 rotate-180" />
+                {authMode === 'login' ? 'Log In' : authMode === 'forgot' ? '' : ''}<ArrowLeft className="w-4 h-4 rotate-180" />
               </>
             )}
           </button>
@@ -366,12 +355,10 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
               onClick={() => setAuthMode('login')} 
               className="text-white/40 hover:text-white text-xs font-semibold flex items-center justify-center gap-1.5 mx-auto transition-colors"
             >
-              <ArrowLeft className="w-3.5 h-3.5" /> กลับไปหน้าเข้าสู่ระบบ
-            </button>
+              <ArrowLeft className="w-3.5 h-3.5" /> Log In</button>
           ) : (
             <p className="text-white/30 text-xs mt-2">
-              เมื่อเข้าสู่ระบบ คุณยอมรับ <span className="text-white/60 hover:text-white cursor-pointer underline underline-offset-2 decoration-white/20 transition-colors">ข้อกำหนด</span> และ <span className="text-white/60 hover:text-white cursor-pointer underline underline-offset-2 decoration-white/20 transition-colors">นโยบายความเป็นส่วนตัว</span> ของเรา
-            </p>
+              Log In<span className="text-white/60 hover:text-white cursor-pointer underline underline-offset-2 decoration-white/20 transition-colors"></span>  <span className="text-white/60 hover:text-white cursor-pointer underline underline-offset-2 decoration-white/20 transition-colors"></span> </p>
           )}
         </div>
       </motion.div>
