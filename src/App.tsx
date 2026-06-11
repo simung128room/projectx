@@ -2480,36 +2480,31 @@ function AppContent() {
               </div>
               
               <button
-                onClick={() => setActiveView("settings")}
+                onClick={() => {
+                  setActiveView("profile");
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+                className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200 relative group select-none active:scale-[0.98] cursor-pointer ${activeView === "profile" ? "bg-white/[0.03] text-white border border-white/10 font-bold shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]" : "text-zinc-500 hover:text-white hover:bg-[#0a0a0c]"}`}
+              >
+                {activeView === "profile" && (
+                  <div className="absolute left-0 top-1/4 bottom-1/4 w-[3.5px] bg-neon-green rounded-r shadow-[0_0_8px_#00FF66]" />
+                )}
+                <User className={`w-4 h-4 transition-transform duration-200 group-hover:scale-110 ${activeView === "profile" ? "text-neon-green" : "text-zinc-500"}`} />
+                <span>ข้อมูลบัญชี</span>
+              </button>
+              
+              <button
+                onClick={() => {
+                  setActiveView("settings");
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
                 className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200 relative group select-none active:scale-[0.98] cursor-pointer ${activeView === "settings" ? "bg-white/[0.03] text-white border border-white/10 font-bold shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]" : "text-zinc-500 hover:text-white hover:bg-[#0a0a0c]"}`}
               >
                 {activeView === "settings" && (
                   <div className="absolute left-0 top-1/4 bottom-1/4 w-[3.5px] bg-neon-green rounded-r shadow-[0_0_8px_#00FF66]" />
                 )}
                 <Settings className={`w-4 h-4 transition-transform duration-200 group-hover:scale-110 ${activeView === "settings" ? "text-neon-green" : "text-zinc-500"}`} />
-                <span>การตั้งค่าบัญชี</span>
-              </button>
-              
-              <button
-                onClick={() => setActiveView("wallet_history")}
-                className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200 relative group select-none active:scale-[0.98] cursor-pointer ${activeView === "wallet_history" ? "bg-white/[0.03] text-white border border-white/10 font-bold shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]" : "text-zinc-500 hover:text-white hover:bg-[#0a0a0c]"}`}
-              >
-                {activeView === "wallet_history" && (
-                  <div className="absolute left-0 top-1/4 bottom-1/4 w-[3.5px] bg-neon-green rounded-r shadow-[0_0_8px_#00FF66]" />
-                )}
-                <Wallet className={`w-4 h-4 transition-transform duration-200 group-hover:scale-110 ${activeView === "wallet_history" ? "text-neon-green" : "text-zinc-500"}`} />
-                <span>ประวัติเติมเงิน</span>
-              </button>
-              
-              <button
-                onClick={() => setActiveView("random_history")}
-                className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200 relative group select-none active:scale-[0.98] cursor-pointer ${activeView === "random_history" ? "bg-white/[0.03] text-white border border-white/10 font-bold shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]" : "text-zinc-500 hover:text-white hover:bg-[#0a0a0c]"}`}
-              >
-                {activeView === "random_history" && (
-                  <div className="absolute left-0 top-1/4 bottom-1/4 w-[3.5px] bg-neon-green rounded-r shadow-[0_0_8px_#00FF66]" />
-                )}
-                <Gift className={`w-4 h-4 transition-transform duration-200 group-hover:scale-110 ${activeView === "random_history" ? "text-neon-green" : "text-zinc-500"}`} />
-                <span>ประวัติการสุ่มสินค้า</span>
+                <span>การตั้งค่าความปลอดภัย</span>
               </button>
 
               {/* Tools list */}
@@ -3297,6 +3292,9 @@ function AppContent() {
             {activeView === "my_orders" && (
               <MyOrdersView
                 purchaseHistory={purchaseHistory.filter(
+                  (h) => h.uid === user?.id || h.userId === user?.id,
+                )}
+                topupHistory={topupHistory.filter(
                   (h) => h.uid === user?.id || h.userId === user?.id,
                 )}
               />
