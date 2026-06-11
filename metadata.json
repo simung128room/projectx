@@ -1,6 +1,6 @@
 {
-  "name": "STORETH Check",
-  "description": "Professional automated game account checker tool.",
+  "name": "APEXSTORE",
+  "description": "ร้านขายไอดีเกมและแอปพรีเมียมระบบอัตโนมัติ 24 ชั่วโมง",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

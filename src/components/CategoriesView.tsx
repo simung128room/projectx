@@ -43,7 +43,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({ categories = [],
         </button>
         <div>
           <h1 className="text-3xl sm:text-4xl font-medium text-white tracking-tight flex items-center gap-3">
-             <Package className="w-8 h-8 text-[#0066ff]" /> หมวดหมู่สินค้า
+             <Package className="w-8 h-8 text-neon-green" /> หมวดหมู่สินค้า
           </h1>
           <p className="text-sm font-medium text-muted-foreground mt-2">เลือกหมวดหมู่ที่ต้องการดูสินค้า</p>
         </div>
@@ -58,7 +58,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({ categories = [],
           bgImage={siteSettings?.banners?.[0] || "https://img1.pic.in.th/images/-81_20260601213128.png"}
           index={0}
           onClick={() => onSelectCategory('all')}
-          accentColor="#0066ff"
+          accentColor="#10b981"
           glowColor="transparent"
           gradientFrom="#0a0a0a"
         />
@@ -73,7 +73,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({ categories = [],
             bgImage={c.bannerUrl || undefined}
             index={i + 1}
             onClick={() => onSelectCategory(c.id || c.name || c.title)}
-            accentColor="#0066ff"
+            accentColor="#10b981"
             glowColor="transparent"
             gradientFrom="#0a0a0a"
           />

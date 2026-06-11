@@ -68,7 +68,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
               className="w-full h-full object-contain z-10 transition-transform duration-700 ease-out group-hover:scale-105"
               referrerPolicy="no-referrer"
               onError={(e) => {
-                e.currentTarget.src = "https://img2.pic.in.th/IMG_718032ab9d504326a436.png";
+                e.currentTarget.src = "https://img2.pic.in.th/983B3DCE-90A3-4822-8940-D6B81CCA63A3.png";
               }}
             />
 

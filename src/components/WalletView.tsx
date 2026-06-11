@@ -707,12 +707,12 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
                 </label>
               </div>
 
-              {/* Light blue: วิธีใช้ (Instruction Block) */}
-              <div className="bg-blue-50/80 border border-blue-100 p-4 rounded-2xl select-none text-blue-700">
+              {/* Light green: วิธีใช้ (Instruction Block) */}
+              <div className="bg-[#10b981]/5 border border-[#10b981]/20 p-4 rounded-2xl select-none text-[#10b981]">
                 <p className="text-xs font-black flex items-center gap-1.5 mb-2">
-                  <Info className="w-4 h-4 text-blue-500 shrink-0" /> วิธีใช้
+                  <Info className="w-4 h-4 text-[#10b981] shrink-0" /> วิธีใช้
                 </p>
-                <div className="text-[11px] font-bold space-y-1.5 text-blue-600/90 leading-relaxed">
+                <div className="text-[11px] font-bold space-y-1.5 text-white/70 leading-relaxed">
                   <p>1. โอนเงินไปยังบัญชีธนาคารที่แสดงด้านบน</p>
                   <p>2. ถ่ายรูปสลิปโอนเงินให้ชัดเจน</p>
                   <p>3. อัพโหลดรูปสลิปในช่องด้านบน</p>
@@ -723,11 +723,11 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
               </div>
 
               {/* Yellow warning: หมายเหตุ */}
-              <div className="bg-amber-50 border border-amber-100 p-4 rounded-2xl select-none text-amber-800 font-bold">
+              <div className="bg-amber-550/5 border border-amber-500/10 p-4 rounded-2xl select-none text-amber-500 font-bold">
                 <p className="text-xs font-black flex items-center gap-1.5 mb-2.5">
-                  <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0" /> หมายเหตุ
+                  <AlertTriangle className="w-3.5 h-3.5 text-amber-500 shrink-0" /> หมายเหตุ
                 </p>
-                <div className="text-[11px] space-y-1.5 text-amber-700 leading-normal">
+                <div className="text-[11px] space-y-1.5 text-white/70 leading-normal">
                   <p>• กรุณาตรวจสอบข้อมูลบัญชีให้ถูกต้องก่อนโอน</p>
                   <p>• สลิปที่ใช้แล้วจะไม่สามารถใช้ซ้ำได้</p>
                   <p>• ชื่อผู้รับเงินต้องตรงกับบัญชีที่แสดง</p>

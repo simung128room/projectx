@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import axios from "axios";
 import { Product, SiteStats, Category } from "../types";
-import { ShoppingCart, Package, Users, ChevronRight, Zap, Star, Clock, LayoutGrid, History, MessageSquare, Coins, Bell, Globe } from "lucide-react";
+import { ShoppingCart, Package, Users, ChevronRight, Zap, Star, Clock, LayoutGrid, History, MessageSquare, Coins, Bell } from "lucide-react";
 import { motion } from "motion/react";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -335,7 +335,7 @@ function ProductCard({
 
       {/* Content */}
       <div className="p-4 sm:p-5 flex flex-col flex-1">
-        <h3 className="text-sm font-black text-white leading-snug line-clamp-1 mb-3 group-hover:text-blue-400 transition-colors">
+        <h3 className="text-sm font-black text-white leading-snug line-clamp-1 mb-3 group-hover:text-neon-green transition-colors">
           {product.name}
         </h3>
 
@@ -366,7 +366,7 @@ function ProductCard({
         {/* Buy Button */}
         <button
           onClick={onClick}
-          className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white py-2.5 rounded-xl text-xs font-black transition-all duration-200 mt-auto shadow-md"
+          className="w-full flex items-center justify-center gap-2 bg-[#10b981] hover:bg-[#0fd792] text-black py-2.5 rounded-xl text-xs font-bold transition-all duration-300 ease-out mt-auto shadow-[0_4px_12px_rgba(16,185,129,0.15)] hover:shadow-[0_4px_20px_rgba(16,185,129,0.3)] active:scale-[0.98] cursor-pointer"
         >
           <ShoppingCart className="w-3.5 h-3.5" />
           สั่งซื้อสินค้า
@@ -584,43 +584,6 @@ export const HomeView: React.FC<HomeViewProps> = ({
           </div>
         </section>
 
-        {/* ── World OS Mainframe Core Banner ── */}
-        <section className="mb-8">
-          <motion.button
-            initial={{ opacity: 0, y: 15 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            whileHover={{ scale: 1.01 }}
-            whileTap={{ scale: 0.99 }}
-            onClick={() => setActiveView("wos")}
-            className="w-full bg-[#050505] border border-white/10 hover:border-white/20 p-4 sm:p-5 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 cursor-pointer group text-left relative overflow-hidden"
-          >
-            {/* Pulsing radar dot */}
-            <div className="absolute top-2 right-2 flex items-center gap-1.5 bg-black/45 border border-white/5 rounded-full px-2 py-0.5 pointer-events-none">
-              <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
-              <span className="text-[8px] text-white/50 font-mono">LIVE SYSTEMS</span>
-            </div>
-
-            <div className="flex items-center gap-4">
-              <div className="p-3.5 rounded-xl bg-white/5 border border-white/10 text-white shrink-0 group-hover:scale-105 duration-300">
-                <Globe className="w-6 h-6 animate-pulse" />
-              </div>
-              <div>
-                <h3 className="text-sm font-black text-white tracking-widest uppercase mb-1">
-                  WORLD OPERATING SYSTEM (WOS-09)
-                </h3>
-                <p className="text-[10px] text-zinc-400 font-mono font-bold leading-normal">
-                  Launch the next-generation, high-performance tactical mainframe checker with custom neural AI, latency nodes, & raw license logs.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 group-hover:translate-x-1 duration-300 text-white shrink-0 font-bold font-mono text-[11px] uppercase border border-white/10 group-hover:border-white/30 rounded px-3 py-1.5 bg-black/40">
-              CONNECT MAINBOARD <ChevronRight className="w-4 h-4" />
-            </div>
-          </motion.button>
-        </section>
-
         {/* ── Categories ── */}
         {categories.length > 0 && (
           <section className="mb-10">
@@ -701,7 +664,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     );
                     const imageUrl =
                       matchedProduct?.imageUrl ||
-                      "https://img2.pic.in.th/IMG_718032ab9d504326a436.png";
+                      "https://img2.pic.in.th/983B3DCE-90A3-4822-8940-D6B81CCA63A3.png";
 
                     return (
                       <div
@@ -719,7 +682,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                               referrerPolicy="no-referrer"
                               onError={(e) => {
                                 (e.target as HTMLImageElement).src =
-                                  "https://img2.pic.in.th/IMG_718032ab9d504326a436.png";
+                                  "https://img2.pic.in.th/983B3DCE-90A3-4822-8940-D6B81CCA63A3.png";
                               }}
                               loading="lazy"
                             />

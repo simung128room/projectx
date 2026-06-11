@@ -145,7 +145,6 @@ const ProfileView = lazy(() => import("./components/ProfileView").then((m) => ({
 const CategoriesView = lazy(() => import("./components/CategoriesView").then((m) => ({ default: m.CategoriesView })));
 const AuthView = lazy(() => import("./components/AuthView").then((m) => ({ default: m.AuthView })));
 const HomeView = lazy(() => import("./components/HomeView").then((m) => ({ default: m.HomeView })));
-const WorldOperatingSystemView = lazy(() => import("./components/WorldOperatingSystemView").then((m) => ({ default: m.WorldOperatingSystemView })));
 const ProductDetailView = lazy(() => import("./components/ProductDetailView").then((m) => ({ default: m.ProductDetailView })));
 const MyOrdersView = lazy(() => import("./components/MyOrdersView").then((m) => ({ default: m.MyOrdersView })));
 const CategoryProductsView = lazy(() => import("./components/CategoryProductsView").then((m) => ({ default: m.CategoryProductsView })));
@@ -535,8 +534,7 @@ function AppContent() {
     | "tools"
     | "vip_logs"
     | "free_logs"
-    | "my_orders"
-    | "wos";
+    | "my_orders";
   
   const [language, setLanguage] = useState<"th" | "en">("th");
 
@@ -560,7 +558,7 @@ function AppContent() {
     if (targetPath === "topup") return "wallet";
     if (targetPath === "store") return "categories";
     
-    const validViews = ["landing", "home", "search", "categories", "category_products", "dashboard", "admin", "profile", "logs", "checker_logs", "history", "wallet_history", "order_history", "random_history", "settings", "contact", "login", "signup", "wallet", "redeem", "product_detail", "custom_page", "log_categories", "tools", "vip_logs", "free_logs", "my_orders", "wos"];
+    const validViews = ["landing", "home", "search", "categories", "category_products", "dashboard", "admin", "profile", "logs", "checker_logs", "history", "wallet_history", "order_history", "random_history", "settings", "contact", "login", "signup", "wallet", "redeem", "product_detail", "custom_page", "log_categories", "tools", "vip_logs", "free_logs", "my_orders"];
     if (validViews.includes(targetPath)) return targetPath as ViewType;
     
     return "home";
@@ -928,7 +926,7 @@ function AppContent() {
             ...newHistoryItem,
             title: "สั่งซื้อสำเร็จ",
             icon: ShoppingCart,
-            bg: "bg-blue-600",
+            bg: "bg-emerald-600",
             color: "text-white",
           });
         }
@@ -2299,12 +2297,12 @@ function AppContent() {
       {/* Popup banner removed as requested */}
 
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex flex-col w-[280px] bg-[#070709] border-r border-white/[0.06] p-5 h-screen sticky top-0 shrink-0 overflow-y-auto no-scrollbar z-[70] shadow-[10px_0_30px_rgba(0,0,0,0.5)]">
+      <aside className="hidden lg:flex flex-col w-[280px] bg-[#040406] border-r border-white/[0.04] p-5 h-screen sticky top-0 shrink-0 overflow-y-auto no-scrollbar z-[70]">
         {/* Brand Header */}
         <div className="mb-6 w-full flex flex-col justify-start shrink-0">
           <div className="flex items-center justify-between w-full">
             <img
-              src="https://img2.pic.in.th/IMG_718032ab9d504326a436.png"
+              src="https://img2.pic.in.th/983B3DCE-90A3-4822-8940-D6B81CCA63A3.png"
               alt="APEXSTORE Logo"
               className="h-[40px] object-contain hover:scale-105 active:scale-95 transition-all duration-300 cursor-pointer self-start"
               onClick={handleLogoClick}
@@ -2667,7 +2665,7 @@ function AppContent() {
                 window.scrollTo({ top: 0, behavior: "smooth" });
               }}
             >
-              <img src="https://img2.pic.in.th/IMG_718032ab9d504326a436.png" alt="APEXSTORE Logo" className="h-[44px] md:h-[50px] object-contain" />
+              <img src="https://img2.pic.in.th/983B3DCE-90A3-4822-8940-D6B81CCA63A3.png" alt="APEXSTORE Logo" className="h-[44px] md:h-[50px] object-contain" />
             </div>
 
             <div className="hidden lg:flex items-center gap-2 select-none">
@@ -3109,22 +3107,6 @@ function AppContent() {
                 onProductClick={(id) => {
                   setSelectedProductId(id);
                   setActiveView("product_detail");
-                }}
-              />
-            )}
-            {activeView === "wos" && (
-              <WorldOperatingSystemView
-                products={products}
-                categories={categories}
-                userPlan={userPlan}
-                user={user}
-                setActiveView={setActiveView}
-                onProductClick={(id) => {
-                  setSelectedProductId(id);
-                  setActiveView("product_detail");
-                }}
-                onPurchase={async (p, q) => {
-                  await handlePurchase(p, q);
                 }}
               />
             )}
@@ -3969,7 +3951,7 @@ const PortalLoader: React.FC = () => {
       {/* Decorative backdrop elements */}
       <div className="absolute inset-0 bg-[radial-gradient(#1e1e24_1px,transparent_1px)] [background-size:24px_24px] opacity-40 pointer-events-none" />
       <div className="absolute top-1/4 left-1/4 w-80 h-80 rounded-full bg-neon-green/5 blur-[100px] pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full bg-blue-500/5 blur-[100px] pointer-events-none" />
+      <div className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full bg-neon-green/5 blur-[100px] pointer-events-none" />
 
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
@@ -3981,7 +3963,7 @@ const PortalLoader: React.FC = () => {
         <div className="relative mb-6">
           <div className="absolute inset-0 bg-neon-green/15 blur-[40px] rounded-full scale-90 animate-pulse" />
           <motion.img
-            src="https://img2.pic.in.th/IMG_718032ab9d504326a436.png"
+            src="https://img2.pic.in.th/983B3DCE-90A3-4822-8940-D6B81CCA63A3.png"
             alt="APEXSTORE Logo"
             className="h-16 md:h-18 object-contain relative z-10 filter drop-shadow-[0_0_20px_rgba(16,185,129,0.3)]"
             animate={{

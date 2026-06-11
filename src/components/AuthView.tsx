@@ -145,7 +145,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
             className="mb-6 cursor-pointer"
             onClick={() => setActiveView("home")}
           >
-            <img src="https://img2.pic.in.th/IMG_718032ab9d504326a436.png" alt="APEXSTORE Logo" className="h-[48px] md:h-[56px] object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.1)] hover:scale-105 transition-transform duration-300" />
+            <img src="https://img2.pic.in.th/983B3DCE-90A3-4822-8940-D6B81CCA63A3.png" alt="APEXSTORE Logo" className="h-[48px] md:h-[56px] object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.1)] hover:scale-105 transition-transform duration-300" />
           </motion.div>
           
           <h1 className="text-xl font-bold tracking-wide text-white mb-1.5">
