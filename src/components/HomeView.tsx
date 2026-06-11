@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import axios from "axios";
 import { Product, SiteStats, Category } from "../types";
-import { ShoppingCart, Package, Users, ChevronRight, Zap, Star, Clock, LayoutGrid, History, MessageSquare, Coins, Bell } from "lucide-react";
+import { ShoppingCart, Package, Users, ChevronRight, Zap, Star, Clock, LayoutGrid, History, MessageSquare, Coins, Bell, Globe } from "lucide-react";
 import { motion } from "motion/react";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -582,6 +582,43 @@ export const HomeView: React.FC<HomeViewProps> = ({
               delay={0.4}
             />
           </div>
+        </section>
+
+        {/* ── World OS Mainframe Core Banner ── */}
+        <section className="mb-8">
+          <motion.button
+            initial={{ opacity: 0, y: 15 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            whileHover={{ scale: 1.01 }}
+            whileTap={{ scale: 0.99 }}
+            onClick={() => setActiveView("wos")}
+            className="w-full bg-[#050505] border border-white/10 hover:border-white/20 p-4 sm:p-5 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 cursor-pointer group text-left relative overflow-hidden"
+          >
+            {/* Pulsing radar dot */}
+            <div className="absolute top-2 right-2 flex items-center gap-1.5 bg-black/45 border border-white/5 rounded-full px-2 py-0.5 pointer-events-none">
+              <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
+              <span className="text-[8px] text-white/50 font-mono">LIVE SYSTEMS</span>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <div className="p-3.5 rounded-xl bg-white/5 border border-white/10 text-white shrink-0 group-hover:scale-105 duration-300">
+                <Globe className="w-6 h-6 animate-pulse" />
+              </div>
+              <div>
+                <h3 className="text-sm font-black text-white tracking-widest uppercase mb-1">
+                  WORLD OPERATING SYSTEM (WOS-09)
+                </h3>
+                <p className="text-[10px] text-zinc-400 font-mono font-bold leading-normal">
+                  Launch the next-generation, high-performance tactical mainframe checker with custom neural AI, latency nodes, & raw license logs.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 group-hover:translate-x-1 duration-300 text-white shrink-0 font-bold font-mono text-[11px] uppercase border border-white/10 group-hover:border-white/30 rounded px-3 py-1.5 bg-black/40">
+              CONNECT MAINBOARD <ChevronRight className="w-4 h-4" />
+            </div>
+          </motion.button>
         </section>
 
         {/* ── Categories ── */}

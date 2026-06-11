@@ -145,6 +145,7 @@ const ProfileView = lazy(() => import("./components/ProfileView").then((m) => ({
 const CategoriesView = lazy(() => import("./components/CategoriesView").then((m) => ({ default: m.CategoriesView })));
 const AuthView = lazy(() => import("./components/AuthView").then((m) => ({ default: m.AuthView })));
 const HomeView = lazy(() => import("./components/HomeView").then((m) => ({ default: m.HomeView })));
+const WorldOperatingSystemView = lazy(() => import("./components/WorldOperatingSystemView").then((m) => ({ default: m.WorldOperatingSystemView })));
 const ProductDetailView = lazy(() => import("./components/ProductDetailView").then((m) => ({ default: m.ProductDetailView })));
 const MyOrdersView = lazy(() => import("./components/MyOrdersView").then((m) => ({ default: m.MyOrdersView })));
 const CategoryProductsView = lazy(() => import("./components/CategoryProductsView").then((m) => ({ default: m.CategoryProductsView })));
@@ -534,7 +535,8 @@ function AppContent() {
     | "tools"
     | "vip_logs"
     | "free_logs"
-    | "my_orders";
+    | "my_orders"
+    | "wos";
   
   const [language, setLanguage] = useState<"th" | "en">("th");
 
@@ -558,7 +560,7 @@ function AppContent() {
     if (targetPath === "topup") return "wallet";
     if (targetPath === "store") return "categories";
     
-    const validViews = ["landing", "home", "search", "categories", "category_products", "dashboard", "admin", "profile", "logs", "checker_logs", "history", "wallet_history", "order_history", "random_history", "settings", "contact", "login", "signup", "wallet", "redeem", "product_detail", "custom_page", "log_categories", "tools", "vip_logs", "free_logs", "my_orders"];
+    const validViews = ["landing", "home", "search", "categories", "category_products", "dashboard", "admin", "profile", "logs", "checker_logs", "history", "wallet_history", "order_history", "random_history", "settings", "contact", "login", "signup", "wallet", "redeem", "product_detail", "custom_page", "log_categories", "tools", "vip_logs", "free_logs", "my_orders", "wos"];
     if (validViews.includes(targetPath)) return targetPath as ViewType;
     
     return "home";
@@ -3107,6 +3109,22 @@ function AppContent() {
                 onProductClick={(id) => {
                   setSelectedProductId(id);
                   setActiveView("product_detail");
+                }}
+              />
+            )}
+            {activeView === "wos" && (
+              <WorldOperatingSystemView
+                products={products}
+                categories={categories}
+                userPlan={userPlan}
+                user={user}
+                setActiveView={setActiveView}
+                onProductClick={(id) => {
+                  setSelectedProductId(id);
+                  setActiveView("product_detail");
+                }}
+                onPurchase={async (p, q) => {
+                  await handlePurchase(p, q);
                 }}
               />
             )}

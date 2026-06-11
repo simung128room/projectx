@@ -2,6 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import { LRUCache } from 'lru-cache';
 import Redis from 'ioredis';
+import { GoogleGenAI } from '@google/genai';
 dotenv.config({ override: true });
 
 import path from 'path';
@@ -3923,6 +3924,52 @@ const diskUpload = multer({ dest: uploadDir });
       }
     } catch(e) {}
     res.status(204).end(); // No content to send back, keep it fast
+  });
+
+  // WOS-09 next-generation AI core assistant endpoint
+  app.post('/api/os-assistant', async (req, res) => {
+    try {
+      const { message, history } = req.body;
+      const apiKey = process.env.GEMINI_API_KEY;
+
+      if (!apiKey) {
+        return res.json({
+          text: "WOS-09 [OFFLINE]: No active Neural Link found. Please configure the `GEMINI_API_KEY` inside Settings > Secrets in the workspace to initiate advanced AI operations."
+        });
+      }
+
+      const ai = new GoogleGenAI({
+        apiKey,
+        httpOptions: {
+          headers: {
+            'User-Agent': 'aistudio-build'
+          }
+        }
+      });
+
+      const contents = (history || []).map((h: any) => ({
+        role: h.role === 'model' ? 'model' : 'user',
+        parts: [{ text: h.text || h.message || "" }]
+      }));
+
+      contents.push({
+        role: 'user',
+        parts: [{ text: message }]
+      });
+
+      const result = await ai.models.generateContent({
+        model: 'gemini-3.5-flash',
+        contents,
+        config: {
+          systemInstruction: "You are the central cybernetic intelligence of the STORETH World Operating System (WOS-09). Speak in a highly technical, monochrome next-gen, professional operating system voice. Keep messages concise, crisp, structure with clean text boxes or bullets, and always use English or Thai based on user query. Guide them on hacking/monitoring, server pings, or browsing storefront products. Keep text replies brief."
+        }
+      });
+
+      res.json({ text: result.text });
+    } catch (err: any) {
+      console.error("OS Assistant error:", err);
+      res.status(500).json({ error: err.message || "Central processing unit failed to process neural prompt." });
+    }
   });
 
 
