@@ -1827,7 +1827,7 @@ function AppContent() {
        </div>
      </aside>
 {/* Main Content Area */}
-     <div className="flex-1 flex flex-col min-h-screen min-w-0 relative overflow-x-hidden">
+     <div className="flex-1 flex flex-col min-h-screen min-w-0 relative">
        {/* Top Header */}
        <header className="sticky top-0 z-[100] w-full bg-black/60 backdrop-blur-md border-b border-[#1e1e1e] flex-shrink-0 select-none">
          <div className="flex items-center justify-between h-[80px] px-4 md:px-8 max-w-7xl mx-auto w-full">
@@ -1839,7 +1839,7 @@ function AppContent() {
                window.scrollTo({ top: 0, behavior: "smooth" });
              }}
            >
-             <img src="https://img2.pic.in.th/983B3DCE-90A3-4822-8940-D6B81CCA63A3.png" alt="APEXSTORE Logo" className="h-[44px] md:h-[50px] object-contain" />
+             <img src="https://img2.pic.in.th/983B3DCE-90A3-4822-8940-D6B81CCA63A3.png" alt="APEXSTORE Logo" className="h-[36px] md:h-[40px] object-contain" />
            </div>
 
            <div className="hidden lg:flex items-center gap-2 select-none">
@@ -1851,14 +1851,15 @@ function AppContent() {
            {/* Right Section */}
            <div className="flex items-center gap-2 md:gap-4">
              
-             {/* Search Button */}
-             <button
-               onClick={() => setShowSearchPopup(true)}
-               className="w-[44px] h-[44px] rounded-md flex items-center justify-center text-white/50 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-[#1e1e1e] transition-all duration-200 active:scale-95 cursor-pointer"
-               aria-label="Search"
-             >
-               <Search className="w-5 h-5 stroke-[2.5px]" />
-             </button>
+             {/* Search Pill Button */}
+              <button
+                onClick={() => setShowSearchPopup(true)}
+                className="h-[38px] md:h-10 px-4 md:px-5 rounded-full flex items-center gap-2 md:gap-2.5 text-zinc-400 hover:text-white bg-[#0e0e11]/60 hover:bg-white/[0.04] border border-[#1e1e1e] hover:border-[#2e2e34] transition-all duration-200 active:scale-95 cursor-pointer select-none"
+                aria-label="Search"
+              >
+                <Search className="w-4 h-4 text-zinc-500 shrink-0" />
+                <span className="text-xs md:text-sm font-sans tracking-wide text-zinc-400">ค้นหาสินค้า</span>
+              </button>
 
              {/* Hamburger Trigger */}
              <motion.button
@@ -1930,7 +1931,7 @@ function AppContent() {
                    <img 
                      src="https://img2.pic.in.th/983B3DCE-90A3-4822-8940-D6B81CCA63A3.png" 
                      alt="APEXSTORE Logo" 
-                     className="h-[38px] object-contain" 
+                     className="h-[32px] object-contain" 
                    />
                  </motion.div>
                  
@@ -2800,7 +2801,7 @@ const PortalLoader: React.FC = () => {
         <img
           src="https://img2.pic.in.th/983B3DCE-90A3-4822-8940-D6B81CCA63A3.png"
           alt="APEXSTORE Logo"
-          className="h-20 md:h-24 object-contain filter drop-shadow-[0_0_25px_rgba(16,185,129,0.25)]"
+          className="h-32 md:h-36 object-contain filter drop-shadow-[0_0_35px_rgba(16,185,129,0.30)]"
         />
       </motion.div>
     </motion.div>
