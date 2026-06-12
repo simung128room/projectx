@@ -761,14 +761,19 @@ function AppContent() {
   const [isMobileToolsOpen, setIsMobileToolsOpen] = useState(false);
 
   useEffect(() => {
+    let timeout: ReturnType<typeof setTimeout>;
+    
     if (isMobileMenuOpen) {
       document.body.style.overflow = "hidden";
       document.documentElement.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = "";
-      document.documentElement.style.overflow = "";
+      timeout = setTimeout(() => {
+        document.body.style.overflow = "";
+        document.documentElement.style.overflow = "";
+      }, 300);
     }
     return () => {
+      if (timeout) clearTimeout(timeout);
       document.body.style.overflow = "";
       document.documentElement.style.overflow = "";
     };
@@ -2360,9 +2365,14 @@ function AppContent() {
                         <span className="font-mono text-[#10b981] font-medium">{Math.floor(userPlan?.balance || 0).toLocaleString()} ฿</span>
                     </div>
                     
-                    <button onClick={() => { setActiveView("settings"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="w-full flex items-center justify-center gap-2 py-1.5 mt-1 bg-white/[0.04] hover:bg-white/[0.08] border border-[#1e1e1e] text-zinc-300 hover:text-white rounded transition-colors text-xs font-medium">
-                       <Settings className="w-3.5 h-3.5" /> จัดการบัญชี
-                    </button>
+                    <div className="flex w-full gap-2 mt-1">
+                               <button onClick={() => { setActiveView("profile"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="flex-1 flex items-center justify-center gap-2 py-1.5 bg-white/[0.04] hover:bg-white/[0.08] border border-[#1e1e1e] text-zinc-300 hover:text-white rounded transition-colors text-xs font-medium">
+                                  <User className="w-3.5 h-3.5" /> โปรไฟล์
+                               </button>
+                               <button onClick={() => { setActiveView("settings"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="flex-1 flex items-center justify-center gap-2 py-1.5 bg-white/[0.04] hover:bg-white/[0.08] border border-[#1e1e1e] text-zinc-300 hover:text-white rounded transition-colors text-xs font-medium">
+                                  <Settings className="w-3.5 h-3.5" /> ตั้งค่า
+                               </button>
+                            </div>
                  </div>
               </div>
             </div>
@@ -2379,36 +2389,40 @@ function AppContent() {
           {/* Tools */}
           {user && (
             <div>
-              <div className="px-3 mb-2 text-[10px] font-semibold text-zinc-500 tracking-wider">UTILITIES</div>
-              <div className="flex flex-col gap-0.5">
-                {["telegram_catcher:ดักซองเทเลแกรม", "discord_catcher:ดักซองดิสคอร์ด", "discord_on:รันโทเค่นดิสคอร์ด", "discord_badge:รับตราอัตโนมัติ", "two_fa_generator:สร้างรหัส 2FA", "proxy_free:พร็อกซี่ฟรี"].map(str => {
-                   const [vid, lbl] = str.split(':');
-                   return (
-                     <button key={vid} onClick={() => setActiveView(vid)} className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-md transition-all ${activeView === vid ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white hover:bg-white/[0.04]"}`}>
-                       <ArrowUpRight className="w-4 h-4" /> {lbl}
-                     </button>
-                   );
-                })}
+              <div 
+                className="px-3 mb-2 text-[10px] font-semibold text-zinc-500 tracking-wider flex items-center justify-between cursor-pointer"
+                onClick={() => setIsDesktopToolsOpen(!isDesktopToolsOpen)}
+              >
+                <span>UTILITIES</span>
+                <motion.div
+                  animate={{ rotate: isDesktopToolsOpen ? 180 : 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <ChevronDown className="w-3.5 h-3.5" />
+                </motion.div>
               </div>
-            </div>
-          )}
-
-          {/* Custom Pages */}
-          {user && customPages && customPages.length > 0 && (
-            <div>
-              <div className="px-3 mb-2 text-[10px] font-semibold text-zinc-500 tracking-wider">PAGES</div>
-              <div className="flex flex-col gap-0.5">
-                {customPages.map((page) => (
-                  <button
-                    key={page.id}
-                    onClick={() => { setSelectedPage(page); setActiveView("custom_page"); window.scrollTo({ top: 0, behavior: "smooth" }); }}
-                    className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-md transition-all ${activeView === "custom_page" && selectedPage?.id === page.id ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white hover:bg-white/[0.04]"}`}
+              <AnimatePresence>
+                {isDesktopToolsOpen && (
+                  <motion.div
+                     initial={{ height: 0, opacity: 0 }}
+                     animate={{ height: "auto", opacity: 1 }}
+                     exit={{ height: 0, opacity: 0 }}
+                     transition={{ duration: 0.2, ease: "easeInOut" }}
+                     className="overflow-hidden"
                   >
-                    <FileText className="w-4 h-4 shrink-0" />
-                    <span className="truncate">{page.title.replace(/^#+\s*/, "")}</span>
-                  </button>
-                ))}
-              </div>
+                    <div className="flex flex-col gap-0.5">
+                      {["telegram_catcher:ดักซองเทเลแกรม", "discord_catcher:ดักซองดิสคอร์ด", "discord_on:รันโทเค่นดิสคอร์ด", "discord_badge:รับตราอัตโนมัติ", "two_fa_generator:สร้างรหัส 2FA", "proxy_free:พร็อกซี่ฟรี"].map(str => {
+                         const [vid, lbl] = str.split(':');
+                         return (
+                           <button key={vid} onClick={() => setActiveView(vid)} className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-md transition-all ${activeView === vid ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white hover:bg-white/[0.04]"}`}>
+                             <ArrowUpRight className="w-4 h-4" /> {lbl}
+                           </button>
+                         );
+                      })}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           )}
 
@@ -2433,7 +2447,7 @@ function AppContent() {
 {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-h-screen min-w-0 relative overflow-x-hidden">
         {/* Top Header */}
-        <header className="sticky top-0 z-[60] w-full bg-[#000000] border-b border-[#1e1e1e] flex-shrink-0 select-none">
+        <header className="sticky top-0 z-[100] w-full bg-[#000000] border-b border-[#1e1e1e] flex-shrink-0 select-none">
           <div className="flex items-center justify-between h-[80px] px-4 md:px-8 max-w-7xl mx-auto w-full">
             {/* Logo with matching Icon size */}
             <div 
@@ -2476,7 +2490,7 @@ function AppContent() {
                     rotate: isMobileMenuOpen ? 45 : 0,
                     y: isMobileMenuOpen ? 6.5 : 0,
                   }}
-                  transition={{ duration: 0.3, ease: "easeInOut", delay: isMobileMenuOpen ? 0.2 : 0 }}
+                  transition={{ duration: 0.3, ease: "easeInOut", delay: isMobileMenuOpen ? 0 : 0.2 }}
                   className="w-5 h-[1.5px] bg-white rounded-full" 
                 />
                 <motion.div 
@@ -2484,7 +2498,7 @@ function AppContent() {
                     opacity: isMobileMenuOpen ? 0 : 1,
                     scale: isMobileMenuOpen ? 0 : 1,
                   }}
-                  transition={{ duration: 0.2, ease: "easeInOut", delay: isMobileMenuOpen ? 0 : 0.2 }}
+                  transition={{ duration: 0.2, ease: "easeInOut", delay: isMobileMenuOpen ? 0.2 : 0 }}
                   className="w-5 h-[1.5px] bg-white rounded-full" 
                 />
                 <motion.div 
@@ -2492,7 +2506,7 @@ function AppContent() {
                     rotate: isMobileMenuOpen ? -45 : 0,
                     y: isMobileMenuOpen ? -6.5 : 0,
                   }}
-                  transition={{ duration: 0.3, ease: "easeInOut", delay: isMobileMenuOpen ? 0.2 : 0 }}
+                  transition={{ duration: 0.3, ease: "easeInOut", delay: isMobileMenuOpen ? 0 : 0.2 }}
                   className="w-5 h-[1.5px] bg-white rounded-full" 
                 />
               </motion.button>
@@ -2504,31 +2518,20 @@ function AppContent() {
         <AnimatePresence>
           {isMobileMenuOpen && (
             <>
-              <motion.div
+              <motion.div key="backdrop" 
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="fixed inset-0 bg-black/75 backdrop-blur-md z-[90] lg:hidden animate-fade-in"
-              />
-              <motion.div
+                className="fixed inset-0 top-[80px] bg-black/75 backdrop-blur-md z-[90] lg:hidden"
+               />
+              <motion.div key="sidebar" 
                 initial={{ x: "100%" }}
                 animate={{ x: 0 }}
                 exit={{ x: "100%" }}
                 transition={{ type: "spring", stiffness: 350, damping: 28 }}
-                className="fixed top-0 right-0 bottom-0 h-screen w-full max-w-[320px] bg-[#101014] z-[95] flex flex-col lg:hidden overflow-y-auto no-scrollbar border-l border-[#1e1e1e] shadow-sm]"
+                className="fixed top-[80px] right-0 bottom-0 h-[calc(100vh-80px)] w-full max-w-[320px] bg-[#101014] z-[95] flex flex-col lg:hidden overflow-y-auto no-scrollbar border-l border-[#1e1e1e] shadow-[#000]"
               >
-                {/* Header */}
-                <div className="flex items-center justify-between px-6 pt-5 pb-5 shrink-0 relative z-[70] border-b border-[#1e1e1e]">
-                  <span className="text-2xl font-semibold text-white hover:opacity-90 transition-opacity">เมนูหลัก</span>
-                  <button
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="w-10 h-10 rounded-full flex items-center justify-center bg-white/[0.04] hover:bg-white/[0.08] text-zinc-400 hover:text-white border border-[#1e1e1e] transition-all cursor-pointer active:scale-95"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
-                </div>
-
                 {/* Menu Items */}
                 <div className="flex-1 px-3 space-y-6 overflow-y-auto no-scrollbar pb-8 mt-6 select-none text-[13px]">
                   
@@ -2579,9 +2582,14 @@ function AppContent() {
                                 <span className="font-mono text-[#10b981] font-medium">{Math.floor(userPlan?.balance || 0).toLocaleString()} ฿</span>
                             </div>
                             
-                            <button onClick={() => { setActiveView("settings"); setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="w-full flex items-center justify-center gap-2 py-1.5 mt-1 bg-white/[0.04] hover:bg-white/[0.08] border border-[#1e1e1e] text-zinc-300 hover:text-white rounded transition-colors text-xs font-medium">
-                               <Settings className="w-3.5 h-3.5" /> จัดการบัญชี
-                            </button>
+                            <div className="flex w-full gap-2 mt-1">
+                               <button onClick={() => { setActiveView("profile"); setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="flex-1 flex items-center justify-center gap-2 py-1.5 bg-white/[0.04] hover:bg-white/[0.08] border border-[#1e1e1e] text-zinc-300 hover:text-white rounded transition-colors text-xs font-medium">
+                                  <User className="w-3.5 h-3.5" /> โปรไฟล์
+                               </button>
+                               <button onClick={() => { setActiveView("settings"); setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="flex-1 flex items-center justify-center gap-2 py-1.5 bg-white/[0.04] hover:bg-white/[0.08] border border-[#1e1e1e] text-zinc-300 hover:text-white rounded transition-colors text-xs font-medium">
+                                  <Settings className="w-3.5 h-3.5" /> ตั้งค่า
+                               </button>
+                            </div>
                          </div>
                       </div>
                     </div>
@@ -2598,36 +2606,40 @@ function AppContent() {
                   {/* Tools */}
                   {user && (
                     <div>
-                      <div className="px-3 mb-2 text-[10px] font-semibold text-zinc-500 tracking-wider">UTILITIES</div>
-                      <div className="flex flex-col gap-0.5">
-                        {["telegram_catcher:ดักซองเทเลแกรม", "discord_catcher:ดักซองดิสคอร์ด", "discord_on:รันโทเค่นดิสคอร์ด", "discord_badge:รับตราอัตโนมัติ", "two_fa_generator:สร้างรหัส 2FA", "proxy_free:พร็อกซี่ฟรี"].map(str => {
-                          const [vid, lbl] = str.split(':');
-                          return (
-                            <button key={vid} onClick={() => { setActiveView(vid); setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }} className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-all ${activeView === vid ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white"}`}>
-                              <ArrowUpRight className="w-4 h-4" /> {lbl}
-                            </button>
-                          );
-                        })}
+                      <div 
+                        className="px-3 mb-2 text-[10px] font-semibold text-zinc-500 tracking-wider flex items-center justify-between cursor-pointer"
+                        onClick={() => setIsMobileToolsOpen(!isMobileToolsOpen)}
+                      >
+                        <span>UTILITIES</span>
+                        <motion.div
+                          animate={{ rotate: isMobileToolsOpen ? 180 : 0 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          <ChevronDown className="w-3.5 h-3.5" />
+                        </motion.div>
                       </div>
-                    </div>
-                  )}
-
-                  {/* Custom Pages */}
-                  {user && customPages && customPages.length > 0 && (
-                    <div>
-                      <div className="px-3 mb-2 text-[10px] font-semibold text-zinc-500 tracking-wider">PAGES</div>
-                      <div className="flex flex-col gap-0.5">
-                        {customPages.map((page) => (
-                          <button
-                            key={page.id}
-                            onClick={() => { setSelectedPage(page); setActiveView("custom_page"); setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }}
-                            className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-all ${activeView === "custom_page" && selectedPage?.id === page.id ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white"}`}
+                      <AnimatePresence>
+                        {isMobileToolsOpen && (
+                          <motion.div
+                             initial={{ height: 0, opacity: 0 }}
+                             animate={{ height: "auto", opacity: 1 }}
+                             exit={{ height: 0, opacity: 0 }}
+                             transition={{ duration: 0.2, ease: "easeInOut" }}
+                             className="overflow-hidden"
                           >
-                            <FileText className="w-4 h-4 shrink-0" />
-                            <span className="truncate">{page.title.replace(/^#+\s*/, "")}</span>
-                          </button>
-                        ))}
-                      </div>
+                            <div className="flex flex-col gap-0.5">
+                              {["telegram_catcher:ดักซองเทเลแกรม", "discord_catcher:ดักซองดิสคอร์ด", "discord_on:รันโทเค่นดิสคอร์ด", "discord_badge:รับตราอัตโนมัติ", "two_fa_generator:สร้างรหัส 2FA", "proxy_free:พร็อกซี่ฟรี"].map(str => {
+                                const [vid, lbl] = str.split(':');
+                                return (
+                                  <button key={vid} onClick={() => { setActiveView(vid); setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }} className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-all ${activeView === vid ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white"}`}>
+                                    <ArrowUpRight className="w-4 h-4" /> {lbl}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </div>
                   )}
 
