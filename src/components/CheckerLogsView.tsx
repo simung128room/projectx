@@ -14,7 +14,7 @@ export const CheckerLogsView: React.FC<CheckerLogsViewProps> = ({ logs, onBack }
       <div className="flex items-center gap-4 mb-8">
         <button 
           onClick={onBack}
-          className="w-10 h-10 bg-card border border-border  flex items-center justify-center text-muted-foreground hover:text-white hover:bg-[#121212] transition-all "
+          className="w-10 h-10 bg-[#09090b] border border-[#1e1e1e]  flex items-center justify-center text-muted-foreground hover:text-white hover:bg-[#121212] transition-all "
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
@@ -27,20 +27,20 @@ export const CheckerLogsView: React.FC<CheckerLogsViewProps> = ({ logs, onBack }
         </div>
       </div>
 
-      <div className="bg-card border border-border  p-6 overflow-hidden flex flex-col h-[70vh] ">
-        <div className="flex items-center justify-between mb-4 pb-4 border-b border-border  shrink-0">
+      <div className="bg-[#09090b] border border-[#1e1e1e]  p-6 overflow-hidden flex flex-col h-[70vh] ">
+        <div className="flex items-center justify-between mb-4 pb-4 border-b border-[#1e1e1e]  shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-card border border-border  flex items-center justify-center ">
+            <div className="w-10 h-10 bg-[#09090b] border border-[#1e1e1e]  flex items-center justify-center ">
               <Terminal className="w-5 h-5 text-muted-foreground" />
             </div>
             <div>
-              <h3 className="font-bold text-white">Console Logs</h3>
+              <h3 className="font-medium text-white">Console Logs</h3>
               <p className="text-xs font-medium text-muted-foreground mt-0.5">บันทึกการทำงานล่าสุด (100 รายการ)</p>
             </div>
           </div>
         </div>
 
-        <div className="flex-1 bg-card border border-border  p-6 text-[13px] font-mono overflow-auto scrollbar-thin scrollbar-thumb-zinc-300 ">
+        <div className="flex-1 bg-[#09090b] border border-[#1e1e1e]  p-6 text-[13px] font-mono overflow-auto scrollbar-thin scrollbar-thumb-zinc-300 ">
           {logs.length === 0 && (
             <div className="text-muted-foreground flex flex-col items-center justify-center h-full gap-4 opacity-70">
               <Terminal className="w-12 h-12" />

@@ -49,10 +49,10 @@ export const SearchView: React.FC<SearchViewProps> = ({ products, onClose, onPro
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -20 }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="w-full max-w-3xl bg-[#050505] border border-white/[0.08] shadow-md rounded-md overflow-hidden relative z-10 flex flex-col max-h-[80vh]"
+            className="w-full max-w-3xl bg-[#050505] border border-[#1e1e1e] shadow-md rounded-md overflow-hidden relative z-10 flex flex-col max-h-[80vh]"
           >
             {/* Header / Search Input */}
-            <div className="p-4 border-b border-white/[0.08] flex items-center gap-3 bg-[#111]">
+            <div className="p-4 border-b border-[#1e1e1e] flex items-center gap-3 bg-[#111]">
               <Search className="w-5 h-5 text-zinc-500 flex-shrink-0" />
               <input 
                 ref={inputRef}
@@ -75,7 +75,7 @@ export const SearchView: React.FC<SearchViewProps> = ({ products, onClose, onPro
               {searchQuery && filteredProducts.length === 0 ? (
                 <div className="text-center py-16">
                   <Search className="w-10 h-10 text-zinc-600 mx-auto mb-3" />
-                  <h3 className="text-lg font-bold text-white mb-1">ไม่พบสินค้า</h3>
+                  <h3 className="text-lg font-medium text-white mb-1">ไม่พบสินค้า</h3>
                   <p className="text-zinc-500 text-sm">ลองใช้คำค้นหาอื่นดูอีกครั้ง</p>
                 </div>
               ) : !searchQuery ? (
@@ -91,10 +91,10 @@ export const SearchView: React.FC<SearchViewProps> = ({ products, onClose, onPro
                         onProductClick(product.id);
                         onClose();
                       }}
-                      className="bg-[#111] border border-white/[0.05] rounded-md p-3 cursor-pointer hover:border-white/[0.15] hover:bg-white/[0.04] transition-all flex gap-3 items-center group"
+                      className="bg-[#111] border border-[#1e1e1e] rounded-md p-3 cursor-pointer hover:border-[#1e1e1e] hover:bg-white/[0.04] transition-all flex gap-3 items-center group"
                     >
                       {/* Image Thumbnail */}
-                      <div className="w-16 h-16 rounded-md overflow-hidden relative shrink-0 bg-[#050505] border border-white/[0.05]">
+                      <div className="w-16 h-16 rounded-md overflow-hidden relative shrink-0 bg-[#050505] border border-[#1e1e1e]">
                         {product.imageUrl && product.imageUrl.trim() !== "" ? (
                           <img 
                             src={product.imageUrl} 
@@ -121,9 +121,9 @@ export const SearchView: React.FC<SearchViewProps> = ({ products, onClose, onPro
                       
                       {/* Details */}
                       <div className="flex-1 min-w-0">
-                        <div className="text-sm font-bold text-white truncate mb-1">{product.name}</div>
+                        <div className="text-sm font-medium text-white truncate mb-1">{product.name}</div>
                         <div className="flex items-center gap-2 text-xs">
-                          <span className="font-mono text-neon-yellow font-bold">
+                          <span className="font-mono text-neon-yellow font-medium">
                             ฿{product.price > 0 ? product.price.toLocaleString() : "ฟรี"}
                           </span>
                           {product.stock > 0 ? (

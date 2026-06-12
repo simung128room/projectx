@@ -14,13 +14,13 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ selectedItem, setSel
   const isPurchase = !selectedItem.type?.includes('topup');
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-card animate-in fade-in duration-200 ">
-      <div className="bg-card w-full sm:max-w-[750px] sm:rounded-md relative overflow-hidden animate-in slide-in-from-bottom-full sm:zoom-in-95 duration-300 flex flex-col max-h-[95vh] ">
+    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-[#09090b] animate-in fade-in duration-200 ">
+      <div className="bg-[#09090b] w-full sm:max-w-[750px] sm:rounded-md relative overflow-hidden animate-in slide-in-from-bottom-full sm:zoom-in-95 duration-300 flex flex-col max-h-[95vh] ">
         
         {/* Header */}
-        <div className="pt-6 px-6 pb-4 flex items-start justify-between relative bg-card z-10 ">
+        <div className="pt-6 px-6 pb-4 flex items-start justify-between relative bg-[#09090b] z-10 ">
           <div>
-            <h3 className="text-xl font-bold text-[#10b981] tracking-tight">{isPurchase ? 'รายละเอียดการซื้อ' : 'รายละเอียดการเติมเงิน'}</h3>
+            <h3 className="text-xl font-medium text-[#10b981] tracking-tight">{isPurchase ? 'รายละเอียดการซื้อ' : 'รายละเอียดการเติมเงิน'}</h3>
             <p className="text-sm font-medium text-muted-foreground mt-1">
               บิล: {selectedItem.billNumber || (isPurchase ? 'P-' : 'T-') + Math.floor(Math.random()*1000000)}
             </p>
@@ -31,7 +31,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ selectedItem, setSel
             </div>
             <button 
               onClick={() => setSelectedItem(null)}
-              className="w-8 h-8 bg-card flex items-center justify-center text-muted-foreground hover:bg-zinc-200 transition-colors "
+              className="w-8 h-8 bg-[#09090b] flex items-center justify-center text-muted-foreground hover:bg-zinc-200 transition-colors "
             >
               <X className="w-4 h-4" />
             </button>
@@ -42,27 +42,27 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ selectedItem, setSel
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {/* Left Column: Summary Info */}
             <div className="space-y-6">
-              <div className="bg-card border border-border  p-5 ">
+              <div className="bg-[#09090b] border border-[#1e1e1e]  p-5 ">
                 <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-4">ข้อมูลการทำรายการ</h4>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground font-medium">วันที่ทำรายการ</span>
-                    <span className="text-white font-bold">{new Date(selectedItem.date || selectedItem.timestamp || new Date()).toLocaleString('th-TH', { dateStyle: 'short', timeStyle: 'short' })}</span>
+                    <span className="text-white font-medium">{new Date(selectedItem.date || selectedItem.timestamp || new Date()).toLocaleString('th-TH', { dateStyle: 'short', timeStyle: 'short' })}</span>
                   </div>
                   {isPurchase && (
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-muted-foreground font-medium">จำนวนรายการ</span>
-                      <span className="text-white font-bold">1 รายการ</span>
+                      <span className="text-white font-medium">1 รายการ</span>
                     </div>
                   )}
                   {!isPurchase && (
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-muted-foreground font-medium">ช่องทาง</span>
-                      <span className="text-white font-bold">{selectedItem.method || 'ไม่ระบุ'}</span>
+                      <span className="text-white font-medium">{selectedItem.method || 'ไม่ระบุ'}</span>
                     </div>
                   )}
-                  <div className="flex items-center justify-between pt-3 border-t border-border ">
-                    <span className="text-white font-bold">ยอดรวมสุทธิ</span>
+                  <div className="flex items-center justify-between pt-3 border-t border-[#1e1e1e] ">
+                    <span className="text-white font-medium">ยอดรวมสุทธิ</span>
                     <span className="text-xl font-semibold text-[#10b981]">
                       ฿{(selectedItem.money || selectedItem.amount || selectedItem.price || 0).toLocaleString()}
                     </span>
@@ -71,7 +71,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ selectedItem, setSel
               </div>
 
               {selectedItem.isPreOrder && (
-                <div className="bg-zinc-950/40 border border-border  p-5 rounded-md space-y-3">
+                <div className="bg-zinc-950/40 border border-[#1e1e1e]  p-5 rounded-md space-y-3">
                   <h4 className="text-xs font-semibold text-zinc-400 uppercase tracking-widest flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-[#10b981] " />
                      สถานะพรีออเดอร์ (Track Status)
@@ -82,7 +82,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ selectedItem, setSel
                     <div className="flex items-center gap-3">
                       <span className="text-lg">✅</span>
                       <div>
-                        <p className="font-bold text-white text-xs">ชำระเงินแล้ว</p>
+                        <p className="font-medium text-white text-xs">ชำระเงินแล้ว</p>
                         <p className="text-[10px] text-muted-foreground">บันทึกคำสั่งซื้อพรีออเดอร์สำเร็จ</p>
                       </div>
                     </div>
@@ -95,7 +95,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ selectedItem, setSel
                         <span className="text-lg ">⏳</span>
                       )}
                       <div>
-                        <p className="font-bold text-white text-xs">กำลังจัดหาไอดี</p>
+                        <p className="font-medium text-white text-xs">กำลังจัดหาไอดี</p>
                         <p className="text-[10px] text-muted-foreground">แอดมินอยู่ระหว่างการจัดหาไอดีตามที่ท่านเลือก</p>
                       </div>
                     </div>
@@ -108,7 +108,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ selectedItem, setSel
                         <span className="text-lg opacity-40">⬜</span>
                       )}
                       <div>
-                        <p className="font-bold text-white text-xs flex items-center gap-1">ส่งข้อมูลแล้ว</p>
+                        <p className="font-medium text-white text-xs flex items-center gap-1">ส่งข้อมูลแล้ว</p>
                         <p className="text-[10px] text-muted-foreground">
                           {selectedItem.preOrderStatus === 'delivered' ? 'ท่านสามารถคัดลอกข้อมูลไอดีได้ที่คอลัมน์ขวาขวา' : 'เมื่อจัดหาสำเร็จ คีย์/รหัสจะแสดงในข้อมูลลับด้านขวา'}
                         </p>
@@ -117,7 +117,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ selectedItem, setSel
                   </div>
 
                   {selectedItem.preOrderOption && (
-                    <div className="mt-4 pt-3 border-t border-border border-dashed text-xs flex items-center justify-between text-zinc-400">
+                    <div className="mt-4 pt-3 border-t border-[#1e1e1e] border-dashed text-xs flex items-center justify-between text-zinc-400">
                       <span>ประเภทที่เลือก:</span>
                       <span className="bg-[#10b981]/10 text-[#10b981] px-2 py-0.5 rounded font-semibold">{selectedItem.preOrderOption}</span>
                     </div>
@@ -126,12 +126,12 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ selectedItem, setSel
               )}
 
               {!isPurchase && selectedItem.status && (
-                <div className="flex justify-between items-center bg-card border border-border  p-4 ">
-                   <span className="text-sm font-bold text-muted-foreground">สถานะรายการ</span>
+                <div className="flex justify-between items-center bg-[#09090b] border border-[#1e1e1e]  p-4 ">
+                   <span className="text-sm font-medium text-muted-foreground">สถานะรายการ</span>
                    {selectedItem.status === 'success' ? (
-                     <span className="text-xs font-bold text-[#10b981] bg-primary text-primary-foreground px-3 py-1">สำเร็จ</span>
+                     <span className="text-xs font-medium text-[#10b981] bg-primary text-primary-foreground px-3 py-1">สำเร็จ</span>
                    ) : (
-                     <span className="text-xs font-bold text-muted-foreground bg-card px-3 py-1 ">{selectedItem.status}</span>
+                     <span className="text-xs font-medium text-muted-foreground bg-[#09090b] px-3 py-1 ">{selectedItem.status}</span>
                    )}
                 </div>
               )}
@@ -139,10 +139,10 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ selectedItem, setSel
 
             {/* Right Column: Product Items / Secrets */}
             <div className="space-y-4">
-              <div className="bg-card border border-border  p-5 hover:border-[#10b981]/30 transition-colors ">
+              <div className="bg-[#09090b] border border-[#1e1e1e]  p-5 hover:border-[#10b981]/30 transition-colors ">
                 <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-4">{isPurchase ? 'รายการสินค้า' : 'รายละเอียดการเติมเงิน'}</h4>
                 <div className="flex gap-4 relative mb-4">
-                  <div className="w-16 h-16 bg-card border border-border  flex items-center justify-center shrink-0 overflow-hidden ">
+                  <div className="w-16 h-16 bg-[#09090b] border border-[#1e1e1e]  flex items-center justify-center shrink-0 overflow-hidden ">
                     {selectedItem.image ? (
                       <img loading="lazy" src={selectedItem.image} alt="product" className="w-full h-full object-cover" />
                     ) : (
@@ -150,17 +150,17 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ selectedItem, setSel
                     )}
                   </div>
                   <div className="flex flex-col justify-center flex-1 pr-2">
-                    <h5 className="text-sm font-bold text-muted-foreground line-clamp-2 leading-tight mb-1">
+                    <h5 className="text-sm font-medium text-muted-foreground line-clamp-2 leading-tight mb-1">
                       {isPurchase ? (selectedItem.productName || selectedItem.key || 'สินค้าไม่ทราบชื่อ') : (selectedItem.method || 'เติมเงินเข้าระบบ')}
                     </h5>
-                    <span className="text-xs font-bold text-[#10b981]">
+                    <span className="text-xs font-medium text-[#10b981]">
                       ฿{(selectedItem.money || selectedItem.price || selectedItem.amount || 0).toLocaleString()}
                     </span>
                   </div>
                 </div>
                 
                 {isPurchase && selectedItem.secretData && (
-                  <div className="mt-4 pt-4 border-t border-border ">
+                  <div className="mt-4 pt-4 border-t border-[#1e1e1e] ">
                     {!showSecret ? (
                       <button 
                         onClick={() => setShowSecret(true)}
@@ -197,13 +197,13 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ selectedItem, setSel
                                   link.click();
                                   URL.revokeObjectURL(url);
                                 }}
-                                className="text-[10px] font-bold text-muted-foreground bg-card hover:bg-white/10 px-3 py-1.5 transition-colors flex items-center gap-1.5 "
+                                className="text-[10px] font-medium text-muted-foreground bg-[#09090b] hover:bg-white/10 px-3 py-1.5 transition-colors flex items-center gap-1.5 "
                              >
                                <Download className="w-3 h-3" /> ดาวน์โหลด
                              </button>
                            </div>
                         </div>
-                        <div className="bg-card border border-border  p-4 text-[13px] font-mono text-[#10b981] whitespace-pre-wrap max-h-40 overflow-y-auto w-full break-all ">
+                        <div className="bg-[#09090b] border border-[#1e1e1e]  p-4 text-[13px] font-mono text-[#10b981] whitespace-pre-wrap max-h-40 overflow-y-auto w-full break-all ">
                           {selectedItem.secretData}
                         </div>
                       </div>
@@ -216,7 +216,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ selectedItem, setSel
         </div>
 
         {/* Footer Actions */}
-        <div className="px-6 pb-6 pt-2 bg-card relative z-10 border-t border-border  ">
+        <div className="px-6 pb-6 pt-2 bg-[#09090b] relative z-10 border-t border-[#1e1e1e]  ">
           <button 
             onClick={() => setSelectedItem(null)}
             className="w-full py-4 bg-primary text-primary-foreground hover:bg-[#1D4ED8] text-white text-[15px] font-semibold transition-all active:scale-[0.98] uppercase tracking-wider"

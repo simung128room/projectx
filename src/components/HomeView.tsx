@@ -64,7 +64,7 @@ function AnimatedNumber({ value, accent }: AnimatedNumberProps) {
 
   return (
     <span 
-      className={`inline-block font-mono tracking-tight transition-all duration-300 ${
+      className={`inline-block font-mono tracking-tight transition-colors duration-200 ${
         isAnimating ? "scale-105" : "scale-100"
       }`}
       style={{ 
@@ -101,11 +101,11 @@ function StatCard({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: false, amount: 0.1 }}
       transition={{ duration: 0.5, delay }}
-      className="relative bg-[#0d0d0d] border border-white/[0.06] rounded-md p-5 overflow-hidden group hover:border-white/[0.12] transition-colors duration-300"
+      className="relative bg-[#0d0d0d] border border-[#1e1e1e] rounded-md p-5 overflow-hidden group hover:border-[#1e1e1e] transition-colors duration-300"
     >
       {/* Subtle glow */}
       <div
-        className="absolute -top-6 -right-6 w-24 h-24 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-2xl"
+        className="absolute -top-6 -right-6 w-24 h-24 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 "
         style={{ background: accent }}
       />
       <p className="text-xs text-white/40 font-medium tracking-wide uppercase mb-2">{label}</p>
@@ -151,29 +151,29 @@ function ShortcutBtn({
       whileInView={{ opacity: 1, y: 0, scale: 1 }}
       viewport={{ once: false, amount: 0.1 }}
       transition={{ duration: 0.4, delay }}
-      whileHover={{ y: -2, transition: { duration: 0.2 } }}
-      whileTap={{ scale: 0.95 }}
+      
+      
       onClick={onClick}
-      className="relative overflow-hidden text-left bg-[#0d0d0d] border border-white/[0.06] hover:border-white/[0.14] rounded-md p-4 sm:p-5 flex items-center gap-4 transition-all duration-300 w-full group cursor-pointer"
+      className="relative overflow-hidden text-left bg-[#0d0d0d] border border-[#1e1e1e] hover:border-[#1e1e1e] rounded-md p-4 sm:p-5 flex items-center gap-4 transition-colors duration-200 w-full group cursor-pointer"
     >
       {/* Dynamic Glow */}
       <div
-        className="absolute -top-12 -right-12 w-24 h-24 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-2xl pointer-events-none"
+        className="absolute -top-12 -right-12 w-24 h-24 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500  pointer-events-none"
         style={{ background: glowColor }}
       />
       
       {/* Icon Frame */}
-      <div className={`p-3 rounded-md bg-white/[0.04] border border-white/[0.08] group-hover:border-transparent group-hover:scale-105 duration-300 ${colorClass} shrink-0`}>
-        <Icon className="w-5 h-5 font-bold" />
+      <div className={`p-3 rounded-md bg-white/[0.04] border border-[#1e1e1e] group-hover:border-transparent group- duration-300 ${colorClass} shrink-0`}>
+        <Icon className="w-5 h-5 font-medium" />
       </div>
 
       <div className="flex flex-col min-w-0">
         <span className="text-xs sm:text-sm font-semibold text-white tracking-wider uppercase">{label}</span>
-        <span className="text-[10px] text-white/30 group-hover:text-white/50 duration-300 tracking-normal truncate mt-0.5 font-bold font-mono">{subLabel}</span>
+        <span className="text-[10px] text-white/30 group-hover:text-white/50 duration-300 tracking-normal truncate mt-0.5 font-medium font-mono">{subLabel}</span>
       </div>
 
       {/* Decorative arrow */}
-      <div className="ml-auto opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all duration-300 text-white/40 shrink-0">
+      <div className="ml-auto opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-colors duration-200 text-white/40 shrink-0">
         <ChevronRight className="w-4 h-4" />
       </div>
     </motion.button>
@@ -215,7 +215,7 @@ function CategoryChip({
       viewport={{ once: false, amount: 0.1 }}
       transition={{ duration: 0.5, delay }}
       onClick={onClick}
-      className="relative group overflow-hidden rounded-md border border-white/[0.08] bg-[#0c0c0e] hover:border-white/[0.06] transition-all duration-300 flex flex-col cursor-pointer hover:-translate-y-1 shadow-sm"
+      className="relative group overflow-hidden rounded-md border border-[#1e1e1e] bg-[#0c0c0e] hover:border-[#1e1e1e] transition-colors duration-200 flex flex-col cursor-pointer  shadow-sm"
     >
       {/* Banner Area */}
       <div 
@@ -226,19 +226,19 @@ function CategoryChip({
           <img
             src={cat.bannerUrl}
             alt={cat.name || cat.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-60 group-hover:opacity-85"
+            className="w-full h-full object-cover group-  opacity-60 group-hover:opacity-85"
             referrerPolicy="no-referrer"
             loading="lazy"
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-zinc-900 to-black flex items-center justify-center">
+          <div className="w-full h-full bg-[#09090b] flex items-center justify-center">
             <Package className="w-8 h-8 text-white/10" />
           </div>
         )}
         
         {/* Gradients */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0c0c0e] via-transparent to-transparent opacity-90" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0c0c0e]/40 to-transparent" />
+        <div className="absolute inset-0 bg-[#09090b] opacity-90" />
+        <div className="absolute inset-0 bg-[#09090b]" />
       </div>
 
       {/* Content Area */}
@@ -247,15 +247,15 @@ function CategoryChip({
           {cat.name || cat.title}
         </h3>
         
-        <div className="flex items-center justify-between text-xs font-semibold mt-3 pt-3 border-t border-white/[0.04]">
+        <div className="flex items-center justify-between text-xs font-semibold mt-3 pt-3 border-t border-[#1e1e1e]">
           {/* Item Count */}
-          <span className="text-white/40 flex items-center gap-1.5 uppercase font-bold tracking-wider">
+          <span className="text-white/40 flex items-center gap-1.5 uppercase font-medium tracking-wider">
             <Package className="w-3.5 h-3.5 text-white/35 shrink-0" />
             <span>มีสินค้าทั้งหมด <span className="text-neon-green font-semibold">{productCount}</span> รายการ</span>
           </span>
           
           {/* Price Range */}
-          <span className="text-white font-mono font-semibold tracking-wider text-xs bg-white/[0.06] px-2.5 py-1.5 rounded-md border border-white/[0.06] shadow-sm">
+          <span className="text-white font-mono font-semibold tracking-wider text-xs bg-white/[0.06] px-2.5 py-1.5 rounded-md border border-[#1e1e1e] shadow-sm">
             {priceRangeStr}
           </span>
         </div>
@@ -291,7 +291,7 @@ function ProductCard({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: false, amount: 0.1 }}
       transition={{ duration: 0.5, delay }}
-      className="group relative bg-[#0c0c0e] border border-white/[0.08] rounded-md overflow-hidden hover:border-white/[0.06] transition-all duration-300 flex flex-col hover:-translate-y-1 shadow-sm"
+      className="group relative bg-[#0c0c0e] border border-[#1e1e1e] rounded-md overflow-hidden hover:border-[#1e1e1e] transition-colors duration-200 flex flex-col  shadow-sm"
     >
       {/* Image area with corner ribbon */}
       <div className="relative aspect-square w-full bg-[#141416] overflow-hidden shrink-0">
@@ -299,7 +299,7 @@ function ProductCard({
           <img
             src={product.imageUrl}
             alt={product.name}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            className="w-full h-full object-cover group- "
             onError={() => setImgError(true)}
             referrerPolicy="no-referrer"
             loading="lazy"
@@ -316,14 +316,14 @@ function ProductCard({
         {/* Diagonal "Best Seller" ribbon in image corner */}
         {isHot && (
           <div className="absolute top-0 right-0 overflow-hidden w-20 h-20 pointer-events-none z-10">
-            <div className="absolute top-3 -right-6 bg-gradient-to-r from-red-600 to-orange-500 text-white text-[9px] font-semibold uppercase py-1 w-24 text-center transform rotate-45 shadow-md border-b border-white/[0.04]">
+            <div className="absolute top-3 -right-6 bg-[#09090b] text-white text-[9px] font-semibold uppercase py-1 w-24 text-center transform rotate-45 shadow-md border-b border-[#1e1e1e]">
               Best Seller
             </div>
           </div>
         )}
 
         {/* Overlay gradient */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0c0c0e] via-transparent to-transparent opacity-80" />
+        <div className="absolute inset-0 bg-[#09090b] opacity-80" />
 
         {/* Discount Badge on left */}
         {discount !== null && (
@@ -340,12 +340,12 @@ function ProductCard({
         </h3>
 
         {/* "ราคาสินค้า" subtle label */}
-        <span className="text-[10px] font-bold text-white/30 uppercase tracking-wider block mb-1">ราคาสินค้า</span>
+        <span className="text-[10px] font-medium text-white/30 uppercase tracking-wider block mb-1">ราคาสินค้า</span>
 
         {/* Price row */}
         <div className="flex flex-wrap items-center gap-2 mb-4">
           {product.originalPrice && product.price < product.originalPrice ? (
-            <span className="text-xs text-red-500/80 line-through font-mono font-bold">฿{product.originalPrice.toLocaleString()}</span>
+            <span className="text-xs text-red-500/80 line-through font-mono font-medium">฿{product.originalPrice.toLocaleString()}</span>
           ) : null}
           
           <span className="text-base font-semibold text-amber-400 tracking-tight font-mono">
@@ -366,14 +366,14 @@ function ProductCard({
         {/* Buy Button */}
         <button
           onClick={onClick}
-          className="w-full flex items-center justify-center gap-2 bg-white/[0.04] hover:bg-white/[0.08] text-[#10b981] border border-white/[0.04] hover:border-[#10b981] py-2.5 rounded-md text-xs font-bold transition-all duration-300 ease-out mt-auto shadow-sm hover:shadow-[0_4px_20px_rgba(16,185,129,0.3)] active:scale-[0.98] cursor-pointer"
+          className="w-full flex items-center justify-center gap-2 bg-white/[0.04] hover:bg-white/[0.08] text-[#10b981] border border-[#1e1e1e] hover:border-[#10b981] py-2.5 rounded-md text-xs font-medium transition-colors duration-200 ease-out mt-auto shadow-sm hover:shadow-sm active:scale-[0.98] cursor-pointer"
         >
           <ShoppingCart className="w-3.5 h-3.5" />
           สั่งซื้อสินค้า
         </button>
 
         {/* Stock Row Box */}
-        <div className="mt-3.5 py-1.5 rounded-md bg-white/[0.04] border border-white/[0.04] flex items-center justify-center gap-2 text-[10px] text-white/40 font-semibold uppercase tracking-widest leading-none">
+        <div className="mt-3.5 py-1.5 rounded-md bg-white/[0.04] border border-[#1e1e1e] flex items-center justify-center gap-2 text-[10px] text-white/40 font-semibold uppercase tracking-widest leading-none">
           <Package className="w-3.5 h-3.5 text-white/20 shrink-0" />
           <span>คงเหลือ <span className="text-white/70 font-mono">{product.stock.toLocaleString()}</span> ชิ้น</span>
         </div>
@@ -474,7 +474,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
-          className="relative overflow-hidden rounded-md border border-white/[0.07] mb-3 bg-[#0d0d0d]"
+          className="relative overflow-hidden rounded-md border border-[#1e1e1e] mb-3 bg-[#0d0d0d]"
           style={{ aspectRatio: '2100 / 500' }}
         >
           <img
@@ -483,7 +483,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             className="w-full h-full object-cover"
             fetchPriority="high"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-[#09090b]" />
         </motion.div>
 
         {/* ── Announcement Bar ── */}
@@ -492,9 +492,9 @@ export const HomeView: React.FC<HomeViewProps> = ({
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="mb-8 flex items-center bg-[#050505]/50 border border-white/[0.06] rounded-md px-4 py-2.5 overflow-hidden"
+            className="mb-8 flex items-center bg-[#050505]/50 border border-[#1e1e1e] rounded-md px-4 py-2.5 overflow-hidden"
           >
-            <div className="flex items-center justify-center bg-red-500/10 px-2.5 py-1.5 rounded-md border border-red-500/20 text-red-400 shrink-0 mr-3 shadow-[0_0_15px_rgba(239,68,68,0.1)] gap-1.5 font-semibold text-xs select-none">
+            <div className="flex items-center justify-center bg-red-500/10 px-2.5 py-1.5 rounded-md border border-red-500/20 text-red-400 shrink-0 mr-3 shadow-sm gap-1.5 font-semibold text-xs select-none">
               <Bell className="w-3.5 h-3.5 animate-bounce" />
               <span>ประกาศ</span>
             </div>
@@ -628,7 +628,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: false, amount: 0.1 }}
             transition={{ duration: 0.5 }}
-            className="flex items-center justify-between mb-4 bg-zinc-950/20 px-1.5 py-1.5 rounded-md border border-white/[0.03]"
+            className="flex items-center justify-between mb-4 bg-zinc-950/20 px-1.5 py-1.5 rounded-md border border-[#1e1e1e]"
           >
             <div className="flex items-center gap-2">
               <History className="w-4 h-4 text-[#10b981] " />
@@ -647,11 +647,11 @@ export const HomeView: React.FC<HomeViewProps> = ({
             className="relative w-full overflow-hidden"
           >
             {/* Ambient vignette masks */}
-            <div className="absolute top-0 bottom-0 left-0 w-8 bg-gradient-to-r from-[#070707] to-transparent z-10 pointer-events-none" />
-            <div className="absolute top-0 bottom-0 right-0 w-8 bg-gradient-to-l from-[#070707] to-transparent z-10 pointer-events-none" />
+            <div className="absolute top-0 bottom-0 left-0 w-8 bg-[#09090b] z-10 pointer-events-none" />
+            <div className="absolute top-0 bottom-0 right-0 w-8 bg-[#09090b] z-10 pointer-events-none" />
 
             {latestPurchases.length === 0 ? (
-              <div className="p-6 text-center text-white/40 text-sm font-medium flex flex-col items-center gap-2 bg-[#0c0c0e]/50 border border-white/[0.05] rounded-md">
+              <div className="p-6 text-center text-white/40 text-sm font-medium flex flex-col items-center gap-2 bg-[#0c0c0e]/50 border border-[#1e1e1e] rounded-md">
                 <Package className="w-5 h-5 text-white/20" />
                 ยังไม่มีผู้มีประวัติการสั่งซื้อล่าสุดในตอนนี้
               </div>
@@ -669,12 +669,12 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     return (
                       <div
                         key={`${p.dbId || idx}-${idx}`}
-                        className="w-[280px] h-[68px] shrink-0 bg-[#000000]/85 backdrop-blur-md border border-white/[0.06] hover:border-emerald-500/30 rounded-md px-3 py-2 flex items-center justify-between gap-3 transition-colors duration-250 select-none shadow-sm hover:shadow-sm"
+                        className="w-[280px] h-[68px] shrink-0 bg-[#000000]/85 backdrop-blur-md border border-[#1e1e1e] hover:border-emerald-500/30 rounded-md px-3 py-2 flex items-center justify-between gap-3 transition-colors duration-250 select-none shadow-sm hover:shadow-sm"
                       >
                         {/* Thumb & detail */}
                         <div className="flex items-center gap-2.5 overflow-hidden min-w-0 flex-1">
                           {/* Image Wrapper */}
-                          <div className="w-10 h-10 rounded-md shrink-0 bg-zinc-950 border border-white/[0.05] overflow-hidden flex items-center justify-center p-0.5 shadow-inner">
+                          <div className="w-10 h-10 rounded-md shrink-0 bg-zinc-950 border border-[#1e1e1e] overflow-hidden flex items-center justify-center p-0.5 shadow-inner">
                             <img
                               src={imageUrl}
                               alt=""
@@ -690,7 +690,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
                           {/* Detail summary */}
                           <div className="flex flex-col min-w-0 pr-1">
-                            <span className="text-xs font-bold text-white tracking-wide truncate leading-snug">
+                            <span className="text-xs font-medium text-white tracking-wide truncate leading-snug">
                               {p.product_name}
                             </span>
                             <span className="text-[10px] text-zinc-400 mt-0.5">
@@ -703,7 +703,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                         </div>
 
                         {/* Price point */}
-                        <div className="flex flex-col items-end shrink-0 pl-1 border-l border-white/[0.04]">
+                        <div className="flex flex-col items-end shrink-0 pl-1 border-l border-[#1e1e1e]">
                           <span className="text-xs font-semibold text-[#10b981] font-mono tracking-tight leading-none mb-1">
                             ฿{p.price}
                           </span>
@@ -725,7 +725,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
           initial={{ opacity: 0, scaleX: 0 }}
           animate={{ opacity: 1, scaleX: 1 }}
           transition={{ duration: 0.7 }}
-          className="w-full h-2 rounded-full bg-gradient-to-r from-emerald-500/0 via-blue-500/20 to-zinc-500/0 mb-10"
+          className="w-full h-2 rounded-full bg-[#09090b] mb-10"
         />
 
         {/* ── Products ── */}

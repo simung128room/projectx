@@ -126,15 +126,15 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
           alt="Background" 
           className="w-full h-full object-cover opacity-15 blur-lg transform scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#030303] via-[#030303]/80 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#030303] via-transparent to-[#030303]" />
+        <div className="absolute inset-0 bg-[#09090b]" />
+        <div className="absolute inset-0 bg-[#09090b]" />
       </div>
 
       <motion.div 
         initial={{ opacity: 0, scale: 0.96, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-        className="w-full max-w-md bg-[#050505]/80 backdrop-blur-3xl border border-white/5 relative z-10 p-8 sm:p-10 rounded-md shadow-[0_0_80px_rgba(0,0,0,0.8)]"
+        className="w-full max-w-md bg-[#050505]/80 backdrop- border border-white/5 relative z-10 p-8 sm:p-10 rounded-md shadow-sm"
       >
         {/* Header / Brand */}
         <div className="text-center mb-8 flex flex-col items-center">
@@ -148,7 +148,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
             <img src="https://img2.pic.in.th/983B3DCE-90A3-4822-8940-D6B81CCA63A3.png" alt="APEXSTORE Logo" className="h-[48px] md:h-[56px] object-contain drop- hover:scale-105 transition-transform duration-300" />
           </motion.div>
           
-          <h1 className="text-xl font-bold tracking-wide text-white mb-1.5">
+          <h1 className="text-xl font-medium tracking-wide text-white mb-1.5">
             {authMode === 'login' ? 'Welcome Back' : authMode === 'forgot' ? 'Reset Password' : 'Create an Account'}
           </h1>
           <p className="text-xs text-white/40 tracking-wider font-medium uppercase">
@@ -158,18 +158,18 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
 
         {/* Authentication Mode Switcher Pill */}
         {authMode !== 'forgot' && (
-          <div className="p-1 rounded-md bg-white/[0.06] border border-white/[0.05] flex gap-1 mb-8 relative">
+          <div className="p-1 rounded-md bg-white/[0.06] border border-[#1e1e1e] flex gap-1 mb-8 relative">
             <button
               type="button"
               onClick={() => { setAuthMode('login'); setActiveView('login'); }}
-              className={`flex-1 py-2.5 rounded-md text-xs font-bold tracking-wider uppercase transition-all duration-300 z-10 ${authMode === 'login' ? 'text-white' : 'text-white/40 hover:text-white/70'}`}
+              className={`flex-1 py-2.5 rounded-md text-xs font-medium tracking-wider uppercase transition-all duration-300 z-10 ${authMode === 'login' ? 'text-white' : 'text-white/40 hover:text-white/70'}`}
             >
               ลงชื่อเข้าใช้
             </button>
             <button
               type="button"
               onClick={() => { setAuthMode('signup'); setActiveView('signup'); }}
-              className={`flex-1 py-2.5 rounded-md text-xs font-bold tracking-wider uppercase transition-all duration-300 z-10 ${authMode === 'signup' ? 'text-white' : 'text-white/40 hover:text-white/70'}`}
+              className={`flex-1 py-2.5 rounded-md text-xs font-medium tracking-wider uppercase transition-all duration-300 z-10 ${authMode === 'signup' ? 'text-white' : 'text-white/40 hover:text-white/70'}`}
             >
               สมัครสมาชิก
             </button>
@@ -198,7 +198,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
                     type="text" 
                     value={authUsername}
                     onChange={(e) => setAuthUsername(e.target.value)}
-                    className="w-full pl-11 pr-4 py-3.5 bg-white/[0.04] border border-white/[0.06] hover:bg-white/[0.04] focus:bg-white/[0.04] focus:border-white/[0.06] rounded-md outline-none transition-all text-white text-sm placeholder:text-white/20 font-sans animate-none"
+                    className="w-full pl-11 pr-4 py-3.5 bg-white/[0.04] border border-[#1e1e1e] hover:bg-white/[0.04] focus:bg-white/[0.04] focus:border-[#1e1e1e] rounded-md outline-none transition-all text-white text-sm placeholder:text-white/20 font-sans animate-none"
                     placeholder="กรอกชื่อผู้ใช้ของคุณ"
                     required
                   />
@@ -222,7 +222,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
                       type="email" 
                       value={authEmail}
                       onChange={(e) => setAuthEmail(e.target.value)}
-                      className="w-full pl-11 pr-4 py-3.5 bg-white/[0.04] border border-white/[0.06] hover:bg-white/[0.04] focus:bg-white/[0.04] focus:border-white/[0.06] rounded-md outline-none transition-all text-white text-sm placeholder:text-white/20 font-sans"
+                      className="w-full pl-11 pr-4 py-3.5 bg-white/[0.04] border border-[#1e1e1e] hover:bg-white/[0.04] focus:bg-white/[0.04] focus:border-[#1e1e1e] rounded-md outline-none transition-all text-white text-sm placeholder:text-white/20 font-sans"
                       placeholder="เช่น admin@yourdomain.com"
                       required
                     />
@@ -246,7 +246,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
                     type={showPassword ? "text" : "password"}
                     value={authPassword}
                     onChange={(e) => setAuthPassword(e.target.value)}
-                    className="w-full pl-11 pr-12 py-3.5 bg-white/[0.04] border border-white/[0.06] hover:bg-white/[0.04] focus:bg-white/[0.04] focus:border-white/[0.06] rounded-md outline-none transition-all text-white text-sm placeholder:text-white/20 font-sans"
+                    className="w-full pl-11 pr-12 py-3.5 bg-white/[0.04] border border-[#1e1e1e] hover:bg-white/[0.04] focus:bg-white/[0.04] focus:border-[#1e1e1e] rounded-md outline-none transition-all text-white text-sm placeholder:text-white/20 font-sans"
                     placeholder="กรอกรหัสผ่านของคุณ (มากกว่า 6 ตัวอักษร)"
                     required
                     minLength={6}
@@ -293,7 +293,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
                       type={showConfirmPassword ? "text" : "password"}
                       value={authConfirmPassword}
                       onChange={(e) => setAuthConfirmPassword(e.target.value)}
-                      className="w-full pl-11 pr-12 py-3.5 bg-white/[0.04] border border-white/[0.06] hover:bg-white/[0.04] focus:bg-white/[0.04] focus:border-white/[0.06] rounded-md outline-none transition-all text-white text-sm placeholder:text-white/20 font-sans"
+                      className="w-full pl-11 pr-12 py-3.5 bg-white/[0.04] border border-[#1e1e1e] hover:bg-white/[0.04] focus:bg-white/[0.04] focus:border-[#1e1e1e] rounded-md outline-none transition-all text-white text-sm placeholder:text-white/20 font-sans"
                       placeholder="ป้อนรหัสผ่านเดิมอีกครั้งเพื่อความถูกต้อง"
                       required
                       minLength={6}
@@ -315,7 +315,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
           {authMode === 'login' && (
             <div className="flex justify-between items-center px-1 mt-2">
               <label className="flex items-center gap-2 cursor-pointer group">
-                 <input type="checkbox" className="w-3.5 h-3.5 rounded border-white/[0.04] bg-white/5 checked:bg-white/20 text-white focus:ring-0 focus:ring-offset-0 transition-colors" />
+                 <input type="checkbox" className="w-3.5 h-3.5 rounded border-[#1e1e1e] bg-white/5 checked:bg-white/20 text-white focus:ring-0 focus:ring-offset-0 transition-colors" />
                  <span className="text-[11px] text-white/40 group-hover:text-white/70 transition-colors">จดจำการเข้าระบบ</span>
               </label>
               <button
@@ -343,7 +343,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
           <button 
             type="submit" 
             disabled={authLoading}
-            className="w-full py-3.5 rounded-md font-bold bg-white text-black hover:bg-zinc-200 hover:scale-[1.02] active:scale-95 text-xs tracking-widest uppercase transition-all duration-200 flex justify-center items-center gap-2 mt-6 cursor-pointer disabled:opacity-50 disabled:pointer-events-none disabled:transform-none shadow-[0_0_20px_rgba(255,255,255,0.1)]"
+            className="w-full py-3.5 rounded-md font-medium bg-white text-black hover:bg-zinc-200 hover:scale-[1.02] active:scale-95 text-xs tracking-widest uppercase transition-all duration-200 flex justify-center items-center gap-2 mt-6 cursor-pointer disabled:opacity-50 disabled:pointer-events-none disabled:transform-none shadow-sm"
           >
             {authLoading ? (
               <>
@@ -360,7 +360,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
         </form>
         
         {/* Sub Navigation Links */}
-        <div className="mt-8 pt-6 border-t border-white/[0.06] text-center">
+        <div className="mt-8 pt-6 border-t border-[#1e1e1e] text-center">
           {authMode === 'forgot' ? (
             <button 
               onClick={() => setAuthMode('login')} 

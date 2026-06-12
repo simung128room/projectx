@@ -136,64 +136,64 @@ export const AdminToolsManagement = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+        <h2 className="text-2xl font-medium text-white flex items-center gap-3">
           <Gift className="w-6 h-6 text-[#10b981]" />
           ระบบหมวดหมู่ / เนื้อหา
         </h2>
-        <div className="flex bg-card border border-border  p-1 ">
-          <button onClick={() => setActiveTab('categories')} className={`px-4 py-1.5 text-sm font-bold transition-all ${activeTab === 'categories' ? 'bg-[#050505]/10 text-white' : 'text-zinc-500 hover:text-white'}`}>หมวดหมู่</button>
-          <button onClick={() => setActiveTab('items')} className={`px-4 py-1.5 text-sm font-bold transition-all ${activeTab === 'items' ? 'bg-[#050505]/10 text-white' : 'text-zinc-500 hover:text-white'}`}>เนื้อหา / ไฟล์</button>
+        <div className="flex bg-[#09090b] border border-[#1e1e1e]  p-1 ">
+          <button onClick={() => setActiveTab('categories')} className={`px-4 py-1.5 text-sm font-medium transition-all ${activeTab === 'categories' ? 'bg-[#050505]/10 text-white' : 'text-zinc-500 hover:text-white'}`}>หมวดหมู่</button>
+          <button onClick={() => setActiveTab('items')} className={`px-4 py-1.5 text-sm font-medium transition-all ${activeTab === 'items' ? 'bg-[#050505]/10 text-white' : 'text-zinc-500 hover:text-white'}`}>เนื้อหา / ไฟล์</button>
         </div>
       </div>
 
       {activeTab === 'categories' && (
         <div className="space-y-4">
           <div className="flex justify-end">
-            {!isAddingCategory && <button onClick={() => setIsAddingCategory(true)} className="bg-[#10b981] hover:bg-[#10b981] text-white px-4 py-2 text-sm font-bold flex items-center gap-2"><Plus className="w-4 h-4"/> เพิ่มหมวดหมู่</button>}
+            {!isAddingCategory && <button onClick={() => setIsAddingCategory(true)} className="bg-[#10b981] hover:bg-[#10b981] text-white px-4 py-2 text-sm font-medium flex items-center gap-2"><Plus className="w-4 h-4"/> เพิ่มหมวดหมู่</button>}
           </div>
 
           {isAddingCategory && (
-            <div className="bg-card border border-border  p-6 ">
-              <h3 className="text-lg font-bold text-white mb-4">สร้างหมวดหมู่ใหม่</h3>
+            <div className="bg-[#09090b] border border-[#1e1e1e]  p-6 ">
+              <h3 className="text-lg font-medium text-white mb-4">สร้างหมวดหมู่ใหม่</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                 <div>
-                  <label className="block text-xs font-bold text-muted-foreground mb-1">ชื่อหมวดหมู่</label>
-                  <input value={catName} onChange={e=>setCatName(e.target.value)} className="w-full bg-card border border-border  px-4 py-2 text-white " placeholder="เช่น VIP PH LOG" />
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">ชื่อหมวดหมู่</label>
+                  <input value={catName} onChange={e=>setCatName(e.target.value)} className="w-full bg-[#09090b] border border-[#1e1e1e]  px-4 py-2 text-white " placeholder="เช่น VIP PH LOG" />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-muted-foreground mb-1">ชื่อย่อย (Subtitle)</label>
-                  <input value={catSubtitle} onChange={e=>setCatSubtitle(e.target.value)} className="w-full bg-card border border-border  px-4 py-2 text-white " placeholder="คำอธิบาย..." />
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">ชื่อย่อย (Subtitle)</label>
+                  <input value={catSubtitle} onChange={e=>setCatSubtitle(e.target.value)} className="w-full bg-[#09090b] border border-[#1e1e1e]  px-4 py-2 text-white " placeholder="คำอธิบาย..." />
                 </div>
                 <div className="flex items-center gap-2 mt-4">
-                  <input type="checkbox" id="isVipCheck" checked={catIsVip} onChange={e=>setCatIsVip(e.target.checked)} className="w-4 h-4 rounded border-border " />
-                  <label htmlFor="isVipCheck" className="text-sm text-amber-400 font-bold">VIP หมวดหมู่</label>
+                  <input type="checkbox" id="isVipCheck" checked={catIsVip} onChange={e=>setCatIsVip(e.target.checked)} className="w-4 h-4 rounded border-[#1e1e1e] " />
+                  <label htmlFor="isVipCheck" className="text-sm text-amber-400 font-medium">VIP หมวดหมู่</label>
                 </div>
                 <div className="flex items-center gap-2 mt-4">
-                  <input type="checkbox" id="isVisibleCheck" checked={catIsVisible} onChange={e=>setCatIsVisible(e.target.checked)} className="w-4 h-4 rounded border-border " />
-                  <label htmlFor="isVisibleCheck" className="text-sm text-[#10b981] font-bold">เปิดใช้งาน</label>
+                  <input type="checkbox" id="isVisibleCheck" checked={catIsVisible} onChange={e=>setCatIsVisible(e.target.checked)} className="w-4 h-4 rounded border-[#1e1e1e] " />
+                  <label htmlFor="isVisibleCheck" className="text-sm text-[#10b981] font-medium">เปิดใช้งาน</label>
                 </div>
               </div>
               <div className="flex justify-end gap-2 mt-4">
-                <button onClick={() => setIsAddingCategory(false)} className="px-4 py-2 text-sm text-muted-foreground font-bold hover:text-white">ยกเลิก</button>
-                <button onClick={handleSaveCategory} className="bg-primary text-primary-foreground hover:bg-[#10b981] text-white px-6 py-2 text-sm font-bold flex items-center gap-2"><Check className="w-4 h-4"/> บันทึก</button>
+                <button onClick={() => setIsAddingCategory(false)} className="px-4 py-2 text-sm text-muted-foreground font-medium hover:text-white">ยกเลิก</button>
+                <button onClick={handleSaveCategory} className="bg-primary text-primary-foreground hover:bg-[#10b981] text-white px-6 py-2 text-sm font-medium flex items-center gap-2"><Check className="w-4 h-4"/> บันทึก</button>
               </div>
             </div>
           )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {categories.map((c) => (
-              <div key={c.id} className="bg-card border border-border  p-5 relative ">
+              <div key={c.id} className="bg-[#09090b] border border-[#1e1e1e]  p-5 relative ">
                 <div className="flex justify-between items-start mb-3">
                   <h3 className="text-lg font-semibold text-white">{c.name}</h3>
                   <div className="flex items-center gap-2">
-                      <button onClick={() => toggleCategoryVisibility(c.id)} className={`px-2 py-1 flex items-center text-xs font-bold ${c.isVisible ? 'bg-[#10b981]/20 text-[#10b981]' : 'bg-[#121212] text-muted-foreground'}`}>
+                      <button onClick={() => toggleCategoryVisibility(c.id)} className={`px-2 py-1 flex items-center text-xs font-medium ${c.isVisible ? 'bg-[#10b981]/20 text-[#10b981]' : 'bg-[#121212] text-muted-foreground'}`}>
                       {c.isVisible ? 'ON' : 'OFF'}
                     </button>
                     <button onClick={() => handleDeleteCategory(c.id)} className="text-red-500 hover:text-red-400 bg-red-500/10 p-1.5"><Trash2 className="w-4 h-4"/></button>
                   </div>
                 </div>
                 <p className="text-sm text-muted-foreground">{c.subtitle}</p>
-                {c.isVip && <span className="inline-block mt-2 text-[10px] font-bold bg-amber-500/20 text-amber-400 px-2 py-0.5 uppercase">VIP</span>}
+                {c.isVip && <span className="inline-block mt-2 text-[10px] font-medium bg-amber-500/20 text-amber-400 px-2 py-0.5 uppercase">VIP</span>}
               </div>
             ))}
           </div>
@@ -203,44 +203,44 @@ export const AdminToolsManagement = () => {
       {activeTab === 'items' && (
         <div className="space-y-4">
           <div className="flex justify-end">
-            {!isAddingItem && <button onClick={() => setIsAddingItem(true)} className="bg-[#10b981] hover:bg-[#10b981] text-white px-4 py-2 text-sm font-bold flex items-center gap-2"><Plus className="w-4 h-4"/> เพิ่มเนื้อหา</button>}
+            {!isAddingItem && <button onClick={() => setIsAddingItem(true)} className="bg-[#10b981] hover:bg-[#10b981] text-white px-4 py-2 text-sm font-medium flex items-center gap-2"><Plus className="w-4 h-4"/> เพิ่มเนื้อหา</button>}
           </div>
 
           {isAddingItem && (
-            <div className="bg-card border border-border  p-6 ">
-              <h3 className="text-lg font-bold text-white mb-4">สร้างเนื้อหาใหม่</h3>
+            <div className="bg-[#09090b] border border-[#1e1e1e]  p-6 ">
+              <h3 className="text-lg font-medium text-white mb-4">สร้างเนื้อหาใหม่</h3>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
-                  <label className="block text-xs font-bold text-muted-foreground mb-1">หัวข้อ</label>
-                  <input value={title} onChange={e=>setTitle(e.target.value)} className="w-full bg-card border border-border  px-4 py-2 text-white " placeholder="อักษรสวยๆ..." />
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">หัวข้อ</label>
+                  <input value={title} onChange={e=>setTitle(e.target.value)} className="w-full bg-[#09090b] border border-[#1e1e1e]  px-4 py-2 text-white " placeholder="อักษรสวยๆ..." />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-muted-foreground mb-1">หมวดหมู่</label>
-                  <select value={itemCategoryId} onChange={e=>setItemCategoryId(e.target.value)} className="w-full bg-card border border-border  px-4 py-2 text-white ">
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">หมวดหมู่</label>
+                  <select value={itemCategoryId} onChange={e=>setItemCategoryId(e.target.value)} className="w-full bg-[#09090b] border border-[#1e1e1e]  px-4 py-2 text-white ">
                     <option value="">-- เลือกหมวดหมู่ --</option>
                     {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-muted-foreground mb-1">สิทธิ์การโหลด (ฟรี / พรีเมียม)</label>
-                  <select value={itemType} onChange={e=>setItemType(e.target.value as any)} className="w-full bg-card border border-border  px-4 py-2 text-white ">
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">สิทธิ์การโหลด (ฟรี / พรีเมียม)</label>
+                  <select value={itemType} onChange={e=>setItemType(e.target.value as any)} className="w-full bg-[#09090b] border border-[#1e1e1e]  px-4 py-2 text-white ">
                     <option value="free">ของฟรี (ทุกคนโหลดได้)</option>
                     <option value="premium">พรีเมียม (เฉพาะวีไอพีโหลดได้)</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-muted-foreground mb-1">Keyword (ป้ายกำกับ)</label>
-                  <input value={keyword} onChange={e=>setKeyword(e.target.value)} className="w-full bg-card border border-border  px-4 py-2 text-white " placeholder="เช่น ฟ้อนต์, รูปภาพ" />
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">Keyword (ป้ายกำกับ)</label>
+                  <input value={keyword} onChange={e=>setKeyword(e.target.value)} className="w-full bg-[#09090b] border border-[#1e1e1e]  px-4 py-2 text-white " placeholder="เช่น ฟ้อนต์, รูปภาพ" />
                 </div>
               </div>
 
-              <div className="bg-card border border-border  p-4 mb-4 ">
-                <h4 className="text-sm font-bold text-white mb-3 flex items-center gap-2">ไฟล์แนบ / เนื้อหา</h4>
+              <div className="bg-[#09090b] border border-[#1e1e1e]  p-4 mb-4 ">
+                <h4 className="text-sm font-medium text-white mb-3 flex items-center gap-2">ไฟล์แนบ / เนื้อหา</h4>
                 {attachments.length > 0 && (
                   <div className="space-y-2 mb-4">
                     {attachments.map((a, i) => (
-                      <div key={i} className="flex items-center justify-between bg-card border border-border  p-2 px-3 ">
+                      <div key={i} className="flex items-center justify-between bg-[#09090b] border border-[#1e1e1e]  p-2 px-3 ">
                         <div className="flex items-center gap-3 truncate text-sm text-muted-foreground">
                           {a.type === 'text' && <FileText className="w-4 h-4 text-[#10b981]"/>}
                           {a.type === 'image' && <ImageIcon className="w-4 h-4 text-sky-400"/>}
@@ -253,19 +253,19 @@ export const AdminToolsManagement = () => {
                   </div>
                 )}
                 <div className="flex flex-col sm:flex-row gap-2">
-                  <select value={attType} onChange={e=>setAttType(e.target.value as any)} className="bg-card border border-border  px-3 py-2 text-white text-sm ">
+                  <select value={attType} onChange={e=>setAttType(e.target.value as any)} className="bg-[#09090b] border border-[#1e1e1e]  px-3 py-2 text-white text-sm ">
                     <option value="text">ข้อความ/สคริปต์</option>
                     <option value="image">รูปภาพ (URL)</option>
                     <option value="file">ลิ้งค์ดาวน์โหลด</option>
                   </select>
-                  <input value={attData} onChange={e=>setAttData(e.target.value)} className="flex-1 bg-card border border-border  px-3 py-2 text-white sm:text-sm " placeholder={attType === 'text' ? "วางข้อความที่นี่..." : "วางลิ้งค์ URL"} />
-                  <button onClick={() => { if(attData) { setAttachments([...attachments, {type: attType, data: attData}]); setAttData(''); } }} className="bg-card hover:bg-[#1e1e1e] text-white px-4 py-2 text-sm font-bold flex items-center gap-1 "><Plus className="w-4 h-4"/> แอดไฟล์</button>
+                  <input value={attData} onChange={e=>setAttData(e.target.value)} className="flex-1 bg-[#09090b] border border-[#1e1e1e]  px-3 py-2 text-white sm:text-sm " placeholder={attType === 'text' ? "วางข้อความที่นี่..." : "วางลิ้งค์ URL"} />
+                  <button onClick={() => { if(attData) { setAttachments([...attachments, {type: attType, data: attData}]); setAttData(''); } }} className="bg-[#09090b] hover:bg-[#1e1e1e] text-white px-4 py-2 text-sm font-medium flex items-center gap-1 "><Plus className="w-4 h-4"/> แอดไฟล์</button>
                 </div>
               </div>
 
               <div className="flex justify-end gap-2 mt-4">
-                <button onClick={() => setIsAddingItem(false)} className="px-4 py-2 text-sm text-muted-foreground font-bold hover:text-white">ยกเลิก</button>
-                <button onClick={handleSaveItem} className="bg-primary text-primary-foreground hover:bg-[#10b981] text-white px-6 py-2 text-sm font-bold flex items-center gap-2"><Check className="w-4 h-4"/> บันทึกเนื้อหา</button>
+                <button onClick={() => setIsAddingItem(false)} className="px-4 py-2 text-sm text-muted-foreground font-medium hover:text-white">ยกเลิก</button>
+                <button onClick={handleSaveItem} className="bg-primary text-primary-foreground hover:bg-[#10b981] text-white px-6 py-2 text-sm font-medium flex items-center gap-2"><Check className="w-4 h-4"/> บันทึกเนื้อหา</button>
               </div>
             </div>
           )}
@@ -274,27 +274,27 @@ export const AdminToolsManagement = () => {
             {items.map((item) => {
               const cat = categories.find(c => c.id === item.categoryId);
               return (
-              <div key={item.id} className="bg-card border border-border  p-5 relative overflow-hidden group ">
+              <div key={item.id} className="bg-[#09090b] border border-[#1e1e1e]  p-5 relative overflow-hidden group ">
                 <div className="flex justify-between items-start mb-3">
                   <div className="flex gap-2">
-                    <span className="text-[10px] font-bold bg-card text-[#10b981] px-2 py-0.5 uppercase ">{cat?.name || 'ไม่ระบุ'}</span>
-                    <span className={`text-[10px] font-bold px-2 py-0.5 uppercase ${item.type === 'premium' ? 'bg-amber-500/20 text-amber-400' : 'bg-[#10b981]/20 text-[#10b981]'}`}>
+                    <span className="text-[10px] font-medium bg-[#09090b] text-[#10b981] px-2 py-0.5 uppercase ">{cat?.name || 'ไม่ระบุ'}</span>
+                    <span className={`text-[10px] font-medium px-2 py-0.5 uppercase ${item.type === 'premium' ? 'bg-amber-500/20 text-amber-400' : 'bg-[#10b981]/20 text-[#10b981]'}`}>
                       {item.type === 'premium' ? 'Premium' : 'Free'}
                     </span>
                   </div>
                   <button onClick={() => handleDeleteItem(item.id)} className="text-red-500 hover:text-red-400 bg-red-500/10 p-1.5 opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 className="w-4 h-4"/></button>
                 </div>
-                <h3 className="text-lg font-bold text-white mb-2">{item.title}</h3>
-                <div className="bg-card border border-border  p-3 space-y-2 max-h-32 overflow-y-auto mt-2 ">
+                <h3 className="text-lg font-medium text-white mb-2">{item.title}</h3>
+                <div className="bg-[#09090b] border border-[#1e1e1e]  p-3 space-y-2 max-h-32 overflow-y-auto mt-2 ">
                   {(item.attachments || [(item as any)]).map((att: any, i: number) => (
-                    <div key={i} className="text-xs text-muted-foreground truncate border-b border-border  pb-2 last:border-0 last:pb-0">
-                      <span className="font-bold text-muted-foreground mr-2 uppercase">{att.type}:</span>{att.data}
+                    <div key={i} className="text-xs text-muted-foreground truncate border-b border-[#1e1e1e]  pb-2 last:border-0 last:pb-0">
+                      <span className="font-medium text-muted-foreground mr-2 uppercase">{att.type}:</span>{att.data}
                     </div>
                   ))}
                 </div>
               </div>
             )})}
-            {items.length === 0 && <div className="col-span-full py-12 text-center text-muted-foreground  border-dashed border-border">ยังไม่มีเนื้อหา</div>}
+            {items.length === 0 && <div className="col-span-full py-12 text-center text-muted-foreground  border-dashed border-[#1e1e1e]">ยังไม่มีเนื้อหา</div>}
           </div>
         </div>
       )}

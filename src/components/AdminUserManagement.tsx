@@ -126,10 +126,10 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
   return (
     <div className="space-y-6">
       {!selectedUser ? (
-        <div className="bg-card border border-zinc-800 rounded-md p-6 relative overflow-hidden flex flex-col min-h-[500px]">
+        <div className="bg-[#09090b] border border-[#1e1e1e] rounded-md p-6 relative overflow-hidden flex flex-col min-h-[500px]">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 border-b border-zinc-850 pb-4">
             <div>
-               <h3 className="font-bold text-white flex items-center gap-2"><Users className="w-5 h-5 text-[#10b981]" /> บัญชีสมาชิก (User Accounts)</h3>
+               <h3 className="font-medium text-white flex items-center gap-2"><Users className="w-5 h-5 text-[#10b981]" /> บัญชีสมาชิก (User Accounts)</h3>
                <p className="text-xs text-zinc-500 mt-1">บริหารสถิติผู้ซื้อ กำหนดบทบาท หรือปรับลดพอร์ตวงเงินแบบรายบุคคล</p>
             </div>
             
@@ -160,7 +160,7 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
               <tbody className="divide-y divide-zinc-850/40">
                 {filteredUsers.length > 0 ? filteredUsers.map((u, i) => (
                   <tr key={i} className="hover:bg-[#050505]/10 transition-colors">
-                    <td className="px-5 py-3.5 font-bold text-white">
+                    <td className="px-5 py-3.5 font-medium text-white">
                       <div className="flex items-center gap-2">
                         <span>{u.email}</span>
                         <button 
@@ -179,26 +179,26 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
                        <span className="font-mono text-xs text-zinc-500 bg-zinc-950/65 border border-zinc-850 rounded px-2.5 py-0.5">{u.lastLoginIp || u.last_login_ip || 'ไม่ทราบ'}</span>
                     </td>
                     <td className="px-5 py-3.5">
-                      <span className={`px-2 py-0.5 rounded text-[10px] uppercase tracking-wider font-bold ${
+                      <span className={`px-2 py-0.5 rounded text-[10px] uppercase tracking-wider font-medium ${
                         u.role === 'Admin' 
-                          ? 'bg-zinc-500/10 text-zinc-400 border border-zinc-500/20' 
+                          ? 'bg-zinc-500/10 text-zinc-400 border border-[#1e1e1e]/20' 
                           : u.role === 'Premium' 
                             ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' 
-                            : 'bg-[#0a0a0a]/40 text-zinc-400 border border-zinc-800'
+                            : 'bg-[#0a0a0a]/40 text-zinc-400 border border-[#1e1e1e]'
                       }`}>
                         {u.role || 'Member'}
                       </span>
                     </td>
                     <td className="px-5 py-3.5">
                       {u.status === 'banned' ? (
-                         <span className="px-2 py-0.5 text-[10px] rounded uppercase font-bold bg-rose-500/10 border border-rose-500/20 text-rose-400 inline-flex items-center gap-1"><Ban className="w-2.5 h-2.5"/> ระงับส่งออก</span>
+                         <span className="px-2 py-0.5 text-[10px] rounded uppercase font-medium bg-rose-500/10 border border-rose-500/20 text-rose-400 inline-flex items-center gap-1"><Ban className="w-2.5 h-2.5"/> ระงับส่งออก</span>
                       ) : (
-                         <span className="px-2 py-0.5 text-[10px] rounded uppercase font-bold bg-[#10b981]/10 border border-emerald-500/20 text-[#10b981] inline-flex items-center gap-1"><CheckCircle className="w-2.5 h-2.5"/> เปิดบริการ</span>
+                         <span className="px-2 py-0.5 text-[10px] rounded uppercase font-medium bg-[#10b981]/10 border border-emerald-500/20 text-[#10b981] inline-flex items-center gap-1"><CheckCircle className="w-2.5 h-2.5"/> เปิดบริการ</span>
                       )}
                     </td>
-                    <td className="px-5 py-3.5 font-bold font-mono text-[#10b981] text-right">฿{(u.balance || 0).toLocaleString()}</td>
+                    <td className="px-5 py-3.5 font-medium font-mono text-[#10b981] text-right">฿{(u.balance || 0).toLocaleString()}</td>
                     <td className="px-5 py-3.5 text-right">
-                       <button onClick={() => setSelectedUser(u)} className="px-3 py-1 bg-[#050505] hover:bg-[#0a0a0a] text-zinc-300 hover:text-white text-xs font-bold transition-all inline-flex items-center gap-1.5 rounded border border-zinc-800">
+                       <button onClick={() => setSelectedUser(u)} className="px-3 py-1 bg-[#050505] hover:bg-[#0a0a0a] text-zinc-300 hover:text-white text-xs font-medium transition-all inline-flex items-center gap-1.5 rounded border border-[#1e1e1e]">
                           <Eye className="w-3.5 h-3.5" /> ตรวจสอบ
                        </button>
                     </td>
@@ -219,17 +219,17 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.98 }}
-            className="bg-card border border-zinc-800 rounded-md overflow-hidden flex flex-col shadow-md"
+            className="bg-[#09090b] border border-[#1e1e1e] rounded-md overflow-hidden flex flex-col shadow-md"
           >
             <div className="p-6 md:p-8 bg-zinc-950 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border-b border-zinc-850">
               <div className="flex items-center gap-4">
-                <div className="w-14 h-14 bg-[#050505] border border-zinc-800 rounded-md text-zinc-400 flex items-center justify-center shrink-0">
+                <div className="w-14 h-14 bg-[#050505] border border-[#1e1e1e] rounded-md text-zinc-400 flex items-center justify-center shrink-0">
                   <Users className="w-6 h-6 text-[#10b981]" />
                 </div>
                 <div>
-                  <h2 className="text-base font-bold text-white mb-1">{selectedUser.email}</h2>
-                  <div className="flex items-center gap-2 text-[10px] font-bold mt-1">
-                    <span className={`px-2 py-0.5 rounded border ${selectedUser.role === 'Admin' ? 'bg-zinc-500/10 border-zinc-500/20 text-zinc-400' : selectedUser.role === 'Premium' ? 'bg-amber-500/10 border-amber-500/20 text-amber-400' : 'bg-zinc-850 text-zinc-400 border-zinc-800'}`}>
+                  <h2 className="text-base font-medium text-white mb-1">{selectedUser.email}</h2>
+                  <div className="flex items-center gap-2 text-[10px] font-medium mt-1">
+                    <span className={`px-2 py-0.5 rounded border ${selectedUser.role === 'Admin' ? 'bg-zinc-500/10 border-[#1e1e1e]/20 text-zinc-400' : selectedUser.role === 'Premium' ? 'bg-amber-500/10 border-amber-500/20 text-amber-400' : 'bg-zinc-850 text-zinc-400 border-[#1e1e1e]'}`}>
                       {selectedUser.role || 'Member'}
                     </span>
                     <span className={`px-2 py-0.5 rounded border ${selectedUser.status === 'banned' ? 'bg-rose-500/10 border-rose-500/20 text-rose-400' : 'bg-[#10b981]/10 border-emerald-500/20 text-[#10b981]'}`}>
@@ -241,7 +241,7 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
               
               <button 
                 onClick={() => setSelectedUser(null)} 
-                className="px-4 py-2 border border-zinc-800 bg-[#050505] hover:bg-zinc-850 text-zinc-400 hover:text-white text-xs font-bold transition-all rounded-md"
+                className="px-4 py-2 border border-[#1e1e1e] bg-[#050505] hover:bg-zinc-850 text-zinc-400 hover:text-white text-xs font-medium transition-all rounded-md"
               >
                 กลับไปหน้ารายชื่อ
               </button>
@@ -258,9 +258,9 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
                   <button
                     key={tab.id}
                     onClick={() => setActionTab(tab.id as any)}
-                    className={`px-4 py-1.5 text-xs font-bold transition-all rounded-md border ${ 
+                    className={`px-4 py-1.5 text-xs font-medium transition-all rounded-md border ${ 
                       actionTab === tab.id 
-                        ? 'bg-zinc-950 text-white border-zinc-800 font-bold' 
+                        ? 'bg-zinc-950 text-white border-[#1e1e1e] font-medium' 
                         : 'bg-[#050505]/30 border-transparent text-zinc-500 hover:text-zinc-300' 
                     }`}
                   >
@@ -276,23 +276,23 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
                   {/* Financial Controls */}
                   <div className="space-y-6">
                     <div className="bg-zinc-950/45 border border-zinc-850 p-6 rounded-md shadow-sm">
-                      <h4 className="text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-4 flex items-center gap-2 border-b border-zinc-900 pb-2.5">
+                      <h4 className="text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-4 flex items-center gap-2 border-b border-[#1e1e1e] pb-2.5">
                         <Wallet className="w-3.5 h-3.5 text-[#10b981]" /> สถานะพอร์ตและวงเงิน
                       </h4>
                       <div className="mb-6">
-                         <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1">เงินคงค้างกระเป๋า</p>
+                         <p className="text-[10px] font-medium text-zinc-500 uppercase tracking-wider mb-1">เงินคงค้างกระเป๋า</p>
                          <p className="text-2xl font-semibold font-mono text-[#10b981]">฿{(selectedUser.balance || 0).toLocaleString()}</p>
                       </div>
                       <div className="flex gap-2.5">
                         <button 
                           onClick={() => handleUpdateBalance(selectedUser, 'add')} 
-                          className="flex-1 py-2 border border-emerald-500/30 bg-[#10b981]/5 text-[#10b981] hover:bg-[#10b981]/15 rounded-md text-xs font-bold transition-all flex items-center justify-center gap-2"
+                          className="flex-1 py-2 border border-emerald-500/30 bg-[#10b981]/5 text-[#10b981] hover:bg-[#10b981]/15 rounded-md text-xs font-medium transition-all flex items-center justify-center gap-2"
                         >
                           <HandCoins className="w-4 h-4" /> เพิ่มพวงกระเป๋าเงิน
                         </button>
                         <button 
                           onClick={() => handleUpdateBalance(selectedUser, 'deduct')} 
-                          className="flex-1 py-2 border border-zinc-800 bg-[#050505] text-zinc-400 hover:bg-[#0a0a0a] rounded-md text-xs font-bold transition-all flex items-center justify-center gap-1.5"
+                          className="flex-1 py-2 border border-[#1e1e1e] bg-[#050505] text-zinc-400 hover:bg-[#0a0a0a] rounded-md text-xs font-medium transition-all flex items-center justify-center gap-1.5"
                         >
                           <ArrowRightLeft className="w-4 h-4" /> หักเครดิต
                         </button>
@@ -301,24 +301,24 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
 
                     <div className="p-4 border border-zinc-850 flex justify-between items-center bg-zinc-950/20 rounded-md">
                       <div>
-                        <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">วันที่สมัครสมาชก</p>
-                        <p className="text-sm font-bold text-zinc-300 mt-1">{new Date(selectedUser.registered || Date.now()).toLocaleString('th-TH')}</p>
+                        <p className="text-[10px] font-medium text-zinc-500 uppercase tracking-widest">วันที่สมัครสมาชก</p>
+                        <p className="text-sm font-medium text-zinc-300 mt-1">{new Date(selectedUser.registered || Date.now()).toLocaleString('th-TH')}</p>
                       </div>
                       <Calendar className="w-4 h-4 text-zinc-500" />
                     </div>
 
                     <div className="p-4 border border-zinc-850 bg-zinc-950/20 space-y-3.5 rounded-md">
                       <div>
-                        <p className="text-[10px] font-bold text-zinc-500 uppercase">ตำแหน่งไอพีสุดท้าย</p>
-                        <p className="text-xs font-mono text-[#10b981] font-bold bg-zinc-950 w-max px-2.5 py-0.5 rounded border border-zinc-850 mt-1">{selectedUser.lastLoginIp || selectedUser.last_login_ip || 'ไม่ระบุ'}</p>
+                        <p className="text-[10px] font-medium text-zinc-500 uppercase">ตำแหน่งไอพีสุดท้าย</p>
+                        <p className="text-xs font-mono text-[#10b981] font-medium bg-zinc-950 w-max px-2.5 py-0.5 rounded border border-zinc-850 mt-1">{selectedUser.lastLoginIp || selectedUser.last_login_ip || 'ไม่ระบุ'}</p>
                       </div>
-                      <div className="grid grid-cols-2 gap-4 pt-1.5 border-t border-zinc-900/60">
+                      <div className="grid grid-cols-2 gap-4 pt-1.5 border-t border-[#1e1e1e]/60">
                         <div>
-                           <p className="text-[10px] font-bold text-zinc-500 uppercase">บราวเซอร์อุปกรณ์</p>
+                           <p className="text-[10px] font-medium text-zinc-500 uppercase">บราวเซอร์อุปกรณ์</p>
                            <p className="text-xs font-semibold text-zinc-400 mt-0.5">{selectedUser.lastLoginSource || selectedUser.last_login_source || 'ไม่ระบุ'}</p>
                         </div>
                         <div>
-                           <p className="text-[10px] font-bold text-zinc-500 uppercase">ตำแหน่งเซสชัน</p>
+                           <p className="text-[10px] font-medium text-zinc-500 uppercase">ตำแหน่งเซสชัน</p>
                            <p className="text-xs font-semibold text-zinc-400 mt-0.5">{selectedUser.lastLoginCountry || selectedUser.last_login_country || 'ประเทศไทย'}</p>
                         </div>
                       </div>
@@ -328,10 +328,10 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
                   {/* Actions column */}
                   <div className="space-y-6">
                     <div className="bg-zinc-950/45 border border-zinc-850 p-6 rounded-md">
-                      <h4 className="text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-4 border-b border-zinc-900 pb-2.5">การควบคุมเครือข่ายบัญชี</h4>
+                      <h4 className="text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-4 border-b border-[#1e1e1e] pb-2.5">การควบคุมเครือข่ายบัญชี</h4>
                       
                       <div className="space-y-3.5">
-                        <button onClick={() => handleEditUser(selectedUser)} className="w-full flex items-center justify-between p-3.5 bg-[#050505]/50 border border-zinc-850 hover:border-zinc-800 rounded-md transition-all group">
+                        <button onClick={() => handleEditUser(selectedUser)} className="w-full flex items-center justify-between p-3.5 bg-[#050505]/50 border border-zinc-850 hover:border-[#1e1e1e] rounded-md transition-all group">
                            <div className="flex items-center gap-3">
                              <div className="p-2 bg-zinc-950 rounded-md text-zinc-500"><Edit className="w-4 h-4" /></div>
                              <div className="flex flex-col items-start text-left leading-tight">
@@ -362,7 +362,7 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
                                Swal.fire({ title: 'Error', text: err.response?.data?.error || 'ไม่สามารถเปลี่ยนรหัสได้', icon: 'error', background: '#09090b', color: '#fff' });
                             }
                           }
-                        }} className="w-full flex items-center justify-between p-3.5 bg-[#050505]/50 border border-zinc-850 hover:border-zinc-800 rounded-md transition-all group">
+                        }} className="w-full flex items-center justify-between p-3.5 bg-[#050505]/50 border border-zinc-850 hover:border-[#1e1e1e] rounded-md transition-all group">
                            <div className="flex items-center gap-3">
                              <div className="p-2 bg-zinc-950 rounded-md text-zinc-500"><RefreshCw className="w-4 h-4" /></div>
                              <div className="flex flex-col items-start text-left leading-tight">
@@ -413,7 +413,7 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
                           }
                         }} className="w-full flex items-center justify-between p-3 border border-rose-500/10 hover:border-rose-500/30 bg-rose-500/5 hover:bg-rose-500/10 text-rose-400 rounded-md transition-all scale-[0.99] hover:scale-[1] mt-6">
                            <div className="flex-1 text-center py-1">
-                              <span className="text-xs font-bold">ลบข้อมูลบัญชีผู้ใช้งานคนนี้ถาวร</span>
+                              <span className="text-xs font-medium">ลบข้อมูลบัญชีผู้ใช้งานคนนี้ถาวร</span>
                            </div>
                         </button>
                       </div>
@@ -427,10 +427,10 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
                   {userPurchaseHistory.length > 0 ? userPurchaseHistory.map((h, i) => (
                     <div key={i} className="flex justify-between items-center p-4 bg-zinc-950/40 border border-zinc-850 rounded-md">
                       <div>
-                        <p className="text-sm font-bold text-white">{h.productName}</p>
+                        <p className="text-sm font-medium text-white">{h.productName}</p>
                         <p className="text-xs text-zinc-500 mt-1">{new Date(h.date).toLocaleString('th-TH')}</p>
                       </div>
-                      <p className="font-bold text-rose-400 font-mono">-฿{h.price}</p>
+                      <p className="font-medium text-rose-400 font-mono">-฿{h.price}</p>
                     </div>
                   )) : <p className="text-center text-xs font-semibold text-zinc-550 py-12">ไม่มีบันทึกการจัดซื้อสินค้าชิ้นใดของสมาชิกลายนี้</p>}
                 </div>
@@ -441,10 +441,10 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
                   {userTopupHistory.length > 0 ? userTopupHistory.map((h, i) => (
                     <div key={i} className="flex justify-between items-center p-4 bg-zinc-950/40 border border-zinc-850 rounded-md">
                       <div>
-                        <p className="text-sm font-bold text-white">เติมเงิน ({h.method})</p>
+                        <p className="text-sm font-medium text-white">เติมเงิน ({h.method})</p>
                         <p className="text-xs text-zinc-500 mt-1">{new Date(h.date).toLocaleString('th-TH')}</p>
                       </div>
-                      <p className="font-bold text-[#10b981] font-mono">+฿{h.amount}</p>
+                      <p className="font-medium text-[#10b981] font-mono">+฿{h.amount}</p>
                     </div>
                   )) : <p className="text-center text-xs font-semibold text-zinc-550 py-12">ไม่มีรายการสถิติการเติมเครดิตเข้าสโตร์</p>}
                 </div>
@@ -455,10 +455,10 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
                   {userKeysHistory.length > 0 ? userKeysHistory.map((k, i) => (
                     <div key={i} className="flex justify-between items-center p-4 bg-zinc-950/40 border border-zinc-850 rounded-md">
                       <div>
-                        <p className="text-sm font-bold font-mono text-zinc-300">{k.key || k.code || k.name || 'Key-' + i}</p>
+                        <p className="text-sm font-medium font-mono text-zinc-300">{k.key || k.code || k.name || 'Key-' + i}</p>
                         <p className="text-xs text-zinc-500 mt-1">{new Date(k.used_at || k.date || new Date()).toLocaleString('th-TH')}</p>
                       </div>
-                      <span className="text-[10px] font-bold text-[#10b981] px-2.5 py-0.5 rounded-full bg-[#10b981]/10 border border-emerald-500/20 uppercase tracking-widest">Used / เติมแล้ว</span>
+                      <span className="text-[10px] font-medium text-[#10b981] px-2.5 py-0.5 rounded-full bg-[#10b981]/10 border border-emerald-500/20 uppercase tracking-widest">Used / เติมแล้ว</span>
                     </div>
                   )) : <p className="text-center text-xs font-semibold text-zinc-550 py-12">ไม่เคยพบรายการสะสมรางวัลหรือรหัสของขวัญ</p>}
                 </div>

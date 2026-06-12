@@ -137,7 +137,7 @@ export const ProxyFreeTool: React.FC = () => {
           </h2>
           <p className="text-muted-foreground mt-2 flex items-center gap-2">
             อัปเดต Proxy อัตโนมัติจาก{" "}
-            <span className="px-2 py-1 bg-card text-xs font-mono text-white ">
+            <span className="px-2 py-1 bg-[#09090b] text-xs font-mono text-white ">
               proxifly/free-proxy-list
             </span>
           </p>
@@ -147,7 +147,7 @@ export const ProxyFreeTool: React.FC = () => {
           <button
             onClick={fetchProxies}
             disabled={loading}
-            className="bg-primary text-primary-foreground text-[#10b981] border border-[#10b981]/20 hover:bg-zinc-600/20 px-5 py-3 font-bold flex items-center gap-2 transition-all disabled:opacity-50"
+            className="bg-primary text-primary-foreground text-[#10b981] border border-[#10b981]/20 hover:bg-zinc-600/20 px-5 py-3 font-medium flex items-center gap-2 transition-all disabled:opacity-50"
           >
             <RefreshCcw
               className={`w-5 h-5 ${loading ? "animate-spin" : ""}`}
@@ -186,9 +186,9 @@ export const ProxyFreeTool: React.FC = () => {
         ].map((stat, idx) => (
           <div
             key={idx}
-            className={`${stat.bg} border border-border  p-6 relative overflow-hidden group hover:border-white/[0.04] transition-colors`}
+            className={`${stat.bg} border border-[#1e1e1e]  p-6 relative overflow-hidden group hover:border-[#1e1e1e] transition-colors`}
           >
-            <p className="text-xs font-bold text-muted-foreground mb-2 tracking-widest">
+            <p className="text-xs font-medium text-muted-foreground mb-2 tracking-widest">
               {stat.label}
             </p>
             <div className="flex items-baseline gap-2">
@@ -207,8 +207,8 @@ export const ProxyFreeTool: React.FC = () => {
         ))}
       </div>
 
-      <div className="bg-card border border-border  overflow-hidden flex flex-col ">
-        <div className="border-b border-border  bg-card ">
+      <div className="bg-[#09090b] border border-[#1e1e1e]  overflow-hidden flex flex-col ">
+        <div className="border-b border-[#1e1e1e]  bg-[#09090b] ">
           <div className="flex overflow-x-auto hide-scrollbar px-2 pt-2">
             {[
               { id: "all", label: "ทั้งหมด (All)" },
@@ -219,7 +219,7 @@ export const ProxyFreeTool: React.FC = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`flex-shrink-0 px-6 py-4 text-sm font-bold border-b-2 transition-all ${ activeTab === tab.id ? "border-[#10b981] text-[#10b981]" : "border-transparent text-muted-foreground hover:text-zinc-300 hover:bg-[#121212]" }`}
+                className={`flex-shrink-0 px-6 py-4 text-sm font-medium border-b-2 transition-all ${ activeTab === tab.id ? "border-[#10b981] text-[#10b981]" : "border-transparent text-muted-foreground hover:text-zinc-300 hover:bg-[#121212]" }`}
               >
                 {tab.label}
               </button>
@@ -228,10 +228,10 @@ export const ProxyFreeTool: React.FC = () => {
         </div>
 
         <div className="p-4 sm:p-6 flex-1 flex flex-col gap-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-black/40 backdrop-blur-sm p-4 border border-border ">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-black/40 backdrop-blur-sm p-4 border border-[#1e1e1e] ">
             <div className="flex items-center gap-3">
               <Shield className="w-5 h-5 text-muted-foreground" />
-              <span className="text-sm font-bold text-white">
+              <span className="text-sm font-medium text-white">
                 พร้อมใช้งาน:{" "}
                 <span className="text-[#10b981]">
                   {currentList.length.toLocaleString()}
@@ -243,25 +243,25 @@ export const ProxyFreeTool: React.FC = () => {
               <button
                 onClick={downloadFile}
                 disabled={currentList.length === 0}
-                className="flex-1 sm:flex-none justify-center bg-card hover:bg-[#1e1e1e] text-white px-4 py-2.5 text-xs font-bold flex items-center gap-2 transition-all disabled:opacity-50 "
+                className="flex-1 sm:flex-none justify-center bg-[#09090b] hover:bg-[#1e1e1e] text-white px-4 py-2.5 text-xs font-medium flex items-center gap-2 transition-all disabled:opacity-50 "
               >
                 <Download className="w-4 h-4" /> บันทึกไฟล์ (.txt)
               </button>
               <button
                 onClick={copyToClipboard}
                 disabled={currentList.length === 0}
-                className="flex-1 sm:flex-none justify-center bg-primary text-primary-foreground hover:bg-[#166BCC] text-white px-4 py-2.5 text-xs font-bold flex items-center gap-2 transition-all disabled:opacity-50"
+                className="flex-1 sm:flex-none justify-center bg-primary text-primary-foreground hover:bg-[#166BCC] text-white px-4 py-2.5 text-xs font-medium flex items-center gap-2 transition-all disabled:opacity-50"
               >
                 <Copy className="w-4 h-4" /> คัดลอกทั้งหมด
               </button>
             </div>
           </div>
 
-          <div className="flex-1 min-h-[400px] h-[500px] bg-card border border-border  p-4 overflow-hidden relative ">
+          <div className="flex-1 min-h-[400px] h-[500px] bg-[#09090b] border border-[#1e1e1e]  p-4 overflow-hidden relative ">
             {loading ? (
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-muted-foreground bg-card z-10 ">
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-muted-foreground bg-[#09090b] z-10 ">
                 <RefreshCcw className="w-10 h-10 animate-spin mb-4 text-[#10b981]" />
-                <p className="font-bold tracking-wide">กำลังรวบรวม IP...</p>
+                <p className="font-medium tracking-wide">กำลังรวบรวม IP...</p>
               </div>
             ) : currentList.length === 0 ? (
               <div className="absolute inset-0 flex items-center justify-center text-muted-foreground font-medium">

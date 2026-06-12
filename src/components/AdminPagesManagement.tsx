@@ -80,16 +80,16 @@ export const AdminPagesManagement: React.FC<AdminPagesManagementProps> = ({ cust
 
   if (isEditing) {
     return (
-      <div className="bg-[#0B0C0E] border border-zinc-805 border-zinc-800 rounded-md overflow-hidden shrink-0 shadow-sm animate-in fade-in zoom-in-95 duration-200">
+      <div className="bg-[#0B0C0E] border border-zinc-805 border-[#1e1e1e] rounded-md overflow-hidden shrink-0 shadow-sm animate-in fade-in zoom-in-95 duration-200">
         <div className="bg-zinc-950 px-6 py-4 flex items-center justify-between border-b border-zinc-850">
           <div>
-            <h3 className="font-bold text-white text-base">{editingPage ? 'แก้ไขข้อมูลส่วนหน้าเพจ' : 'สร้างหน้าข้อกำหนด / บทความย่อย'}</h3>
+            <h3 className="font-medium text-white text-base">{editingPage ? 'แก้ไขข้อมูลส่วนหน้าเพจ' : 'สร้างหน้าข้อกำหนด / บทความย่อย'}</h3>
             <p className="text-xs text-zinc-500 mt-1">ตั้งค่าโครงสร้างเอกสารเพื่อแสดงบนหน้าเว็บหลัก</p>
           </div>
           <button 
             type="button" 
             onClick={() => setIsEditing(false)}
-            className="p-1.5 text-zinc-400 hover:text-white bg-[#050505] rounded-md border border-zinc-800"
+            className="p-1.5 text-zinc-400 hover:text-white bg-[#050505] rounded-md border border-[#1e1e1e]"
           >
             <X className="w-4 h-4" />
           </button>
@@ -98,48 +98,48 @@ export const AdminPagesManagement: React.FC<AdminPagesManagementProps> = ({ cust
         <form onSubmit={handleSave} className="p-6 space-y-5">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
-              <label className="block text-xs font-bold text-zinc-400 mb-2">ชื่อหัวข้อหน้าเพจ (Title)</label>
+              <label className="block text-xs font-medium text-zinc-400 mb-2">ชื่อหัวข้อหน้าเพจ (Title)</label>
               <input 
                 type="text" 
                 value={formData.title}
                 onChange={(e) => setFormData({...formData, title: e.target.value})}
-                className="w-full bg-zinc-950 border border-zinc-805 border-zinc-800 focus:border-[#10b981]/60 rounded-md px-4 py-2.5 text-white text-sm focus:outline-none transition-colors"
+                className="w-full bg-zinc-950 border border-zinc-805 border-[#1e1e1e] focus:border-[#10b981]/60 rounded-md px-4 py-2.5 text-white text-sm focus:outline-none transition-colors"
                 placeholder="เช่น เงื่อนไขการรับประกันสินค้า"
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-zinc-400 mb-2">มาร์กสลัก endpoint (slug)</label>
+              <label className="block text-xs font-medium text-zinc-400 mb-2">มาร์กสลัก endpoint (slug)</label>
               <input 
                 type="text" 
                 value={formData.slug}
                 onChange={(e) => setFormData({...formData, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-')})}
-                className="w-full bg-zinc-950 border border-zinc-805 border-zinc-800 focus:border-[#10b981]/60 rounded-md px-4 py-2.5 text-white text-sm focus:outline-none transition-colors"
+                className="w-full bg-zinc-950 border border-zinc-805 border-[#1e1e1e] focus:border-[#10b981]/60 rounded-md px-4 py-2.5 text-white text-sm focus:outline-none transition-colors"
                 placeholder="เช่น warranty, terms"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-zinc-400 mb-2">เนื้อหาริชเท็กซ์ (Markdown Supported)</label>
+            <label className="block text-xs font-medium text-zinc-400 mb-2">เนื้อหาริชเท็กซ์ (Markdown Supported)</label>
             <textarea 
               value={formData.content}
               onChange={(e) => setFormData({...formData, content: e.target.value})}
-              className="w-full bg-zinc-950 border border-zinc-805 border-zinc-800 focus:border-[#10b981]/60 rounded-md px-4 py-3 text-sm text-zinc-300 focus:outline-none transition-colors h-72 font-mono"
+              className="w-full bg-zinc-950 border border-zinc-805 border-[#1e1e1e] focus:border-[#10b981]/60 rounded-md px-4 py-3 text-sm text-zinc-300 focus:outline-none transition-colors h-72 font-mono"
               placeholder="# หัวข้อย่อย&#10;รายละเอียดโปรแกรม เงื่อนไขสิทธิ์รับประกันกรณีคีย์ใช้งานไม่ได้..."
             />
           </div>
 
-          <div className="flex gap-2 justify-end pt-5 border-t border-zinc-900">
+          <div className="flex gap-2 justify-end pt-5 border-t border-[#1e1e1e]">
             <button 
               type="button" 
               onClick={() => setIsEditing(false)}
-              className="px-4 py-2 text-xs font-bold border border-zinc-850 bg-[#050505]/60 hover:bg-[#0a0a0a] text-zinc-400 hover:text-white rounded-md transition-colors"
+              className="px-4 py-2 text-xs font-medium border border-zinc-850 bg-[#050505]/60 hover:bg-[#0a0a0a] text-zinc-400 hover:text-white rounded-md transition-colors"
             >
               ยกเลิก
             </button>
             <button 
               type="submit"
-              className="px-4 py-2 text-xs font-bold bg-[#10b981] hover:bg-[#10b981] text-white flex items-center gap-2 rounded-md transition-colors"
+              className="px-4 py-2 text-xs font-medium bg-[#10b981] hover:bg-[#10b981] text-white flex items-center gap-2 rounded-md transition-colors"
             >
               <Save className="w-3.5 h-3.5" /> บันทึกหน้าเพจ
             </button>
@@ -151,9 +151,9 @@ export const AdminPagesManagement: React.FC<AdminPagesManagementProps> = ({ cust
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center bg-zinc-950/20 p-4 border border-zinc-900 rounded-md">
+      <div className="flex justify-between items-center bg-zinc-950/20 p-4 border border-[#1e1e1e] rounded-md">
         <div>
-          <h2 className="text-lg font-bold text-white flex items-center gap-2">
+          <h2 className="text-lg font-medium text-white flex items-center gap-2">
             <FileText className="w-5 h-5 text-[#10b981]" />
             จัดการหน้าเพจบทความย่อย
           </h2>
@@ -161,17 +161,17 @@ export const AdminPagesManagement: React.FC<AdminPagesManagementProps> = ({ cust
         </div>
         <button 
           onClick={handleCreateNew}
-          className="bg-[#10b981] hover:bg-[#10b981] text-white font-bold py-2 px-4 text-xs transition-colors flex items-center gap-2 rounded-md shadow-[0_2px_10px_rgba(59,130,246,0.2)]"
+          className="bg-[#10b981] hover:bg-[#10b981] text-white font-medium py-2 px-4 text-xs transition-colors flex items-center gap-2 rounded-md shadow-sm"
         >
           <Plus className="w-4 h-4" /> สร้างหน้าเพจใหม่
         </button>
       </div>
 
-      <div className="bg-card border border-zinc-800 rounded-md overflow-hidden shadow-sm">
+      <div className="bg-[#09090b] border border-[#1e1e1e] rounded-md overflow-hidden shadow-sm">
         {customPages.length === 0 ? (
           <div className="p-12 text-center text-zinc-500 flex flex-col items-center justify-center">
             <FileText className="w-10 h-10 mb-2 opacity-30" />
-            <p className="font-bold">ยังไม่มีข้อมูลหน้าเพจย่อยในระบบ</p>
+            <p className="font-medium">ยังไม่มีข้อมูลหน้าเพจย่อยในระบบ</p>
             <p className="text-xs text-zinc-650 mt-1">คลิกปุ่ม "สร้างหน้าเพจใหม่" ด้านบนเพื่อเริ่มต้นเพิ่มข้อกำหนดแรกให้กับผู้ซื้อ</p>
           </div>
         ) : (
@@ -179,11 +179,11 @@ export const AdminPagesManagement: React.FC<AdminPagesManagementProps> = ({ cust
             {customPages.map(page => (
               <div key={page.id} className="p-4 flex items-center justify-between hover:bg-[#050505]/10 transition-colors group">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-zinc-950 border border-zinc-800 rounded-md text-[#10b981] flex items-center justify-center">
+                  <div className="w-10 h-10 bg-zinc-950 border border-[#1e1e1e] rounded-md text-[#10b981] flex items-center justify-center">
                     <FileText className="w-5 h-5" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-white text-sm">{page.title.replace(/^#+\s*/, '')}</h4>
+                    <h4 className="font-medium text-white text-sm">{page.title.replace(/^#+\s*/, '')}</h4>
                     <p className="text-[10px] text-zinc-500 font-mono mt-0.5">ลิงก์เข้าสู่หน้า: <span className="text-[#10b981]">/{page.slug}</span></p>
                   </div>
                 </div>

@@ -27,7 +27,7 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
   return (
     <div
       onClick={onClick}
-      className="relative group overflow-hidden rounded-md border border-white/[0.08] bg-[#0c0c0e] hover:border-white/[0.06] transition-all duration-300 flex flex-col cursor-pointer hover:-translate-y-1 shadow-sm"
+      className="relative group overflow-hidden rounded-md border border-[#1e1e1e] bg-[#0c0c0e] hover:border-[#1e1e1e] transition-colors duration-200 flex flex-col cursor-pointer  shadow-sm"
       style={{ animationDelay: `${index * 0.05}s` }}
     >
       {/* Banner Area */}
@@ -39,18 +39,18 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
           <img
             src={bgImage}
             alt={title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-60 group-hover:opacity-85"
+            className="w-full h-full object-cover group-  opacity-60 group-hover:opacity-85"
             referrerPolicy="no-referrer"
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-zinc-900 to-black flex items-center justify-center">
+          <div className="w-full h-full bg-[#09090b] flex items-center justify-center">
             <Package className="w-8 h-8 text-white/10" />
           </div>
         )}
         
         {/* Top-to-Bottom, Left-to-Right Gradients */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0c0c0e] via-transparent to-transparent opacity-90" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0c0c0e]/40 to-transparent" />
+        <div className="absolute inset-0 bg-[#09090b] opacity-90" />
+        <div className="absolute inset-0 bg-[#09090b]" />
       </div>
 
       {/* Content Area */}
@@ -59,16 +59,16 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
           {title}
         </h3>
         
-        <div className="flex items-center justify-between text-xs font-semibold mt-3 pt-3 border-t border-white/[0.04]">
+        <div className="flex items-center justify-between text-xs font-semibold mt-3 pt-3 border-t border-[#1e1e1e]">
           {/* Item Count */}
-          <span className="text-white/40 flex items-center gap-1.5 uppercase font-bold tracking-wider">
+          <span className="text-white/40 flex items-center gap-1.5 uppercase font-medium tracking-wider">
             <Package className="w-3.5 h-3.5 text-white/35 shrink-0" />
             <span>มีสินค้าทั้งหมด <span className="text-neon-green font-semibold">{itemCountDesc?.replace(/[^0-9]/g, '') || '0'}</span> รายการ</span>
           </span>
           
           {/* Price Range */}
           {priceRangeStr && (
-            <span className="text-white font-mono font-semibold tracking-wider text-xs bg-white/[0.06] px-2.5 py-1.5 rounded-md border border-white/[0.06] shadow-sm">
+            <span className="text-white font-mono font-semibold tracking-wider text-xs bg-white/[0.06] px-2.5 py-1.5 rounded-md border border-[#1e1e1e] shadow-sm">
               {priceRangeStr.replace("฿", "")}
             </span>
           )}

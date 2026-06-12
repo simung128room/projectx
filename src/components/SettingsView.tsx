@@ -94,7 +94,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user,
       background: '#09090b',
       color: '#fff',
       customClass: {
-        input: 'bg-[#050505] border-white/[0.04] text-white rounded-md'
+        input: 'bg-[#050505] border-[#1e1e1e] text-white rounded-md'
       }
     });
 
@@ -148,11 +148,11 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user,
     <AnimatedScroll direction="up">
       <div className="font-sans px-4 pb-12">
         <div className="max-w-4xl mx-auto mt-6">
-          <div className="bg-[#070708] border border-zinc-800 overflow-hidden flex flex-col md:flex-row rounded-md shadow-md">
+          <div className="bg-[#070708] border border-[#1e1e1e] overflow-hidden flex flex-col md:flex-row rounded-md shadow-md">
             
             {/* Sidebar Tabs */}
-            <div className="md:w-1/3 bg-[#09090a] border-b md:border-b-0 md:border-r border-zinc-800 p-6 flex flex-col justify-start">
-              <h2 className="text-lg font-bold text-white mb-6 flex items-center gap-2.5">
+            <div className="md:w-1/3 bg-[#09090a] border-b md:border-b-0 md:border-r border-[#1e1e1e] p-6 flex flex-col justify-start">
+              <h2 className="text-lg font-medium text-white mb-6 flex items-center gap-2.5">
                 <ShieldCheck className="w-5 h-5 text-neon-green" /> ตั้งค่าผู้ใช้
               </h2>
               
@@ -202,10 +202,10 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user,
                 <>
                   {currentTab === 'password' && (
                     <div className="animate-in fade-in duration-300">
-                      <h3 className="text-base font-bold text-white mb-6">เปลี่ยนรหัสผ่านใหม่</h3>
+                      <h3 className="text-base font-medium text-white mb-6">เปลี่ยนรหัสผ่านใหม่</h3>
                       <div className="space-y-4">
                         <div>
-                          <label className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider mb-2 block">รหัสผ่านเดิม</label>
+                          <label className="text-[10px] text-zinc-400 font-medium uppercase tracking-wider mb-2 block">รหัสผ่านเดิม</label>
                           <div className="relative">
                             <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-zinc-500" />
                             <input 
@@ -213,12 +213,12 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user,
                               placeholder="••••••••" 
                               value={oldPassword} 
                               onChange={e => setOldPassword(e.target.value)} 
-                              className="w-full bg-[#0a0a0b] border border-zinc-800 rounded-md py-3 pl-11 pr-4 text-sm text-white focus:border-neon-green/50 focus:ring-1 focus:ring-neon-green/10 outline-none transition-all placeholder:text-zinc-650"
+                              className="w-full bg-[#0a0a0b] border border-[#1e1e1e] rounded-md py-3 pl-11 pr-4 text-sm text-white focus:border-neon-green/50 focus:ring-1 focus:ring-neon-green/10 outline-none transition-all placeholder:text-zinc-650"
                             />
                           </div>
                         </div>
                         <div>
-                          <label className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider mb-2 block">รหัสผ่านใหม่</label>
+                          <label className="text-[10px] text-zinc-400 font-medium uppercase tracking-wider mb-2 block">รหัสผ่านใหม่</label>
                           <div className="relative">
                             <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-zinc-500" />
                             <input 
@@ -226,12 +226,12 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user,
                               placeholder="••••••••" 
                               value={newPassword} 
                               onChange={e => setNewPassword(e.target.value)} 
-                              className="w-full bg-[#0a0a0b] border border-zinc-800 rounded-md py-3 pl-11 pr-4 text-sm text-white focus:border-neon-green/50 focus:ring-1 focus:ring-neon-green/10 outline-none transition-all placeholder:text-zinc-650"
+                              className="w-full bg-[#0a0a0b] border border-[#1e1e1e] rounded-md py-3 pl-11 pr-4 text-sm text-white focus:border-neon-green/50 focus:ring-1 focus:ring-neon-green/10 outline-none transition-all placeholder:text-zinc-650"
                             />
                           </div>
                         </div>
                         <div>
-                          <label className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider mb-2 block">ยืนยันรหัสผ่านใหม่</label>
+                          <label className="text-[10px] text-zinc-400 font-medium uppercase tracking-wider mb-2 block">ยืนยันรหัสผ่านใหม่</label>
                           <div className="relative">
                             <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-zinc-500" />
                             <input 
@@ -239,7 +239,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user,
                               placeholder="••••••••" 
                               value={confirmPassword} 
                               onChange={e => setConfirmPassword(e.target.value)} 
-                              className="w-full bg-[#0a0a0b] border border-zinc-800 rounded-md py-3 pl-11 pr-4 text-sm text-white focus:border-neon-green/50 focus:ring-1 focus:ring-neon-green/10 outline-none transition-all placeholder:text-zinc-650"
+                              className="w-full bg-[#0a0a0b] border border-[#1e1e1e] rounded-md py-3 pl-11 pr-4 text-sm text-white focus:border-neon-green/50 focus:ring-1 focus:ring-neon-green/10 outline-none transition-all placeholder:text-zinc-650"
                             />
                           </div>
                         </div>
@@ -257,7 +257,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user,
                     <div className="animate-in fade-in duration-300">
                       <div className="bg-red-500/10 border border-red-500/20 p-6 text-center rounded-md">
                         <ShieldAlert className="w-12 h-12 text-red-550 mx-auto mb-4" />
-                        <h3 className="text-base font-bold text-white mb-2">ลบบัญชีผู้ใช้งาน</h3>
+                        <h3 className="text-base font-medium text-white mb-2">ลบบัญชีผู้ใช้งาน</h3>
                         <p className="text-xs text-zinc-400 mb-6 leading-relaxed">
                           คำเตือน: หากคุณลบบัญชี ข้อมูลประวัติการสั่งซื้อ ยอดเงินคงเหลือ และข้อมูลส่วนตัวทั้งหมดจะถูกลบออกถาวรและไม่สามารถกู้คืนได้
                         </p>
@@ -273,9 +273,9 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user,
 
                   {currentTab === 'preferences' && (
                     <div className="animate-in fade-in duration-300">
-                      <h3 className="text-base font-bold text-white mb-6">ตั้งค่าการแสดงผลทั่วไป</h3>
+                      <h3 className="text-base font-medium text-white mb-6">ตั้งค่าการแสดงผลทั่วไป</h3>
                       <div className="space-y-4">
-                        <div className="flex items-center justify-between p-4 bg-[#0a0a0b] border border-zinc-800 rounded-md">
+                        <div className="flex items-center justify-between p-4 bg-[#0a0a0b] border border-[#1e1e1e] rounded-md">
                           <div className="pr-4">
                             <div className="text-sm font-semibold text-white mb-1">Custom Cursor</div>
                             <div className="text-xs text-zinc-400 leading-normal">เปิด/ปิด เอฟเฟกต์เคอร์เซอร์ของเว็บไซต์ เพื่อลดการกระตุกบนเครื่องสเปกต่ำ</div>
@@ -288,7 +288,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user,
                                 checked={useCustomCursor ?? true} 
                                 onChange={toggleCustomCursor}
                               />
-                              <div className="w-11 h-6 bg-[#050505] border border-zinc-850 rounded-full peer-focus:outline-none peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-zinc-300 after:border-zinc-300 after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-neon-green"></div>
+                              <div className="w-11 h-6 bg-[#050505] border border-zinc-850 rounded-full peer-focus:outline-none peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-zinc-300 after:border-[#1e1e1e] after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-neon-green"></div>
                             </label>
                           </div>
                         </div>

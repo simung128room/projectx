@@ -119,20 +119,20 @@ export default function AdminStockManagement({ products, categories, setProducts
     
     return (
       <div className="space-y-6 animate-in fade-in zoom-in-95 duration-200">
-         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-zinc-950/20 p-4 border border-zinc-900 rounded-md">
+         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-zinc-950/20 p-4 border border-[#1e1e1e] rounded-md">
             <div className="flex items-center gap-4">
                 <button 
                   onClick={() => setSelectedProduct(null)} 
-                  className="p-2 border border-zinc-800 bg-[#050505]/60 hover:text-white text-zinc-400 hover:bg-[#0a0a0a] rounded-md transition-colors"
+                  className="p-2 border border-[#1e1e1e] bg-[#050505]/60 hover:text-white text-zinc-400 hover:bg-[#0a0a0a] rounded-md transition-colors"
                   title="กลับ"
                 >
                     <ArrowLeft className="w-5 h-5" />
                 </button>
                 <div>
-                   <h2 className="text-base font-bold text-white flex items-center gap-2">
+                   <h2 className="text-base font-medium text-white flex items-center gap-2">
                        <Database className="w-4 h-4 text-[#10b981]" /> รายการสต็อก: {selectedProduct.name}
                    </h2>
-                   <p className="text-zinc-500 text-xs">สต็อกทั้งหมด <span className="text-[#10b981] font-mono font-bold">{stockItems.length}</span> แถว (ค้นพบ {filteredStock.length} แถว)</p>
+                   <p className="text-zinc-500 text-xs">สต็อกทั้งหมด <span className="text-[#10b981] font-mono font-medium">{stockItems.length}</span> แถว (ค้นพบ {filteredStock.length} แถว)</p>
                 </div>
             </div>
             <div className="w-full sm:w-64 relative">
@@ -142,12 +142,12 @@ export default function AdminStockManagement({ products, categories, setProducts
                   placeholder="ค้นหารหัส หรือคีย์สต็อก..."
                   value={searchTerm}
                   onChange={e => { setSearchTerm(e.target.value); setPage(1); }}
-                  className="w-full bg-zinc-950 border border-zinc-800 rounded-md py-2 pl-9 pr-4 text-xs text-white focus:border-[#10b981] focus:outline-none transition-colors"
+                  className="w-full bg-zinc-950 border border-[#1e1e1e] rounded-md py-2 pl-9 pr-4 text-xs text-white focus:border-[#10b981] focus:outline-none transition-colors"
                 />
             </div>
          </div>
          
-         <div className="bg-card border border-zinc-800 rounded-md p-5 overflow-hidden shadow-sm">
+         <div className="bg-[#09090b] border border-[#1e1e1e] rounded-md p-5 overflow-hidden shadow-sm">
               {loading ? (
                   <div className="text-center py-20">
                      <Loader2 className="animate-spin h-8 w-8 text-[#10b981] mx-auto mb-3" />
@@ -156,13 +156,13 @@ export default function AdminStockManagement({ products, categories, setProducts
               ) : paginated.length === 0 ? (
                   <div className="text-center py-20 text-zinc-600">
                      <Database className="w-10 h-10 mx-auto mb-2 opacity-35" />
-                     <p className="font-bold text-sm">ไม่พบรายการสต็อกสินค้าชิ้นนี้</p>
+                     <p className="font-medium text-sm">ไม่พบรายการสต็อกสินค้าชิ้นนี้</p>
                      <p className="text-xs mt-1">กรุณากลับไปหน้า จัดการสินค้า และคลิกเพิ่มสต๊อกใหม่</p>
                   </div>
               ) : (
                  <div className="space-y-2 max-h-[600px] overflow-y-auto pr-1">
                      {paginated.map(({item, originalIndex}, idx) => (
-                         <div key={idx} className="flex bg-zinc-950/40 p-3 border border-zinc-850 hover:border-zinc-800/80 items-center justify-between rounded-md transition-all group">
+                         <div key={idx} className="flex bg-zinc-950/40 p-3 border border-zinc-850 hover:border-[#1e1e1e]/80 items-center justify-between rounded-md transition-all group">
                              <span className="text-zinc-400 font-mono text-xs max-w-[80%] truncate select-all">{item}</span>
                              <div className="flex gap-2">
                                  <button 
@@ -187,19 +187,19 @@ export default function AdminStockManagement({ products, categories, setProducts
          </div>
 
          {totalPages > 1 && (
-            <div className="flex items-center gap-4 justify-between bg-zinc-950 p-4 border border-zinc-900 rounded-md">
+            <div className="flex items-center gap-4 justify-between bg-zinc-950 p-4 border border-[#1e1e1e] rounded-md">
                <button 
                  onClick={() => setPage(p => Math.max(1, p - 1))} 
                  disabled={page === 1} 
-                 className="px-4 py-2 border border-zinc-800 bg-[#050505] text-zinc-400 hover:text-white text-xs font-bold disabled:opacity-30 disabled:cursor-not-allowed rounded transition-colors"
+                 className="px-4 py-2 border border-[#1e1e1e] bg-[#050505] text-zinc-400 hover:text-white text-xs font-medium disabled:opacity-30 disabled:cursor-not-allowed rounded transition-colors"
                >
                  ก่อนหน้า
                </button>
-               <span className="text-zinc-500 text-xs font-bold font-mono">หน้า {page} / {totalPages}</span>
+               <span className="text-zinc-500 text-xs font-medium font-mono">หน้า {page} / {totalPages}</span>
                <button 
                  onClick={() => setPage(p => Math.min(totalPages, p + 1))} 
                  disabled={page === totalPages} 
-                 className="px-4 py-2 border border-zinc-800 bg-[#050505] text-zinc-400 hover:text-white text-xs font-bold disabled:opacity-30 disabled:cursor-not-allowed rounded transition-colors"
+                 className="px-4 py-2 border border-[#1e1e1e] bg-[#050505] text-zinc-400 hover:text-white text-xs font-medium disabled:opacity-30 disabled:cursor-not-allowed rounded transition-colors"
                >
                  ถัดไป
                </button>
@@ -211,22 +211,22 @@ export default function AdminStockManagement({ products, categories, setProducts
 
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
-      <div className="bg-zinc-950/20 p-4 border border-zinc-900 rounded-md">
-          <h2 className="text-lg font-bold text-white flex items-center gap-2">
+      <div className="bg-zinc-950/20 p-4 border border-[#1e1e1e] rounded-md">
+          <h2 className="text-lg font-medium text-white flex items-center gap-2">
               <Database className="w-5 h-5 text-[#10b981]" /> จัดการคลังสต็อกหลังบ้าน
           </h2>
           <p className="text-xs text-zinc-500 mt-1">คุณสามารถดู ค้นหา คัดกรอง แก้ไข และลบแถวคีย์สต็อกของสินค้าทุกหมวดหมู่ได้อย่างสะดวกถ้วนทั่ว</p>
       </div>
 
       {productsByCategory.length === 0 ? (
-          <div className="bg-card border border-zinc-800 p-12 text-center rounded-md">
+          <div className="bg-[#09090b] border border-[#1e1e1e] p-12 text-center rounded-md">
               <Package className="w-12 h-12 text-zinc-600 mx-auto mb-3 opacity-30" />
               <p className="text-zinc-500 text-sm font-semibold">ยังไม่มีรายการสินค้าผูกในหมวดหมู่ต่างๆ คลังจึงว่างเปล่า</p>
           </div>
       ) : (
           <div className="space-y-6">
               {productsByCategory.map((cat: any) => (
-                 <div key={cat.id || cat.name} className="bg-card border border-zinc-800/80 rounded-md p-5">
+                 <div key={cat.id || cat.name} className="bg-[#09090b] border border-[#1e1e1e]/80 rounded-md p-5">
                     <h3 className="text-xs uppercase font-semibold text-zinc-400 tracking-wider mb-4 flex items-center gap-2 border-b border-zinc-850 pb-2.5">
                         <LayoutGrid className="w-4 h-4 text-[#10b981]" /> {cat.title || cat.name}
                     </h3>
@@ -240,9 +240,9 @@ export default function AdminStockManagement({ products, categories, setProducts
                                  className="p-4 bg-zinc-950/40 border border-zinc-850 hover:border-[#10b981]/60 cursor-pointer rounded-md hover:bg-[#050505]/60 transition-all duration-200 flex items-center justify-between group"
                                >
                                   <div className="min-w-0 pr-2">
-                                      <p className="font-bold text-zinc-300 text-xs group-hover:text-white transition-colors truncate">{p.name}</p>
+                                      <p className="font-medium text-zinc-300 text-xs group-hover:text-white transition-colors truncate">{p.name}</p>
                                       <div className="flex items-center gap-2 mt-2">
-                                          <span className={`text-[10px] font-bold font-mono px-2 py-0.5 rounded flex items-center gap-1 ${
+                                          <span className={`text-[10px] font-medium font-mono px-2 py-0.5 rounded flex items-center gap-1 ${
                                             stockCount > 0 
                                               ? 'bg-[#10b981]/10 text-[#10b981] border border-emerald-500/20' 
                                               : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
@@ -251,7 +251,7 @@ export default function AdminStockManagement({ products, categories, setProducts
                                           </span>
                                       </div>
                                   </div>
-                                  <div className="w-7 h-7 bg-[#050505] border border-zinc-800 flex items-center justify-center rounded-md opacity-65 group-hover:opacity-100 group-hover:bg-[#10b981]/10 group-hover:border-[#10b981] transition-all shrink-0">
+                                  <div className="w-7 h-7 bg-[#050505] border border-[#1e1e1e] flex items-center justify-center rounded-md opacity-65 group-hover:opacity-100 group-hover:bg-[#10b981]/10 group-hover:border-[#10b981] transition-all shrink-0">
                                       <Edit2 className="w-3 h-3 text-zinc-500 group-hover:text-[#10b981]" />
                                   </div>
                                </div>

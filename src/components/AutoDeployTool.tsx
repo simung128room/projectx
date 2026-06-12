@@ -115,7 +115,7 @@ export const AutoDeployTool: React.FC<AutoDeployToolProps> = ({ onBack }) => {
         {onBack && (
           <button 
             onClick={onBack}
-            className="self-start sm:self-center flex items-center gap-2 bg-[#12121e]/80 hover:bg-[#181825] px-4 py-2 border border-border  text-zinc-400 hover:text-white transition-all font-bold text-xs  shrink-0"
+            className="self-start sm:self-center flex items-center gap-2 bg-[#12121e]/80 hover:bg-[#181825] px-4 py-2 border border-[#1e1e1e]  text-zinc-400 hover:text-white transition-all font-medium text-xs  shrink-0"
           >
             <ArrowLeft className="w-4 h-4" /> ย้อนกลับชุดเครื่องมือ
           </button>
@@ -126,8 +126,8 @@ export const AutoDeployTool: React.FC<AutoDeployToolProps> = ({ onBack }) => {
         {/* Left Side: interactive Card or Steps */}
         <div className="lg:col-span-7 bg-[#0d0d12] border border-white/5 p-6 rounded-[2rem] shadow-md relative overflow-hidden flex flex-col justify-between min-h-[460px]">
           {/* Glowing element inside card */}
-          <div className="absolute -top-10 -right-10 w-36 h-36 bg-[#10b981]/10 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-zinc-500/5 rounded-full blur-2xl pointer-events-none" />
+          <div className="absolute -top-10 -right-10 w-36 h-36 bg-[#10b981]/10 rounded-full  pointer-events-none" />
+          <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-zinc-500/5 rounded-full  pointer-events-none" />
 
           <AnimatePresence mode="wait">
             {status === 'idle' && (
@@ -139,13 +139,13 @@ export const AutoDeployTool: React.FC<AutoDeployToolProps> = ({ onBack }) => {
                 className="space-y-6"
               >
                 <div className="border-b border-white/5 pb-4">
-                  <span className="text-[10px] font-mono font-bold tracking-widest text-[#a855f7] uppercase">STEP 1: CHOOSE SUBDOMAIN</span>
+                  <span className="text-[10px] font-mono font-medium tracking-widest text-[#a855f7] uppercase">STEP 1: CHOOSE SUBDOMAIN</span>
                   <h3 className="text-lg font-semibold text-white mt-1">ตั้งป้ายโดเมนร้านค้าของคุณ</h3>
                 </div>
 
                 <div className="space-y-3">
-                  <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider">ระบุชื่อซับโดเมนที่ท่านต้องการ</label>
-                  <div className="flex bg-black/40 border border-border  focus-within:border-emerald-500/50 rounded-md overflow-hidden transition-all duration-300">
+                  <label className="block text-xs font-medium text-zinc-400 uppercase tracking-wider">ระบุชื่อซับโดเมนที่ท่านต้องการ</label>
+                  <div className="flex bg-black/40 border border-[#1e1e1e]  focus-within:border-emerald-500/50 rounded-md overflow-hidden transition-all duration-300">
                     <input 
                       type="text"
                       placeholder="เช่น: store99, mydeal, hyper"
@@ -153,7 +153,7 @@ export const AutoDeployTool: React.FC<AutoDeployToolProps> = ({ onBack }) => {
                       onChange={(e) => setSubdomain(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
                       className="flex-1 bg-transparent px-4 py-3.5 text-white font-semibold text-sm focus:outline-none placeholder:text-zinc-600"
                     />
-                    <div className="bg-[#050505]/15 text-[#a78bfa] border-l border-zinc-900 px-4 flex items-center font-mono text-xs font-bold select-none">
+                    <div className="bg-[#050505]/15 text-[#a78bfa] border-l border-[#1e1e1e] px-4 flex items-center font-mono text-xs font-medium select-none">
                       .{baseDomain}
                     </div>
                   </div>
@@ -169,7 +169,7 @@ export const AutoDeployTool: React.FC<AutoDeployToolProps> = ({ onBack }) => {
 
                 <button
                   onClick={handleStartDeploy}
-                  className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 border border-emerald-500/20 text-white font-semibold py-4 rounded-md flex items-center justify-center gap-2.5 shadow-[0_8px_20px_-4px_rgba(16,185,129,0.25)] hover:scale-[1.01] transition-transform duration-300"
+                  className="w-full bg-[#09090b] border border-emerald-500/20 text-white font-semibold py-4 rounded-md flex items-center justify-center gap-2.5 shadow-sm hover:scale-[1.01] transition-transform duration-300"
                 >
                   <Rocket className="w-5 h-5" />
                   เริ่มติดตั้งร้านค้าแบบโฮสติ้งฟรี
@@ -187,7 +187,7 @@ export const AutoDeployTool: React.FC<AutoDeployToolProps> = ({ onBack }) => {
               >
                 <div className="text-center space-y-3 pb-2">
                   <div className="relative w-14 h-14 mx-auto">
-                    <div className="absolute inset-0 rounded-full border-[3px] border-zinc-800"></div>
+                    <div className="absolute inset-0 rounded-full border-[3px] border-[#1e1e1e]"></div>
                     <div className="absolute inset-0 rounded-full border-[3px] border-t-emerald-500 border-r-teal-400 animate-spin"></div>
                   </div>
                   <div>
@@ -199,35 +199,35 @@ export const AutoDeployTool: React.FC<AutoDeployToolProps> = ({ onBack }) => {
                 {/* Steps Visual List */}
                 <div className="bg-black/30 border border-white/5 rounded-md p-4.5 space-y-3.5 text-xs font-medium font-sans">
                   <div className={`flex items-center gap-3 ${currentStep >= 1 ? 'text-white' : 'text-zinc-600'}`}>
-                    <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] shrink-0 ${currentStep > 1 ? 'bg-[#10b981]/20 text-[#10b981] border border-emerald-500/50' : currentStep === 1 ? 'bg-[#050505]/30 text-zinc-400 border border-zinc-500/40 ' : 'bg-transparent border border-zinc-800'}`}>
+                    <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] shrink-0 ${currentStep > 1 ? 'bg-[#10b981]/20 text-[#10b981] border border-emerald-500/50' : currentStep === 1 ? 'bg-[#050505]/30 text-zinc-400 border border-[#1e1e1e]/40 ' : 'bg-transparent border border-[#1e1e1e]'}`}>
                       {currentStep > 1 ? '✓' : '1'}
                     </div>
                     <span className={currentStep > 1 ? 'line-through text-zinc-500' : ''}>สร้างพอร์ตซับโดเมนบน DirectAdmin Panel</span>
                   </div>
 
                   <div className={`flex items-center gap-3 ${currentStep >= 2 ? 'text-white' : 'text-zinc-600'}`}>
-                    <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] shrink-0 ${currentStep > 2 ? 'bg-[#10b981]/20 text-[#10b981] border border-emerald-400/50' : currentStep === 2 ? 'bg-[#050505]/30 text-zinc-400 border border-zinc-500/40 ' : 'bg-transparent border border-zinc-800'}`}>
+                    <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] shrink-0 ${currentStep > 2 ? 'bg-[#10b981]/20 text-[#10b981] border border-emerald-400/50' : currentStep === 2 ? 'bg-[#050505]/30 text-zinc-400 border border-[#1e1e1e]/40 ' : 'bg-transparent border border-[#1e1e1e]'}`}>
                       {currentStep > 2 ? '✓' : '2'}
                     </div>
                     <span className={currentStep > 2 ? 'line-through text-zinc-500' : ''}>คัดลอกไฟล์ต้นแบบระบบเว็บ xworms วางใน public_html</span>
                   </div>
 
                   <div className={`flex items-center gap-3 ${currentStep >= 3 ? 'text-white' : 'text-zinc-600'}`}>
-                    <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] shrink-0 ${currentStep > 3 ? 'bg-[#10b981]/20 text-[#10b981] border border-emerald-400/50' : currentStep === 3 ? 'bg-[#050505]/30 text-zinc-400 border border-zinc-500/40 ' : 'bg-transparent border border-zinc-800'}`}>
+                    <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] shrink-0 ${currentStep > 3 ? 'bg-[#10b981]/20 text-[#10b981] border border-emerald-400/50' : currentStep === 3 ? 'bg-[#050505]/30 text-zinc-400 border border-[#1e1e1e]/40 ' : 'bg-transparent border border-[#1e1e1e]'}`}>
                       {currentStep > 3 ? '✓' : '3'}
                     </div>
                     <span className={currentStep > 3 ? 'line-through text-zinc-500' : ''}>สร้างฐานข้อมูลระบบ SQL และกำหนดสิทธิ์รหัสผ่านสุ่มปลอดภัย</span>
                   </div>
 
                   <div className={`flex items-center gap-3 ${currentStep >= 4 ? 'text-white' : 'text-zinc-600'}`}>
-                    <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] shrink-0 ${currentStep > 4 ? 'bg-[#10b981]/20 text-[#10b981] border border-emerald-400/50' : currentStep === 4 ? 'bg-[#050505]/30 text-zinc-400 border border-zinc-500/40 ' : 'bg-transparent border border-zinc-800'}`}>
+                    <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] shrink-0 ${currentStep > 4 ? 'bg-[#10b981]/20 text-[#10b981] border border-emerald-400/50' : currentStep === 4 ? 'bg-[#050505]/30 text-zinc-400 border border-[#1e1e1e]/40 ' : 'bg-transparent border border-[#1e1e1e]'}`}>
                       {currentStep > 4 ? '✓' : '4'}
                     </div>
                     <span className={currentStep > 4 ? 'line-through text-zinc-500' : ''}>นำดัมพ์โครงสร้างตารางระบบและอินเซอร์ทตารางเริ่มต้น</span>
                   </div>
 
                   <div className={`flex items-center gap-3 ${currentStep >= 5 ? 'text-white' : 'text-zinc-600'}`}>
-                    <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] shrink-0 ${currentStep > 5 ? 'bg-[#10b981]/20 text-[#10b981] border border-emerald-400/50' : currentStep === 5 ? 'bg-[#050505]/30 text-zinc-400 border border-zinc-500/40 ' : 'bg-transparent border border-zinc-800'}`}>
+                    <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] shrink-0 ${currentStep > 5 ? 'bg-[#10b981]/20 text-[#10b981] border border-emerald-400/50' : currentStep === 5 ? 'bg-[#050505]/30 text-zinc-400 border border-[#1e1e1e]/40 ' : 'bg-transparent border border-[#1e1e1e]'}`}>
                       {currentStep > 5 ? '✓' : '5'}
                     </div>
                     <span>แก้ไขปรับแต่งไฟล์ a_func.php เพื่อเชื่อมฐานระบบ</span>
@@ -245,7 +245,7 @@ export const AutoDeployTool: React.FC<AutoDeployToolProps> = ({ onBack }) => {
                 className="space-y-6"
               >
                 <div className="text-center space-y-2">
-                  <div className="w-12 h-12 bg-[#10b981]/10 border border-emerald-500 rounded-full flex items-center justify-center text-[#10b981] text-xl mx-auto shadow-[0_0_15px_rgba(16,185,129,0.3)]">
+                  <div className="w-12 h-12 bg-[#10b981]/10 border border-emerald-500 rounded-full flex items-center justify-center text-[#10b981] text-xl mx-auto shadow-sm">
                     ✓
                   </div>
                   <h3 className="text-lg font-semibold text-white">ติดตั้งระบบออนไลน์สำเร็จ!</h3>
@@ -253,32 +253,32 @@ export const AutoDeployTool: React.FC<AutoDeployToolProps> = ({ onBack }) => {
                 </div>
 
                 <div className="bg-black/40 border border-white/5 rounded-md p-4.5 font-mono text-[11px] leading-relaxed space-y-3">
-                  <div className="flex items-center justify-between border-b border-zinc-900 pb-2">
+                  <div className="flex items-center justify-between border-b border-[#1e1e1e] pb-2">
                     <span className="text-zinc-500">เว็บไซต์:</span>
-                    <a href={deployResult.website_url} target="_blank" rel="noreferrer" className="text-[#a78bfa] hover:underline font-bold overflow-hidden text-ellipsis whitespace-nowrap max-w-[200px]">{deployResult.website_url}</a>
+                    <a href={deployResult.website_url} target="_blank" rel="noreferrer" className="text-[#a78bfa] hover:underline font-medium overflow-hidden text-ellipsis whitespace-nowrap max-w-[200px]">{deployResult.website_url}</a>
                   </div>
-                  <div className="flex items-center justify-between border-b border-zinc-900 pb-2">
+                  <div className="flex items-center justify-between border-b border-[#1e1e1e] pb-2">
                     <span className="text-zinc-500">แอดมินอินเตอร์เฟซ:</span>
-                    <span className="text-white font-bold">admin</span>
+                    <span className="text-white font-medium">admin</span>
                   </div>
-                  <div className="flex items-center justify-between border-b border-zinc-900 pb-2">
+                  <div className="flex items-center justify-between border-b border-[#1e1e1e] pb-2">
                     <span className="text-zinc-500">รหัสผ่านตั้งต้น:</span>
-                    <span className="bg-[#050505]/30 text-zinc-300 px-1.5 py-0.5 border border-zinc-500/10 rounded font-semibold">{deployResult.admin_pass}</span>
+                    <span className="bg-[#050505]/30 text-zinc-300 px-1.5 py-0.5 border border-[#1e1e1e]/10 rounded font-semibold">{deployResult.admin_pass}</span>
                   </div>
-                  <div className="flex items-center justify-between border-b border-zinc-900 pb-2">
+                  <div className="flex items-center justify-between border-b border-[#1e1e1e] pb-2">
                     <span className="text-zinc-500">การนำเข้า SQL:</span>
-                    <span className="text-[#10b981] font-bold">{deployResult.sql_queries_num || 0} Commands</span>
+                    <span className="text-[#10b981] font-medium">{deployResult.sql_queries_num || 0} Commands</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-zinc-500">ใช้สปีดเวลาติดตั้ง:</span>
-                    <span className="text-zinc-300 font-bold">{deployResult.time_taken || 'N/A'}</span>
+                    <span className="text-zinc-300 font-medium">{deployResult.time_taken || 'N/A'}</span>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3 pt-2">
                   <button
                     onClick={resetTool}
-                    className="bg-[#12121e] hover:bg-[#181822] border border-border  text-zinc-400 font-bold py-3.5 rounded-md text-xs flex justify-center items-center transition-all"
+                    className="bg-[#12121e] hover:bg-[#181822] border border-[#1e1e1e]  text-zinc-400 font-medium py-3.5 rounded-md text-xs flex justify-center items-center transition-all"
                   >
                     ติดตั้งร้านค้าอื่นต่อ
                   </button>
@@ -286,7 +286,7 @@ export const AutoDeployTool: React.FC<AutoDeployToolProps> = ({ onBack }) => {
                     href={deployResult.website_url}
                     target="_blank"
                     rel="noreferrer"
-                    className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:opacity-95 text-white font-bold py-3.5 rounded-md text-xs flex justify-center items-center gap-2 transition-all shadow-[0_5px_15px_-4px_rgba(16,185,129,0.3)]"
+                    className="bg-[#09090b] hover:opacity-95 text-white font-medium py-3.5 rounded-md text-xs flex justify-center items-center gap-2 transition-all shadow-sm"
                   >
                     เปิดหน้าร้านใหม่ <ChevronRight className="w-4 h-4" />
                   </a>
@@ -313,7 +313,7 @@ export const AutoDeployTool: React.FC<AutoDeployToolProps> = ({ onBack }) => {
                 <div className="bg-red-950/20 border border-red-900/30 rounded-md p-4 flex gap-3 text-red-300 text-xs">
                   <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
                   <div className="space-y-1">
-                    <p className="font-bold">คำแนะนำแก้ไขปัญหา:</p>
+                    <p className="font-medium">คำแนะนำแก้ไขปัญหา:</p>
                     <ul className="list-disc pl-4 space-y-1.5 text-zinc-400 select-none">
                       <li>ตรวจสอบว่าไม่ได้เว้นวรรคหรือใช้อักขระที่ห้ามใช้</li>
                       <li>ไอพีของคุณอาจเคยใช้สิทธิ์สร้างร้านค้าจำกัด 1 บัญชีแล้ว</li>
@@ -324,7 +324,7 @@ export const AutoDeployTool: React.FC<AutoDeployToolProps> = ({ onBack }) => {
 
                 <button
                   onClick={resetTool}
-                  className="w-full bg-[#050505] hover:bg-[#0a0a0a] text-white font-bold py-3.5 rounded-md border border-zinc-800 flex justify-center items-center transition-all text-sm"
+                  className="w-full bg-[#050505] hover:bg-[#0a0a0a] text-white font-medium py-3.5 rounded-md border border-[#1e1e1e] flex justify-center items-center transition-all text-sm"
                 >
                   ลองใหม่อีกครั้ง
                 </button>
@@ -345,21 +345,21 @@ export const AutoDeployTool: React.FC<AutoDeployToolProps> = ({ onBack }) => {
               <li className="flex gap-2.5 items-start">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#10b981] mt-1.5 shrink-0" />
                 <div>
-                  <p className="font-bold text-zinc-200">ระบบตะกร้าและซื้อด่วนอัตโนมัติ</p>
+                  <p className="font-medium text-zinc-200">ระบบตะกร้าและซื้อด่วนอัตโนมัติ</p>
                   <p className="text-[10px] mt-0.5">รองรับการจำหน่ายบัตรเติมเงิน ไอดีสกินตัวละคร และแอปพรีเมียมทำงานตอบรับรวดเร็ว</p>
                 </div>
               </li>
               <li className="flex gap-2.5 items-start">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#10b981] mt-1.5 shrink-0" />
                 <div>
-                  <p className="font-bold text-zinc-200">ระบบ Truemoney Wallet</p>
+                  <p className="font-medium text-zinc-200">ระบบ Truemoney Wallet</p>
                   <p className="text-[10px] mt-0.5">ตรวจจับรายการรับของขวัญออโต้ทันใจ ไม่พลาดทุกรายได้การขาย</p>
                 </div>
               </li>
               <li className="flex gap-2.5 items-start">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#10b981] mt-1.5 shrink-0" />
                 <div>
-                  <p className="font-bold text-zinc-200">แผงแดชบอร์ดจัดการแอดมิน (admin/admin)</p>
+                  <p className="font-medium text-zinc-200">แผงแดชบอร์ดจัดการแอดมิน (admin/admin)</p>
                   <p className="text-[10px] mt-0.5">ควบคุมสินค้า หมวดหมู่ ประวัติ สต็อกสินค้าครบวงจร สวยงามเข้าใจง่าย</p>
                 </div>
               </li>
@@ -367,7 +367,7 @@ export const AutoDeployTool: React.FC<AutoDeployToolProps> = ({ onBack }) => {
           </div>
 
           {/* Secure SSL notice */}
-          <div className="bg-purple-950/10 border border-zinc-900/10 rounded-md p-6 flex gap-3.5 items-start">
+          <div className="bg-purple-950/10 border border-[#1e1e1e]/10 rounded-md p-6 flex gap-3.5 items-start">
             <ShieldCheck className="w-6 h-6 text-zinc-400 shrink-0" />
             <div className="space-y-1">
               <h4 className="text-xs font-semibold text-white uppercase tracking-wider">โฮสติ้ง DirectAdmin</h4>

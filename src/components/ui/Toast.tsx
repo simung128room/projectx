@@ -24,7 +24,7 @@ const Toast: React.FC<{ toast: ToastType; onClose: (id: string) => void }> = ({ 
     error: 'bg-[#050505] border-red-500/20 shadow-red-500/5',
     warning: 'bg-[#050505] border-amber-500/20 shadow-amber-500/5',
     info: 'bg-[#050505] border-[#10b981]/20 shadow-sm/5',
-    payment: 'bg-[#050505] border-zinc-500/20 shadow-purple-500/5'
+    payment: 'bg-[#050505] border-[#1e1e1e]/20 shadow-purple-500/5'
   };
 
   return (

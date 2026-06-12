@@ -126,9 +126,9 @@ export const AdminApiKeys: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center bg-zinc-950/20 p-4 border border-zinc-900 rounded-md">
+      <div className="flex justify-between items-center bg-zinc-950/20 p-4 border border-[#1e1e1e] rounded-md">
         <div>
-          <h2 className="text-lg font-bold text-white flex items-center gap-2">
+          <h2 className="text-lg font-medium text-white flex items-center gap-2">
             <Key className="w-5 h-5 text-[#10b981]" />
             จัดการกุญแจเชื่อมต่อ (API Keys Management)
           </h2>
@@ -138,10 +138,10 @@ export const AdminApiKeys: React.FC = () => {
         </div>
         <button
           onClick={() => setIsAdding(!isAdding)}
-          className={`px-4 py-2 text-xs font-bold flex items-center gap-2 rounded-md transition-all duration-200 ${
+          className={`px-4 py-2 text-xs font-medium flex items-center gap-2 rounded-md transition-all duration-200 ${
             isAdding 
-              ? 'border border-zinc-800 bg-[#050505] text-zinc-400 hover:text-white' 
-              : 'bg-[#10b981] hover:bg-[#10b981] text-white shadow-[0_2px_10px_rgba(59,130,246,0.2)]'
+              ? 'border border-[#1e1e1e] bg-[#050505] text-zinc-400 hover:text-white' 
+              : 'bg-[#10b981] hover:bg-[#10b981] text-white shadow-sm'
           }`}
         >
           {isAdding ? <XCircle className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
@@ -150,9 +150,9 @@ export const AdminApiKeys: React.FC = () => {
       </div>
 
       {isAdding && (
-        <form onSubmit={handleAddKey} className="bg-[#0B0C0E] border border-zinc-800 rounded-md overflow-hidden shrink-0 shadow-sm p-6 space-y-5 animate-in fade-in zoom-in-95 duration-200">
+        <form onSubmit={handleAddKey} className="bg-[#0B0C0E] border border-[#1e1e1e] rounded-md overflow-hidden shrink-0 shadow-sm p-6 space-y-5 animate-in fade-in zoom-in-95 duration-200">
           <div className="flex flex-col gap-2">
-            <label className="text-xs font-bold text-zinc-400 uppercase">ชื่ออ้างอิงกุญแจ / Description</label>
+            <label className="text-xs font-medium text-zinc-400 uppercase">ชื่ออ้างอิงกุญแจ / Description</label>
             <input
               required
               type="text"
@@ -169,14 +169,14 @@ export const AdminApiKeys: React.FC = () => {
               id="isLifetime"
               checked={isLifetime}
               onChange={e => setIsLifetime(e.target.checked)}
-              className="w-4 h-4 rounded bg-zinc-950 border-zinc-800 text-[#10b981] focus:ring-[#10b981] cursor-pointer"
+              className="w-4 h-4 rounded bg-zinc-950 border-[#1e1e1e] text-[#10b981] focus:ring-[#10b981] cursor-pointer"
             />
-            <label htmlFor="isLifetime" className="text-sm font-bold text-zinc-200 cursor-pointer select-none">สิทธิ์ถาวร (Lifetime Period)</label>
+            <label htmlFor="isLifetime" className="text-sm font-medium text-zinc-200 cursor-pointer select-none">สิทธิ์ถาวร (Lifetime Period)</label>
           </div>
 
           {!isLifetime && (
             <div className="flex flex-col gap-2">
-              <label className="text-xs font-bold text-zinc-400 uppercase">ระยะเวลากุญแจใช้งาน (วัน)</label>
+              <label className="text-xs font-medium text-zinc-400 uppercase">ระยะเวลากุญแจใช้งาน (วัน)</label>
               <input
                 type="number"
                 min="1"
@@ -188,26 +188,26 @@ export const AdminApiKeys: React.FC = () => {
             </div>
           )}
           
-          <div className="pt-2 border-t border-zinc-900 flex justify-end">
-             <button type="submit" className="bg-[#10b981] hover:bg-[#10b981] text-white text-xs font-bold py-2 px-5 rounded-md transition-colors">
+          <div className="pt-2 border-t border-[#1e1e1e] flex justify-end">
+             <button type="submit" className="bg-[#10b981] hover:bg-[#10b981] text-white text-xs font-medium py-2 px-5 rounded-md transition-colors">
                ยืนยันการผลิตรหัสเชื่อมต่อ (Generate Key)
              </button>
           </div>
         </form>
       )}
 
-      <div className="bg-card border border-zinc-800 rounded-md overflow-hidden shadow-sm">
+      <div className="bg-[#09090b] border border-[#1e1e1e] rounded-md overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-sm text-zinc-400">
             <thead>
-              <tr className="bg-[#0B0C0E] border-b border-zinc-800 text-zinc-550 uppercase text-xs tracking-wider">
-                <th className="px-5 py-3.5 font-bold">สถานะ</th>
-                <th className="px-5 py-3.5 font-bold">ชื่อ API Key</th>
-                <th className="px-5 py-3.5 font-bold">รหัสเชื่อมต่อ (Token)</th>
-                <th className="px-5 py-3.5 font-bold">สร้างเมื่อ</th>
-                <th className="px-5 py-3.5 font-bold">วันหมดอายุ</th>
-                <th className="px-5 py-3.5 font-bold">ใช้งานล่าสุด</th>
-                <th className="px-5 py-3.5 font-bold text-right">ดำเนินการ</th>
+              <tr className="bg-[#0B0C0E] border-b border-[#1e1e1e] text-zinc-550 uppercase text-xs tracking-wider">
+                <th className="px-5 py-3.5 font-medium">สถานะ</th>
+                <th className="px-5 py-3.5 font-medium">ชื่อ API Key</th>
+                <th className="px-5 py-3.5 font-medium">รหัสเชื่อมต่อ (Token)</th>
+                <th className="px-5 py-3.5 font-medium">สร้างเมื่อ</th>
+                <th className="px-5 py-3.5 font-medium">วันหมดอายุ</th>
+                <th className="px-5 py-3.5 font-medium">ใช้งานล่าสุด</th>
+                <th className="px-5 py-3.5 font-medium text-right">ดำเนินการ</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-850/60">
@@ -227,22 +227,22 @@ export const AdminApiKeys: React.FC = () => {
                   <tr key={k.key} className="hover:bg-[#050505]/10 transition-colors">
                     <td className="px-5 py-3.5">
                       {k.status === 'active' ? (
-                        <span className="bg-[#10b981]/10 text-[#10b981] px-2 py-0.5 rounded text-[10px] uppercase font-bold border border-emerald-500/20">Active</span>
+                        <span className="bg-[#10b981]/10 text-[#10b981] px-2 py-0.5 rounded text-[10px] uppercase font-medium border border-emerald-500/20">Active</span>
                       ) : k.status === 'expired' ? (
-                        <span className="bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded text-[10px] uppercase font-bold border border-amber-500/20">Expired</span>
+                        <span className="bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded text-[10px] uppercase font-medium border border-amber-500/20">Expired</span>
                       ) : (
-                        <span className="bg-rose-500/10 text-rose-400 px-2 py-0.5 rounded text-[10px] uppercase font-bold border border-rose-500/20">Disabled</span>
+                        <span className="bg-rose-500/10 text-rose-400 px-2 py-0.5 rounded text-[10px] uppercase font-medium border border-rose-500/20">Disabled</span>
                       )}
                     </td>
-                    <td className="px-5 py-3.5 font-bold text-white text-xs">{k.name}</td>
+                    <td className="px-5 py-3.5 font-medium text-white text-xs">{k.name}</td>
                     <td className="px-5 py-3.5">
-                      <span className="font-mono text-xs text-[#10b981] font-bold select-all cursor-pointer bg-zinc-950 border border-zinc-850 px-2 py-1 rounded">
+                      <span className="font-mono text-xs text-[#10b981] font-medium select-all cursor-pointer bg-zinc-950 border border-zinc-850 px-2 py-1 rounded">
                         {k.key}
                       </span>
                     </td>
                     <td className="px-5 py-3.5 text-xs text-zinc-500 whitespace-nowrap">{new Date(k.created_at).toLocaleString('th-TH')}</td>
                     <td className="px-5 py-3.5 text-xs text-zinc-500 whitespace-nowrap">
-                      {k.expires_at ? new Date(k.expires_at).toLocaleString('th-TH') : <span className="font-bold text-zinc-400"> Lifetime ถาวร</span>}
+                      {k.expires_at ? new Date(k.expires_at).toLocaleString('th-TH') : <span className="font-medium text-zinc-400"> Lifetime ถาวร</span>}
                     </td>
                     <td className="px-5 py-3.5 text-xs text-zinc-500 whitespace-nowrap">
                       {k.last_used ? new Date(k.last_used).toLocaleString('th-TH') : <span className="italic text-zinc-650">ยังไม่มี</span>}

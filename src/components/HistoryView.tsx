@@ -48,7 +48,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ purchaseHistory = [], 
       title: 'ประวัติการใช้คีย์',
       subtitle: 'Key Usage History',
       icon: Key,
-      bg: 'bg-zinc-500/10 border border-zinc-500/20',
+      bg: 'bg-zinc-500/10 border border-[#1e1e1e]/20',
       color: 'text-zinc-400'
     },
     {
@@ -72,13 +72,13 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ purchaseHistory = [], 
   const getStatusBadge = (status: string) => {
     switch(status?.toLowerCase()) {
       case 'success':
-        return <span className="bg-neon-green/10 text-neon-green px-3 py-1 text-[10px] font-bold uppercase tracking-widest border border-neon-green/20 rounded-md flex items-center gap-1.5"><div className="w-1.5 h-1.5 bg-neon-green rounded-full"></div>สำเร็จ</span>;
+        return <span className="bg-neon-green/10 text-neon-green px-3 py-1 text-[10px] font-medium uppercase tracking-widest border border-neon-green/20 rounded-md flex items-center gap-1.5"><div className="w-1.5 h-1.5 bg-neon-green rounded-full"></div>สำเร็จ</span>;
       case 'pending':
-        return <span className="bg-amber-500/10 text-amber-500 px-3 py-1 text-[10px] font-bold uppercase tracking-widest border border-amber-500/20 rounded-md flex items-center gap-1.5"><div className="w-1.5 h-1.5 bg-amber-500 rounded-full "></div>รอดำเนินการ</span>;
+        return <span className="bg-amber-500/10 text-amber-500 px-3 py-1 text-[10px] font-medium uppercase tracking-widest border border-amber-500/20 rounded-md flex items-center gap-1.5"><div className="w-1.5 h-1.5 bg-amber-500 rounded-full "></div>รอดำเนินการ</span>;
       case 'failed':
-        return <span className="bg-red-500/10 text-red-400 px-3 py-1 text-[10px] font-bold uppercase tracking-widest border border-red-500/20 rounded-md flex items-center gap-1.5"><div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>ล้มเหลว</span>;
+        return <span className="bg-red-500/10 text-red-400 px-3 py-1 text-[10px] font-medium uppercase tracking-widest border border-red-500/20 rounded-md flex items-center gap-1.5"><div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>ล้มเหลว</span>;
       default:
-        return <span className="bg-[#050505] text-zinc-400 px-3 py-1 text-[10px] font-bold uppercase tracking-widest border border-zinc-800 rounded-md flex items-center gap-1.5"><div className="w-1.5 h-1.5 bg-zinc-500 rounded-full"></div>{status || 'สำเร็จ'}</span>;
+        return <span className="bg-[#050505] text-zinc-400 px-3 py-1 text-[10px] font-medium uppercase tracking-widest border border-[#1e1e1e] rounded-md flex items-center gap-1.5"><div className="w-1.5 h-1.5 bg-zinc-500 rounded-full"></div>{status || 'สำเร็จ'}</span>;
     }
   };
 
@@ -108,14 +108,14 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ purchaseHistory = [], 
     
     return (
       <div style={{ ...style, paddingTop: '12px' }}>
-        <div className="bg-[#0b0b0c] border border-zinc-800 p-4 transition-all hover:border-zinc-700 flex flex-col gap-4 mx-1 rounded-md shadow-sm">
+        <div className="bg-[#0b0b0c] border border-[#1e1e1e] p-4 transition-all hover:border-[#1e1e1e] flex flex-col gap-4 mx-1 rounded-md shadow-sm">
           <div className="flex gap-4 items-center w-full">
             <div className={`w-14 h-14 shrink-0 flex items-center justify-center rounded-md ${item.bg}`}>
               <item.icon className={`w-6 h-6 ${item.color}`} />
             </div>
             
             <div className="flex flex-col flex-1 min-w-0 justify-center">
-              <h3 className="text-white font-bold text-sm sm:text-base truncate tracking-wide">{item.title}</h3>
+              <h3 className="text-white font-medium text-sm sm:text-base truncate tracking-wide">{item.title}</h3>
               <div className="flex items-center justify-between mt-1">
                 <span className="text-xs font-semibold text-zinc-400">{new Date(item.date).toLocaleDateString('th-TH')}</span>
                 {item.money !== 0 ? (
@@ -123,19 +123,19 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ purchaseHistory = [], 
                     {item.money > 0 ? '+' : ''}{item.money} ฿
                   </span>
                 ) : (
-                  <span className="font-bold text-xs text-zinc-500">0 ฿</span>
+                  <span className="font-medium text-xs text-zinc-500">0 ฿</span>
                 )}
               </div>
             </div>
           </div>
           
-          <div className="flex items-center justify-between border-t border-zinc-800/80 pt-3">
+          <div className="flex items-center justify-between border-t border-[#1e1e1e]/80 pt-3">
             <div className="flex items-center">
               {getStatusBadge(item.status || 'success')}
             </div>
             <button 
               onClick={() => setSelectedItem(item)}
-              className="text-[11px] sm:text-xs font-bold text-zinc-300 bg-[#050505] px-4 py-2 hover:bg-[#0a0a0a] transition-all flex items-center gap-1 active:scale-95 border border-zinc-800 rounded-md cursor-pointer"
+              className="text-[11px] sm:text-xs font-medium text-zinc-300 bg-[#050505] px-4 py-2 hover:bg-[#0a0a0a] transition-all flex items-center gap-1 active:scale-95 border border-[#1e1e1e] rounded-md cursor-pointer"
             >
               ดูรายละเอียด <ChevronRight className="w-3.5 h-3.5" />
             </button>
@@ -157,14 +157,14 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ purchaseHistory = [], 
             exit={{ opacity: 0, y: -10 }}
             className="space-y-4"
           >
-            <div className="bg-[#070708] border border-zinc-800 overflow-hidden mb-6 rounded-md shadow-md">
-              <div className="p-6 md:p-8 border-b border-zinc-800 bg-[#09090a]">
+            <div className="bg-[#070708] border border-[#1e1e1e] overflow-hidden mb-6 rounded-md shadow-md">
+              <div className="p-6 md:p-8 border-b border-[#1e1e1e] bg-[#09090a]">
                 <div className="flex items-center gap-3">
                   <div className="p-3 bg-neon-green/10 text-neon-green rounded-md border border-neon-green/20">
                     <History className="w-6 h-6 " />
                   </div>
                   <div>
-                    <h2 className="text-xl font-bold text-white leading-none mb-1.5">ประวัติสั่งซื้อ</h2>
+                    <h2 className="text-xl font-medium text-white leading-none mb-1.5">ประวัติสั่งซื้อ</h2>
                     <p className="text-xs font-semibold text-zinc-400">เลือกหมวดหมู่ที่ต้องการตรวจสอบ</p>
                   </div>
                 </div>
@@ -176,14 +176,14 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ purchaseHistory = [], 
                     <button
                       key={cat.id}
                       onClick={() => setCurrentCategory(cat.id)}
-                      className="group flex items-center justify-between p-4 bg-[#0a0a0b] border border-zinc-800 hover:border-neon-green/30 rounded-md cursor-pointer hover:-translate-y-0.5 transition-all duration-150"
+                      className="group flex items-center justify-between p-4 bg-[#0a0a0b] border border-[#1e1e1e] hover:border-neon-green/30 rounded-md cursor-pointer hover:-translate-y-0.5 transition-all duration-150"
                     >
                       <div className="flex items-center gap-4">
                         <div className={`w-12 h-12 flex items-center justify-center rounded-md transition-all ${cat.bg}`}>
                           <cat.icon className={`w-6 h-6 transition-transform group-hover:scale-110 ${cat.color}`} />
                         </div>
                         <div className="text-left">
-                          <h3 className="text-sm font-bold text-white tracking-wide group-hover:text-neon-green transition-colors">{cat.title}</h3>
+                          <h3 className="text-sm font-medium text-white tracking-wide group-hover:text-neon-green transition-colors">{cat.title}</h3>
                           <p className="text-[10px] sm:text-xs font-semibold text-zinc-500 uppercase tracking-tight mt-0.5">{cat.subtitle}</p>
                         </div>
                       </div>
@@ -202,12 +202,12 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ purchaseHistory = [], 
             exit={{ opacity: 0, x: -20 }}
             className="space-y-4"
           >
-            <div className="bg-[#070708] border border-zinc-800 overflow-hidden rounded-md shadow-md">
-              <div className="p-4 sm:p-6 border-b border-zinc-800 bg-[#09090a] flex items-center justify-between">
+            <div className="bg-[#070708] border border-[#1e1e1e] overflow-hidden rounded-md shadow-md">
+              <div className="p-4 sm:p-6 border-b border-[#1e1e1e] bg-[#09090a] flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <button 
                     onClick={() => setCurrentCategory(null)}
-                    className="p-2.5 bg-[#050505] border border-zinc-800 text-zinc-400 hover:bg-[#0a0a0a] hover:text-white transition-all mr-2 rounded-md cursor-pointer"
+                    className="p-2.5 bg-[#050505] border border-[#1e1e1e] text-zinc-400 hover:bg-[#0a0a0a] hover:text-white transition-all mr-2 rounded-md cursor-pointer"
                   >
                     <ChevronLeft className="w-5 h-5" />
                   </button>
@@ -215,8 +215,8 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ purchaseHistory = [], 
                     {currentCategoryInfo && <currentCategoryInfo.icon className={`w-6 h-6 ${currentCategoryInfo?.color}`} />}
                   </div>
                   <div className="text-left pl-1">
-                    <h2 className="text-sm sm:text-base font-bold text-white leading-none mb-1">{currentCategoryInfo?.title}</h2>
-                    <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">{currentCategoryInfo?.subtitle}</p>
+                    <h2 className="text-sm sm:text-base font-medium text-white leading-none mb-1">{currentCategoryInfo?.title}</h2>
+                    <p className="text-[10px] font-medium text-zinc-500 uppercase tracking-wider">{currentCategoryInfo?.subtitle}</p>
                   </div>
                 </div>
               </div>
@@ -225,7 +225,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ purchaseHistory = [], 
                 {isLoading ? (
                   <div className="space-y-3">
                     {[1, 2, 3].map((i) => (
-                      <div key={i} className="bg-[#0b0b0c] border border-zinc-800 p-4 flex flex-col gap-4 rounded-md ">
+                      <div key={i} className="bg-[#0b0b0c] border border-[#1e1e1e] p-4 flex flex-col gap-4 rounded-md ">
                         <div className="flex gap-4 items-center">
                           <Skeleton className="w-14 h-14 rounded-md" />
                           <div className="flex-1 space-y-2">
@@ -233,7 +233,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ purchaseHistory = [], 
                             <Skeleton className="h-4 w-1/4" />
                           </div>
                         </div>
-                        <div className="pt-3 border-t border-zinc-800 flex justify-between">
+                        <div className="pt-3 border-t border-[#1e1e1e] flex justify-between">
                           <Skeleton className="h-6 w-20" />
                           <Skeleton className="h-8 w-24" />
                         </div>
@@ -257,11 +257,11 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ purchaseHistory = [], 
                     <div className="w-16 h-16 bg-[#0a0a0b] border border-zinc-850 flex items-center justify-center mb-4 rounded-full">
                       <History className="w-8 h-8 text-zinc-500 animate-spin" style={{ animationDuration: '4s' }} />
                     </div>
-                    <h3 className="text-base font-bold text-white mb-1">ยังไม่มีประวัติ</h3>
+                    <h3 className="text-base font-medium text-white mb-1">ยังไม่มีประวัติ</h3>
                     <p className="text-xs font-semibold text-zinc-500">ยังไม่พบข้อมูลในหมวดหมู่นี้</p>
                     <button 
                       onClick={() => setCurrentCategory(null)}
-                      className="mt-6 px-6 py-2.5 bg-[#050505] border border-zinc-800 rounded-md text-white text-xs font-bold hover:bg-[#0a0a0a] transition-colors cursor-pointer"
+                      className="mt-6 px-6 py-2.5 bg-[#050505] border border-[#1e1e1e] rounded-md text-white text-xs font-medium hover:bg-[#0a0a0a] transition-colors cursor-pointer"
                     >
                       ย้อนกลับ
                     </button>

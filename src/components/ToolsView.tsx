@@ -20,7 +20,7 @@ export const ToolsView: React.FC<ToolsViewProps> = ({ setActiveView }) => {
       icon: Globe,
       gradient: 'from-[#059669] to-[#10B981]',
       iconColor: 'text-[#10B981]',
-      glowColor: 'group-hover:shadow-[0_0_40px_-10px_rgba(16,185,129,0.4)]',
+      glowColor: 'group-hover:shadow-sm',
       tag: 'HOT',
       premium: false
     },
@@ -32,7 +32,7 @@ export const ToolsView: React.FC<ToolsViewProps> = ({ setActiveView }) => {
       icon: Globe,
       gradient: 'from-[#8B5CF6] to-[#C084FC]',
       iconColor: 'text-[#C084FC]',
-      glowColor: 'group-hover:shadow-[0_0_40px_-10px_rgba(192,132,252,0.4)]',
+      glowColor: 'group-hover:shadow-sm',
       tag: 'NEW',
       premium: false
     },
@@ -44,7 +44,7 @@ export const ToolsView: React.FC<ToolsViewProps> = ({ setActiveView }) => {
       icon: Zap,
       gradient: 'from-[#10B981] to-[#34D399]',
       iconColor: 'text-[#10B981]',
-      glowColor: 'group-hover:shadow-[0_0_40px_-10px_rgba(16,185,129,0.4)]',
+      glowColor: 'group-hover:shadow-sm',
       premium: false
     },
     {
@@ -55,7 +55,7 @@ export const ToolsView: React.FC<ToolsViewProps> = ({ setActiveView }) => {
       icon: Globe,
       gradient: 'from-[#06b6d4] to-[#22d3ee]',
       iconColor: 'text-[#06b6d4]',
-      glowColor: 'group-hover:shadow-[0_0_40px_-10px_rgba(6,182,212,0.4)]',
+      glowColor: 'group-hover:shadow-sm',
       premium: false
     }
   ];
@@ -86,18 +86,18 @@ export const ToolsView: React.FC<ToolsViewProps> = ({ setActiveView }) => {
       <div className="font-sans px-4 pb-20 w-full max-w-7xl mx-auto mt-6 lg:mt-10">
         
         {/* Header Section: Hero Style */}
-        <div className="relative mb-14 overflow-hidden bg-gradient-to-br from-[#0B0D11] to-[#12161D] border border-border  p-8 md:p-12 lg:p-16 isolate">
+        <div className="relative mb-14 overflow-hidden bg-[#09090b] border border-[#1e1e1e]  p-8 md:p-12 lg:p-16 isolate">
           {/* Decorative Blooms */}
-          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary text-primary-foreground blur-[120px] pointer-events-none -z-10 translate-x-1/3 -translate-y-1/3"></div>
-          <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-[#10b981]/10 blur-[100px] pointer-events-none -z-10 -translate-x-1/2 translate-y-1/2"></div>
+          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary text-primary-foreground  pointer-events-none -z-10 translate-x-1/3 -translate-y-1/3"></div>
+          <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-[#10b981]/10  pointer-events-none -z-10 -translate-x-1/2 translate-y-1/2"></div>
           
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 z-10">
             <div className="max-w-2xl">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-card border border-border  text-[#10b981] text-xs font-semibold uppercase tracking-widest mb-6 backdrop-blur-sm ">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-[#09090b] border border-[#1e1e1e]  text-[#10b981] text-xs font-semibold uppercase tracking-widest mb-6 backdrop-blur-sm ">
                 <Sparkles className="w-4 h-4 text-[#10b981]" /> ชุดเครื่องมือ APEX
               </div>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-semibold text-white tracking-tight mb-6 leading-tight">
-                ขับเคลื่อน<br/>ด้วยเครื่องมือ<span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-indigo-500">คุณภาพ</span>
+                ขับเคลื่อน<br/>ด้วยเครื่องมือ<span className="text-white"> ทรงพลัง</span>
               </h1>
               <p className="text-muted-foreground text-base md:text-lg leading-relaxed max-w-xl">
                 ลดขั้นตอนที่น่าเบื่อด้วยระบบอัตโนมัติ ไม่ว่าจะเป็นโปรแกรมดึงของขวัญ หรือสร้างเว็บไซต์ส่วนตัว ทั้งหมดนี้เปิดให้ใช้งานฟรีและพรีเมียม
@@ -112,7 +112,7 @@ export const ToolsView: React.FC<ToolsViewProps> = ({ setActiveView }) => {
                   placeholder="ค้นหาเครื่องมือ..." 
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-black/40 backdrop-blur-sm backdrop-blur-md border border-border  py-4 pl-12 pr-4 text-white focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition-all font-medium placeholder:text-zinc-500"
+                  className="w-full bg-black/40 backdrop-blur-sm backdrop-blur-md border border-[#1e1e1e]  py-4 pl-12 pr-4 text-white focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition-all font-medium placeholder:text-zinc-500"
                 />
               </div>
             </div>
@@ -123,13 +123,13 @@ export const ToolsView: React.FC<ToolsViewProps> = ({ setActiveView }) => {
         <div className="flex flex-wrap items-center gap-2 mb-8">
           <div className="hidden md:flex items-center gap-2 mr-4 text-muted-foreground">
             <Filter className="w-4 h-4" />
-            <span className="text-xs font-bold uppercase tracking-widest">หมวดหมู่</span>
+            <span className="text-xs font-medium uppercase tracking-widest">หมวดหมู่</span>
           </div>
           {categories.map((cat) => (
             <button
               key={cat.id}
               onClick={() => setActiveCategory(cat.id)}
-              className={`px-5 py-2.5 text-sm font-bold transition-all duration-300 ${ activeCategory === cat.id ? 'bg-zinc-600 text-white border border-emerald-500' : 'bg-[#121212] text-muted-foreground border-border  hover:bg-[#121212] hover:text-white' }`}
+              className={`px-5 py-2.5 text-sm font-medium transition-colors duration-200 ${ activeCategory === cat.id ? 'bg-zinc-600 text-white border border-emerald-500' : 'bg-[#121212] text-muted-foreground border-[#1e1e1e]  hover:bg-[#121212] hover:text-white' }`}
             >
               {cat.label}
             </button>
@@ -141,12 +141,12 @@ export const ToolsView: React.FC<ToolsViewProps> = ({ setActiveView }) => {
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex flex-col items-center justify-center py-24 text-center  border-dashed border-border bg-card "
+            className="flex flex-col items-center justify-center py-24 text-center  border-dashed border-[#1e1e1e] bg-[#09090b] "
           >
-            <div className="w-20 h-20 bg-card flex items-center justify-center mb-6 ">
+            <div className="w-20 h-20 bg-[#09090b] flex items-center justify-center mb-6 ">
               <Search className="w-8 h-8 text-muted-foreground" />
             </div>
-            <h3 className="text-xl font-bold text-white mb-2">ไม่พบเครื่องมือที่ต้องการ</h3>
+            <h3 className="text-xl font-medium text-white mb-2">ไม่พบเครื่องมือที่ต้องการ</h3>
             <p className="text-muted-foreground text-sm">ลองปรับการค้นหา หรือเลือกหมวดหมู่อื่นดูอีกครั้ง</p>
           </motion.div>
         ) : (
@@ -167,14 +167,14 @@ export const ToolsView: React.FC<ToolsViewProps> = ({ setActiveView }) => {
                       setActiveView(tool.id);
                     }
                   }}
-                  className={`group cursor-pointer bg-card border border-border  hover:border-white/[0.04] p-7 transition-all duration-500 relative overflow-hidden flex flex-col h-full ${tool.glowColor} hover:-translate-y-1.5 `}
+                  className={`group cursor-pointer bg-[#09090b] border border-[#1e1e1e]  hover:border-[#1e1e1e] p-7 transition-all duration-500 relative overflow-hidden flex flex-col h-full ${tool.glowColor} .5 `}
                 >
                   {/* Subtle Background Accent inside card */}
-                  <div className={`absolute -right-16 -top-16 w-48 h-48 bg-gradient-to-br ${tool.gradient} opacity-0 group-hover:opacity-15 blur-[60px] transition-opacity duration-700 pointer-events-none`}></div>
+                  <div className={`absolute -right-16 -top-16 w-48 h-48 bg-gradient-to-br ${tool.gradient} opacity-0 group-hover:opacity-15  transition-opacity duration-700 pointer-events-none`}></div>
 
                   {/* Header Row: Icon & Badges */}
                   <div className="flex justify-between items-start mb-6 relative z-10 w-full">
-                    <div className={`w-14 h-14 bg-card border border-border  flex items-center justify-center ${tool.iconColor} group-hover:scale-110 transition-transform duration-500 ease-out `}>
+                    <div className={`w-14 h-14 bg-[#09090b] border border-[#1e1e1e]  flex items-center justify-center ${tool.iconColor} group-hover:scale-110  ease-out `}>
                       <tool.icon className="w-7 h-7" strokeWidth={1.5} />
                     </div>
 
@@ -203,11 +203,11 @@ export const ToolsView: React.FC<ToolsViewProps> = ({ setActiveView }) => {
                     </p>
 
                     {/* Bottom Action */}
-                    <div className="mt-auto flex items-center justify-between pt-5 border-t border-border ">
-                       <span className={`text-xs font-bold uppercase tracking-widest transition-colors ${tool.iconColor} opacity-70 group-hover:opacity-100 flex items-center gap-2`}>
+                    <div className="mt-auto flex items-center justify-between pt-5 border-t border-[#1e1e1e] ">
+                       <span className={`text-xs font-medium uppercase tracking-widest transition-colors ${tool.iconColor} opacity-70 group-hover:opacity-100 flex items-center gap-2`}>
                           เข้าใช้งานระบบ
                        </span>
-                       <div className="w-10 h-10 bg-card flex items-center justify-center text-muted-foreground group-hover:text-white group-hover:bg-white/10 transition-all duration-300 shrink-0 ">
+                       <div className="w-10 h-10 bg-[#09090b] flex items-center justify-center text-muted-foreground group-hover:text-white group-hover:bg-white/10 transition-colors duration-200 shrink-0 ">
                           {(tool as any).link ? (
                             <ExternalLink className="w-4 h-4 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 transition-transform" />
                           ) : (
@@ -224,7 +224,7 @@ export const ToolsView: React.FC<ToolsViewProps> = ({ setActiveView }) => {
 
         {/* Informational Footer */}
         <div className="mt-16 flex justify-center pb-8">
-            <div className="inline-flex flex-col sm:flex-row items-center gap-4 px-8 py-5 bg-card border border-border  backdrop-blur-sm ">
+            <div className="inline-flex flex-col sm:flex-row items-center gap-4 px-8 py-5 bg-[#09090b] border border-[#1e1e1e]  backdrop-blur-sm ">
                <div className="w-10 h-10 bg-amber-500/10 flex items-center justify-center shrink-0">
                  <ShieldCheck className="w-5 h-5 text-amber-500" /> 
                </div>
