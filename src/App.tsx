@@ -2533,7 +2533,7 @@ function AppContent() {
                 className="fixed top-[80px] right-0 bottom-0 h-[calc(100vh-80px)] w-full max-w-[320px] bg-[#101014] z-[95] flex flex-col lg:hidden overflow-y-auto no-scrollbar border-l border-[#1e1e1e] shadow-[#000]"
               >
                 {/* Menu Items */}
-                <div className="flex-1 px-3 space-y-6 overflow-y-auto no-scrollbar pb-8 mt-6 select-none text-[13px]">
+                <div className="flex-1 px-3 space-y-4 overflow-y-auto no-scrollbar pb-4 mt-4 select-none text-[14.5px]">
                   
                   {/* Main Menu */}
                   <div>
@@ -2660,7 +2660,6 @@ function AppContent() {
                     </div>
                   )}
                 </div>
-<div className="flex-grow min-h-[40px]" />
               </motion.div>
             </>
           )}
