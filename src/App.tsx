@@ -2326,8 +2326,8 @@ function AppContent() {
               <button onClick={() => { setActiveView(user ? "wallet" : "login"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-md transition-all ${activeView === "wallet" ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white hover:bg-white/[0.04]"}`}>
                 <Wallet className="w-4 h-4" /> เติมเงิน
               </button>
-              <button onClick={() => { setActiveView(user ? "my_orders" : "login"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-md transition-all ${activeView === "my_orders" ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white hover:bg-white/[0.04]"}`}>
-                <Package className="w-4 h-4" /> ออเดอร์
+              <button onClick={() => { setActiveView(user ? "history" : "login"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-md transition-all ${(activeView === "history" || activeView === "my_orders") ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white hover:bg-white/[0.04]"}`}>
+                <History className="w-4 h-4" /> ประวัติการสั่งซื้อ
               </button>
               <button onClick={() => { setShowSearchPopup(true); }} className="w-full flex items-center gap-3 px-3 py-1.5 rounded-md transition-all text-zinc-400 hover:text-white hover:bg-white/[0.04]">
                 <Search className="w-4 h-4" /> ค้นหาสินค้า
@@ -2339,23 +2339,31 @@ function AppContent() {
           {user ? (
             <div>
               <div className="px-3 mb-2 text-[10px] font-semibold text-zinc-500 tracking-wider">ACCOUNT</div>
-              <div className="flex flex-col gap-0.5">
-                <button onClick={() => { setActiveView("profile"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className={`w-full flex items-center justify-between px-3 py-1.5 rounded-md transition-all ${activeView === "profile" ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white hover:bg-white/[0.04]"}`}>
-                  <div className="flex items-center gap-3">
-                    <User className="w-4 h-4" /> {userPlan?.username || user?.email?.split("@")[0]}
-                  </div>
-                  {userPlan?.isPremium && <Crown className="w-3.5 h-3.5 text-amber-500" />}
-                </button>
-                <div className="px-3 py-2 my-1 bg-[#09090b] border border-[#1e1e1e] rounded-md flex items-center justify-between text-xs cursor-default">
-                  <span className="text-zinc-500">ยอดเงิน</span>
-                  <span className="font-mono text-[#10b981]">{Math.floor(userPlan?.balance || 0).toLocaleString()} ฿</span>
-                </div>
-                <button onClick={() => { setActiveView("settings"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-md transition-all ${activeView === "settings" ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white hover:bg-white/[0.04]"}`}>
-                  <Settings className="w-4 h-4" /> ตั้งค่า
-                </button>
-                <button onClick={() => { setActiveView("wallet_history"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-md transition-all ${activeView === "wallet_history" ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white hover:bg-white/[0.04]"}`}>
-                  <Wallet className="w-4 h-4" /> ประวัติเติมเงิน
-                </button>
+              <div className="px-3">
+                 <div className="p-3 bg-[#09090b] border border-[#1e1e1e] rounded-md flex flex-col gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-emerald-500 to-emerald-900 flex items-center justify-center text-white font-semibold shadow-sm shrink-0 text-base">
+                         {userPlan?.username ? userPlan.username.charAt(0).toUpperCase() : (user?.email?.charAt(0).toUpperCase() || "U")}
+                      </div>
+                      <div className="flex flex-col overflow-hidden leading-tight justify-center h-10">
+                         <span className="text-white font-medium text-sm truncate flex items-center gap-1.5">
+                            {userPlan?.username || user?.email?.split("@")[0]}
+                         </span>
+                         <span className="text-zinc-500 text-xs truncate flex items-center gap-1 mt-0.5">
+                            {userPlan?.isPremium && <Crown className="w-3.5 h-3.5 text-amber-500 shrink-0" />} 
+                            {userPlan?.isPremium ? 'Premium Member' : 'Member'}
+                         </span>
+                      </div>
+                    </div>
+                    <div className="bg-[#141416] border border-[#1e1e1e] rounded-md p-2 flex justify-between items-center text-xs mt-1">
+                        <span className="text-zinc-400">ยอดเงินคงเหลือ</span>
+                        <span className="font-mono text-[#10b981] font-medium">{Math.floor(userPlan?.balance || 0).toLocaleString()} ฿</span>
+                    </div>
+                    
+                    <button onClick={() => { setActiveView("settings"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="w-full flex items-center justify-center gap-2 py-1.5 mt-1 bg-white/[0.04] hover:bg-white/[0.08] border border-[#1e1e1e] text-zinc-300 hover:text-white rounded transition-colors text-xs font-medium">
+                       <Settings className="w-3.5 h-3.5" /> จัดการบัญชี
+                    </button>
+                 </div>
               </div>
             </div>
           ) : (
@@ -2528,17 +2536,17 @@ function AppContent() {
                   <div>
                     <div className="px-3 mb-2 text-[10px] font-semibold text-zinc-500 tracking-wider">NAVIGATION</div>
                     <div className="flex flex-col gap-0.5">
-                      <button onClick={() => { setActiveView("home"); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-all ${activeView === "home" ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white"}`}>
+                      <button onClick={() => { setActiveView("home"); setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }} className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-all ${activeView === "home" ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white"}`}>
                         <Home className="w-4 h-4" /> หน้าแรก
                       </button>
-                      <button onClick={() => { setActiveView("categories"); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-all ${(activeView === "categories" || activeView === "category_products") ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white"}`}>
+                      <button onClick={() => { setActiveView("categories"); setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }} className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-all ${(activeView === "categories" || activeView === "category_products") ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white"}`}>
                         <ShoppingCart className="w-4 h-4" /> สินค้าทั้งหมด
                       </button>
-                      <button onClick={() => { setActiveView(user ? "wallet" : "login"); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-all ${activeView === "wallet" ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white"}`}>
+                      <button onClick={() => { setActiveView(user ? "wallet" : "login"); setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }} className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-all ${activeView === "wallet" ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white"}`}>
                         <Wallet className="w-4 h-4" /> เติมเงิน
                       </button>
-                      <button onClick={() => { setActiveView(user ? "my_orders" : "login"); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-all ${activeView === "my_orders" ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white"}`}>
-                        <Package className="w-4 h-4" /> ออเดอร์
+                      <button onClick={() => { setActiveView(user ? "history" : "login"); setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }} className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-all ${(activeView === "history" || activeView === "my_orders") ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white"}`}>
+                        <History className="w-4 h-4" /> ประวัติการสั่งซื้อ
                       </button>
                       <button onClick={() => { setShowSearchPopup(true); setIsMobileMenuOpen(false); }} className="w-full flex items-center gap-3 px-3 py-2 rounded-md transition-all text-zinc-400 hover:text-white">
                         <Search className="w-4 h-4" /> ค้นหาสินค้า
@@ -2550,23 +2558,31 @@ function AppContent() {
                   {user ? (
                     <div>
                       <div className="px-3 mb-2 text-[10px] font-semibold text-zinc-500 tracking-wider">ACCOUNT</div>
-                      <div className="flex flex-col gap-0.5">
-                        <button onClick={() => { setActiveView("profile"); setIsMobileMenuOpen(false); }} className={`w-full flex items-center justify-between px-3 py-2 rounded-md transition-all ${activeView === "profile" ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white"}`}>
-                          <div className="flex items-center gap-3">
-                            <User className="w-4 h-4" /> {userPlan?.username || user?.email?.split("@")[0]}
-                          </div>
-                          {userPlan?.isPremium && <Crown className="w-3.5 h-3.5 text-amber-500" />}
-                        </button>
-                        <div className="px-3 py-2.5 my-1 bg-[#09090b] border border-[#1e1e1e] rounded-md flex items-center justify-between text-xs m-2">
-                          <span className="text-zinc-500">ยอดเงิน</span>
-                          <span className="font-mono text-[#10b981]">{Math.floor(userPlan?.balance || 0).toLocaleString()} ฿</span>
-                        </div>
-                        <button onClick={() => { setActiveView("settings"); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-all ${activeView === "settings" ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white"}`}>
-                          <Settings className="w-4 h-4" /> ตั้งค่า
-                        </button>
-                        <button onClick={() => { setActiveView("wallet_history"); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-all ${activeView === "wallet_history" ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white"}`}>
-                          <Wallet className="w-4 h-4" /> ประวัติเติมเงิน
-                        </button>
+                      <div className="px-3">
+                         <div className="p-3 bg-[#09090b] border border-[#1e1e1e] rounded-md flex flex-col gap-3">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-emerald-500 to-emerald-900 flex items-center justify-center text-white font-semibold shadow-sm shrink-0 text-base">
+                                 {userPlan?.username ? userPlan.username.charAt(0).toUpperCase() : (user?.email?.charAt(0).toUpperCase() || "U")}
+                              </div>
+                              <div className="flex flex-col overflow-hidden leading-tight justify-center h-10">
+                                 <span className="text-white font-medium text-sm truncate flex items-center gap-1.5">
+                                    {userPlan?.username || user?.email?.split("@")[0]}
+                                 </span>
+                                 <span className="text-zinc-500 text-xs truncate flex items-center gap-1 mt-0.5">
+                                    {userPlan?.isPremium && <Crown className="w-3.5 h-3.5 text-amber-500 shrink-0" />} 
+                                    {userPlan?.isPremium ? 'Premium Member' : 'Member'}
+                                 </span>
+                              </div>
+                            </div>
+                            <div className="bg-[#141416] border border-[#1e1e1e] rounded-md p-2 flex justify-between items-center text-xs mt-1">
+                                <span className="text-zinc-400">ยอดเงินคงเหลือ</span>
+                                <span className="font-mono text-[#10b981] font-medium">{Math.floor(userPlan?.balance || 0).toLocaleString()} ฿</span>
+                            </div>
+                            
+                            <button onClick={() => { setActiveView("settings"); setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="w-full flex items-center justify-center gap-2 py-1.5 mt-1 bg-white/[0.04] hover:bg-white/[0.08] border border-[#1e1e1e] text-zinc-300 hover:text-white rounded transition-colors text-xs font-medium">
+                               <Settings className="w-3.5 h-3.5" /> จัดการบัญชี
+                            </button>
+                         </div>
                       </div>
                     </div>
                   ) : (
@@ -2587,7 +2603,7 @@ function AppContent() {
                         {["telegram_catcher:ดักซองเทเลแกรม", "discord_catcher:ดักซองดิสคอร์ด", "discord_on:รันโทเค่นดิสคอร์ด", "discord_badge:รับตราอัตโนมัติ", "two_fa_generator:สร้างรหัส 2FA", "proxy_free:พร็อกซี่ฟรี"].map(str => {
                           const [vid, lbl] = str.split(':');
                           return (
-                            <button key={vid} onClick={() => { setActiveView(vid); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-all ${activeView === vid ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white"}`}>
+                            <button key={vid} onClick={() => { setActiveView(vid); setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }} className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-all ${activeView === vid ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white"}`}>
                               <ArrowUpRight className="w-4 h-4" /> {lbl}
                             </button>
                           );
@@ -2604,7 +2620,7 @@ function AppContent() {
                         {customPages.map((page) => (
                           <button
                             key={page.id}
-                            onClick={() => { setSelectedPage(page); setActiveView("custom_page"); setIsMobileMenuOpen(false); }}
+                            onClick={() => { setSelectedPage(page); setActiveView("custom_page"); setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }}
                             className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-all ${activeView === "custom_page" && selectedPage?.id === page.id ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white"}`}
                           >
                             <FileText className="w-4 h-4 shrink-0" />
@@ -2621,18 +2637,17 @@ function AppContent() {
                       <div className="h-px bg-[#1e1e1e] mb-3 mt-1 mx-3" />
                       <div className="flex flex-col gap-0.5">
                         {isAdmin && (
-                          <button onClick={() => { setActiveView("admin"); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-all ${activeView === "admin" ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white"}`}>
+                          <button onClick={() => { setActiveView("admin"); setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }} className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-all ${activeView === "admin" ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white"}`}>
                             <ShieldCheck className="w-4 h-4" /> จัดการระบบ
                           </button>
                         )}
-                        <button onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }} className="w-full flex items-center gap-3 px-3 py-2 rounded-md transition-all text-red-500/80 hover:text-red-500 hover:bg-red-500/10">
+                        <button onClick={() => { handleLogout(); setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="w-full flex items-center gap-3 px-3 py-2 rounded-md transition-all text-red-500/80 hover:text-red-500 hover:bg-red-500/10">
                           <LogOut className="w-4 h-4" /> ออกจากระบบ
                         </button>
                       </div>
                     </div>
                   )}
                 </div>
-                
 <div className="flex-grow min-h-[40px]" />
               </motion.div>
             </>
