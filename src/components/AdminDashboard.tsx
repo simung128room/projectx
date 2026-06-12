@@ -3,17 +3,14 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Copy, Database, LogOut, BarChart3, Key, History, ShieldAlert, Activity, Ban, ChevronRight, Settings, Plus, Trash2, Crown, X, Menu, Upload, FileText, LayoutDashboard, LineChart, Cpu, HardDrive, ShoppingCart, Package, Users, Wallet, Gift, Globe, Phone, AlertTriangle, Download, Check, Image, MessageSquare, Terminal, RefreshCw, Clock } from 'lucide-react';
 import Swal from 'sweetalert2';
 import axios from 'axios';
-import { AccountResult, Product, SiteStats } from '../types';
+import { Product, SiteStats } from '../types';
 import { useState, useRef, useEffect } from 'react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { supabase } from '../lib/supabase';
 import { AdminApiKeys } from './AdminApiKeys';
-import { AdminBotManagement } from './AdminBotManagement';
-import { ProxyFreeTool } from './ProxyFreeTool';
+
 
 interface AdminDashboardProps {
-  totalChecked: number;
-  validAccounts: AccountResult[];
   licenseKeys: any[];
   usedKeysHistory: any[];
   blockedIPs: any[];
@@ -680,7 +677,7 @@ import { AdminToolsManagement } from './AdminToolsManagement';
 import AdminStockManagement from './AdminStockManagement';
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({
-  totalChecked, validAccounts, licenseKeys = [], usedKeysHistory = [], blockedIPs = [],
+  licenseKeys = [], usedKeysHistory = [], blockedIPs = [],
   adminTab, setAdminTab, isDBReady, dbErrorDetail, adminUsername, setIsAdmin,
   addLicenseKey, blockIP, deleteKey, unblockIP, bulkDeleteKeys,
   products = [], setProducts, siteStats = { users: 0, stock: 0, sales: 0, topups: 0 }, setSiteStats,
@@ -1042,7 +1039,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
           <div className="space-y-1">
             <p className="text-[10px] font-medium text-zinc-500 uppercase tracking-widest mb-2 px-3">เครื่องมือเสริม</p>
-            <NavItem id="bot" label="ระบบบอท" icon={Terminal} />
+
             <NavItem id="tools" label="ตัวช่วยแจกของ" icon={Gift} />
             <NavItem id="api_keys" label="ระบบ API" icon={Key} />
           </div>
@@ -2196,27 +2193,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </motion.div>
           )}
 
-          {adminTab === 'bot' && (
-            <motion.div 
-              key="bot"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-            >
-              <AdminBotManagement />
-            </motion.div>
-          )}
 
-          {adminTab === 'proxy' && (
-            <motion.div 
-              key="proxy"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-            >
-              <ProxyFreeTool />
-            </motion.div>
-          )}
+
+
 
           {adminTab === 'api_keys' && (
             <motion.div 

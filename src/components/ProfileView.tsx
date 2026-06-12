@@ -78,7 +78,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
       };
       setUserPlan(newPlan);
       if (clientIp) {
-        localStorage.setItem(`checker_userplan_${clientIp}`, JSON.stringify(newPlan));
+        localStorage.setItem(`userplan_${clientIp}`, JSON.stringify(newPlan));
       }
       Swal.fire({ 
         icon: 'success', 
@@ -224,15 +224,6 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               colorClass="text-[#10b981] group-hover:bg-[#10b981]/10 animate-none"
               glowColor="rgba(59,130,246,0.1)"
               onClick={() => setActiveView('my_orders')}
-            />
-
-            <MenuShortcut
-              label="ประวัติการเช็คไอดี"
-              subLabel="รายละเอียดชุดบัญชีที่ผ่านเกณฑ์"
-              icon={Activity}
-              colorClass="text-sky-400 group-hover:bg-sky-500/10 animate-none"
-              glowColor="rgba(56,189,248,0.1)"
-              onClick={() => setActiveView('checker_logs')}
             />
 
             <MenuShortcut

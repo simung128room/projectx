@@ -158,7 +158,7 @@ export const AdminApiKeys: React.FC = () => {
               type="text"
               value={newKeyName}
               onChange={e => setNewKeyName(e.target.value)}
-              placeholder="เช่น Python Checker Script สำหรับโปรแกรมเมอร์"
+              placeholder="เช่น script สำหรับเชื่อมต่อระบบอื่นๆ"
               className="w-full bg-zinc-950 border border-zinc-850 focus:border-[#10b981]/60 rounded-md px-4 py-2.5 text-white text-sm focus:outline-none transition-colors"
             />
           </div>
