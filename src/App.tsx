@@ -1703,12 +1703,18 @@ function AppContent() {
  const isHomeViewReady = (Array.isArray(products) && Array.isArray(categories) && siteSettings !== null) || forceReveal;
  const isLoadingSkeleton = !isHomeViewReady && !dbErrorDetail;
 
-  if (!isLoaded) {
-    return <PortalLoader />;
-  }
+    return (
+    <div className="relative min-h-screen w-full bg-[#000000] text-white font-sans selection:bg-[#050505]/80 overflow-x-hidden">
+      <AnimatePresence mode="wait">
+        {!isLoaded && <PortalLoader key="portal" />}
+      </AnimatePresence>
 
- return (
-   <div className="min-h-screen w-full bg-[#000000] text-white font-sans selection:bg-[#050505]/80 flex flex-col lg:flex-row relative">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: isLoaded ? 1 : 0 }}
+        transition={{ duration: 1.0, ease: "easeInOut" }}
+        className="min-h-screen w-full flex flex-col lg:flex-row relative"
+      >
      {useCustomCursor && <CustomCursor />}
      {/* Popup banner removed as requested */}
 
@@ -2102,12 +2108,8 @@ function AppContent() {
              transition={{ duration: 0.2, ease: "easeOut" }}
              className="flex-1 w-full flex flex-col min-h-0"
            >
-           {isLoadingSkeleton ? (
-              activeView === "home" ? (
-                <SkeletonHomeLoader />
-              ) : (
-                <SkeletonGenericLoader />
-              )
+                      {isLoadingSkeleton ? (
+              <SupplementaryLoader />
             ) : (
              <>
                {activeView === "categories" && (
@@ -2760,95 +2762,48 @@ function AppContent() {
      </div>
 
      {/* Mobile Bottom Navigation Bar removed as per request */}
-   </div>
- );
-}
-
-const PortalLoader: React.FC = () => {
-  const [msgIdx, setMsgIdx] = useState(0);
-  const [progress, setProgress] = useState(0);
-  
-  const messages = [
-    "กำลังเข้าสู่แพลตฟอร์ม APEX STORE...",
-    "กำลังเชื่อมต่อกับฐานข้อมูลหลัก...",
-    "กำลังซิงค์ข้อมูลหมวดหมู่และคอลเลกชันสินค้า...",
-    "กำลังรักษาความปลอดภัยช่องทางเซสชัน...",
-    "ยินดีต้อนรับ! กำลังตั้งค่าสถานะหน้าแรก..."
-  ];
-
-  useEffect(() => {
-    const msgInterval = setInterval(() => {
-      setMsgIdx((prev) => (prev + 1) % messages.length);
-    }, 1200);
-
-    const progressInterval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 98) {
-          clearInterval(progressInterval);
-          return 98;
-        }
-        return prev + Math.floor(Math.random() * 6) + 3;
-      });
-    }, 80);
-
-    return () => {
-      clearInterval(msgInterval);
-      clearInterval(progressInterval);
-    };
-  }, []);
-
-  return (
-    <div className="min-h-screen w-full bg-white flex flex-col items-center justify-center font-sans overflow-hidden relative">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.6 }}
-        className="relative flex flex-col items-center justify-center z-10 max-w-sm px-6 text-center select-none"
-      >
-        {/* Glow backdrop behind Logo */}
-        <div className="relative mb-6">
-          <div className="absolute inset-0 bg-emerald-50 rounded-full scale-110 shadow-sm" />
-          <motion.img
-            src="https://img2.pic.in.th/983B3DCE-90A3-4822-8940-D6B81CCA63A3.png"
-            alt="APEXSTORE Logo"
-            className="h-16 md:h-18 object-contain relative z-10 filter"
-            animate={{
-              scale: [0.97, 1.03, 0.97],
-            }}
-            transition={{
-              duration: 2.5,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-          />
-        </div>
-
-        {/* Dynamic percentage */}
-        <div className="flex items-center justify-between w-60 mb-2">
-          <span className="text-[10px] font-semibold font-mono text-zinc-400 tracking-widest uppercase">System Initialization</span>
-          <span className="text-xs font-semibold font-mono text-[#10b981]">{Math.min(progress, 99)}%</span>
-        </div>
-
-        {/* Glowing Linear Progress Bar */}
-        <div className="w-60 bg-zinc-100 border border-zinc-200 h-2.5 rounded-full overflow-hidden p-0.5 mb-6">
-          <div 
-            className="h-full bg-gradient-to-r from-[#10b981] to-emerald-400 rounded-full shadow-sm transition-all duration-150 ease-out"
-            style={{ width: `${Math.min(progress, 100)}%` }}
-          />
-        </div>
-
-        {/* Loading details */}
-        <div className="flex flex-col items-center gap-2 h-14">
-          <span className="text-zinc-400 font-mono text-[9px] tracking-widest uppercase flex items-center gap-1.5 justify-center">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#10b981] animate-ping" />
-            <span>CONNECTING PROTOCOL</span>
-          </span>
-          <div className="text-xs font-medium text-zinc-600 tracking-wide">
-            {messages[msgIdx]}
-          </div>
-        </div>
       </motion.div>
     </div>
+  );
+}
+
+const SupplementaryLoader: React.FC = () => {
+  return (
+    <div className="flex-1 w-full flex flex-col items-center justify-center min-h-[50vh] bg-white text-zinc-950 rounded-2xl p-8 border border-zinc-100 shadow-xl max-w-sm mx-auto my-12 text-center select-none animate-pulse">
+      <div className="w-10 h-10 border-4 border-zinc-200 border-t-emerald-500 rounded-full animate-spin mb-4" />
+      <h3 className="text-sm font-semibold font-sans text-zinc-900 tracking-wide">กำลังโหลดข้อมูลระบบ</h3>
+      <p className="text-[11px] text-zinc-400 font-sans mt-0.5">โปรดรอสักครู่ ระบบกำลังจัดเตรียมข้อมูลแอปพลิเคชัน...</p>
+    </div>
+  );
+};
+
+const PortalLoader: React.FC = () => {
+  return (
+    <motion.div
+      initial={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.8, ease: "easeInOut" }}
+      className="fixed inset-0 z-[99999] bg-[#000000] flex flex-col items-center justify-center font-sans overflow-hidden select-none"
+    >
+      <motion.div
+        animate={{
+          y: [0, -18, 0],
+          scale: [1, 1.06, 1],
+        }}
+        transition={{
+          duration: 1.5,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+        className="relative"
+      >
+        <img
+          src="https://img2.pic.in.th/983B3DCE-90A3-4822-8940-D6B81CCA63A3.png"
+          alt="APEXSTORE Logo"
+          className="h-20 md:h-24 object-contain filter drop-shadow-[0_0_25px_rgba(16,185,129,0.25)]"
+        />
+      </motion.div>
+    </motion.div>
   );
 };
 
