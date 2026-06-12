@@ -2453,7 +2453,7 @@ function AppContent() {
 {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-h-screen min-w-0 relative overflow-x-hidden">
         {/* Top Header */}
-        <header className="sticky top-0 z-[100] w-full bg-[#000000] border-b border-[#1e1e1e] flex-shrink-0 select-none">
+        <header className="sticky top-0 z-[100] w-full bg-black/60 backdrop-blur-md border-b border-[#1e1e1e] flex-shrink-0 select-none">
           <div className="flex items-center justify-between h-[80px] px-4 md:px-8 max-w-7xl mx-auto w-full">
             {/* Logo with matching Icon size */}
             <div 
@@ -2488,7 +2488,7 @@ function AppContent() {
               <motion.button
                 whileTap={{ scale: 0.9 }}
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="w-10 h-10 flex flex-col justify-center items-center gap-[5px] bg-white/[0.04] hover:bg-white/[0.08] border border-[#1e1e1e] transition-all duration-200 active:scale-95 cursor-pointer rounded-md ml-1 lg:hidden text-white relative z-[100]"
+                className="w-10 h-10 flex flex-col justify-center items-center gap-[5px] bg-white/[0.04] hover:bg-white/[0.08] border border-[#1e1e1e] transition-all duration-200 active:scale-95 cursor-pointer rounded-md ml-1 lg:hidden text-white relative z-[140]"
                 aria-label="Menu"
               >
                 <motion.div 
@@ -2529,14 +2529,14 @@ function AppContent() {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="fixed inset-0 top-[80px] bg-black/75 backdrop-blur-md z-[90] lg:hidden"
+                className="fixed inset-0 bg-black/60 backdrop-blur-md z-[120] lg:hidden"
                />
               <motion.div key="sidebar" 
                 initial={{ x: "100%" }}
                 animate={{ x: 0 }}
                 exit={{ x: "100%" }}
                 transition={{ type: "spring", stiffness: 350, damping: 28 }}
-                className="fixed top-[80px] right-0 bottom-0 h-[calc(100vh-80px)] w-full max-w-[320px] bg-[#101014] z-[95] flex flex-col lg:hidden overflow-y-auto no-scrollbar border-l border-[#1e1e1e] shadow-[#000]"
+                className="fixed top-0 right-0 bottom-0 h-screen w-full max-w-[320px] bg-[#101014] z-[130] flex flex-col lg:hidden overflow-y-auto no-scrollbar border-l border-[#1e1e1e] shadow-2xl pt-[80px]"
               >
                 {/* Menu Items */}
                 <div className="flex-1 px-3 space-y-4 overflow-y-auto no-scrollbar pb-4 mt-4 select-none text-[14.5px]">
