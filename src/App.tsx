@@ -2347,8 +2347,14 @@ function AppContent() {
               <div className="px-3">
                  <div className="p-3 bg-[#09090b] border border-[#1e1e1e] rounded-md flex flex-col gap-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-emerald-500 to-emerald-900 flex items-center justify-center text-white font-semibold shadow-sm shrink-0 text-base">
-                         {userPlan?.username ? userPlan.username.charAt(0).toUpperCase() : (user?.email?.charAt(0).toUpperCase() || "U")}
+                      <div className="w-10 h-10 bg-[#050505] border border-[#1e1e1e] p-0.5 rounded-full overflow-hidden shadow-sm shrink-0">
+                        <img 
+                          loading="lazy" 
+                          src={getAvatarUrl(user?.id || userPlan?.username || user?.email?.split("@")[0] || "U")} 
+                          alt="Avatar" 
+                          className="w-full h-full object-cover rounded-full"
+                          referrerPolicy="no-referrer"
+                        />
                       </div>
                       <div className="flex flex-col overflow-hidden leading-tight justify-center h-10">
                          <span className="text-white font-medium text-sm truncate flex items-center gap-1.5">
@@ -2564,8 +2570,14 @@ function AppContent() {
                       <div className="px-3">
                          <div className="p-3 bg-[#09090b] border border-[#1e1e1e] rounded-md flex flex-col gap-3">
                             <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-emerald-500 to-emerald-900 flex items-center justify-center text-white font-semibold shadow-sm shrink-0 text-base">
-                                 {userPlan?.username ? userPlan.username.charAt(0).toUpperCase() : (user?.email?.charAt(0).toUpperCase() || "U")}
+                              <div className="w-10 h-10 bg-[#050505] border border-[#1e1e1e] p-0.5 rounded-full overflow-hidden shadow-sm shrink-0">
+                                <img 
+                                  loading="lazy" 
+                                  src={getAvatarUrl(user?.id || userPlan?.username || user?.email?.split("@")[0] || "U")} 
+                                  alt="Avatar" 
+                                  className="w-full h-full object-cover rounded-full"
+                                  referrerPolicy="no-referrer"
+                                />
                               </div>
                               <div className="flex flex-col overflow-hidden leading-tight justify-center h-10">
                                  <span className="text-white font-medium text-sm truncate flex items-center gap-1.5">
