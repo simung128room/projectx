@@ -245,7 +245,7 @@
   }
 
   .custom-category-card:hover {
-    border-color: var(--accent, #0066ff);
+    border-color: var(--accent, #10b981);
     transform: translateY(-4px);
     box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.6), 0 0 20px -3px var(--glow, rgba(0, 102, 255, 0.25));
   }
@@ -342,7 +342,7 @@
   }
 
   .custom-category-card:hover .custom-card-glow {
-    border-color: var(--accent, #0066ff);
+    border-color: var(--accent, #10b981);
     box-shadow: inset 0 0 12px var(--glow, rgba(0, 102, 255, 0.2));
   }
 }
@@ -396,36 +396,36 @@
   --radius-xl: 16px;
   --radius: 8px;
 
-  --color-background: #020203;
+  --color-background: #000000;
   --color-foreground: #fafafa;
-  --color-card: #09090b;
+  --color-card: #040404;
   --color-card-foreground: #fafafa;
-  --color-popover: #050507;
+  --color-popover: #050505;
   --color-popover-foreground: #fafafa;
   --color-primary: #10b981;
-  --color-primary-foreground: #ffffff;
-  --color-secondary: #0c0d10;
+  --color-primary-foreground: #000000;
+  --color-secondary: #111111;
   --color-secondary-foreground: #fafafa;
-  --color-muted: #111115;
+  --color-muted: #111111;
   --color-muted-foreground: #a1a1aa;
   --color-accent: #10b981;
-  --color-accent-foreground: #ffffff;
+  --color-accent-foreground: #000000;
   --color-destructive: #ef4444;
   --color-destructive-foreground: #fafafa;
-  --color-border: rgba(255, 255, 255, 0.06);
-  --color-input: rgba(255, 255, 255, 0.04);
+  --color-border: rgba(255, 255, 255, 0.05);
+  --color-input: rgba(255, 255, 255, 0.05);
   --color-ring: #10b981;
 
   /* Brutalist accent colors -> Refined Cursor colors */
   --color-neon-green: #10b981;
   --color-neon-red: #ef4444;
   --color-neon-yellow: #f59e0b;
-  --color-neon-blue: #3b82f6;
+  --color-neon-blue: #10b981;
   --color-neon-purple: #10b981;
 
-  --font-mono: "Space Mono", "Courier New", monospace;
-  --font-sans: "Prompt", "Kanit", "Inter", sans-serif;
-  --font-display: "Prompt", "Kanit", "Inter", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Noto Sans Thai";
+  --font-display: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Noto Sans Thai";
 }
 
 @layer base {
@@ -553,13 +553,13 @@
   .status-pending { color: oklch(0.45 0 0); }
 
   /* Brutalist card */
-  .brut-card {
+  . {
     background: oklch(0.09 0 0);
     border: 1px solid oklch(0.18 0 0);
     padding: 1.5rem;
   }
 
-  .brut-card-highlight {
+  .-highlight {
     background: oklch(0.09 0 0);
     border: 2px solid oklch(0.97 0 0);
     padding: 1.5rem;

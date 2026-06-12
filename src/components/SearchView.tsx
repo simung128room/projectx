@@ -49,7 +49,7 @@ export const SearchView: React.FC<SearchViewProps> = ({ products, onClose, onPro
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -20 }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="w-full max-w-3xl bg-[#0a0a0a] border border-white/[0.08] shadow-2xl rounded-2xl overflow-hidden relative z-10 flex flex-col max-h-[80vh]"
+            className="w-full max-w-3xl bg-[#050505] border border-white/[0.08] shadow-md rounded-md overflow-hidden relative z-10 flex flex-col max-h-[80vh]"
           >
             {/* Header / Search Input */}
             <div className="p-4 border-b border-white/[0.08] flex items-center gap-3 bg-[#111]">
@@ -71,7 +71,7 @@ export const SearchView: React.FC<SearchViewProps> = ({ products, onClose, onPro
             </div>
 
             {/* Results Area */}
-            <div className="p-4 flex-1 overflow-y-auto no-scrollbar bg-[#0a0a0a]">
+            <div className="p-4 flex-1 overflow-y-auto no-scrollbar bg-[#050505]">
               {searchQuery && filteredProducts.length === 0 ? (
                 <div className="text-center py-16">
                   <Search className="w-10 h-10 text-zinc-600 mx-auto mb-3" />
@@ -91,10 +91,10 @@ export const SearchView: React.FC<SearchViewProps> = ({ products, onClose, onPro
                         onProductClick(product.id);
                         onClose();
                       }}
-                      className="bg-[#111] border border-white/[0.05] rounded-xl p-3 cursor-pointer hover:border-white/[0.15] hover:bg-white/[0.02] transition-all flex gap-3 items-center group"
+                      className="bg-[#111] border border-white/[0.05] rounded-md p-3 cursor-pointer hover:border-white/[0.15] hover:bg-white/[0.04] transition-all flex gap-3 items-center group"
                     >
                       {/* Image Thumbnail */}
-                      <div className="w-16 h-16 rounded-lg overflow-hidden relative shrink-0 bg-zinc-900 border border-white/[0.05]">
+                      <div className="w-16 h-16 rounded-md overflow-hidden relative shrink-0 bg-[#050505] border border-white/[0.05]">
                         {product.imageUrl && product.imageUrl.trim() !== "" ? (
                           <img 
                             src={product.imageUrl} 
@@ -113,7 +113,7 @@ export const SearchView: React.FC<SearchViewProps> = ({ products, onClose, onPro
                             background: generateGradient(product.name || product.id)
                           }}
                         >
-                          <span className="text-xl font-black text-white mix-blend-overlay opacity-60">
+                          <span className="text-xl font-semibold text-white mix-blend-overlay opacity-60">
                             {(product.name || "P")[0].toUpperCase()}
                           </span>
                         </div>
@@ -127,9 +127,9 @@ export const SearchView: React.FC<SearchViewProps> = ({ products, onClose, onPro
                             ฿{product.price > 0 ? product.price.toLocaleString() : "ฟรี"}
                           </span>
                           {product.stock > 0 ? (
-                            <span className="text-emerald-500 flex items-center gap-1">
-                              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500/50 relative">
-                                <div className="absolute inset-0 rounded-full bg-emerald-500 animate-ping opacity-75"></div>
+                            <span className="text-[#10b981] flex items-center gap-1">
+                              <div className="w-1.5 h-1.5 rounded-full bg-[#10b981]/50 relative">
+                                <div className="absolute inset-0 rounded-full bg-[#10b981] animate-ping opacity-75"></div>
                               </div>
                               สต็อก {product.stock}
                             </span>

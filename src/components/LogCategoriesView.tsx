@@ -43,7 +43,7 @@ export const LogCategoriesView: React.FC<LogCategoriesViewProps> = ({ userPlan, 
           background: '#09090b',
           color: '#fff',
           confirmButtonText: 'ตกลง',
-          confirmButtonColor: '#2563EB'
+          confirmButtonColor: '#10b981'
        });
        return;
     }
@@ -66,12 +66,12 @@ export const LogCategoriesView: React.FC<LogCategoriesViewProps> = ({ userPlan, 
         const safeUrl = /^javascript:/i.test(cleanData) ? '#' : cleanData;
         
         if (att.type === 'image') {
-          return `<img loading="lazy" src="${safeUrl}" class="w-full rounded-lg mb-2" />`;
+          return `<img loading="lazy" src="${safeUrl}" class="w-full rounded-md mb-2" />`;
         }
         if (att.type === 'file') {
-          return `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="block w-full py-2 bg-[#2563EB] text-white rounded-lg text-center font-bold mb-2">ดาวน์โหลดไฟล์</a>`;
+          return `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="block w-full py-2 bg-[#10b981] text-white rounded-md text-center font-bold mb-2">ดาวน์โหลดไฟล์</a>`;
         }
-        return `<div class="bg-[#0a0a0a] border border-white/10 p-3 rounded-lg mb-2 text-left text-sm text-zinc-300 break-all select-all font-mono max-h-48 overflow-y-auto">${(att.data || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>`;
+        return `<div class="bg-[#050505] border border-white/[0.04] p-3 rounded-md mb-2 text-left text-sm text-zinc-300 break-all select-all font-mono max-h-48 overflow-y-auto">${(att.data || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>`;
     }).join('');
 
     Swal.fire({
@@ -102,26 +102,26 @@ export const LogCategoriesView: React.FC<LogCategoriesViewProps> = ({ userPlan, 
     <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 pt-24">
        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
          <div>
-            <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight flex items-center gap-3">
-              <Gift className="w-8 h-8 text-[#2563EB]" /> {filterType === 'vip' ? 'VIP PH LOG' : filterType === 'free' ? 'FREE FH LOG' : 'ทรัพยากร / เครื่องมือ'}
+            <h1 className="text-3xl sm:text-4xl font-semibold text-white tracking-tight flex items-center gap-3">
+              <Gift className="w-8 h-8 text-[#10b981]" /> {filterType === 'vip' ? 'VIP PH LOG' : filterType === 'free' ? 'FREE FH LOG' : 'ทรัพยากร / เครื่องมือ'}
             </h1>
             <p className="text-sm font-medium text-muted-foreground mt-2">ดาวน์โหลดไฟล์และเอกสารฟรี & พรีเมียม</p>
          </div>
          {isAdmin && (
-           <button onClick={() => setShowAdmin(!showAdmin)} className="flex bg-card text-white px-4 py-2 text-sm font-bold self-start md:self-auto hover:-translate-y-1 transition-all brut-card">
+           <button onClick={() => setShowAdmin(!showAdmin)} className="flex bg-card text-white px-4 py-2 text-sm font-bold self-start md:self-auto hover:-translate-y-1 transition-all ">
               {showAdmin ? 'ปิดจัดการเนื้อหา' : 'เพิ่มเนื้อหา (แอดมิน)'}
            </button>
          )}
        </div>
 
        {showAdmin ? (
-         <div className="bg-card border border-border border-2 p-4 sm:p-6 mb-8 brut-card">
+         <div className="bg-card border border-border  p-4 sm:p-6 mb-8 ">
            <AdminToolsManagement />
          </div>
        ) : selectedCategory ? (
          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
             <div className="flex items-center gap-4 mb-6">
-               <button onClick={() => setSelectedCategory(null)} className="px-4 py-2 bg-card hover:bg-white/10 border border-border border-2 text-white font-bold text-sm brut-card">
+               <button onClick={() => setSelectedCategory(null)} className="px-4 py-2 bg-card hover:bg-white/10 border border-border  text-white font-bold text-sm ">
                  กลับ
                </button>
                <h2 className="text-xl font-bold text-white flex items-center gap-2">
@@ -130,7 +130,7 @@ export const LogCategoriesView: React.FC<LogCategoriesViewProps> = ({ userPlan, 
                </h2>
                <div className="ml-auto w-48 relative">
                  <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                 <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="ค้นหา..." className="w-full bg-card border border-border border-2 pl-9 pr-4 py-2 text-sm text-white brut-card" />
+                 <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="ค้นหา..." className="w-full bg-card border border-border  pl-9 pr-4 py-2 text-sm text-white " />
                </div>
             </div>
 
@@ -138,12 +138,12 @@ export const LogCategoriesView: React.FC<LogCategoriesViewProps> = ({ userPlan, 
               {currentItems.map((item) => {
                  const isLocked = item.type === 'premium' && !isVip;
                  return (
-                    <div key={item.id} onClick={() => handleOpenItem(item)} className={`bg-card border border-border border-2 p-5 cursor-pointer hover:border-[#3B82F6]/30 transition-all ${isLocked ? 'opacity-80' : 'hover:-translate-y-1 brut-card'}`}>
+                    <div key={item.id} onClick={() => handleOpenItem(item)} className={`bg-card border border-border  p-5 cursor-pointer hover:border-[#10b981]/30 transition-all ${isLocked ? 'opacity-80' : 'hover:-translate-y-1 '}`}>
                       <div className="flex justify-between items-start mb-3">
-                        <span className={`text-[10px] font-bold px-2 py-0.5 uppercase ${item.type === 'premium' ? 'bg-amber-500/20 text-amber-400' : 'bg-blue-600/20 text-blue-600'}`}>
+                        <span className={`text-[10px] font-bold px-2 py-0.5 uppercase ${item.type === 'premium' ? 'bg-amber-500/20 text-amber-400' : 'bg-[#10b981]/20 text-[#10b981]'}`}>
                           {item.type === 'premium' ? 'Premium' : 'Free'}
                         </span>
-                        {isLocked ? <Lock className="w-4 h-4 text-muted-foreground"/> : <Download className="w-4 h-4 text-[#2563EB]"/>}
+                        {isLocked ? <Lock className="w-4 h-4 text-muted-foreground"/> : <Download className="w-4 h-4 text-[#10b981]"/>}
                       </div>
                       <h3 className="text-lg font-bold text-white mb-2">{item.title}</h3>
                       {item.keyword && <span className="text-[10px] text-muted-foreground font-medium">#{item.keyword}</span>}
@@ -165,21 +165,21 @@ export const LogCategoriesView: React.FC<LogCategoriesViewProps> = ({ userPlan, 
                    animate={{ opacity: 1, y: 0 }}
                    transition={{ delay: i * 0.05 }}
                    onClick={() => { setSelectedCategory(c); setSearch(''); }}
-                   className="bg-card border border-border border-2 hover:border-[#2563EB]/30 overflow-hidden transition-all cursor-pointer group flex flex-col pt-2 brut-card"
+                   className="bg-card border border-border  hover:border-[#10b981]/30 overflow-hidden transition-all cursor-pointer group flex flex-col pt-2 "
                  >
                    <div className="p-6 flex-1 flex flex-col">
                       <div className="flex items-center justify-between mb-4">
-                        <div className="w-12 h-12 bg-card border border-border border-2 flex items-center justify-center text-[#2563EB] group-hover:scale-110 transition-transform brut-card">
+                        <div className="w-12 h-12 bg-card border border-border  flex items-center justify-center text-[#10b981] group-hover:scale-110 transition-transform ">
                           <Folder className="w-6 h-6" />
                         </div>
-                        {c.isVip && <span className="bg-amber-500/10 text-amber-500 border border-amber-500/20 px-3 py-1 text-xs font-black uppercase tracking-wider">VIP</span>}
+                        {c.isVip && <span className="bg-amber-500/10 text-amber-500 border border-amber-500/20 px-3 py-1 text-xs font-semibold uppercase tracking-wider">VIP</span>}
                       </div>
-                      <h2 className="text-xl font-black text-white group-hover:text-[#2563EB] transition-colors tracking-tight">{c.name}</h2>
+                      <h2 className="text-xl font-semibold text-white group-hover:text-[#10b981] transition-colors tracking-tight">{c.name}</h2>
                       <p className="text-sm text-muted-foreground mt-1 mb-4 flex-1">{c.subtitle}</p>
                       
-                      <div className="w-full flex items-center justify-between pt-4 border-t border-border border-2 mt-auto">
+                      <div className="w-full flex items-center justify-between pt-4 border-t border-border  mt-auto">
                         <span className="text-xs font-bold text-muted-foreground">{catItemsCount} รายการ</span>
-                        <div className="w-8 h-8 bg-card flex items-center justify-center text-muted-foreground group-hover:bg-purple-600/10 group-hover:text-[#2563EB] transition-all brut-card">
+                        <div className="w-8 h-8 bg-card flex items-center justify-center text-muted-foreground group-hover:bg-zinc-600/10 group-hover:text-[#10b981] transition-all ">
                           <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-all" />
                         </div>
                       </div>

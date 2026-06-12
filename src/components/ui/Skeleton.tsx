@@ -7,7 +7,7 @@ interface SkeletonProps {
 export const Skeleton: React.FC<SkeletonProps> = ({ className = '' }) => {
   return (
     <div 
-      className={`animate-pulse bg-card rounded ${className} brut-card`}
+      className={` bg-card rounded ${className} `}
       aria-hidden="true"
     />
   );

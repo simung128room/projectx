@@ -12,19 +12,19 @@ const Toast: React.FC<{ toast: ToastType; onClose: (id: string) => void }> = ({ 
   }, [toast, onClose]);
 
   const icons = {
-    success: <CheckCircle2 className="w-5 h-5 text-blue-500" />,
+    success: <CheckCircle2 className="w-5 h-5 text-[#10b981]" />,
     error: <AlertCircle className="w-5 h-5 text-red-500" />,
     warning: <AlertTriangle className="w-5 h-5 text-amber-500" />,
-    info: <Info className="w-5 h-5 text-blue-600" />,
-    payment: <ShoppingBag className="w-5 h-5 text-blue-600" />
+    info: <Info className="w-5 h-5 text-[#10b981]" />,
+    payment: <ShoppingBag className="w-5 h-5 text-[#10b981]" />
   };
 
   const bgColors = {
     success: 'bg-[#050505] border-emerald-500/20 shadow-emerald-500/5',
     error: 'bg-[#050505] border-red-500/20 shadow-red-500/5',
     warning: 'bg-[#050505] border-amber-500/20 shadow-amber-500/5',
-    info: 'bg-[#050505] border-[#3B82F6]/20 shadow-lg/5',
-    payment: 'bg-[#050505] border-purple-500/20 shadow-purple-500/5'
+    info: 'bg-[#050505] border-[#10b981]/20 shadow-sm/5',
+    payment: 'bg-[#050505] border-zinc-500/20 shadow-purple-500/5'
   };
 
   return (
@@ -39,7 +39,7 @@ const Toast: React.FC<{ toast: ToastType; onClose: (id: string) => void }> = ({ 
         {icons[toast.type]}
       </div>
       <div className="flex flex-col">
-        {toast.title && <span className="text-[13px] font-black text-white leading-tight mb-0.5 uppercase tracking-wide">{toast.title}</span>}
+        {toast.title && <span className="text-[13px] font-semibold text-white leading-tight mb-0.5 uppercase tracking-wide">{toast.title}</span>}
         <p className="text-muted-foreground text-xs sm:text-[13px] font-medium leading-relaxed">{toast.message}</p>
       </div>
       <button 

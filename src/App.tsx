@@ -322,7 +322,7 @@ function ComboTextarea({
       onChange={handleChange}
       rows={12}
       disabled={disabled}
-      className={`w-full bg-card border border-border border p-3 text-[11px] font-mono text-blue-600 focus:border-emerald-500/50 focus:outline-none resize-none transition-all scrollbar-thin scrollbar-thumb-zinc-800 h-[320px] ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
+      className={`w-full bg-card border border-border border p-3 text-[11px] font-mono text-[#10b981] focus:border-emerald-500/50 focus:outline-none resize-none transition-all scrollbar-thin scrollbar-thumb-zinc-800 h-[320px] ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
       placeholder={"user:pass\nuser|pass"}
       spellCheck="false"
     />
@@ -832,7 +832,7 @@ function AppContent() {
           },
           background: '#09090b',
           color: '#fff',
-          confirmButtonColor: '#3B82F6',
+          confirmButtonColor: '#10b981',
           cancelButtonColor: '#27272a'
         });
 
@@ -854,7 +854,7 @@ function AppContent() {
           },
           background: '#09090b',
           color: '#fff',
-          confirmButtonColor: '#3B82F6',
+          confirmButtonColor: '#10b981',
           cancelButtonColor: '#27272a'
         });
 
@@ -926,7 +926,7 @@ function AppContent() {
             ...newHistoryItem,
             title: "สั่งซื้อสำเร็จ",
             icon: ShoppingCart,
-            bg: "bg-emerald-600",
+            bg: "bg-[#10b981]",
             color: "text-white",
           });
         }
@@ -1588,7 +1588,7 @@ function AppContent() {
     const { value: formValues } = await Swal.fire({
       title: "สร้างคีย์ใหม่",
       html:
-        '<select id="swal-input1" class="swal2-input bg-[#050505] border-white/10 text-white w-full">' +
+        '<select id="swal-input1" class="swal2-input bg-[#050505] border-white/[0.04] text-white w-full">' +
         '<option value="Day">1 วัน (Day)</option>' +
         '<option value="Week">7 วัน (Week)</option>' +
         '<option value="Month">1 เดือน (Month)</option>' +
@@ -1596,7 +1596,7 @@ function AppContent() {
         '<option value="Year">1 ปี (Year)</option>' +
         '<option value="Lifetime">ถาวร (Lifetime)</option>' +
         "</select>" +
-        '<input id="swal-input2" class="swal2-input bg-[#050505] border-white/10 text-white w-full" placeholder="จำนวนคีย์ (1-50)" type="number" value="1">',
+        '<input id="swal-input2" class="swal2-input bg-[#050505] border-white/[0.04] text-white w-full" placeholder="จำนวนคีย์ (1-50)" type="number" value="1">',
       focusConfirm: false,
       background: "#ffffff",
       color: "#18181b",
@@ -1644,8 +1644,8 @@ function AppContent() {
     const { value: ipData } = await Swal.fire({
       title: "บล็อค IP ผู้ใช้",
       html:
-        '<input id="swal-ip" class="swal2-input bg-[#050505] border-white/10 text-white w-full" placeholder="IP Address เช่น 1.1.1.1">' +
-        '<input id="swal-reason" class="swal2-input bg-[#050505] border-white/10 text-white w-full" placeholder="เหตุผลการบล็อค">',
+        '<input id="swal-ip" class="swal2-input bg-[#050505] border-white/[0.04] text-white w-full" placeholder="IP Address เช่น 1.1.1.1">' +
+        '<input id="swal-reason" class="swal2-input bg-[#050505] border-white/[0.04] text-white w-full" placeholder="เหตุผลการบล็อค">',
       focusConfirm: false,
       background: "#ffffff",
       color: "#18181b",
@@ -1715,8 +1715,8 @@ function AppContent() {
       title: "ลบคีย์หลายรายการ",
       html: `
         <div class="text-left text-sm space-y-2 mb-4">
-          <div><span class="text-zinc-500">คีย์ทั้งหมด:</span> <span class="font-bold text-blue-600">${totalAll}</span> รายการ</div>
-          <div><span class="text-zinc-500">ยังไม่ได้ใช้:</span> <span class="font-bold text-blue-500">${totalActive}</span> รายการ</div>
+          <div><span class="text-zinc-500">คีย์ทั้งหมด:</span> <span class="font-bold text-[#10b981]">${totalAll}</span> รายการ</div>
+          <div><span class="text-zinc-500">ยังไม่ได้ใช้:</span> <span class="font-bold text-[#10b981]">${totalActive}</span> รายการ</div>
           <div><span class="text-zinc-500">ใช้แล้ว:</span> <span class="font-bold text-amber-500">${totalUsed}</span> รายการ</div>
         </div>
         <select id="bulk-delete-type" class="swal2-select" style="width: 100%; font-size: 14px; margin-bottom: 10px;">
@@ -1831,7 +1831,7 @@ function AppContent() {
           addLog(
             `[${index + 1}] Auth [OK] -> ${acc}`,
             "key",
-            "text-blue-600 font-bold",
+            "text-[#10b981] font-bold",
           );
           const newResult: AccountResult = {
             ...result.data,
@@ -1843,7 +1843,7 @@ function AppContent() {
           addLog(
             `[${index + 1}] HIT: ${acc}`,
             "check",
-            "text-blue-500 font-bold",
+            "text-[#10b981] font-bold",
           );
           return;
         } else {
@@ -1990,7 +1990,7 @@ function AppContent() {
     addLog(
       `เริ่มตรวจสอบ... ทั้งหมด ${linesArg.length} รายการ [DataDome Bypass: ACTIVE] Threads: ${threads}`,
       "terminal",
-      "text-cyan-400",
+      "text-[#10b981]",
     );
 
     const pool = [...linesArg];
@@ -2243,9 +2243,9 @@ function AppContent() {
   if (isIPBlocked)
     return (
       <div className="min-h-screen bg-card flex items-center justify-center p-4">
-        <div className="w-full max-w-lg bg-primary text-primary-foreground border border-[#3B82F6]/20 p-12 text-center relative overflow-hidden">
-          <ShieldAlert className="w-20 h-20 text-[#2563EB] mx-auto mb-6 animate-pulse" />
-          <h1 className="text-3xl font-bold text-[#2563EB] mb-4 uppercase tracking-tighter">
+        <div className="w-full max-w-lg bg-primary text-primary-foreground border border-[#10b981]/20 p-12 text-center relative overflow-hidden">
+          <ShieldAlert className="w-20 h-20 text-[#10b981] mx-auto mb-6 " />
+          <h1 className="text-3xl font-bold text-[#10b981] mb-4 uppercase tracking-tighter">
             Access Revoked
           </h1>
           <p className="text-muted-foreground text-sm leading-relaxed mb-8">
@@ -2258,7 +2258,7 @@ function AppContent() {
           </div>
           <button
             onClick={() => window.location.reload()}
-            className="bg-primary text-primary-foreground hover:bg-[#2563EB] text-white px-8 py-3 text-xs font-bold transition-all"
+            className="bg-primary text-primary-foreground hover:bg-[#10b981] text-white px-8 py-3 text-xs font-bold transition-all"
           >
             TRY RECONNECTING
           </button>
@@ -2292,12 +2292,12 @@ function AppContent() {
   const isLoadingSkeleton = !isLoaded || (!isHomeViewReady && !dbErrorDetail);
 
   return (
-    <div className="min-h-screen w-full bg-[#030303] text-white font-sans selection:bg-[#050505]/80 flex flex-col lg:flex-row relative">
+    <div className="min-h-screen w-full bg-[#000000] text-white font-sans selection:bg-[#050505]/80 flex flex-col lg:flex-row relative">
       {useCustomCursor && <CustomCursor />}
       {/* Popup banner removed as requested */}
 
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex flex-col w-[280px] bg-[#040406] border-r border-white/[0.04] p-5 h-screen sticky top-0 shrink-0 overflow-y-auto no-scrollbar z-[70]">
+      <aside className="hidden lg:flex flex-col w-[280px] bg-[#000000] border-r border-white/[0.04] p-5 h-screen sticky top-0 shrink-0 overflow-y-auto no-scrollbar z-[70]">
         {/* Brand Header */}
         <div className="mb-6 w-full flex flex-col justify-start shrink-0">
           <div className="flex items-center justify-between w-full">
@@ -2309,7 +2309,7 @@ function AppContent() {
             />
             {/* Subtle premium status pulse */}
             <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-neon-green/10 border border-neon-green/20 text-[8px] font-mono font-bold text-neon-green tracking-wider uppercase">
-              <span className="w-1.5 h-1.5 rounded-full bg-neon-green animate-pulse" />
+              <span className="w-1.5 h-1.5 rounded-full bg-neon-green " />
               SYSTEM OK
             </div>
           </div>
@@ -2320,11 +2320,11 @@ function AppContent() {
 
         {/* User Card inside Sidebar */}
         {user ? (
-          <div className="mb-6 p-4 rounded-xl bg-white/[0.02] border border-white/[0.05] flex flex-col gap-3 shrink-0 relative overflow-hidden group">
+          <div className="mb-6 p-4 rounded-md bg-white/[0.04] border border-white/[0.05] flex flex-col gap-3 shrink-0 relative overflow-hidden group">
             {/* Subtle ambient light glow underneath */}
             <div className="absolute top-0 right-0 w-16 h-16 bg-neon-green/5 rounded-full blur-xl group-hover:scale-150 transition-transform duration-500 pointer-events-none" />
             <div className="flex items-center gap-3 relative z-10">
-              <div className="w-10 h-10 rounded-full border border-white/10 shrink-0 overflow-hidden bg-black/40 shadow-inner">
+              <div className="w-10 h-10 rounded-full border border-white/[0.04] shrink-0 overflow-hidden bg-black/40 shadow-inner">
                 <img
                   src={getAvatarUrl(user?.id || userPlan?.username || user?.email?.split("@")[0] || "guest")}
                   alt="avatar"
@@ -2332,12 +2332,12 @@ function AppContent() {
                 />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-black text-white truncate text-shadow-sm">
+                <p className="text-xs font-semibold text-white truncate text-shadow-sm">
                   {userPlan?.username || user?.email?.split("@")[0]}
                 </p>
                 <div className="flex items-center gap-1.5 mt-0.5">
                   {userPlan?.isPremium ? (
-                    <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-neon-yellow/10 text-neon-yellow border border-neon-yellow/20 text-[8px] font-black uppercase tracking-wider animate-pulse">
+                    <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-neon-yellow/10 text-neon-yellow border border-neon-yellow/20 text-[8px] font-semibold uppercase tracking-wider ">
                       <Crown className="w-2.5 h-2.5 text-neon-yellow" /> Premium
                     </span>
                   ) : (
@@ -2350,8 +2350,8 @@ function AppContent() {
             </div>
             
             {/* Balance Widget inside Sidebar */}
-            <div className="flex items-center gap-2.5 bg-black/40 p-2.5 rounded-lg border border-white/[0.04] relative z-10">
-              <div className="w-7 h-7 rounded-md bg-white/[0.03] flex items-center justify-center shrink-0 border border-white/[0.06]">
+            <div className="flex items-center gap-2.5 bg-black/40 p-2.5 rounded-md border border-white/[0.04] relative z-10">
+              <div className="w-7 h-7 rounded-md bg-white/[0.06] flex items-center justify-center shrink-0 border border-white/[0.06]">
                 <Coins className="w-4 h-4 text-neon-yellow" />
               </div>
               <div className="flex flex-col">
@@ -2359,7 +2359,7 @@ function AppContent() {
                   ยอดเงินคงเหลือ
                 </span>
                 <div className="flex items-baseline gap-1 mt-1">
-                  <span className="text-sm font-black text-white leading-none">
+                  <span className="text-sm font-semibold text-white leading-none">
                     {userPlan?.balance ? Math.floor(userPlan.balance).toLocaleString() : "0"}
                   </span>
                   <span className="text-[10px] font-bold text-neon-green">
@@ -2370,13 +2370,13 @@ function AppContent() {
             </div>
           </div>
         ) : (
-          <div className="mb-6 p-4 rounded-xl bg-white/[0.01] border border-white/[0.04] flex flex-col gap-3 shrink-0 relative overflow-hidden">
+          <div className="mb-6 p-4 rounded-md bg-white/[0.01] border border-white/[0.04] flex flex-col gap-3 shrink-0 relative overflow-hidden">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full border border-white/5 shrink-0 overflow-hidden bg-black/40 flex items-center justify-center">
                 <User className="w-5 h-5 text-zinc-600" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-black text-white/80 truncate">
+                <p className="text-xs font-semibold text-white/80 truncate">
                   ผู้เยี่ยมชม (Guest)
                 </p>
                 <span className="text-[8px] font-mono font-semibold text-zinc-500 uppercase tracking-widest mt-0.5 block">
@@ -2390,7 +2390,7 @@ function AppContent() {
                   setActiveView("login");
                   window.scrollTo({ top: 0, behavior: "smooth" });
                 }}
-                className="w-full flex items-center justify-center gap-1 py-1.5 text-[10px] font-black transition-all rounded-lg hover:bg-zinc-200 active:scale-95 bg-white text-black cursor-pointer shadow-md"
+                className="w-full flex items-center justify-center gap-1 py-1.5 text-[10px] font-semibold transition-all rounded-md hover:bg-zinc-200 active:scale-95 bg-white text-black cursor-pointer shadow-md"
               >
                 <LogIn className="w-3 h-3" /> เข้าสู่ระบบ
               </button>
@@ -2399,7 +2399,7 @@ function AppContent() {
                   setActiveView("signup");
                   window.scrollTo({ top: 0, behavior: "smooth" });
                 }}
-                className="w-full flex items-center justify-center gap-1 py-1.5 text-[10px] font-black transition-all border rounded-lg hover:bg-white/10 active:scale-95 bg-white/5 text-white border-white/10 cursor-pointer"
+                className="w-full flex items-center justify-center gap-1 py-1.5 text-[10px] font-semibold transition-all border rounded-md hover:bg-white/10 active:scale-95 bg-white/5 text-white border-white/[0.04] cursor-pointer"
               >
                 <UserPlus className="w-3 h-3" /> สมัครสมาชิก
               </button>
@@ -2410,7 +2410,7 @@ function AppContent() {
         <div className="flex-1 space-y-1">
           {/* Main Menu Divider */}
           <div className="flex items-center gap-2 py-1.5 mt-2 mb-1 select-none">
-            <span className="w-1 h-3 rounded-full bg-neon-green shadow-[0_0_8px_#00FF66]" />
+            <span className="w-1 h-3 rounded-full bg-neon-green " />
             <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.15em] font-mono">
               เมนูหลัก • MAIN MENU
             </span>
@@ -2418,10 +2418,10 @@ function AppContent() {
           
           <button
             onClick={() => setActiveView("home")}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200 relative group select-none active:scale-[0.98] cursor-pointer ${activeView === "home" ? "bg-white/[0.03] text-white border border-white/10 font-bold shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]" : "text-zinc-500 hover:text-white hover:bg-[#0a0a0c]"}`}
+            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-md text-xs font-semibold transition-all duration-200 relative group select-none active:scale-[0.98] cursor-pointer ${activeView === "home" ? "bg-white/[0.06] text-white border border-white/[0.04] font-bold shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]" : "text-zinc-500 hover:text-white hover:bg-white/[0.04]"}`}
           >
             {activeView === "home" && (
-              <div className="absolute left-0 top-1/4 bottom-1/4 w-[3.5px] bg-neon-green rounded-r shadow-[0_0_8px_#00FF66]" />
+              <div className="absolute left-0 top-1/4 bottom-1/4 w-[3.5px] bg-neon-green rounded-r " />
             )}
             <Home className={`w-4 h-4 transition-transform duration-200 group-hover:scale-110 ${activeView === "home" ? "text-neon-green" : "text-zinc-500"}`} />
             <span>หน้าแรกของร้าน</span>
@@ -2432,10 +2432,10 @@ function AppContent() {
               setActiveView("categories");
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200 relative group select-none active:scale-[0.98] cursor-pointer ${activeView === "categories" || activeView === "category_products" ? "bg-white/[0.03] text-white border border-white/10 font-bold shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]" : "text-zinc-500 hover:text-white hover:bg-[#0a0a0c]"}`}
+            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-md text-xs font-semibold transition-all duration-200 relative group select-none active:scale-[0.98] cursor-pointer ${activeView === "categories" || activeView === "category_products" ? "bg-white/[0.06] text-white border border-white/[0.04] font-bold shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]" : "text-zinc-500 hover:text-white hover:bg-white/[0.04]"}`}
           >
             {((activeView === "categories") || (activeView === "category_products")) && (
-              <div className="absolute left-0 top-1/4 bottom-1/4 w-[3.5px] bg-neon-green rounded-r shadow-[0_0_8px_#00FF66]" />
+              <div className="absolute left-0 top-1/4 bottom-1/4 w-[3.5px] bg-neon-green rounded-r " />
             )}
             <ShoppingCart className={`w-4 h-4 transition-transform duration-200 group-hover:scale-110 ${activeView === "categories" || activeView === "category_products" ? "text-neon-green" : "text-zinc-500"}`} />
             <span>สินค้าทั้งหมด</span>
@@ -2446,10 +2446,10 @@ function AppContent() {
               setActiveView(user ? "wallet" : "login");
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200 relative group select-none active:scale-[0.98] cursor-pointer ${activeView === "wallet" ? "bg-white/[0.03] text-white border border-white/10 font-bold shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]" : "text-zinc-500 hover:text-white hover:bg-[#0a0a0c]"}`}
+            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-md text-xs font-semibold transition-all duration-200 relative group select-none active:scale-[0.98] cursor-pointer ${activeView === "wallet" ? "bg-white/[0.06] text-white border border-white/[0.04] font-bold shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]" : "text-zinc-500 hover:text-white hover:bg-white/[0.04]"}`}
           >
             {activeView === "wallet" && (
-              <div className="absolute left-0 top-1/4 bottom-1/4 w-[3.5px] bg-neon-green rounded-r shadow-[0_0_8px_#00FF66]" />
+              <div className="absolute left-0 top-1/4 bottom-1/4 w-[3.5px] bg-neon-green rounded-r " />
             )}
             <Wallet className={`w-4 h-4 transition-transform duration-200 group-hover:scale-110 ${activeView === "wallet" ? "text-neon-green" : "text-zinc-500"}`} />
             <span>เติมเงินเข้าระบบ</span>
@@ -2460,10 +2460,10 @@ function AppContent() {
               setActiveView(user ? "my_orders" : "login");
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200 relative group select-none active:scale-[0.98] cursor-pointer ${activeView === "my_orders" ? "bg-white/[0.03] text-white border border-white/10 font-bold shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]" : "text-zinc-500 hover:text-white hover:bg-[#0a0a0c]"}`}
+            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-md text-xs font-semibold transition-all duration-200 relative group select-none active:scale-[0.98] cursor-pointer ${activeView === "my_orders" ? "bg-white/[0.06] text-white border border-white/[0.04] font-bold shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]" : "text-zinc-500 hover:text-white hover:bg-white/[0.04]"}`}
           >
             {activeView === "my_orders" && (
-              <div className="absolute left-0 top-1/4 bottom-1/4 w-[3.5px] bg-neon-green rounded-r shadow-[0_0_8px_#00FF66]" />
+              <div className="absolute left-0 top-1/4 bottom-1/4 w-[3.5px] bg-neon-green rounded-r " />
             )}
             <Package className={`w-4 h-4 transition-transform duration-200 group-hover:scale-110 ${activeView === "my_orders" ? "text-neon-green" : "text-zinc-500"}`} />
             <span>คำสั่งซื้อของฉัน</span>
@@ -2473,7 +2473,7 @@ function AppContent() {
           {user && (
             <>
               <div className="flex items-center gap-2 py-1.5 mt-4 mb-1 select-none">
-                <span className="w-1 h-3 rounded-full bg-neon-green shadow-[0_0_8px_#00FF66]" />
+                <span className="w-1 h-3 rounded-full bg-neon-green " />
                 <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.15em] font-mono">
                   ข้อมูลบัญชี • ACCOUNT
                 </span>
@@ -2484,10 +2484,10 @@ function AppContent() {
                   setActiveView("profile");
                   window.scrollTo({ top: 0, behavior: "smooth" });
                 }}
-                className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200 relative group select-none active:scale-[0.98] cursor-pointer ${activeView === "profile" ? "bg-white/[0.03] text-white border border-white/10 font-bold shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]" : "text-zinc-500 hover:text-white hover:bg-[#0a0a0c]"}`}
+                className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-md text-xs font-semibold transition-all duration-200 relative group select-none active:scale-[0.98] cursor-pointer ${activeView === "profile" ? "bg-white/[0.06] text-white border border-white/[0.04] font-bold shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]" : "text-zinc-500 hover:text-white hover:bg-white/[0.04]"}`}
               >
                 {activeView === "profile" && (
-                  <div className="absolute left-0 top-1/4 bottom-1/4 w-[3.5px] bg-neon-green rounded-r shadow-[0_0_8px_#00FF66]" />
+                  <div className="absolute left-0 top-1/4 bottom-1/4 w-[3.5px] bg-neon-green rounded-r " />
                 )}
                 <User className={`w-4 h-4 transition-transform duration-200 group-hover:scale-110 ${activeView === "profile" ? "text-neon-green" : "text-zinc-500"}`} />
                 <span>ข้อมูลบัญชี</span>
@@ -2498,10 +2498,10 @@ function AppContent() {
                   setActiveView("settings");
                   window.scrollTo({ top: 0, behavior: "smooth" });
                 }}
-                className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200 relative group select-none active:scale-[0.98] cursor-pointer ${activeView === "settings" ? "bg-white/[0.03] text-white border border-white/10 font-bold shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]" : "text-zinc-500 hover:text-white hover:bg-[#0a0a0c]"}`}
+                className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-md text-xs font-semibold transition-all duration-200 relative group select-none active:scale-[0.98] cursor-pointer ${activeView === "settings" ? "bg-white/[0.06] text-white border border-white/[0.04] font-bold shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]" : "text-zinc-500 hover:text-white hover:bg-white/[0.04]"}`}
               >
                 {activeView === "settings" && (
-                  <div className="absolute left-0 top-1/4 bottom-1/4 w-[3.5px] bg-neon-green rounded-r shadow-[0_0_8px_#00FF66]" />
+                  <div className="absolute left-0 top-1/4 bottom-1/4 w-[3.5px] bg-neon-green rounded-r " />
                 )}
                 <Settings className={`w-4 h-4 transition-transform duration-200 group-hover:scale-110 ${activeView === "settings" ? "text-neon-green" : "text-zinc-500"}`} />
                 <span>การตั้งค่าความปลอดภัย</span>
@@ -2510,7 +2510,7 @@ function AppContent() {
               {/* Tools list */}
               <button
                 onClick={() => setIsDesktopToolsOpen(!isDesktopToolsOpen)}
-                className={`w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200 select-none cursor-pointer ${["telegram_catcher", "discord_catcher", "discord_on", "discord_badge", "two_fa_generator", "proxy_free"].includes(activeView) ? "bg-white/[0.02] text-white" : "text-zinc-500 hover:text-white hover:bg-[#0a0a0c]"}`}
+                className={`w-full flex items-center justify-between px-4 py-2.5 rounded-md text-xs font-semibold transition-all duration-200 select-none cursor-pointer ${["telegram_catcher", "discord_catcher", "discord_on", "discord_badge", "two_fa_generator", "proxy_free"].includes(activeView) ? "bg-white/[0.04] text-white" : "text-zinc-500 hover:text-white hover:bg-white/[0.04]"}`}
               >
                 <div className="flex items-center gap-3">
                   <Bot className={`w-4 h-4 ${["telegram_catcher", "discord_catcher", "discord_on", "discord_badge", "two_fa_generator", "proxy_free"].includes(activeView) ? "text-neon-green" : "text-zinc-500"}`} />
@@ -2526,42 +2526,42 @@ function AppContent() {
                 <div className={`flex flex-col gap-1 mt-1 pl-3 border-l ml-6 transition-colors duration-300 ${["telegram_catcher", "discord_catcher", "discord_on", "discord_badge", "two_fa_generator", "proxy_free"].includes(activeView) ? "border-neon-green" : "border-white/[0.06]"}`}>
                   <button
                     onClick={() => setActiveView("telegram_catcher")}
-                    className={`w-full flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${activeView === "telegram_catcher" ? "text-neon-green font-bold bg-neon-green/5" : "text-zinc-500 hover:text-white hover:bg-white/[0.01]"}`}
+                    className={`w-full flex items-center gap-2.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all cursor-pointer ${activeView === "telegram_catcher" ? "text-neon-green font-bold bg-neon-green/5" : "text-zinc-500 hover:text-white hover:bg-white/[0.01]"}`}
                   >
                     <ArrowUpRight className="w-3.5 h-3.5 shrink-0" />
                     <span>ดักซองเทเลแกรม</span>
                   </button>
                   <button
                     onClick={() => setActiveView("discord_catcher")}
-                    className={`w-full flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${activeView === "discord_catcher" ? "text-neon-green font-bold bg-neon-green/5" : "text-zinc-500 hover:text-white hover:bg-white/[0.01]"}`}
+                    className={`w-full flex items-center gap-2.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all cursor-pointer ${activeView === "discord_catcher" ? "text-neon-green font-bold bg-neon-green/5" : "text-zinc-500 hover:text-white hover:bg-white/[0.01]"}`}
                   >
                     <ArrowUpRight className="w-3.5 h-3.5 shrink-0" />
                     <span>ดักซองดิสคอร์ด</span>
                   </button>
                   <button
                     onClick={() => setActiveView("discord_on")}
-                    className={`w-full flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${activeView === "discord_on" ? "text-neon-green font-bold bg-neon-green/5" : "text-zinc-500 hover:text-white hover:bg-white/[0.01]"}`}
+                    className={`w-full flex items-center gap-2.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all cursor-pointer ${activeView === "discord_on" ? "text-neon-green font-bold bg-neon-green/5" : "text-zinc-500 hover:text-white hover:bg-white/[0.01]"}`}
                   >
                     <ArrowUpRight className="w-3.5 h-3.5 shrink-0" />
                     <span>รันโทเค่นดิสคอร์ด</span>
                   </button>
                   <button
                     onClick={() => setActiveView("discord_badge")}
-                    className={`w-full flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${activeView === "discord_badge" ? "text-neon-green font-bold bg-neon-green/5 animate-pulse" : "text-zinc-500 hover:text-white hover:bg-white/[0.01]"}`}
+                    className={`w-full flex items-center gap-2.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all cursor-pointer ${activeView === "discord_badge" ? "text-neon-green font-bold bg-neon-green/5 " : "text-zinc-500 hover:text-white hover:bg-white/[0.01]"}`}
                   >
                     <ArrowUpRight className="w-3.5 h-3.5 text-neon-green shrink-0" />
                     <span>รับตราอัตโนมัติ</span>
                   </button>
                   <button
                     onClick={() => setActiveView("two_fa_generator")}
-                    className={`w-full flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${activeView === "two_fa_generator" ? "text-neon-green font-bold bg-neon-green/5" : "text-zinc-500 hover:text-white hover:bg-white/[0.01]"}`}
+                    className={`w-full flex items-center gap-2.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all cursor-pointer ${activeView === "two_fa_generator" ? "text-neon-green font-bold bg-neon-green/5" : "text-zinc-500 hover:text-white hover:bg-white/[0.01]"}`}
                   >
                     <ArrowUpRight className="w-3.5 h-3.5 shrink-0" />
                     <span>สร้างรหัส 2FA</span>
                   </button>
                   <button
                     onClick={() => setActiveView("proxy_free")}
-                    className={`w-full flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${activeView === "proxy_free" ? "text-neon-green font-bold bg-neon-green/5" : "text-zinc-500 hover:text-white hover:bg-white/[0.01]"}`}
+                    className={`w-full flex items-center gap-2.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all cursor-pointer ${activeView === "proxy_free" ? "text-neon-green font-bold bg-neon-green/5" : "text-zinc-500 hover:text-white hover:bg-white/[0.01]"}`}
                   >
                     <ArrowUpRight className="w-3.5 h-3.5 shrink-0" />
                     <span>พร็อกซี่ฟรี (Proxy)</span>
@@ -2573,7 +2573,7 @@ function AppContent() {
 
           {/* Help Divider */}
           <div className="flex items-center gap-2 py-1.5 mt-4 mb-1 select-none">
-            <span className="w-1 h-3 rounded-full bg-neon-green shadow-[0_0_8px_#00FF66]" />
+            <span className="w-1 h-3 rounded-full bg-neon-green " />
             <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.15em] font-mono">
               ช่วยเหลือ • HELP
             </span>
@@ -2581,7 +2581,7 @@ function AppContent() {
 
           <button
             onClick={() => setShowContactUs(true)}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200 cursor-pointer text-zinc-500 hover:text-white hover:bg-[#0a0a0c] border border-transparent`}
+            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-md text-xs font-semibold transition-all duration-200 cursor-pointer text-zinc-500 hover:text-white hover:bg-white/[0.04] border border-transparent`}
           >
             <Phone className="w-4 h-4 text-zinc-500" />
             <span>ติดต่อสอบถามแอดมิน</span>
@@ -2590,7 +2590,7 @@ function AppContent() {
           {user && (
             <button
               onClick={handleLogout}
-              className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200 cursor-pointer text-red-500 hover:bg-red-500/10 border border-transparent mt-2"
+              className="w-full flex items-center gap-3 px-4 py-2.5 rounded-md text-xs font-semibold transition-all duration-200 cursor-pointer text-red-500 hover:bg-red-500/10 border border-transparent mt-2"
             >
               <LogOut className="w-4 h-4 text-red-500" />
               <span>ออกจากระบบ</span>
@@ -2602,7 +2602,7 @@ function AppContent() {
             <>
               <div className="flex items-center gap-2 py-1.5 mt-4 mb-1 select-none">
                 <span className="w-1 h-3 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)]" />
-                <span className="text-[10px] font-bold text-red-500/80 uppercase tracking-[0.15em] font-mono animate-pulse">
+                <span className="text-[10px] font-bold text-red-500/80 uppercase tracking-[0.15em] font-mono ">
                   จัดการระบบ • ADMIN
                 </span>
               </div>
@@ -2611,7 +2611,7 @@ function AppContent() {
                   setActiveView("admin");
                   window.scrollTo({ top: 0, behavior: "smooth" });
                 }}
-                className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 relative select-none cursor-pointer active:scale-[0.98] ${activeView === "admin" ? "bg-red-500/10 text-red-400 border border-red-500/20" : "text-red-500/80 hover:bg-red-500/5 hover:text-red-400"}`}
+                className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-md text-xs font-bold transition-all duration-200 relative select-none cursor-pointer active:scale-[0.98] ${activeView === "admin" ? "bg-red-500/10 text-red-400 border border-red-500/20" : "text-red-500/80 hover:bg-red-500/5 hover:text-red-400"}`}
               >
                 {activeView === "admin" && (
                   <div className="absolute left-0 top-1/4 bottom-1/4 w-[3.5px] bg-red-500 rounded-r shadow-[0_0_8px_rgba(239,68,68,0.8)]" />
@@ -2626,7 +2626,7 @@ function AppContent() {
           {user && customPages && customPages.length > 0 && (
             <>
               <div className="flex items-center gap-2 py-1.5 mt-4 mb-1 select-none">
-                <span className="w-1 h-3 rounded-full bg-neon-green shadow-[0_0_8px_#00FF66]" />
+                <span className="w-1 h-3 rounded-full bg-neon-green " />
                 <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.15em] font-mono">
                   หน้าข้อมูลสำคัญ • PAGES
                 </span>
@@ -2638,10 +2638,10 @@ function AppContent() {
                     setSelectedPage(page);
                     setActiveView("custom_page");
                   }}
-                  className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200 relative group select-none active:scale-[0.98] cursor-pointer ${activeView === "custom_page" && selectedPage?.id === page.id ? "bg-white/[0.03] text-white border border-white/10 font-bold shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]" : "text-zinc-500 hover:text-white hover:bg-[#0a0a0c]"}`}
+                  className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-md text-xs font-semibold transition-all duration-200 relative group select-none active:scale-[0.98] cursor-pointer ${activeView === "custom_page" && selectedPage?.id === page.id ? "bg-white/[0.06] text-white border border-white/[0.04] font-bold shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]" : "text-zinc-500 hover:text-white hover:bg-white/[0.04]"}`}
                 >
                   {activeView === "custom_page" && selectedPage?.id === page.id && (
-                    <div className="absolute left-0 top-1/4 bottom-1/4 w-[3.5px] bg-neon-green rounded-r shadow-[0_0_8px_#00FF66]" />
+                    <div className="absolute left-0 top-1/4 bottom-1/4 w-[3.5px] bg-neon-green rounded-r " />
                   )}
                   <FileText className={`w-4 h-4 transition-transform duration-200 group-hover:scale-110 ${activeView === "custom_page" && selectedPage?.id === page.id ? "text-neon-green" : "text-zinc-500"}`} />
                   <span className="truncate pr-1">{page.title.replace(/^#+\s*/, "")}</span>
@@ -2655,7 +2655,7 @@ function AppContent() {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-h-screen min-w-0 relative overflow-x-hidden">
         {/* Top Header */}
-        <header className="sticky top-0 z-[60] w-full bg-[#0f0f12]/80 backdrop-blur-lg border-b border-white/[0.04] shadow-lg shadow-black/40 flex-shrink-0 select-none">
+        <header className="sticky top-0 z-[60] w-full bg-[#0f0f12]/80 backdrop-blur-lg border-b border-white/[0.04] shadow-sm shadow-black/40 flex-shrink-0 select-none">
           <div className="flex items-center justify-between h-[80px] px-4 md:px-8 max-w-7xl mx-auto w-full">
             {/* Logo with matching Icon size */}
             <div 
@@ -2669,7 +2669,7 @@ function AppContent() {
             </div>
 
             <div className="hidden lg:flex items-center gap-2 select-none">
-              <span className="text-sm font-black tracking-[0.1em] text-white/90 uppercase">
+              <span className="text-sm font-semibold tracking-[0.1em] text-white/90 uppercase">
                 {getViewTitle()}
               </span>
             </div>
@@ -2680,7 +2680,7 @@ function AppContent() {
               {/* Search Button */}
               <button
                 onClick={() => setShowSearchPopup(true)}
-                className="w-[44px] h-[44px] rounded-xl flex items-center justify-center text-white/50 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] transition-all duration-200 active:scale-95 cursor-pointer"
+                className="w-[44px] h-[44px] rounded-md flex items-center justify-center text-white/50 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] transition-all duration-200 active:scale-95 cursor-pointer"
                 aria-label="Search"
               >
                 <Search className="w-5 h-5 stroke-[2.5px]" />
@@ -2690,7 +2690,7 @@ function AppContent() {
               <motion.button
                 whileTap={{ scale: 0.9 }}
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="w-11 h-11 flex flex-col justify-center items-center gap-[5px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] transition-all duration-200 active:scale-95 cursor-pointer rounded-xl ml-1 lg:hidden text-white relative z-[100]"
+                className="w-11 h-11 flex flex-col justify-center items-center gap-[5px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] transition-all duration-200 active:scale-95 cursor-pointer rounded-md ml-1 lg:hidden text-white relative z-[100]"
                 aria-label="Menu"
               >
                 <motion.div 
@@ -2742,7 +2742,7 @@ function AppContent() {
               >
                 {/* Header */}
                 <div className="flex items-center justify-between px-6 pt-5 pb-5 shrink-0 relative z-[70] border-b border-white/[0.04]">
-                  <span className="text-2xl font-black text-white hover:opacity-90 transition-opacity">เมนูหลัก</span>
+                  <span className="text-2xl font-semibold text-white hover:opacity-90 transition-opacity">เมนูหลัก</span>
                   <button
                     onClick={() => setIsMobileMenuOpen(false)}
                     className="w-10 h-10 rounded-full flex items-center justify-center bg-white/[0.04] hover:bg-white/[0.08] text-zinc-400 hover:text-white border border-white/[0.06] transition-all cursor-pointer active:scale-95"
@@ -2759,14 +2759,14 @@ function AppContent() {
                   
                   {/* หน้าหลัก */}
                   <div
-                    className={`flex items-center gap-4 px-4 py-3.5 rounded-xl cursor-pointer transition-all duration-200 relative ${activeView === "home" ? "bg-neon-green/10 text-white font-bold border border-neon-green/20" : "text-zinc-400 hover:text-white hover:bg-white/[0.02]"}`}
+                    className={`flex items-center gap-4 px-4 py-3.5 rounded-md cursor-pointer transition-all duration-200 relative ${activeView === "home" ? "bg-neon-green/10 text-white font-bold border border-neon-green/20" : "text-zinc-400 hover:text-white hover:bg-white/[0.04]"}`}
                     onClick={() => {
                        setActiveView("home");
                        setIsMobileMenuOpen(false);
                     }}
                   >
                     {activeView === "home" && (
-                      <div className="absolute left-0 top-3.5 bottom-3.5 w-[3.5px] bg-neon-green rounded-r shadow-[0_0_8px_#00FF66]" />
+                      <div className="absolute left-0 top-3.5 bottom-3.5 w-[3.5px] bg-neon-green rounded-r " />
                     )}
                     <Home className={`w-5 h-5 ${activeView === "home" ? "text-neon-green" : "text-zinc-400"}`} />
                     <span className="text-base font-bold">หน้าหลัก</span>
@@ -2774,14 +2774,14 @@ function AppContent() {
 
                   {/* สินค้าทั้งหมด */}
                   <div
-                    className={`flex items-center gap-4 px-4 py-3.5 rounded-xl cursor-pointer transition-all duration-200 relative ${activeView === "categories" || activeView === "category_products" ? "bg-neon-green/10 text-white font-bold border border-neon-green/20" : "text-zinc-400 hover:text-white hover:bg-white/[0.02]"}`}
+                    className={`flex items-center gap-4 px-4 py-3.5 rounded-md cursor-pointer transition-all duration-200 relative ${activeView === "categories" || activeView === "category_products" ? "bg-neon-green/10 text-white font-bold border border-neon-green/20" : "text-zinc-400 hover:text-white hover:bg-white/[0.04]"}`}
                     onClick={() => {
                       setActiveView("categories");
                       setIsMobileMenuOpen(false);
                     }}
                   >
                     {((activeView === "categories") || (activeView === "category_products")) && (
-                      <div className="absolute left-0 top-3.5 bottom-3.5 w-[3.5px] bg-neon-green rounded-r shadow-[0_0_8px_#00FF66]" />
+                      <div className="absolute left-0 top-3.5 bottom-3.5 w-[3.5px] bg-neon-green rounded-r " />
                     )}
                     <ShoppingCart className={`w-5 h-5 ${activeView === "categories" || activeView === "category_products" ? "text-neon-green" : "text-zinc-400"}`} />
                     <span className="text-base font-bold">สินค้าทั้งหมด</span>
@@ -2789,7 +2789,7 @@ function AppContent() {
 
                   {/* เติมเงิน */}
                   <div
-                    className={`flex items-center gap-4 px-4 py-3.5 rounded-xl cursor-pointer transition-all duration-200 relative ${activeView === "wallet" ? "bg-neon-green/10 text-white font-bold border border-neon-green/20" : "text-zinc-400 hover:text-white hover:bg-white/[0.02]"}`}
+                    className={`flex items-center gap-4 px-4 py-3.5 rounded-md cursor-pointer transition-all duration-200 relative ${activeView === "wallet" ? "bg-neon-green/10 text-white font-bold border border-neon-green/20" : "text-zinc-400 hover:text-white hover:bg-white/[0.04]"}`}
                     onClick={() => {
                       if (!user) {
                         setActiveView("login");
@@ -2800,7 +2800,7 @@ function AppContent() {
                     }}
                   >
                     {activeView === "wallet" && (
-                      <div className="absolute left-0 top-3.5 bottom-3.5 w-[3.5px] bg-neon-green rounded-r shadow-[0_0_8px_#00FF66]" />
+                      <div className="absolute left-0 top-3.5 bottom-3.5 w-[3.5px] bg-neon-green rounded-r " />
                     )}
                     <Wallet className={`w-5 h-5 ${activeView === "wallet" ? "text-neon-green" : "text-zinc-400"}`} />
                     <span className="text-base font-bold">เติมเงิน</span>
@@ -2808,7 +2808,7 @@ function AppContent() {
 
                   {/* ออเดอร์ */}
                   <div
-                    className={`flex items-center gap-4 px-4 py-3.5 rounded-xl cursor-pointer transition-all duration-200 relative ${activeView === "my_orders" ? "bg-neon-green/10 text-white font-bold border border-neon-green/20" : "text-[#d1d5db] hover:text-white hover:bg-white/[0.02]"}`}
+                    className={`flex items-center gap-4 px-4 py-3.5 rounded-md cursor-pointer transition-all duration-200 relative ${activeView === "my_orders" ? "bg-neon-green/10 text-white font-bold border border-neon-green/20" : "text-[#d1d5db] hover:text-white hover:bg-white/[0.04]"}`}
                     onClick={() => {
                       if (!user) {
                         setActiveView("login");
@@ -2819,7 +2819,7 @@ function AppContent() {
                     }}
                   >
                     {activeView === "my_orders" && (
-                      <div className="absolute left-0 top-3.5 bottom-3.5 w-[3.5px] bg-neon-green rounded-r shadow-[0_0_8px_#00FF66]" />
+                      <div className="absolute left-0 top-3.5 bottom-3.5 w-[3.5px] bg-neon-green rounded-r " />
                     )}
                     <Package className={`w-5 h-5 ${activeView === "my_orders" ? "text-neon-green" : "text-zinc-400"}`} />
                     <span className="text-base font-bold">ออเดอร์</span>
@@ -2827,7 +2827,7 @@ function AppContent() {
 
                   {/* ค้นหาชื่อสินค้า */}
                   <div
-                    className="flex items-center gap-4 px-4 py-3.5 rounded-xl cursor-pointer transition-all duration-200 text-[#d1d5db] hover:text-white hover:bg-white/[0.02]"
+                    className="flex items-center gap-4 px-4 py-3.5 rounded-md cursor-pointer transition-all duration-200 text-[#d1d5db] hover:text-white hover:bg-white/[0.04]"
                     onClick={() => {
                       setShowSearchPopup(true);
                       setIsMobileMenuOpen(false);
@@ -2843,7 +2843,7 @@ function AppContent() {
                   {user ? (
                     <div className="flex flex-col gap-2 shrink-0">
                       <div className="flex items-center gap-2 py-1 mb-1 select-none">
-                        <span className="w-1 h-3 rounded-full bg-neon-green shadow-[0_0_8px_#00FF66]" />
+                        <span className="w-1 h-3 rounded-full bg-neon-green " />
                         <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.15em] font-mono">
                           ข้อมูลบัญชี • ACCOUNT
                         </span>
@@ -2851,11 +2851,11 @@ function AppContent() {
                       
                       <div
                         onClick={() => setIsUserMenuOpen((v) => !v)}
-                        className="bg-white/[0.01] hover:bg-white/[0.03] border border-white/[0.04] rounded-xl p-4 flex flex-col gap-3 cursor-pointer transition-all duration-200"
+                        className="bg-white/[0.01] hover:bg-white/[0.06] border border-white/[0.04] rounded-md p-4 flex flex-col gap-3 cursor-pointer transition-all duration-200"
                       >
                         <div className="flex items-center gap-3">
                           {/* Avatar */}
-                          <div className="w-10 h-10 rounded-full border border-white/[0.1] shrink-0 overflow-hidden bg-black/40">
+                          <div className="w-10 h-10 rounded-full border border-white/[0.04] shrink-0 overflow-hidden bg-black/40">
                             <img
                               src={getAvatarUrl(user?.id || userPlan?.username || user?.email?.split("@")[0] || "guest")}
                               alt="avatar"
@@ -2865,7 +2865,7 @@ function AppContent() {
                           
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between">
-                              <span className="text-xs font-black text-white truncate pr-2">
+                              <span className="text-xs font-semibold text-white truncate pr-2">
                                 {userPlan?.username || user?.email?.split("@")[0]}
                               </span>
                               <div
@@ -2877,7 +2877,7 @@ function AppContent() {
                             
                             <div className="flex items-center gap-2 mt-0.5">
                               {userPlan?.isPremium ? (
-                                <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-neon-yellow/10 text-neon-yellow border border-neon-yellow/20 text-[8px] font-black uppercase tracking-wider animate-pulse">
+                                <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-neon-yellow/10 text-neon-yellow border border-neon-yellow/20 text-[8px] font-semibold uppercase tracking-wider ">
                                   <Crown className="w-2.5 h-2.5" />
                                   Premium
                                 </div>
@@ -2891,7 +2891,7 @@ function AppContent() {
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-2 bg-black/40 p-2.5 rounded-lg border border-white/[0.04]">
+                        <div className="flex items-center gap-2 bg-black/40 p-2.5 rounded-md border border-white/[0.04]">
                           <div className="flex items-center gap-2.5 w-full">
                             <div className="w-7 h-7 rounded bg-[#111] flex items-center justify-center shrink-0 border border-white/[0.06]">
                               <Coins className="w-4 h-4 text-neon-yellow" />
@@ -2901,7 +2901,7 @@ function AppContent() {
                                 ยอดเงินคงเหลือ
                               </span>
                               <div className="flex items-baseline gap-1 mt-1">
-                                <span className="text-sm font-black text-white leading-none">
+                                <span className="text-sm font-semibold text-white leading-none">
                                   {userPlan?.balance ? Math.floor(userPlan.balance).toLocaleString() : "0"}
                                 </span>
                                 <span className="text-[10px] font-bold text-neon-green">
@@ -2922,9 +2922,9 @@ function AppContent() {
                           marginTop: isUserMenuOpen ? "6px" : "0px",
                         }}
                       >
-                        <div className="bg-[#0b0b0d] border border-white/[0.05] rounded-xl overflow-hidden mt-1 flex flex-col shadow-2xl relative">
+                        <div className="bg-[#0b0b0d] border border-white/[0.05] rounded-md overflow-hidden mt-1 flex flex-col shadow-md relative">
                           <div
-                            className={`flex items-center gap-3.5 px-4 py-3.5 text-xs font-semibold cursor-pointer transition-all ${activeView === "settings" ? "bg-white/[0.03] text-white border-l-2 border-neon-green pl-[14px]" : "text-zinc-400 hover:text-white"}`}
+                            className={`flex items-center gap-3.5 px-4 py-3.5 text-xs font-semibold cursor-pointer transition-all ${activeView === "settings" ? "bg-white/[0.06] text-white border-l-2 border-neon-green pl-[14px]" : "text-zinc-400 hover:text-white"}`}
                             onMouseEnter={() => settingsImport()}
                             onClick={() => {
                               setActiveView("settings");
@@ -2936,7 +2936,7 @@ function AppContent() {
                           </div>
                           
                           <div
-                            className={`flex items-center gap-3.5 px-4 py-3.5 text-xs font-semibold cursor-pointer transition-all ${activeView === "wallet_history" ? "bg-white/[0.03] text-white border-l-2 border-neon-green pl-[14px]" : "text-zinc-400 hover:text-white"}`}
+                            className={`flex items-center gap-3.5 px-4 py-3.5 text-xs font-semibold cursor-pointer transition-all ${activeView === "wallet_history" ? "bg-white/[0.06] text-white border-l-2 border-neon-green pl-[14px]" : "text-zinc-400 hover:text-white"}`}
                             onMouseEnter={() => historyImport()}
                             onClick={() => {
                               setActiveView("wallet_history");
@@ -2975,7 +2975,7 @@ function AppContent() {
                              </div>
                              <div
                                onClick={() => { setActiveView("discord_badge"); setIsMobileMenuOpen(false); }}
-                               className={`flex items-center gap-3.5 px-6 py-2 text-xs font-semibold cursor-pointer transition-all ${activeView === "discord_badge" ? "text-neon-green font-bold animate-pulse" : "text-zinc-500 hover:text-white"}`}
+                               className={`flex items-center gap-3.5 px-6 py-2 text-xs font-semibold cursor-pointer transition-all ${activeView === "discord_badge" ? "text-neon-green font-bold " : "text-zinc-500 hover:text-white"}`}
                              >
                                <ArrowUpRight className="w-3.5 h-3.5 text-neon-green" /> รับตราอัตโนมัติ
                              </div>
@@ -3001,7 +3001,7 @@ function AppContent() {
                                 setIsMobileMenuOpen(false);
                               }}
                             >
-                              <ShieldCheck className="w-4 h-4 text-red-500 animate-pulse" />
+                              <ShieldCheck className="w-4 h-4 text-red-500 " />
                               จัดการระบบหลังบ้าน
                             </div>
                           )}
@@ -3022,7 +3022,7 @@ function AppContent() {
                   ) : (
                     <div className="flex flex-col gap-2 shrink-0">
                       <div className="flex items-center gap-2 py-1 select-none">
-                        <span className="w-1 h-3 rounded-full bg-neon-green shadow-[0_0_8px_#00FF66]" />
+                        <span className="w-1 h-3 rounded-full bg-neon-green " />
                         <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.15em] font-mono">
                           เข้าสู่ระบบ • VISITOR
                         </span>
@@ -3034,7 +3034,7 @@ function AppContent() {
                             setActiveView("login");
                             setIsMobileMenuOpen(false);
                           }}
-                          className="py-3 px-4 rounded-xl border border-neon-green/40 text-neon-green hover:text-black hover:bg-neon-green hover:border-neon-green font-bold text-xs tracking-wider transition-all duration-150 cursor-pointer active:scale-95 text-center flex items-center justify-center gap-1.5"
+                          className="py-3 px-4 rounded-md border border-neon-green/40 text-neon-green hover:text-black hover:bg-neon-green hover:border-neon-green font-bold text-xs tracking-wider transition-all duration-150 cursor-pointer active:scale-95 text-center flex items-center justify-center gap-1.5"
                         >
                           <LogIn className="w-3.5 h-3.5" /> เข้าสู่ระบบ
                         </button>
@@ -3044,7 +3044,7 @@ function AppContent() {
                             setActiveView("signup");
                             setIsMobileMenuOpen(false);
                           }}
-                          className="py-3 px-4 rounded-xl bg-neon-green hover:bg-emerald-400 text-black font-black text-xs tracking-wider transition-all duration-150 cursor-pointer active:scale-95 text-center flex items-center justify-center gap-1.5 shadow-[0_4px_12px_rgba(0,255,102,0.25)] hover:shadow-[0_4px_16px_rgba(0,255,102,0.4)]"
+                          className="py-3 px-4 rounded-md bg-neon-green hover:bg-[#10b981] text-black font-semibold text-xs tracking-wider transition-all duration-150 cursor-pointer active:scale-95 text-center flex items-center justify-center gap-1.5 shadow-sm hover:shadow-[0_4px_16px_rgba(0,255,102,0.4)]"
                         >
                           <UserPlus className="w-3.5 h-3.5" /> สมัครสมาชิก
                         </button>
@@ -3067,7 +3067,7 @@ function AppContent() {
           <Suspense
             fallback={
               <div className="flex-1 w-full flex items-center justify-center min-h-[50vh]">
-                <div className="w-8 h-8 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                <div className="w-8 h-8  border-white/[0.06] border-t-white rounded-full animate-spin" />
               </div>
             }
           >
@@ -3082,7 +3082,7 @@ function AppContent() {
             >
             {isLoadingSkeleton ? (
               <div className="flex-grow w-full flex items-center justify-center min-h-[50vh]">
-                <div className="w-8 h-8 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                <div className="w-8 h-8  border-white/[0.06] border-t-white rounded-full animate-spin" />
               </div>
             ) : (
               <>
@@ -3359,8 +3359,8 @@ function AppContent() {
         </div>
 
         {/* Footer */}
-        <footer className="mt-auto pt-16 pb-8 border-t border-[#3B82F6]/10 relative overflow-hidden bg-card">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-px from-transparent via-[#3B82F6]/50 to-transparent"></div>
+        <footer className="mt-auto pt-16 pb-8 border-t border-[#10b981]/10 relative overflow-hidden bg-card">
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-px from-transparent via-[#10b981]/50 to-transparent"></div>
 
           <div className="max-w-7xl mx-auto px-6 md:px-12 w-full">
             <div className="flex justify-center items-center gap-4 text-xs text-muted-foreground">
@@ -3386,7 +3386,7 @@ function AppContent() {
                 className="bg-card border border-border border p-6 sm:p-8 max-w-3xl w-full max-h-[90vh] flex flex-col relative"
               >
                 <h2 className="text-xl sm:text-2xl font-bold mb-6 text-white flex items-center gap-2">
-                  <Shield className="w-6 h-6 shrink-0 text-[#2563EB]" />{" "}
+                  <Shield className="w-6 h-6 shrink-0 text-[#10b981]" />{" "}
                   นโยบายความเป็นส่วนตัว (Privacy Policy)
                 </h2>
                 <div className="overflow-y-auto pr-2 sm:pr-4 space-y-6 text-sm leading-relaxed text-muted-foreground scrollbar-thin scrollbar-thumb-zinc-700 flex-1">
@@ -3521,7 +3521,7 @@ function AppContent() {
                 <div className="pt-6 mt-6 border-t border-border border flex gap-3 flex-col sm:flex-row justify-end">
                   <button
                     onClick={() => setShowPrivacy(false)}
-                    className="bg-primary text-primary-foreground hover:bg-purple-600/25 text-blue-600 font-bold py-3 px-8 transition-colors w-full sm:w-auto"
+                    className="bg-primary text-primary-foreground hover:bg-zinc-600/25 text-[#10b981] font-bold py-3 px-8 transition-colors w-full sm:w-auto"
                   >
                     ทำความเข้าใจและปิดหน้าต่าง
                   </button>
@@ -3545,7 +3545,7 @@ function AppContent() {
                 className="bg-card border border-border border p-6 sm:p-8 max-w-3xl w-full max-h-[90vh] flex flex-col relative"
               >
                 <h2 className="text-xl sm:text-2xl font-bold mb-6 flex items-center gap-2 text-white">
-                  <ListChecks className="w-6 h-6 shrink-0 text-[#2563EB]" />{" "}
+                  <ListChecks className="w-6 h-6 shrink-0 text-[#10b981]" />{" "}
                   ข้อกำหนดการใช้งาน (Terms of Use)
                 </h2>
                 <div className="overflow-y-auto pr-2 sm:pr-4 space-y-6 text-sm leading-relaxed text-muted-foreground scrollbar-thin scrollbar-thumb-zinc-700 flex-1">
@@ -3736,7 +3736,7 @@ function AppContent() {
                 <div className="pt-6 mt-6 border-t border-border border flex justify-end w-full">
                   <button
                     onClick={() => setShowAboutUs(false)}
-                    className="bg-primary text-primary-foreground hover:bg-purple-600/25 text-blue-600 font-bold py-3 px-8 transition-all w-full sm:w-auto"
+                    className="bg-primary text-primary-foreground hover:bg-zinc-600/25 text-[#10b981] font-bold py-3 px-8 transition-all w-full sm:w-auto"
                   >
                     ปิดหน้าต่างนี้
                   </button>
@@ -3761,7 +3761,7 @@ function AppContent() {
               >
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-xl sm:text-2xl font-bold flex items-center gap-2 text-white">
-                    <Phone className="w-6 h-6 shrink-0 text-blue-600" />{" "}
+                    <Phone className="w-6 h-6 shrink-0 text-[#10b981]" />{" "}
                     ติดต่อเรา
                   </h2>
                   <button
@@ -3793,7 +3793,7 @@ function AppContent() {
                   {siteSettings?.contact_email && (
                     <a
                       href={`mailto:${siteSettings.contact_email}`}
-                      className="flex items-center gap-4 p-4 bg-card hover:bg-[#1e1e1e] border border-border border hover:border-white/10 text-white transition-all group"
+                      className="flex items-center gap-4 p-4 bg-card hover:bg-[#1e1e1e] border border-border border hover:border-white/[0.04] text-white transition-all group"
                     >
                       <div className="w-12 h-12 bg-card flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                         <Mail className="w-6 h-6" />
@@ -3811,7 +3811,7 @@ function AppContent() {
                 <div className="pt-6 mt-6 border-t border-border border flex justify-end w-full">
                   <button
                     onClick={() => setShowContactUs(false)}
-                    className="bg-primary text-primary-foreground hover:bg-purple-600/25 text-blue-600 font-bold py-3 px-8 transition-all w-full sm:w-auto"
+                    className="bg-primary text-primary-foreground hover:bg-zinc-600/25 text-[#10b981] font-bold py-3 px-8 transition-all w-full sm:w-auto"
                   >
                     ปิดหน้าต่างนี้
                   </button>
@@ -3850,7 +3850,7 @@ function AppContent() {
                       }}
                     />
                   ) : (
-                    <div className="p-3 bg-primary text-primary-foreground text-blue-600 text-center text-[10px] font-bold w-full mx-8">
+                    <div className="p-3 bg-primary text-primary-foreground text-[#10b981] text-center text-[10px] font-bold w-full mx-8">
                       ยังไม่ได้ตั้งค่า TURNSTILE_SITE_KEY (Bypass Mode
                       Active)
                     </div>
@@ -3865,7 +3865,7 @@ function AppContent() {
                       console.error,
                     );
                   }}
-                  className="w-full bg-primary text-primary-foreground hover:bg-[#2563EB] text-white font-bold py-3.5 transition-all mb-4"
+                  className="w-full bg-primary text-primary-foreground hover:bg-[#10b981] text-white font-bold py-3.5 transition-all mb-4"
                 >
                   ดำเนินการต่อ (Bypass)
                 </button>
@@ -3947,7 +3947,7 @@ const PortalLoader: React.FC = () => {
   }, []);
 
   return (
-    <div className="min-h-screen w-full bg-[#030303] flex flex-col items-center justify-center font-sans overflow-hidden relative">
+    <div className="min-h-screen w-full bg-[#000000] flex flex-col items-center justify-center font-sans overflow-hidden relative">
       {/* Decorative backdrop elements */}
       <div className="absolute inset-0 bg-[radial-gradient(#1e1e24_1px,transparent_1px)] [background-size:24px_24px] opacity-40 pointer-events-none" />
       <div className="absolute top-1/4 left-1/4 w-80 h-80 rounded-full bg-neon-green/5 blur-[100px] pointer-events-none" />
@@ -3961,7 +3961,7 @@ const PortalLoader: React.FC = () => {
       >
         {/* Glow backdrop behind Logo */}
         <div className="relative mb-6">
-          <div className="absolute inset-0 bg-neon-green/15 blur-[40px] rounded-full scale-90 animate-pulse" />
+          <div className="absolute inset-0 bg-neon-green/15 blur-[40px] rounded-full scale-90 " />
           <motion.img
             src="https://img2.pic.in.th/983B3DCE-90A3-4822-8940-D6B81CCA63A3.png"
             alt="APEXSTORE Logo"
@@ -3979,8 +3979,8 @@ const PortalLoader: React.FC = () => {
 
         {/* Dynamic percentage */}
         <div className="flex items-center justify-between w-60 mb-2">
-          <span className="text-[10px] font-black font-mono text-neon-green tracking-widest uppercase">System Initialization</span>
-          <span className="text-xs font-black font-mono text-neon-green">{Math.min(progress, 99)}%</span>
+          <span className="text-[10px] font-semibold font-mono text-neon-green tracking-widest uppercase">System Initialization</span>
+          <span className="text-xs font-semibold font-mono text-neon-green">{Math.min(progress, 99)}%</span>
         </div>
 
         {/* Glowing Linear Progress Bar */}

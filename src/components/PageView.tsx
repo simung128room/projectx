@@ -23,14 +23,14 @@ export const PageView: React.FC<PageViewProps> = ({ page, onBack }) => {
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-card border border-border border-2 overflow-hidden p-8 md:p-12 min-h-[60vh] brut-card"
+        className="bg-card border border-border  overflow-hidden p-8 md:p-12 min-h-[60vh] "
       >
-        <h1 className="text-3xl md:text-4xl font-black text-white mb-8 border-b border-border border-2 pb-6 flex items-center gap-3">
-           <FileText className="w-8 h-8 text-[#2563EB] hidden sm:block" />
+        <h1 className="text-3xl md:text-4xl font-semibold text-white mb-8 border-b border-border  pb-6 flex items-center gap-3">
+           <FileText className="w-8 h-8 text-[#10b981] hidden sm:block" />
            {page.title.replace(/^#+\s*/, '')}
         </h1>
         
-        <div className="prose prose-zinc max-w-none prose-headings:font-black prose-a:text-blue-600 hover:prose-a:text-[#1D4ED8]">
+        <div className="prose prose-zinc max-w-none prose-headings:font-semibold prose-a:text-[#10b981] hover:prose-a:text-[#1D4ED8]">
            <div className="markdown-body">
              <Markdown>{page.content || '*ไม่มีเนื้อหา*'}</Markdown>
            </div>

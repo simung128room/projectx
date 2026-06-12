@@ -55,7 +55,7 @@ export const MyOrdersView: React.FC<MyOrdersViewProps> = ({
           displayPrice: p.price || p.money || 0,
           isExpense: true,
           icon: ShoppingCart,
-          colorClass: 'text-blue-400 bg-blue-500/10 border-blue-500/10'
+          colorClass: 'text-[#10b981] bg-[#10b981]/10 border-emerald-500/10'
         }));
       case 'special':
         return specialPurchases.map(p => ({
@@ -85,7 +85,7 @@ export const MyOrdersView: React.FC<MyOrdersViewProps> = ({
           displayPrice: t.amount || t.money || 0,
           isExpense: false,
           icon: CreditCard,
-          colorClass: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/10'
+          colorClass: 'text-[#10b981] bg-[#10b981]/10 border-emerald-500/10'
         }));
       default:
         return [];
@@ -104,36 +104,36 @@ export const MyOrdersView: React.FC<MyOrdersViewProps> = ({
       case 'success':
       case 'completed':
         return (
-          <span className="bg-emerald-500/10 text-emerald-400 px-3 py-1 text-[10px] font-black uppercase border border-emerald-500/20 rounded-lg flex items-center gap-1.5 w-max">
-            <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div>
+          <span className="bg-[#10b981]/10 text-[#10b981] px-3 py-1 text-[10px] font-semibold uppercase border border-emerald-500/20 rounded-md flex items-center gap-1.5 w-max">
+            <div className="w-1.5 h-1.5 bg-[#10b981] rounded-full"></div>
             สำเร็จ
           </span>
         );
       case 'preorder':
         return (
-          <span className="bg-indigo-500/10 text-indigo-400 px-3 py-1 text-[10px] font-black uppercase border border-indigo-500/20 rounded-lg flex items-center gap-1.5 w-max">
-            <div className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-pulse"></div>
+          <span className="bg-[#10b981]/10 text-[#10b981] px-3 py-1 text-[10px] font-semibold uppercase border border-emerald-500/20 rounded-md flex items-center gap-1.5 w-max">
+            <div className="w-1.5 h-1.5 bg-[#10b981] rounded-full "></div>
             พรีออเดอร์
           </span>
         );
       case 'pending':
         return (
-          <span className="bg-amber-500/10 text-amber-400 px-3 py-1 text-[10px] font-black uppercase border border-amber-500/20 rounded-lg flex items-center gap-1.5 w-max">
-            <div className="w-1.5 h-1.5 bg-amber-400 rounded-full animate-pulse"></div>
+          <span className="bg-amber-500/10 text-amber-400 px-3 py-1 text-[10px] font-semibold uppercase border border-amber-500/20 rounded-md flex items-center gap-1.5 w-max">
+            <div className="w-1.5 h-1.5 bg-amber-400 rounded-full "></div>
             รอดำเนินการ
           </span>
         );
       case 'failed':
         return (
-          <span className="bg-rose-500/10 text-rose-400 px-3 py-1 text-[10px] font-black uppercase border border-rose-500/20 rounded-lg flex items-center gap-1.5 w-max">
+          <span className="bg-rose-500/10 text-rose-400 px-3 py-1 text-[10px] font-semibold uppercase border border-rose-500/20 rounded-md flex items-center gap-1.5 w-max">
             <div className="w-1.5 h-1.5 bg-rose-400 rounded-full"></div>
             ล้มเหลว
           </span>
         );
       default:
         return (
-          <span className="bg-emerald-500/10 text-emerald-400 px-3 py-1 text-[10px] font-black uppercase border border-emerald-500/20 rounded-lg flex items-center gap-1.5 w-max">
-            <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div>
+          <span className="bg-[#10b981]/10 text-[#10b981] px-3 py-1 text-[10px] font-semibold uppercase border border-emerald-500/20 rounded-md flex items-center gap-1.5 w-max">
+            <div className="w-1.5 h-1.5 bg-[#10b981] rounded-full"></div>
             สำเร็จ
           </span>
         );
@@ -156,7 +156,7 @@ export const MyOrdersView: React.FC<MyOrdersViewProps> = ({
       {/* Header Panel */}
       <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-black text-white flex items-center gap-3 tracking-tight">
+          <h1 className="text-2xl md:text-3xl font-semibold text-white flex items-center gap-3 tracking-tight">
             <Receipt className="w-8 h-8 text-neon-green" />
             ประวัติการสั่งซื้อและเติมเงิน
           </h1>
@@ -164,7 +164,7 @@ export const MyOrdersView: React.FC<MyOrdersViewProps> = ({
             ข้อมูลการซื้อสินค้า คีย์พรีเมี่ยม และรายรับ-รายจ่าย ทั้งหมดในบัญชีของคุณ
           </p>
         </div>
-        <div className="bg-[#0b0b0c] border border-white/[0.04] rounded-xl px-4 py-2.5 flex items-center gap-2 max-w-max">
+        <div className="bg-[#0b0b0c] border border-white/[0.04] rounded-md px-4 py-2.5 flex items-center gap-2 max-w-max">
           <ShieldCheck className="w-4 h-4 text-neon-green" />
           <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">
             บล็อกเชนเกตเวย์ความปลอดภัยสูง
@@ -175,10 +175,10 @@ export const MyOrdersView: React.FC<MyOrdersViewProps> = ({
       {/* Tabs navigation - Horizontal grid cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
         {[
-          { id: 'normal', label: 'ซื้อสินค้าทั่วไป', count: normalPurchases.length, icon: ShoppingCart, color: 'text-blue-400' },
+          { id: 'normal', label: 'ซื้อสินค้าทั่วไป', count: normalPurchases.length, icon: ShoppingCart, color: 'text-[#10b981]' },
           { id: 'special', label: 'ซื้อสินค้าพิเศษ', count: specialPurchases.length, icon: Star, color: 'text-amber-400' },
           { id: 'angpao', label: 'เติมเงินซองอั่งเปา', count: angpaoTopups.length, icon: Gift, color: 'text-rose-400' },
-          { id: 'slip', label: 'เติมเงินแนบสลิป', count: slipTopups.length, icon: CreditCard, color: 'text-emerald-400' }
+          { id: 'slip', label: 'เติมเงินแนบสลิป', count: slipTopups.length, icon: CreditCard, color: 'text-[#10b981]' }
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -186,23 +186,23 @@ export const MyOrdersView: React.FC<MyOrdersViewProps> = ({
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`p-4 rounded-xl border text-left flex flex-col justify-between transition-all relative overflow-hidden group cursor-pointer ${
+              className={`p-4 rounded-md border text-left flex flex-col justify-between transition-all relative overflow-hidden group cursor-pointer ${
                 isActive 
-                  ? 'bg-white/[0.03] border-white/10 shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]' 
-                  : 'bg-[#070709] border-zinc-850 hover:bg-[#0a0a0c] hover:border-zinc-800'
+                  ? 'bg-white/[0.06] border-white/[0.04] shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]' 
+                  : 'bg-[#000000] border-zinc-850 hover:bg-white/[0.04] hover:border-zinc-800'
               }`}
             >
               {/* Highlight bar */}
               {isActive && (
-                <div className="absolute top-0 left-0 right-0 h-[2.5px] bg-neon-green shadow-[0_0_8px_#00FF66]" />
+                <div className="absolute top-0 left-0 right-0 h-[2.5px] bg-neon-green " />
               )}
               <div className="flex items-center justify-between">
                 <Icon className={`w-5 h-5 ${tab.color} ${isActive ? 'scale-110' : 'group-hover:scale-105'} transition-all`} />
-                <span className="text-[10px] font-mono font-bold text-zinc-500 bg-white/[0.02] px-2 py-0.5 rounded border border-white/[0.04]">
+                <span className="text-[10px] font-mono font-bold text-zinc-500 bg-white/[0.04] px-2 py-0.5 rounded border border-white/[0.04]">
                   {tab.count} รายการ
                 </span>
               </div>
-              <span className={`text-[11px] sm:text-xs font-black mt-4 transition-colors ${isActive ? 'text-white' : 'text-zinc-400 group-hover:text-white'}`}>
+              <span className={`text-[11px] sm:text-xs font-semibold mt-4 transition-colors ${isActive ? 'text-white' : 'text-zinc-400 group-hover:text-white'}`}>
                 {tab.label}
               </span>
             </button>
@@ -222,7 +222,7 @@ export const MyOrdersView: React.FC<MyOrdersViewProps> = ({
             className="space-y-3"
           >
             {currentList.length === 0 ? (
-              <div className="border border-zinc-850 bg-[#070709] rounded-2xl py-16 px-4 text-center">
+              <div className="border border-zinc-850 bg-[#000000] rounded-md py-16 px-4 text-center">
                 <ShoppingBag className="w-12 h-12 text-zinc-700 stroke-[1.5px] mx-auto mb-4" />
                 <p className="font-bold text-zinc-400 text-sm">ไม่พบประวัติการทำรายการ</p>
                 <p className="text-[11px] text-zinc-650 mt-1">คุณยังไม่มีการทำราการในหมวดหมู่นี้</p>
@@ -238,19 +238,19 @@ export const MyOrdersView: React.FC<MyOrdersViewProps> = ({
                 return (
                   <div
                     key={item.id || idx}
-                    className="group bg-[#070709] border border-zinc-850 hover:border-zinc-800 rounded-xl p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 transition-all duration-200 shadow-sm hover:shadow-md relative overflow-hidden"
+                    className="group bg-[#000000] border border-zinc-850 hover:border-zinc-800 rounded-md p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 transition-all duration-200 shadow-sm hover:shadow-md relative overflow-hidden"
                   >
                     {/* Horizontal Card Main Body */}
                     <div className="flex items-center gap-4 min-w-0 flex-1">
                       {/* Left Icon Block */}
-                      <div className={`w-12 h-12 rounded-xl border flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-105 ${item.colorClass}`}>
+                      <div className={`w-12 h-12 rounded-md border flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-105 ${item.colorClass}`}>
                         <Icon className="w-5 h-5" />
                       </div>
 
                       {/* Middle Texts */}
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <h3 className="text-xs sm:text-sm font-extrabold text-white truncate max-w-[220px] sm:max-w-md">
+                          <h3 className="text-xs sm:text-sm font-semibold text-white truncate max-w-[220px] sm:max-w-md">
                             {item.displayTitle}
                           </h3>
                         </div>
@@ -272,11 +272,11 @@ export const MyOrdersView: React.FC<MyOrdersViewProps> = ({
                     {/* Right Price details and Status badges */}
                     <div className="flex items-center justify-between md:justify-end gap-5 w-full md:w-auto border-t md:border-t-0 border-white/[0.04] pt-3 md:pt-0 shrink-0">
                       <div className="flex flex-col md:items-end gap-1">
-                        <div className="text-[9px] text-zinc-650 font-black uppercase tracking-wider">
+                        <div className="text-[9px] text-zinc-650 font-semibold uppercase tracking-wider">
                           {item.isExpense ? 'ยอดชำระสุทธิ' : 'ยอดเติมเงิน'}
                         </div>
-                        <span className={`text-sm font-black font-mono tracking-tight ${
-                          item.isExpense ? 'text-rose-400' : 'text-emerald-400'
+                        <span className={`text-sm font-semibold font-mono tracking-tight ${
+                          item.isExpense ? 'text-rose-400' : 'text-[#10b981]'
                         }`}>
                           {item.isExpense ? '-' : '+'}{Math.floor(item.displayPrice).toLocaleString()} ฿
                         </span>
@@ -295,7 +295,7 @@ export const MyOrdersView: React.FC<MyOrdersViewProps> = ({
                             key: item.displayTitle,
                             secretData: item.secretData || item.key || item.code || 'อยู่ระหว่างการประมวลผลระบบ...',
                           })}
-                          className="w-8 h-8 rounded-lg bg-white/[0.03] hover:bg-neon-green hover:text-black border border-white/[0.06] text-zinc-400 flex items-center justify-center transition-all duration-200 cursor-pointer"
+                          className="w-8 h-8 rounded-md bg-white/[0.06] hover:bg-neon-green hover:text-black border border-white/[0.06] text-zinc-400 flex items-center justify-center transition-all duration-200 cursor-pointer"
                           title="ดูบิลฉบับเต็ม"
                         >
                           <Eye className="w-4 h-4" />
@@ -313,7 +313,7 @@ export const MyOrdersView: React.FC<MyOrdersViewProps> = ({
 
       {/* Info notification */}
       {activeTab === 'special' && (
-        <div className="mt-6 bg-[#0a0a0c] border border-zinc-850 rounded-xl p-4 flex gap-3.5 items-start">
+        <div className="mt-6 bg-[#000000] border border-zinc-850 rounded-md p-4 flex gap-3.5 items-start">
           <Info className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
           <div className="space-y-0.5">
             <p className="text-xs font-bold text-zinc-200">ข้อตกลงเกี่ยวกับการส่งมอบสินค้าพิเศษและแรนดอม</p>

@@ -94,7 +94,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user,
       background: '#09090b',
       color: '#fff',
       customClass: {
-        input: 'bg-[#0a0a0a] border-white/10 text-white rounded-xl'
+        input: 'bg-[#050505] border-white/[0.04] text-white rounded-md'
       }
     });
 
@@ -148,7 +148,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user,
     <AnimatedScroll direction="up">
       <div className="font-sans px-4 pb-12">
         <div className="max-w-4xl mx-auto mt-6">
-          <div className="bg-[#070708] border border-zinc-800 overflow-hidden flex flex-col md:flex-row rounded-2xl shadow-xl">
+          <div className="bg-[#070708] border border-zinc-800 overflow-hidden flex flex-col md:flex-row rounded-md shadow-md">
             
             {/* Sidebar Tabs */}
             <div className="md:w-1/3 bg-[#09090a] border-b md:border-b-0 md:border-r border-zinc-800 p-6 flex flex-col justify-start">
@@ -159,21 +159,21 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user,
               <div className="space-y-1.5">
                 <button 
                   onClick={() => setCurrentTab('password')}
-                  className={`w-full flex items-center gap-3.5 px-4 py-3.5 text-sm font-semibold rounded-xl transition-all cursor-pointer ${currentTab === 'password' ? 'bg-white/[0.04] text-white border-l-2 border-neon-green pl-[14px]' : 'text-zinc-400 hover:text-white hover:bg-white/[0.02] hover:pl-[18px]'}`}
+                  className={`w-full flex items-center gap-3.5 px-4 py-3.5 text-sm font-semibold rounded-md transition-all cursor-pointer ${currentTab === 'password' ? 'bg-white/[0.04] text-white border-l-2 border-neon-green pl-[14px]' : 'text-zinc-400 hover:text-white hover:bg-white/[0.04] hover:pl-[18px]'}`}
                 >
                   <Key className={`w-4.5 h-4.5 ${currentTab === 'password' ? 'text-neon-green' : 'text-zinc-500'}`} />
                   <span className="text-sm font-semibold">เปลี่ยนรหัสผ่าน</span>
                 </button>
                 <button 
                   onClick={() => setCurrentTab('preferences')}
-                  className={`w-full flex items-center gap-3.5 px-4 py-3.5 text-sm font-semibold rounded-xl transition-all cursor-pointer ${currentTab === 'preferences' ? 'bg-white/[0.04] text-white border-l-2 border-neon-green pl-[14px]' : 'text-zinc-400 hover:text-white hover:bg-white/[0.02] hover:pl-[18px]'}`}
+                  className={`w-full flex items-center gap-3.5 px-4 py-3.5 text-sm font-semibold rounded-md transition-all cursor-pointer ${currentTab === 'preferences' ? 'bg-white/[0.04] text-white border-l-2 border-neon-green pl-[14px]' : 'text-zinc-400 hover:text-white hover:bg-white/[0.04] hover:pl-[18px]'}`}
                 >
                   <Settings className={`w-4.5 h-4.5 ${currentTab === 'preferences' ? 'text-neon-green' : 'text-zinc-500'}`} />
                   <span className="text-sm font-semibold">การตั้งค่าแสดงผล</span>
                 </button>
                 <button 
                   onClick={() => setCurrentTab('delete')}
-                  className={`w-full flex items-center gap-3.5 px-4 py-3.5 text-sm font-semibold rounded-xl transition-all cursor-pointer ${currentTab === 'delete' ? 'bg-red-500/10 text-red-400 border-l-2 border-red-500 pl-[14px]' : 'text-red-400/85 hover:text-red-400 hover:bg-red-500/10 hover:pl-[18px]'}`}
+                  className={`w-full flex items-center gap-3.5 px-4 py-3.5 text-sm font-semibold rounded-md transition-all cursor-pointer ${currentTab === 'delete' ? 'bg-red-500/10 text-red-400 border-l-2 border-red-500 pl-[14px]' : 'text-red-400/85 hover:text-red-400 hover:bg-red-500/10 hover:pl-[18px]'}`}
                 >
                   <Trash2 className="w-4.5 h-4.5 text-red-500/85" />
                   <span className="text-sm font-semibold">ลบบัญชี</span>
@@ -189,11 +189,11 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user,
                   <div className="space-y-4">
                     <div className="space-y-2">
                         <Skeleton className="h-3 w-20" />
-                        <Skeleton className="h-12 w-full animate-pulse" />
+                        <Skeleton className="h-12 w-full " />
                     </div>
                     <div className="space-y-2">
                         <Skeleton className="h-3 w-20" />
-                        <Skeleton className="h-12 w-full animate-pulse" />
+                        <Skeleton className="h-12 w-full " />
                     </div>
                     <Skeleton className="h-14 w-full mt-4" />
                   </div>
@@ -213,7 +213,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user,
                               placeholder="••••••••" 
                               value={oldPassword} 
                               onChange={e => setOldPassword(e.target.value)} 
-                              className="w-full bg-[#0a0a0b] border border-zinc-800 rounded-xl py-3 pl-11 pr-4 text-sm text-white focus:border-neon-green/50 focus:ring-1 focus:ring-neon-green/10 outline-none transition-all placeholder:text-zinc-650"
+                              className="w-full bg-[#0a0a0b] border border-zinc-800 rounded-md py-3 pl-11 pr-4 text-sm text-white focus:border-neon-green/50 focus:ring-1 focus:ring-neon-green/10 outline-none transition-all placeholder:text-zinc-650"
                             />
                           </div>
                         </div>
@@ -226,7 +226,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user,
                               placeholder="••••••••" 
                               value={newPassword} 
                               onChange={e => setNewPassword(e.target.value)} 
-                              className="w-full bg-[#0a0a0b] border border-zinc-800 rounded-xl py-3 pl-11 pr-4 text-sm text-white focus:border-neon-green/50 focus:ring-1 focus:ring-neon-green/10 outline-none transition-all placeholder:text-zinc-650"
+                              className="w-full bg-[#0a0a0b] border border-zinc-800 rounded-md py-3 pl-11 pr-4 text-sm text-white focus:border-neon-green/50 focus:ring-1 focus:ring-neon-green/10 outline-none transition-all placeholder:text-zinc-650"
                             />
                           </div>
                         </div>
@@ -239,13 +239,13 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user,
                               placeholder="••••••••" 
                               value={confirmPassword} 
                               onChange={e => setConfirmPassword(e.target.value)} 
-                              className="w-full bg-[#0a0a0b] border border-zinc-800 rounded-xl py-3 pl-11 pr-4 text-sm text-white focus:border-neon-green/50 focus:ring-1 focus:ring-neon-green/10 outline-none transition-all placeholder:text-zinc-650"
+                              className="w-full bg-[#0a0a0b] border border-zinc-800 rounded-md py-3 pl-11 pr-4 text-sm text-white focus:border-neon-green/50 focus:ring-1 focus:ring-neon-green/10 outline-none transition-all placeholder:text-zinc-650"
                             />
                           </div>
                         </div>
                         <button 
                           onClick={handleChangePassword} 
-                          className="w-full bg-neon-green hover:bg-neon-green/95 text-black font-extrabold py-3.5 transition-all text-sm rounded-lg uppercase tracking-wider cursor-pointer"
+                          className="w-full bg-neon-green hover:bg-neon-green/95 text-black font-semibold py-3.5 transition-all text-sm rounded-md uppercase tracking-wider cursor-pointer"
                         >
                           ยืนยันการเปลี่ยนรหัสผ่าน
                         </button>
@@ -255,7 +255,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user,
 
                   {currentTab === 'delete' && (
                     <div className="animate-in fade-in duration-300">
-                      <div className="bg-red-500/10 border border-red-500/20 p-6 text-center rounded-xl">
+                      <div className="bg-red-500/10 border border-red-500/20 p-6 text-center rounded-md">
                         <ShieldAlert className="w-12 h-12 text-red-550 mx-auto mb-4" />
                         <h3 className="text-base font-bold text-white mb-2">ลบบัญชีผู้ใช้งาน</h3>
                         <p className="text-xs text-zinc-400 mb-6 leading-relaxed">
@@ -263,7 +263,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user,
                         </p>
                         <button 
                           onClick={handleDeleteAccount}
-                          className="w-full bg-red-500 hover:bg-red-600 text-white font-extrabold py-3.5 transition-all text-sm rounded-lg uppercase tracking-wider cursor-pointer"
+                          className="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-3.5 transition-all text-sm rounded-md uppercase tracking-wider cursor-pointer"
                         >
                           ลบบัญชีถาวร
                         </button>
@@ -275,7 +275,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user,
                     <div className="animate-in fade-in duration-300">
                       <h3 className="text-base font-bold text-white mb-6">ตั้งค่าการแสดงผลทั่วไป</h3>
                       <div className="space-y-4">
-                        <div className="flex items-center justify-between p-4 bg-[#0a0a0b] border border-zinc-800 rounded-xl">
+                        <div className="flex items-center justify-between p-4 bg-[#0a0a0b] border border-zinc-800 rounded-md">
                           <div className="pr-4">
                             <div className="text-sm font-semibold text-white mb-1">Custom Cursor</div>
                             <div className="text-xs text-zinc-400 leading-normal">เปิด/ปิด เอฟเฟกต์เคอร์เซอร์ของเว็บไซต์ เพื่อลดการกระตุกบนเครื่องสเปกต่ำ</div>
@@ -288,7 +288,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user,
                                 checked={useCustomCursor ?? true} 
                                 onChange={toggleCustomCursor}
                               />
-                              <div className="w-11 h-6 bg-zinc-900 border border-zinc-850 rounded-full peer-focus:outline-none peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-zinc-300 after:border-zinc-300 after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-neon-green"></div>
+                              <div className="w-11 h-6 bg-[#050505] border border-zinc-850 rounded-full peer-focus:outline-none peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-zinc-300 after:border-zinc-300 after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-neon-green"></div>
                             </label>
                           </div>
                         </div>

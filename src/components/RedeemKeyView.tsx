@@ -32,42 +32,42 @@ export const RedeemKeyView: React.FC<RedeemKeyViewProps> = ({ redeemKey, userEma
         <div className="flex justify-between items-center mb-8">
           <button 
             onClick={onBack}
-            className="flex items-center gap-2 text-muted-foreground hover:text-white transition-all group font-bold px-4 py-2.5 bg-card border border-border border-2 brut-card"
+            className="flex items-center gap-2 text-muted-foreground hover:text-white transition-all group font-bold px-4 py-2.5 bg-card border border-border  "
           >
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
             <span className="hidden sm:inline">กลับหน้าหลัก</span>
             <span className="sm:hidden">กลับ</span>
           </button>
           
-          <div className="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground border border-border border-2">
-            <Sparkles className="w-4 h-4 text-blue-600" />
-            <span className="text-blue-600 text-[10px] font-black uppercase tracking-[0.2em]">Key Activation</span>
+          <div className="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground border border-border ">
+            <Sparkles className="w-4 h-4 text-[#10b981]" />
+            <span className="text-[#10b981] text-[10px] font-semibold uppercase tracking-[0.2em]">Key Activation</span>
           </div>
         </div>
 
-        <div className="bg-card border border-border border-2 overflow-hidden brut-card">
+        <div className="bg-card border border-border  overflow-hidden ">
           <div className="grid grid-cols-1 lg:grid-cols-12 relative z-10">
             
             {/* Left Column: Info & Benefits */}
-            <div className="lg:col-span-12 xl:col-span-5 p-8 md:p-12 border-b lg:border-b-0 lg:border-r border-border border-2 bg-card relative overflow-hidden brut-card">
+            <div className="lg:col-span-12 xl:col-span-5 p-8 md:p-12 border-b lg:border-b-0 lg:border-r border-border  bg-card relative overflow-hidden ">
               <div className="absolute top-0 right-0 w-64 h-64 bg-primary text-primary-foreground pointer-events-none -translate-y-1/2 translate-x-1/4"></div>
               
               <div className="mb-10 relative z-10">
                 <div className="w-16 h-16 bg-primary text-primary-foreground flex items-center justify-center mb-6">
                   <KeyIcon className="w-8 h-8 text-white" />
                 </div>
-                <h2 className="text-3xl font-black text-white tracking-tight mb-3">
-                  อัพเกรดเป็น <span className="text-blue-600">Premium</span>
+                <h2 className="text-3xl font-semibold text-white tracking-tight mb-3">
+                  อัพเกรดเป็น <span className="text-[#10b981]">Premium</span>
                 </h2>
               </div>
 
-              <div className="pt-6 border-t border-border border-2 relative z-10">
+              <div className="pt-6 border-t border-border  relative z-10">
                 <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mb-3 flex items-center gap-2">
                   <ShoppingCart className="w-3 h-3" /> ต้องการสั่งซื้อคีย์?
                 </p>
                 <button 
                   onClick={onGoToStore}
-                  className="w-full flex items-center justify-between px-5 py-4 bg-card hover:bg-[#050505] text-white transition-all active:scale-[0.98] group brut-card"
+                  className="w-full flex items-center justify-between px-5 py-4 bg-card hover:bg-[#050505] text-white transition-all active:scale-[0.98] group "
                 >
                   <span className="text-xs font-bold flex items-center gap-2">
                     สั่งซื้อผ่านเว็บไซต์เลย
@@ -78,21 +78,21 @@ export const RedeemKeyView: React.FC<RedeemKeyViewProps> = ({ redeemKey, userEma
             </div>
 
             {/* Right Column: Activation Form */}
-            <div className="lg:col-span-12 xl:col-span-7 p-8 md:p-12 lg:p-16 flex flex-col justify-center bg-card relative brut-card">
+            <div className="lg:col-span-12 xl:col-span-7 p-8 md:p-12 lg:p-16 flex flex-col justify-center bg-card relative ">
               <div className="max-w-md mx-auto w-full relative z-10">
                 <div className="mb-10">
-                   <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-card border border-border border-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-4 brut-card">
+                   <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-card border border-border  text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-4 ">
                      <KeyIcon className="w-3 h-3" /> Activation Center
                    </div>
-                   <h3 className="text-2xl font-black text-white mb-2">Redeem Code</h3>
+                   <h3 className="text-2xl font-semibold text-white mb-2">Redeem Code</h3>
                    <p className="text-muted-foreground text-sm">วางคีย์ 16 หลัก บลาๆ</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div>
-                    <div className={`relative transition-all duration-300 bg-card border-2 ${isFocused || keyInput ? 'border-border' : 'border-white/10 hover:border-white/20'} ${!isLoggedIn ? 'opacity-50 select-none pointer-events-none' : ''} brut-card`}>
+                    <div className={`relative transition-all duration-300 bg-card  ${isFocused || keyInput ? 'border-border' : 'border-white/[0.04] hover:border-white/[0.06]'} ${!isLoggedIn ? 'opacity-50 select-none pointer-events-none' : ''} `}>
                       <div className="flex items-center gap-4 px-5">
-                        <KeyIcon className={`w-6 h-6 transition-colors duration-300 ${isFocused || keyInput ? 'text-[#2563EB]' : 'text-zinc-400'}`} />
+                        <KeyIcon className={`w-6 h-6 transition-colors duration-300 ${isFocused || keyInput ? 'text-[#10b981]' : 'text-zinc-400'}`} />
                         <input 
                           required
                           disabled={!isLoggedIn}
@@ -108,8 +108,8 @@ export const RedeemKeyView: React.FC<RedeemKeyViewProps> = ({ redeemKey, userEma
                     </div>
                     {!isLoggedIn && (
                       <div className="mt-3 text-center">
-                        <p className="text-sm font-bold text-[#2563EB] mb-2">กรุณาเข้าสู่ระบบก่อนกรอกคีย์</p>
-                        <button type="button" onClick={onLoginClick} className="px-4 py-2 bg-primary text-primary-foreground text-blue-600 text-sm font-bold hover:bg-purple-600/20 transition-colors">เข้าสู่ระบบ / สมัครสมาชิก</button>
+                        <p className="text-sm font-bold text-[#10b981] mb-2">กรุณาเข้าสู่ระบบก่อนกรอกคีย์</p>
+                        <button type="button" onClick={onLoginClick} className="px-4 py-2 bg-primary text-primary-foreground text-[#10b981] text-sm font-bold hover:bg-zinc-600/20 transition-colors">เข้าสู่ระบบ / สมัครสมาชิก</button>
                       </div>
                     )}
                   </div>

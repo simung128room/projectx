@@ -126,10 +126,10 @@ export const AdminApiKeys: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center bg-zinc-950/20 p-4 border border-zinc-900 rounded-lg">
+      <div className="flex justify-between items-center bg-zinc-950/20 p-4 border border-zinc-900 rounded-md">
         <div>
           <h2 className="text-lg font-bold text-white flex items-center gap-2">
-            <Key className="w-5 h-5 text-[#3B82F6]" />
+            <Key className="w-5 h-5 text-[#10b981]" />
             จัดการกุญแจเชื่อมต่อ (API Keys Management)
           </h2>
           <p className="text-xs text-zinc-500 mt-1">
@@ -140,8 +140,8 @@ export const AdminApiKeys: React.FC = () => {
           onClick={() => setIsAdding(!isAdding)}
           className={`px-4 py-2 text-xs font-bold flex items-center gap-2 rounded-md transition-all duration-200 ${
             isAdding 
-              ? 'border border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white' 
-              : 'bg-[#3B82F6] hover:bg-[#2563EB] text-white shadow-[0_2px_10px_rgba(59,130,246,0.2)]'
+              ? 'border border-zinc-800 bg-[#050505] text-zinc-400 hover:text-white' 
+              : 'bg-[#10b981] hover:bg-[#10b981] text-white shadow-[0_2px_10px_rgba(59,130,246,0.2)]'
           }`}
         >
           {isAdding ? <XCircle className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
@@ -150,7 +150,7 @@ export const AdminApiKeys: React.FC = () => {
       </div>
 
       {isAdding && (
-        <form onSubmit={handleAddKey} className="bg-[#0B0C0E] border border-zinc-800 rounded-lg overflow-hidden shrink-0 shadow-lg p-6 space-y-5 animate-in fade-in zoom-in-95 duration-200">
+        <form onSubmit={handleAddKey} className="bg-[#0B0C0E] border border-zinc-800 rounded-md overflow-hidden shrink-0 shadow-sm p-6 space-y-5 animate-in fade-in zoom-in-95 duration-200">
           <div className="flex flex-col gap-2">
             <label className="text-xs font-bold text-zinc-400 uppercase">ชื่ออ้างอิงกุญแจ / Description</label>
             <input
@@ -159,7 +159,7 @@ export const AdminApiKeys: React.FC = () => {
               value={newKeyName}
               onChange={e => setNewKeyName(e.target.value)}
               placeholder="เช่น Python Checker Script สำหรับโปรแกรมเมอร์"
-              className="w-full bg-zinc-950 border border-zinc-850 focus:border-[#3B82F6]/60 rounded-md px-4 py-2.5 text-white text-sm focus:outline-none transition-colors"
+              className="w-full bg-zinc-950 border border-zinc-850 focus:border-[#10b981]/60 rounded-md px-4 py-2.5 text-white text-sm focus:outline-none transition-colors"
             />
           </div>
           
@@ -169,7 +169,7 @@ export const AdminApiKeys: React.FC = () => {
               id="isLifetime"
               checked={isLifetime}
               onChange={e => setIsLifetime(e.target.checked)}
-              className="w-4 h-4 rounded bg-zinc-950 border-zinc-800 text-[#3B82F6] focus:ring-[#3B82F6] cursor-pointer"
+              className="w-4 h-4 rounded bg-zinc-950 border-zinc-800 text-[#10b981] focus:ring-[#10b981] cursor-pointer"
             />
             <label htmlFor="isLifetime" className="text-sm font-bold text-zinc-200 cursor-pointer select-none">สิทธิ์ถาวร (Lifetime Period)</label>
           </div>
@@ -183,20 +183,20 @@ export const AdminApiKeys: React.FC = () => {
                 required
                 value={expireDays}
                 onChange={e => setExpireDays(e.target.value)}
-                className="w-full bg-zinc-950 border border-zinc-850 focus:border-[#3B82F6]/60 rounded-md px-4 py-2.5 text-white text-sm focus:outline-none transition-colors"
+                className="w-full bg-zinc-950 border border-zinc-850 focus:border-[#10b981]/60 rounded-md px-4 py-2.5 text-white text-sm focus:outline-none transition-colors"
               />
             </div>
           )}
           
           <div className="pt-2 border-t border-zinc-900 flex justify-end">
-             <button type="submit" className="bg-[#3B82F6] hover:bg-[#2563EB] text-white text-xs font-bold py-2 px-5 rounded-md transition-colors">
+             <button type="submit" className="bg-[#10b981] hover:bg-[#10b981] text-white text-xs font-bold py-2 px-5 rounded-md transition-colors">
                ยืนยันการผลิตรหัสเชื่อมต่อ (Generate Key)
              </button>
           </div>
         </form>
       )}
 
-      <div className="bg-card border border-zinc-800 rounded-lg overflow-hidden shadow-sm">
+      <div className="bg-card border border-zinc-800 rounded-md overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-sm text-zinc-400">
             <thead>
@@ -214,7 +214,7 @@ export const AdminApiKeys: React.FC = () => {
               {isLoading ? (
                 <tr>
                   <td colSpan={7} className="text-center py-12">
-                     <Loader2 className="w-6 h-6 animate-spin text-[#3B82F6] mx-auto mb-1" />
+                     <Loader2 className="w-6 h-6 animate-spin text-[#10b981] mx-auto mb-1" />
                      <span className="text-xs text-zinc-550 font-semibold">กำลังเชื่อมโยงเซิร์ฟเวอร์หลัก...</span>
                   </td>
                 </tr>
@@ -224,10 +224,10 @@ export const AdminApiKeys: React.FC = () => {
                 </tr>
               ) : (
                 apiKeys.map(k => (
-                  <tr key={k.key} className="hover:bg-zinc-900/10 transition-colors">
+                  <tr key={k.key} className="hover:bg-[#050505]/10 transition-colors">
                     <td className="px-5 py-3.5">
                       {k.status === 'active' ? (
-                        <span className="bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded text-[10px] uppercase font-bold border border-emerald-500/20">Active</span>
+                        <span className="bg-[#10b981]/10 text-[#10b981] px-2 py-0.5 rounded text-[10px] uppercase font-bold border border-emerald-500/20">Active</span>
                       ) : k.status === 'expired' ? (
                         <span className="bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded text-[10px] uppercase font-bold border border-amber-500/20">Expired</span>
                       ) : (
@@ -236,7 +236,7 @@ export const AdminApiKeys: React.FC = () => {
                     </td>
                     <td className="px-5 py-3.5 font-bold text-white text-xs">{k.name}</td>
                     <td className="px-5 py-3.5">
-                      <span className="font-mono text-xs text-[#3B82F6] font-bold select-all cursor-pointer bg-zinc-950 border border-zinc-850 px-2 py-1 rounded">
+                      <span className="font-mono text-xs text-[#10b981] font-bold select-all cursor-pointer bg-zinc-950 border border-zinc-850 px-2 py-1 rounded">
                         {k.key}
                       </span>
                     </td>
@@ -254,7 +254,7 @@ export const AdminApiKeys: React.FC = () => {
                           className={`p-1.5 rounded-md border transition-all ${
                             k.status === 'active' 
                               ? 'border-amber-500/30 bg-amber-500/5 text-amber-400 hover:bg-amber-500/15 hover:border-amber-500/60' 
-                              : 'border-emerald-500/30 bg-emerald-500/5 text-emerald-400 hover:bg-emerald-500/15 hover:border-emerald-500/60'
+                              : 'border-emerald-500/30 bg-[#10b981]/5 text-[#10b981] hover:bg-[#10b981]/15 hover:border-emerald-500/60'
                           }`}
                           title={k.status === 'active' ? 'Disable Key' : 'Enable Key'}
                         >

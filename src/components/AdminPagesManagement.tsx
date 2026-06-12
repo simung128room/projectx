@@ -80,7 +80,7 @@ export const AdminPagesManagement: React.FC<AdminPagesManagementProps> = ({ cust
 
   if (isEditing) {
     return (
-      <div className="bg-[#0B0C0E] border border-zinc-805 border-zinc-800 rounded-lg overflow-hidden shrink-0 shadow-lg animate-in fade-in zoom-in-95 duration-200">
+      <div className="bg-[#0B0C0E] border border-zinc-805 border-zinc-800 rounded-md overflow-hidden shrink-0 shadow-sm animate-in fade-in zoom-in-95 duration-200">
         <div className="bg-zinc-950 px-6 py-4 flex items-center justify-between border-b border-zinc-850">
           <div>
             <h3 className="font-bold text-white text-base">{editingPage ? 'แก้ไขข้อมูลส่วนหน้าเพจ' : 'สร้างหน้าข้อกำหนด / บทความย่อย'}</h3>
@@ -89,7 +89,7 @@ export const AdminPagesManagement: React.FC<AdminPagesManagementProps> = ({ cust
           <button 
             type="button" 
             onClick={() => setIsEditing(false)}
-            className="p-1.5 text-zinc-400 hover:text-white bg-zinc-900 rounded-md border border-zinc-800"
+            className="p-1.5 text-zinc-400 hover:text-white bg-[#050505] rounded-md border border-zinc-800"
           >
             <X className="w-4 h-4" />
           </button>
@@ -103,7 +103,7 @@ export const AdminPagesManagement: React.FC<AdminPagesManagementProps> = ({ cust
                 type="text" 
                 value={formData.title}
                 onChange={(e) => setFormData({...formData, title: e.target.value})}
-                className="w-full bg-zinc-950 border border-zinc-805 border-zinc-800 focus:border-[#3B82F6]/60 rounded-md px-4 py-2.5 text-white text-sm focus:outline-none transition-colors"
+                className="w-full bg-zinc-950 border border-zinc-805 border-zinc-800 focus:border-[#10b981]/60 rounded-md px-4 py-2.5 text-white text-sm focus:outline-none transition-colors"
                 placeholder="เช่น เงื่อนไขการรับประกันสินค้า"
               />
             </div>
@@ -113,7 +113,7 @@ export const AdminPagesManagement: React.FC<AdminPagesManagementProps> = ({ cust
                 type="text" 
                 value={formData.slug}
                 onChange={(e) => setFormData({...formData, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-')})}
-                className="w-full bg-zinc-950 border border-zinc-805 border-zinc-800 focus:border-[#3B82F6]/60 rounded-md px-4 py-2.5 text-white text-sm focus:outline-none transition-colors"
+                className="w-full bg-zinc-950 border border-zinc-805 border-zinc-800 focus:border-[#10b981]/60 rounded-md px-4 py-2.5 text-white text-sm focus:outline-none transition-colors"
                 placeholder="เช่น warranty, terms"
               />
             </div>
@@ -124,7 +124,7 @@ export const AdminPagesManagement: React.FC<AdminPagesManagementProps> = ({ cust
             <textarea 
               value={formData.content}
               onChange={(e) => setFormData({...formData, content: e.target.value})}
-              className="w-full bg-zinc-950 border border-zinc-805 border-zinc-800 focus:border-[#3B82F6]/60 rounded-md px-4 py-3 text-sm text-zinc-300 focus:outline-none transition-colors h-72 font-mono"
+              className="w-full bg-zinc-950 border border-zinc-805 border-zinc-800 focus:border-[#10b981]/60 rounded-md px-4 py-3 text-sm text-zinc-300 focus:outline-none transition-colors h-72 font-mono"
               placeholder="# หัวข้อย่อย&#10;รายละเอียดโปรแกรม เงื่อนไขสิทธิ์รับประกันกรณีคีย์ใช้งานไม่ได้..."
             />
           </div>
@@ -133,13 +133,13 @@ export const AdminPagesManagement: React.FC<AdminPagesManagementProps> = ({ cust
             <button 
               type="button" 
               onClick={() => setIsEditing(false)}
-              className="px-4 py-2 text-xs font-bold border border-zinc-850 bg-zinc-900/60 hover:bg-zinc-800 text-zinc-400 hover:text-white rounded-md transition-colors"
+              className="px-4 py-2 text-xs font-bold border border-zinc-850 bg-[#050505]/60 hover:bg-[#0a0a0a] text-zinc-400 hover:text-white rounded-md transition-colors"
             >
               ยกเลิก
             </button>
             <button 
               type="submit"
-              className="px-4 py-2 text-xs font-bold bg-[#3B82F6] hover:bg-[#2563EB] text-white flex items-center gap-2 rounded-md transition-colors"
+              className="px-4 py-2 text-xs font-bold bg-[#10b981] hover:bg-[#10b981] text-white flex items-center gap-2 rounded-md transition-colors"
             >
               <Save className="w-3.5 h-3.5" /> บันทึกหน้าเพจ
             </button>
@@ -151,23 +151,23 @@ export const AdminPagesManagement: React.FC<AdminPagesManagementProps> = ({ cust
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center bg-zinc-950/20 p-4 border border-zinc-900 rounded-lg">
+      <div className="flex justify-between items-center bg-zinc-950/20 p-4 border border-zinc-900 rounded-md">
         <div>
           <h2 className="text-lg font-bold text-white flex items-center gap-2">
-            <FileText className="w-5 h-5 text-[#3B82F6]" />
+            <FileText className="w-5 h-5 text-[#10b981]" />
             จัดการหน้าเพจบทความย่อย
           </h2>
           <p className="text-xs text-zinc-500 mt-1">เพิ่มเติมหน้ากฎระเบียบ ข้อตกลง และติดต่อสอบถาม เพิ่มความน่าเชื่อถือให้กับแพลตฟอร์ม</p>
         </div>
         <button 
           onClick={handleCreateNew}
-          className="bg-[#3B82F6] hover:bg-[#2563EB] text-white font-bold py-2 px-4 text-xs transition-colors flex items-center gap-2 rounded-md shadow-[0_2px_10px_rgba(59,130,246,0.2)]"
+          className="bg-[#10b981] hover:bg-[#10b981] text-white font-bold py-2 px-4 text-xs transition-colors flex items-center gap-2 rounded-md shadow-[0_2px_10px_rgba(59,130,246,0.2)]"
         >
           <Plus className="w-4 h-4" /> สร้างหน้าเพจใหม่
         </button>
       </div>
 
-      <div className="bg-card border border-zinc-800 rounded-lg overflow-hidden shadow-sm">
+      <div className="bg-card border border-zinc-800 rounded-md overflow-hidden shadow-sm">
         {customPages.length === 0 ? (
           <div className="p-12 text-center text-zinc-500 flex flex-col items-center justify-center">
             <FileText className="w-10 h-10 mb-2 opacity-30" />
@@ -177,14 +177,14 @@ export const AdminPagesManagement: React.FC<AdminPagesManagementProps> = ({ cust
         ) : (
           <div className="divide-y divide-zinc-850/60 text-sm text-zinc-400">
             {customPages.map(page => (
-              <div key={page.id} className="p-4 flex items-center justify-between hover:bg-zinc-900/10 transition-colors group">
+              <div key={page.id} className="p-4 flex items-center justify-between hover:bg-[#050505]/10 transition-colors group">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-zinc-950 border border-zinc-800 rounded-md text-[#3B82F6] flex items-center justify-center">
+                  <div className="w-10 h-10 bg-zinc-950 border border-zinc-800 rounded-md text-[#10b981] flex items-center justify-center">
                     <FileText className="w-5 h-5" />
                   </div>
                   <div>
                     <h4 className="font-bold text-white text-sm">{page.title.replace(/^#+\s*/, '')}</h4>
-                    <p className="text-[10px] text-zinc-500 font-mono mt-0.5">ลิงก์เข้าสู่หน้า: <span className="text-[#3B82F6]">/{page.slug}</span></p>
+                    <p className="text-[10px] text-zinc-500 font-mono mt-0.5">ลิงก์เข้าสู่หน้า: <span className="text-[#10b981]">/{page.slug}</span></p>
                   </div>
                 </div>
                 <div className="flex gap-2">

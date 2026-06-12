@@ -36,8 +36,8 @@ export const AdminBotManagement: React.FC = () => {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-black text-white flex items-center gap-3">
-            <Terminal className="w-8 h-8 text-[#2563EB]" />
+          <h2 className="text-2xl font-semibold text-white flex items-center gap-3">
+            <Terminal className="w-8 h-8 text-[#10b981]" />
             แจกบอทดักซอง Telegram (UltraRace)
           </h2>
           <p className="text-muted-foreground mt-2 flex items-center gap-4">
@@ -50,7 +50,7 @@ export const AdminBotManagement: React.FC = () => {
                 href="/bot-code"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bg-card text-[#2563EB] px-5 py-3 font-bold hover:bg-[#2563EB]/20 border border-[#2563EB]/30 flex items-center gap-2 transition-all brut-card"
+                className="bg-card text-[#10b981] px-5 py-3 font-bold hover:bg-[#10b981]/20 border border-[#10b981]/30 flex items-center gap-2 transition-all "
             >
                 <Download className="w-5 h-5" /> ดาวน์โหลด bot.py
             </a>
@@ -66,36 +66,36 @@ export const AdminBotManagement: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Help Panel */}
-        <div className="bg-card border border-border border-2 p-6 relative overflow-hidden flex flex-col space-y-4 brut-card">
+        <div className="bg-card border border-border  p-6 relative overflow-hidden flex flex-col space-y-4 ">
             <h3 className="text-white font-bold flex items-center gap-2 text-lg">
-                <HelpCircle className="w-5 h-5 text-indigo-400" />
+                <HelpCircle className="w-5 h-5 text-[#10b981]" />
                 วิธีใช้งาน (How to run)
             </h3>
             <div className="text-muted-foreground text-sm space-y-3 leading-relaxed">
                 <p>สคริปต์นี้เป็นบอทสำหรับแอพพลิเคชั่น Telegram เขียนด้วยภาษา Python</p>
                 <p>1. <strong>ติดตั้ง Python:</strong> ตรวจสอบว่าในเครื่องคอมพิวเตอร์ของคุณมี Python 3 ขึ้นไป</p>
                 <p>2. <strong>ติดตั้งไลบรารีที่จำเป็น:</strong> เปิด Terminal / Command Prompt แล้วพิมพ์คำสั่ง:
-                   <code className="block bg-card p-2 mt-2 rounded border border-border border-2 text-blue-600 brut-card">pip install telethon httpx aiohttp cloudscraper pillow pyzbar opencv-python colorama</code>
+                   <code className="block bg-card p-2 mt-2 rounded border border-border  text-[#10b981] ">pip install telethon httpx aiohttp cloudscraper pillow pyzbar opencv-python colorama</code>
                 </p>
-                <p>3. <strong>ตั้งค่าตัวแปร:</strong> แก้ไขตัวแปรในส่วน `# ========= CONFIG =========` ในโค้ดหรือใช้ Environment Variables (เช่น <code className="text-blue-600">TG_API_ID</code>, <code className="text-blue-600">TG_API_HASH</code>, เบอร์โทรศัพท์, Webhook Discord) ก่อนรัน</p>
+                <p>3. <strong>ตั้งค่าตัวแปร:</strong> แก้ไขตัวแปรในส่วน `# ========= CONFIG =========` ในโค้ดหรือใช้ Environment Variables (เช่น <code className="text-[#10b981]">TG_API_ID</code>, <code className="text-[#10b981]">TG_API_HASH</code>, เบอร์โทรศัพท์, Webhook Discord) ก่อนรัน</p>
                 <p>4. <strong>รันบอท:</strong> ใช้คำสั่ง:
-                   <code className="block bg-card p-2 mt-2 rounded border border-border border-2 text-blue-600 brut-card">python bot.py</code>
+                   <code className="block bg-card p-2 mt-2 rounded border border-border  text-[#10b981] ">python bot.py</code>
                 </p>
                 <p className="text-amber-400 mt-4 text-xs font-medium">⚠️ สคริปต์นี้รันในเครื่องส่วนตัวหรือเซิร์ฟเวอร์แยกต่างหาก (VPS) และจะขอรหัส OTP เข้าสู่ระบบ Telegram ในครั้งแรก (สร้าง session 파일)</p>
             </div>
         </div>
 
         {/* Config Editor */}
-        <div className="lg:col-span-2 bg-card border border-border border-2 p-6 relative overflow-hidden flex flex-col brut-card">
+        <div className="lg:col-span-2 bg-card border border-border  p-6 relative overflow-hidden flex flex-col ">
             <h3 className="text-white font-bold mb-4 flex items-center gap-2">
-                <Terminal className="w-5 h-5 text-blue-600" />
+                <Terminal className="w-5 h-5 text-[#10b981]" />
                 ตัวจัดการสคริปต์ bot.py
             </h3>
             <textarea
                 value={config}
                 onChange={(e) => setConfig(e.target.value)}
                 spellCheck={false}
-                className="w-full flex-1 min-h-[500px] bg-card border border-border border-2 p-4 text-xs font-mono text-muted-foreground focus:outline-none focus:border-[#3B82F6]/50 scrollbar-thin scrollbar-thumb-zinc-600 brut-card"
+                className="w-full flex-1 min-h-[500px] bg-card border border-border  p-4 text-xs font-mono text-muted-foreground focus:outline-none focus:border-[#10b981]/50 scrollbar-thin scrollbar-thumb-zinc-600 "
             />
         </div>
       </div>
