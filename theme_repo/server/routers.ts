@@ -2,7 +2,7 @@ import { z } from "zod";
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
-import { publicProcedure, router } from "./_core/trpc";
+import { publicProcedure, protectedProcedure, adminProcedure, router } from "./_core/trpc";
 import {
   createCheckSession,
   getCheckSession,
@@ -36,7 +36,7 @@ export const appRouter = router({
   // ==================== CHECKER ====================
   checker: router({
     // Parse accounts from text content
-    parseAccounts: publicProcedure
+    parseAccounts: protectedProcedure
       .input(z.object({ content: z.string().max(5_000_000) }))
       .mutation(({ input }) => {
         const accounts = parseAccountsFromText(input.content);
@@ -44,7 +44,7 @@ export const appRouter = router({
       }),
 
     // Create a new check session and start checking
-    startSession: publicProcedure
+    startSession: adminProcedure
       .input(z.object({
         sessionName: z.string().min(1).max(255),
         accounts: z.array(z.object({ email: z.string(), password: z.string() })).min(1).max(10000),
@@ -72,7 +72,7 @@ export const appRouter = router({
       }),
 
     // Get session progress (for polling)
-    getProgress: publicProcedure
+    getProgress: protectedProcedure
       .input(z.object({ sessionId: z.number() }))
       .query(async ({ input }) => {
         const inMemory = getSessionProgress(input.sessionId);
@@ -118,7 +118,7 @@ export const appRouter = router({
       }),
 
     // Cancel a running session
-    cancelSession: publicProcedure
+    cancelSession: adminProcedure
       .input(z.object({ sessionId: z.number() }))
       .mutation(({ input }) => {
         cancelSession(input.sessionId);
@@ -126,19 +126,19 @@ export const appRouter = router({
       }),
 
     // List all sessions
-    listSessions: publicProcedure.query(async () => {
+    listSessions: protectedProcedure.query(async () => {
       return listCheckSessions();
     }),
 
     // Get session details
-    getSession: publicProcedure
+    getSession: protectedProcedure
       .input(z.object({ sessionId: z.number() }))
       .query(async ({ input }) => {
         return getCheckSession(input.sessionId);
       }),
 
     // Delete a session
-    deleteSession: publicProcedure
+    deleteSession: adminProcedure
       .input(z.object({ sessionId: z.number() }))
       .mutation(async ({ input }) => {
         await deleteCheckSession(input.sessionId);
@@ -146,28 +146,28 @@ export const appRouter = router({
       }),
 
     // Get accounts for a session (paginated)
-    getAccounts: publicProcedure
+    getAccounts: protectedProcedure
       .input(z.object({ sessionId: z.number() }))
       .query(async ({ input }) => {
         return getAccountsBySession(input.sessionId);
       }),
 
     // Get valid accounts for a session
-    getValidAccounts: publicProcedure
+    getValidAccounts: protectedProcedure
       .input(z.object({ sessionId: z.number() }))
       .query(async ({ input }) => {
         return getValidAccountsBySession(input.sessionId);
       }),
 
     // Get recent results for live feed (polling)
-    getRecentResults: publicProcedure
+    getRecentResults: protectedProcedure
       .input(z.object({ sessionId: z.number(), afterId: z.number().default(0) }))
       .query(async ({ input }) => {
         return getRecentResults(input.sessionId, input.afterId);
       }),
 
     // Export valid accounts as text
-    exportValidAccounts: publicProcedure
+    exportValidAccounts: adminProcedure
       .input(z.object({ sessionId: z.number() }))
       .query(async ({ input }) => {
         const accounts = await getValidAccountsBySession(input.sessionId);
@@ -180,7 +180,7 @@ export const appRouter = router({
 
   // ==================== PROXY ====================
   proxy: router({
-    getStats: publicProcedure.query(async () => {
+    getStats: protectedProcedure.query(async () => {
       const stats = await getProxyStats();
       return {
         stats,
@@ -190,14 +190,14 @@ export const appRouter = router({
       };
     }),
 
-    getList: publicProcedure.query(() => {
+    getList: protectedProcedure.query(() => {
       return { proxies: PROXY_LIST, total: PROXY_LIST.length };
     }),
   }),
 
   // ==================== STATS ====================
   stats: router({
-    getGlobal: publicProcedure.query(async () => {
+    getGlobal: protectedProcedure.query(async () => {
       return getGlobalStats();
     }),
   }),

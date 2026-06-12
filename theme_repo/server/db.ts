@@ -2,6 +2,44 @@ import { eq, desc, and, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { InsertUser, users, checkSessions, checkedAccounts, proxyStats, InsertCheckSession, InsertCheckedAccount } from "../drizzle/schema";
 import { ENV } from './_core/env';
+import crypto from "node:crypto";
+
+const CHECKER_ENCRYPTION_KEY = ENV.cookieSecret || "theme_repo_default_secret_fallback_key";
+
+function encryptPassword(text: string): string {
+  if (!text) return "";
+  try {
+    const key = crypto.createHash("sha256").update(CHECKER_ENCRYPTION_KEY).digest();
+    const iv = crypto.randomBytes(16);
+    const cipher = crypto.createCipheriv("aes-256-gcm", key, iv);
+    const encrypted = Buffer.concat([cipher.update(text, "utf8"), cipher.final()]);
+    const tag = cipher.getAuthTag();
+    return `enc:${iv.toString("hex")}:${tag.toString("hex")}:${encrypted.toString("hex")}`;
+  } catch (err: any) {
+    console.error("Encryption error:", err);
+    return text;
+  }
+}
+
+function decryptPassword(cipherText: string): string {
+  if (!cipherText || !cipherText.startsWith("enc:")) return cipherText;
+  try {
+    const parts = cipherText.substring(4).split(":");
+    if (parts.length !== 3) return cipherText;
+    const [ivHex, tagHex, encryptedHex] = parts;
+    const key = crypto.createHash("sha256").update(CHECKER_ENCRYPTION_KEY).digest();
+    const iv = Buffer.from(ivHex, "hex");
+    const tag = Buffer.from(tagHex, "hex");
+    const encryptedText = Buffer.from(encryptedHex, "hex");
+    const decipher = crypto.createDecipheriv("aes-256-gcm", key, iv);
+    decipher.setAuthTag(tag);
+    const decrypted = Buffer.concat([decipher.update(encryptedText), decipher.final()]);
+    return decrypted.toString("utf8");
+  } catch (err: any) {
+    console.error("Decryption error:", err);
+    return cipherText;
+  }
+}
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
@@ -36,7 +74,7 @@ export async function upsertUser(user: InsertUser): Promise<void> {
     textFields.forEach(assignNullable);
     if (user.lastSignedIn !== undefined) { values.lastSignedIn = user.lastSignedIn; updateSet.lastSignedIn = user.lastSignedIn; }
     if (user.role !== undefined) { values.role = user.role; updateSet.role = user.role; }
-    else if (user.openId === ENV.ownerOpenId) { values.role = 'admin'; updateSet.role = 'admin'; }
+    else if (ENV.ownerOpenId && user.openId === ENV.ownerOpenId) { values.role = 'admin'; updateSet.role = 'admin'; }
     if (!values.lastSignedIn) values.lastSignedIn = new Date();
     if (Object.keys(updateSet).length === 0) updateSet.lastSignedIn = new Date();
     await db.insert(users).values(values).onDuplicateKeyUpdate({ set: updateSet });
@@ -89,37 +127,57 @@ export async function bulkInsertAccounts(accounts: InsertCheckedAccount[]) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   if (accounts.length === 0) return;
-  await db.insert(checkedAccounts).values(accounts);
+  const processedAccounts = accounts.map(a => ({
+    ...a,
+    password: a.password ? encryptPassword(a.password) : ""
+  }));
+  await db.insert(checkedAccounts).values(processedAccounts);
 }
 
 export async function updateCheckedAccount(id: number, data: Partial<typeof checkedAccounts.$inferInsert>) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  await db.update(checkedAccounts).set(data).where(eq(checkedAccounts.id, id));
+  const processedData = { ...data };
+  if (processedData.password) {
+    processedData.password = encryptPassword(processedData.password);
+  }
+  await db.update(checkedAccounts).set(processedData).where(eq(checkedAccounts.id, id));
 }
 
 export async function getAccountsBySession(sessionId: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  return db.select().from(checkedAccounts).where(eq(checkedAccounts.sessionId, sessionId)).orderBy(desc(checkedAccounts.checkedAt));
+  const results = await db.select().from(checkedAccounts).where(eq(checkedAccounts.sessionId, sessionId)).orderBy(desc(checkedAccounts.checkedAt));
+  return results.map(row => ({
+    ...row,
+    password: decryptPassword(row.password)
+  }));
 }
 
 export async function getValidAccountsBySession(sessionId: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  return db.select().from(checkedAccounts)
+  const results = await db.select().from(checkedAccounts)
     .where(and(eq(checkedAccounts.sessionId, sessionId), eq(checkedAccounts.status, "valid")))
     .orderBy(desc(checkedAccounts.balance));
+  return results.map(row => ({
+    ...row,
+    password: decryptPassword(row.password)
+  }));
 }
 
 export async function getRecentResults(sessionId: number, afterId: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   const { gt } = await import("drizzle-orm");
-  return db.select().from(checkedAccounts)
+  const results = await db.select().from(checkedAccounts)
     .where(and(eq(checkedAccounts.sessionId, sessionId), gt(checkedAccounts.id, afterId)))
     .orderBy(checkedAccounts.id)
     .limit(50);
+  return results.map(row => ({
+    ...row,
+    password: decryptPassword(row.password)
+  }));
 }
 
 // ==================== PROXY STATS ====================

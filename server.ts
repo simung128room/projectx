@@ -11,6 +11,43 @@ axios.defaults.timeout = 15000; // 15 seconds global timeout
 import CircuitBreaker from 'opossum';
 import { CookieJar } from 'tough-cookie';
 import crypto from 'node:crypto';
+
+const BACKEND_ENCRYPTION_KEY = process.env.BACKEND_ENCRYPTION_KEY || 'apex-studio-default-super-secret-key-32b';
+
+function encrypt(text: string): string {
+  if (!text) return '';
+  try {
+    const key = crypto.createHash('sha256').update(BACKEND_ENCRYPTION_KEY).digest();
+    const iv = crypto.randomBytes(16);
+    const cipher = crypto.createCipheriv('aes-256-gcm', key, iv);
+    const encrypted = Buffer.concat([cipher.update(text, 'utf8'), cipher.final()]);
+    const tag = cipher.getAuthTag();
+    return `enc:${iv.toString('hex')}:${tag.toString('hex')}:${encrypted.toString('hex')}`;
+  } catch (err: any) {
+    console.error('Encryption error:', err);
+    return text;
+  }
+}
+
+function decrypt(cipherText: string): string {
+  if (!cipherText || !cipherText.startsWith('enc:')) return cipherText;
+  try {
+    const parts = cipherText.substring(4).split(':');
+    if (parts.length !== 3) return cipherText;
+    const [ivHex, tagHex, encryptedHex] = parts;
+    const key = crypto.createHash('sha256').update(BACKEND_ENCRYPTION_KEY).digest();
+    const iv = Buffer.from(ivHex, 'hex');
+    const tag = Buffer.from(tagHex, 'hex');
+    const encryptedText = Buffer.from(encryptedHex, 'hex');
+    const decipher = crypto.createDecipheriv('aes-256-gcm', key, iv);
+    decipher.setAuthTag(tag);
+    const decrypted = Buffer.concat([decipher.update(encryptedText), decipher.final()]);
+    return decrypted.toString('utf8');
+  } catch (err: any) {
+    console.error('Decryption error:', err);
+    return cipherText;
+  }
+}
 import { fileURLToPath } from 'url';
 import https from 'node:https';
 import tls from 'node:tls';
@@ -501,10 +538,10 @@ app.set('trust proxy', 1);
     }
   });
 
-  // Key generator that considers IP + UID (if authenticated)
+  // Key generator that relies on untampered socket remote address to prevent X-Forwarded-For spoofing and token rotation bypasses
   const userRateLimitKeyGenerator = (req: any, res: any) => {
-    const ip = req.rateLimit?.keyGenerator ? req.rateLimit.keyGenerator(req, res) : req['ip'];
-    return `${ip}:${(req as any).user?.uid || 'guest'}`;
+    const realIp = req.socket?.remoteAddress || req.connection?.remoteAddress || '127.0.0.1';
+    return realIp;
   };
 
   // Add RateLimiting to prevent bot attacks
@@ -863,13 +900,26 @@ import healthRoute from './src/routes/health.route.js';
     console.log("Skipping site settings loading from Supabase: Supabase is not configured.");
   }
 
-  app.get('/api/settings', (req, res) => {
+  app.get('/api/settings', injectUser, (req, res) => {
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-    res.json(siteSettings);
+    if ((req as any).isAdmin) {
+      return res.json(siteSettings);
+    }
+    // Filter out private settings from default non-admin response
+    const {
+      truewallet_phone,
+      proxies,
+      auto_proxy,
+      bank_account_number,
+      bank_account_holder,
+      bank_qr_image,
+      ...publicSettings
+    } = siteSettings || {} as any;
+    res.json(publicSettings);
   });
 
   app.post('/api/reset-password', authLimiter, async (req, res) => {
-    const { username, email, newPassword } = req.body;
+    const { username, email, newPassword, otp } = req.body;
     try {
       const generatedEmail = `${username.toLowerCase().replace(/\s+/g, '')}@apex-studio.com`;
       const usersSnapshot = await admin.firestore().collection('users')
@@ -882,7 +932,46 @@ import healthRoute from './src/routes/health.route.js';
         return res.status(404).json({ error: 'ไม่พบผู้ใช้นี้ หรือข้อมูลไม่ถูกต้อง' });
       }
 
-      const userId = usersSnapshot.docs[0].id;
+      const userDoc = usersSnapshot.docs[0];
+      const userData = userDoc.data();
+      const userId = userDoc.id;
+
+      // Handle OTP generation if not provided
+      if (!otp) {
+        // Check password strength before OTP generation
+        if (!newPassword || newPassword.length < 8 || !/[a-z]/.test(newPassword) || !/[A-Z]/.test(newPassword) || !/\d/.test(newPassword) || !/[^a-zA-Z\d]/.test(newPassword)) {
+          return res.status(400).json({ error: 'รหัสผ่านใหม่ไม่ปลอดภัยเพียงพอ รหัสผ่านต้องมีความยาวอย่างน้อย 8 ตัวอักษร, ประกอบด้วย อักษรพิมพ์ใหญ่ พิมพ์เล็ก ตัวเลข และอักขระพิเศษอย่างละ 1 ตัว' });
+        }
+
+        const generatedOtp = crypto.randomInt(100000, 999999).toString();
+        const otpExpires = Date.now() + 5 * 60 * 1000; // 5 minutes validity
+
+        await admin.firestore().collection('users').doc(userId).update({
+          resetOtp: generatedOtp,
+          resetOtpExpires: otpExpires
+        });
+
+        console.log(`[SECURITY] OTP Generated successfully for password reset: username=${username}, OTP=${generatedOtp}`);
+
+        return res.json({
+          otpRequired: true,
+          message: `ส่งรหัส OTP กู้คืนรหัสผ่านเข้าเมลเรียบร้อย (จำลองในเซิร์ฟเวอร์คอนโซลสำหรับพัฒนา: ${generatedOtp})`
+        });
+      }
+
+      // Handle OTP verification if provided
+      const storedOtp = userData.resetOtp;
+      const storedOtpExpires = userData.resetOtpExpires;
+
+      if (!storedOtp || !storedOtpExpires || storedOtp !== otp || storedOtpExpires < Date.now()) {
+        return res.status(400).json({ error: 'รหัส OTP ไม่ถูกต้องหรือหมดอายุการใช้งานแล้ว' });
+      }
+
+      // Check password strength
+      if (!newPassword || newPassword.length < 8 || !/[a-z]/.test(newPassword) || !/[A-Z]/.test(newPassword) || !/\d/.test(newPassword) || !/[^a-zA-Z\d]/.test(newPassword)) {
+        return res.status(400).json({ error: 'รหัสผ่านใหม่ไม่ปลอดภัยเพียงพอ รหัสผ่านต้องมีความยาวอย่างน้อย 8 ตัวอักษร, ประกอบด้วย อักษรพิมพ์ใหญ่ พิมพ์เล็ก ตัวเลข และอักขระพิเศษอย่างละ 1 ตัว' });
+      }
+
       const { error } = await supabaseAdmin.auth.admin.updateUserById(userId, {
         password: newPassword
       });
@@ -890,6 +979,12 @@ import healthRoute from './src/routes/health.route.js';
       if (error) {
         return res.status(400).json({ error: error.message });
       }
+
+      // Clear the temporary OTP security fields in Firestore on success
+      await admin.firestore().collection('users').doc(userId).update({
+        resetOtp: null,
+        resetOtpExpires: null
+      });
 
       res.json({ success: true });
     } catch (err: any) {
@@ -900,6 +995,31 @@ import healthRoute from './src/routes/health.route.js';
   app.post('/api/signup', authLimiter, async (req, res) => {
     const { email, password, recoveryEmail } = req.body;
     try {
+      if (!email || !password) {
+        return res.status(400).json({ error: 'ชื่อผู้ใช้และรหัสผ่านมีความจำเป็น' });
+      }
+
+      // Check password strength on backend
+      if (password.length < 8 || !/[a-z]/.test(password) || !/[A-Z]/.test(password) || !/\d/.test(password) || !/[^a-zA-Z\d]/.test(password)) {
+        return res.status(400).json({ error: 'รหัสผ่านต้องมีความยาวอย่างน้อย 8 ตัวอักษร, ประกอบด้วย อักษรพิมพ์ใหญ่ พิมพ์เล็ก ตัวเลข และอักขระพิเศษอย่างละ 1 ตัว' });
+      }
+
+      // Verify email domain format
+      const isApexStudioDomain = /^[a-z0-0_.-]+@apex-studio\.com$/i.test(email);
+      if (!isApexStudioDomain) {
+        return res.status(400).json({ error: 'รูปแบบอีเมลไม่ถูกต้องสำหรับระบบนี้' });
+      }
+
+      // Pre-check for duplicate user document to prevent collisons and predictable user enumeration
+      const usersCheck = await admin.firestore().collection('users')
+        .where('email', '==', email)
+        .limit(1)
+        .get();
+
+      if (!usersCheck.empty) {
+        return res.status(400).json({ error: 'ชื่อผู้ใช้หรืออีเมลนี้ถูกใช้งานไปแล้ว' });
+      }
+
       const { data, error } = await supabaseAdmin.auth.admin.createUser({
         email,
         password,
@@ -1948,6 +2068,53 @@ if (process.env.REDIS_URL) {
   });
   dbReadBreaker.fallback(() => { throw new Error('Database read circuit breaker open or timeout'); });
 
+  async function findPurchaseByLicenseKey(key: string): Promise<any> {
+    const cleanKey = key.trim();
+    if (!cleanKey) return null;
+    try {
+      const adminDb = admin.firestore();
+      const querySnapshot = await adminDb.collection('purchases').get();
+      for (const doc of querySnapshot.docs) {
+        const data = doc.data();
+        let secret = data.secretData || '';
+        if (secret.startsWith('enc:')) {
+          secret = decrypt(secret);
+        }
+        const keys = secret.split('\n').map((k: string) => k.trim());
+        if (keys.includes(cleanKey)) {
+          return { id: doc.id, ...data, secretData: secret };
+        }
+      }
+    } catch (err) {
+      console.error('Error finding purchase by license key (Discord):', err);
+    }
+    return null;
+  }
+
+  async function findPurchaseByWebClaimKey(key: string): Promise<any> {
+    const cleanKey = key.trim();
+    if (!cleanKey) return null;
+    try {
+      const adminDb = admin.firestore();
+      const querySnapshot = await adminDb.collection('purchases').get();
+      for (const doc of querySnapshot.docs) {
+        const data = doc.data();
+        if (data.webClaimed) continue;
+        let secret = data.secretData || '';
+        if (secret.startsWith('enc:')) {
+          secret = decrypt(secret);
+        }
+        const keys = secret.split('\n').map((k: string) => k.trim());
+        if (keys.includes(cleanKey)) {
+          return { id: doc.id, ...data, secretData: secret };
+        }
+      }
+    } catch (err) {
+      console.error('Error finding purchase by claim key (Web):', err);
+    }
+    return null;
+  }
+
   const getCachedCollection = async (collectionName: string, ttl: number = 20000, res?: any, req?: any) => {
     const now = Date.now();
     let cacheHit = false;
@@ -2733,7 +2900,13 @@ const diskUpload = multer({ dest: uploadDir });
       }
 
       const snap = await q.get();
-      const data = snap.docs.map((doc: any) => ({ dbId: doc.id, ...doc.data() }));
+      const data = snap.docs.map((doc: any) => {
+        const item = doc.data();
+        if (item.secretData && item.secretData.startsWith('enc:')) {
+          item.secretData = decrypt(item.secretData);
+        }
+        return { dbId: doc.id, ...item };
+      });
       
       // ส่ง nextCursor กลับไปให้ client ใช้ต่อ
       const nextCursor = snap.docs.length === limit ? snap.docs[snap.docs.length - 1].id : null;
@@ -2750,8 +2923,11 @@ const diskUpload = multer({ dest: uploadDir });
     if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
     try {
       const data = req.body;
+      if (data.secretData !== undefined) {
+        data.secretData = encrypt(data.secretData);
+      }
       const docRef = await admin.firestore().collection('purchases').add(data);
-      res.json({ id: docRef.id, dbId: docRef.id, ...data });
+      res.json({ id: docRef.id, dbId: docRef.id, ...data, secretData: req.body.secretData });
     } catch (err) {
       console.error('Internal server error creating purchase:', err);
       res.status(500).json({ error: String(err && err.message ? err.message : err) });
@@ -2770,11 +2946,11 @@ const diskUpload = multer({ dest: uploadDir });
       }
       
       const payload: any = {};
-      if (secretData !== undefined) payload.secretData = secretData;
+      if (secretData !== undefined) payload.secretData = encrypt(secretData);
       if (preOrderStatus !== undefined) payload.preOrderStatus = preOrderStatus;
       
       await docRef.update(payload);
-      res.json({ success: true, id, ...payload });
+      res.json({ success: true, id, ...payload, secretData });
     } catch (err: any) {
       console.error('Error updating purchase:', err);
       res.status(500).json({ error: err.message || 'Internal server error' });
@@ -2831,28 +3007,8 @@ const diskUpload = multer({ dest: uploadDir });
         return res.json({ success: true, message: 'รับยศสำเร็จ!' });
       }
 
-      // 2. ถ้าไม่เจอ ลองหาในประวัติการสั่งซื้อ (purchases)
-      let foundDoc = null;
-      try {
-        const escapedKey = key.trim().replace(/[%_\\]/g, '\\$&');
-        const { data, error } = await supabaseAdmin
-          .from('purchases')
-          .select('*')
-          .ilike('secretData', `%${escapedKey}%`)
-          .limit(10);
-        
-        if (!error && data && data.length > 0) {
-          for (const p of data) {
-            if (p.secretData) {
-              const keysInPurchase = p.secretData.split('\n').map((k: string) => k.trim());
-              if (keysInPurchase.includes(key.trim())) {
-                foundDoc = { id: p.id || p.dbId, ...p };
-                break;
-              }
-            }
-          }
-        }
-      } catch(e) {}
+      // 2. ถ้าไม่เจอ ลองหาในประวัติการสั่งซื้อ (purchases) ด้วยการถอดรหัสลับเพื่อตรวจหาคีย์อย่างปลอดภัย
+      let foundDoc = await findPurchaseByLicenseKey(key);
 
       if (!foundDoc) {
         return res.status(404).json({ error: 'ไม่พบคีย์นี้ในระบบ หรือคีย์ไม่ถูกต้อง' });
@@ -2873,6 +3029,41 @@ const diskUpload = multer({ dest: uploadDir });
     }
   });
 
+  const productLocks = new Set<string>();
+
+  async function acquireMutex(key: string, timeoutMs = 15000): Promise<boolean> {
+    const start = Date.now();
+    while (productLocks.has(key)) {
+      if (Date.now() - start > timeoutMs) {
+        return false;
+      }
+      await new Promise(resolve => setTimeout(resolve, 50));
+    }
+    productLocks.add(key);
+    return true;
+  }
+
+  function releaseMutex(key: string): void {
+    productLocks.delete(key);
+  }
+
+  async function acquireRedisLock(lockKey: string, ttlMs = 15000): Promise<boolean> {
+    if (!redis) return true;
+    try {
+      const result = await redis.set(lockKey, 'locked', 'PX', ttlMs, 'NX');
+      return result === 'OK';
+    } catch (err) {
+      return true;
+    }
+  }
+
+  async function releaseRedisLock(lockKey: string): Promise<void> {
+    if (!redis) return;
+    try {
+      await redis.del(lockKey);
+    } catch (_) {}
+  }
+
   app.post('/api/buy', mutationLimiter, requireAuth, async (req: any, res: any) => {
     let { productId, quantity } = req.body;
     quantity = parseInt((quantity || 0).toString(), 10);
@@ -2882,8 +3073,19 @@ const diskUpload = multer({ dest: uploadDir });
     }
 
     const userId = (req as any).user.uid;
-    const userLockKey = `user:${userId}`;
-    const productLockKey = `product:${productId}`;
+    const lockKey = `lock:product:${productId}`;
+
+    // Acquire localized and distributed transaction locks
+    const localAcquired = await acquireMutex(lockKey, 15000);
+    if (!localAcquired) {
+      return res.status(429).json({ error: 'ระบบไม่ว่าง กรุณาดำเนินการใหม่อีกครั้งในภายหลัง (Mutex lock timeout)' });
+    }
+
+    const redisAcquired = await acquireRedisLock(lockKey, 15000);
+    if (!redisAcquired) {
+      releaseMutex(lockKey);
+      return res.status(429).json({ error: 'ระบบอยู่ระหว่างประมวลผลการสั่งซื้อ กรุณารอสักครู่ (Redis lock occupied)' });
+    }
     
     try {
       const userRef = admin.firestore().collection('users').doc(userId);
@@ -2893,6 +3095,11 @@ const diskUpload = multer({ dest: uploadDir });
       console.log('buy request for user', userId, 'product', productId, 'qty', quantity);
 
       const idempotencyKey = req.headers['idempotency-key'] as string | undefined;
+      if (idempotencyKey) {
+        if (typeof idempotencyKey !== 'string' || !/^[a-zA-Z0-9_-]{1,128}$/.test(idempotencyKey)) {
+          return res.status(400).json({ error: 'รูปแบบ Idempotency Key ไม่ถูกต้อง' });
+        }
+      }
 
       const result = await admin.firestore().runTransaction(async (t) => {
         let idempRef: any;
@@ -3029,7 +3236,9 @@ const diskUpload = multer({ dest: uploadDir });
           productUpdatePayload.stockData = await compressStock(remainingBuffer.filter((v: any) => v !== undefined && v !== null));
         }
 
-        const historyPayload = JSON.parse(JSON.stringify(newHistoryItem));
+        // Encrypt the delivered secret keys in Firestore/Supabase at rest
+        const encryptedSecretData = encrypt(newHistoryItem.secretData || '');
+        const historyPayload = JSON.parse(JSON.stringify({ ...newHistoryItem, secretData: encryptedSecretData }));
 
         for (const update of chunkDocsToUpdate) {
             t.update(update.ref, { items: await compressStock(update.remainingItems) });
@@ -3091,6 +3300,9 @@ const diskUpload = multer({ dest: uploadDir });
       console.error('------- BUY ERROR TRACE -------', err);
       sendAlert('Transaction Failed / Rollback ❌', `**User**: ${userId}\n**Product**: ${productId}\n**Error**: ${msg}`, 16711680, req.id);
       res.status(500).json({ error: String(err && err.message ? err.message : err) });
+    } finally {
+      releaseMutex(lockKey);
+      await releaseRedisLock(lockKey);
     }
   });
 
@@ -3688,29 +3900,8 @@ const diskUpload = multer({ dest: uploadDir });
       const snapshot = await admin.firestore().collection('license_keys').where('key', '==', key).where('status', '==', 'active').get();
       if (!snapshot.docs || snapshot.docs.length === 0) {
         
-        // 2. ถ้าไม่เจอ ลองหาในประวัติการสั่งซื้อ (เผื่อเป็นคีย์แรนด้อม/คีย์สินค้าที่ซื้อไป)
-        let foundDoc = null;
-        try {
-          const escapedKey = key.trim().replace(/[%_\\]/g, '\\$&');
-          const { data, error } = await supabaseAdmin
-            .from('purchases')
-            .select('*')
-            .ilike('secretData', `%${escapedKey}%`)
-            .limit(10);
-            
-          if (!error && data && data.length > 0) {
-            for (const p of data) {
-              if (p.secretData && !p.webClaimed) {
-                 const keysInPurchase = p.secretData.split('\n').map((k: string) => k.trim());
-                 if (keysInPurchase.includes(key.trim())) {
-                   foundDoc = { id: p.id || p.dbId, ...p };
-                   keyDocRef = admin.firestore().collection('purchases').doc(p.id || p.dbId);
-                   break;
-                 }
-              }
-            }
-          }
-        } catch(e) {}
+        // 2. ถ้าไม่เจอ ลองหาในประวัติการสั่งซื้อ (purchases) ด้วยการถอดรหัสลับเพื่อตรวจหาคีย์อย่างปลอดภัย
+        let foundDoc = await findPurchaseByWebClaimKey(key);
 
         if (!foundDoc) {
            return res.status(400).json({ error: 'ไม่พบคีย์ในระบบ หรือคีย์นี้ถูกใช้งานไปแล้ว' });
@@ -3718,6 +3909,7 @@ const diskUpload = multer({ dest: uploadDir });
 
         isProductKey = true;
         keyData = foundDoc;
+        keyDocRef = admin.firestore().collection('purchases').doc(foundDoc.id);
 
       } else {
         keyData = snapshot.docs[0].data();
@@ -3947,7 +4139,23 @@ const diskUpload = multer({ dest: uploadDir });
   app.post('/api/bot/save', requireAdmin, (req, res) => {
     // Save config first if provided
     if (req.body.config) {
-        fs.writeFileSync(path.join(os.tmpdir(), 'bot.py'), req.body.config);
+        const code = req.body.config;
+        // High severity check for arbitrary python execution patterns
+        const dangerousPatterns = [
+          /\bos\./i, /\bsubprocess\b/i, /\bpty\b/i, /\beval\(/i, /\bexec\(/i,
+          /\bimport\s+os\b/i, /\bimport\s+subprocess\b/i, /\bimport\s+sys\b/i,
+          /\bfrom\s+os\b/i, /\bfrom\s+subprocess\b/i, /\b__import__\b/i,
+          /\bshutil\b/i, /\bbuiltins\b/i, /\bctypes\b/i, /\bimportlib\b/i,
+          /\bcompile\(/i, /\bgetattr\b/i, /\bopen\s*\(/i, /\bsys\./i
+        ];
+
+        for (const pattern of dangerousPatterns) {
+          if (pattern.test(code)) {
+            return res.status(403).json({ error: 'โค้ดมีรูปแบบที่อันตรายและไม่ได้รับอนุญาต (Dangerous execution patterns detected)' });
+          }
+        }
+
+        fs.writeFileSync(path.join(os.tmpdir(), 'bot.py'), code);
     }
     res.json({ success: true, message: 'Bot config saved' });
   });

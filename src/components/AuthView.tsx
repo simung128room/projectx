@@ -24,6 +24,8 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [authLoading, setAuthLoading] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [otp, setOtp] = useState('');
+  const [otpRequired, setOtpRequired] = useState(false);
 
   const getPasswordStrength = (pass: string) => {
     if (!pass) return { score: 0, label: '', color: 'bg-white/5' };
@@ -80,7 +82,23 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
         setActiveView('login');
       } else if (authMode === 'forgot') {
         try {
-          const res = await axios.post('/api/reset-password', { username: authUsername, email: authEmail, newPassword: authPassword });
+          const res = await axios.post('/api/reset-password', {
+            username: authUsername,
+            email: authEmail,
+            newPassword: authPassword,
+            otp: otpRequired ? otp : undefined
+          });
+          if (res.data.otpRequired) {
+            setOtpRequired(true);
+            Swal.fire({
+              icon: 'info',
+              title: 'กรุณากรอกรหัส OTP',
+              text: res.data.message || 'ส่งรหัส OTP เรียบร้อยแล้ว (ตรวจสอบได้ใน console log ของเซิร์ฟเวอร์)',
+              confirmButtonColor: '#ef4444'
+            });
+            setAuthLoading(false);
+            return;
+          }
           if (res.data.error) {
             throw new Error(res.data.error);
           }
@@ -91,6 +109,8 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
         Swal.fire({ icon: 'success', title: 'รีเซ็ตรหัสผ่านสำเร็จ', text: 'กรุณาเข้าสู่ระบบด้วยรหัสผ่านใหม่', timer: 1500, showConfirmButton: false });
         setAuthMode('login');
         setActiveView('login');
+        setOtpRequired(false);
+        setOtp('');
       } else {
         const { data, error } = await auth.auth.signInWithPassword({ email: generatedEmail, password: authPassword });
 
@@ -225,6 +245,33 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
                       className="w-full pl-11 pr-4 py-3.5 bg-white/[0.04] border border-[#1e1e1e] hover:bg-white/[0.04] focus:bg-white/[0.04] focus:border-[#1e1e1e] rounded-md outline-none transition-all text-white text-sm placeholder:text-white/20 font-sans"
                       placeholder="เช่น admin@yourdomain.com"
                       required
+                    />
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* OTP field (Only for forgot password when otpRequired is true) */}
+            {authMode === 'forgot' && otpRequired && (
+              <motion.div layout key="otp" initial={{ opacity: 0, height: 0, scale: 0.95 }} animate={{ opacity: 1, height: 'auto', scale: 1 }} exit={{ opacity: 0, height: 0, scale: 0.95 }} transition={{ duration: 0.2 }}>
+                <div className="flex flex-col gap-1.5 mt-4">
+                  <label className="text-xs font-semibold text-[#39ff14]/85 tracking-wider pl-1 flex items-center gap-1.5 select-none uppercase animate-pulse">
+                    <Shield className="w-3.5 h-3.5 text-[#39ff14]/60" />
+                    <span>รหัสยืนยัน OTP (6-Digit OTP Code)</span>
+                  </label>
+                  <div className="relative group">
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#39ff14]/40 group-focus-within:text-[#39ff14] transition-colors">
+                      <Shield className="w-4.5 h-4.5" />
+                    </div>
+                    <input 
+                      type="text" 
+                      value={otp}
+                      onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                      className="w-full pl-11 pr-4 py-3.5 bg-black/40 border border-[#39ff14]/30 hover:bg-black/50 focus:bg-black/50 focus:border-[#39ff14] rounded-md outline-none transition-all text-[#39ff14] text-sm placeholder:text-[#39ff14]/20 font-mono tracking-widest text-center"
+                      placeholder="XXXXXX"
+                      required
+                      maxLength={6}
+                      minLength={6}
                     />
                   </div>
                 </div>

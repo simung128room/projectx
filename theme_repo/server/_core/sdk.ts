@@ -156,6 +156,9 @@ class SDKServer {
 
   private getSessionSecret() {
     const secret = ENV.cookieSecret;
+    if (!secret || secret.length < 32) {
+      throw new Error('JWT_SECRET must be set and at least 32 characters');
+    }
     return new TextEncoder().encode(secret);
   }
 
