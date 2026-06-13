@@ -5,6 +5,7 @@ import Swal from 'sweetalert2';
 import axios from 'axios';
 import { supabase as auth } from '../lib/supabase';
 import { Turnstile } from '@marsidev/react-turnstile';
+import { BRAND_LOGO_ALT, BRAND_LOGO_URL } from '../constants/branding';
 
 const rawEnvKey = (import.meta.env.TURNSTILE_SITE_KEY || '').trim();
 const TURNSTILE_SITE_KEY = rawEnvKey.length > 5 ? rawEnvKey : '0x4AAAAAADDNPyGBIV4MApep';
@@ -145,7 +146,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
             className="mb-6 cursor-pointer"
             onClick={() => setActiveView("home")}
           >
-            <img src="https://img2.pic.in.th/IMG_718032ab9d504326a436.png" alt="APEXSTORE Logo" className="h-[48px] md:h-[56px] object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.1)] hover:scale-105 transition-transform duration-300" />
+            <img src={BRAND_LOGO_URL} alt={BRAND_LOGO_ALT} className="h-[48px] md:h-[56px] object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.1)] hover:scale-105 transition-transform duration-300" />
           </motion.div>
           
           <h1 className="text-xl font-bold tracking-wide text-white mb-1.5">

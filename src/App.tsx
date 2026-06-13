@@ -130,6 +130,7 @@ const PopupBanner = lazy(() => import("./components/PopupBanner").then(m => ({ d
 import { Product, SiteStats, Category } from "./types";
 import { getAvatarUrl } from "./lib/avatar";
 import { getUserRank } from "./lib/rank";
+import { BRAND_LOGO_ALT, BRAND_LOGO_URL } from "./constants/branding";
 import {
   HomeIcon,
   ShopIcon,
@@ -2201,8 +2202,8 @@ function AppContent() {
       <aside className="hidden">
         <div className="mb-10 w-full flex justify-start">
           <img
-            src="https://img2.pic.in.th/IMG_718032ab9d504326a436.png"
-            alt="APEXSTORE Logo"
+            src={BRAND_LOGO_URL}
+            alt={BRAND_LOGO_ALT}
             className="h-[42px] object-contain hover:scale-105 active:scale-95 transition-all duration-205 cursor-pointer"
             onClick={handleLogoClick}
           />
@@ -2387,7 +2388,7 @@ function AppContent() {
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
           >
-            <img src="https://img2.pic.in.th/IMG_718032ab9d504326a436.png" alt="APEXSTORE Logo" className="h-[36px] md:h-[42px] object-contain" />
+            <img src={BRAND_LOGO_URL} alt={BRAND_LOGO_ALT} className="h-[36px] md:h-[42px] object-contain" />
           </div>
 
           {/* Desktop Navigation */}
@@ -2576,7 +2577,7 @@ function AppContent() {
                       setIsMobileMenuOpen(false);
                     }}
                   >
-                    <img src="https://img2.pic.in.th/IMG_718032ab9d504326a436.png" alt="APEXSTORE Logo" className="h-[32px] object-contain" />
+                    <img src={BRAND_LOGO_URL} alt={BRAND_LOGO_ALT} className="h-[32px] object-contain" />
                   </div>
                   <span className="text-[9px] font-mono font-semibold text-white/20 tracking-[0.2em] uppercase mt-1 ml-8.5">
                     PREMIUM STOREFRONT
@@ -3774,8 +3775,8 @@ const PortalLoader: React.FC = () => {
         <div className="relative mb-6">
           <div className="absolute inset-0 bg-neon-green/15 blur-[40px] rounded-full scale-90 animate-pulse" />
           <motion.img
-            src="https://img2.pic.in.th/IMG_718032ab9d504326a436.png"
-            alt="APEXSTORE Logo"
+            src={BRAND_LOGO_URL}
+            alt={BRAND_LOGO_ALT}
             className="h-16 md:h-18 object-contain relative z-10 filter drop-shadow-[0_0_20px_rgba(16,185,129,0.3)]"
             animate={{
               scale: [0.97, 1.03, 0.97],

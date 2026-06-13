@@ -3,6 +3,7 @@ import axios from "axios";
 import { Product, SiteStats, Category } from "../types";
 import { ShoppingCart, Package, Users, ChevronRight, Zap, Star, Clock, LayoutGrid, History, MessageSquare, Coins, Bell } from "lucide-react";
 import { motion } from "motion/react";
+import { BRAND_LOGO_URL } from "../constants/branding";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -646,7 +647,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     );
                     const imageUrl =
                       matchedProduct?.imageUrl ||
-                      "https://img2.pic.in.th/IMG_718032ab9d504326a436.png";
+                      BRAND_LOGO_URL;
 
                     return (
                       <div
@@ -664,7 +665,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                               referrerPolicy="no-referrer"
                               onError={(e) => {
                                 (e.target as HTMLImageElement).src =
-                                  "https://img2.pic.in.th/IMG_718032ab9d504326a436.png";
+                                  BRAND_LOGO_URL;
                               }}
                             />
                           </div>

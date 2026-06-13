@@ -4,6 +4,7 @@ import { Product } from '../types';
 import { ArrowLeft, Box, CheckCircle2, ChevronRight, FileText, ShoppingCart, AlertCircle, Share2 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useToastStore } from '../lib/toastStore';
+import { BRAND_LOGO_URL } from '../constants/branding';
 
 interface ProductDetailViewProps {
   product: Product;
@@ -68,7 +69,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
               className="w-full h-full object-contain z-10 transition-transform duration-700 ease-out group-hover:scale-105"
               referrerPolicy="no-referrer"
               onError={(e) => {
-                e.currentTarget.src = "https://img2.pic.in.th/IMG_718032ab9d504326a436.png";
+                e.currentTarget.src = BRAND_LOGO_URL;
               }}
             />
 
