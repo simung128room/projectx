@@ -28,7 +28,7 @@ const originalFire = Swal.fire;
 };
 
 
-if (import.meta.env.MODE !== 'production') {
+if (import.meta.env.MODE !== 'production' && localStorage.getItem('debug_console') === 'true') {
   import('eruda').then((eruda) => eruda.default.init()).catch(() => {});
 }
 

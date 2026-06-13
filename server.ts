@@ -64,7 +64,6 @@ import fs from 'fs';
 import readline from 'readline';
 import os from 'os';
 import zlib from 'zlib';
-import cloudscraper from 'cloudscraper';
 
 import { promisify } from 'util';
 const gzipAsync = promisify(zlib.gzip);
@@ -252,9 +251,20 @@ async function writeAuditLog(action: string, actor: string, target: string, req:
 process.on('uncaughtException', (err) => {
   console.error(JSON.stringify({ level: 'fatal', event: 'uncaughtException', message: err.message, stack: err.stack }));
   
-  // Synchronous trace for sure crash logging
+  // Synchronous trace for sure crash logging with log rotation
   try {
-    fs.appendFileSync('crash.log', `${new Date().toISOString()} ${err.stack}\n`);
+    const logPath = path.join(process.cwd(), 'crash.log');
+    if (fs.existsSync(logPath)) {
+      const stats = fs.statSync(logPath);
+      // If file larger than 5MB, rotate it to prevent filling up disk
+      if (stats.size > 5 * 1024 * 1024) {
+        if (fs.existsSync(logPath + '.old')) {
+          fs.unlinkSync(logPath + '.old');
+        }
+        fs.renameSync(logPath, logPath + '.old');
+      }
+    }
+    fs.appendFileSync(logPath, `${new Date().toISOString()} ${err.stack}\n`);
   } catch(e) { console.error("Caught error:", e); }
 
   sendAlert('Uncaught Exception 🔥', `**Error**: ${err.message}`, 16711680)
@@ -315,11 +325,26 @@ app.use((req: any, res: any, next: any) => {
     res.end(await client.register.metrics());
   });
 
+app.use((req: any, res: any, next: any) => {
+  const nonce = crypto.randomBytes(16).toString('base64');
+  res.locals.cspNonce = nonce;
+
+  const originalSend = res.send;
+  res.send = function (body: any) {
+    if (typeof body === 'string' && body.includes('<html')) {
+      const updatedBody = body.replace(/<script(?!\s+nonce\b)/gi, `<script nonce="${nonce}"`);
+      return originalSend.call(this, updatedBody);
+    }
+    return originalSend.call(this, body);
+  };
+  next();
+});
+
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", process.env.NODE_ENV === 'production' ? "" : "'unsafe-inline'", "https://www.youtube.com", "https://s.ytimg.com", "https://unpkg.com", "https://va.vercel-scripts.com"].filter(Boolean),
+      scriptSrc: ["'self'", (req: any, res: any) => `'nonce-${res.locals.cspNonce}'`, "https://www.youtube.com", "https://s.ytimg.com", "https://unpkg.com", "https://va.vercel-scripts.com"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       imgSrc: ["'self'", "data:", "https:"], // Allow external images (avatars, product images) via HTTPS only
       mediaSrc: ["'self'", "https:"],
@@ -541,10 +566,9 @@ app.set('trust proxy', 1);
     }
   });
 
-  // Key generator that relies on untampered socket remote address to prevent X-Forwarded-For spoofing and token rotation bypasses
+  // Key generator that relies on trust proxy setup to get the correct user IP behind load balancers
   const userRateLimitKeyGenerator = (req: any, res: any) => {
-    const realIp = req.socket?.remoteAddress || req.connection?.remoteAddress || '127.0.0.1';
-    return realIp;
+    return req.ip || '127.0.0.1';
   };
 
   // Add RateLimiting to prevent bot attacks
@@ -554,7 +578,7 @@ app.set('trust proxy', 1);
     standardHeaders: true,
     legacyHeaders: false,
     keyGenerator: userRateLimitKeyGenerator,
-    validate: { xForwardedForHeader: false, trustProxy: false },
+    validate: { trustProxy: true },
     message: { error: 'ขออภัย คุณทำรายการบ่อยเกินไป กรุณารอสักครู่' },
     handler: (req: any, res: any, next: any, options: any) => {
       sendAlert('Auth Rate Limit Triggered 🚨', `**IP**: ${req.ip}\n**User**: ${(req as any).user?.uid || 'guest'}\n**Path**: ${req.originalUrl}\n**Method**: ${req.method}`, 16711680, req.id);
@@ -568,7 +592,7 @@ app.set('trust proxy', 1);
     standardHeaders: true, 
     legacyHeaders: false, 
     keyGenerator: userRateLimitKeyGenerator,
-    validate: { xForwardedForHeader: false, trustProxy: false },
+    validate: { trustProxy: true },
     message: { error: 'คุณดำเนินการบางอย่างเร็วเกินไป กรุณารอสักครู่' },
     handler: (req: any, res: any, next: any, options: any) => {
       sendAlert('Mutation Rate Limit Triggered ⚠️', `**IP**: ${req.ip}\n**User**: ${(req as any).user?.uid || 'guest'}\n**Path**: ${req.originalUrl}\n**Method**: ${req.method}`, 16753920, req.id);
@@ -582,7 +606,7 @@ app.set('trust proxy', 1);
     standardHeaders: true, 
     legacyHeaders: false, 
     keyGenerator: userRateLimitKeyGenerator,
-    validate: { xForwardedForHeader: false, trustProxy: false },
+    validate: { trustProxy: true },
     message: { error: 'ขออภัย คุณส่งคำร้องขอเยอะเกินไป (Anti-Bot Protection) กรุณารอสักครู่' },
     handler: (req: any, res: any, next: any, options: any) => {
       res.status(options.statusCode || 429).json({ ...options.message, requestId: req.id });
@@ -594,15 +618,23 @@ app.set('trust proxy', 1);
     max: 200, 
     standardHeaders: true,
     legacyHeaders: false,
-    validate: { xForwardedForHeader: false, trustProxy: false },
+    validate: { trustProxy: true },
     message: { error: 'Too many requests, please try again later.' }
   });
 
   app.use('/api/', globalLimiter);
 
 const userTokenCache = new LRUCache<string, { user: any, isAdmin: boolean, timestamp: number } | Promise<{ user: any, isAdmin: boolean, timestamp: number }>>({ max: 1000, ttl: 60000 });
+const uidToTokens = new Map<string, Set<string>>();
 
 const invalidateUserTokenCache = (uid: string) => {
+  const tokens = uidToTokens.get(uid);
+  if (tokens) {
+    for (const t of tokens) {
+      userTokenCache.delete(t);
+    }
+    uidToTokens.delete(uid);
+  }
   for (const [token, cached] of userTokenCache.entries()) {
     if (!(cached instanceof Promise) && cached.user?.id === uid) {
       userTokenCache.delete(token);
@@ -629,6 +661,13 @@ const cleanupTokenCache = () => {
               const result = await cached;
               req.user = result.user;
               req.isAdmin = result.isAdmin;
+              if (result.user && result.user.id) {
+                const uidStr = result.user.id;
+                if (!uidToTokens.has(uidStr)) {
+                  uidToTokens.set(uidStr, new Set());
+                }
+                uidToTokens.get(uidStr)!.add(token);
+              }
               return next();
             } catch (e) {
               // fall through and try again
@@ -636,6 +675,13 @@ const cleanupTokenCache = () => {
           } else if (now - cached.timestamp < 60000) {
             req.user = cached.user;
             req.isAdmin = cached.isAdmin;
+            if (cached.user && cached.user.id) {
+              const uidStr = cached.user.id;
+              if (!uidToTokens.has(uidStr)) {
+                uidToTokens.set(uidStr, new Set());
+              }
+              uidToTokens.get(uidStr)!.add(token);
+            }
             return next();
           }
         }
@@ -655,13 +701,8 @@ const cleanupTokenCache = () => {
             if (adminEmails.includes((user.email || '').toLowerCase().trim())) {
               isAdminObj = true;
             } else {
-              const userDoc = await admin.firestore().collection('users').doc(user.id).get();
-              if (userDoc.exists) {
-                const userData = typeof userDoc.data === 'function' ? userDoc.data() : null;
-                isAdminObj = userData && typeof userData.role === 'string' && (userData.role.toLowerCase() === 'admin' || userData.role.toLowerCase() === 'owner');
-              } else {
-                isAdminObj = false;
-              }
+              const adminDoc = await admin.firestore().collection('admins').doc(user.id).get();
+              isAdminObj = adminDoc.exists;
             }
           }
           return { user: userObj, isAdmin: isAdminObj, timestamp: Date.now() };
@@ -676,6 +717,13 @@ const cleanupTokenCache = () => {
           if (result.user) {
             req.user = result.user;
             req.isAdmin = result.isAdmin;
+            if (result.user.id) {
+              const uidStr = result.user.id;
+              if (!uidToTokens.has(uidStr)) {
+                uidToTokens.set(uidStr, new Set());
+              }
+              uidToTokens.get(uidStr)!.add(token);
+            }
           }
         } catch (error: any) {
           userTokenCache.delete(token);
@@ -712,11 +760,24 @@ import healthRoute from './src/routes/health.route.js';
 
   const rawOrigins = [
       'https://projectx-rosy-phi.vercel.app',
-      'http://localhost:3000',
       'https://ais-dev-yqcwrqpfmcv3f3k4u45xxa-109803326919.asia-east1.run.app',
       'https://ais-pre-yqcwrqpfmcv3f3k4u45xxa-109803326919.asia-east1.run.app'
   ];
-  const corsOrigins = process.env.NODE_ENV === 'production' ? rawOrigins.filter(url => !url.includes('localhost')) : rawOrigins;
+
+  if (process.env.ALLOWED_ORIGINS) {
+     const splitOrigins = process.env.ALLOWED_ORIGINS.split(',').map(url => url.trim()).filter(Boolean);
+     splitOrigins.forEach(origin => {
+       if (!rawOrigins.includes(origin)) {
+         rawOrigins.push(origin);
+       }
+     });
+  }
+
+  if (process.env.ALLOW_LOCALHOST === 'true') {
+     rawOrigins.push('http://localhost:3000');
+  }
+
+  const corsOrigins = rawOrigins;
 
   const corsOptions = {
     origin: corsOrigins,
@@ -807,7 +868,7 @@ import healthRoute from './src/routes/health.route.js';
       
       // Limit to 5MB after process
       if (sanitizedBuffer.length > 5 * 1024 * 1024) {
-         throw new Error('Output image size exceeds limit after re-encoding');
+         return res.status(400).json({ error: 'Output image size exceeds limit after re-encoding (Max 5MB)' });
       }
 
       let fileUrl: string;
@@ -850,7 +911,7 @@ import healthRoute from './src/routes/health.route.js';
       
       // Limit to 5MB after process
       if (sanitizedBuffer.length > 5 * 1024 * 1024) {
-         throw new Error('Output image size exceeds limit after re-encoding');
+         return res.status(400).json({ error: 'Output image size exceeds limit after re-encoding (Max 5MB)' });
       }
 
       let fileUrl: string;
@@ -982,11 +1043,11 @@ import healthRoute from './src/routes/health.route.js';
           resetOtpExpires: otpExpires
         });
 
-        console.log(`[SECURITY] OTP Generated successfully for password reset: username=${username}, OTP=${generatedOtp}`);
+        console.log(`[SECURITY] OTP Generated successfully for password reset: username=${username}, OTP=[REDACTED]`);
 
         return res.json({
           otpRequired: true,
-          message: `ส่งรหัส OTP กู้คืนรหัสผ่านเข้าเมลเรียบร้อย (จำลองในเซิร์ฟเวอร์คอนโซลสำหรับพัฒนา: ${generatedOtp})`
+          message: 'ส่งรหัส OTP กู้คืนรหัสผ่านเข้าอีเมลเรียบร้อยแล้ว กรุณาตรวจสอบอีเมลหรือกล่องจดหมายของคุณ'
         });
       }
 
@@ -1089,6 +1150,12 @@ import healthRoute from './src/routes/health.route.js';
 
   app.post('/api/settings', requireAdmin, async (req: any, res: any) => {
     console.log("=== POST /api/settings REACHED ===", req.body);
+    const beforeLogs: any = {
+      stats_users_override: siteSettings.stats_users_override,
+      stats_sales_override: siteSettings.stats_sales_override,
+      stats_stock_override: siteSettings.stats_stock_override,
+      stats_categories_override: siteSettings.stats_categories_override,
+    };
     const { 
       truewallet_phone, 
       site_name, 
@@ -1237,6 +1304,42 @@ import healthRoute from './src/routes/health.route.js';
       });
     }
     
+    const afterLogs: any = {
+      stats_users_override: siteSettings.stats_users_override,
+      stats_sales_override: siteSettings.stats_sales_override,
+      stats_stock_override: siteSettings.stats_stock_override,
+      stats_categories_override: siteSettings.stats_categories_override,
+    };
+
+    const changes: any = {};
+    let hasChanges = false;
+    for (const key of Object.keys(beforeLogs)) {
+      if (beforeLogs[key] !== afterLogs[key]) {
+        changes[key] = { before: beforeLogs[key], after: afterLogs[key] };
+        hasChanges = true;
+      }
+    }
+
+    if (hasChanges) {
+      const actorId = req.user?.uid || req.user?.id || 'unknown';
+      const actorEmail = req.user?.email || 'unknown';
+      const auditLog = {
+        type: 'stats_override_changed',
+        actorId,
+        actorEmail,
+        timestamp: new Date().toISOString(),
+        changes,
+      };
+      
+      logger.info(auditLog, `[Audit] Stats override changed by ${actorEmail}`);
+      
+      try {
+        await admin.firestore().collection('audit_logs').add(auditLog);
+      } catch (err: any) {
+        logger.error({ err: err.message }, 'Failed to save audit log to Firestore');
+      }
+    }
+
     const safeSettings = { ...siteSettings };
     if (safeSettings.proxies) safeSettings.proxies = safeSettings.proxies.map((p: string) => p.replace(/\/\/.*@/, '//***:***@'));
     console.log(`[Settings] Updated:`, safeSettings);
@@ -1272,8 +1375,11 @@ import healthRoute from './src/routes/health.route.js';
         }
       }
       
-      // Final cleanup: just in case there's whitespace or extra chars
-      voucherHash = voucherHash.replace(/[^a-zA-Z0-9]/g, '');
+      // Final validation: allow alphanumeric, dashes, and underscores
+      voucherHash = voucherHash.trim();
+      if (!/^[a-zA-Z0-9\-_]+$/.test(voucherHash)) {
+         return res.json({ success: false, error: 'รูปแบบรหัสซองของขวัญไม่ถูกต้อง (ต้องเป็นภาษาอังกฤษ ตัวเลข ขีดกลาง หรือขีดล่างเท่านั้น)' });
+      }
 
       console.log(`[TrueWallet] Attempting to redeem via XPLUEM: "${voucherHash}" for phone: ${phone}`);
 
@@ -1486,24 +1592,64 @@ import healthRoute from './src/routes/health.route.js';
         // Validate that the slip is not older than 7 days
         if (transDateStr) {
           try {
-             let parsedDate: Date | null = null;
-             if (/^\d{8}$/.test(transDateStr)) {
-                const y = parseInt(transDateStr.substring(0, 4), 10);
-                const m = parseInt(transDateStr.substring(4, 6), 10) - 1;
-                const d = parseInt(transDateStr.substring(6, 8), 10);
-                parsedDate = new Date(y, m, d);
-             } else {
-                parsedDate = new Date(transDateStr);
+             const parseSlipDate = (dateStr: string): Date | null => {
+               const clean = dateStr.trim();
+               if (!clean) return null;
+
+               // 1. Check for YYYYMMDD
+               if (/^\d{8}$/.test(clean)) {
+                  const y = parseInt(clean.substring(0, 4), 10);
+                  const m = parseInt(clean.substring(4, 6), 10) - 1;
+                  const d = parseInt(clean.substring(6, 8), 10);
+                  return new Date(y, m, d);
+               }
+
+               // 2. Check for DD/MM/YYYY or DD-MM-YYYY (with optional time)
+               const dmyMatch = clean.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})(?:\s+(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?)?/);
+               if (dmyMatch) {
+                  const d = parseInt(dmyMatch[1], 10);
+                  const m = parseInt(dmyMatch[2], 10) - 1;
+                  const y = parseInt(dmyMatch[3], 10);
+                  const hh = dmyMatch[4] ? parseInt(dmyMatch[4], 10) : 0;
+                  const mm = dmyMatch[5] ? parseInt(dmyMatch[5], 10) : 0;
+                  const ss = dmyMatch[6] ? parseInt(dmyMatch[6], 10) : 0;
+                  return new Date(y, m, d, hh, mm, ss);
+               }
+
+               // 3. Check for YYYY-MM-DD or YYYY/MM/DD (with optional time)
+               const ymdMatch = clean.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})(?:\s+(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?)?/);
+               if (ymdMatch) {
+                  const y = parseInt(ymdMatch[1], 10);
+                  const m = parseInt(ymdMatch[2], 10) - 1;
+                  const d = parseInt(ymdMatch[3], 10);
+                  const hh = ymdMatch[4] ? parseInt(ymdMatch[4], 10) : 0;
+                  const mm = ymdMatch[5] ? parseInt(ymdMatch[5], 10) : 0;
+                  const ss = ymdMatch[6] ? parseInt(ymdMatch[6], 10) : 0;
+                  return new Date(y, m, d, hh, mm, ss);
+               }
+
+               // 4. Native fallback with validation
+               const parsed = new Date(clean);
+               if (!isNaN(parsed.getTime())) {
+                  return parsed;
+               }
+               return null;
+             };
+
+             const parsedDate = parseSlipDate(transDateStr);
+             if (!parsedDate || isNaN(parsedDate.getTime())) {
+                return res.json({ success: false, error: 'ระบบไม่สามารถยืนยันวันที่ของสลิปได้ (Invalid Date format)' });
              }
 
-             if (parsedDate && !isNaN(parsedDate.getTime())) {
-                const diffTime = Math.abs(Date.now() - parsedDate.getTime());
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                if (diffDays > 7) {
-                   return res.json({ success: false, error: 'สลิปนี้เก่าเกินไป ระบบรับเฉพาะสลิปที่มีอายุไม่เกิน 7 วันเท่านั้น' });
-                }
+             const diffTime = Math.abs(Date.now() - parsedDate.getTime());
+             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+             if (diffDays > 7) {
+                return res.json({ success: false, error: 'สลิปนี้เก่าเกินไป ระบบรับเฉพาะสลิปที่มีอายุไม่เกิน 7 วันเท่านั้น' });
              }
-          } catch(e) { console.error("Caught error:", e); }
+          } catch(e) { 
+             console.error("Caught error parsing slip date:", e);
+             return res.json({ success: false, error: 'ระบบเกิดข้อผิดพลาดในการตรวจสอบสลิป' });
+          }
         }
 
         const receiverProxy = response.data.data?.receiver?.proxy?.value || '';
@@ -1513,26 +1659,19 @@ import healthRoute from './src/routes/health.route.js';
         const EXPECTED_NAME_EN = process.env.SHOP_ACCOUNT_NAME_EN || "KORNWICH";
         const EXPECTED_PROMPTPAY = process.env.SHOP_PROMPTPAY_NUMBER || "";
         
-        let isMatch = false;
-        
-        // ถ้ามีการตั้งค่า SHOP_PROMPTPAY_NUMBER ไว้ ให้ตรวจ proxy ก่อนเสมอ (ป้องกันชื่อปลอม)
-        if (EXPECTED_PROMPTPAY) {
-           isMatch = receiverProxy.includes(EXPECTED_PROMPTPAY) || receiverProxy.replace(/-/g, '').includes(EXPECTED_PROMPTPAY);
-        } else {
-           // เช็คชื่อผู้รับเงินแบบยืดหยุ่น โดยอาศัยตัวแปรแวดล้อมเพื่อความปลอดภัย
-           const normalizedReceiver = (receiverName || "").toLowerCase().replace(/[\s\-\.]/g, "");
-           const normalizedExpectedTh = EXPECTED_NAME_TH.toLowerCase().replace(/[\s\-\.]/g, "");
-           const normalizedExpectedEn = EXPECTED_NAME_EN.toLowerCase().replace(/[\s\-\.]/g, "");
-           
-           isMatch = 
-             normalizedReceiver.includes(normalizedExpectedTh) ||
-             (EXPECTED_NAME_EN !== "NO_NAME_EN" && normalizedReceiver.includes(normalizedExpectedEn));
+        if (!EXPECTED_PROMPTPAY) {
+            return res.json({ 
+              success: false, 
+              error: 'ระบบไม่ได้เปิดใช้งานช่องทางการชำระเงินเนื่องจากข้อมูลสลิปไม่ครบถ้วน (กรุณาตั้งค่า SHOP_PROMPTPAY_NUMBER)' 
+            });
         }
+        
+        const isMatch = receiverProxy.includes(EXPECTED_PROMPTPAY) || receiverProxy.replace(/-/g, '').includes(EXPECTED_PROMPTPAY);
         
         if (!isMatch) {
             return res.json({ 
               success: false, 
-              error: `ชื่อบัญชีผู้รับเงินไม่สมบูรณ์ (สลิปโอนไปที่: ${receiverName || 'ไม่ระบุ'}) ไม่ตรงกับชื่อบัญชีของทางร้าน กรุณาติดต่อแอดมิน` 
+              error: `ชื่อบัญชีผู้รับเงินหรือเบอร์ผู้รับไม่ถูกต้อง (สลิปโอนไปที่: ${receiverName || 'ไม่ระบุ'}) ไม่ตรงกับของทางร้าน กรุณาติดต่อแอดมิน` 
             });
         }
         
@@ -1677,13 +1816,13 @@ import healthRoute from './src/routes/health.route.js';
          return res.status(403).json({ error: 'Missing Captcha token. Please refresh the page and verify you are human. (Or provide valid API Key)' });
       }
 
-      // Since a batch check loop uses the same token, we cache verified tokens for 10 seconds with max 1 reuse
+      // Since a batch check loop uses the same token, we cache verified tokens but prevent duplicate usage (uses limit to 0)
       const now = Date.now();
       const cacheKey = turnstileToken + '_' + (req as any).user.uid;
       const cacheEntry = turnstileCache.get(cacheKey);
       
-      if (cacheEntry && (now - cacheEntry.time < 10 * 1000) && cacheEntry.uses < 1) {
-         // Token is already verified and within 10 second window with less than 1 use
+      if (cacheEntry && (now - cacheEntry.time < 500) && cacheEntry.uses < 0) {
+         // Token is already verified and within 500ms window with less than 0 use
          cacheEntry.uses++;
          // console.log("Used cached Turnstile token bypass");
       } else {
@@ -1777,12 +1916,12 @@ import healthRoute from './src/routes/health.route.js';
     let agent;
     try {
       if (proxyUrl) {
-        agent = new HttpsProxyAgent(proxyUrl, { timeout: 10000, rejectUnauthorized: false } as any);
+        agent = new HttpsProxyAgent(proxyUrl, { timeout: 10000, rejectUnauthorized: true } as any);
       } else {
-        agent = new https.Agent({ rejectUnauthorized: false });
+        agent = new https.Agent({ rejectUnauthorized: true });
       }
     } catch (err) {
-      agent = new https.Agent({ rejectUnauthorized: false });
+      agent = new https.Agent({ rejectUnauthorized: true });
     }
 
     const controller = new AbortController();
@@ -1811,7 +1950,7 @@ import healthRoute from './src/routes/health.route.js';
     client.defaults.jar = jar;
 
     const setupFallbackClient = () => {
-       const directAgent = new https.Agent({ rejectUnauthorized: false });
+       const directAgent = new https.Agent({ rejectUnauthorized: true });
        const fbClient = wrapper(axios.create({ ...axiosConfig, httpsAgent: directAgent, httpAgent: directAgent }));
        fbClient.defaults.jar = jar;
        return fbClient;
@@ -2135,8 +2274,21 @@ if (process.env.REDIS_URL) {
     if (!cleanKey) return null;
     try {
       const adminDb = admin.firestore();
-      const querySnapshot = await adminDb.collection('purchases').get();
-      for (const doc of querySnapshot.docs) {
+      const hash = crypto.createHash('sha256').update(cleanKey).digest('hex');
+      const querySnapshot = await adminDb.collection('purchases').where('licenseKeyHashes', 'array-contains', hash).get();
+      if (!querySnapshot.empty) {
+        const doc = querySnapshot.docs[0];
+        const data = doc.data();
+        let secret = data.secretData || '';
+        if (secret.startsWith('enc:')) {
+          secret = decrypt(secret);
+        }
+        return { id: doc.id, ...data, secretData: secret };
+      }
+
+      // Fallback for older purchases without index
+      const fallbackSnapshot = await adminDb.collection('purchases').get();
+      for (const doc of fallbackSnapshot.docs) {
         const data = doc.data();
         let secret = data.secretData || '';
         if (secret.startsWith('enc:')) {
@@ -2158,8 +2310,23 @@ if (process.env.REDIS_URL) {
     if (!cleanKey) return null;
     try {
       const adminDb = admin.firestore();
-      const querySnapshot = await adminDb.collection('purchases').get();
-      for (const doc of querySnapshot.docs) {
+      const hash = crypto.createHash('sha256').update(cleanKey).digest('hex');
+      const querySnapshot = await adminDb.collection('purchases').where('licenseKeyHashes', 'array-contains', hash).get();
+      if (!querySnapshot.empty) {
+        for (const doc of querySnapshot.docs) {
+          const data = doc.data();
+          if (data.webClaimed) continue;
+          let secret = data.secretData || '';
+          if (secret.startsWith('enc:')) {
+            secret = decrypt(secret);
+          }
+          return { id: doc.id, ...data, secretData: secret };
+        }
+      }
+
+      // Fallback for older purchases without index
+      const fallbackSnapshot = await adminDb.collection('purchases').get();
+      for (const doc of fallbackSnapshot.docs) {
         const data = doc.data();
         if (data.webClaimed) continue;
         let secret = data.secretData || '';
@@ -2997,6 +3164,9 @@ const diskUpload = multer({ dest: uploadDir });
     try {
       const data = req.body;
       if (data.secretData !== undefined) {
+        const rawSecret = data.secretData || '';
+        const keysList = rawSecret.split('\n').map((k: string) => k.trim()).filter(Boolean);
+        data.licenseKeyHashes = keysList.map((k: string) => crypto.createHash('sha256').update(k).digest('hex'));
         data.secretData = encrypt(data.secretData);
       }
       const docRef = await admin.firestore().collection('purchases').add(data);
@@ -3019,7 +3189,12 @@ const diskUpload = multer({ dest: uploadDir });
       }
       
       const payload: any = {};
-      if (secretData !== undefined) payload.secretData = encrypt(secretData);
+      if (secretData !== undefined) {
+        payload.secretData = encrypt(secretData);
+        const rawSecret = secretData || '';
+        const keysList = rawSecret.split('\n').map((k: string) => k.trim()).filter(Boolean);
+        payload.licenseKeyHashes = keysList.map((k: string) => crypto.createHash('sha256').update(k).digest('hex'));
+      }
       if (preOrderStatus !== undefined) payload.preOrderStatus = preOrderStatus;
       
       await docRef.update(payload);
@@ -3121,12 +3296,12 @@ const diskUpload = multer({ dest: uploadDir });
   }
 
   async function acquireRedisLock(lockKey: string, ttlMs = 15000): Promise<boolean> {
-    if (!redis) return true;
+    if (!redis) return false;
     try {
       const result = await redis.set(lockKey, 'locked', 'PX', ttlMs, 'NX');
       return result === 'OK';
     } catch (err) {
-      return true;
+      return false;
     }
   }
 
@@ -3171,6 +3346,25 @@ const diskUpload = multer({ dest: uploadDir });
       if (idempotencyKey) {
         if (typeof idempotencyKey !== 'string' || !/^[a-zA-Z0-9_-]{1,128}$/.test(idempotencyKey)) {
           return res.status(400).json({ error: 'รูปแบบ Idempotency Key ไม่ถูกต้อง' });
+        }
+
+        // Limit maximum unique active/recent idempotency keys per user to prevent DoS/racing
+        try {
+          const exactDoc = await admin.firestore().collection('idempotency_keys').doc(idempotencyKey).get();
+          if (!exactDoc.exists) {
+             const recentIdempSnap = await admin.firestore().collection('idempotency_keys')
+               .where('userId', '==', userId)
+               .get();
+             
+             if (recentIdempSnap.docs.length >= 10) {
+                const docs = recentIdempSnap.docs.map(d => ({ id: d.id, ...d.data() } as any));
+                docs.sort((a, b) => new Date(a.timestamp || 0).getTime() - new Date(b.timestamp || 0).getTime());
+                const toDelete = docs.slice(0, docs.length - 8); // delete oldest keys to fit under the sliding window limit
+                await Promise.all(toDelete.map(doc => admin.firestore().collection('idempotency_keys').doc(doc.id).delete()));
+             }
+          }
+        } catch (err) {
+          console.error('[Idempotency] Error handling sliding window limit:', err);
         }
       }
 
@@ -3311,9 +3505,12 @@ const diskUpload = multer({ dest: uploadDir });
           productUpdatePayload.stockData = await compressStock(remainingBuffer.filter((v: any) => v !== undefined && v !== null));
         }
 
+        const keysList = productData.isPreOrder ? [] : claimedItems.map((k: any) => String(k).trim()).filter(Boolean);
+        const licenseKeyHashes = keysList.map((k: string) => crypto.createHash('sha256').update(k).digest('hex'));
+
         // Encrypt the delivered secret keys in Firestore/Supabase at rest
         const encryptedSecretData = encrypt(newHistoryItem.secretData || '');
-        const historyPayload = JSON.parse(JSON.stringify({ ...newHistoryItem, secretData: encryptedSecretData }));
+        const historyPayload = JSON.parse(JSON.stringify({ ...newHistoryItem, secretData: encryptedSecretData, licenseKeyHashes }));
 
         for (const update of chunkDocsToUpdate) {
             t.update(update.ref, { items: await compressStock(update.remainingItems) });
@@ -3333,7 +3530,7 @@ const diskUpload = multer({ dest: uploadDir });
         };
 
         if (idempRef) {
-           t.set(idempRef, { response: resultPayload, timestamp: new Date().toISOString() });
+           t.set(idempRef, { response: resultPayload, timestamp: new Date().toISOString(), userId: userId });
         }
 
         return resultPayload;
@@ -3592,7 +3789,8 @@ const diskUpload = multer({ dest: uploadDir });
            if (userDoc.exists) {
               const u = userDoc.data();
               if (u && u.isPremium === true) isVip = true;
-              if (u && (u.role === 'admin' || u.role === 'Admin')) isVip = true;
+              const adminDoc = await admin.firestore().collection('admins').doc(req.user.uid).get();
+              if (adminDoc.exists) isVip = true;
            }
          } catch(e) { console.error("Caught error:", e); }
       }
@@ -4196,57 +4394,15 @@ const diskUpload = multer({ dest: uploadDir });
   // /api/bot/status and globalBot variables removed
 
   app.get('/bot-code', requireAdmin, (req, res) => {
-    try {
-        const cfgPath = path.join(os.tmpdir(), 'bot.py');
-        if (fs.existsSync(cfgPath)) {
-            const content = fs.readFileSync(cfgPath, 'utf8');
-            res.setHeader('Content-Type', 'text/plain; charset=utf-8');
-            res.setHeader('Content-Disposition', 'attachment; filename="bot.py"');
-            res.send(content);
-        } else {
-            res.status(404).send('Bot code not found');
-        }
-    } catch (err) {
-        res.status(500).send('Error reading bot code');
-    }
+      return res.status(403).json({ error: 'This feature has been permanently deactivated for security reasons.' });
   });
 
   app.post('/api/bot/save', requireAdmin, (req, res) => {
-    // Save config first if provided
-    if (req.body.config) {
-        const code = req.body.config;
-        // High severity check for arbitrary python execution patterns
-        const dangerousPatterns = [
-          /\bos\./i, /\bsubprocess\b/i, /\bpty\b/i, /\beval\(/i, /\bexec\(/i,
-          /\bimport\s+os\b/i, /\bimport\s+subprocess\b/i, /\bimport\s+sys\b/i,
-          /\bfrom\s+os\b/i, /\bfrom\s+subprocess\b/i, /\b__import__\b/i,
-          /\bshutil\b/i, /\bbuiltins\b/i, /\bctypes\b/i, /\bimportlib\b/i,
-          /\bcompile\(/i, /\bgetattr\b/i, /\bopen\s*\(/i, /\bsys\./i
-        ];
-
-        for (const pattern of dangerousPatterns) {
-          if (pattern.test(code)) {
-            return res.status(403).json({ error: 'โค้ดมีรูปแบบที่อันตรายและไม่ได้รับอนุญาต (Dangerous execution patterns detected)' });
-          }
-        }
-
-        fs.writeFileSync(path.join(os.tmpdir(), 'bot.py'), code);
-    }
-    res.json({ success: true, message: 'Bot config saved' });
+      return res.status(403).json({ error: 'This feature has been permanently deactivated for security reasons.' });
   });
 
   app.get('/api/bot/config', requireAdmin, (req, res) => {
-    try {
-        const cfgPath = path.join(os.tmpdir(), 'bot.py');
-        if (fs.existsSync(cfgPath)) {
-            const content = fs.readFileSync(cfgPath, 'utf8');
-            res.json({ config: content });
-        } else {
-            res.json({ config: '# bot.py not found on server' });
-        }
-    } catch (e) {
-        res.status(500).json({ error: String(e) });
-    }
+      return res.json({ config: '# This feature has been permanently deactivated for security reasons.' });
   });
 
 
@@ -4267,16 +4423,20 @@ const diskUpload = multer({ dest: uploadDir });
               const voucherCode = giftLink.split('v=')[1]?.split('&')[0];
               if (!voucherCode) return { success: false, message: 'INVALID_CODE' };
 
-              const response: any = await (cloudscraper as any).post(
+              const res = await axios.post(
                   `https://gift.truemoney.com/campaign/vouchers/${voucherCode}/redeem`,
+                  { mobile: this.phoneNumber, voucher_hash: voucherCode },
                   {
-                      json: { mobile: this.phoneNumber, voucher_hash: voucherCode },
                       headers: {
                           'Referer': `https://gift.truemoney.com/campaign/?v=${voucherCode}`,
-                          'Origin': 'https://gift.truemoney.com'
+                          'Origin': 'https://gift.truemoney.com',
+                          'Content-Type': 'application/json',
+                          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
                       }
                   }
               );
+
+              const response = res.data;
 
               if (response?.status?.code === 'SUCCESS') {
                   return {
@@ -4288,9 +4448,9 @@ const diskUpload = multer({ dest: uploadDir });
               }
               return { success: false, message: response?.status?.message || 'FAILED' };
           } catch (error: any) {
-              if (error.response?.body) {
+              if (error.response?.data) {
                   try {
-                      const errData = typeof error.response.body === 'string' ? JSON.parse(error.response.body) : error.response.body;
+                      const errData = typeof error.response.data === 'string' ? JSON.parse(error.response.data) : error.response.data;
                       return { success: false, message: errData.status?.message || 'FAILED' };
                   } catch(e) { console.error("Caught error:", e); }
               }
@@ -4730,171 +4890,15 @@ const diskUpload = multer({ dest: uploadDir });
   }
 
   app.post('/api/discord/catcher/request', requireAuth, async (req: any, res: any) => {
-      const { discordToken, truemoneyPhone } = req.body;
-      if (!discordToken || !truemoneyPhone) return res.status(400).json({ error: 'Missing token or phone number' });
-
-      // Verify Premium
-      const userRef = admin.firestore().collection('users').doc((req as any).user.uid);
-      const userDoc = await userRef.get();
-      const isPremium = req.isAdmin || (userDoc.exists && userDoc.data()?.isPremium);
-
-      // Daily Limit logic (shared with telegram or separate if prefered, using tgDailyCount for simplicity if not premium)
-      const today = new Date().toISOString().slice(0, 10);
-      if (tgLastResetDate !== today) {
-          tgLastResetDate = today;
-          tgDailyCount = 0;
-      }
-
-      if (!isPremium) {
-          if (tgDailyCount >= 100) {
-              return res.status(400).json({ error: 'โควต้าผู้ใช้งานฟรีเต็มแล้วสำหรับวันนี้ (100 คน) กรุณากลับมาใหม่พรุ่งนี้ หรืออัปเกรด VIP' });
-          }
-          tgDailyCount++;
-      }
-
-      try {
-          if (discordSessions.size >= 50) {
-              return res.status(503).json({ error: 'Server reached maximum concurrent bot capacity. Please try again later.' });
-          }
-          const tokenHash = crypto.createHash('sha256').update(discordToken).digest('hex');
-          let sessionId = discordTokenHashToSessionId.get(tokenHash);
-          let sess = sessionId ? discordSessions.get(sessionId) : null;
-          if (sess && sess.status === 'connected') {
-             return res.json({ status: 'connected', sessionId });
-          }
-
-          if (!sessionId) {
-              sessionId = crypto.randomUUID();
-              discordTokenHashToSessionId.set(tokenHash, sessionId);
-          }
-
-          const ws = new WebSocket('wss://gateway.discord.gg/?encoding=json&v=9&compress=json');
-          
-          sess = { 
-              ws, 
-              status: 'idle', 
-              encryptedToken: encrypt(discordToken),
-              truemoneyPhone,
-              logs: ['เริ่มเชื่อมต่อเข้าสู่ระบบ Discord (WebSocket)...']
-          };
-          discordSessions.set(sessionId, sess);
-
-          let hbInterval: NodeJS.Timeout | null = null;
-
-          ws.on('open', () => {
-              const curSess = discordSessions.get(sessionId!);
-              if (curSess) curSess.status = 'connected';
-              pushDiscordLog(sessionId!, 'เชื่อมต่อ Gateway สำเร็จ กำลังรอรับข้อความซอง...');
-              // Identify Payload
-              ws.send(JSON.stringify({
-                  "op": 2,
-                  "d": {
-                      "token": discordToken,
-                      "capabilities": 253,
-                      "properties": {
-                          "os": "Windows",
-                          "browser": "Chrome",
-                          "device": "",
-                          "system_locale": "en-US",
-                          "browser_user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.113 Safari/537.36",
-                          "browser_version": "96.0.4664.113",
-                          "os_version": "10",
-                          "referrer": "",
-                          "referring_domain": "",
-                          "referrer_current": "",
-                          "referring_domain_current": "",
-                          "release_channel": "stable",
-                          "client_build_number": 109190,
-                          "client_event_source": null
-                      },
-                      "compress": false
-                  }
-              }));
-          });
-
-          ws.on('message', async (data: any) => {
-              const payload = JSON.parse(data);
-              if (payload.t === 'MESSAGE_CREATE') {
-                  const message = payload.d.content;
-                  if (message) {
-                      const voucherRegex = /https?:\/\/gift\.truemoney\.com\/campaign\/?(?:voucher_detail\/)?\?v=([A-Za-z0-9]+)/gi;
-                      const matches = message.match(voucherRegex);
-                      
-                      if (matches && matches.length > 0) {
-                          pushDiscordLog(sessionId!, `🎯 เจอซอง! เริ่มการรับเครดิตเข้าเบอร์ ${truemoneyPhone}`);
-                          for (const vurl of matches) {
-                              try {
-                                  const result = await twApi(vurl, truemoneyPhone);
-                                  if (result?.status?.code === 'SUCCESS') {
-                                      pushDiscordLog(sessionId!, `✅ รับซองสำเร็จ! +${result.data.my_ticket.amount_baht} บาท`);
-                                  } else {
-                                      // @ts-ignore
-                                      pushDiscordLog(sessionId!, `❌ ${result?.status?.message || 'ไม่สามารถรับได้'}`);
-                                  }
-                              } catch(e) {
-                                  pushDiscordLog(sessionId!, `❌ ข้อผิดพลาดในการรับซอง`);
-                              }
-                          }
-                      }
-                  }
-              }
-
-              if (payload.op === 10) {
-                  const heartbeatInterval = payload.d.heartbeat_interval;
-                  hbInterval = setInterval(() => {
-                      if (ws.readyState === WebSocket.OPEN) {
-                           ws.send(JSON.stringify({ op: 1, d: null }));
-                      }
-                  }, heartbeatInterval);
-              }
-          });
-
-          ws.on('close', () => {
-              if (hbInterval) clearInterval(hbInterval);
-              const curSess = discordSessions.get(sessionId!);
-              if (curSess) {
-                 curSess.status = 'error';
-                 pushDiscordLog(sessionId!, '❌ ตัดการเชื่อมต่อจาก Discord Gateway แล้ว');
-              }
-          });
-
-          ws.on('error', (err: any) => {
-              const curSess = discordSessions.get(sessionId!);
-              if (curSess) {
-                  curSess.status = 'error';
-                  pushDiscordLog(sessionId!, `❌ ข้อผิดพลาด WebSocket: ${err.message}`);
-              }
-          });
-
-          // Respond immediately
-          res.json({ success: true, status: 'idle', sessionId });
-          
-      } catch (err: any) {
-          res.status(500).json({ error: String(err) });
-      }
+      return res.status(410).json({ error: 'This feature has been permanently deactivated for security reasons.' });
   });
 
   app.post('/api/discord/catcher/status', async (req, res) => {
-      const { sessionId } = req.body;
-      const sess = discordSessions.get(sessionId);
-      if (!sess) return res.json({ status: 'none', logs: [] });
-      res.json({ status: sess.status, logs: sess.logs });
+      return res.status(410).json({ error: 'This feature has been permanently deactivated for security reasons.' });
   });
 
   app.post('/api/discord/catcher/stop', requireAuth, async (req: any, res: any) => {
-      const { sessionId } = req.body;
-      const sess = discordSessions.get(sessionId);
-      if (sess) {
-          try { sess.ws.close(); } catch(e) { console.error("Caught error:", e); }
-          discordSessions.delete(sessionId);
-          for (const [hash, sid] of discordTokenHashToSessionId.entries()) {
-              if (sid === sessionId) {
-                  discordTokenHashToSessionId.delete(hash);
-                  break;
-              }
-          }
-      }
-      res.json({ success: true });
+      return res.status(410).json({ error: 'This feature has been permanently deactivated for security reasons.' });
   });
 
   // Discord HypeSquad Tool API
@@ -4937,7 +4941,18 @@ if (!process.env.VERCEL) {
         }
       }));
       app.get('*', (req, res) => {
-        res.sendFile(path.join(distPath, 'index.html'));
+        try {
+          const htmlPath = path.join(distPath, 'index.html');
+          if (fs.existsSync(htmlPath)) {
+            const html = fs.readFileSync(htmlPath, 'utf8');
+            res.send(html);
+          } else {
+            res.status(404).send('Not Found');
+          }
+        } catch (e: any) {
+          console.error("Error reading index.html:", e);
+          res.status(500).send('Internal Server Error');
+        }
       });
     }
 
