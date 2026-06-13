@@ -101,8 +101,59 @@ import { getMD5, encryptPassword, getCodmInfo, getGameConnections, encrypt, decr
 
 const _dirname = typeof __dirname !== 'undefined' ? __dirname : process.cwd();
 
-const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 50 * 1024 * 1024 } }); // 50MB limit
-const communityUpload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } }); // 5MB limit
+const BOT_CONFIG_MAX_BYTES = 200 * 1024;
+const SIMPLE_EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const TH_PHONE_REGEX = /^0[689]\d{8}$/;
+const TELEGRAM_PHONE_REGEX = /^\+?[1-9]\d{6,14}$/;
+const TRUEMONEY_VOUCHER_REGEX = /^https:\/\/gift\.truemoney\.com\/campaign\/?(?:voucher_detail\/)?\?v=[A-Za-z0-9]{10,}(?:&.*)?$/;
+const FIRESTORE_DOC_ID_REGEX = /^[^/]{1,512}$/;
+
+const sanitizeShortText = (value: unknown, maxLength = 256): string => {
+  return typeof value === 'string' ? value.trim().slice(0, maxLength) : '';
+};
+
+const isValidPassword = (value: unknown): value is string => {
+  return typeof value === 'string' && value.length >= 8 && value.length <= 128;
+};
+
+const isValidEmail = (value: unknown): value is string => {
+  return typeof value === 'string' && value.length <= 254 && SIMPLE_EMAIL_REGEX.test(value);
+};
+
+const isValidThaiPhone = (value: unknown): value is string => {
+  return typeof value === 'string' && TH_PHONE_REGEX.test(value.trim());
+};
+
+const isValidTelegramPhone = (value: unknown): value is string => {
+  return typeof value === 'string' && TELEGRAM_PHONE_REGEX.test(value.trim());
+};
+
+const isValidTrueMoneyVoucherUrl = (value: unknown): value is string => {
+  return typeof value === 'string' && value.length <= 256 && TRUEMONEY_VOUCHER_REGEX.test(value.trim());
+};
+
+const isSafeFirestoreDocId = (value: unknown): value is string => {
+  return typeof value === 'string' && FIRESTORE_DOC_ID_REGEX.test(value);
+};
+
+const timingSafeEqualString = (left: unknown, right: string): boolean => {
+  if (typeof left !== 'string' || !right) return false;
+  const leftBuffer = Buffer.from(left);
+  const rightBuffer = Buffer.from(right);
+  return leftBuffer.length === rightBuffer.length && crypto.timingSafeEqual(leftBuffer, rightBuffer);
+};
+
+const ensureTwApiReady = () => {
+  if (!twApi) {
+    throw new Error('TrueMoney API is not ready yet');
+  }
+  return twApi;
+};
+
+const MAX_IMAGE_PIXELS = 25_000_000;
+const MAX_SANITIZED_IMAGE_BYTES = 5 * 1024 * 1024;
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024, files: 1 } }); // 10MB pre-sanitization limit
+const communityUpload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024, files: 1 } }); // 5MB pre-sanitization limit
 
 async function uploadToSupabaseStorage(buffer: Buffer, originalName: string, mimeType: string): Promise<string> {
   const isSupabaseConfigured = !!(process.env.SUPABASE_URL && process.env.SUPABASE_URL.startsWith('http') && (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY));
@@ -110,8 +161,8 @@ async function uploadToSupabaseStorage(buffer: Buffer, originalName: string, mim
     throw new Error('Supabase is not configured');
   }
 
-  const fileExt = originalName.split('.').pop() || 'webp';
-  const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 11)}.${fileExt}`;
+  const safeExt = mimeType === 'image/webp' ? 'webp' : (originalName.split('.').pop() || 'bin').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 8) || 'bin';
+  const fileName = `${Date.now()}-${crypto.randomUUID()}.${safeExt}`;
   const bucketName = 'uploads';
 
   const { data, error } = await supabaseAdmin.storage
@@ -707,21 +758,49 @@ import healthRoute from './src/routes/health.route.js';
 
   // Helper to check magic bytes
   const isImageSafe = (buffer: Buffer) => {
-    if (buffer.length < 4) return false;
+    if (buffer.length < 12) return false;
     const hex = buffer.toString('hex', 0, 4).toUpperCase();
     const isJpeg = hex.startsWith('FFD8FF');
     const isPng = hex.startsWith('89504E47');
-    const isGif = hex.startsWith('47494638'); // GIF8
+    const isGif = hex.startsWith('47494638'); // GIF8; re-encoded by sharp before storage
     const isWebp = hex.startsWith('52494646') && buffer.toString('hex', 8, 12).toUpperCase() === '57454250'; // RIFF...WEBP
     return isJpeg || isPng || isGif || isWebp;
   };
 
+  const sanitizeUploadedImage = async (buffer: Buffer) => {
+    const image = sharp(buffer, { limitInputPixels: MAX_IMAGE_PIXELS, animated: false });
+    const metadata = await image.metadata();
+    if (!metadata.width || !metadata.height) {
+      throw new Error('Invalid image metadata');
+    }
+    if (metadata.width * metadata.height > MAX_IMAGE_PIXELS) {
+      throw new Error('Image dimensions exceed limit');
+    }
+
+    const sanitizedBuffer = await image
+      .rotate()
+      .resize({ width: 4096, height: 4096, fit: 'inside', withoutEnlargement: true })
+      .webp({ quality: 80 })
+      .toBuffer();
+
+    if (sanitizedBuffer.length > MAX_SANITIZED_IMAGE_BYTES) {
+      throw new Error('Output image size exceeds limit after re-encoding');
+    }
+
+    return { sanitizedBuffer, mimeType: 'image/webp' };
+  };
+
+  const handleMulterUploadError = (err: any, res: any) => {
+    if (!err) return false;
+    console.error('Multer error:', err);
+    const status = err.code === 'LIMIT_FILE_SIZE' ? 413 : 400;
+    res.status(status).json({ error: 'Upload failed: ' + (err.message || 'Invalid upload') });
+    return true;
+  };
+
   app.post('/api/upload', requireAdmin, (req: any, res: any, next: any) => {
     upload.single('file')(req, res, (err) => {
-      if (err) {
-        console.error('Multer error:', err);
-        return res.status(500).json({ error: 'Upload failed: ' + err.message });
-      }
+      if (handleMulterUploadError(err, res)) return;
       next();
     });
   }, async (req: any, res: any) => {
@@ -732,16 +811,7 @@ import healthRoute from './src/routes/health.route.js';
     }
     
     try {
-      const image = sharp(req.file.buffer);
-      const metadata = await image.metadata();
-      
-      const sanitizedBuffer = await image.webp({ quality: 80 }).toBuffer();
-      const mimeType = 'image/webp';
-      
-      // Limit to 5MB after process
-      if (sanitizedBuffer.length > 5 * 1024 * 1024) {
-         throw new Error('Output image size exceeds limit after re-encoding');
-      }
+      const { sanitizedBuffer, mimeType } = await sanitizeUploadedImage(req.file.buffer);
 
       let fileUrl: string;
       try {
@@ -761,10 +831,7 @@ import healthRoute from './src/routes/health.route.js';
 
   app.post('/api/community/upload', requireAuth, (req: any, res: any, next: any) => {
     communityUpload.single('file')(req, res, (err) => {
-      if (err) {
-        console.error('Multer error:', err);
-        return res.status(500).json({ error: 'Upload failed: ' + err.message });
-      }
+      if (handleMulterUploadError(err, res)) return;
       next();
     });
   }, async (req: any, res: any) => {
@@ -775,16 +842,7 @@ import healthRoute from './src/routes/health.route.js';
     }
     
     try {
-      const image = sharp(req.file.buffer);
-      const metadata = await image.metadata();
-      
-      const sanitizedBuffer = await image.webp({ quality: 80 }).toBuffer();
-      const mimeType = 'image/webp';
-      
-      // Limit to 5MB after process
-      if (sanitizedBuffer.length > 5 * 1024 * 1024) {
-         throw new Error('Output image size exceeds limit after re-encoding');
-      }
+      const { sanitizedBuffer, mimeType } = await sanitizeUploadedImage(req.file.buffer);
 
       let fileUrl: string;
       try {
@@ -862,12 +920,19 @@ import healthRoute from './src/routes/health.route.js';
   });
 
   app.post('/api/reset-password', authLimiter, async (req, res) => {
-    const { username, email, newPassword } = req.body;
+    const username = sanitizeShortText(req.body?.username, 64).toLowerCase().replace(/\s+/g, '');
+    const recoveryEmail = sanitizeShortText(req.body?.email, 254).toLowerCase();
+    const { newPassword } = req.body || {};
+
+    if (!/^[a-z0-9._-]{3,64}$/.test(username) || !isValidEmail(recoveryEmail) || !isValidPassword(newPassword)) {
+      return res.status(400).json({ error: 'ข้อมูลไม่ถูกต้องหรือรหัสผ่านสั้นเกินไป' });
+    }
+
     try {
-      const generatedEmail = `${username.toLowerCase().replace(/\s+/g, '')}@apex-studio.com`;
+      const generatedEmail = `${username}@apex-studio.com`;
       const usersSnapshot = await admin.firestore().collection('users')
         .where('email', '==', generatedEmail)
-        .where('recoveryEmail', '==', email)
+        .where('recoveryEmail', '==', recoveryEmail)
         .limit(1)
         .get();
 
@@ -891,7 +956,14 @@ import healthRoute from './src/routes/health.route.js';
   });
 
   app.post('/api/signup', authLimiter, async (req, res) => {
-    const { email, password, recoveryEmail } = req.body;
+    const email = sanitizeShortText(req.body?.email, 254).toLowerCase();
+    const recoveryEmail = req.body?.recoveryEmail ? sanitizeShortText(req.body.recoveryEmail, 254).toLowerCase() : '';
+    const { password } = req.body || {};
+
+    if (!isValidEmail(email) || !isValidPassword(password) || (recoveryEmail && !isValidEmail(recoveryEmail))) {
+      return res.status(400).json({ error: 'อีเมลหรือรหัสผ่านไม่ถูกต้อง' });
+    }
+
     try {
       const { data, error } = await supabaseAdmin.auth.admin.createUser({
         email,
@@ -930,7 +1002,7 @@ import healthRoute from './src/routes/health.route.js';
   });
 
   app.post('/api/settings', requireAdmin, async (req: any, res: any) => {
-    console.log("=== POST /api/settings REACHED ===", req.body);
+    console.log("=== POST /api/settings REACHED ===");
     const { truewallet_phone, site_name, contact_line, stats_users_offset, stats_sales_offset, stats_categories_offset, stats_stock_offset, stats_users_override, stats_stock_override, stats_sales_override, stats_categories_override, popup_img_url, popup_enabled, popup_link, banners, proxies, auto_proxy, spotify_url, spotify_autoplay } = req.body;
     if (truewallet_phone !== undefined) siteSettings.truewallet_phone = truewallet_phone;
     if (site_name !== undefined) siteSettings.site_name = site_name;
@@ -2162,17 +2234,34 @@ const uploadDir = path.join(os.tmpdir(), 'uploads');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
-const diskUpload = multer({ dest: uploadDir });
+const diskUpload = multer({
+  dest: uploadDir,
+  limits: { fileSize: 10 * 1024 * 1024, files: 1 },
+  fileFilter: (_req, file, cb) => {
+    const safeName = (file.originalname || '').toLowerCase();
+    if (!safeName.endsWith('.txt') && file.mimetype && !['text/plain', 'application/octet-stream'].includes(file.mimetype)) {
+      return cb(new Error('Only plain text stock files are allowed'));
+    }
+    cb(null, true);
+  }
+});
+const MAX_STOCK_FILE_ITEMS = 50_000;
+const MAX_STOCK_ITEM_CHARS = 10_000;
 
   // Stream-based large file stock upload
-  app.post('/api/products/:id/stock-file', requireAdmin, diskUpload.single('file'), async (req, res) => {
+  app.post('/api/products/:id/stock-file', requireAdmin, (req: any, res: any, next: any) => {
+    diskUpload.single('file')(req, res, (err) => {
+      if (handleMulterUploadError(err, res)) return;
+      next();
+    });
+  }, async (req, res) => {
     if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
     try {
       if (!req.file) {
         return res.status(400).json({ error: 'No file uploaded' });
       }
 
-      const linesPerItem = parseInt(req.body.linesPerItem || '1') || 1;
+      const linesPerItem = Math.min(100, Math.max(1, parseInt(req.body.linesPerItem || '1', 10) || 1));
       const fileStream = fs.createReadStream(req.file.path);
       
       const rl = readline.createInterface({
@@ -2186,9 +2275,15 @@ const diskUpload = multer({ dest: uploadDir });
       for await (const line of rl) {
         const trimmed = line.trim();
         if (trimmed.length > 0) {
+          if (trimmed.length > MAX_STOCK_ITEM_CHARS) {
+            throw new Error('Stock line is too long');
+          }
           currentLines.push(trimmed);
           if (currentLines.length >= linesPerItem) {
             chunkedItems.push(currentLines.join('\n'));
+            if (chunkedItems.length > MAX_STOCK_FILE_ITEMS) {
+              throw new Error('Stock file contains too many items');
+            }
             currentLines = [];
           }
         }
@@ -2196,6 +2291,9 @@ const diskUpload = multer({ dest: uploadDir });
       
       if (currentLines.length > 0) {
         chunkedItems.push(currentLines.join('\n'));
+        if (chunkedItems.length > MAX_STOCK_FILE_ITEMS) {
+          throw new Error('Stock file contains too many items');
+        }
       }
       
       // Cleanup temp file
@@ -2637,11 +2735,15 @@ const diskUpload = multer({ dest: uploadDir });
     if (!expectedSecret) {
       return res.status(500).json({ error: 'DISCORD_BOT_SECRET is not configured' });
     }
-    if (secret !== expectedSecret) {
+    if (!timingSafeEqualString(secret, expectedSecret)) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
+    if (typeof key !== 'string' || key.trim().length < 8 || key.length > 128) {
+      return res.status(400).json({ error: 'Invalid key' });
+    }
+
     try {
-      const newDoc = { key, plan: plan || 'premium', status: 'active', created_at: new Date().toISOString() };
+      const newDoc = { key: key.trim(), plan: sanitizeShortText(plan, 32) || 'premium', status: 'active', created_at: new Date().toISOString() };
       await admin.firestore().collection('license_keys').add(newDoc);
       res.json({ success: true, message: `เพิ่มคีย์ ${key} สำเร็จ!`, plan: newDoc.plan });
     } catch (error) {
@@ -2656,7 +2758,7 @@ const diskUpload = multer({ dest: uploadDir });
     if (!expectedSecret) {
       return res.status(500).json({ error: 'DISCORD_BOT_SECRET is not configured' });
     }
-    if (secret !== expectedSecret) {
+    if (!timingSafeEqualString(secret, expectedSecret)) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
     
@@ -3197,6 +3299,7 @@ const diskUpload = multer({ dest: uploadDir });
     try {
       const { ids } = req.body;
       if (!Array.isArray(ids)) return res.status(400).json({ error: 'ids must be an array' });
+      if (ids.length > 500 || !ids.every(isSafeFirestoreDocId)) return res.status(400).json({ error: 'invalid ids' });
       await Promise.all(ids.map(id => admin.firestore().collection('license_keys').doc(id).delete()));
       res.json({ success: true, deletedCount: ids.length });
     } catch (err) {
@@ -3257,7 +3360,7 @@ const diskUpload = multer({ dest: uploadDir });
     }
   });
 
-  app.get('/api/used_keys', async (req: any, res: any) => {
+  app.get('/api/used_keys', requireAuth, async (req: any, res: any) => {
     try {
       const db = admin.firestore();
       let q = db.collection('used_keys');
@@ -3624,14 +3727,16 @@ const diskUpload = multer({ dest: uploadDir });
     if (!admin.firestore()) return res.status(500).json({ error: 'DB not connected' });
     try {
       const { uid } = req.params;
-      const data = req.body;
+      const data = req.body && typeof req.body === 'object' ? req.body : {};
       
-      // Prevent privilege escalation and balance spoofing via whitelisting for non-admin
+      // Prevent privilege escalation, balance spoofing, and account metadata tampering via whitelisting for non-admin
       let dataToUpdate = data;
       if (!req.isAdmin) {
-        const allowedFields = ['avatar', 'displayName', 'bio', 'username', 'fullName', 'email', 'registeredAt']; 
+        const allowedFields = ['avatar', 'displayName', 'bio', 'username', 'fullName'];
         dataToUpdate = Object.fromEntries(
-          Object.entries(data).filter(([k]) => allowedFields.includes(k))
+          Object.entries(data)
+            .filter(([k]) => allowedFields.includes(k))
+            .map(([k, v]) => [k, typeof v === 'string' ? sanitizeShortText(v, k === 'bio' ? 500 : 120) : v])
         );
       }
       
@@ -3748,9 +3853,12 @@ const diskUpload = multer({ dest: uploadDir });
   });
 
   app.post('/api/bot/save', requireAdmin, (req, res) => {
-    // Save config first if provided
-    if (req.body.config) {
-        fs.writeFileSync(path.join(os.tmpdir(), 'bot.py'), req.body.config);
+    const config = typeof req.body?.config === 'string' ? req.body.config : '';
+    if (Buffer.byteLength(config, 'utf8') > BOT_CONFIG_MAX_BYTES) {
+        return res.status(413).json({ error: 'Bot config is too large' });
+    }
+    if (config) {
+        fs.writeFileSync(path.join(os.tmpdir(), 'bot.py'), config, { encoding: 'utf8', mode: 0o600 });
     }
     res.json({ success: true, message: 'Bot config saved' });
   });
@@ -3861,8 +3969,11 @@ const diskUpload = multer({ dest: uploadDir });
   }
 
   app.post('/api/telegram/catcher/request', requireAuth, async (req: any, res: any) => {
-      const { telegramPhone, truemoneyPhone } = req.body;
-      if (!telegramPhone || !truemoneyPhone) return res.status(400).json({ error: 'Missing phone numbers' });
+      const telegramPhone = sanitizeShortText(req.body?.telegramPhone, 16);
+      const truemoneyPhone = sanitizeShortText(req.body?.truemoneyPhone, 10);
+      if (!isValidTelegramPhone(telegramPhone) || !isValidThaiPhone(truemoneyPhone)) {
+          return res.status(400).json({ error: 'Invalid phone numbers' });
+      }
 
       // Verify Premium
       const userRef = admin.firestore().collection('users').doc((req as any).user.uid);
@@ -3887,6 +3998,9 @@ const diskUpload = multer({ dest: uploadDir });
           const phoneHash = crypto.createHash('sha256').update(telegramPhone).digest('hex');
           let sessionId = tgPhoneHashToSessionId.get(phoneHash);
           let sess = sessionId ? tgSessions.get(sessionId) : null;
+          if (sess && sess.uid !== (req as any).user.uid && !req.isAdmin) {
+              return res.status(409).json({ error: 'This Telegram phone is already connected by another account.' });
+          }
           if (sess && sess.status === 'connected') {
              // Already running?
              return res.json({ status: 'connected', sessionId });
@@ -4037,6 +4151,7 @@ const diskUpload = multer({ dest: uploadDir });
       const { sessionId } = req.body;
       const sess = tgSessions.get(sessionId);
       if (sess) {
+          if (sess.uid !== req.user.uid && !req.isAdmin) return res.status(403).json({ error: 'Access denied' });
           try { await sess.client.disconnect(); } catch (e) {}
           tgSessions.delete(sessionId);
           for (const [hash, sid] of tgPhoneHashToSessionId.entries()) {
@@ -4049,11 +4164,14 @@ const diskUpload = multer({ dest: uploadDir });
       res.json({ success: true });
   });
 
-  app.post('/api/truemoney/redeem', requireAuth, async (req: any, res: any) => {
+  app.post('/api/truemoney/redeem', mutationLimiter, requireAuth, async (req: any, res: any) => {
     try {
-      const { url, phone } = req.body;
-      if (!url || !phone) return res.status(400).json({ error: 'Missing parameters' });
-      const result = await twApi(url, phone);
+      const url = sanitizeShortText(req.body?.url, 256);
+      const phone = sanitizeShortText(req.body?.phone, 10);
+      if (!isValidTrueMoneyVoucherUrl(url) || !isValidThaiPhone(phone)) {
+        return res.status(400).json({ error: 'Invalid voucher URL or phone number' });
+      }
+      const result = await ensureTwApiReady()(url, phone);
       res.json(result);
     } catch (err: any) {
       res.status(500).json({ error: err.message || String(err) });
@@ -4064,6 +4182,7 @@ const diskUpload = multer({ dest: uploadDir });
   const discordTokenOnSessions = new Map<string, {
       ws: WebSocket,
       status: 'idle' | 'connected' | 'error',
+      uid: string,
       logs: string[]
   }>();
 
@@ -4076,8 +4195,8 @@ const diskUpload = multer({ dest: uploadDir });
   }
 
   app.post('/api/discord/token-on/start', requireAuth, async (req: any, res: any) => {
-      const { discordToken } = req.body;
-      if (!discordToken) return res.status(400).json({ error: 'Missing token' });
+      const discordToken = sanitizeShortText(req.body?.discordToken, 256);
+      if (discordToken.length < 20) return res.status(400).json({ error: 'Invalid token' });
 
       // Verify Premium (since it's a 24/7 process that drains memory, we MUST protect it)
       const userRef = admin.firestore().collection('users').doc((req as any).user.uid);
@@ -4091,6 +4210,9 @@ const diskUpload = multer({ dest: uploadDir });
               return res.status(503).json({ error: 'Server reached maximum concurrent active connections. Please try again later.' });
           }
           let sess = discordTokenOnSessions.get(discordToken);
+          if (sess && sess.uid !== (req as any).user.uid && !req.isAdmin) {
+              return res.status(409).json({ error: 'This Discord token is already connected by another account.' });
+          }
           if (sess && sess.status === 'connected') {
              return res.json({ status: 'connected' });
           }
@@ -4099,7 +4221,8 @@ const diskUpload = multer({ dest: uploadDir });
           
           sess = { 
               ws, 
-              status: 'idle', 
+              status: 'idle',
+              uid: (req as any).user.uid,
               logs: ['🎯 เริ่มระบบ Token On (24/7)...']
           };
           discordTokenOnSessions.set(discordToken, sess);
@@ -4143,7 +4266,13 @@ const diskUpload = multer({ dest: uploadDir });
           });
 
           ws.on('message', async (data: any) => {
-              const payload = JSON.parse(data);
+              let payload: any;
+              try {
+                  payload = JSON.parse(data.toString());
+              } catch (e) {
+                  pushDiscordOnLog(discordToken, '⚠️ ได้รับข้อมูล Gateway ที่อ่านไม่ได้');
+                  return;
+              }
               
               if (payload.op === 10) {
                   const heartbeatInterval = payload.d.heartbeat_interval;
@@ -4188,7 +4317,7 @@ const diskUpload = multer({ dest: uploadDir });
       const token = req.body.token as string;
       if (!token) return res.status(400).json({ error: 'Missing token' });
       const sess = discordTokenOnSessions.get(token);
-      if (!sess) return res.json({ status: 'none', logs: [] });
+      if (!sess || (sess.uid !== req.user.uid && !req.isAdmin)) return res.json({ status: 'none', logs: [] });
       res.json({ status: sess.status, logs: sess.logs });
   });
 
@@ -4196,6 +4325,7 @@ const diskUpload = multer({ dest: uploadDir });
       const { discordToken } = req.body;
       const sess = discordTokenOnSessions.get(discordToken);
       if (sess) {
+          if (sess.uid !== req.user.uid && !req.isAdmin) return res.status(403).json({ error: 'Access denied' });
           try { sess.ws.close(); } catch (e) {}
           discordTokenOnSessions.delete(discordToken);
       }
@@ -4208,6 +4338,7 @@ const diskUpload = multer({ dest: uploadDir });
       status: 'idle' | 'connected' | 'error',
       encryptedToken: string,
       truemoneyPhone: string,
+      uid: string,
       logs: string[]
   }>();
 
@@ -4222,8 +4353,11 @@ const diskUpload = multer({ dest: uploadDir });
   }
 
   app.post('/api/discord/catcher/request', requireAuth, async (req: any, res: any) => {
-      const { discordToken, truemoneyPhone } = req.body;
-      if (!discordToken || !truemoneyPhone) return res.status(400).json({ error: 'Missing token or phone number' });
+      const discordToken = sanitizeShortText(req.body?.discordToken, 256);
+      const truemoneyPhone = sanitizeShortText(req.body?.truemoneyPhone, 10);
+      if (discordToken.length < 20 || !isValidThaiPhone(truemoneyPhone)) {
+          return res.status(400).json({ error: 'Invalid token or phone number' });
+      }
 
       // Verify Premium
       const userRef = admin.firestore().collection('users').doc((req as any).user.uid);
@@ -4251,6 +4385,9 @@ const diskUpload = multer({ dest: uploadDir });
           const tokenHash = crypto.createHash('sha256').update(discordToken).digest('hex');
           let sessionId = discordTokenHashToSessionId.get(tokenHash);
           let sess = sessionId ? discordSessions.get(sessionId) : null;
+          if (sess && sess.uid !== (req as any).user.uid && !req.isAdmin) {
+              return res.status(409).json({ error: 'This Discord token is already connected by another account.' });
+          }
           if (sess && sess.status === 'connected') {
              return res.json({ status: 'connected', sessionId });
           }
@@ -4267,6 +4404,7 @@ const diskUpload = multer({ dest: uploadDir });
               status: 'idle', 
               encryptedToken: encrypt(discordToken),
               truemoneyPhone,
+              uid: (req as any).user.uid,
               logs: ['เริ่มเชื่อมต่อเข้าสู่ระบบ Discord (WebSocket)...']
           };
           discordSessions.set(sessionId, sess);
@@ -4305,7 +4443,13 @@ const diskUpload = multer({ dest: uploadDir });
           });
 
           ws.on('message', async (data: any) => {
-              const payload = JSON.parse(data);
+              let payload: any;
+              try {
+                  payload = JSON.parse(data.toString());
+              } catch (e) {
+                  pushDiscordLog(sessionId!, '⚠️ ได้รับข้อมูล Gateway ที่อ่านไม่ได้');
+                  return;
+              }
               if (payload.t === 'MESSAGE_CREATE') {
                   const message = payload.d.content;
                   if (message) {
@@ -4316,7 +4460,7 @@ const diskUpload = multer({ dest: uploadDir });
                           pushDiscordLog(sessionId!, `🎯 เจอซอง! เริ่มการรับเครดิตเข้าเบอร์ ${truemoneyPhone}`);
                           for (const vurl of matches) {
                               try {
-                                  const result = await twApi(vurl, truemoneyPhone);
+                                  const result = await ensureTwApiReady()(vurl, truemoneyPhone);
                                   if (result?.status?.code === 'SUCCESS') {
                                       pushDiscordLog(sessionId!, `✅ รับซองสำเร็จ! +${result.data.my_ticket.amount_baht} บาท`);
                                   } else {
@@ -4366,10 +4510,10 @@ const diskUpload = multer({ dest: uploadDir });
       }
   });
 
-  app.post('/api/discord/catcher/status', async (req, res) => {
+  app.post('/api/discord/catcher/status', requireAuth, async (req: any, res) => {
       const { sessionId } = req.body;
       const sess = discordSessions.get(sessionId);
-      if (!sess) return res.json({ status: 'none', logs: [] });
+      if (!sess || (sess.uid !== req.user.uid && !req.isAdmin)) return res.json({ status: 'none', logs: [] });
       res.json({ status: sess.status, logs: sess.logs });
   });
 
@@ -4377,6 +4521,7 @@ const diskUpload = multer({ dest: uploadDir });
       const { sessionId } = req.body;
       const sess = discordSessions.get(sessionId);
       if (sess) {
+          if (sess.uid !== req.user.uid && !req.isAdmin) return res.status(403).json({ error: 'Access denied' });
           try { sess.ws.close(); } catch (e) {}
           discordSessions.delete(sessionId);
           for (const [hash, sid] of discordTokenHashToSessionId.entries()) {
