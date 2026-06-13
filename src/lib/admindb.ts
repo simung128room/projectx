@@ -502,7 +502,8 @@ class SupabaseQuery {
       if (forwardMap[field]) return forwardMap[field];
       return field.toLowerCase();
     });
-    this._selectFields = mapped.join(',');
+    const filtered = mapped.filter(item => !missingColumns.has(`${this.collection}.${item}`));
+    this._selectFields = filtered.join(',');
     return this;
   }
   async get() {
