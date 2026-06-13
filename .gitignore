@@ -30,6 +30,7 @@ fetch_*.js
 fetch_*.cjs
 *.txt
 *.png
+/*.mjs
 /*.cjs
 /*.js
 /*.ts

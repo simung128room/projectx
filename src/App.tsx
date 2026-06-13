@@ -370,7 +370,7 @@ function AppContent() {
        const parsed = JSON.parse(saved);
        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
      }
-   } catch (e) {}
+   } catch(e) { console.error("Caught error:", e); }
    return defaultProducts;
  });
 
@@ -384,18 +384,14 @@ function AppContent() {
    try {
      const saved = localStorage.getItem("apex_stats_cache");
      return saved ? JSON.parse(saved) : defaultStats;
-   } catch {
-     return defaultStats;
-   }
+   } catch(e) { console.warn("Failed to parse apex_stats_cache", e); localStorage.removeItem("apex_stats_cache"); return defaultStats; }
  });
 
  const [customPages, setCustomPages] = useState<any[]>(() => {
    try {
      const saved = localStorage.getItem("apex_pages_cache");
      return saved ? JSON.parse(saved) : [];
-   } catch {
-     return [];
-   }
+   } catch(e) { console.warn("Failed to parse cache", e); return []; }
  });
 
  const [categories, setCategories] = useState<any[]>(() => {
@@ -405,7 +401,7 @@ function AppContent() {
        const parsed = JSON.parse(saved);
        if (Array.isArray(parsed) && parsed.length > 0) return sanitizeCategories(parsed);
      }
-   } catch (e) {}
+   } catch(e) { console.error("Caught error:", e); }
    return [
      { id: "premium_app", name: "แอปพรีเมียม / บันเทิง", title: "แอปพรีเมียม / บันเทิง" },
      { id: "gaming_id", name: "ไอดีเกมส์ยอดนิยม", title: "ไอดีเกมส์ยอดนิยม" },
@@ -929,14 +925,7 @@ function AppContent() {
      const currentUser: any = session?.user || null;
      if (currentUser) currentUser.uid = currentUser.id;
      setUser(currentUser);
-     if (
-       currentUser &&
-       (currentUser.email === "abopboa.b@gmail.com" ||
-         currentUser.email === "admin_apex@apex-studio.com" ||
-         currentUser.email === "admin@apex-studio.com")
-     ) {
-       setIsAdmin(true);
-     }
+     
    });
 
    const {
@@ -952,16 +941,7 @@ function AppContent() {
      const currentUser: any = session?.user || null;
      if (currentUser) currentUser.uid = currentUser.id;
      setUser(currentUser);
-     if (
-       currentUser &&
-       (currentUser.email === "abopboa.b@gmail.com" ||
-         currentUser.email === "admin_apex@apex-studio.com" ||
-         currentUser.email === "admin@apex-studio.com")
-     ) {
-       setIsAdmin(true);
-     } else {
-       setIsAdmin(false);
-     }
+      setIsAdmin(false);
 
      if (currentUser && !currentUser.isAnonymous && currentUser.email) {
        try {
@@ -981,15 +961,10 @@ function AppContent() {
              premiumExpireDate: null,
              balance: 0,
              email: currentUser.email,
-             role:
-               currentUser.email === "abopboa.b@gmail.com" ||
-               currentUser.email === "admin_apex@apex-studio.com" ||
-               currentUser.email === "admin@apex-studio.com"
-                 ? "Admin"
-                 : "Member",
+             role: "Member",
            };
            setUserPlan(initialPlan);
-           if (initialPlan.role === "Admin") setIsAdmin(true);
+           
            await axios.post(`/api/users/${currentUser.uid}`, initialPlan);
          }
        } catch (err: any) {
@@ -1001,15 +976,10 @@ function AppContent() {
              premiumExpireDate: null,
              balance: 0,
              email: currentUser.email,
-             role:
-               currentUser.email === "abopboa.b@gmail.com" ||
-               currentUser.email === "admin_apex@apex-studio.com" ||
-               currentUser.email === "admin@apex-studio.com"
-                 ? "Admin"
-                 : "Member",
+             role: "Member",
            };
            setUserPlan(initialPlan);
-           if (initialPlan.role === "Admin") setIsAdmin(true);
+           
            try {
              await axios.post(`/api/users/${currentUser.uid}`, initialPlan);
            } catch (postErr) {
@@ -1107,15 +1077,15 @@ function AppContent() {
          
          if (res.url === "/api/settings" && res.data) {
            setSiteSettings(res.data);
-           try { localStorage.setItem("apex_settings_cache", JSON.stringify(res.data)); } catch (e) {}
+           try { localStorage.setItem("apex_settings_cache", JSON.stringify(res.data)); } catch(e) { console.error("Caught error:", e); }
          } else if (res.url === "/api/products" && res.data && Array.isArray(res.data)) {
            const finalProds = res.data;
            setProducts(finalProds);
-           try { localStorage.setItem("apex_products_cache", JSON.stringify(finalProds)); } catch (e) {}
+           try { localStorage.setItem("apex_products_cache", JSON.stringify(finalProds)); } catch(e) { console.error("Caught error:", e); }
          } else if (res.url === "/api/categories" && res.data && Array.isArray(res.data)) {
            const sanitized = sanitizeCategories(res.data);
            setCategories(sanitized);
-           try { localStorage.setItem("apex_categories_cache", JSON.stringify(sanitized)); } catch (e) {}
+           try { localStorage.setItem("apex_categories_cache", JSON.stringify(sanitized)); } catch(e) { console.error("Caught error:", e); }
          } else if (res.url === "/api/stats" && res.data) {
            const statsObj = {
              users: res.data.users,
@@ -1125,12 +1095,12 @@ function AppContent() {
              totalOrders: res.data.totalOrders,
            };
            setSiteStats(statsObj);
-           try { localStorage.setItem("apex_stats_cache", JSON.stringify(statsObj)); } catch (e) {}
+           try { localStorage.setItem("apex_stats_cache", JSON.stringify(statsObj)); } catch(e) { console.error("Caught error:", e); }
          } else if (res.url === "/api/pages" && res.data) {
            const d = res.data;
            const pagesToSet = Array.isArray(d) ? d : (d.data && Array.isArray(d.data) ? d.data : []);
            setCustomPages(pagesToSet);
-           try { localStorage.setItem("apex_pages_cache", JSON.stringify(pagesToSet)); } catch (e) {}
+           try { localStorage.setItem("apex_pages_cache", JSON.stringify(pagesToSet)); } catch(e) { console.error("Caught error:", e); }
          }
        }
      });

@@ -46,8 +46,11 @@ async function saveLocalTable(collection: string, data: any) {
   await writePromises[collection];
 }
 
-const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
-const supabaseKey = (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY || '').trim();
+const isServer = typeof window === 'undefined';
+const supabaseUrl = isServer ? (process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL) : '';
+const supabaseKey = isServer 
+  ? (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY || '').trim()
+  : '';
 
 // Ensure the key is an actual JWT/ASCII string and not Thai text to prevent Node Headers ByteString crash
 const isValidKey = /^[A-Za-z0-9\-_.]+$/.test(supabaseKey);
@@ -373,7 +376,7 @@ class SupabaseDoc {
                     try {
                         const parsed = JSON.parse(matchingRow[0].content);
                         finalData = { ...parsed, ...data, id: this.id };
-                    } catch (e) {}
+                    } catch(e) { console.error("Caught error:", e); }
                 }
             }
             
@@ -525,7 +528,7 @@ class SupabaseQuery {
                  rawMap.set(item.id, row.content);
               }
            }
-         } catch (e) {}
+         } catch(e) { console.error("Caught error:", e); }
       }
       
       let filteredData = [...items];

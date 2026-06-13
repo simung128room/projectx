@@ -62,8 +62,8 @@ export const LogCategoriesView: React.FC<LogCategoriesViewProps> = ({ userPlan, 
     // Modal to display attachments with HTML Injection & XSS prevention
     const htmlAttachments = item.attachments.map((att: any) => {
         const cleanData = (att.data || '').trim().replace(/"/g, '&quot;');
-        // Prevent javascript: protocol execution in URLs
-        const safeUrl = /^javascript:/i.test(cleanData) ? '#' : cleanData;
+        // Prevent javascript: and data: protocol execution in URLs
+        const safeUrl = /^(javascript:|data:)/i.test(cleanData) ? '#' : cleanData;
         
         if (att.type === 'image') {
           return `<img loading="lazy" src="${safeUrl}" class="w-full rounded-md mb-2" />`;

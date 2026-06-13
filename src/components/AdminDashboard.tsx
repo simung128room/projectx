@@ -131,6 +131,7 @@ const ProductManagerModal = ({
               <label className="block text-xs font-medium text-muted-foreground mb-1">สต๊อก</label>
               <input 
                 type="number" 
+                min={0}
                 value={formData.stock} 
                 onChange={e => setFormData({...formData, stock: e.target.value === '' ? '' : Number(e.target.value)})}
                 className="w-full bg-[#09090b] border border-[#1e1e1e] border px-4 py-3 text-white font-medium focus:outline-none focus:border-[#10b981] focus:ring-1 focus:ring-[#10b981]/50 transition-all text-sm"
@@ -244,6 +245,12 @@ const ProductManagerModal = ({
             onClick={() => {
               if(!formData.name || formData.price === '' || formData.price === null || formData.price === undefined) {
                  return Swal.fire({title: 'ข้อมูลไม่ครบ', text: 'กรุณากรอกชื่อและราคาปัจจุบัน', icon: 'warning', background: '#09090b', color: '#fff'});
+              }
+              if (Number(formData.price) < 0) {
+                 return Swal.fire({title: 'ข้อมูลไม่ถูกต้อง', text: 'ราคาไม่สามารถติดลบได้', icon: 'error', background: '#09090b', color: '#fff'});
+              }
+              if (Number(formData.stock) < 0) {
+                 return Swal.fire({title: 'ข้อมูลไม่ถูกต้อง', text: 'สต๊อกไม่สามารถติดลบได้', icon: 'error', background: '#09090b', color: '#fff'});
               }
               const { preOrderOptionsInput, ...cleanFormData } = formData;
               const p = {
@@ -834,8 +841,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     try {
       const response = await axios.post('/api/upload', formData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Content-Type': 'multipart/form-data'
         }
       });
 
@@ -873,7 +879,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       try {
         const res = await axios.get('/api/settings');
         if (res.data) setSiteSettings(res.data);
-      } catch (err) {}
+      } catch(err) { console.error("Caught error:", err); }
     };
     fetchSettings();
   }, [adminTab]);
@@ -911,9 +917,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   };
 
   // Calculate Stats
-  const totalOrders = siteStats.sales !== undefined ? (siteStats as any).totalOrders || purchaseHistory.length : purchaseHistory.length;
-  const totalMoney = (siteStats as any).topups || topupHistory.reduce((acc, curr) => acc + (curr.amount || curr.money || 0), 0);
-  const totalRevenue = siteStats.sales || purchaseHistory.reduce((acc, curr) => acc + (curr.price || 0), 0);
+  const totalOrders = siteStats.sales != null ? ((siteStats as any).totalOrders ?? purchaseHistory.length) : purchaseHistory.length;
+  const totalMoney = (siteStats as any).topups ?? topupHistory.reduce((acc, curr) => acc + (curr.amount || curr.money || 0), 0);
+  const totalRevenue = siteStats.sales ?? purchaseHistory.reduce((acc, curr) => acc + (curr.price || 0), 0);
   
   const today = new Date();
   const startOfDay = new Date(today.setHours(0,0,0,0));
@@ -1491,7 +1497,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       {products.map((p, i) => (
                         <tr key={i} className="border-b border-[#1e1e1e]/80 hover:bg-[#050505]/30 transition-all duration-200">
                           <td className="px-5 py-4 flex items-center gap-3">
-                            <img loading="lazy" src={p.imageUrl || undefined} alt={p.name} className="w-12 h-12 object-cover bg-zinc-950 border border-[#1e1e1e] rounded-md shadow-sm" />
+                            <img 
+                              loading="lazy" 
+                              src={p.imageUrl || 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100%" height="100%" fill="%2318181b"/><text x="50%" y="54%" font-family="sans-serif" font-size="12" fill="%23a1a1aa" dominant-baseline="middle" text-anchor="middle">No Image</text></svg>'} 
+                              alt={p.name} 
+                              className="w-12 h-12 object-cover bg-zinc-950 border border-[#1e1e1e] rounded-md shadow-sm" 
+                              onError={(e) => { 
+                                e.currentTarget.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100%" height="100%" fill="%2318181b"/><text x="50%" y="54%" font-family="sans-serif" font-size="12" fill="%23a1a1aa" dominant-baseline="middle" text-anchor="middle">No Image</text></svg>'; 
+                              }} 
+                            />
                             <div>
                                 <div className="text-white font-medium flex items-center gap-2">
                                   {p.name}
@@ -1621,7 +1635,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     {products.map((p, i) => (
                       <div key={i} className="bg-[#09090b] border border-[#1e1e1e] border p-4 flex flex-col gap-3">
                         <div className="flex items-center gap-3">
-                          <img loading="lazy" src={p.imageUrl || undefined} alt={p.name} className="w-12 h-12 object-cover bg-[#09090b]" />
+                          <img 
+                            loading="lazy" 
+                            src={p.imageUrl || 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100%" height="100%" fill="%2318181b"/><text x="50%" y="54%" font-family="sans-serif" font-size="12" fill="%23a1a1aa" dominant-baseline="middle" text-anchor="middle">No Image</text></svg>'} 
+                            alt={p.name} 
+                            className="w-12 h-12 object-cover bg-[#09090b] border border-[#1e1e1e] rounded-md" 
+                            onError={(e) => { 
+                              e.currentTarget.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100%" height="100%" fill="%2318181b"/><text x="50%" y="54%" font-family="sans-serif" font-size="12" fill="%23a1a1aa" dominant-baseline="middle" text-anchor="middle">No Image</text></svg>'; 
+                            }} 
+                          />
                           <div className="flex-1 min-w-0">
                             <div className="text-white font-medium flex items-center gap-2 truncate">
                               <span className="truncate">{p.name}</span>

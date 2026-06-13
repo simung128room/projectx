@@ -12,12 +12,16 @@ import CircuitBreaker from 'opossum';
 import { CookieJar } from 'tough-cookie';
 import crypto from 'node:crypto';
 
-const BACKEND_ENCRYPTION_KEY = process.env.BACKEND_ENCRYPTION_KEY || 'apex-studio-default-super-secret-key-32b';
+const getEncryptionKey = () => {
+  const key = process.env.BACKEND_ENCRYPTION_KEY;
+  if (!key) throw new Error('Missing BACKEND_ENCRYPTION_KEY environment variable. This is required for security.');
+  return key;
+};
 
 function encrypt(text: string): string {
   if (!text) return '';
   try {
-    const key = crypto.createHash('sha256').update(BACKEND_ENCRYPTION_KEY).digest();
+    const key = crypto.createHash('sha256').update(getEncryptionKey()).digest();
     const iv = crypto.randomBytes(16);
     const cipher = crypto.createCipheriv('aes-256-gcm', key, iv);
     const encrypted = Buffer.concat([cipher.update(text, 'utf8'), cipher.final()]);
@@ -35,7 +39,7 @@ function decrypt(cipherText: string): string {
     const parts = cipherText.substring(4).split(':');
     if (parts.length !== 3) return cipherText;
     const [ivHex, tagHex, encryptedHex] = parts;
-    const key = crypto.createHash('sha256').update(BACKEND_ENCRYPTION_KEY).digest();
+    const key = crypto.createHash('sha256').update(getEncryptionKey()).digest();
     const iv = Buffer.from(ivHex, 'hex');
     const tag = Buffer.from(tagHex, 'hex');
     const encryptedText = Buffer.from(encryptedHex, 'hex');
@@ -52,7 +56,6 @@ import { fileURLToPath } from 'url';
 import https from 'node:https';
 import tls from 'node:tls';
 import { HttpsProxyAgent } from 'https-proxy-agent';
-import { spawn, ChildProcess } from 'child_process';
 import WebSocket from 'ws';
 
 import rateLimit from 'express-rate-limit';
@@ -87,7 +90,7 @@ const compressStock = async (stockData: any) => {
 const decompressStock = async (data: any) => {
   let compData = data;
   if (typeof data === 'string') {
-     try { data = JSON.parse(data); compData = data; } catch(e) {}
+     try { data = JSON.parse(data); compData = data; } catch(e) { console.error("Caught error:", e); }
   }
   
   if (data && typeof data === 'object' && !Array.isArray(data)) {
@@ -252,10 +255,10 @@ process.on('uncaughtException', (err) => {
   // Synchronous trace for sure crash logging
   try {
     fs.appendFileSync('crash.log', `${new Date().toISOString()} ${err.stack}\n`);
-  } catch(e) {}
+  } catch(e) { console.error("Caught error:", e); }
 
   sendAlert('Uncaught Exception 🔥', `**Error**: ${err.message}`, 16711680)
-    .catch(() => {});
+    .catch((e: any) => console.error(e));
 });
 
 process.on('unhandledRejection', (reason, promise) => {
@@ -500,7 +503,7 @@ app.set('trust proxy', 1);
     const used = process.memoryUsage();
     // Memory threshold alert
     if (used.heapUsed / used.heapTotal > 0.90) {
-      sendAlert('High Memory Usage ⚠️', `Heap is at ${Math.round((used.heapUsed/used.heapTotal)*100)}% (${Math.round(used.heapUsed/1024/1024)}MB)`, 16753920).catch(() => {});
+      sendAlert('High Memory Usage ⚠️', `Heap is at ${Math.round((used.heapUsed/used.heapTotal)*100)}% (${Math.round(used.heapUsed/1024/1024)}MB)`, 16753920).catch((e: any) => console.error(e));
     }
     
     res.json({ 
@@ -741,7 +744,7 @@ import healthRoute from './src/routes/health.route.js';
   
   app.use(injectUser);
 
-  // Helper to check magic bytes
+  // Helper to check magic bytes and prevent web shell strings inside the image
   const isImageSafe = (buffer: Buffer) => {
     if (buffer.length < 4) return false;
     const hex = buffer.toString('hex', 0, 4).toUpperCase();
@@ -749,7 +752,35 @@ import healthRoute from './src/routes/health.route.js';
     const isPng = hex.startsWith('89504E47');
     const isGif = hex.startsWith('47494638'); // GIF8
     const isWebp = hex.startsWith('52494646') && buffer.toString('hex', 8, 12).toUpperCase() === '57454250'; // RIFF...WEBP
-    return isJpeg || isPng || isGif || isWebp;
+    if (!(isJpeg || isPng || isGif || isWebp)) return false;
+
+    // Reject raw script or markup strings to mitigate polyglot / web shell bypasses
+    const bufferString = buffer.toString('utf8', 0, Math.min(buffer.length, 8192));
+    const dangerousPatterns = [
+      /<\?php/i,
+      /<script/i,
+      /<\/script/i,
+      /<\s*html/i,
+      /<\s*body/i,
+      /onload\s*=/i,
+      /onerror\s*=/i,
+      /proc_open/i,
+      /shell_exec/i
+    ];
+    for (const pattern of dangerousPatterns) {
+      if (pattern.test(bufferString)) {
+        return false;
+      }
+    }
+    return true;
+  };
+
+  const validateUploadFileMetadata = (file: any) => {
+    if (!file) return false;
+    const ext = path.extname(file.originalname || '').toLowerCase();
+    const allowedExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
+    const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    return allowedExtensions.includes(ext) && allowedMimeTypes.includes(file.mimetype);
   };
 
   app.post('/api/upload', requireAdmin, (req: any, res: any, next: any) => {
@@ -762,7 +793,7 @@ import healthRoute from './src/routes/health.route.js';
     });
   }, async (req: any, res: any) => {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-    if (!isImageSafe(req.file.buffer)) {
+    if (!validateUploadFileMetadata(req.file) || !isImageSafe(req.file.buffer)) {
       sendAlert('Unsafe Upload Attempt (Admin) ⚠️', `**IP**: ${req.ip}\n**User**: ${(req as any).user?.uid || 'guest'}`, 16753920, req.id);
       return res.status(400).json({ error: 'Invalid file type. Only secure images allowed.' });
     }
@@ -805,7 +836,7 @@ import healthRoute from './src/routes/health.route.js';
     });
   }, async (req: any, res: any) => {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-    if (!isImageSafe(req.file.buffer)) {
+    if (!validateUploadFileMetadata(req.file) || !isImageSafe(req.file.buffer)) {
       sendAlert('Unsafe Upload Attempt (Community) ⚠️', `**IP**: ${req.ip}\n**User**: ${(req as any).user?.uid || 'guest'}`, 16753920, req.id);
       return res.status(400).json({ error: 'Invalid file type. Only secure images allowed.' });
     }
@@ -883,10 +914,10 @@ import healthRoute from './src/routes/health.route.js';
         const { data } = await supabaseAdmin.from('custom_pages').select('*').eq('slug', docName).single();
         if (data && data.content) {
           let parsed = {};
-          try { parsed = JSON.parse(data.content); } catch(e) {}
+          try { parsed = JSON.parse(data.content); } catch(e) { console.error("Caught error:", e); }
           siteSettings = { ...siteSettings, ...parsed };
         }
-      } catch (err: any) {}
+      } catch(err: any) { console.error("Caught error:", err); }
     };
     
     try {
@@ -1005,7 +1036,7 @@ import healthRoute from './src/routes/health.route.js';
       }
 
       // Verify email domain format
-      const isApexStudioDomain = /^[a-z0-0_.-]+@apex-studio\.com$/i.test(email);
+      const isApexStudioDomain = /^[a-z0-9_.-]+@apex-studio\.com$/i.test(email);
       if (!isApexStudioDomain) {
         return res.status(400).json({ error: 'รูปแบบอีเมลไม่ถูกต้องสำหรับระบบนี้' });
       }
@@ -1099,7 +1130,7 @@ import healthRoute from './src/routes/health.route.js';
       try {
         const { count } = await supabaseAdmin.from('users').select('*', { count: 'exact', head: true });
         if (count !== null) realUsersCount = count;
-      } catch (se) {}
+      } catch(se) { console.error("Caught error:", se); }
     }
 
     let realSales = 0;
@@ -1111,7 +1142,7 @@ import healthRoute from './src/routes/health.route.js';
         const purchases = await getCachedCollection('purchases', 60000);
         purchases.forEach((p: any) => realSales += (Number(p.price) || 0));
       }
-    } catch(e) {}
+    } catch(e) { console.error("Caught error:", e); }
 
     let realStock = 0;
     try {
@@ -1119,7 +1150,7 @@ import healthRoute from './src/routes/health.route.js';
       pData.forEach((p: any) => {
         if (p.stock > 0 && p.stock < 999999) realStock += Number(p.stock);
       });
-    } catch (e) {}
+    } catch(e) { console.error("Caught error:", e); }
 
     // 1. Users Override / Offset setup
     if (stats_users_target !== undefined && stats_users_type !== undefined) {
@@ -1170,18 +1201,13 @@ import healthRoute from './src/routes/health.route.js';
     if (stats_categories_override !== undefined) siteSettings.stats_categories_override = stats_categories_override === null || isNaN(parseInt(stats_categories_override)) ? null : parseInt(stats_categories_override);
 
     if (popup_img_url !== undefined) siteSettings.popup_img_url = popup_img_url;
-    if (popup_enabled !== undefined) siteSettings.popup_enabled = popup_enabled === true || popup_enabled === 'true';
+    if (popup_enabled !== undefined) siteSettings.popup_enabled = popup_enabled === 'true' || popup_enabled === true;
     if (popup_link !== undefined) siteSettings.popup_link = popup_link;
-    if (req.body.discord_link !== undefined) siteSettings.discord_link = req.body.discord_link;
-    if (req.body.facebook_link !== undefined) siteSettings.facebook_link = req.body.facebook_link;
-    if (req.body.instagram_link !== undefined) siteSettings.instagram_link = req.body.instagram_link;
-    if (req.body.contact_email !== undefined) siteSettings.contact_email = req.body.contact_email;
-    if (req.body.announcement_text !== undefined) siteSettings.announcement_text = req.body.announcement_text;
-    if (req.body.spotify_url !== undefined) siteSettings.spotify_url = req.body.spotify_url;
-    if (req.body.spotify_autoplay !== undefined) siteSettings.spotify_autoplay = req.body.spotify_autoplay === true || req.body.spotify_autoplay === 'true';
-    if (req.body.banners !== undefined && Array.isArray(req.body.banners)) siteSettings.banners = req.body.banners;
-    if (req.body.proxies !== undefined && Array.isArray(req.body.proxies)) siteSettings.proxies = req.body.proxies;
-    if (req.body.auto_proxy !== undefined) siteSettings.auto_proxy = req.body.auto_proxy === true || req.body.auto_proxy === 'true';
+    if (banners !== undefined) siteSettings.banners = banners;
+    if (proxies !== undefined) siteSettings.proxies = proxies;
+    if (auto_proxy !== undefined) siteSettings.auto_proxy = auto_proxy === 'true' || auto_proxy === true;
+    if (spotify_url !== undefined) siteSettings.spotify_url = spotify_url;
+    if (spotify_autoplay !== undefined) siteSettings.spotify_autoplay = spotify_autoplay === 'true' || spotify_autoplay === true;
     if (req.body.bank_name !== undefined) siteSettings.bank_name = req.body.bank_name;
     if (req.body.bank_account_number !== undefined) siteSettings.bank_account_number = req.body.bank_account_number;
     if (req.body.bank_account_holder !== undefined) siteSettings.bank_account_holder = req.body.bank_account_holder;
@@ -1220,6 +1246,7 @@ import healthRoute from './src/routes/health.route.js';
 
   app.post('/api/topup/truemoney', mutationLimiter, requireAuth, async (req: any, res: any) => {
     let voucherRef: any = null;
+    let apiSuccess = false;
     try {
       const { voucherCode } = req.body;
       const uid = (req as any).user.uid;
@@ -1290,7 +1317,9 @@ import healthRoute from './src/routes/health.route.js';
         response = await topupBreaker.fire(voucherHash, phone);
       } catch (err: any) {
         console.error(`[TrueWallet] XPLUEM Circuit Breaker Error:`, err.message);
-        await voucherRef.delete();
+        if (voucherRef && !apiSuccess) {
+          await voucherRef.delete();
+        }
         return res.status(503).json({ error: 'ระบบเติมเงินขัดข้อง (Circuit Breaker Open) กรุณาลองใหม่ภายหลัง', isProxyError: true });
       }
 
@@ -1298,8 +1327,12 @@ import healthRoute from './src/routes/health.route.js';
       console.log(`[TrueWallet] XPLUEM Response:`, JSON.stringify(result));
 
       if (result.success === true) {
+          apiSuccess = true;
           const amount = parseFloat(result.data?.amount || 0);
           if (isNaN(amount) || amount <= 0) {
+             if (voucherRef) {
+                await voucherRef.delete().catch((e: any) => console.error(e));
+             }
              return res.json({ success: false, error: 'ข้อมูลซองอั่งเปาไม่ถูกต้อง (ยอดเงินไม่ถูกต้อง)' });
           }
           console.log(`[TrueWallet] Successfully redeemed ฿${amount}`);
@@ -1335,7 +1368,7 @@ import healthRoute from './src/routes/health.route.js';
                       amount: amount
                     });
                  } else {
-                     throw new Error('USER_NOT_FOUND');
+                      throw new Error('USER_NOT_FOUND');
                  }
               });
 
@@ -1349,7 +1382,7 @@ import healthRoute from './src/routes/health.route.js';
               });
             } catch (syncErr: any) {
               if (syncErr.message === 'USER_NOT_FOUND') {
-                 await voucherRef.delete().catch(() => {});
+                 await voucherRef.delete().catch((e: any) => console.error(e));
                  return res.json({ success: false, error: 'ข้อมูลสมาชิกไม่ถูกต้อง' });
               }
               console.error(`[TrueWallet] Balance sync error:`, syncErr);
@@ -1365,14 +1398,14 @@ import healthRoute from './src/routes/health.route.js';
           const errorMsg = result.message || 'ไม่สามารถรับเงินได้ (สถานะไม่สำเร็จ)';
           console.warn(`[TrueWallet] Failed: ${errorMsg}`);
           if (voucherRef) {
-             await voucherRef.delete().catch(() => {});
+             await voucherRef.delete().catch((e: any) => console.error(e));
           }
           return res.json({ success: false, error: errorMsg });
       }
     } catch (error: any) {
         console.error("[TrueWallet] Gateway Error:", error.message);
         if (voucherRef) {
-            await voucherRef.delete().catch(() => {});
+            await voucherRef.delete().catch((e: any) => console.error(e));
         }
         if (error.response) {
             const result = error.response.data;
@@ -1444,6 +1477,35 @@ import healthRoute from './src/routes/health.route.js';
         }
         
         const transRef = response.data.data?.transRef;
+        const transDateStr = response.data.data?.sendingDateTime || response.data.data?.date?.value || response.data.data?.transDate || '';
+
+        if (!transRef || typeof transRef !== 'string' || transRef.trim().length < 8 || !/^[A-Za-z0-9\-_]+$/.test(transRef.trim())) {
+             return res.json({ success: false, error: 'ไม่พบหมายเลขอ้างอิงสลิปที่ถูกต้อง หรือสลิปไม่ได้มาตรฐาน (Invalid or missing Transaction Reference)' });
+        }
+
+        // Validate that the slip is not older than 7 days
+        if (transDateStr) {
+          try {
+             let parsedDate: Date | null = null;
+             if (/^\d{8}$/.test(transDateStr)) {
+                const y = parseInt(transDateStr.substring(0, 4), 10);
+                const m = parseInt(transDateStr.substring(4, 6), 10) - 1;
+                const d = parseInt(transDateStr.substring(6, 8), 10);
+                parsedDate = new Date(y, m, d);
+             } else {
+                parsedDate = new Date(transDateStr);
+             }
+
+             if (parsedDate && !isNaN(parsedDate.getTime())) {
+                const diffTime = Math.abs(Date.now() - parsedDate.getTime());
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                if (diffDays > 7) {
+                   return res.json({ success: false, error: 'สลิปนี้เก่าเกินไป ระบบรับเฉพาะสลิปที่มีอายุไม่เกิน 7 วันเท่านั้น' });
+                }
+             }
+          } catch(e) { console.error("Caught error:", e); }
+        }
+
         const receiverProxy = response.data.data?.receiver?.proxy?.value || '';
         const receiverName = response.data.data?.receiver?.displayName || response.data.data?.receiver?.name || '';
         
@@ -1591,12 +1653,12 @@ import healthRoute from './src/routes/health.route.js';
           const data = apiKeyDoc.data();
           if (data?.status === 'active') {
             if (data?.expires_at && new Date(data.expires_at) < new Date()) {
-               await admin.firestore().collection('api_keys').doc(apiKey).update({ status: 'expired' }).catch(() => {});
+               await admin.firestore().collection('api_keys').doc(apiKey).update({ status: 'expired' }).catch((e: any) => console.error(e));
                return res.status(401).json({ error: 'API Key has expired' });
             }
             isApiKeyValid = true;
             // Fire and forget updating last_used
-            admin.firestore().collection('api_keys').doc(apiKey).update({ last_used: new Date().toISOString() }).catch(() => {});
+            admin.firestore().collection('api_keys').doc(apiKey).update({ last_used: new Date().toISOString() }).catch((e: any) => console.error(e));
           } else {
              return res.status(401).json({ error: 'API Key is disabled or expired' });
           }
@@ -1801,7 +1863,7 @@ import healthRoute from './src/routes/health.route.js';
         if (ddRes.data && typeof ddRes.data === 'string') {
           try {
              return JSON.parse(ddRes.data);
-          } catch(e){}
+          } catch(e) { console.error("Caught error:", e); }
         }
         return ddRes.data;
       };
@@ -1946,7 +2008,7 @@ import healthRoute from './src/routes/health.route.js';
           const cleanName = rovGames[0].replace('[', '').replace(']', '');
           const parts = cleanName.split('-');
           if (parts.length > 2) rovCharacter = parts[2].trim();
-        } catch(e) {}
+        } catch(e) { console.error("Caught error:", e); }
       }
       const phoneBound = !!(userData.mobile_no && userData.mobile_no !== 'N/A');
       const emailVerified = !!userData.email_v;
@@ -2432,6 +2494,9 @@ if (process.env.REDIS_URL) {
         Object.entries(product).filter(([k]) => allowedFields.includes(k))
       );
       
+      if (sanitizedProduct.stock !== undefined && Number(sanitizedProduct.stock) < 0) return res.status(400).json({ error: 'สต๊อกสินค้าไม่สามารถติดลบได้' });
+      if (sanitizedProduct.price !== undefined && Number(sanitizedProduct.price) < 0) return res.status(400).json({ error: 'ราคาไม่สามารถติดลบได้' });
+
       sanitizedProduct._version = 1;
 
       const { id, ...dataToSaveRaw } = sanitizedProduct as any;
@@ -2600,6 +2665,9 @@ const diskUpload = multer({ dest: uploadDir });
         Object.entries(productUpdates).filter(([k]) => allowedFields.includes(k) && k !== 'id')
       );
 
+      if (sanitizedUpdates.stock !== undefined && Number(sanitizedUpdates.stock) < 0) return res.status(400).json({ error: 'สต๊อกสินค้าไม่สามารถติดลบได้' });
+      if (sanitizedUpdates.price !== undefined && Number(sanitizedUpdates.price) < 0) return res.status(400).json({ error: 'ราคาไม่สามารถติดลบได้' });
+
       let finalData: any;
       let deltaBefore: any = {};
       let deltaAfter: any = {};
@@ -2736,7 +2804,7 @@ const diskUpload = multer({ dest: uploadDir });
             lastStatsFetch = now;
             return sendCachedStats();
           }
-        } catch (e) {}
+        } catch(e) { console.error("Caught error:", e); }
       }
 
       const adminDb = admin.firestore();
@@ -2747,7 +2815,7 @@ const diskUpload = multer({ dest: uploadDir });
         data.forEach((p: any) => {
           if (p.stock > 0 && p.stock < 999999) totalStock += Number(p.stock);
         });
-      } catch (e) {}
+      } catch(e) { console.error("Caught error:", e); }
 
       let totalSales = 0;
       let totalPurchaseOrders = 0;
@@ -2771,7 +2839,7 @@ const diskUpload = multer({ dest: uploadDir });
                 totalPurchaseOrders++;
               });
             }
-          } catch(e) {}
+          } catch(e) { console.error("Caught error:", e); }
         })(),
         (async () => {
           try {
@@ -2785,7 +2853,7 @@ const diskUpload = multer({ dest: uploadDir });
               const topups = await getCachedCollection('topups', 60000);
               topups.forEach((t: any) => totalTopupsAmount += (Number(t.amount) || 0));
             }
-          } catch(e) {}
+          } catch(e) { console.error("Caught error:", e); }
         })(),
         (async () => {
           try {
@@ -2799,7 +2867,7 @@ const diskUpload = multer({ dest: uploadDir });
               if (!error && count !== null) {
                 totalUsersCount = count;
               }
-            } catch (se) {}
+            } catch(se) { console.error("Caught error:", se); }
           }
         })()
       ]);
@@ -2822,7 +2890,7 @@ const diskUpload = multer({ dest: uploadDir });
         if (redis && redis.status === 'ready') {
           try {
             await redis.set(redisKey, JSON.stringify(cachedStats), 'PX', 10000);
-          } catch (e) {}
+          } catch(e) { console.error("Caught error:", e); }
         }
       }
       
@@ -2849,10 +2917,15 @@ const diskUpload = multer({ dest: uploadDir });
       const snap = await q.get();
       const data = snap.docs.map((doc: any) => {
         const d = doc.data();
+        let qty = d.quantity;
+        if (!qty) {
+           const match = d.productName ? d.productName.match(/\(x(\d+)\)/) : null;
+           qty = match ? parseInt(match[1]) : 1;
+        }
         return {
           dbId: doc.id,
-          product_name: d.product_name,
-          quantity: d.quantity,
+          productName: d.productName || d.product_name || 'Unknown Product',
+          quantity: qty,
           price: d.price,
           date: d.date,
           // Hide secret info
@@ -3207,10 +3280,12 @@ const diskUpload = multer({ dest: uploadDir });
           productName: req.body.preOrderOption 
             ? `${productData.name || 'Unknown Product'} [${req.body.preOrderOption}] (x${quantity})` 
             : `${productData.name || 'Unknown Product'} (x${quantity})`,
+          product_name: productData.name || 'Unknown Product',
+          quantity: quantity,
           price: totalCost,
           secretData: productData.isPreOrder ? "ระบบอยู่ระหว่างกำลังจัดหาไอดีให้ท่าน..." : claimedItems.join('\n'),
           date: new Date().toISOString(),
-          billNumber: 'B-' + Math.floor(Math.random()*1000000).toString().padStart(6, '0'),
+          billNumber: 'B-' + Date.now().toString(36).toUpperCase() + crypto.randomBytes(4).toString('hex').toUpperCase(),
           is_special: false
         };
 
@@ -3307,7 +3382,7 @@ const diskUpload = multer({ dest: uploadDir });
   });
 
   // --- Topups Endpoints ---
-  app.get('/api/topups', async (req: any, res: any) => {
+  app.get('/api/topups', requireAuth, async (req: any, res: any) => {
     try {
       const adminDb = admin.firestore();
       let q: any = adminDb.collection('topups');
@@ -3502,7 +3577,7 @@ const diskUpload = multer({ dest: uploadDir });
            const d = doc.data();
            dbData = d?.data; 
         }
-      } catch (e) {}
+      } catch(e) { console.error("Caught error:", e); }
 
       let payload = dbData || memoryLogSystemData;
       if (!payload || !payload.categories) payload = { categories: [], items: [] };
@@ -3519,7 +3594,7 @@ const diskUpload = multer({ dest: uploadDir });
               if (u && u.isPremium === true) isVip = true;
               if (u && (u.role === 'admin' || u.role === 'Admin')) isVip = true;
            }
-         } catch(e) {}
+         } catch(e) { console.error("Caught error:", e); }
       }
 
       // Hide content if user is not VIP and item type is premium or belongs to a premium category maybe?
@@ -3759,7 +3834,7 @@ const diskUpload = multer({ dest: uploadDir });
     }
   });
 
-  app.get('/api/check_ip/:ip', async (req, res) => {
+  app.get('/api/check_ip/:ip', requireAdmin, async (req, res) => {
     try {
       const doc = await admin.firestore().collection('blocked_ips').doc(req.params.ip).get();
       res.json({ blocked: !!doc.exists });
@@ -4055,7 +4130,7 @@ const diskUpload = multer({ dest: uploadDir });
       if (req.user.uid !== uid && !req.isAdmin) {
         return res.status(403).json({ error: 'Forbidden' });
       }
-      await supabaseAdmin.auth.admin.deleteUser(uid).catch(() => {});
+      await supabaseAdmin.auth.admin.deleteUser(uid).catch((e: any) => console.error(e));
       await admin.firestore().collection('users').doc(uid).delete();
       invalidateUserTokenCache(uid);
       invalidateCache('users');
@@ -4094,7 +4169,7 @@ const diskUpload = multer({ dest: uploadDir });
     try {
       const safeBody = typeof req.body === 'object' ? JSON.stringify({ type: req.body.type, message: req.body.message, stack: req.body.stack, componentStack: req.body.componentStack }).substring(0, 1000) : String(req.body).substring(0, 200);
       console.error('CLIENT ERROR:', safeBody);
-    } catch(e) {}
+    } catch(e) { console.error("Caught error:", e); }
     res.json({ received: true });
   });
 
@@ -4113,7 +4188,7 @@ const diskUpload = multer({ dest: uploadDir });
           id: metric.id 
         }));
       }
-    } catch(e) {}
+    } catch(e) { console.error("Caught error:", e); }
     res.status(204).end(); // No content to send back, keep it fast
   });
 
@@ -4217,7 +4292,7 @@ const diskUpload = multer({ dest: uploadDir });
                   try {
                       const errData = typeof error.response.body === 'string' ? JSON.parse(error.response.body) : error.response.body;
                       return { success: false, message: errData.status?.message || 'FAILED' };
-                  } catch (e) {}
+                  } catch(e) { console.error("Caught error:", e); }
               }
               return { success: false, message: 'RATE_LIMIT/ERROR' };
           }
@@ -4401,7 +4476,7 @@ const diskUpload = multer({ dest: uploadDir });
                                                   ],
                                                   timestamp: new Date()
                                               }]
-                                          }).catch(() => {});
+                                          }).catch((e: any) => console.error(e));
                                       }
                                   } else {
                                       pushTgLog(sessionId!, `❌ ${result.message}`);
@@ -4458,7 +4533,7 @@ const diskUpload = multer({ dest: uploadDir });
       const { sessionId } = req.body;
       const sess = tgSessions.get(sessionId);
       if (sess) {
-          try { await sess.client.disconnect(); } catch (e) {}
+          try { await sess.client.disconnect(); } catch(e) { console.error("Caught error:", e); }
           tgSessions.delete(sessionId);
           for (const [hash, sid] of tgPhoneHashToSessionId.entries()) {
               if (sid === sessionId) {
@@ -4629,7 +4704,7 @@ const diskUpload = multer({ dest: uploadDir });
       const { discordToken } = req.body;
       const sess = discordTokenOnSessions.get(discordToken);
       if (sess) {
-          try { sess.ws.close(); } catch (e) {}
+          try { sess.ws.close(); } catch(e) { console.error("Caught error:", e); }
           discordTokenOnSessions.delete(discordToken);
       }
       res.json({ success: true });
@@ -4655,18 +4730,6 @@ const diskUpload = multer({ dest: uploadDir });
   }
 
   app.post('/api/discord/catcher/request', requireAuth, async (req: any, res: any) => {
-      return res.status(410).json({ status: 'error', error: 'ระบบดักซองถูกปิดใช้งานอย่างถาวรเพื่อความปลอดภัย' });
-  });
-
-  app.post('/api/discord/catcher/status', async (req, res) => {
-      return res.json({ status: 'error', logs: ['ระบบปิดใช้งาน'] });
-  });
-
-  app.post('/api/discord/catcher/stop', requireAuth, async (req: any, res: any) => {
-      return res.json({ success: true });
-  });
-
-  const ___dep_discord_catcher = async (req: any, res: any) => { /*
       const { discordToken, truemoneyPhone } = req.body;
       if (!discordToken || !truemoneyPhone) return res.status(400).json({ error: 'Missing token or phone number' });
 
@@ -4822,7 +4885,7 @@ const diskUpload = multer({ dest: uploadDir });
       const { sessionId } = req.body;
       const sess = discordSessions.get(sessionId);
       if (sess) {
-          try { sess.ws.close(); } catch (e) {}
+          try { sess.ws.close(); } catch(e) { console.error("Caught error:", e); }
           discordSessions.delete(sessionId);
           for (const [hash, sid] of discordTokenHashToSessionId.entries()) {
               if (sid === sessionId) {
@@ -4832,7 +4895,7 @@ const diskUpload = multer({ dest: uploadDir });
           }
       }
       res.json({ success: true });
-  */ };
+  });
 
   // Discord HypeSquad Tool API
   app.post('/api/discord/hypesquad', requireAuth, async (req: any, res: any) => {
@@ -4842,61 +4905,6 @@ const diskUpload = multer({ dest: uploadDir });
   app.delete('/api/discord/hypesquad', requireAuth, async (req: any, res: any) => {
       return res.status(410).json({ error: 'This feature has been deactivated for security reasons.' });
   });
-
-  const ___dep_discord_hypesquad = async (req: any, res: any) => { /*
-    try {
-      const { token, house_id } = req.body;
-      if (!token) return res.status(400).json({ error: 'Token is required' });
-      if (![1, 2, 3].includes(house_id)) return res.status(400).json({ error: 'Invalid house_id' });
-
-      const response = await axios.post('https://discord.com/api/v9/hypesquad/online', 
-        { house_id },
-        { 
-          headers: { 
-            'Authorization': token,
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-
-      if (response.status === 204 || response.status === 200) {
-        res.json({ success: true, message: 'รับตราสำเร็จ' });
-      } else {
-        res.status(response.status).json({ error: 'เกิดข้อผิดพลาดในการรับตรา', details: response.data });
-      }
-    } catch (error: any) {
-      console.error("Discord hypesquad error:", error.response?.data || error.message);
-      res.status(error.response?.status || 500).json({ 
-        error: error.response?.data?.message || "ไม่สามารถเชื่อมต่อกับ Discord ได้ ลองตรวจสอบ Token อีกครั้งหรือบัญชีอาจจะติด Flag" 
-      });
-    }
-  });
-
-  app.delete('/api/discord/hypesquad', requireAuth, async (req: any, res: any) => {
-    try {
-      const { token } = req.body;
-      if (!token) return res.status(400).json({ error: 'Token is required' });
-
-      // In Axios, DELETE with body might require { data: ... } or pass token in headers
-      const response = await axios.delete('https://discord.com/api/v9/hypesquad/online', {
-        headers: { 
-          'Authorization': token,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (response.status === 204 || response.status === 200) {
-        res.json({ success: true, message: 'ลบตราสำเร็จ' });
-      } else {
-        res.status(response.status).json({ error: 'เกิดข้อผิดพลาดในการลบตรา', details: response.data });
-      }
-    } catch (error: any) {
-      console.error("Discord hypesquad remove error:", error.response?.data || error.message);
-      res.status(error.response?.status || 500).json({ 
-        error: error.response?.data?.message || "ไม่สามารถเชื่อมต่อกับ Discord ได้ ลองตรวจสอบ Token อีกครั้ง" 
-      });
-    }
-  */ };
 
 if (!process.env.VERCEL) {
   (async () => {

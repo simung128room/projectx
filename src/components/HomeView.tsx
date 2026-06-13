@@ -660,7 +660,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 <div className="animate-marquee-scroll flex gap-4 pr-4">
                   {marqueeItems.map((p, idx) => {
                     const matchedProduct = safeProducts.find(
-                      (prod) => prod.name === p.product_name
+                      (prod) => prod.name === p.productName
                     );
                     const imageUrl =
                       matchedProduct?.imageUrl ||
@@ -691,7 +691,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                           {/* Detail summary */}
                           <div className="flex flex-col min-w-0 pr-1">
                             <span className="text-xs font-medium text-white tracking-wide truncate leading-snug">
-                              {p.product_name}
+                              {p.productName}
                             </span>
                             <span className="text-[10px] text-zinc-400 mt-0.5">
                               ซื้อ: <span className="text-[#10b981] font-semibold font-mono">+{p.quantity}</span> ชิ้น

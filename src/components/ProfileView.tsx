@@ -77,8 +77,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
         premiumExpireDate: userPlan?.premiumExpireDate || null 
       };
       setUserPlan(newPlan);
-      if (clientIp) {
-        localStorage.setItem(`userplan_${clientIp}`, JSON.stringify(newPlan));
+      if (user?.id) {
+        localStorage.setItem(`userplan_${user.id}`, JSON.stringify(newPlan));
       }
       Swal.fire({ 
         icon: 'success', 

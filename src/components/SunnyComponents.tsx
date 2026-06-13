@@ -67,16 +67,14 @@ export const ChevronDownIcon = ({ color = "#5aade0" }) => (
 
 /* ── Logo SVG ── */
 export const SunnyBuxLogo = ({ size = 64 }) => (
-  <div
+  <img
+    src="https://img2.pic.in.th/IMG_7319.png"
+    alt="Logo"
     style={{
-      width: size, height: size, borderRadius: "50%",
-      background: "linear-gradient(145deg,#1a90d0 0%,#0e6faa 100%)",
-      boxShadow: "0 4px 16px rgba(0,110,190,0.45)",
-      display: "flex", alignItems: "center", justifyContent: "center",
-      flexDirection: "column", flexShrink: 0,
+      width: size,
+      height: size,
+      borderRadius: "50%",
+      objectFit: "cover",
     }}
-  >
-    <span style={{ fontSize: size * 0.165, fontWeight: 900, color: "#ffd740", letterSpacing: "-0.3px", lineHeight: 1.1, textShadow: "0 1px 3px rgba(0,0,0,0.5)" }}>SUNNY</span>
-    <span style={{ fontSize: size * 0.195, fontWeight: 900, color: "#fff", letterSpacing: "-0.3px", lineHeight: 1.1, textShadow: "0 1px 3px rgba(0,0,0,0.5)" }}>BUX✦</span>
-  </div>
+  />
 );

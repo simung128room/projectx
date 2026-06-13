@@ -294,9 +294,9 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
                     value={authPassword}
                     onChange={(e) => setAuthPassword(e.target.value)}
                     className="w-full pl-11 pr-12 py-3.5 bg-white/[0.04] border border-[#1e1e1e] hover:bg-white/[0.04] focus:bg-white/[0.04] focus:border-[#1e1e1e] rounded-md outline-none transition-all text-white text-sm placeholder:text-white/20 font-sans"
-                    placeholder="กรอกรหัสผ่านของคุณ (มากกว่า 6 ตัวอักษร)"
+                    placeholder="กรอกรหัสผ่านของคุณ (มากกว่า 8 ตัวอักษร)"
                     required
-                    minLength={6}
+                    minLength={8}
                   />
                   <button 
                     type="button"
@@ -343,7 +343,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
                       className="w-full pl-11 pr-12 py-3.5 bg-white/[0.04] border border-[#1e1e1e] hover:bg-white/[0.04] focus:bg-white/[0.04] focus:border-[#1e1e1e] rounded-md outline-none transition-all text-white text-sm placeholder:text-white/20 font-sans"
                       placeholder="ป้อนรหัสผ่านเดิมอีกครั้งเพื่อความถูกต้อง"
                       required
-                      minLength={6}
+                      minLength={8}
                     />
                     <button 
                       type="button"

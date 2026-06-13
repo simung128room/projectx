@@ -158,7 +158,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
             image: 'https://img1.pic.in.th/images/IMG_6172.png'
           };
           if (onTopupSuccess) onTopupSuccess(historyEntry);
-        } catch(e) {}
+        } catch(e) { console.error("Caught error:", e); }
 
         Swal.fire({
           title: 'เติมเงินสำเร็จ!',
@@ -247,7 +247,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
               image: 'https://img1.pic.in.th/images/IMG_6164.png'
             };
             if (onTopupSuccess) onTopupSuccess(historyEntry);
-          } catch(e) {}
+          } catch(e) { console.error("Caught error:", e); }
           
           Swal.fire({
             title: 'ตรวจสอบสำเร็จ!',
