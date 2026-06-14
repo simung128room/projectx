@@ -134,6 +134,34 @@ const forwardMap: Record<string, string> = {
 
 const missingColumns = new Set<string>();
 
+// Pre-hydrate from DB to persist across serverless instances
+let isMissingColumnsHydrated = false;
+async function hydrateMissingColumns() {
+  if (isMissingColumnsHydrated) return;
+  try {
+    const { data } = await supabaseAdmin.from('custom_pages').select('content').eq('slug', '_sys:missing_columns').limit(1);
+    if (data && data[0] && data[0].content) {
+      const arr = JSON.parse(data[0].content);
+      if (Array.isArray(arr)) arr.forEach(col => missingColumns.add(col));
+    }
+  } catch(e) {}
+  isMissingColumnsHydrated = true;
+}
+
+async function persistMissingColumn(colName: string) {
+  missingColumns.add(colName);
+  try {
+    const arr = Array.from(missingColumns);
+    const payload = { slug: '_sys:missing_columns', title: 'SystemConfig', content: JSON.stringify(arr) };
+    const { data: existing } = await supabaseAdmin.from('custom_pages').select('id').eq('slug', '_sys:missing_columns').limit(1);
+    if (existing && existing[0]) {
+      await supabaseAdmin.from('custom_pages').update(payload).eq('id', existing[0].id);
+    } else {
+      await supabaseAdmin.from('custom_pages').insert([payload]);
+    }
+  } catch(e) {}
+}
+
 function toDB(data: any, collection?: string): any {
   if (!data || typeof data !== 'object') return data;
   const res: any = {};
@@ -255,7 +283,7 @@ class SupabaseDoc {
           console.warn(`Column error in fetch from ${this.collection}: ${err.message}. Adding to blacklist and retrying...`);
           const col = extractMissingColumn(err.message);
           if (col) {
-             missingColumns.add(`${this.collection}.${col}`);
+             await persistMissingColumn(`${this.collection}.${col}`);
              throw new Error(`Schema cache error on Supabase for table ${this.collection}: ${err.message}. Try reloading the database schema cache.`);
           }
         }
@@ -340,7 +368,7 @@ class SupabaseDoc {
           if (col) {
             if (!missingColumns.has(`${this.collection}.${col}`)) {
               console.warn(`Column ${col} missing in ${this.collection}, adding to blacklist and retrying...`);
-              missingColumns.add(`${this.collection}.${col}`);
+              await persistMissingColumn(`${this.collection}.${col}`);
             } else {
               console.warn(`Column ${col} missing but was already blacklisted! Skipping data manipulation manually.`);
             }
@@ -455,7 +483,7 @@ class SupabaseDoc {
           if (col && col !== this.pk()) {
             if (!missingColumns.has(`${this.collection}.${col}`)) {
               console.warn(`Column ${col} missing in ${this.collection}, adding to blacklist and retrying...`);
-              missingColumns.add(`${this.collection}.${col}`);
+              await persistMissingColumn(`${this.collection}.${col}`);
             } else {
               console.warn(`Column ${col} missing but was already blacklisted! Skipping data manipulation manually.`);
             }
@@ -670,7 +698,7 @@ class SupabaseQuery {
           if (col) {
             if (!missingColumns.has(`${this.collection}.${col}`)) {
                console.warn(`Column ${col} missing in ${this.collection} during fetch, adding to blacklist and retrying...`);
-               missingColumns.add(`${this.collection}.${col}`);
+               await persistMissingColumn(`${this.collection}.${col}`);
             } else {
                console.warn(`Column ${col} missing but was already blacklisted! Stripping out manually.`);
             }
@@ -741,7 +769,7 @@ class SupabaseCollection extends SupabaseQuery {
         const col = extractMissingColumn(err.message);
         if (col) {
           console.warn(`Column ${col} missing in ${this.collection}, adding to blacklist and retrying...`);
-          missingColumns.add(`${this.collection}.${col}`);
+          await persistMissingColumn(`${this.collection}.${col}`);
           return await performAdd(toDB(mergedData, this.collection));
         }
       }
@@ -785,8 +813,10 @@ const db = {
         
         const result = await updateFunction(t);
         
-        // Execute writes (Synchronously locked on the logical application level ideally)
-        await Promise.all(writes.map(async (w) => {
+        // Execute writes sequentially. While not a true distributed ACID transaction,
+        // executing sequentially guarantees we don't concurrently write partial state
+        // if one of the earlier writes throws a VERSION_CONFLICT.
+        for (const w of writes) {
            if (w.type === 'update' || w.type === 'set') {
               const oldVersion = reads.get(w.ref.id) || 0;
               w.data._version = oldVersion + 1;
@@ -795,7 +825,7 @@ const db = {
            } else if (w.type === 'delete') {
               await w.ref.delete();
            }
-        }));
+        }
         
         return result;
       } catch (err: any) {
