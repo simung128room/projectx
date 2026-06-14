@@ -2285,20 +2285,6 @@ if (process.env.REDIS_URL) {
         }
         return { id: doc.id, ...data, secretData: secret };
       }
-
-      // Fallback for older purchases without index
-      const fallbackSnapshot = await adminDb.collection('purchases').get();
-      for (const doc of fallbackSnapshot.docs) {
-        const data = doc.data();
-        let secret = data.secretData || '';
-        if (secret.startsWith('enc:')) {
-          secret = decrypt(secret);
-        }
-        const keys = secret.split('\n').map((k: string) => k.trim());
-        if (keys.includes(cleanKey)) {
-          return { id: doc.id, ...data, secretData: secret };
-        }
-      }
     } catch (err) {
       console.error('Error finding purchase by license key (Discord):', err);
     }
@@ -2320,21 +2306,6 @@ if (process.env.REDIS_URL) {
           if (secret.startsWith('enc:')) {
             secret = decrypt(secret);
           }
-          return { id: doc.id, ...data, secretData: secret };
-        }
-      }
-
-      // Fallback for older purchases without index
-      const fallbackSnapshot = await adminDb.collection('purchases').get();
-      for (const doc of fallbackSnapshot.docs) {
-        const data = doc.data();
-        if (data.webClaimed) continue;
-        let secret = data.secretData || '';
-        if (secret.startsWith('enc:')) {
-          secret = decrypt(secret);
-        }
-        const keys = secret.split('\n').map((k: string) => k.trim());
-        if (keys.includes(cleanKey)) {
           return { id: doc.id, ...data, secretData: secret };
         }
       }
@@ -2382,7 +2353,7 @@ if (process.env.REDIS_URL) {
           const fetchFromDB = async () => {
             let query: any = admin.firestore().collection(collectionName);
             if (collectionName === 'products') {
-              query = query.select('id', 'name', 'price', 'originalPrice', 'stock', 'description', 'image', 'imageUrl', 'category', 'isHighlight', 'isPopular', 'soldCount', 'tag', 'customPageId', 'created_at', '_version', 'isDeleted');
+              query = query.select('id', 'name', 'price', 'originalPrice', 'stock', 'description', 'image', 'imageUrl', 'category', 'isHighlight', 'isPopular', 'soldCount', 'tag', 'customPageId', 'created_at', '_version', 'isDeleted', 'isPreOrder');
             }
             if (collectionName === 'products' || collectionName === 'purchases' || collectionName === 'topups' || collectionName === 'license_keys' || collectionName === 'users') {
               query = query.limit(1000);

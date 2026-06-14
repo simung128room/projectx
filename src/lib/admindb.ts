@@ -97,7 +97,13 @@ const camelMap: Record<string, string> = {
   web_claimed: 'webClaimed',
   product_id: 'productId',
   is_deleted: 'isDeleted',
-  isdeleted: 'isDeleted'
+  isdeleted: 'isDeleted',
+  category_id: 'categoryId',
+  is_highlight: 'isHighlight',
+  custom_page_id: 'customPageId',
+  youtube_url: 'youtubeUrl',
+  is_preorder: 'isPreOrder',
+  preorder_options: 'preOrderOptions'
 };
 
 const forwardMap: Record<string, string> = {
@@ -117,7 +123,13 @@ const forwardMap: Record<string, string> = {
   discordClaimed: 'discord_claimed',
   webClaimed: 'web_claimed',
   productId: 'product_id',
-  isDeleted: 'is_deleted'
+  isDeleted: 'is_deleted',
+  categoryId: 'category_id',
+  isHighlight: 'is_highlight',
+  customPageId: 'custom_page_id',
+  youtubeUrl: 'youtube_url',
+  isPreOrder: 'is_preorder',
+  preOrderOptions: 'preorder_options'
 };
 
 const missingColumns = new Set<string>();
@@ -609,7 +621,14 @@ class SupabaseQuery {
     while (retries < 5) {
       retries++;
       try {
+        const _origSelect = this._selectFields;
+        if (this._selectFields) {
+           this._selectFields = this._selectFields.split(',').filter(f => !missingColumns.has(`${this.collection}.${f.trim()}`)).join(',');
+        }
+        
         const { data, error } = await executeQuery(currentWhere, currentOrderBy);
+        if (_origSelect) this._selectFields = _origSelect;
+
         if (error) throw error;
         
         let finalData = data || [];
@@ -671,6 +690,7 @@ class SupabaseQuery {
         throw err;
       }
     }
+    throw new Error('Max retries exceeded waiting for columns check in SupabaseQuery.get');
   }
 }
 

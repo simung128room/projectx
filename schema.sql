@@ -56,9 +56,21 @@ CREATE TABLE IF NOT EXISTS public.products (
     stock_data text[],
     description text,
     image text,
+    image_url text,
     category text,
+    category_id text,
     active boolean DEFAULT true,
-    created_at timestamptz DEFAULT now()
+    is_highlight boolean DEFAULT false,
+    is_deleted boolean DEFAULT false,
+    custom_page_id text,
+    youtube_url text,
+    type text,
+    tag text,
+    is_preorder boolean DEFAULT false,
+    preorder_options text[],
+    created_at timestamptz DEFAULT now(),
+    updated_at timestamptz,
+    _version integer DEFAULT 1 NOT NULL
 );
 
 CREATE INDEX IF NOT EXISTS idx_products_category ON public.products(category);
