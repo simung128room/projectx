@@ -3,6 +3,7 @@ import axios from "axios";
 import { Product, SiteStats, Category } from "../types";
 import { ShoppingCart, Package, Users, ChevronRight, Zap, Star, Clock, LayoutGrid, History, MessageSquare, Coins, Bell } from "lucide-react";
 import { motion } from "motion/react";
+import { formatProductName } from "../utils";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -301,7 +302,7 @@ function ProductCard({
         {hasImage ? (
           <img
             src={product.imageUrl}
-            alt={product.name}
+            alt={formatProductName(product.name)}
             className="w-full h-full object-cover group- "
             onError={() => setImgError(true)}
             referrerPolicy="no-referrer"
@@ -311,7 +312,7 @@ function ProductCard({
           <div className="absolute inset-0 flex items-center justify-center select-none">
             <div className="text-center">
               <Package className="w-8 h-8 text-white/10 mx-auto mb-1" />
-              <p className="text-[10px] text-white/20 font-medium px-3 line-clamp-2">{product.name}</p>
+              <p className="text-[10px] text-white/20 font-medium px-3 line-clamp-2">{formatProductName(product.name)}</p>
             </div>
           </div>
         )}
@@ -339,7 +340,7 @@ function ProductCard({
       {/* Content */}
       <div className="p-4 sm:p-5 flex flex-col flex-1">
         <h3 className="text-sm font-semibold text-white leading-snug line-clamp-1 mb-3 group-hover:text-neon-green transition-colors">
-          {product.name}
+          {formatProductName(product.name)}
         </h3>
 
         {/* "ราคาสินค้า" subtle label */}

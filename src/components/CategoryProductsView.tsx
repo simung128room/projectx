@@ -3,7 +3,7 @@ import { motion } from "motion/react";
 import { Package, ArrowLeft, Star, ShoppingCart } from "lucide-react";
 import { Product, Category } from "../types";
 import { AnimatedScroll } from "./AnimatedScroll";
-import { generateGradient } from "../utils";
+import { generateGradient, formatProductName } from "../utils";
 
 interface CategoryProductsViewProps {
   category: string;
@@ -125,7 +125,7 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
                     {product.imageUrl && product.imageUrl.trim() !== "" ? (
                       <img loading="lazy"
                         src={product.imageUrl}
-                        alt={product.name}
+                        alt={formatProductName(product.name)}
                         className="w-full h-full object-cover group- "
                         onError={(e) => {
                           e.currentTarget.style.display = 'none';
@@ -140,11 +140,11 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
                       className="w-full h-full flex flex-col items-center justify-center opacity-85"
                       style={{ 
                         display: product.imageUrl && product.imageUrl.trim() !== "" ? 'none' : 'flex',
-                        background: generateGradient(product.name || product.id)
+                        background: generateGradient(formatProductName(product.name) || product.id)
                       }}
                     >
                       <span className="text-4xl font-semibold text-white mix-blend-overlay opacity-65">
-                        {(product.name || "P")[0].toUpperCase()}
+                        {(formatProductName(product.name) || "P")[0].toUpperCase()}
                       </span>
                       <span className="text-[10px] font-medium text-white/50 uppercase tracking-widest mt-1">{product.category || "STORETH"}</span>
                     </div>
@@ -172,7 +172,7 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
                   {/* Content */}
                   <div className="p-4 sm:p-5 flex flex-col flex-1 bg-[#0c0c0e]">
                     <h3 className="text-sm font-semibold text-white leading-snug line-clamp-1 mb-3 group-hover:text-[#10b981] transition-colors">
-                      {product.name}
+                      {formatProductName(product.name)}
                     </h3>
 
                     {/* "ราคาสินค้า" subtle label */}

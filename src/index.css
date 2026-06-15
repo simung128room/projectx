@@ -1,10 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Kanit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&family=Changa+One:ital@0;1&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Kanit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&family=Prompt:wght@300;400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 
 @theme {
   --font-sans: "Kanit", "Inter", "Geist", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", monospace;
-  --font-changa: "Changa One", sans-serif;
+  --font-changa: "Kanit", "Prompt", sans-serif;
   
   --color-background: #000000;
   --color-surface: #0a0a0a;
@@ -553,13 +553,13 @@
   .status-pending { color: oklch(0.45 0 0); }
 
   /* Brutalist card */
-  . {
+  .brut-card {
     background: oklch(0.09 0 0);
     border: 1px solid oklch(0.18 0 0);
     padding: 1.5rem;
   }
 
-  .-highlight {
+  .brut-card-highlight {
     background: oklch(0.09 0 0);
     border: 2px solid oklch(0.97 0 0);
     padding: 1.5rem;

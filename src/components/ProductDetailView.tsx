@@ -4,6 +4,7 @@ import { Product } from '../types';
 import { ArrowLeft, Box, CheckCircle2, ChevronRight, FileText, ShoppingCart, AlertCircle, Share2 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useToastStore } from '../lib/toastStore';
+import { formatProductName } from '../utils';
 
 interface ProductDetailViewProps {
   product: Product;
@@ -41,7 +42,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
           <ChevronRight className="w-3 h-3 text-zinc-700" />
           <span>CATALOG</span>
           <ChevronRight className="w-3 h-3 text-zinc-700" />
-          <span className="text-zinc-400 truncate max-w-[180px]">{product.name}</span>
+          <span className="text-zinc-400 truncate max-w-[180px]">{formatProductName(product.name)}</span>
         </div>
       </div>
 
@@ -64,7 +65,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
             <img 
               loading="lazy" 
               src={product.imageUrl || undefined} 
-              alt={product.name}
+              alt={formatProductName(product.name)}
               className="w-full h-full object-contain z-10 transition-transform duration-700 ease-out group-"
               referrerPolicy="no-referrer"
               onError={(e) => {
@@ -127,7 +128,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
 
             {/* Product Title */}
             <h1 className="text-2xl sm:text-3xl font-semibold text-white leading-tight tracking-tight mb-4 select-all">
-              {product.name}
+              {formatProductName(product.name)}
             </h1>
 
             {/* Premium Pricing Panel */}
@@ -298,7 +299,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
                   <div>
                     <h3 className="font-semibold text-sm text-white uppercase tracking-wider mb-0.5 font-mono">CONFIRM CHECKOUT LIST</h3>
                     <p className="text-zinc-400 text-xs leading-relaxed">
-                      โปรดยืนยันการซื้อ <span className="font-medium text-white">{product.name}</span> จำนวน <span className="font-semibold text-white">{purchaseQuantity}</span> ชิ้น ราคารวม <span className="font-semibold text-[#10b981] font-mono">฿{(product.price * purchaseQuantity).toLocaleString()}</span>
+                      โปรดยืนยันการซื้อ <span className="font-medium text-white">{formatProductName(product.name)}</span> จำนวน <span className="font-semibold text-white">{purchaseQuantity}</span> ชิ้น ราคารวม <span className="font-semibold text-[#10b981] font-mono">฿{(product.price * purchaseQuantity).toLocaleString()}</span>
                     </p>
                   </div>
                 </div>
