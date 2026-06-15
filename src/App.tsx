@@ -309,7 +309,7 @@ function AppContent() {
      category: "ไอดีเกมส์ยอดนิยม",
      stock: 5,
      soldCount: 142,
-     imageUrl: "https://seeklogo.com/images/A/arena-of-valor-logo-1BDD4A191C-seeklogo.com.png",
+     imageUrl: "https://play-lh.googleusercontent.com/rM1oIokbH_9EwF0mDtsmEPRN7Fh-XItK12oXYeU24QfI9gS-9rEch_7sA-C9oO0z4a8=w240-h480-rw",
      description: "ประวัติขาวสะอาด ไม่เคยโดนแบน ฮีโร่ครบ สกินเพียบพร้อมรูนเลเวล 90 ทุกสาย",
      isPopular: true
    },
@@ -1714,15 +1714,13 @@ function AppContent() {
              <button onClick={() => { setActiveView("categories"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-md transition-all ${(activeView === "categories" || activeView === "category_products") ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white hover:bg-white/[0.04]"}`}>
                <ShoppingCart className="w-4 h-4" /> สินค้าทั้งหมด
              </button>
-             <button onClick={() => { setActiveView(user ? "wallet" : "login"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-md transition-all ${activeView === "wallet" ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white hover:bg-white/[0.04]"}`}>
+             <button onClick={() => { if (user) { setActiveView("wallet"); } else { import("sweetalert2").then(s=>s.default.fire({icon:"info",title:"กรุณาเข้าสู่ระบบก่อน",text:"เข้าสู่ระบบเพื่อใช้งานฟังก์ชันนี้",timer:1500,showConfirmButton:false})); setActiveView("login"); }; window.scrollTo({ top: 0, behavior: "smooth" }); }} className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-md transition-all ${activeView === "wallet" ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white hover:bg-white/[0.04]"}`}>
                <Wallet className="w-4 h-4" /> เติมเงิน
              </button>
-             <button onClick={() => { setActiveView(user ? "history" : "login"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-md transition-all ${(activeView === "history" || activeView === "my_orders") ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white hover:bg-white/[0.04]"}`}>
+             <button onClick={() => { if (user) { setActiveView("history"); } else { import("sweetalert2").then(s=>s.default.fire({icon:"info",title:"กรุณาเข้าสู่ระบบก่อน",text:"เข้าสู่ระบบเพื่อใช้งานฟังก์ชันนี้",timer:1500,showConfirmButton:false})); setActiveView("login"); }; window.scrollTo({ top: 0, behavior: "smooth" }); }} className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-md transition-all ${(activeView === "history" || activeView === "my_orders") ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white hover:bg-white/[0.04]"}`}>
                <History className="w-4 h-4" /> ประวัติการสั่งซื้อ
              </button>
-             <button onClick={() => { setShowSearchPopup(true); }} className="w-full flex items-center gap-3 px-3 py-1.5 rounded-md transition-all text-zinc-400 hover:text-white hover:bg-white/[0.04]">
-               <Search className="w-4 h-4" /> ค้นหาสินค้า
-             </button>
+             
            </div>
          </div>
 
@@ -1772,8 +1770,8 @@ function AppContent() {
             <div>
              <div className="px-3 mb-1.5 text-[10px] font-semibold text-zinc-500 tracking-wider">ACCOUNT</div>
              <div className="flex flex-col gap-2 px-3">
-               <button onClick={() => { setActiveView("login"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="w-full flex items-center justify-center py-1.5 bg-white text-black font-medium rounded-md transition-all active:scale-95">เข้าสู่ระบบ</button>
-               <button onClick={() => { setActiveView("signup"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="w-full flex items-center justify-center py-1.5 bg-[#111] text-white font-medium rounded-md border border-[#222] transition-all hover:bg-[#222] active:scale-95">สมัครสมาชิก</button>
+               <button onClick={() => { setActiveView("login"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="w-full flex items-center justify-center gap-2 py-2 bg-white text-black font-semibold text-sm rounded-md transition-all active:scale-95 whitespace-nowrap"><LogIn className="w-4 h-4" /> เข้าสู่ระบบ</button>
+               <button onClick={() => { setActiveView("signup"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="w-full flex items-center justify-center gap-2 py-1.5 bg-[#111] text-white font-semibold text-sm rounded-md border border-[#222] transition-all hover:bg-[#222] active:scale-95 whitespace-nowrap"><UserPlus className="w-4 h-4" /> สมัครสมาชิก</button>
              </div>
             </div>
          )}
@@ -1932,15 +1930,13 @@ function AppContent() {
                      <button onClick={() => { setActiveView("categories"); setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }} className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-md transition-all ${(activeView === "categories" || activeView === "category_products") ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white"}`}>
                        <ShoppingCart className="w-4 h-4" /> สินค้าทั้งหมด
                      </button>
-                     <button onClick={() => { setActiveView(user ? "wallet" : "login"); setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }} className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-md transition-all ${activeView === "wallet" ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white"}`}>
+                     <button onClick={() => { if (user) { setActiveView("wallet"); } else { import("sweetalert2").then(s=>s.default.fire({icon:"info",title:"กรุณาเข้าสู่ระบบก่อน",text:"เข้าสู่ระบบเพื่อใช้งานฟังก์ชันนี้",timer:1500,showConfirmButton:false})); setActiveView("login"); }; setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }} className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-md transition-all ${activeView === "wallet" ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white"}`}>
                        <Wallet className="w-4 h-4" /> เติมเงิน
                      </button>
-                     <button onClick={() => { setActiveView(user ? "history" : "login"); setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }} className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-md transition-all ${(activeView === "history" || activeView === "my_orders") ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white"}`}>
+                     <button onClick={() => { if (user) { setActiveView("history"); } else { import("sweetalert2").then(s=>s.default.fire({icon:"info",title:"กรุณาเข้าสู่ระบบก่อน",text:"เข้าสู่ระบบเพื่อใช้งานฟังก์ชันนี้",timer:1500,showConfirmButton:false})); setActiveView("login"); }; setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }} className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-md transition-all ${(activeView === "history" || activeView === "my_orders") ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white"}`}>
                        <History className="w-4 h-4" /> ประวัติการสั่งซื้อ
                      </button>
-                     <button onClick={() => { setShowSearchPopup(true); setIsMobileMenuOpen(false); }} className="w-full flex items-center gap-3 px-3 py-1.5 rounded-md transition-all text-zinc-400 hover:text-white">
-                       <Search className="w-4 h-4" /> ค้นหาสินค้า
-                     </button>
+                     
                    </div>
                  </div>
 
@@ -1990,8 +1986,8 @@ function AppContent() {
                    <div>
                      <div className="px-3 mb-1.5 text-[10px] font-semibold text-zinc-500 tracking-wider">ACCOUNT</div>
                      <div className="flex flex-col gap-2 px-3 pb-2">
-                       <button onClick={() => { setActiveView("login"); setIsMobileMenuOpen(false); }} className="w-full flex items-center justify-center py-2 bg-white text-black font-medium rounded-md transition-all active:scale-95">เข้าสู่ระบบ</button>
-                       <button onClick={() => { setActiveView("signup"); setIsMobileMenuOpen(false); }} className="w-full flex items-center justify-center py-2 bg-[#111] text-white font-medium rounded-md border border-[#222] transition-all hover:bg-[#222] active:scale-95">สมัครสมาชิก</button>
+                       <button onClick={() => { setActiveView("login"); setIsMobileMenuOpen(false); }} className="w-full flex items-center justify-center gap-2 py-2.5 bg-white text-black font-semibold text-sm rounded-md transition-all active:scale-95 whitespace-nowrap"><LogIn className="w-4.5 h-4.5" /> เข้าสู่ระบบ</button>
+                       <button onClick={() => { setActiveView("signup"); setIsMobileMenuOpen(false); }} className="w-full flex items-center justify-center gap-2 py-2 bg-[#111] text-white font-semibold text-sm rounded-md border border-[#222] transition-all hover:bg-[#222] active:scale-95 whitespace-nowrap"><UserPlus className="w-4.5 h-4.5" /> สมัครสมาชิก</button>
                      </div>
                    </div>
                  )}

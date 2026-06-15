@@ -16,16 +16,14 @@ export const SearchView: React.FC<SearchViewProps> = ({ products, onClose, onPro
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const timer = setTimeout(() => setDebouncedQuery(searchQuery), 300);
-    return () => clearTimeout(timer);
-  }, [searchQuery]);
-
-  useEffect(() => {
     if (isOpen) {
+      document.body.style.overflow = "hidden";
       setTimeout(() => inputRef.current?.focus(), 100);
     } else {
-      setSearchQuery('');
+      document.body.style.overflow = "";
+      setSearchQuery("");
     }
+    return () => { document.body.style.overflow = ""; };
   }, [isOpen]);
 
   const filteredProducts = products.filter(p => 
@@ -42,7 +40,7 @@ export const SearchView: React.FC<SearchViewProps> = ({ products, onClose, onPro
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/80 backdrop-blur-md"
           />
           <motion.div 
             initial={{ opacity: 0, scale: 0.95, y: -20 }}

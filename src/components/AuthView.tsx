@@ -15,6 +15,7 @@ interface AuthViewProps {
 }
 
 export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setActiveView }) => {
+  const [formError, setFormError] = useState("");
   const [authMode, setAuthMode] = useState<'login' | 'signup' | 'forgot'>(initialMode);
   const [authUsername, setAuthUsername] = useState('');
   const [authEmail, setAuthEmail] = useState('');
@@ -50,6 +51,17 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormError("");
+    if (authMode === "signup") {
+      if (!authUsername || !authEmail || !authPassword || !authConfirmPassword) { setFormError("กรุณากรอกข้อมูลให้ครบถ้วน"); return; }
+      if (authPassword !== authConfirmPassword) { setFormError("รหัสผ่านไม่ตรงกัน"); return; }
+      if (authPassword.length < 6) { setFormError("รหัสผ่านต้องมีความยาวอย่างน้อย 6 ตัวอักษร"); return; }
+      if (TURNSTILE_SITE_KEY && !turnstileToken) { setFormError("กรุณายืนยันตัวตนว่าไม่ใช่โปรแกรมอัตโนมัติ (Captcha)"); return; }
+    } else if (authMode === "login") {
+      if (!authUsername || !authPassword) { setFormError("กรุณากรอกข้อมูลให้ครบถ้วน"); return; }
+      if (TURNSTILE_SITE_KEY && !turnstileToken) { setFormError("กรุณายืนยันตัวตนว่าไม่ใช่โปรแกรมอัตโนมัติ (Captcha)"); return; }
+    }
+    
     if (TURNSTILE_SITE_KEY && !turnstileToken) {
        Swal.fire({ icon: 'warning', title: 'โปรดยืนยันตัวตน', text: 'กรุณายืนยันว่าคุณไม่ใช่บอท' });
        return;
@@ -376,8 +388,9 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
           )}
 
           {/* Turnstile Integration */}
+          {formError && <div className="mt-4 text-[#ef4444] bg-[#ef4444]/10 border border-[#ef4444]/20 rounded-md p-3 text-sm font-medium animate-pulse text-center">{formError}</div>}
           {TURNSTILE_SITE_KEY && (
-            <div className="flex justify-center py-3 mt-2">
+            <div className="flex justify-center relative z-20 py-2 w-full max-w-[300px] mx-auto overflow-hidden">
               <Turnstile
                 siteKey={TURNSTILE_SITE_KEY}
                 onSuccess={(token) => setTurnstileToken(token)}
@@ -417,7 +430,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
             </button>
           ) : (
             <p className="text-white/30 text-xs mt-2">
-              เมื่อเข้าสู่ระบบ คุณยอมรับ <span className="text-white/60 hover:text-white cursor-pointer underline underline-offset-2 decoration-white/20 transition-colors">ข้อกำหนด</span> และ <span className="text-white/60 hover:text-white cursor-pointer underline underline-offset-2 decoration-white/20 transition-colors">นโยบายความเป็นส่วนตัว</span> ของเรา
+              เมื่อเข้าสู่ระบบ คุณยอมรับ <a href="#" onClick={(e)=>{e.preventDefault();setActiveView("custom_page");}} className="text-white/60 hover:text-white cursor-pointer underline underline-offset-2 decoration-white/20 transition-colors">ข้อกำหนด</a> และ <a href="#" onClick={(e)=>{e.preventDefault();setActiveView("custom_page");}} className="text-white/60 hover:text-white cursor-pointer underline underline-offset-2 decoration-white/20 transition-colors">นโยบายความเป็นส่วนตัว</a> ของเรา
             </p>
           )}
         </div>

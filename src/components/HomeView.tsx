@@ -222,13 +222,16 @@ function CategoryChip({
         className="relative w-full overflow-hidden shrink-0 bg-[#141416]"
         style={{ aspectRatio: '2100 / 500' }}
       >
-        {cat.bannerUrl ? (
+            {cat.bannerUrl || (catProducts[0] && catProducts[0].imageUrl) ? (
           <img
-            src={cat.bannerUrl}
+            src={cat.bannerUrl || catProducts[0]?.imageUrl}
             alt={cat.name || cat.title}
-            className="w-full h-full object-cover group-  opacity-60 group-hover:opacity-85"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-60 group-hover:opacity-85"
             referrerPolicy="no-referrer"
             loading="lazy"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = 'https://archive.org/download/placeholder-image/placeholder-image.jpg';
+            }}
           />
         ) : (
           <div className="w-full h-full bg-[#09090b] flex items-center justify-center">
@@ -415,6 +418,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
   }, []);
 
   const safeProducts = useMemo(() => (Array.isArray(products) ? products : []), [products]);
+  const recommendedProducts = useMemo(() => safeProducts.filter(p => Number(p.stock) > 0), [safeProducts]);
 
   const totalSales =
     siteSettings?.stats_sales_override != null
@@ -535,7 +539,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
           <StatCard
             label="ยอดขาย"
             value={totalSales}
-            unit="ครั้ง"
+            unit="บาท"
             icon={ShoppingCart}
             accent="rgba(239,68,68,0.4)"
             delay={0.4}
@@ -752,13 +756,13 @@ export const HomeView: React.FC<HomeViewProps> = ({
             </button>
           </motion.div>
 
-          {safeProducts.length === 0 ? (
+          {recommendedProducts.length === 0 ? (
             <div className="text-center py-20 text-white/30 text-sm">
               ยังไม่มีสินค้าในขณะนี้
             </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
-              {safeProducts.map((p, idx) => (
+              {recommendedProducts.map((p, idx) => (
                 <ProductCard key={p.id} product={p} onClick={() => onProductClick(p.id)} delay={idx * 0.05} />
               ))}
             </div>
