@@ -419,12 +419,12 @@ export const HomeView: React.FC<HomeViewProps> = ({
   const totalSales =
     siteSettings?.stats_sales_override != null
       ? Number(siteSettings.stats_sales_override)
-      : stats?.sales ?? 0;
+      : (stats?.sales ?? 0) + (siteSettings?.stats_sales_offset ? Number(siteSettings.stats_sales_offset) : 0);
 
   const totalMembers =
     siteSettings?.stats_users_override != null
       ? Number(siteSettings.stats_users_override)
-      : stats?.users ?? 0;
+      : (stats?.users ?? 0) + (siteSettings?.stats_users_offset ? Number(siteSettings.stats_users_offset) : 0);
 
   const totalStock = useMemo(() => {
     if (siteSettings?.stats_stock_override != null) return Number(siteSettings.stats_stock_override);

@@ -2180,19 +2180,55 @@ function AppContent() {
            
            
            
-           {activeView === "logs" && (
-             <HistoryLogsView
-               usedKeysHistory={usedKeysHistory.filter(
-                 (h) => h.uid === user?.id,
-               )}
-               purchaseHistory={purchaseHistory.filter(
-                 (h) => h.uid === user?.id || h.userId === user?.id,
-               )}
-               topupHistory={topupHistory.filter(
-                 (h) => h.uid === user?.id || h.userId === user?.id,
-               )}
-             />
-           )}
+           {activeView === "wallet" && (
+              <WalletView
+                userPlan={userPlan}
+                setUserPlan={setUserPlan}
+                userId={user?.id}
+                siteSettings={siteSettings}
+                onTopupSuccess={(entry) => {
+                  setTopupHistory(prev => [entry, ...prev]);
+                  if (userPlan) {
+                    setUserPlan({
+                      ...userPlan,
+                      balance: (userPlan.balance || 0) + Number(entry.amount)
+                    });
+                  }
+                }}
+              />
+            )}
+
+            {activeView === "redeem" && (
+              <RedeemKeyView
+                redeemKey={redeemKey}
+                userEmail={user?.email}
+                isLoggedIn={!!user}
+                onBack={() => setActiveView("home")}
+                onGoToStore={() => setActiveView("categories")}
+                onLoginClick={() => setActiveView("login")}
+              />
+            )}
+
+            {activeView === "settings" && (
+              <SettingsView
+                user={user}
+                setActiveView={setActiveView}
+              />
+            )}
+
+            {(activeView === "logs" || activeView === "history" || activeView === "order_history" || activeView === "my_orders") && (
+              <HistoryLogsView
+                usedKeysHistory={usedKeysHistory.filter(
+                  (h) => h.uid === user?.id,
+                )}
+                purchaseHistory={purchaseHistory.filter(
+                  (h) => h.uid === user?.id || h.userId === user?.id,
+                )}
+                topupHistory={topupHistory.filter(
+                  (h) => h.uid === user?.id || h.userId === user?.id,
+                )}
+              />
+            )}
            {activeView === "admin" && isAdmin && (
              <AdminDashboard
 
@@ -2740,10 +2776,10 @@ function AppContent() {
 
 const SupplementaryLoader: React.FC = () => {
   return (
-    <div className="flex-1 w-full flex flex-col items-center justify-center min-h-[50vh] bg-white text-zinc-950 rounded-2xl p-8 border border-zinc-100 shadow-xl max-w-sm mx-auto my-12 text-center select-none animate-pulse">
-      <div className="w-10 h-10 border-4 border-zinc-200 border-t-emerald-500 rounded-full animate-spin mb-4" />
-      <h3 className="text-sm font-semibold font-sans text-zinc-900 tracking-wide">กำลังโหลดข้อมูลระบบ</h3>
-      <p className="text-[11px] text-zinc-400 font-sans mt-0.5">โปรดรอสักครู่ ระบบกำลังจัดเตรียมข้อมูลแอปพลิเคชัน...</p>
+    <div className="flex-1 w-full flex flex-col items-center justify-center min-h-[50vh] bg-zinc-950/40 text-zinc-400 rounded-2xl p-8 border border-zinc-800/60 max-w-sm mx-auto my-12 text-center select-none animate-pulse">
+      <div className="w-10 h-10 border-4 border-zinc-800 border-t-emerald-500 rounded-full animate-spin mb-4" />
+      <h3 className="text-sm font-semibold font-sans text-white tracking-wide">กำลังโหลดข้อมูลระบบ</h3>
+      <p className="text-[11px] text-zinc-500 font-sans mt-0.5">โปรดรอสักครู่ ระบบกำลังจัดเตรียมข้อมูลแอปพลิเคชัน...</p>
     </div>
   );
 };
