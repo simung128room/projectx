@@ -25,7 +25,8 @@ import {
   Camera,
   Lightbulb,
   Mail,
-  Check
+  Check,
+  Percent
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import axios from 'axios';
@@ -69,11 +70,14 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
       toast: true,
       position: 'top-end',
       icon: 'success',
-      title: 'คัดลอกเลขบัญชีสโตร์สำเร็จ!',
+      title: 'คัดลอกเลขบัญชีสำเร็จ!',
       showConfirmButton: false,
       timer: 1500,
-      background: '#ffffff',
-      color: '#1e293b'
+      background: '#09090b',
+      color: '#ffffff',
+      customClass: {
+        popup: 'border border-[#1e1e1e]'
+      }
     });
 
     setTimeout(() => {
@@ -100,9 +104,12 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
         title: 'ข้อมูลไม่ถูกต้อง',
         text: 'รูปแบบลิงก์ซองอั่งเปาไม่ถูกต้อง กรุณาตรวจสอบรหัสซองอั่งเปาของคุณอีกครั้ง',
         icon: 'error',
-        background: '#ffffff',
-        color: '#1e293b',
-        confirmButtonColor: '#e31a22'
+        background: '#09090b',
+        color: '#ffffff',
+        confirmButtonColor: '#ff2c2c',
+        customClass: {
+          popup: 'border border-[#1e1e1e]'
+        }
       });
       return;
     }
@@ -112,12 +119,15 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
       title: 'กำลังตรวจสอบซองอั่งเปา',
       text: 'ระบบกำลังดึงยอดเงินและตรวจสอบความถูกต้องแบบอัตโนมัติ...',
       icon: 'info',
-      background: '#ffffff',
-      color: '#1e293b',
+      background: '#09090b',
+      color: '#ffffff',
       showConfirmButton: false,
       allowOutsideClick: false,
       didOpen: () => {
         Swal.showLoading();
+      },
+      customClass: {
+        popup: 'border border-[#1e1e1e]'
       }
     });
 
@@ -164,9 +174,12 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
           title: 'เติมเงินสำเร็จ!',
           text: `คุณได้รับเครดิตจำนวน ฿${amount.toLocaleString()} เติมเข้ากระเป๋าเงินของคุณเรียบร้อยแล้ว`,
           icon: 'success',
-          background: '#ffffff',
-          color: '#1e293b',
-          confirmButtonColor: '#e31a22'
+          background: '#09090b',
+          color: '#ffffff',
+          confirmButtonColor: '#10b981',
+          customClass: {
+            popup: 'border border-[#1e1e1e]'
+          }
         });
         setTruemoneyLink('');
         setActiveView('main');
@@ -175,9 +188,12 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
           title: 'ตรวจสอบล้มเหลว',
           text: response.data.error || 'ซองอั่งเปาหมดอายุ ถูกใช้ไปแล้ว หรือไม่ถูกต้อง',
           icon: 'error',
-          background: '#ffffff',
-          color: '#1e293b',
-          confirmButtonColor: '#e31a22'
+          background: '#09090b',
+          color: '#ffffff',
+          confirmButtonColor: '#ff2c2c',
+          customClass: {
+            popup: 'border border-[#1e1e1e]'
+          }
         });
       }
     } catch (err: any) {
@@ -185,9 +201,12 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
         title: 'เกิดข้อผิดพลาดในการตรวจสอบ',
         text: err.response?.data?.error || err.message || 'การเชื่อมต่อระบบขัดข้อง กรุณาลองใหม่อีกครั้ง',
         icon: 'error',
-        background: '#ffffff',
-        color: '#1e293b',
-        confirmButtonColor: '#e31a22'
+        background: '#09090b',
+        color: '#ffffff',
+        confirmButtonColor: '#ff2c2c',
+        customClass: {
+          popup: 'border border-[#1e1e1e]'
+        }
       });
     } finally {
       setIsVerifying(false);
@@ -200,12 +219,15 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
       title: 'กำลังตรวจสอบสลิปโอนเงิน',
       text: 'ระบบกำลังดึงสถิติวิเคราะห์ QR Code ยอดการทำธุรกรรมโมบายแบงกิ้ง...',
       icon: 'info',
-      background: '#ffffff',
-      color: '#1e293b',
+      background: '#09090b',
+      color: '#ffffff',
       showConfirmButton: false,
       allowOutsideClick: false,
       didOpen: () => {
         Swal.showLoading();
+      },
+      customClass: {
+        popup: 'border border-[#1e1e1e]'
       }
     });
 
@@ -253,9 +275,12 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
             title: 'ตรวจสอบสำเร็จ!',
             text: `ระบบทำการตรวจสอบสลิปโอนเงินเรียบร้อย ได้รับเครดิต ฿${amount.toLocaleString()} บาท`,
             icon: 'success',
-            background: '#ffffff',
-            color: '#1e293b',
-            confirmButtonColor: '#e31a22'
+            background: '#09090b',
+            color: '#ffffff',
+            confirmButtonColor: '#10b981',
+            customClass: {
+              popup: 'border border-[#1e1e1e]'
+            }
           });
           setSelectedFile(null);
           setFilePreview(null);
@@ -265,9 +290,12 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
             title: 'ตรวจสอบไม่สำเร็จ',
             text: response.data.error || 'ข้อมูลสลิปนี้ไม่ถูกต้อง หรือสลิปเคยถูกใช้งานรับเครดิตไปแล้ว',
             icon: 'error',
-            background: '#ffffff',
-            color: '#1e293b',
-            confirmButtonColor: '#e31a22'
+            background: '#09090b',
+            color: '#ffffff',
+            confirmButtonColor: '#ff2c2c',
+            customClass: {
+              popup: 'border border-[#1e1e1e]'
+            }
           });
         }
       } catch (err: any) {
@@ -275,9 +303,12 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
           title: 'การส่งสลิปล้มเหลว',
           text: err.response?.data?.error || err.message || 'ระบบวิเคราะห์สลิปขัดข้องชั่วคราว กรุณาลองใหม่อีกครั้งในภายหลัง',
           icon: 'error',
-          background: '#ffffff',
-          color: '#1e293b',
-          confirmButtonColor: '#e31a22'
+          background: '#09090b',
+          color: '#ffffff',
+          confirmButtonColor: '#ff2c2c',
+          customClass: {
+            popup: 'border border-[#1e1e1e]'
+          }
         });
       } finally {
         setIsVerifying(false);
@@ -321,12 +352,15 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
       reader.readAsDataURL(file);
     } else if (file) {
       Swal.fire({
-        title: 'ไฟล์ประเภทของรูปภาพเท่านั้น',
+        title: 'ไฟล์ประเภทรูปภาพเท่านั้น',
         text: 'กรุณาเลือกหรือวางเฉพาะไฟล์รูปภาพสลิป PNG, JPG หรือ JPEG',
         icon: 'warning',
-        background: '#ffffff',
-        color: '#1e293b',
-        confirmButtonColor: '#e31a22'
+        background: '#09090b',
+        color: '#ffffff',
+        confirmButtonColor: '#ff2c2c',
+        customClass: {
+          popup: 'border border-[#1e1e1e]'
+        }
       });
     }
   };
@@ -337,44 +371,48 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
     } else {
       Swal.fire({
         title: 'ไม่พบไฟล์รูปภาพ',
-        text: 'กรุณาอัพโหลดหรือเลือกไฟล์รูปภาพหลักสลิปธนาคารก่อนกดยืนยัน',
+        text: 'กรุณาอัปโหลดหรือเลือกไฟล์รูปภาพหลักสลิปธนาคารก่อนกดยืนยัน',
         icon: 'warning',
-        background: '#ffffff',
-        color: '#1e293b',
-        confirmButtonColor: '#e31a22'
+        background: '#09090b',
+        color: '#ffffff',
+        confirmButtonColor: '#ff2c2c',
+        customClass: {
+          popup: 'border border-[#1e1e1e]'
+        }
       });
     }
   };
 
   return (
     <AnimatedScroll direction="up" hideOnScroll={true}>
-      <div className="w-full max-w-lg sm:max-w-xl mx-auto px-4 py-8 font-sans min-h-screen text-slate-800 relative z-10">
+      <div className="w-full max-w-xl mx-auto px-4 py-8 font-sans min-h-screen text-white relative z-10">
         
-        {/* Subtle decorative background curves to match kiddy store visual identity */}
+        {/* Subtle high-tech circular glows mirroring kaitunshop premium visual design */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-xl h-full pointer-events-none overflow-hidden select-none -z-10">
-          <svg className="absolute top-0 left-0 w-full opacity-10" viewBox="0 0 400 600" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M-100,50 Q100,10 200,120 T500,20" stroke="currentColor" strokeWidth="2" strokeDasharray="5 5"></path>
-            <path d="M-50,250 Q120,180 250,310 T450,220" stroke="currentColor" strokeWidth="1.5" strokeDasharray="3 3"></path>
-            <circle cx="200" cy="80" r="120" stroke="currentColor" strokeWidth="1" strokeDasharray="6 6"></circle>
-          </svg>
+          <div className="absolute top-[-10%] left-[50%] -translate-x-1/2 w-[350px] h-[350px] bg-[#10b981]/5 rounded-full blur-[80px]" />
+          <div className="absolute bottom-[20%] left-[-20%] w-[250px] h-[250px] bg-[#7c3aed]/5 rounded-full blur-[60px]" />
         </div>
 
-        {/* Current Balance & User Display Widget */}
-        <div className="mb-6 bg-white border border-slate-100 rounded-md p-4 flex items-center justify-between shadow-sm">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-red-50 text-red-500 rounded-md flex items-center justify-center">
-              <Wallet className="w-5 h-5" />
+        {/* ── Header Card: Current Balance Glassmorphic Widget ── */}
+        <div className="mb-8 relative overflow-hidden bg-[#09090b]/60 backdrop-blur-md border border-[#1e1e1e] p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 group">
+          {/* Subtle line background decoration inside wallet stats card */}
+          <div className="absolute inset-x-0 bottom-0 h-[2px] bg-gradient-to-r from-transparent via-[#10b981] to-transparent opacity-65 group-hover:opacity-100 transition-opacity duration-300" />
+          
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-[#10b981]/10 text-[#10b981] border border-[#10b981]/25 flex items-center justify-center shrink-0">
+              <Wallet className="w-6 h-6" />
             </div>
             <div>
-              <p className="text-[10px] font-semibold text-slate-400 tracking-wider uppercase">ยอดคงเหลือในกระเป๋าของคุณ</p>
-              <p className="text-xl font-semibold text-slate-800 mt-0.5">
-                ฿{(userPlan?.balance || 0).toLocaleString()} <span className="text-xs text-slate-400 font-semibold">บาท</span>
+              <p className="text-[10px] font-semibold text-zinc-400 tracking-widest uppercase">ช่องกระเป๋าเงินของคุณ</p>
+              <p className="text-2xl font-bold text-white mt-1.5 flex items-baseline gap-1 font-mono">
+                ฿{(userPlan?.balance || 0).toLocaleString()} <span className="text-xs text-zinc-400 font-sans font-medium">บาท</span>
               </p>
             </div>
           </div>
-          <div className="px-3 py-1 bg-slate-50 border border-slate-100 text-slate-500 rounded-md text-xs font-medium flex items-center gap-1.5 select-none ">
-            <span className="w-2 h-2 bg-[#10b981] rounded-full" />
-            <span>พร้อมเติมเงิน</span>
+
+          <div className="px-3.5 py-1.5 bg-[#10b981]/10 border border-[#10b981]/20 text-[#10b981] text-xs font-semibold flex items-center gap-2 select-none self-start sm:self-center">
+            <span className="w-2 h-2 bg-[#10b981] rounded-full animate-pulse" />
+            <span>พร้อมเติมเงินเข้าระบบ</span>
           </div>
         </div>
 
@@ -387,127 +425,114 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -15 }}
-              transition={{ duration: 0.35 }}
+              transition={{ duration: 0.3 }}
               className="space-y-6"
             >
-              {/* Header Visual Icon from mockups */}
-              <div className="flex flex-col items-center text-center">
-                <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center mb-4 border border-red-100 relative shadow-sm">
-                  <div className="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center text-white">
-                    <Wallet className="w-4 h-4" />
-                  </div>
-                </div>
-                <h1 className="text-2xl sm:text-3xl font-semibold text-slate-900 tracking-tight">
-                  ช่องทางการชำระเงิน
+              <div className="text-center mb-8">
+                <h1 className="text-2xl sm:text-3xl font-semibold text-white tracking-tight flex items-center justify-center gap-2">
+                  <Coins className="w-8 h-8 text-[#10b981]" /> ช่องทางการชำระเงิน
                 </h1>
-                <p className="text-slate-500 text-xs sm:text-sm font-medium mt-1.5 max-w-sm">
-                  เลือกช่องทางที่ต้องการเพื่อเติมเงินเข้าบัญชีของคุณ
+                <p className="text-zinc-400 text-xs sm:text-sm font-medium mt-2 max-w-sm mx-auto leading-relaxed">
+                  เลือกวิธีการชำระเงินที่คุณสะดวกเพื่อรับเครดิตในระบบแบบอัปเดตทันใจ
                 </p>
               </div>
 
-              {/* Red-framed Option 1: TrueMoney Wallet */}
-              <motion.div
-                
-                className="bg-white border border-slate-100 p-6 rounded-md shadow-sm flex flex-col space-y-5 transition-colors duration-200 relative overflow-hidden"
-              >
-                <div className="flex items-start gap-4">
-                  {/* Styled TrueMoney Wallet Simulated Logo */}
-                  <div className="w-14 h-14 rounded-md bg-[#f52b2b] flex items-center justify-center relative shadow-md shrink-0 select-none">
-                    <div className="w-7 h-7 rounded-full bg-yellow-400 border-[2.5px] border-[#f52b2b] flex items-center justify-center">
-                      <div className="w-1.5 h-1.5 rounded-full bg-yellow-600" />
+              {/* Option 1: TrueMoney Wallet */}
+              <div className="group relative bg-[#09090b]/80 border border-[#1e1e1e] hover:border-[#fca211]/30 p-6 transition-all duration-300 overflow-hidden">
+                <div className="absolute top-0 left-0 w-[4px] h-full bg-[#fca211] opacity-60 group-hover:opacity-100 transition-all duration-300" />
+                <div className="absolute top-0 right-0 w-32 h-32 bg-[#fca211]/2 rounded-full blur-2xl pointer-events-none" />
+
+                <div className="flex flex-col sm:flex-row items-start justify-between gap-5">
+                  <div className="flex items-start gap-4">
+                    {/* Orange-Yellow brand envelope icon */}
+                    <div className="w-14 h-14 bg-[#fca211]/10 border border-[#fca211]/30 flex items-center justify-center shrink-0 shadow-inner">
+                      <Gift className="w-8 h-8 text-[#fca211]" />
                     </div>
-                    <div className="absolute bottom-2.5 left-2.5 right-2.5 h-2 bg-[#d11c1c] rounded-sm" />
-                  </div>
 
-                  {/* Text details */}
-                  <div className="space-y-1 pr-1">
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      <h3 className="text-base font-semibold text-slate-800">ซองอั่งเปา</h3>
-                      <span className="px-2 py-0.5 bg-amber-50 text-amber-600 border border-amber-100 text-[9px] font-semibold tracking-wide rounded-md">
-                        ตรวจสอบอัตโนมัติ
-                      </span>
+                    <div className="space-y-1.5">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className="text-lg font-semibold text-white tracking-tight">ซองอั่งเปา (Angpao Link)</h3>
+                        <span className="px-2 py-0.5 bg-[#fca211]/10 text-[#fca211] border border-[#fca211]/25 text-[9px] font-semibold tracking-wide rounded">
+                          AUTO
+                        </span>
+                      </div>
+                      <p className="text-zinc-400 text-xs font-medium leading-relaxed">
+                        TrueMoney Wallet • กรอกลิงก์ซองของขวัญอั่งเปาเพื่อรับเงินเข้ากระเป๋าบัญชี
+                      </p>
+                      <div className="flex items-center gap-1.5 text-[10px] text-zinc-500 font-semibold">
+                        <Percent className="w-3.5 h-3.5 text-zinc-500" /> 
+                        <span>หักค่าธรรมเนียมเพียง 2.9%</span>
+                      </div>
                     </div>
-                    <p className="text-slate-500 text-xs font-semibold leading-relaxed">
-                      True Money Wallet • ใช้ลิงก์ซองอั่งเปาเพื่อเติมเงิน
-                    </p>
-                    <p className="text-slate-400 text-[10px] font-semibold flex items-center gap-1">
-                      <Gift className="w-3.5 h-3.5 text-red-400 shrink-0" /> เหมาะสำหรับผู้ใช้ TrueMoney Wallet
-                    </p>
                   </div>
+
+                  <span className="px-3 py-1 bg-zinc-800/50 border border-[#1e1e1e] text-zinc-400 text-[10px] font-semibold uppercase tracking-wider rounded select-none shrink-0 self-start sm:self-center">
+                    Online
+                  </span>
                 </div>
 
-                {/* Status Badge from mock */}
-                <div className="flex items-center gap-2.5 bg-slate-50 border border-slate-100 rounded-md p-3 select-none">
-                  <div className="w-8 h-8 rounded-full bg-rose-50 border border-rose-100 flex items-center justify-center shrink-0">
-                    <Mail className="w-4 h-4 text-rose-500" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-rose-500 font-semibold tracking-wide">พร้อมใช้งาน</p>
-                    <p className="text-[10px] text-slate-400 font-medium leading-none mt-0.5">คลิกเพื่อเริ่มเติมเงิน</p>
-                  </div>
+                <div className="mt-6">
+                  <button
+                    onClick={() => setActiveView('truemoney')}
+                    className="w-full py-3 bg-[#fca211]/10 hover:bg-[#fca211] text-[#fca211] hover:text-black border border-[#fca211]/20 hover:border-transparent font-semibold tracking-widest text-xs uppercase flex items-center justify-center gap-2 transition-all duration-200 cursor-pointer active:scale-[0.98]"
+                  >
+                    เริ่มเติมเงิน <ArrowRight className="w-4 h-4" />
+                  </button>
                 </div>
-
-                {/* Crimson Select Button */}
-                <button
-                  onClick={() => setActiveView('truemoney')}
-                  className="w-full py-3 rounded-md bg-[#e31a22] hover:bg-[#bc131a] active:scale-[0.99] text-white font-semibold tracking-widest text-xs uppercase flex items-center justify-center gap-2 transition-colors duration-200 shadow-md cursor-pointer"
-                >
-                  <ArrowRight className="w-4 h-4" /> เลือก
-                </button>
-              </motion.div>
-
-              {/* Purple-framed Option 2: Bank Slip Scanner */}
-              <motion.div
-                
-                className="bg-white border border-slate-100 p-6 rounded-md shadow-sm flex flex-col space-y-5 transition-colors duration-200 relative overflow-hidden"
-              >
-                <div className="flex items-start gap-4">
-                  {/* Styled Purple Doc Logo */}
-                  <div className="w-14 h-14 rounded-md bg-[#7c3aed] flex items-center justify-center relative shadow-md shrink-0 select-none">
-                    <FileText className="w-7 h-7 text-white" />
-                  </div>
-
-                  {/* Text details */}
-                  <div className="space-y-1 pr-1">
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      <h3 className="text-base font-semibold text-slate-800">สลิปโอนเงิน</h3>
-                      <span className="px-2 py-0.5 bg-purple-50 text-zinc-600 border border-[#1e1e1e] text-[9px] font-semibold tracking-wide rounded-md">
-                        ตรวจสอบอัตโนมัติ
-                      </span>
-                    </div>
-                    <p className="text-slate-500 text-xs font-semibold leading-relaxed">
-                      Bank Transfer Slip • อัปโหลดสลิปโอนเงินเพื่อเติมเงิน
-                    </p>
-                    <p className="text-slate-400 text-[10px] font-semibold flex items-center gap-1">
-                      <UploadCloud className="w-3.5 h-3.5 text-zinc-400 shrink-0" /> รองรับการโอนผ่านทุกธนาคาร
-                    </p>
-                  </div>
-                </div>
-
-                {/* Status Badge from mock */}
-                <div className="flex items-center gap-2.5 bg-slate-50 border border-slate-100 rounded-md p-3 select-none">
-                  <div className="w-8 h-8 rounded-full bg-purple-50 border border-[#1e1e1e] flex items-center justify-center shrink-0">
-                    <FileText className="w-4 h-4 text-[#7c3aed]" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-[#7c3aed] font-semibold tracking-wide">พร้อมใช้งาน</p>
-                    <p className="text-[10px] text-slate-400 font-medium leading-none mt-0.5">คลิกเพื่อเริ่มเติมเงิน</p>
-                  </div>
-                </div>
-
-                {/* Crimson Select Button */}
-                <button
-                  onClick={() => setActiveView('bank')}
-                  className="w-full py-3 rounded-md bg-[#e31a22] hover:bg-[#bc131a] active:scale-[0.99] text-white font-semibold tracking-widest text-xs uppercase flex items-center justify-center gap-2 transition-colors duration-200 shadow-md cursor-pointer"
-                >
-                  <ArrowRight className="w-4 h-4" /> เลือก
-                </button>
-              </motion.div>
-
-              {/* Mobile Domain Footer Visual from kiddyxstore mockup */}
-              <div className="pt-6 border-t border-slate-100 text-center select-none text-slate-400 text-[10px] font-semibold uppercase tracking-widest">
-                {siteSettings?.site_title || 'APEX STORE'}
               </div>
+
+              {/* Option 2: Bank Slip Scanner */}
+              <div className="group relative bg-[#09090b]/80 border border-[#1e1e1e] hover:border-[#10b981]/30 p-6 transition-all duration-300 overflow-hidden">
+                <div className="absolute top-0 left-0 w-[4px] h-full bg-[#10b981] opacity-60 group-hover:opacity-100 transition-all duration-300" />
+                <div className="absolute top-0 right-0 w-32 h-32 bg-[#10b981]/2 rounded-full blur-2xl pointer-events-none" />
+
+                <div className="flex flex-col sm:flex-row items-start justify-between gap-5">
+                  <div className="flex items-start gap-4">
+                    {/* Emerald bank landmark icon */}
+                    <div className="w-14 h-14 bg-[#10b981]/10 border border-[#10b981]/30 flex items-center justify-center shrink-0 shadow-inner">
+                      <Landmark className="w-8 h-8 text-[#10b981]" />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className="text-lg font-semibold text-white tracking-tight">โอนเงินธนาคาร (เช็คสลิปอัตโนมัติ)</h3>
+                        <span className="px-2 py-0.5 bg-[#10b981]/10 text-[#10b981] border border-[#10b981]/25 text-[9px] font-semibold tracking-wide rounded">
+                          AUTO
+                        </span>
+                      </div>
+                      <p className="text-zinc-400 text-xs font-medium leading-relaxed">
+                        โอนเข้าธนาคารร้านค้าแล้วอัปโหลดสลิปนำไปสแกนรวดเร็วผ่านธนาคารโดยไม่มีค่าบริการ
+                      </p>
+                      <div className="flex items-center gap-1.5 text-[10px] text-[#10b981] font-semibold">
+                        <CheckCircle className="w-3.5 h-3.5" /> 
+                        <span>ฟรีไม่มีค่าบริการ 0%</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <span className="px-3 py-1 bg-zinc-800/50 border border-[#1e1e1e] text-[#10b981] text-[10px] font-semibold uppercase tracking-wider rounded select-none shrink-0 self-start sm:self-center">
+                    ฟรี 0%
+                  </span>
+                </div>
+
+                <div className="mt-6">
+                  <button
+                    onClick={() => setActiveView('bank')}
+                    className="w-full py-3 bg-[#10b981]/10 hover:bg-[#10b981] text-[#10b981] hover:text-black border border-[#10b981]/20 hover:border-transparent font-semibold tracking-widest text-xs uppercase flex items-center justify-center gap-2 transition-all duration-200 cursor-pointer active:scale-[0.98]"
+                  >
+                    เริ่มเติมเงิน <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Security info disclaimer badge */}
+              <div className="p-4 bg-[#09090b]/40 border border-[#1e1e1e] flex gap-3 text-zinc-400 select-none">
+                <ShieldCheck className="w-5 h-5 text-[#10b981] shrink-0 mt-0.5" />
+                <p className="text-[11px] leading-relaxed font-medium">
+                  ธุรกรรมทางการเงินทั้งหมดดำเนินรายการอย่างเป็นสัดส่วน ปลอดภัย 100% ภายใต้นโยบาย Zero-Data Retention ความเป็นส่วนตัวของลูกค้าเป็นความสำคัญอันดับหนึ่งของเรา
+                </p>
+              </div>
+
             </motion.div>
           )}
 
@@ -515,60 +540,65 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
           {activeView === 'truemoney' && (
             <motion.div
               key="truemoney"
-              initial={{ opacity: 0, scale: 0.96 }}
+              initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.96 }}
-              className="bg-white border border-slate-100 p-6 sm:p-8 rounded-[2rem] shadow-md relative overflow-hidden"
+              exit={{ opacity: 0, scale: 0.98 }}
+              transition={{ duration: 0.25 }}
+              className="bg-[#09090b] border border-[#1e1e1e] p-6 sm:p-8 relative overflow-hidden"
             >
-              {/* Close X marker on top right */}
+              {/* Back button */}
               <button 
                 onClick={() => setActiveView('main')}
-                className="absolute top-5 right-5 w-8 h-8 rounded-md bg-slate-50 hover:bg-slate-100 border border-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+                className="absolute top-5 right-5 p-2 bg-[#121212] hover:bg-[#222222] border border-[#1e1e1e] text-zinc-400 hover:text-white transition-colors cursor-pointer select-none"
+                title="ย้อนกลับ"
               >
                 <X className="w-4 h-4" />
               </button>
 
-              {/* Sub-view Header */}
-              <div className="flex items-start gap-3.5 mb-6 border-b border-slate-100 pb-5">
-                <div className="w-12 h-12 rounded-full bg-[#fca211] flex items-center justify-center text-white text-lg font-semibold font-sans shadow-md shrink-0">
-                  T
+              {/* Header */}
+              <div className="flex items-center gap-3.5 mb-6 border-b border-[#1e1e1e] pb-5 pl-1">
+                <div className="w-10 h-10 bg-[#fca211]/10 border border-[#fca211]/20 flex items-center justify-center shrink-0">
+                  <Gift className="w-5 h-5 text-[#fca211]" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold text-slate-800">ซองอั่งเปา</h2>
-                  <p className="text-xs text-slate-400 font-medium leading-none mt-1">True Money Wallet</p>
+                  <h2 className="text-xl font-semibold text-white tracking-tight">เติมเงินผ่านซองอั่งเปา</h2>
+                  <p className="text-xs text-zinc-400 font-medium mt-1">กรอกลิงก์ของขวัญอั่งเปา TrueMoney Wallet</p>
                 </div>
               </div>
 
-              {/* Red-border Warning Card: หมายเหตุ */}
-              <div className="bg-rose-50 border border-rose-100 rounded-md p-4 mb-4 select-none">
-                <p className="text-xs font-semibold text-rose-600">หมายเหตุ</p>
-                <p className="text-[11px] text-rose-500 font-medium leading-relaxed mt-1">
-                  การเติมเงินนี้ ไม่สามารถใช้กับระบบ API ได้ กรุณาตรวจสอบเลขบัญชีก่อนโอนทุกครั้ง ทางเว็บไซต์ไม่มีนโยบายคืนเงินไม่ว่ากรณีใดๆทั้งสิ้น
-                </p>
+              {/* Warning Alerts inside gorgeous styled grid */}
+              <div className="space-y-4 mb-6">
+                <div className="bg-[#ef4444]/5 border border-[#ef4444]/20 p-4 text-[#ef4444]">
+                  <h4 className="text-xs font-semibold flex items-center gap-1.5 select-none uppercase tracking-wide">
+                    <AlertTriangle className="w-4 h-4 text-rose-500 shrink-0" /> โปรดทราบเงื่อนไข
+                  </h4>
+                  <p className="text-[11px] font-medium leading-relaxed mt-2 text-zinc-300">
+                    ห้ามนำลิงก์อั่งเปาที่สแกนแล้วหรือลิงก์เปล่ามากรอก การจงใจโกงหรือสร้างความสับสนต่อเซิร์ฟเวอร์อาจทำให้ท่านสูญสิทธิ์การเป็นสมาชิกสโตร์ทันที ทางเราไม่มีนโยบายการคืนเงินในทุกกรณี
+                  </p>
+                </div>
+
+                <div className="bg-[#fca211]/5 border border-[#fca211]/20 p-4 text-[#fca211]">
+                  <h4 className="text-xs font-semibold flex items-center gap-1.5 select-none uppercase tracking-wide">
+                    <Percent className="w-4 h-4 shrink-0" /> ค่าธรรมเนียมการทำรายการ
+                  </h4>
+                  <p className="text-[11px] font-medium leading-relaxed mt-2 text-zinc-300">
+                    เนื่องจากผู้ให้บริการระบบชำระเงิน มีการกำหนดเงื่อนไขในการประมวลผล จึงส่งผลให้ระบบมีความจำเป็นต้องหักค่าบริการธรรมเนียมจำนวน <strong className="text-[#fca211] font-mono">2.9%</strong> ของยอดเติมจริงที่ได้รับจากซองของขวัญ
+                  </p>
+                </div>
               </div>
 
-              {/* Yellow-border Warning Card: แจ้งเตือนค่าธรรมเนียม */}
-              <div className="bg-amber-50 border border-amber-100 rounded-md p-4 mb-6 select-none">
-                <p className="text-xs font-semibold text-amber-800 flex items-center gap-1">
-                  <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0" /> แจ้งเตือนค่าธรรมเนียม
-                </p>
-                <p className="text-[11px] text-amber-700 font-medium leading-normal mt-1">
-                  ระบบจะหักค่าธรรมเนียม 2.9% จากยอดเติม angpa
-                </p>
-              </div>
-
-              {/* Interactive Submit Form */}
-              <form onSubmit={handleTruemoneyTopup} className="space-y-5">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-2 ml-1">
-                    ลิงก์ซองอั่งเปา
+              {/* Input Form */}
+              <form onSubmit={handleTruemoneyTopup} className="space-y-6">
+                <div className="space-y-2">
+                  <label className="block text-xs font-semibold text-zinc-300 tracking-wider uppercase ml-1">
+                    ลิงก์ซองอั่งเปา (Angpao Link)
                   </label>
                   <input
                     type="text"
                     value={truemoneyLink}
                     onChange={(e) => setTruemoneyLink(e.target.value)}
                     placeholder="https://gift.truemoney.com/campaign/?v=..."
-                    className="w-full bg-slate-50 border border-slate-200 focus:border-red-500 focus:bg-white rounded-md p-3.5 text-slate-800 text-sm placeholder:text-slate-400 focus:outline-none transition-all font-medium"
+                    className="w-full bg-[#121212]/50 border border-[#1e1e1e] focus:border-[#fca211] focus:bg-[#121212] p-4 text-white text-sm placeholder:text-zinc-600 focus:outline-none transition-all font-medium font-mono"
                     required
                   />
                 </div>
@@ -576,15 +606,15 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
                 <button
                   type="submit"
                   disabled={isVerifying}
-                  className="w-full py-3.5 rounded-md bg-[#e31a22] hover:bg-[#bc131a] disabled:bg-slate-200 disabled:text-slate-400 text-white font-semibold tracking-widest uppercase transition-colors duration-200 shadow-md flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]"
+                  className="w-full py-4 bg-[#fca211] hover:bg-[#e0910f] disabled:bg-[#1a1a24] disabled:text-zinc-600 disabled:border-transparent text-black font-semibold tracking-widest text-xs uppercase transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
                 >
-                  <Wallet className="w-4 h-4 shrink-0" /> เติมเงิน
+                  <CheckCircle2 className="w-4 h-4 shrink-0" /> ยืนยันตรวจสอบ & เติมเงิน
                 </button>
               </form>
 
-              {/* Footer Domain Text */}
-              <div className="mt-8 text-center select-none text-slate-300 text-[9px] font-semibold uppercase tracking-widest">
-                {siteSettings?.site_title || 'APEX STORE'}
+              <div className="mt-8 pt-4 border-t border-[#1e1e1e] flex flex-col sm:flex-row items-center justify-between gap-1 text-zinc-600 text-[10px] font-mono select-none">
+                <span>GATEWAY: TRUEMONEY_ANGPAO</span>
+                <span>SECURE TRANSACTION VIA TLS</span>
               </div>
             </motion.div>
           )}
@@ -593,66 +623,70 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
           {activeView === 'bank' && (
             <motion.div
               key="bank"
-              initial={{ opacity: 0, scale: 0.96 }}
+              initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.96 }}
-              className="bg-white border border-slate-100 p-6 sm:p-8 rounded-[2rem] shadow-md relative overflow-hidden space-y-6"
+              exit={{ opacity: 0, scale: 0.98 }}
+              transition={{ duration: 0.25 }}
+              className="bg-[#09090b] border border-[#1e1e1e] p-6 sm:p-8 relative overflow-hidden space-y-6"
             >
-              {/* Close X marker on top right */}
+              {/* Back button */}
               <button 
                 onClick={() => setActiveView('main')}
-                className="absolute top-5 right-5 w-8 h-8 rounded-md bg-slate-50 hover:bg-slate-100 border border-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-600 transition-colors cursor-pointer animate-in duration-100"
+                className="absolute top-5 right-5 p-2 bg-[#121212] hover:bg-[#222222] border border-[#1e1e1e] text-zinc-400 hover:text-white transition-colors cursor-pointer select-none"
+                title="ย้อนกลับ"
               >
                 <X className="w-4 h-4" />
               </button>
 
-              {/* Sub-view Header */}
-              <div className="flex items-start gap-4 border-b border-slate-100 pb-5">
-                <div className="w-12 h-12 rounded-md bg-[#e31a22]/10 flex items-center justify-center border border-red-500/20 shrink-0">
-                  <FileText className="w-6 h-6 text-[#e31a22]" />
+              {/* Header */}
+              <div className="flex items-center gap-3.5 border-b border-[#1e1e1e] pb-5 pl-1">
+                <div className="w-10 h-10 bg-[#10b981]/10 border border-[#10b981]/20 flex items-center justify-center shrink-0">
+                  <Landmark className="w-5 h-5 text-[#10b981]" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold text-slate-800">อัพโหลดสลิปโอนเงิน</h2>
-                  <p className="text-xs text-slate-400 font-medium leading-none mt-1">Bank Transfer/Slip</p>
+                  <h2 className="text-xl font-semibold text-white tracking-tight">โอนผ่านธนาคาร & เช็คสลิป</h2>
+                  <p className="text-xs text-zinc-400 font-medium mt-1">อัปโหลดสลิปสแกน QR Code ตรวจสอบยอดเงินชั่วครู่</p>
                 </div>
               </div>
 
-              {/* Bank Metadata display box */}
-              <div className="bg-rose-50/50 border border-rose-100 rounded-md p-5 space-y-3.5 select-text relative">
-                <h4 className="text-xs font-semibold text-rose-700 flex items-center gap-1.5 select-none">
-                  <Landmark className="w-4 h-4 text-rose-500" /> ข้อมูลบัญชีธนาคาร
+              {/* Cyber Display bank account card */}
+              <div className="bg-[#121212] border border-[#1e1e1e] p-5 space-y-4 select-text relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-[#10b981]/5 rounded-full blur-xl pointer-events-none" />
+                
+                <h4 className="text-xs font-bold text-[#10b981] flex items-center gap-1.5 select-none uppercase tracking-widest pl-0.5">
+                  <Coins className="w-4 h-4 text-[#10b981]" /> บัญชีรับฝากสโตร์ (ธนาคารผู้รับเงิน)
                 </h4>
                 
-                <div className="text-xs font-semibold space-y-2.5 text-slate-700">
-                  <div className="flex justify-between items-baseline gap-2">
-                    <span className="text-slate-400 select-none">ธนาคาร:</span>
-                    <span className="font-semibold text-slate-800">{bankName}</span>
+                <div className="text-xs space-y-3.5 text-zinc-300">
+                  <div className="flex justify-between items-baseline gap-2 border-b border-[#1e1e1e] pb-2.5">
+                    <span className="text-zinc-500 font-medium select-none">สถาบันธนาคาร:</span>
+                    <span className="font-semibold text-white text-sm">{bankName}</span>
                   </div>
-                  <div className="flex justify-between items-baseline gap-2">
-                    <span className="text-slate-400 select-none">ชื่อบัญชี:</span>
-                    <span className="font-semibold text-slate-800">{bankAccountHolder}</span>
+                  <div className="flex justify-between items-baseline gap-2 border-b border-[#1e1e1e] pb-2.5">
+                    <span className="text-zinc-500 font-medium select-none">นามผู้ถือบัญชี:</span>
+                    <span className="font-semibold text-white text-sm">{bankAccountHolder}</span>
                   </div>
-                  <div className="flex justify-between items-center gap-2 relative">
-                    <span className="text-slate-400 select-none">เลขบัญชี:</span>
-                    <div className="flex items-center gap-2 pr-1">
-                      <span className="font-semibold text-sm text-slate-800 font-mono tracking-wider">{bankAccountNumber}</span>
+                  <div className="flex justify-between items-center gap-2">
+                    <span className="text-zinc-500 font-medium select-none">เลขที่บัญชี:</span>
+                    <div className="flex items-center gap-2.5">
+                      <span className="font-bold text-sm text-white font-mono tracking-wider select-all">{bankAccountNumber}</span>
                       <button 
                         onClick={handleCopyAccount}
-                        className={`p-1.5 rounded-md border transition-all shrink-0 ${
+                        className={`p-1.5 border transition-all shrink-0 cursor-pointer ${
                           isCopying 
-                            ? 'bg-[#10b981] text-white border-transparent' 
-                            : 'bg-white hover:bg-slate-50 text-slate-400 hover:text-slate-700 border-slate-200'
+                            ? 'bg-[#10b981] text-black border-transparent' 
+                            : 'bg-[#09090b] hover:bg-[#121212] text-zinc-400 hover:text-white border-[#1e1e1e]'
                         }`}
-                        title="คลิกเพื่อคัดลอกเลขบัญชี"
+                        title="คลิกเพื่อคัดลอกบัญชี"
                       >
-                        {isCopying ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                        {isCopying ? <Check className="w-3.5 h-3.5 animate-in zoom-in duration-100" /> : <Copy className="w-3.5 h-3.5" />}
                       </button>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Drag & Drop slip upload element from screenshots (dashed pink/red) */}
+              {/* Drag and Drop upload block with scanned guides */}
               <div className="relative">
                 <input 
                   type="file" 
@@ -669,90 +703,95 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
                   onDragOver={handleDragOver}
                   onDragLeave={handleDragLeave}
                   onDrop={handleDrop}
-                  className={`flex flex-col items-center justify-center w-full min-h-[160px] p-6 rounded-md transition-colors duration-200  border-dashed relative cursor-pointer ${
+                  className={`flex flex-col items-center justify-center w-full min-h-[180px] p-6 rounded-none transition-all duration-300 border-2 border-dashed relative cursor-pointer ${
                     isDragActive 
-                      ? 'bg-rose-50 border-red-400 scale-[0.99]' 
-                      : 'bg-white hover:bg-slate-50/50 border-red-200 hover:border-red-400'
+                      ? 'bg-[#10b981]/5 border-[#10b981] scale-[0.99] shadow-inner' 
+                      : 'bg-[#121212]/30 border-[#1e1e1e] hover:border-[#10b981]/50 hover:bg-[#121212]/50'
                   }`}
                 >
-                  {/* Real slip image preview thumbnail after choosing file */}
+                  {/* Neon retro corner photo crop style overlays */}
+                  <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-zinc-600 group-hover:border-[#10b981]" />
+                  <div className="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-zinc-600 group-hover:border-[#10b981]" />
+                  <div className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-zinc-600 group-hover:border-[#10b981]" />
+                  <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-zinc-600 group-hover:border-[#10b981]" />
+
                   {filePreview ? (
-                    <div className="flex flex-col items-center gap-2 w-full">
-                      <div className="w-24 h-24 rounded-md border border-red-100 overflow-hidden relative group/preview">
-                        <img src={filePreview} alt="Slip Preview" className="w-full h-full object-cover" />
-                        <div className="absolute inset-x-0 bottom-0 bg-black/50 text-[9px] text-white py-0.5 text-center font-medium">
-                          คลิกค้างเปลี่ยนรูป
+                    <div className="flex flex-col items-center gap-3 w-full my-1 animate-in zoom-in-95 duration-200">
+                      <div className="w-24 h-32 bg-[#09090b] border border-[#1e1e1e] overflow-hidden relative shadow-md">
+                        <img src={filePreview} alt="Slip" className="w-full h-full object-cover" />
+                        <div className="absolute inset-x-0 bottom-0 bg-black/80 text-[9px] text-zinc-400 py-1 text-center font-sans">
+                          เปลี่ยนไฟล์รูป
                         </div>
                       </div>
-                      <span className="text-xs font-semibold text-rose-500 max-w-[250px] truncate">
-                        {selectedFile?.name || 'สลิปพร้อมตรวจสอบ'}
+                      <span className="text-xs font-semibold text-[#10b981] max-w-[280px] truncate">
+                        {selectedFile?.name || 'สลิปพร้อมสแกน'}
                       </span>
-                      <span className="text-[10px] text-slate-400 font-medium">
-                        (ขนาด: {selectedFile ? (selectedFile.size / (1024 * 1024)).toFixed(2) : 0} MB)
+                      <span className="text-[10px] text-zinc-500 font-mono tracking-wider">
+                        SIZE: {selectedFile ? (selectedFile.size / (1024 * 1024)).toFixed(2) : 0} MB
                       </span>
                     </div>
                   ) : (
-                    <div className="flex flex-col items-center">
-                      <div className="w-12 h-12 rounded-full bg-rose-50 flex items-center justify-center text-red-500 mb-2.5 shadow-inner">
-                        <Camera className="w-5 h-5 text-red-500" />
+                    <div className="flex flex-col items-center py-4 select-none">
+                      <div className="w-12 h-12 bg-zinc-800 border border-zinc-700 flex items-center justify-center text-zinc-400 mb-3 rounded-full shadow-inner animate-pulse">
+                        <Camera className="w-5 h-5 text-zinc-400" />
                       </div>
-                      <span className="text-xs sm:text-sm font-semibold text-red-500 block">
-                        📷 คลิกเพื่อเลือกรูปสลิป
+                      <span className="text-sm font-semibold text-[#10b981] block">
+                        📷 คลิก หรือลากวางไฟล์รูปถ่ายสลิป
                       </span>
-                      <span className="text-[10px] text-slate-400 font-medium mt-1.5 text-center px-4 max-w-sm">
-                        รองรับไฟล์รูปภาพทุกประเภท (ไม่เกิน 30MB)
+                      <span className="text-[10px] text-zinc-500 font-medium mt-2 text-center px-4 max-w-sm leading-relaxed">
+                        ระบบรองรับสลิปโอนเงินที่มี QR Code ได้สูงสุดถึง 30MB
                       </span>
                     </div>
                   )}
                 </label>
               </div>
 
-              {/* Light green: วิธีใช้ (Instruction Block) */}
-              <div className="bg-[#10b981]/5 border border-[#10b981]/20 p-4 rounded-md select-none text-[#10b981]">
-                <p className="text-xs font-semibold flex items-center gap-1.5 mb-2">
-                  <Info className="w-4 h-4 text-[#10b981] shrink-0" /> วิธีใช้
-                </p>
-                <div className="text-[11px] font-medium space-y-1.5 text-white/70 leading-relaxed">
-                  <p>1. โอนเงินไปยังบัญชีธนาคารที่แสดงด้านบน</p>
-                  <p>2. ถ่ายรูปสลิปโอนเงินให้ชัดเจน</p>
-                  <p>3. อัพโหลดรูปสลิปในช่องด้านบน</p>
-                  <p>4. กดปุ่ม "อัพโหลดสลิป"</p>
-                  <p>5. ระบบจะประมวลผลและดึงจำนวนเงินจากสลิปอัตโนมัติ</p>
-                  <p>6. ระบบจะเติมเงินให้อัตโนมัติ</p>
+              {/* Custom Accordion Instructions Container */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-[#10b981]/5 border border-[#10b981]/15 p-4 rounded-none select-none text-[#10b981]">
+                  <p className="text-xs font-bold flex items-center gap-1.5 mb-2.5 uppercase tracking-wider pl-0.5">
+                    <Info className="w-4 h-4 text-[#10b981] shrink-0" /> ขั้นตอนทำเงิน
+                  </p>
+                  <div className="text-[11px] font-medium space-y-2 text-zinc-300 leading-relaxed font-sans">
+                    <p>1. คัดลอกเลขบัญชี โอนเงินตามยอดที่ต้องการ</p>
+                    <p>2. บันทึกและรูปถ่ายสลิปธุรกรรมอย่างชัดเจน</p>
+                    <p>3. กดอัปโหลดรูปผ่านช่องจำกัดกรอบด้านบน</p>
+                    <p>4. กดปุ่ม "ยืนยันนำเสนอสลิป" ด้านล่าง</p>
+                  </div>
+                </div>
+
+                <div className="bg-[#fca211]/5 border border-[#fca211]/15 p-4 rounded-none select-none text-[#fca211]">
+                  <p className="text-xs font-bold flex items-center gap-1.5 mb-2.5 uppercase tracking-wider pl-0.5">
+                    <AlertTriangle className="w-4 h-4 text-[#fca211] shrink-0" /> ข้อจำกัด
+                  </p>
+                  <div className="text-[11px] font-medium space-y-2 text-zinc-300 leading-relaxed font-sans">
+                    <p>• รูปภาพสลิปที่ผ่านการใช้ซ้ำแล้ว จะไม่แปรยอดอีก</p>
+                    <p>• ตรวจเช็คยอดเงินและชื่อผู้รับปลายทางให้ตรง</p>
+                    <p>• บิลการฝากจะอิงเวลาตามธนาคารแห่งประเทศไทย</p>
+                    <p>• โครงข่ายเป็นระบบปิด ไม่สามารถถอนทรัพย์คืนได้</p>
+                  </div>
                 </div>
               </div>
 
-              {/* Yellow warning: หมายเหตุ */}
-              <div className="bg-amber-550/5 border border-amber-500/10 p-4 rounded-md select-none text-amber-500 font-medium">
-                <p className="text-xs font-semibold flex items-center gap-1.5 mb-2.5">
-                  <AlertTriangle className="w-3.5 h-3.5 text-amber-500 shrink-0" /> หมายเหตุ
-                </p>
-                <div className="text-[11px] space-y-1.5 text-white/70 leading-normal">
-                  <p>• กรุณาตรวจสอบข้อมูลบัญชีให้ถูกต้องก่อนโอน</p>
-                  <p>• สลิปที่ใช้แล้วจะไม่สามารถใช้ซ้ำได้</p>
-                  <p>• ชื่อผู้รับเงินต้องตรงกับบัญชีที่แสดง</p>
-                  <p>• ทางเว็บไซต์ไม่มีนโยบายคืนเงิน</p>
-                </div>
-              </div>
-
-              {/* Final Confirm Execute button */}
-              <div className="space-y-3.5">
+              {/* Confirm submit buttons */}
+              <div className="space-y-4 pt-2">
                 <button
                   onClick={executeSlipUpload}
                   disabled={isVerifying || !selectedFile}
-                  className="w-full py-3.5 rounded-md bg-[#e31a22] hover:bg-[#bc131a] disabled:bg-slate-100 disabled:text-slate-400 disabled:border-slate-200 border border-transparent text-white font-semibold tracking-widest uppercase transition-colors duration-200 shadow-md flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]"
+                  className="w-full py-4 bg-[#10b981] hover:bg-[#0d9668] disabled:bg-[#111c18] disabled:text-zinc-600 disabled:border-transparent text-black font-semibold tracking-widest text-xs uppercase transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
                 >
-                  <UploadCloud className="w-4 h-4" /> อัพโหลดสลิป
+                  <UploadCloud className="w-4 h-4 shrink-0" /> ยืนยันสแกนตรวจสอบสลิป
                 </button>
                 
-                <p className="text-[10px] text-slate-400 font-medium flex items-center justify-center gap-1.5 select-none text-center">
-                  <Lightbulb className="w-3.5 h-3.5 text-yellow-500 shrink-0" /> ระบบจะตรวจสอบและเติมเงินให้อัตโนมัติ
+                <p className="text-[10px] text-zinc-500 font-medium flex items-center justify-center gap-1.5 select-none text-center">
+                  <Lightbulb className="w-3.5 h-3.5 text-[#fca211] shrink-0 animate-bounce" /> สลิปจะได้รับการตรวจจับรายละเอียด อนุมัติยอดทันใจคุณ
                 </p>
               </div>
 
-              {/* Footer Domain Text */}
-              <div className="pt-2 text-center select-none text-slate-300 text-[9px] font-semibold uppercase tracking-widest">
-                {siteSettings?.site_title || 'APEX STORE'}
+              {/* Footer text */}
+              <div className="pt-4 border-t border-[#1e1e1e] flex flex-col sm:flex-row items-center justify-between gap-1 text-zinc-600 text-[10px] font-mono select-none">
+                <span>GATEWAY: BANK_SLIP_EMBEDDED</span>
+                <span>VERIFY BY SCAN_QR API SECURE</span>
               </div>
             </motion.div>
           )}

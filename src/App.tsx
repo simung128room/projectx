@@ -1,75 +1,75 @@
 import {
- BrowserRouter,
- Routes,
- Route,
- useNavigate,
- useLocation,
+  BrowserRouter,
+  Routes,
+  Route,
+  useNavigate,
+  useLocation,
 } from "react-router-dom";
 import React, {
- useState,
- useRef,
- useEffect,
- useCallback,
- Suspense,
- lazy,
+  useState,
+  useRef,
+  useEffect,
+  useCallback,
+  Suspense,
+  lazy,
 } from "react";
 import { sanitizeCategories } from "./utils";
 import {
- Loader,
- Gamepad2,
- ListChecks,
- Play,
- Square,
- Check,
- X,
- Shield,
- Terminal,
- CheckCircle2,
- Home,
- ShoppingCart,
- CreditCard,
- Phone,
- Upload,
- Key,
- Crown,
- LogOut,
- User,
- Gift,
- Lock,
- FileImage,
- Database,
- Globe,
- Mail,
- BarChart3,
- Settings,
- Activity,
- FileText,
- AlertTriangle,
- Download,
- ChevronRight,
- ChevronDown,
- ChevronUp,
- Trash2,
- ShieldAlert,
- Plus,
- Ban,
- History,
- Search,
- Copy,
- Menu,
- Server,
- Package,
- Wallet,
- Coins,
- MessageSquare,
- Image as ImageIcon,
- LogIn,
- UserPlus,
- ArrowUpRight,
- Zap,
- Music,
- ShieldCheck,
- ShoppingBag,
+  Loader,
+  Gamepad2,
+  ListChecks,
+  Play,
+  Square,
+  Check,
+  X,
+  Shield,
+  Terminal,
+  CheckCircle2,
+  Home,
+  ShoppingCart,
+  CreditCard,
+  Phone,
+  Upload,
+  Key,
+  Crown,
+  LogOut,
+  User,
+  Gift,
+  Lock,
+  FileImage,
+  Database,
+  Globe,
+  Mail,
+  BarChart3,
+  Settings,
+  Activity,
+  FileText,
+  AlertTriangle,
+  Download,
+  ChevronRight,
+  ChevronDown,
+  ChevronUp,
+  Trash2,
+  ShieldAlert,
+  Plus,
+  Ban,
+  History,
+  Search,
+  Copy,
+  Menu,
+  Server,
+  Package,
+  Wallet,
+  Coins,
+  MessageSquare,
+  Image as ImageIcon,
+  LogIn,
+  UserPlus,
+  ArrowUpRight,
+  Zap,
+  Music,
+  ShieldCheck,
+  ShoppingBag,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import Swal from "sweetalert2";
@@ -77,41 +77,49 @@ import axios from "axios";
 import axiosRetry from "axios-retry";
 
 axiosRetry(axios, {
- retries: 3,
- retryDelay: axiosRetry.exponentialDelay,
- retryCondition: (error) => {
-   // Only retry on network errors or 5xx errors.
-   // Do NOT retry on 409 (Conflict/OCC) or other client errors.
-   return axiosRetry.isNetworkOrIdempotentRequestError(error) || error.response?.status === 429;
- }
+  retries: 3,
+  retryDelay: axiosRetry.exponentialDelay,
+  retryCondition: (error) => {
+    // Only retry on network errors or 5xx errors.
+    // Do NOT retry on 409 (Conflict/OCC) or other client errors.
+    return (
+      axiosRetry.isNetworkOrIdempotentRequestError(error) ||
+      error.response?.status === 429
+    );
+  },
 });
 import { supabase as auth } from "./lib/supabase"; // auth here refers to supabase
 
 // Add JWT refresh interceptor for 401 Unauthorized
 axios.interceptors.response.use(
- (response) => response,
- async (error) => {
-   const originalRequest = error.config;
-   if (
-     error.response?.status === 401 && 
-     !originalRequest._retry &&
-     !originalRequest.url?.includes('/api/signup') &&
-     !originalRequest.url?.includes('/api/reset-password')
-   ) {
-     originalRequest._retry = true;
-     try {
-       const { data: { session }, error: refreshError } = await auth.auth.getSession();
-       if (session?.access_token && !refreshError) {
-         axios.defaults.headers.common["Authorization"] = `Bearer ${session.access_token}`;
-         originalRequest.headers["Authorization"] = `Bearer ${session.access_token}`;
-         return axios(originalRequest);
-       }
-     } catch (refreshErr) {
-       console.error("JWT Refresh failed:", refreshErr);
-     }
-   }
-   return Promise.reject(error);
- }
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !originalRequest.url?.includes("/api/signup") &&
+      !originalRequest.url?.includes("/api/reset-password")
+    ) {
+      originalRequest._retry = true;
+      try {
+        const {
+          data: { session },
+          error: refreshError,
+        } = await auth.auth.getSession();
+        if (session?.access_token && !refreshError) {
+          axios.defaults.headers.common["Authorization"] =
+            `Bearer ${session.access_token}`;
+          originalRequest.headers["Authorization"] =
+            `Bearer ${session.access_token}`;
+          return axios(originalRequest);
+        }
+      } catch (refreshErr) {
+        console.error("JWT Refresh failed:", refreshErr);
+      }
+    }
+    return Promise.reject(error);
+  },
 );
 
 type SupabaseUser = any;
@@ -122,82 +130,122 @@ import { useToastStore } from "./lib/toastStore";
 import { ToastContainer } from "./components/ui/Toast";
 import { GlobalErrorBoundary } from "./components/GlobalErrorBoundary";
 import { UserPlan } from "./types";
-const KeyModal = lazy(() => import("./components/modals/KeyModal").then(m => ({ default: m.KeyModal })));
-const ReceiptModal = lazy(() => import("./components/modals/ReceiptModal").then(m => ({ default: m.ReceiptModal })));
-const PopupBanner = lazy(() => import("./components/PopupBanner").then(m => ({ default: m.PopupBanner })));
+const KeyModal = lazy(() =>
+  import("./components/modals/KeyModal").then((m) => ({ default: m.KeyModal })),
+);
+const ReceiptModal = lazy(() =>
+  import("./components/modals/ReceiptModal").then((m) => ({
+    default: m.ReceiptModal,
+  })),
+);
+const PopupBanner = lazy(() =>
+  import("./components/PopupBanner").then((m) => ({ default: m.PopupBanner })),
+);
 import { Product, SiteStats, Category } from "./types";
+import {
+  PrivacyModal,
+  TermsModal,
+  ContactUsModal,
+} from "./components/modals/PolicyModals";
 import { getAvatarUrl } from "./lib/avatar";
 import { getUserRank } from "./lib/rank";
 import {
- HomeIcon,
- ShopIcon,
- CoinsIcon,
- ContactIcon,
- UserIcon,
- GearIcon,
- WalletIcon,
- BagIcon,
- ChevronDownIcon,
- SunnyBuxLogo,
+  HomeIcon,
+  ShopIcon,
+  CoinsIcon,
+  ContactIcon,
+  UserIcon,
+  GearIcon,
+  WalletIcon,
+  BagIcon,
+  ChevronDownIcon,
+  SunnyBuxLogo,
 } from "./components/SunnyComponents";
 
-const ProfileView = lazy(() => import("./components/ProfileView").then((m) => ({ default: m.ProfileView })));
-const CategoriesView = lazy(() => import("./components/CategoriesView").then((m) => ({ default: m.CategoriesView })));
-const AuthView = lazy(() => import("./components/AuthView").then((m) => ({ default: m.AuthView })));
-const HomeView = lazy(() => import("./components/HomeView").then((m) => ({ default: m.HomeView })));
-const ProductDetailView = lazy(() => import("./components/ProductDetailView").then((m) => ({ default: m.ProductDetailView })));
-const MyOrdersView = lazy(() => import("./components/MyOrdersView").then((m) => ({ default: m.MyOrdersView })));
-const CategoryProductsView = lazy(() => import("./components/CategoryProductsView").then((m) => ({ default: m.CategoryProductsView })));
-const SearchView = lazy(() => import("./components/SearchView").then((m) => ({ default: m.SearchView })));
+const ProfileView = lazy(() =>
+  import("./components/ProfileView").then((m) => ({ default: m.ProfileView })),
+);
+const CategoriesView = lazy(() =>
+  import("./components/CategoriesView").then((m) => ({
+    default: m.CategoriesView,
+  })),
+);
+const AuthView = lazy(() =>
+  import("./components/AuthView").then((m) => ({ default: m.AuthView })),
+);
+const HomeView = lazy(() =>
+  import("./components/HomeView").then((m) => ({ default: m.HomeView })),
+);
+const ProductDetailView = lazy(() =>
+  import("./components/ProductDetailView").then((m) => ({
+    default: m.ProductDetailView,
+  })),
+);
+const MyOrdersView = lazy(() =>
+  import("./components/MyOrdersView").then((m) => ({
+    default: m.MyOrdersView,
+  })),
+);
+const CategoryProductsView = lazy(() =>
+  import("./components/CategoryProductsView").then((m) => ({
+    default: m.CategoryProductsView,
+  })),
+);
+const SearchView = lazy(() =>
+  import("./components/SearchView").then((m) => ({ default: m.SearchView })),
+);
 
-import { SkeletonHomeLoader, SkeletonGenericLoader } from "./components/SkeletonLoader";
+import {
+  SkeletonHomeLoader,
+  SkeletonGenericLoader,
+} from "./components/SkeletonLoader";
 
 const AdminDashboard = lazy(() =>
- import("./components/AdminDashboard").then((module) => ({
-   default: module.AdminDashboard,
- })),
+  import("./components/AdminDashboard").then((module) => ({
+    default: module.AdminDashboard,
+  })),
 );
 const PageView = lazy(() =>
- import("./components/PageView").then((module) => ({
-   default: module.PageView,
- })),
+  import("./components/PageView").then((module) => ({
+    default: module.PageView,
+  })),
 );
 const HistoryLogsView = lazy(() =>
- import("./components/HistoryLogsView").then((module) => ({
-   default: module.HistoryLogsView,
- })),
+  import("./components/HistoryLogsView").then((module) => ({
+    default: module.HistoryLogsView,
+  })),
 );
 const WalletView = lazy(() =>
- import("./components/WalletView").then((module) => ({
-   default: module.WalletView,
- })),
+  import("./components/WalletView").then((module) => ({
+    default: module.WalletView,
+  })),
 );
 const RedeemKeyView = lazy(() =>
- import("./components/RedeemKeyView").then((module) => ({
-   default: module.RedeemKeyView,
- })),
+  import("./components/RedeemKeyView").then((module) => ({
+    default: module.RedeemKeyView,
+  })),
 );
 const historyImport = () => import("./components/HistoryView");
 const HistoryView = lazy(() =>
- historyImport().then((module) => ({
-   default: module.HistoryView,
- })),
+  historyImport().then((module) => ({
+    default: module.HistoryView,
+  })),
 );
 const ContactView = lazy(() =>
- import("./components/ContactView").then((module) => ({
-   default: module.ContactView,
- })),
+  import("./components/ContactView").then((module) => ({
+    default: module.ContactView,
+  })),
 );
 const settingsImport = () => import("./components/SettingsView");
 const SettingsView = lazy(() =>
- settingsImport().then((module) => ({
-   default: module.SettingsView,
- })),
+  settingsImport().then((module) => ({
+    default: module.SettingsView,
+  })),
 );
 const LogCategoriesView = lazy(() =>
- import("./components/LogCategoriesView").then((module) => ({
-   default: module.LogCategoriesView,
- })),
+  import("./components/LogCategoriesView").then((module) => ({
+    default: module.LogCategoriesView,
+  })),
 );
 import { CustomCursor } from "./components/CustomCursor";
 
@@ -206,1065 +254,1180 @@ var TextPaint = `▒▄▀▄▒█▀▄▒██▀░▀▄▀
 ░█▀█░█▀▒░█▄▄░█▒█`;
 
 enum OperationType {
- CREATE = "create",
- UPDATE = "update",
- DELETE = "delete",
- LIST = "list",
- GET = "get",
- WRITE = "write",
- AUTH = "auth",
+  CREATE = "create",
+  UPDATE = "update",
+  DELETE = "delete",
+  LIST = "list",
+  GET = "get",
+  WRITE = "write",
+  AUTH = "auth",
 }
 
 function ElapsedTimeDisplay({
- running,
- startTime,
+  running,
+  startTime,
 }: {
- running: boolean;
- startTime: number | null;
+  running: boolean;
+  startTime: number | null;
 }) {
- const [elapsedTime, setElapsedTime] = useState("00:00:00.000");
+  const [elapsedTime, setElapsedTime] = useState("00:00:00.000");
 
- useEffect(() => {
-   let timer: any;
-   if (running && startTime) {
-     timer = setInterval(() => {
-       const now = performance.now();
-       const diff = now - startTime;
-       const hours = Math.floor(diff / 3600000)
-         .toString()
-         .padStart(2, "0");
-       const minutes = Math.floor((diff % 3600000) / 60000)
-         .toString()
-         .padStart(2, "0");
-       const seconds = Math.floor((diff % 60000) / 1000)
-         .toString()
-         .padStart(2, "0");
-       const ms = Math.floor(diff % 1000)
-         .toString()
-         .padStart(3, "0");
-       setElapsedTime(`${hours}:${minutes}:${seconds}.${ms}`);
-     }, 67);
-   }
-   return () => clearInterval(timer);
- }, [running, startTime]);
+  useEffect(() => {
+    let timer: any;
+    if (running && startTime) {
+      timer = setInterval(() => {
+        const now = performance.now();
+        const diff = now - startTime;
+        const hours = Math.floor(diff / 3600000)
+          .toString()
+          .padStart(2, "0");
+        const minutes = Math.floor((diff % 3600000) / 60000)
+          .toString()
+          .padStart(2, "0");
+        const seconds = Math.floor((diff % 60000) / 1000)
+          .toString()
+          .padStart(2, "0");
+        const ms = Math.floor(diff % 1000)
+          .toString()
+          .padStart(3, "0");
+        setElapsedTime(`${hours}:${minutes}:${seconds}.${ms}`);
+      }, 67);
+    }
+    return () => clearInterval(timer);
+  }, [running, startTime]);
 
- if (elapsedTime === "00:00:00.000") return null;
- return (
-   <div className="px-3 py-1 bg-[#09090b] border border-[#1e1e1e] border text-xs font-mono text-muted-foreground font-medium">
-     {elapsedTime}
-   </div>
- );
+  if (elapsedTime === "00:00:00.000") return null;
+  return (
+    <div className="px-3 py-1 bg-[#09090b] border border-[#1e1e1e] border text-xs font-mono text-muted-foreground font-medium">
+      {elapsedTime}
+    </div>
+  );
 }
 
 function AppContent() {
- const [isAdmin, setIsAdmin] = useState(false);
- const [adminUsername, setAdminUsername] = useState("");
- const [adminPassword, setAdminPassword] = useState("");
- const [user, setUser] = useState<SupabaseUser | null>(null);
- const [userPlan, setUserPlan] = useState<UserPlan | null>(null);
- const [siteSettings, setSiteSettings] = useState(() => {
-   const defaultSettings = {
-     site_name: "APEXSTORE",
-     truewallet_phone: "",
-     contact_line: "https://www.facebook.com/share/18emwBsqUf/?mibextid=wwXIfr",
-     discord_link: "",
-     facebook_link: "",
-     instagram_link: "",
-     contact_email: "support.apexstoreth@gmail.com",
-     popup_enabled: false,
-     popup_img_url: "",
-     popup_link: "",
-     stats_users_offset: 1278,
-     stats_sales_offset: 0,
-     spotify_url: "https://youtu.be/WczSfh3gJaU?si=PI1i4X0p0FGbdEfq",
-     spotify_autoplay: true,
-     announcement_text: "ยินดีต้อนรับสู่ APEXSTORE ศูนย์รวมสินค้าไอดีและข้อเสนอยอดฮิต ระบบซื้อขายทำงานอัตโนมัติ 24 ชั่วโมง - กรณีมีปัญหาโปรดติดต่อแอดมิน",
-   };
-   try {
-     const saved = localStorage.getItem("apex_settings_cache");
-     return saved ? JSON.parse(saved) : defaultSettings;
-   } catch {
-     return defaultSettings;
-   }
- });
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [adminUsername, setAdminUsername] = useState("");
+  const [adminPassword, setAdminPassword] = useState("");
+  const [user, setUser] = useState<SupabaseUser | null>(null);
+  const [userPlan, setUserPlan] = useState<UserPlan | null>(null);
+  const [siteSettings, setSiteSettings] = useState(() => {
+    const defaultSettings = {
+      site_name: "APEXSTORE",
+      truewallet_phone: "",
+      contact_line:
+        "https://www.facebook.com/share/18emwBsqUf/?mibextid=wwXIfr",
+      discord_link: "",
+      facebook_link: "",
+      instagram_link: "",
+      contact_email: "support.apexstoreth@gmail.com",
+      popup_enabled: false,
+      popup_img_url: "",
+      popup_link: "",
+      stats_users_offset: 1278,
+      stats_sales_offset: 0,
+      spotify_url: "https://youtu.be/WczSfh3gJaU?si=PI1i4X0p0FGbdEfq",
+      spotify_autoplay: true,
+      announcement_text:
+        "ยินดีต้อนรับสู่ APEXSTORE ศูนย์รวมสินค้าไอดีและข้อเสนอยอดฮิต ระบบซื้อขายทำงานอัตโนมัติ 24 ชั่วโมง - กรณีมีปัญหาโปรดติดต่อแอดมิน",
+    };
+    try {
+      const saved = localStorage.getItem("apex_settings_cache");
+      return saved ? JSON.parse(saved) : defaultSettings;
+    } catch {
+      return defaultSettings;
+    }
+  });
 
- const [deferMedia, setDeferMedia] = useState(true);
+  const [deferMedia, setDeferMedia] = useState(true);
 
- useEffect(() => {
-   const timer = setTimeout(() => {
-     setDeferMedia(false);
-   }, 2500);
-   return () => clearTimeout(timer);
- }, []);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDeferMedia(false);
+    }, 2500);
+    return () => clearTimeout(timer);
+  }, []);
 
- // Removed music state and useEffects
+  // Removed music state and useEffects
 
- // Home Store State (Moved up to prevent TDZ)
- const defaultProducts: Product[] = [
-   {
-     id: "rov_standard",
-     name: "ไอดีเกม RoV ระดับพรีเมียม (สกินอลังการ พร้อมไต่แรงก์)",
-     price: 390,
-     originalPrice: 450,
-     category: "ไอดีเกมส์ยอดนิยม",
-     stock: 5,
-     soldCount: 142,
-     imageUrl: "https://play-lh.googleusercontent.com/rM1oIokbH_9EwF0mDtsmEPRN7Fh-XItK12oXYeU24QfI9gS-9rEch_7sA-C9oO0z4a8=w240-h480-rw",
-     description: "ประวัติขาวสะอาด ไม่เคยโดนแบน ฮีโร่ครบ สกินเพียบพร้อมรูนเลเวล 90 ทุกสาย",
-     isPopular: true
-   },
-   {
-     id: "netflix_4k",
-     name: "Netflix Premium Ultra HD 4K (30 วัน - จอส่วนตัว)",
-     price: 139,
-     originalPrice: 199,
-     category: "แอปพรีเมียม / บันเทิง",
-     stock: 12,
-     soldCount: 945,
-     imageUrl: "https://upload.wikimedia.org/wikipedia/commons/f/ff/Netflix-new-icon.png",
-     description: "ความละเอียด 4K HDR เสียงรอบทิศทาง ใช้งานส่วนตัว เสถียรสูง 100% ตลอดทั้งเดือน",
-     isPopular: true
-   },
-   {
-     id: "youtube_premium",
-     name: "YouTube Premium 4K (30 วัน - บัญชีส่วนตัวความปลอดภัยสูง)",
-     price: 39,
-     originalPrice: 69,
-     category: "แอปพรีเมียม / บันเทิง",
-     stock: 24,
-     soldCount: 1248,
-     imageUrl: "https://upload.wikimedia.org/wikipedia/commons/e/e1/Logo_of_YouTube_%282015-2017%29.svg",
-     description: "ไม่มีโฆษณาคั่นอย่างสมบูรณ์ เล่นขณะปิดหน้าจอได้ แถมบริการเสริม Youtube Music HQ",
-     isPopular: true
-   },
-   {
-     id: "discord_nitro",
-     name: "Discord Nitro Premium Gift (1 เดือน - บัญชีแท้ 100%)",
-     price: 119,
-     originalPrice: 320,
-     category: "แอปพรีเมียม / บันเทิง",
-     stock: 8,
-     soldCount: 231,
-     imageUrl: "https://upload.wikimedia.org/wikipedia/commons/c/ca/Discord_Color_Logo.svg",
-     description: "รับบูสเซิร์ฟเวอร์ฟรี x2 สติกเกอร์เคลื่นไหว อีโมจิพิเศษทุกเซิร์ฟ และแชร์จอ 1080p 60fps",
-     isPopular: true
-   },
-   {
-     id: "spotify_premium",
-     name: "Spotify Premium Personal (30 วัน - ปลดล็อคเสียงระดับ Hi-Fi)",
-     price: 29,
-     originalPrice: 129,
-     category: "แอปพรีเมียม / บันเทิง",
-     stock: 18,
-     soldCount: 412,
-     imageUrl: "https://upload.wikimedia.org/wikipedia/commons/1/19/Spotify_logo_without_text.svg",
-     description: "ดาวน์โหลดเพลงฟังแบบออฟไลน์ บิตเรตเสียงคมชัดสูงสุด 320kbps ข้ามเพลงแบบไร้ขีดจำกัด",
-     isPopular: false
-   }
- ];
+  // Home Store State (Moved up to prevent TDZ)
+  const defaultProducts: Product[] = [
+    {
+      id: "rov_standard",
+      name: "ไอดีเกม RoV ระดับพรีเมียม (สกินอลังการ พร้อมไต่แรงก์)",
+      price: 390,
+      originalPrice: 450,
+      category: "ไอดีเกมส์ยอดนิยม",
+      stock: 5,
+      soldCount: 142,
+      imageUrl:
+        "https://play-lh.googleusercontent.com/rM1oIokbH_9EwF0mDtsmEPRN7Fh-XItK12oXYeU24QfI9gS-9rEch_7sA-C9oO0z4a8=w240-h480-rw",
+      description:
+        "ประวัติขาวสะอาด ไม่เคยโดนแบน ฮีโร่ครบ สกินเพียบพร้อมรูนเลเวล 90 ทุกสาย",
+      isPopular: true,
+    },
+    {
+      id: "netflix_4k",
+      name: "Netflix Premium Ultra HD 4K (30 วัน - จอส่วนตัว)",
+      price: 139,
+      originalPrice: 199,
+      category: "แอปพรีเมียม / บันเทิง",
+      stock: 12,
+      soldCount: 945,
+      imageUrl:
+        "https://upload.wikimedia.org/wikipedia/commons/f/ff/Netflix-new-icon.png",
+      description:
+        "ความละเอียด 4K HDR เสียงรอบทิศทาง ใช้งานส่วนตัว เสถียรสูง 100% ตลอดทั้งเดือน",
+      isPopular: true,
+    },
+    {
+      id: "youtube_premium",
+      name: "YouTube Premium 4K (30 วัน - บัญชีส่วนตัวความปลอดภัยสูง)",
+      price: 39,
+      originalPrice: 69,
+      category: "แอปพรีเมียม / บันเทิง",
+      stock: 24,
+      soldCount: 1248,
+      imageUrl:
+        "https://upload.wikimedia.org/wikipedia/commons/e/e1/Logo_of_YouTube_%282015-2017%29.svg",
+      description:
+        "ไม่มีโฆษณาคั่นอย่างสมบูรณ์ เล่นขณะปิดหน้าจอได้ แถมบริการเสริม Youtube Music HQ",
+      isPopular: true,
+    },
+    {
+      id: "discord_nitro",
+      name: "Discord Nitro Premium Gift (1 เดือน - บัญชีแท้ 100%)",
+      price: 119,
+      originalPrice: 320,
+      category: "แอปพรีเมียม / บันเทิง",
+      stock: 8,
+      soldCount: 231,
+      imageUrl:
+        "https://upload.wikimedia.org/wikipedia/commons/c/ca/Discord_Color_Logo.svg",
+      description:
+        "รับบูสเซิร์ฟเวอร์ฟรี x2 สติกเกอร์เคลื่นไหว อีโมจิพิเศษทุกเซิร์ฟ และแชร์จอ 1080p 60fps",
+      isPopular: true,
+    },
+    {
+      id: "spotify_premium",
+      name: "Spotify Premium Personal (30 วัน - ปลดล็อคเสียงระดับ Hi-Fi)",
+      price: 29,
+      originalPrice: 129,
+      category: "แอปพรีเมียม / บันเทิง",
+      stock: 18,
+      soldCount: 412,
+      imageUrl:
+        "https://upload.wikimedia.org/wikipedia/commons/1/19/Spotify_logo_without_text.svg",
+      description:
+        "ดาวน์โหลดเพลงฟังแบบออฟไลน์ บิตเรตเสียงคมชัดสูงสุด 320kbps ข้ามเพลงแบบไร้ขีดจำกัด",
+      isPopular: false,
+    },
+  ];
 
- const [products, setProducts] = useState<Product[]>(() => {
-   try {
-     const saved = localStorage.getItem("apex_products_cache");
-     if (saved) {
-       const parsed = JSON.parse(saved);
-       if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-     }
-   } catch(e) { console.error("Caught error:", e); }
-   return defaultProducts;
- });
+  const [products, setProducts] = useState<Product[]>(() => {
+    try {
+      const saved = localStorage.getItem("apex_products_cache");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {
+      console.error("Caught error:", e);
+    }
+    return defaultProducts;
+  });
 
- const [siteStats, setSiteStats] = useState<SiteStats>(() => {
-   const defaultStats = {
-     users: 1548,
-     stock: 890,
-     sales: 332,
-     topups: 125400,
-   };
-   try {
-     const saved = localStorage.getItem("apex_stats_cache");
-     return saved ? JSON.parse(saved) : defaultStats;
-   } catch(e) { console.warn("Failed to parse apex_stats_cache", e); localStorage.removeItem("apex_stats_cache"); return defaultStats; }
- });
+  const [siteStats, setSiteStats] = useState<SiteStats>(() => {
+    const defaultStats = {
+      users: 1548,
+      stock: 890,
+      sales: 332,
+      topups: 125400,
+    };
+    try {
+      const saved = localStorage.getItem("apex_stats_cache");
+      return saved ? JSON.parse(saved) : defaultStats;
+    } catch (e) {
+      console.warn("Failed to parse apex_stats_cache", e);
+      localStorage.removeItem("apex_stats_cache");
+      return defaultStats;
+    }
+  });
 
- const [customPages, setCustomPages] = useState<any[]>(() => {
-   try {
-     const saved = localStorage.getItem("apex_pages_cache");
-     return saved ? JSON.parse(saved) : [];
-   } catch(e) { console.warn("Failed to parse cache", e); return []; }
- });
+  const [customPages, setCustomPages] = useState<any[]>(() => {
+    try {
+      const saved = localStorage.getItem("apex_pages_cache");
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      console.warn("Failed to parse cache", e);
+      return [];
+    }
+  });
 
- const [categories, setCategories] = useState<any[]>(() => {
-   try {
-     const saved = localStorage.getItem("apex_categories_cache");
-     if (saved) {
-       const parsed = JSON.parse(saved);
-       if (Array.isArray(parsed) && parsed.length > 0) return sanitizeCategories(parsed);
-     }
-   } catch(e) { console.error("Caught error:", e); }
-   return [
-     { id: "premium_app", name: "แอปพรีเมียม / บันเทิง", title: "แอปพรีเมียม / บันเทิง" },
-     { id: "gaming_id", name: "ไอดีเกมส์ยอดนิยม", title: "ไอดีเกมส์ยอดนิยม" },
-     { id: "license_key", name: "คีย์ใบอนุญาต / โปรแกรม", title: "คีย์ใบอนุญาต / โปรแกรม" },
-     
-   ];
- });
+  const [categories, setCategories] = useState<any[]>(() => {
+    try {
+      const saved = localStorage.getItem("apex_categories_cache");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0)
+          return sanitizeCategories(parsed);
+      }
+    } catch (e) {
+      console.error("Caught error:", e);
+    }
+    return [
+      {
+        id: "premium_app",
+        name: "แอปพรีเมียม / บันเทิง",
+        title: "แอปพรีเมียม / บันเทิง",
+      },
+      { id: "gaming_id", name: "ไอดีเกมส์ยอดนิยม", title: "ไอดีเกมส์ยอดนิยม" },
+      {
+        id: "license_key",
+        name: "คีย์ใบอนุญาต / โปรแกรม",
+        title: "คีย์ใบอนุญาต / โปรแกรม",
+      },
+    ];
+  });
 
- const [selectedPage, setSelectedPage] = useState<any>(null);
+  const [selectedPage, setSelectedPage] = useState<any>(null);
 
- const [threads, setThreads] = useState(5);
- const [licenseKeys, setLicenseKeys] = useState<any[]>([]);
- const [usedKeysHistory, setUsedKeysHistory] = useState<any[]>([]);
- const [blockedIPs, setBlockedIPs] = useState<any[]>([]);
- const [adminTab, setAdminTab] = useState<string>("overview");
- const [isIPBlocked, setIsIPBlocked] = useState(false);
- const [lastUsageDate, setLastUsageDate] = useState<string>("");
- const [showKeyModal, setShowKeyModal] = useState(false);
+  const [threads, setThreads] = useState(5);
+  const [licenseKeys, setLicenseKeys] = useState<any[]>([]);
+  const [usedKeysHistory, setUsedKeysHistory] = useState<any[]>([]);
+  const [blockedIPs, setBlockedIPs] = useState<any[]>([]);
+  const [adminTab, setAdminTab] = useState<string>("overview");
+  const [isIPBlocked, setIsIPBlocked] = useState(false);
+  const [lastUsageDate, setLastUsageDate] = useState<string>("");
+  const [showKeyModal, setShowKeyModal] = useState(false);
 
- // Navigation State
- type ViewType =
-   | "home"
-   | "search"
-   | "categories"
-   | "category_products"
-   | "dashboard"
-   | "telegram_catcher"
-   | "discord_catcher"
-   | "discord_on"
-   | "discord_badge"
-  
-    
-  
-  
-   | "admin"
-   | "profile"
-   | "logs"
-  
-   | "history"
-   | "wallet_history"
-   | "order_history"
-   | "random_history"
-   | "settings"
-   | "contact"
-   | "login"
-   | "signup"
-   | "wallet"
-   | "redeem"
-   | "product_detail"
-   | "custom_page"
-   | "log_categories"
-  
-   | "vip_logs"
-   | "free_logs"
-   | "my_orders";
- 
- const [language, setLanguage] = useState<"th" | "en">("th");
+  // Navigation State
+  type ViewType =
+    | "home"
+    | "search"
+    | "categories"
+    | "category_products"
+    | "dashboard"
+    | "telegram_catcher"
+    | "discord_catcher"
+    | "discord_on"
+    | "discord_badge"
+    | "admin"
+    | "profile"
+    | "logs"
+    | "history"
+    | "wallet_history"
+    | "order_history"
+    | "random_history"
+    | "settings"
+    | "contact"
+    | "login"
+    | "signup"
+    | "wallet"
+    | "redeem"
+    | "product_detail"
+    | "custom_page"
+    | "log_categories"
+    | "vip_logs"
+    | "free_logs"
+    | "my_orders";
 
- const [activeView, setRawActiveView] = useState<ViewType>(() => {
-   let path = window.location.pathname;
-   if (path.startsWith("/accounts/signin")) return "login";
-   
-   let targetPath = path.replace("/", "");
-   const parts = targetPath.split('/').filter(Boolean);
-   if (parts[0] === "th" || parts[0] === "en") {
-     targetPath = parts[1] || "home";
-   }
-   if (targetPath === "" || targetPath === "th" || targetPath === "en") return "home";
+  const [language, setLanguage] = useState<"th" | "en">("th");
 
-   const hostname = window.location.hostname;
-   if (hostname.startsWith("account.")) return "login";
-   if (hostname.startsWith("dash.")) return "dashboard";
-   
-   // Fallback views mapping handled in useEffect mostly, but initial load logic here:
-   if (targetPath === "register") return "signup";
-   if (targetPath === "topup") return "wallet";
-   if (targetPath === "store") return "categories";
-   
-   const validViews = ["landing", "home", "search", "categories", "category_products", "dashboard", "admin", "profile", "logs", "history", "wallet_history", "order_history", "random_history", "settings", "contact", "login", "signup", "wallet", "redeem", "product_detail", "custom_page", "log_categories", "vip_logs", "free_logs", "my_orders"];
-   if (validViews.includes(targetPath)) return targetPath as ViewType;
-   
-   return "home";
- });
- const [selectedProductId, setSelectedProductId] = useState<string | null>(
-   null,
- );
- const [selectedCategory, setSelectedCategory] = useState<string | null>(
-   "all",
- );
- const [usersList, setUsersList] = useState<any[]>([]);
+  const [activeView, setRawActiveView] = useState<ViewType>(() => {
+    let path = window.location.pathname;
+    if (path.startsWith("/accounts/signin")) return "login";
 
- const setActiveView = useCallback(
-   (view: any) => {
-     if (activeView === view) return;
-     let newPath = "";
-     if (view === "login" || view === "signup") {
-       newPath = "/accounts/signin";
-     } else {
-       const pathSuffix = view === "home" ? "" : view;
-       newPath = `/${language}${pathSuffix ? '/' + pathSuffix : ''}`;
-     }
-     window.history.pushState(null, "", newPath);
-     setRawActiveView(view);
-   },
-   [activeView, language],
- );
+    let targetPath = path.replace("/", "");
+    const parts = targetPath.split("/").filter(Boolean);
+    if (parts[0] === "th" || parts[0] === "en") {
+      targetPath = parts[1] || "home";
+    }
+    if (targetPath === "" || targetPath === "th" || targetPath === "en")
+      return "home";
 
- // Handle URL pathname routing
- useEffect(() => {
-   const handlePopState = () => {
-     let path = window.location.pathname;
-     if (path.startsWith("/accounts/signin")) {
-       setRawActiveView("login");
-       return;
-     }
-     
-     const parts = path.split('/').filter(Boolean);
-     let targetPath = "home";
-     if (parts[0] === "th" || parts[0] === "en") {
-       setLanguage(parts[0] as "th" | "en");
-       targetPath = parts[1] || "home";
-     } else {
-       targetPath = parts[0] || "home";
-     }
+    const hostname = window.location.hostname;
+    if (hostname.startsWith("account.")) return "login";
+    if (hostname.startsWith("dash.")) return "dashboard";
 
-     if (targetPath === "") {
-       const hostname = window.location.hostname;
-       if (hostname.startsWith("account.")) targetPath = "login";
-       else if (hostname.startsWith("dash.")) targetPath = "dashboard";
-       else targetPath = "home";
-     }
+    // Fallback views mapping handled in useEffect mostly, but initial load logic here:
+    if (targetPath === "register") return "signup";
+    if (targetPath === "topup") return "wallet";
+    if (targetPath === "store") return "categories";
 
-     // Routing aliases
-     if (targetPath === "register") targetPath = "signup";
-     if (targetPath === "topup") targetPath = "wallet";
-     if (targetPath === "store") targetPath = "categories";
+    const validViews = [
+      "landing",
+      "home",
+      "search",
+      "categories",
+      "category_products",
+      "dashboard",
+      "admin",
+      "profile",
+      "logs",
+      "history",
+      "wallet_history",
+      "order_history",
+      "random_history",
+      "settings",
+      "contact",
+      "login",
+      "signup",
+      "wallet",
+      "redeem",
+      "product_detail",
+      "custom_page",
+      "log_categories",
+      "vip_logs",
+      "free_logs",
+      "my_orders",
+    ];
+    if (validViews.includes(targetPath)) return targetPath as ViewType;
 
-     const validViews = [
-       "landing",
-       "home",
-       "search",
-       "categories",
-       "category_products",
-       "dashboard",
-       "telegram_catcher",
-       "discord_catcher",
-       "discord_on",
-       "discord_badge",
-       "two_fa_generator",
-       "admin",
-       "profile",
-       "logs",
-       "history",
-       "settings",
-       "contact",
-       "login",
-       "signup",
-       "wallet",
-       "redeem",
-       "product_detail",
-       "custom_page",
-       "log_categories",
-       "tools",
-       "vip_logs",
-       "free_logs",
-       "order_history",
-       "random_history",
-       "wallet_history",
-       "my_orders"
-     ];
+    return "home";
+  });
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(
+    null,
+  );
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(
+    "all",
+  );
+  const [usersList, setUsersList] = useState<any[]>([]);
 
-     if (targetPath && validViews.includes(targetPath)) {
-       if (targetPath !== activeView) {
-         setRawActiveView(targetPath as any);
-       }
-     } else if (targetPath === "home" && activeView !== "home") {
-       setRawActiveView("home");
-     }
-   };
+  const setActiveView = useCallback(
+    (view: any) => {
+      if (activeView === view) return;
+      let newPath = "";
+      if (view === "login" || view === "signup") {
+        newPath = "/accounts/signin";
+      } else {
+        const pathSuffix = view === "home" ? "" : view;
+        newPath = `/${language}${pathSuffix ? "/" + pathSuffix : ""}`;
+      }
+      window.history.pushState(null, "", newPath);
+      setRawActiveView(view);
+    },
+    [activeView, language],
+  );
 
-   // Initial check on mount
-   handlePopState();
+  // Handle URL pathname routing
+  useEffect(() => {
+    const handlePopState = () => {
+      let path = window.location.pathname;
+      if (path.startsWith("/accounts/signin")) {
+        setRawActiveView("login");
+        return;
+      }
 
-   window.addEventListener("popstate", handlePopState);
-   return () => window.removeEventListener("popstate", handlePopState);
- }, [activeView]);
+      const parts = path.split("/").filter(Boolean);
+      let targetPath = "home";
+      if (parts[0] === "th" || parts[0] === "en") {
+        setLanguage(parts[0] as "th" | "en");
+        targetPath = parts[1] || "home";
+      } else {
+        targetPath = parts[0] || "home";
+      }
 
- useEffect(() => {
-   if (products.length > 0) {
-     const params = new URLSearchParams(window.location.search);
-     const pid = params.get("product");
-     if (pid) {
-       const p = products.find(prod => prod.id === pid);
-       if (p && activeView !== "product_detail") {
-         setSelectedProductId(pid);
-         setRawActiveView("product_detail");
-         window.history.replaceState(null, "", "/product_detail?product=" + pid);
-       }
-     }
-   }
- }, [products, activeView]);
+      if (targetPath === "") {
+        const hostname = window.location.hostname;
+        if (hostname.startsWith("account.")) targetPath = "login";
+        else if (hostname.startsWith("dash.")) targetPath = "dashboard";
+        else targetPath = "home";
+      }
 
- useEffect(() => {
-   if (isAdmin) {
-     document.body.classList.add("admin-mode");
-   } else {
-     document.body.classList.remove("admin-mode");
-   }
- }, [isAdmin]);
+      // Routing aliases
+      if (targetPath === "register") targetPath = "signup";
+      if (targetPath === "topup") targetPath = "wallet";
+      if (targetPath === "store") targetPath = "categories";
 
+      const validViews = [
+        "landing",
+        "home",
+        "search",
+        "categories",
+        "category_products",
+        "dashboard",
+        "telegram_catcher",
+        "discord_catcher",
+        "discord_on",
+        "discord_badge",
+        "two_fa_generator",
+        "admin",
+        "profile",
+        "logs",
+        "history",
+        "settings",
+        "contact",
+        "login",
+        "signup",
+        "wallet",
+        "redeem",
+        "product_detail",
+        "custom_page",
+        "log_categories",
+        "tools",
+        "vip_logs",
+        "free_logs",
+        "order_history",
+        "random_history",
+        "wallet_history",
+        "my_orders",
+      ];
 
+      if (targetPath && validViews.includes(targetPath)) {
+        if (targetPath !== activeView) {
+          setRawActiveView(targetPath as any);
+        }
+      } else if (targetPath === "home" && activeView !== "home") {
+        setRawActiveView("home");
+      }
+    };
 
+    // Initial check on mount
+    handlePopState();
 
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, [activeView]);
 
+  useEffect(() => {
+    if (products.length > 0) {
+      const params = new URLSearchParams(window.location.search);
+      const pid = params.get("product");
+      if (pid) {
+        const p = products.find((prod) => prod.id === pid);
+        if (p && activeView !== "product_detail") {
+          setSelectedProductId(pid);
+          setRawActiveView("product_detail");
+          window.history.replaceState(
+            null,
+            "",
+            "/product_detail?product=" + pid,
+          );
+        }
+      }
+    }
+  }, [products, activeView]);
 
+  useEffect(() => {
+    if (isAdmin) {
+      document.body.classList.add("admin-mode");
+    } else {
+      document.body.classList.remove("admin-mode");
+    }
+  }, [isAdmin]);
 
+  const logDivRef = useRef<HTMLDivElement>(null);
 
+  const [startTime, setStartTime] = useState<number | null>(null);
 
- const logDivRef = useRef<HTMLDivElement>(null);
+  const [showPrivacy, setShowPrivacy] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
+  const [showAboutUs, setShowAboutUs] = useState(false);
+  const [showContactUs, setShowContactUs] = useState(false);
+  const [showSearchPopup, setShowSearchPopup] = useState(false);
+  const [clientIp, setClientIp] = useState<string | null>(null);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [forceReveal, setForceReveal] = useState(false);
+  const [loadingProgress, setLoadingProgress] = useState(0);
 
- const [startTime, setStartTime] = useState<number | null>(null);
+  const [logoClicks, setLogoClicks] = useState(0);
+  const [showAdminLogin, setShowAdminLogin] = useState(false);
+  const [dailyUsage, setDailyUsage] = useState<number>(0);
 
- const [showPrivacy, setShowPrivacy] = useState(false);
- const [showTerms, setShowTerms] = useState(false);
- const [showAboutUs, setShowAboutUs] = useState(false);
- const [showContactUs, setShowContactUs] = useState(false);
- const [showSearchPopup, setShowSearchPopup] = useState(false);
- const [clientIp, setClientIp] = useState<string | null>(null);
- const [isLoaded, setIsLoaded] = useState(false);
- const [forceReveal, setForceReveal] = useState(false);
- const [loadingProgress, setLoadingProgress] = useState(0);
+  const rawEnvKey = (import.meta.env.TURNSTILE_SITE_KEY || "").trim();
+  const TURNSTILE_SITE_KEY =
+    rawEnvKey.length > 5 ? rawEnvKey : "0x4AAAAAADDNPyGBIV4MApep";
 
- const [logoClicks, setLogoClicks] = useState(0);
- const [showAdminLogin, setShowAdminLogin] = useState(false);
- const [dailyUsage, setDailyUsage] = useState<number>(0);
+  function handleDbError(
+    error: unknown,
+    operationType: OperationType,
+    path: string | null,
+  ) {
+    const errInfo = {
+      error: error instanceof Error ? error.message : String(error),
+      authInfo: {
+        userId: (window as any)._user?.id,
+      },
+      operationType,
+      path,
+    };
+    console.error("Database Error: ", JSON.stringify(errInfo));
+  }
 
+  const addToast = useToastStore((state) => state.addToast);
 
+  const handleCopy = (text: string, title?: string) => {
+    navigator.clipboard.writeText(text);
+    addToast({
+      type: "success",
+      title: title || "สำเร็จ",
+      message: "คัดลอกลงในคลิปบอร์ดแล้ว",
+      duration: 3000,
+    });
+  };
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isDesktopToolsOpen, setIsDesktopToolsOpen] = useState(false);
+  const [isMobileToolsOpen, setIsMobileToolsOpen] = useState(false);
 
- const rawEnvKey = (import.meta.env.TURNSTILE_SITE_KEY || "").trim();
- const TURNSTILE_SITE_KEY =
-   rawEnvKey.length > 5 ? rawEnvKey : "0x4AAAAAADDNPyGBIV4MApep";
+  useEffect(() => {
+    let timeout: ReturnType<typeof setTimeout>;
 
- function handleDbError(
-   error: unknown,
-   operationType: OperationType,
-   path: string | null,
- ) {
-   const errInfo = {
-     error: error instanceof Error ? error.message : String(error),
-     authInfo: {
-       userId: (window as any)._user?.id,
-     },
-     operationType,
-     path,
-   };
-   console.error("Database Error: ", JSON.stringify(errInfo));
- }
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = "hidden";
+      document.documentElement.style.overflow = "hidden";
+    } else {
+      timeout = setTimeout(() => {
+        document.body.style.overflow = "";
+        document.documentElement.style.overflow = "";
+      }, 300);
+    }
+    return () => {
+      if (timeout) clearTimeout(timeout);
+      document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
+    };
+  }, [isMobileMenuOpen]);
 
- const addToast = useToastStore((state) => state.addToast);
+  const [vipTab, setVipTab] = useState<"key">("key");
 
- const handleCopy = (text: string, title?: string) => {
-   navigator.clipboard.writeText(text);
-   addToast({
-     type: "success",
-     title: title || "สำเร็จ",
-     message: "คัดลอกลงในคลิปบอร์ดแล้ว",
-     duration: 3000
-   });
- };
- const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
- const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
- const [isDesktopToolsOpen, setIsDesktopToolsOpen] = useState(false);
- const [isMobileToolsOpen, setIsMobileToolsOpen] = useState(false);
+  const [purchaseHistory, setPurchaseHistory] = useState<any[]>([]);
 
- useEffect(() => {
-   let timeout: ReturnType<typeof setTimeout>;
-   
-   if (isMobileMenuOpen) {
-     document.body.style.overflow = "hidden";
-     document.documentElement.style.overflow = "hidden";
-   } else {
-     timeout = setTimeout(() => {
-       document.body.style.overflow = "";
-       document.documentElement.style.overflow = "";
-     }, 300);
-   }
-   return () => {
-     if (timeout) clearTimeout(timeout);
-     document.body.style.overflow = "";
-     document.documentElement.style.overflow = "";
-   };
- }, [isMobileMenuOpen]);
+  const [topupHistory, setTopupHistory] = useState<any[]>([]);
 
- const [vipTab, setVipTab] = useState<"key">("key");
+  const [purchasesNextCursor, setPurchasesNextCursor] = useState<string | null>(
+    null,
+  );
+  const [isAdminDataLoading, setIsAdminDataLoading] = useState(false);
 
- const [purchaseHistory, setPurchaseHistory] = useState<any[]>([]);
+  useEffect(() => {
+    // Topup history is user-specific, we do not cache it in localStorage.
+  }, [topupHistory]);
 
- const [topupHistory, setTopupHistory] = useState<any[]>([]);
+  const handlePurchase = async (product: Product, quantity: number = 1) => {
+    if (!product.isPreOrder && product.stock < quantity) {
+      Swal.fire({
+        icon: "error",
+        title: "สินค้าไม่เพียงพอ",
+        text: "สินค้าหน้านี้มีสต๊อกไม่พอสำหรับจำนวนที่คุณต้องการ",
+        confirmButtonColor: "#dc2626",
+      });
+      return;
+    }
 
- const [purchasesNextCursor, setPurchasesNextCursor] = useState<string | null>(null);
- const [isAdminDataLoading, setIsAdminDataLoading] = useState(false);
+    const totalPrice = product.price * quantity;
 
- useEffect(() => {
-   // Topup history is user-specific, we do not cache it in localStorage.
- }, [topupHistory]);
+    if (!userPlan || (userPlan.balance || 0) < totalPrice) {
+      Swal.fire({
+        icon: "error",
+        title: "ยอดเงินไม่เพียงพอ",
+        text: `กรุณาเติมเงินก่อนทำการสั่งซื้อสินค้า (ยอดรวม: ฿${totalPrice.toLocaleString()})`,
+        confirmButtonColor: "#dc2626",
+      });
+      return;
+    }
 
- const handlePurchase = async (product: Product, quantity: number = 1) => {
-   if (!product.isPreOrder && product.stock < quantity) {
-     Swal.fire({
-       icon: "error",
-       title: "สินค้าไม่เพียงพอ",
-       text: "สินค้าหน้านี้มีสต๊อกไม่พอสำหรับจำนวนที่คุณต้องการ",
-       confirmButtonColor: "#dc2626",
-     });
-     return;
-   }
+    // Capture Pre-order option selection
+    let selectedOption = "";
+    if (product.isPreOrder) {
+      const opts = product.preOrderOptions || [];
+      if (opts.length > 0) {
+        const optionsObject: any = {};
+        opts.forEach((o) => {
+          optionsObject[o] = o;
+        });
 
-   const totalPrice = product.price * quantity;
+        const result = await Swal.fire({
+          title: "เลือกประเภทไอดีที่ต้องการ Pre-Order",
+          input: "select",
+          inputOptions: optionsObject,
+          inputPlaceholder: "กรุณาเลือกประเภทไอดี...",
+          showCancelButton: true,
+          confirmButtonText: "ยืนยัน",
+          cancelButtonText: "ยกเลิก",
+          inputValidator: (value) => {
+            return !value ? "กรุณาเลือกประเภทไอดีเพื่อดำเนินการต่อ" : "";
+          },
+          background: "#09090b",
+          color: "#fff",
+          confirmButtonColor: "#10b981",
+          cancelButtonColor: "#27272a",
+        });
 
-   if (!userPlan || (userPlan.balance || 0) < totalPrice) {
-     Swal.fire({
-       icon: "error",
-       title: "ยอดเงินไม่เพียงพอ",
-       text: `กรุณาเติมเงินก่อนทำการสั่งซื้อสินค้า (ยอดรวม: ฿${totalPrice.toLocaleString()})`,
-       confirmButtonColor: "#dc2626",
-     });
-     return;
-   }
+        if (result.isDismissed || !result.value) {
+          return; // Cancel purchase
+        }
+        selectedOption = result.value;
+      } else {
+        // Text input as fallback
+        const result = await Swal.fire({
+          title: "ระบุประเภทไอดีที่ต้องการ Pre-Order",
+          input: "text",
+          inputPlaceholder: "ระบุประเภทรหัส/ไอดี เช่น เลเวล 30, ไอดีสะอาด...",
+          showCancelButton: true,
+          confirmButtonText: "ยืนยัน",
+          cancelButtonText: "ยกเลิก",
+          inputValidator: (value) => {
+            return !value ? "กรุณาระบุรายละเอียดเพื่อดำเนินการต่อ" : "";
+          },
+          background: "#09090b",
+          color: "#fff",
+          confirmButtonColor: "#10b981",
+          cancelButtonColor: "#27272a",
+        });
 
-   // Capture Pre-order option selection
-   let selectedOption = "";
-   if (product.isPreOrder) {
-     const opts = product.preOrderOptions || [];
-     if (opts.length > 0) {
-       const optionsObject: any = {};
-       opts.forEach(o => {
-         optionsObject[o] = o;
-       });
+        if (result.isDismissed || !result.value) {
+          return; // Cancel purchase
+        }
+        selectedOption = result.value;
+      }
+    }
 
-       const result = await Swal.fire({
-         title: 'เลือกประเภทไอดีที่ต้องการ Pre-Order',
-         input: 'select',
-         inputOptions: optionsObject,
-         inputPlaceholder: 'กรุณาเลือกประเภทไอดี...',
-         showCancelButton: true,
-         confirmButtonText: 'ยืนยัน',
-         cancelButtonText: 'ยกเลิก',
-         inputValidator: (value) => {
-           return !value ? 'กรุณาเลือกประเภทไอดีเพื่อดำเนินการต่อ' : '';
-         },
-         background: '#09090b',
-         color: '#fff',
-         confirmButtonColor: '#10b981',
-         cancelButtonColor: '#27272a'
-       });
+    try {
+      const idempotencyKey = `buy_${product.id}_${Date.now()}_${Math.random()}`;
+      const res = await axios.post(
+        "/api/buy",
+        {
+          productId: product.id,
+          quantity,
+          preOrderOption: selectedOption,
+        },
+        {
+          headers: {
+            "Idempotency-Key": idempotencyKey,
+          },
+        },
+      );
+      const {
+        purchase: newHistoryItem,
+        updatedUser,
+        updatedProduct,
+      } = res.data;
 
-       if (result.isDismissed || !result.value) {
-         return; // Cancel purchase
-       }
-       selectedOption = result.value;
-     } else {
-       // Text input as fallback
-       const result = await Swal.fire({
-         title: 'ระบุประเภทไอดีที่ต้องการ Pre-Order',
-         input: 'text',
-         inputPlaceholder: 'ระบุประเภทรหัส/ไอดี เช่น เลเวล 30, ไอดีสะอาด...',
-         showCancelButton: true,
-         confirmButtonText: 'ยืนยัน',
-         cancelButtonText: 'ยกเลิก',
-         inputValidator: (value) => {
-           return !value ? 'กรุณาระบุรายละเอียดเพื่อดำเนินการต่อ' : '';
-         },
-         background: '#09090b',
-         color: '#fff',
-         confirmButtonColor: '#10b981',
-         cancelButtonColor: '#27272a'
-       });
+      // Update state with result from server
+      setProducts((prevProducts) =>
+        prevProducts.map((p) => (p.id === product.id ? updatedProduct : p)),
+      );
+      setUserPlan(updatedUser);
+      setPurchaseHistory((prev) => [newHistoryItem, ...prev]);
 
-       if (result.isDismissed || !result.value) {
-         return; // Cancel purchase
-       }
-       selectedOption = result.value;
-     }
-   }
+      // Update site stats for admin
+      setSiteStats((prev) => ({
+        ...prev,
+        sales: prev.sales + totalPrice,
+        stock: Math.max(0, prev.stock - quantity),
+      }));
 
-   try {
-     const idempotencyKey = `buy_${product.id}_${Date.now()}_${Math.random()}`;
-     const res = await axios.post("/api/buy", {
-       productId: product.id,
-       quantity,
-       preOrderOption: selectedOption
-     }, {
-       headers: {
-         'Idempotency-Key': idempotencyKey
-       }
-     });
-     const {
-       purchase: newHistoryItem,
-       updatedUser,
-       updatedProduct,
-     } = res.data;
+      // Create and auto download TXT file of purchased items, if quantity > 1
+      if (quantity > 1) {
+        const blob = new Blob([newHistoryItem.secretData], {
+          type: "text/plain;charset=utf-8",
+        });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `apexstore_order_${product.id}_x${quantity}_${new Date().toISOString().slice(0, 10)}.txt`;
+        link.click();
+        URL.revokeObjectURL(url);
+      }
 
-     // Update state with result from server
-     setProducts((prevProducts) =>
-       prevProducts.map((p) => (p.id === product.id ? updatedProduct : p)),
-     );
-     setUserPlan(updatedUser);
-     setPurchaseHistory((prev) => [newHistoryItem, ...prev]);
+      // Show success and redirect
+      Swal.fire({
+        icon: "success",
+        title: "สั่งซื้อสำเร็จ!",
+        text:
+          quantity === 1
+            ? `คุณได้สั่งซื้อ ${product.name} สำเร็จแล้ว`
+            : "ระบบได้ดาวน์โหลดไฟล์คีย์/ข้อมูลสินค้าให้ท่านอัตโนมัติ (และสามารถตรวจสอบย้อนหลังได้ที่ประวัติการสั่งซื้อ)",
+        confirmButtonColor: "#16a34a",
+        confirmButtonText: "ตกลง",
+      }).then(() => {
+        setActiveView("history");
+        if (quantity === 1) {
+          setPurchasedItemReceipt({
+            ...newHistoryItem,
+            title: "สั่งซื้อสำเร็จ",
+            icon: ShoppingCart,
+            bg: "bg-[#10b981]",
+            color: "text-white",
+          });
+        }
+      });
+    } catch (err: any) {
+      console.error("Purchase error:", err);
+      const errorMessage = err.response?.data?.error;
 
-     // Update site stats for admin
-     setSiteStats((prev) => ({
-       ...prev,
-       sales: prev.sales + totalPrice,
-       stock: Math.max(0, prev.stock - quantity),
-     }));
+      if (errorMessage === "สินค้าในสต๊อกไม่เพียงพอ") {
+        Swal.fire({
+          icon: "error",
+          title: "ขออภัย",
+          text: "สินค้าชิ้นนี้เพิ่งหมดไป หรือจำนวนในสต๊อกไม่เพียงพอ",
+          confirmButtonColor: "#dc2626",
+        });
 
-     // Create and auto download TXT file of purchased items, if quantity > 1
-     if (quantity > 1) {
-       const blob = new Blob([newHistoryItem.secretData], {
-         type: "text/plain;charset=utf-8",
-       });
-       const url = URL.createObjectURL(blob);
-       const link = document.createElement("a");
-       link.href = url;
-       link.download = `apexstore_order_${product.id}_x${quantity}_${new Date().toISOString().slice(0, 10)}.txt`;
-       link.click();
-       URL.revokeObjectURL(url);
-     }
-
-     // Show success and redirect
-     Swal.fire({
-       icon: "success",
-       title: "สั่งซื้อสำเร็จ!",
-       text:
-         quantity === 1
-           ? `คุณได้สั่งซื้อ ${product.name} สำเร็จแล้ว`
-           : "ระบบได้ดาวน์โหลดไฟล์คีย์/ข้อมูลสินค้าให้ท่านอัตโนมัติ (และสามารถตรวจสอบย้อนหลังได้ที่ประวัติการสั่งซื้อ)",
-       confirmButtonColor: "#16a34a",
-       confirmButtonText: "ตกลง",
-     }).then(() => {
-       setActiveView("history");
-       if (quantity === 1) {
-         setPurchasedItemReceipt({
-           ...newHistoryItem,
-           title: "สั่งซื้อสำเร็จ",
-           icon: ShoppingCart,
-           bg: "bg-[#10b981]",
-           color: "text-white",
-         });
-       }
-     });
-   } catch (err: any) {
-     console.error("Purchase error:", err);
-     const errorMessage = err.response?.data?.error;
-     
-     if (errorMessage === "สินค้าในสต๊อกไม่เพียงพอ") {
-       Swal.fire({
-         icon: "error",
-         title: "ขออภัย",
-         text: "สินค้าชิ้นนี้เพิ่งหมดไป หรือจำนวนในสต๊อกไม่เพียงพอ",
-         confirmButtonColor: "#dc2626",
-       });
-       
-       // Refetch to update stock and disable button
-       axios.get("/api/products")
-         .then((res) => {
+        // Refetch to update stock and disable button
+        axios
+          .get("/api/products")
+          .then((res) => {
             if (res.data && Array.isArray(res.data)) {
-               setProducts(res.data);
-               // Also update selected product if we are on the detail page
-               if (activeView === "product_detail") {
-                  const updated = res.data.find((p: any) => p.id === product.id);
-                  if (updated && updated.stock === 0) {
-                     // Handled by UI automatically via products state propagation
-                  }
-               }
+              setProducts(res.data);
+              // Also update selected product if we are on the detail page
+              if (activeView === "product_detail") {
+                const updated = res.data.find((p: any) => p.id === product.id);
+                if (updated && updated.stock === 0) {
+                  // Handled by UI automatically via products state propagation
+                }
+              }
             }
-         }).catch(console.error);
-     } else {
-       Swal.fire({
-         icon: "error",
-         title: "เกิดข้อผิดพลาด",
-         text:
-           errorMessage ||
-           "ไม่สามารถทำรายการได้ในขณะนี้ กรุณาลองใหม่",
-         confirmButtonColor: "#dc2626",
-       });
-     }
-   }
- };
+          })
+          .catch(console.error);
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "เกิดข้อผิดพลาด",
+          text: errorMessage || "ไม่สามารถทำรายการได้ในขณะนี้ กรุณาลองใหม่",
+          confirmButtonColor: "#dc2626",
+        });
+      }
+    }
+  };
 
- const [isDBReady, setIsDBReady] = useState(false);
- const [dbErrorDetail, setDbErrorDetail] = useState<string | null>(null);
- const [purchasedItemReceipt, setPurchasedItemReceipt] = useState<any>(null);
+  const [isDBReady, setIsDBReady] = useState(false);
+  const [dbErrorDetail, setDbErrorDetail] = useState<string | null>(null);
+  const [purchasedItemReceipt, setPurchasedItemReceipt] = useState<any>(null);
 
- // Product + Stats loaders - No localStorage fallback, trust API
- useEffect(() => {}, []);
+  // Product + Stats loaders - No localStorage fallback, trust API
+  useEffect(() => {}, []);
 
- const syncUserPlan = useCallback(
-   async (newPlan: UserPlan | null, uid: string) => {
-     if (!newPlan || !uid) return;
-     try {
-       await axios.post(`/api/users/${uid}`, newPlan);
-     } catch (err) {
-       console.error("Failed to sync user plan:", err);
-     }
-   },
-   [],
- );
+  const syncUserPlan = useCallback(
+    async (newPlan: UserPlan | null, uid: string) => {
+      if (!newPlan || !uid) return;
+      try {
+        await axios.post(`/api/users/${uid}`, newPlan);
+      } catch (err) {
+        console.error("Failed to sync user plan:", err);
+      }
+    },
+    [],
+  );
 
- // Firebase Auth Listener
- useEffect(() => {
-   // Check initial session
-   auth.auth.getSession().then(({ data: { session } }) => {
-     if (session?.access_token) {
-       axios.defaults.headers.common["Authorization"] =
-         `Bearer ${session.access_token}`;
-     } else {
-       delete axios.defaults.headers.common["Authorization"];
-     }
+  // Firebase Auth Listener
+  useEffect(() => {
+    // Check initial session
+    auth.auth.getSession().then(({ data: { session } }) => {
+      if (session?.access_token) {
+        axios.defaults.headers.common["Authorization"] =
+          `Bearer ${session.access_token}`;
+      } else {
+        delete axios.defaults.headers.common["Authorization"];
+      }
 
-     const currentUser: any = session?.user || null;
-     if (currentUser) currentUser.uid = currentUser.id;
-     setUser(currentUser);
-     
-   });
+      const currentUser: any = session?.user || null;
+      if (currentUser) currentUser.uid = currentUser.id;
+      setUser(currentUser);
+    });
 
-   const {
-     data: { subscription },
-   } = auth.auth.onAuthStateChange(async (event, session) => {
-     if (session?.access_token) {
-       axios.defaults.headers.common["Authorization"] =
-         `Bearer ${session.access_token}`;
-     } else {
-       delete axios.defaults.headers.common["Authorization"];
-     }
+    const {
+      data: { subscription },
+    } = auth.auth.onAuthStateChange(async (event, session) => {
+      if (session?.access_token) {
+        axios.defaults.headers.common["Authorization"] =
+          `Bearer ${session.access_token}`;
+      } else {
+        delete axios.defaults.headers.common["Authorization"];
+      }
 
-     const currentUser: any = session?.user || null;
-     if (currentUser) currentUser.uid = currentUser.id;
-     setUser(currentUser);
+      const currentUser: any = session?.user || null;
+      if (currentUser) currentUser.uid = currentUser.id;
+      setUser(currentUser);
       setIsAdmin(false);
 
-     if (currentUser && !currentUser.isAnonymous && currentUser.email) {
-       try {
-         // Fetch user plan from backend
-         const res = await axios.get(`/api/users/${currentUser.uid}`);
-         if (res.data) {
-           setUserPlan(res.data);
-           if (res.data.role === "Admin" || res.data.role === "admin") {
-             setIsAdmin(true);
-           }
-         } else {
-           // First time user registration on backend
-           const initialPlan = {
-             username:
-               currentUser.displayName || currentUser.email.split("@")[0],
-             isPremium: false,
-             premiumExpireDate: null,
-             balance: 0,
-             email: currentUser.email,
-             role: "Member",
-           };
-           setUserPlan(initialPlan);
-           
-           await axios.post(`/api/users/${currentUser.uid}`, initialPlan);
-         }
-       } catch (err: any) {
-         if (err.response?.status === 404) {
-           const initialPlan = {
-             username:
-               currentUser.displayName || currentUser.email.split("@")[0],
-             isPremium: false,
-             premiumExpireDate: null,
-             balance: 0,
-             email: currentUser.email,
-             role: "Member",
-           };
-           setUserPlan(initialPlan);
-           
-           try {
-             await axios.post(`/api/users/${currentUser.uid}`, initialPlan);
-           } catch (postErr) {
-             console.error("Failed to create initial user plan:", postErr);
-           }
-         } else {
-           console.error("Auth sync error:", err);
-         }
-       }
-     }
-   });
-   return () => subscription?.unsubscribe();
- }, []);
+      if (currentUser && !currentUser.isAnonymous && currentUser.email) {
+        try {
+          // Fetch user plan from backend
+          const res = await axios.get(`/api/users/${currentUser.uid}`);
+          if (res.data) {
+            setUserPlan(res.data);
+            if (res.data.role === "Admin" || res.data.role === "admin") {
+              setIsAdmin(true);
+            }
+          } else {
+            // First time user registration on backend
+            const initialPlan = {
+              username:
+                currentUser.displayName || currentUser.email.split("@")[0],
+              isPremium: false,
+              premiumExpireDate: null,
+              balance: 0,
+              email: currentUser.email,
+              role: "Member",
+            };
+            setUserPlan(initialPlan);
 
- const [logCategories, setLogCategories] = useState<any[]>([]);
+            await axios.post(`/api/users/${currentUser.uid}`, initialPlan);
+          }
+        } catch (err: any) {
+          if (err.response?.status === 404) {
+            const initialPlan = {
+              username:
+                currentUser.displayName || currentUser.email.split("@")[0],
+              isPremium: false,
+              premiumExpireDate: null,
+              balance: 0,
+              email: currentUser.email,
+              role: "Member",
+            };
+            setUserPlan(initialPlan);
 
- const fetchRequestId = useRef(0);
- const fetchAbortController = useRef<AbortController | null>(null);
+            try {
+              await axios.post(`/api/users/${currentUser.uid}`, initialPlan);
+            } catch (postErr) {
+              console.error("Failed to create initial user plan:", postErr);
+            }
+          } else {
+            console.error("Auth sync error:", err);
+          }
+        }
+      }
+    });
+    return () => subscription?.unsubscribe();
+  }, []);
 
- const fetchAllData = useCallback(async () => {
-   try {
-     if (fetchAbortController.current) {
-       fetchAbortController.current.abort();
-     }
-     const controller = new AbortController();
-     fetchAbortController.current = controller;
+  const [logCategories, setLogCategories] = useState<any[]>([]);
 
-     fetchRequestId.current += 1;
-     const currentRequestId = fetchRequestId.current;
-     
-     console.log("Fetching public data from backend...", { reqId: currentRequestId });
-     console.time(`fetchAllData-${currentRequestId}`);
+  const fetchRequestId = useRef(0);
+  const fetchAbortController = useRef<AbortController | null>(null);
 
-     const publicAxios = axios.create();
-     publicAxios.interceptors.request.use(config => {
-       if (config.headers) {
-         if ('common' in config.headers && typeof config.headers.common === 'object' && config.headers.common !== null) {
+  const fetchAllData = useCallback(async () => {
+    try {
+      if (fetchAbortController.current) {
+        fetchAbortController.current.abort();
+      }
+      const controller = new AbortController();
+      fetchAbortController.current = controller;
+
+      fetchRequestId.current += 1;
+      const currentRequestId = fetchRequestId.current;
+
+      console.log("Fetching public data from backend...", {
+        reqId: currentRequestId,
+      });
+      console.time(`fetchAllData-${currentRequestId}`);
+
+      const publicAxios = axios.create();
+      publicAxios.interceptors.request.use((config) => {
+        if (config.headers) {
+          if (
+            "common" in config.headers &&
+            typeof config.headers.common === "object" &&
+            config.headers.common !== null
+          ) {
             delete (config.headers.common as any)["Authorization"];
-         }
-         if ('Authorization' in config.headers) {
+          }
+          if ("Authorization" in config.headers) {
             delete config.headers["Authorization"];
-         }
-       }
-       return config;
-     });
+          }
+        }
+        return config;
+      });
 
-     const fetchApi = async (url: string) => {
-       try {
-         const res = await axios.get(url, { signal: controller.signal });
-         
-         if (currentRequestId !== fetchRequestId.current) {
-           console.log(`Aborting stale response for ${url}`);
-           return { data: null, error: 'stale' };
-         }
-         
-         return { data: res.data, error: null };
-       } catch (e: any) {
-         if (axios.isCancel(e)) return { data: null, error: 'canceled' };
-         if (currentRequestId !== fetchRequestId.current) return { data: null, error: 'stale' };
-         const status = e.response?.status;
-         const errorMsg = e.response?.data?.error || e.message;
-         if (status !== 401 && status !== 403 && status !== 404) {
+      const fetchApi = async (url: string) => {
+        try {
+          const res = await axios.get(url, { signal: controller.signal });
+
+          if (currentRequestId !== fetchRequestId.current) {
+            console.log(`Aborting stale response for ${url}`);
+            return { data: null, error: "stale" };
+          }
+
+          return { data: res.data, error: null };
+        } catch (e: any) {
+          if (axios.isCancel(e)) return { data: null, error: "canceled" };
+          if (currentRequestId !== fetchRequestId.current)
+            return { data: null, error: "stale" };
+          const status = e.response?.status;
+          const errorMsg = e.response?.data?.error || e.message;
+          if (status !== 401 && status !== 403 && status !== 404) {
             console.error(`Fetch ERROR for ${url}:`, errorMsg);
-         }
-         return { data: null, error: errorMsg };
-       }
-     };
+          }
+          return { data: null, error: errorMsg };
+        }
+      };
 
-     // 1. Critical Landing Page Data - Parallel Fetching with Promise.all (Using Cache-Eligible publicAxios)
-     const publicEndpoints = [
-       "/api/settings",
-       "/api/products",
-       "/api/categories",
-       "/api/stats",
-       "/api/pages"
-     ];
+      // 1. Critical Landing Page Data - Parallel Fetching with Promise.all (Using Cache-Eligible publicAxios)
+      const publicEndpoints = [
+        "/api/settings",
+        "/api/products",
+        "/api/categories",
+        "/api/stats",
+        "/api/pages",
+      ];
 
-     const mainFetchPromise = Promise.all(
-       publicEndpoints.map(url =>
-         publicAxios.get(url, { signal: controller.signal })
-           .then(res => ({ url, data: res.data, isCanceled: false }))
-           .catch(err => {
-             if (axios.isCancel(err)) {
-               return { url, data: null, isCanceled: true };
-             }
-             console.error(`Parallel fetch error for public endpoint ${url}:`, err);
-             return { url, data: null, isCanceled: false };
-           })
-       )
-     ).then(results => {
-       if (currentRequestId !== fetchRequestId.current) return;
-       
-       for (const res of results) {
-         if (res.isCanceled) continue;
-         
-         if (res.url === "/api/settings" && res.data) {
-           setSiteSettings(res.data);
-           try { localStorage.setItem("apex_settings_cache", JSON.stringify(res.data)); } catch(e) { console.error("Caught error:", e); }
-         } else if (res.url === "/api/products" && res.data && Array.isArray(res.data)) {
-           const finalProds = res.data;
-           setProducts(finalProds);
-           try { localStorage.setItem("apex_products_cache", JSON.stringify(finalProds)); } catch(e) { console.error("Caught error:", e); }
-         } else if (res.url === "/api/categories" && res.data && Array.isArray(res.data)) {
-           const sanitized = sanitizeCategories(res.data);
-           setCategories(sanitized);
-           try { localStorage.setItem("apex_categories_cache", JSON.stringify(sanitized)); } catch(e) { console.error("Caught error:", e); }
-         } else if (res.url === "/api/stats" && res.data) {
-           const statsObj = {
-             users: res.data.users,
-             stock: res.data.stock,
-             sales: res.data.sales,
-             topups: res.data.totalTopupsAmount,
-             totalOrders: res.data.totalOrders,
-           };
-           setSiteStats(statsObj);
-           try { localStorage.setItem("apex_stats_cache", JSON.stringify(statsObj)); } catch(e) { console.error("Caught error:", e); }
-         } else if (res.url === "/api/pages" && res.data) {
-           const d = res.data;
-           const pagesToSet = Array.isArray(d) ? d : (d.data && Array.isArray(d.data) ? d.data : []);
-           setCustomPages(pagesToSet);
-           try { localStorage.setItem("apex_pages_cache", JSON.stringify(pagesToSet)); } catch(e) { console.error("Caught error:", e); }
-         }
-       }
-     });
+      const mainFetchPromise = Promise.all(
+        publicEndpoints.map((url) =>
+          publicAxios
+            .get(url, { signal: controller.signal })
+            .then((res) => ({ url, data: res.data, isCanceled: false }))
+            .catch((err) => {
+              if (axios.isCancel(err)) {
+                return { url, data: null, isCanceled: true };
+              }
+              console.error(
+                `Parallel fetch error for public endpoint ${url}:`,
+                err,
+              );
+              return { url, data: null, isCanceled: false };
+            }),
+        ),
+      ).then((results) => {
+        if (currentRequestId !== fetchRequestId.current) return;
 
-     // 2. Secondary Data & User Data
-     const logsPromise = fetchApi("/api/logs-system").then(res => {
-       if (res.data && Array.isArray(res.data.categories)) {
-         setLogCategories(res.data.categories.filter((c: any) => c.isVisible));
-       }
-     });
+        for (const res of results) {
+          if (res.isCanceled) continue;
 
-     // Health check for DB readiness
-     const healthPromise = axios
-       .get("/api/health")
-       .then(() => {
-         setIsDBReady(true);
-         setDbErrorDetail(null);
-       })
-       .catch((e) => {
-         setIsDBReady(false);
-         let errorMsg =
-           e.response?.data?.error || e.message || "Unknown Error";
-         setDbErrorDetail(`Backend API ไม่ตอบสนอง (Offline): ${errorMsg}`);
-       });
+          if (res.url === "/api/settings" && res.data) {
+            setSiteSettings(res.data);
+            try {
+              localStorage.setItem(
+                "apex_settings_cache",
+                JSON.stringify(res.data),
+              );
+            } catch (e) {
+              console.error("Caught error:", e);
+            }
+          } else if (
+            res.url === "/api/products" &&
+            res.data &&
+            Array.isArray(res.data)
+          ) {
+            const finalProds = res.data;
+            setProducts(finalProds);
+            try {
+              localStorage.setItem(
+                "apex_products_cache",
+                JSON.stringify(finalProds),
+              );
+            } catch (e) {
+              console.error("Caught error:", e);
+            }
+          } else if (
+            res.url === "/api/categories" &&
+            res.data &&
+            Array.isArray(res.data)
+          ) {
+            const sanitized = sanitizeCategories(res.data);
+            setCategories(sanitized);
+            try {
+              localStorage.setItem(
+                "apex_categories_cache",
+                JSON.stringify(sanitized),
+              );
+            } catch (e) {
+              console.error("Caught error:", e);
+            }
+          } else if (res.url === "/api/stats" && res.data) {
+            const statsObj = {
+              users: res.data.users,
+              stock: res.data.stock,
+              sales: res.data.sales,
+              topups: res.data.totalTopupsAmount,
+              totalOrders: res.data.totalOrders,
+            };
+            setSiteStats(statsObj);
+            try {
+              localStorage.setItem(
+                "apex_stats_cache",
+                JSON.stringify(statsObj),
+              );
+            } catch (e) {
+              console.error("Caught error:", e);
+            }
+          } else if (res.url === "/api/pages" && res.data) {
+            const d = res.data;
+            const pagesToSet = Array.isArray(d)
+              ? d
+              : d.data && Array.isArray(d.data)
+                ? d.data
+                : [];
+            setCustomPages(pagesToSet);
+            try {
+              localStorage.setItem(
+                "apex_pages_cache",
+                JSON.stringify(pagesToSet),
+              );
+            } catch (e) {
+              console.error("Caught error:", e);
+            }
+          }
+        }
+      });
 
-     // Await only the critical home view endpoints + backend health check to reveal the home UI instantly
-     await Promise.all([mainFetchPromise, healthPromise]);
-     console.timeEnd(`fetchAllData-${currentRequestId}`);
-   } catch (err: any) {
-     console.error("Critical fetch error in fetchAllData:", err);
-   }
- }, []);
+      // 2. Secondary Data & User Data
+      const logsPromise = fetchApi("/api/logs-system").then((res) => {
+        if (res.data && Array.isArray(res.data.categories)) {
+          setLogCategories(res.data.categories.filter((c: any) => c.isVisible));
+        }
+      });
 
- // Dedicated user-session data retriever (decoupled from the landing page loop)
- const fetchUserData = useCallback(async () => {
-   if (!user) return;
-   try {
-     console.log("Fetching user-specific data from backend...");
-     const [usedKeysRes, purchasesRes, topupsRes] = await Promise.all([
-       axios.get("/api/used_keys").catch(() => null),
-       axios.get("/api/purchases?limit=20").catch(() => null),
-       axios.get("/api/topups").catch(() => null)
-     ]);
-     if (usedKeysRes?.data) setUsedKeysHistory(usedKeysRes.data);
-     if (purchasesRes?.data) {
-       const purchaseData = Array.isArray(purchasesRes.data) 
-         ? purchasesRes.data 
-         : purchasesRes.data.data;
-       if (Array.isArray(purchaseData)) {
-         setPurchaseHistory(purchaseData);
-         if (purchasesRes.data.nextCursor) {
-           setPurchasesNextCursor(purchasesRes.data.nextCursor);
-         }
-       }
-     }
-     if (topupsRes?.data && Array.isArray(topupsRes.data)) setTopupHistory(topupsRes.data);
-   } catch (err) {
-     console.error("Failed to fetch user-specific data:", err);
-   }
- }, [user]);
+      // Health check for DB readiness
+      const healthPromise = axios
+        .get("/api/health")
+        .then(() => {
+          setIsDBReady(true);
+          setDbErrorDetail(null);
+        })
+        .catch((e) => {
+          setIsDBReady(false);
+          let errorMsg =
+            e.response?.data?.error || e.message || "Unknown Error";
+          setDbErrorDetail(`Backend API ไม่ตอบสนอง (Offline): ${errorMsg}`);
+        });
 
- // Dedicated admin logs/entities data retriever (decoupled from the landing page loop)
- const fetchAdminData = useCallback(async () => {
-   if (!isAdmin || isAdminDataLoading) return;
-   setIsAdminDataLoading(true);
-   try {
-     console.log("Fetching admin-specific data from backend...");
-     const [licensesRes, blockedIpsRes, usersRes] = await Promise.all([
-       axios.get("/api/license_keys").catch(() => null),
-       axios.get("/api/blocked_ips").catch(() => null),
-       axios.get("/api/users").catch(() => null)
-     ]);
-     if (licensesRes?.data) setLicenseKeys(licensesRes.data);
-     if (blockedIpsRes?.data) setBlockedIPs(blockedIpsRes.data);
-     if (usersRes?.data && Array.isArray(usersRes.data)) setUsersList(usersRes.data);
-   } catch (err) {
-     console.error("Failed to fetch admin-specific data:", err);
-   } finally {
-     setIsAdminDataLoading(false);
-   }
- }, [isAdmin, isAdminDataLoading]);
+      // Await only the critical home view endpoints + backend health check to reveal the home UI instantly
+      await Promise.all([mainFetchPromise, healthPromise]);
+      console.timeEnd(`fetchAllData-${currentRequestId}`);
+    } catch (err: any) {
+      console.error("Critical fetch error in fetchAllData:", err);
+    }
+  }, []);
 
- // Combined system-wide data refresh function for user/admin actions
- const refreshAllSystemData = useCallback(async () => {
-   console.log("Executing manual refresh of all relevant system data...");
-   await Promise.all([
-     fetchAllData(),
-     user ? fetchUserData() : Promise.resolve(),
-     isAdmin ? fetchAdminData() : Promise.resolve()
-   ]);
- }, [fetchAllData, fetchUserData, fetchAdminData, user, isAdmin]);
+  // Dedicated user-session data retriever (decoupled from the landing page loop)
+  const fetchUserData = useCallback(async () => {
+    if (!user) return;
+    try {
+      console.log("Fetching user-specific data from backend...");
+      const [usedKeysRes, purchasesRes, topupsRes] = await Promise.all([
+        axios.get("/api/used_keys").catch(() => null),
+        axios.get("/api/purchases?limit=20").catch(() => null),
+        axios.get("/api/topups").catch(() => null),
+      ]);
+      if (usedKeysRes?.data) setUsedKeysHistory(usedKeysRes.data);
+      if (purchasesRes?.data) {
+        const purchaseData = Array.isArray(purchasesRes.data)
+          ? purchasesRes.data
+          : purchasesRes.data.data;
+        if (Array.isArray(purchaseData)) {
+          setPurchaseHistory(purchaseData);
+          if (purchasesRes.data.nextCursor) {
+            setPurchasesNextCursor(purchasesRes.data.nextCursor);
+          }
+        }
+      }
+      if (topupsRes?.data && Array.isArray(topupsRes.data))
+        setTopupHistory(topupsRes.data);
+    } catch (err) {
+      console.error("Failed to fetch user-specific data:", err);
+    }
+  }, [user]);
 
- // Backend API Listeners - Public static endpoints refreshed every 60 seconds
- useEffect(() => {
-   fetchAllData();
-   const timer = setInterval(fetchAllData, 60000);
-   return () => {
-     clearInterval(timer);
-     if (fetchAbortController.current) {
-       fetchAbortController.current.abort();
-     }
-   };
- }, [fetchAllData]);
+  // Dedicated admin logs/entities data retriever (decoupled from the landing page loop)
+  const fetchAdminData = useCallback(async () => {
+    if (!isAdmin || isAdminDataLoading) return;
+    setIsAdminDataLoading(true);
+    try {
+      console.log("Fetching admin-specific data from backend...");
+      const [licensesRes, blockedIpsRes, usersRes] = await Promise.all([
+        axios.get("/api/license_keys").catch(() => null),
+        axios.get("/api/blocked_ips").catch(() => null),
+        axios.get("/api/users").catch(() => null),
+      ]);
+      if (licensesRes?.data) setLicenseKeys(licensesRes.data);
+      if (blockedIpsRes?.data) setBlockedIPs(blockedIpsRes.data);
+      if (usersRes?.data && Array.isArray(usersRes.data))
+        setUsersList(usersRes.data);
+    } catch (err) {
+      console.error("Failed to fetch admin-specific data:", err);
+    } finally {
+      setIsAdminDataLoading(false);
+    }
+  }, [isAdmin, isAdminDataLoading]);
 
- // Trigger user private data load on session changes
- useEffect(() => {
-   if (user) {
-     fetchUserData();
-   } else {
-     setUsedKeysHistory([]);
-     setPurchaseHistory([]);
-     setTopupHistory([]);
-   }
- }, [user, fetchUserData]);
+  // Combined system-wide data refresh function for user/admin actions
+  const refreshAllSystemData = useCallback(async () => {
+    console.log("Executing manual refresh of all relevant system data...");
+    await Promise.all([
+      fetchAllData(),
+      user ? fetchUserData() : Promise.resolve(),
+      isAdmin ? fetchAdminData() : Promise.resolve(),
+    ]);
+  }, [fetchAllData, fetchUserData, fetchAdminData, user, isAdmin]);
 
- // Trigger admin private data load on status changes
- useEffect(() => {
-   if (isAdmin) {
-     fetchAdminData();
-   } else {
-     setLicenseKeys([]);
-     setBlockedIPs([]);
-     setUsersList([]);
-   }
- }, [isAdmin, fetchAdminData]);
+  // Backend API Listeners - Public static endpoints refreshed every 60 seconds
+  useEffect(() => {
+    fetchAllData();
+    const timer = setInterval(fetchAllData, 60000);
+    return () => {
+      clearInterval(timer);
+      if (fetchAbortController.current) {
+        fetchAbortController.current.abort();
+      }
+    };
+  }, [fetchAllData]);
 
- // App Init & check IP
- useEffect(() => {
-   let dataReady = false;
+  // Trigger user private data load on session changes
+  useEffect(() => {
+    if (user) {
+      fetchUserData();
+    } else {
+      setUsedKeysHistory([]);
+      setPurchaseHistory([]);
+      setTopupHistory([]);
+    }
+  }, [user, fetchUserData]);
 
-   const initApp = async () => {
+  // Trigger admin private data load on status changes
+  useEffect(() => {
+    if (isAdmin) {
+      fetchAdminData();
+    } else {
+      setLicenseKeys([]);
+      setBlockedIPs([]);
+      setUsersList([]);
+    }
+  }, [isAdmin, fetchAdminData]);
+
+  // App Init & check IP
+  useEffect(() => {
+    let dataReady = false;
+
+    const initApp = async () => {
       const savedUserPlan = localStorage.getItem("checker_userplan_main");
       if (savedUserPlan) setUserPlan(JSON.parse(savedUserPlan));
 
       // Fast check if cache resources exist to bypass loading screen delays
-     const hasCachedStats = !!localStorage.getItem("apex_stats_cache");
-     const hasCachedProducts = !!localStorage.getItem("apex_products_cache");
-     const hasCachedCategories = !!localStorage.getItem("apex_categories_cache");
-     const isCacheAvailable = hasCachedStats && hasCachedProducts && hasCachedCategories;
+      const hasCachedStats = !!localStorage.getItem("apex_stats_cache");
+      const hasCachedProducts = !!localStorage.getItem("apex_products_cache");
+      const hasCachedCategories = !!localStorage.getItem(
+        "apex_categories_cache",
+      );
+      const isCacheAvailable =
+        hasCachedStats && hasCachedProducts && hasCachedCategories;
 
-     if (isCacheAvailable) {
-       // Cached data is present; reveal immediately
-       setIsLoaded(true);
-     }
+      if (isCacheAvailable) {
+        // Cached data is present; reveal immediately
+        setIsLoaded(true);
+      }
 
-     let timeoutId: any = setTimeout(() => {
-       console.warn("Loading timeout 8s exceeded. Force revealing portal.");
-       setForceReveal(true);
-       setIsLoaded(true);
-     }, 8000);
+      let timeoutId: any = setTimeout(() => {
+        console.warn("Loading timeout 8s exceeded. Force revealing portal.");
+        setForceReveal(true);
+        setIsLoaded(true);
+      }, 8000);
 
       // Concurrent parallel boot loading of metadata, pages, settings, stats, and client configuration
       try {
         await Promise.all([
-          axios.get("/api/health")
-            .then(res => {
+          axios
+            .get("/api/health")
+            .then((res) => {
               const ip = res.data.clientIp || "Unknown";
               setClientIp(ip);
             })
-            .catch(err => {
+            .catch((err) => {
               setClientIp("offline_local");
               console.error("IP Check Failed", err);
             }),
-          fetchAllData()
+          fetchAllData(),
         ]);
       } catch (err) {
         console.error("Initial system parallel data fetch failed:", err);
@@ -1272,244 +1435,244 @@ function AppContent() {
         clearTimeout(timeoutId);
         setIsLoaded(true);
       }
-      
+
       dataReady = true;
       setIsLoaded(true);
     };
     initApp();
   }, [fetchAllData]);
 
- const delay = (ms: number) =>
-   new Promise((resolve) => setTimeout(resolve, ms));
+  const delay = (ms: number) =>
+    new Promise((resolve) => setTimeout(resolve, ms));
 
- const redeemKey = async (
-   keyInput: string,
-   usernameInput: string = "ผู้ใช้งานทั่วไป",
- ) => {
-   if (!keyInput) return;
-   try {
-     Swal.fire({
-       title: "กำลังตรวจสอบ...",
-       allowOutsideClick: false,
-       didOpen: () => {
-         Swal.showLoading();
-       },
-       background: "#09090b",
-       color: "#fff",
-     });
+  const redeemKey = async (
+    keyInput: string,
+    usernameInput: string = "ผู้ใช้งานทั่วไป",
+  ) => {
+    if (!keyInput) return;
+    try {
+      Swal.fire({
+        title: "กำลังตรวจสอบ...",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+        background: "#09090b",
+        color: "#fff",
+      });
 
-     const res = await axios.post("/api/redeem", { key: keyInput.trim() });
-     const { rank, type } = res.data;
+      const res = await axios.post("/api/redeem", { key: keyInput.trim() });
+      const { rank, type } = res.data;
 
-     const newPlan = {
-       ...userPlan,
-       username: usernameInput,
-       isPremium: true,
-       rank: rank as any,
-     };
-     setUserPlan(newPlan as any);
+      const newPlan = {
+        ...userPlan,
+        username: usernameInput,
+        isPremium: true,
+        rank: rank as any,
+      };
+      setUserPlan(newPlan as any);
 
-     Swal.fire({
-       icon: "success",
-       title: "ยินดีด้วย!",
-       text: `คุณได้รับสิทธิ์ระดับ Premium เรียบร้อยแล้ว`,
-       background: "#09090b",
-       color: "#fff",
-     });
-   } catch (err: any) {
-     if (
-       err.response &&
-       err.response.status === 400 &&
-       err.response.data.error === "Key not found or used"
-     ) {
-       Swal.fire({
-         icon: "error",
-         title: "ไม่พบกุญแจนี้",
-         text: "รหัสที่คุณกรอกอาจจะผิด หรือถูกใช้งานไปแล้ว",
-         background: "#09090b",
-         color: "#fff",
-       });
-     } else if (err.response && err.response.status === 404) {
-       Swal.fire({
-         icon: "error",
-         title: "ไม่พบกุญแจนี้",
-         text: "รหัสที่คุณกรอกอาจจะผิด หรือถูกใช้งานไปแล้ว",
-         background: "#09090b",
-         color: "#fff",
-       });
-     } else {
-       handleDbError(err, OperationType.WRITE, "license_keys");
-       Swal.fire(
-         "Error",
-         "การสื่อสารล้มเหลว: " + (err.message || "Unknown error"),
-         "error",
-       );
-     }
-   }
- };
- const handleLogoClick = () => {
-   setActiveView("login");
- };
+      Swal.fire({
+        icon: "success",
+        title: "ยินดีด้วย!",
+        text: `คุณได้รับสิทธิ์ระดับ Premium เรียบร้อยแล้ว`,
+        background: "#09090b",
+        color: "#fff",
+      });
+    } catch (err: any) {
+      if (
+        err.response &&
+        err.response.status === 400 &&
+        err.response.data.error === "Key not found or used"
+      ) {
+        Swal.fire({
+          icon: "error",
+          title: "ไม่พบกุญแจนี้",
+          text: "รหัสที่คุณกรอกอาจจะผิด หรือถูกใช้งานไปแล้ว",
+          background: "#09090b",
+          color: "#fff",
+        });
+      } else if (err.response && err.response.status === 404) {
+        Swal.fire({
+          icon: "error",
+          title: "ไม่พบกุญแจนี้",
+          text: "รหัสที่คุณกรอกอาจจะผิด หรือถูกใช้งานไปแล้ว",
+          background: "#09090b",
+          color: "#fff",
+        });
+      } else {
+        handleDbError(err, OperationType.WRITE, "license_keys");
+        Swal.fire(
+          "Error",
+          "การสื่อสารล้มเหลว: " + (err.message || "Unknown error"),
+          "error",
+        );
+      }
+    }
+  };
+  const handleLogoClick = () => {
+    setActiveView("login");
+  };
 
- const handleLogout = async () => {
-   try {
-     await auth.auth.signOut();
-   } catch (err) {
-     console.error("Logout error:", err);
-   }
-   localStorage.removeItem("apex_admin");
-   delete axios.defaults.headers.common["Authorization"];
-   setIsAdmin(false);
-   setUserPlan(null);
-   setUser(null);
-   setPurchaseHistory([]);
-   setTopupHistory([]);
-   setUsedKeysHistory([]);
-   setActiveView("home");
-   Swal.fire({
-     icon: "info",
-     title: "ออกจากระบบแล้ว",
-     timer: 1500,
-     showConfirmButton: false,
-     background: "#09090b",
-     color: "#fff",
-   });
- };
+  const handleLogout = async () => {
+    try {
+      await auth.auth.signOut();
+    } catch (err) {
+      console.error("Logout error:", err);
+    }
+    localStorage.removeItem("apex_admin");
+    delete axios.defaults.headers.common["Authorization"];
+    setIsAdmin(false);
+    setUserPlan(null);
+    setUser(null);
+    setPurchaseHistory([]);
+    setTopupHistory([]);
+    setUsedKeysHistory([]);
+    setActiveView("home");
+    Swal.fire({
+      icon: "info",
+      title: "ออกจากระบบแล้ว",
+      timer: 1500,
+      showConfirmButton: false,
+      background: "#09090b",
+      color: "#fff",
+    });
+  };
 
- const resendVerification = async () => {
-   // Disabled as requested
- };
+  const resendVerification = async () => {
+    // Disabled as requested
+  };
 
- const addLicenseKey = async () => {
-   const { value: formValues } = await Swal.fire({
-     title: "สร้างคีย์ใหม่",
-     html:
-       '<select id="swal-input1" class="swal2-input bg-[#050505] border-[#1e1e1e] text-white w-full">' +
-       '<option value="Day">1 วัน (Day)</option>' +
-       '<option value="Week">7 วัน (Week)</option>' +
-       '<option value="Month">1 เดือน (Month)</option>' +
-       '<option value="3Month">3 เดือน (3 Months)</option>' +
-       '<option value="Year">1 ปี (Year)</option>' +
-       '<option value="Lifetime">ถาวร (Lifetime)</option>' +
-       "</select>" +
-       '<input id="swal-input2" class="swal2-input bg-[#050505] border-[#1e1e1e] text-white w-full" placeholder="จำนวนคีย์ (1-50)" type="number" value="1">',
-     focusConfirm: false,
-     background: "#ffffff",
-     color: "#18181b",
-     preConfirm: () => {
-       return [
-         (document.getElementById("swal-input1") as HTMLSelectElement).value,
-         (document.getElementById("swal-input2") as HTMLInputElement).value,
-       ];
-     },
-   });
+  const addLicenseKey = async () => {
+    const { value: formValues } = await Swal.fire({
+      title: "สร้างคีย์ใหม่",
+      html:
+        '<select id="swal-input1" class="swal2-input bg-[#050505] border-[#1e1e1e] text-white w-full">' +
+        '<option value="Day">1 วัน (Day)</option>' +
+        '<option value="Week">7 วัน (Week)</option>' +
+        '<option value="Month">1 เดือน (Month)</option>' +
+        '<option value="3Month">3 เดือน (3 Months)</option>' +
+        '<option value="Year">1 ปี (Year)</option>' +
+        '<option value="Lifetime">ถาวร (Lifetime)</option>' +
+        "</select>" +
+        '<input id="swal-input2" class="swal2-input bg-[#050505] border-[#1e1e1e] text-white w-full" placeholder="จำนวนคีย์ (1-50)" type="number" value="1">',
+      focusConfirm: false,
+      background: "#ffffff",
+      color: "#18181b",
+      preConfirm: () => {
+        return [
+          (document.getElementById("swal-input1") as HTMLSelectElement).value,
+          (document.getElementById("swal-input2") as HTMLInputElement).value,
+        ];
+      },
+    });
 
-   if (formValues) {
-     const [type, countStr] = formValues;
-     const count = parseInt(countStr) || 1;
+    if (formValues) {
+      const [type, countStr] = formValues;
+      const count = parseInt(countStr) || 1;
 
-     try {
-       const newKeys = [];
-       for (let i = 0; i < count; i++) {
-         const newKey =
-           "APEXSTORE-" +
-           Math.random().toString(36).substring(2, 10).toUpperCase() +
-           "-" +
-           Math.random().toString(36).substring(2, 6).toUpperCase();
-         newKeys.push({
-           key: newKey,
-           plan: type,
-           status: "active",
-           created_at: new Date().toISOString(),
-         });
-       }
-       await axios.post(`/api/license_keys/bulk`, { keys: newKeys });
-       Swal.fire("สำเร็จ", `สร้างคีย์ ${count} รายการ สำเร็จ`, "success");
-     } catch (err) {
-       handleDbError(err, OperationType.WRITE, "license_keys");
-       Swal.fire(
-         "Error",
-         "ไม่สามารถสร้างคีย์ได้: " + (err as Error).message,
-         "error",
-       );
-     }
-   }
- };
+      try {
+        const newKeys = [];
+        for (let i = 0; i < count; i++) {
+          const newKey =
+            "APEXSTORE-" +
+            Math.random().toString(36).substring(2, 10).toUpperCase() +
+            "-" +
+            Math.random().toString(36).substring(2, 6).toUpperCase();
+          newKeys.push({
+            key: newKey,
+            plan: type,
+            status: "active",
+            created_at: new Date().toISOString(),
+          });
+        }
+        await axios.post(`/api/license_keys/bulk`, { keys: newKeys });
+        Swal.fire("สำเร็จ", `สร้างคีย์ ${count} รายการ สำเร็จ`, "success");
+      } catch (err) {
+        handleDbError(err, OperationType.WRITE, "license_keys");
+        Swal.fire(
+          "Error",
+          "ไม่สามารถสร้างคีย์ได้: " + (err as Error).message,
+          "error",
+        );
+      }
+    }
+  };
 
- const blockIP = async () => {
-   const { value: ipData } = await Swal.fire({
-     title: "บล็อค IP ผู้ใช้",
-     html:
-       '<input id="swal-ip" class="swal2-input bg-[#050505] border-[#1e1e1e] text-white w-full" placeholder="IP Address เช่น 1.1.1.1">' +
-       '<input id="swal-reason" class="swal2-input bg-[#050505] border-[#1e1e1e] text-white w-full" placeholder="เหตุผลการบล็อค">',
-     focusConfirm: false,
-     background: "#ffffff",
-     color: "#18181b",
-     preConfirm: () => {
-       return [
-         (document.getElementById("swal-ip") as HTMLInputElement).value,
-         (document.getElementById("swal-reason") as HTMLInputElement).value,
-       ];
-     },
-   });
+  const blockIP = async () => {
+    const { value: ipData } = await Swal.fire({
+      title: "บล็อค IP ผู้ใช้",
+      html:
+        '<input id="swal-ip" class="swal2-input bg-[#050505] border-[#1e1e1e] text-white w-full" placeholder="IP Address เช่น 1.1.1.1">' +
+        '<input id="swal-reason" class="swal2-input bg-[#050505] border-[#1e1e1e] text-white w-full" placeholder="เหตุผลการบล็อค">',
+      focusConfirm: false,
+      background: "#ffffff",
+      color: "#18181b",
+      preConfirm: () => {
+        return [
+          (document.getElementById("swal-ip") as HTMLInputElement).value,
+          (document.getElementById("swal-reason") as HTMLInputElement).value,
+        ];
+      },
+    });
 
-   if (ipData) {
-     const [ip, reason] = ipData;
-     if (!ip) return;
-     try {
-       await axios.post(`/api/blocked_ips`, {
-         ip,
-         reason: reason || "Violation of terms",
-       });
-       Swal.fire("สำเร็จ", `บล็อค IP ${ip} สำเร็จ`, "success");
-     } catch (err) {
-       handleDbError(err, OperationType.WRITE, "blocked_ips");
-       Swal.fire(
-         "ข้อผิดพลาด",
-         "ไม่สามารถบล็อคได้: " + (err as Error).message,
-         "error",
-       );
-     }
-   }
- };
+    if (ipData) {
+      const [ip, reason] = ipData;
+      if (!ip) return;
+      try {
+        await axios.post(`/api/blocked_ips`, {
+          ip,
+          reason: reason || "Violation of terms",
+        });
+        Swal.fire("สำเร็จ", `บล็อค IP ${ip} สำเร็จ`, "success");
+      } catch (err) {
+        handleDbError(err, OperationType.WRITE, "blocked_ips");
+        Swal.fire(
+          "ข้อผิดพลาด",
+          "ไม่สามารถบล็อคได้: " + (err as Error).message,
+          "error",
+        );
+      }
+    }
+  };
 
- const deleteKey = async (keyId: string) => {
-   const result = await Swal.fire({
-     title: "ยืนยันการลบ?",
-     text: "คุณกำลังลบคีย์ " + keyId,
-     icon: "warning",
-     showCancelButton: true,
-     confirmButtonColor: "#ef4444",
-     cancelButtonColor: "#27272a",
-     confirmButtonText: "ลบออก",
-     background: "#ffffff",
-     color: "#18181b",
-   });
+  const deleteKey = async (keyId: string) => {
+    const result = await Swal.fire({
+      title: "ยืนยันการลบ?",
+      text: "คุณกำลังลบคีย์ " + keyId,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#ef4444",
+      cancelButtonColor: "#27272a",
+      confirmButtonText: "ลบออก",
+      background: "#ffffff",
+      color: "#18181b",
+    });
 
-   if (result.isConfirmed) {
-     try {
-       await axios.delete(`/api/license_keys/${keyId}`);
-       Swal.fire("ลบแล้ว", "คีย์ถูกลบออกจากระบบแล้ว", "success");
-       setLicenseKeys((prev) => prev.filter((k) => k.id !== keyId));
-     } catch (err) {
-       handleDbError(err, OperationType.DELETE, "license_keys/" + keyId);
-       Swal.fire(
-         "ข้อผิดพลาด",
-         "ลบไม่สำเร็จ: " + (err as Error).message,
-         "error",
-       );
-     }
-   }
- };
+    if (result.isConfirmed) {
+      try {
+        await axios.delete(`/api/license_keys/${keyId}`);
+        Swal.fire("ลบแล้ว", "คีย์ถูกลบออกจากระบบแล้ว", "success");
+        setLicenseKeys((prev) => prev.filter((k) => k.id !== keyId));
+      } catch (err) {
+        handleDbError(err, OperationType.DELETE, "license_keys/" + keyId);
+        Swal.fire(
+          "ข้อผิดพลาด",
+          "ลบไม่สำเร็จ: " + (err as Error).message,
+          "error",
+        );
+      }
+    }
+  };
 
- const bulkDeleteKeys = async () => {
-   const totalActive = licenseKeys.filter((k) => k.status === "active").length;
-   const totalUsed = licenseKeys.filter((k) => k.status === "used").length;
-   const totalAll = licenseKeys.length;
+  const bulkDeleteKeys = async () => {
+    const totalActive = licenseKeys.filter((k) => k.status === "active").length;
+    const totalUsed = licenseKeys.filter((k) => k.status === "used").length;
+    const totalAll = licenseKeys.length;
 
-   const result = await Swal.fire({
-     title: "ลบคีย์หลายรายการ",
-     html: `
+    const result = await Swal.fire({
+      title: "ลบคีย์หลายรายการ",
+      html: `
        <div class="text-left text-sm space-y-2 mb-4">
          <div><span class="text-zinc-500">คีย์ทั้งหมด:</span> <span class="font-medium text-[#10b981]">${totalAll}</span> รายการ</div>
          <div><span class="text-zinc-500">ยังไม่ได้ใช้:</span> <span class="font-medium text-[#10b981]">${totalActive}</span> รายการ</div>
@@ -1522,158 +1685,176 @@ function AppContent() {
        </select>
        <input id="bulk-delete-count" type="number" min="1" class="swal2-input" placeholder="จำนวนที่ต้องการลบ (เว้นว่างเพื่อลบทั้งหมดตามประเภท)" style="width: 100%; font-size: 14px; margin: 0; box-sizing: border-box;">
      `,
-     showCancelButton: true,
-     confirmButtonText: "ถัดไป",
-     cancelButtonText: "ยกเลิก",
-     preConfirm: () => {
-       const type = (
-         document.getElementById("bulk-delete-type") as HTMLSelectElement
-       ).value;
-       const countStr = (
-         document.getElementById("bulk-delete-count") as HTMLInputElement
-       ).value;
-       const count = countStr ? parseInt(countStr) : null;
-       return { type, count };
-     },
-   });
+      showCancelButton: true,
+      confirmButtonText: "ถัดไป",
+      cancelButtonText: "ยกเลิก",
+      preConfirm: () => {
+        const type = (
+          document.getElementById("bulk-delete-type") as HTMLSelectElement
+        ).value;
+        const countStr = (
+          document.getElementById("bulk-delete-count") as HTMLInputElement
+        ).value;
+        const count = countStr ? parseInt(countStr) : null;
+        return { type, count };
+      },
+    });
 
-   if (result.isConfirmed) {
-     const { type, count } = result.value;
-     let keysToDelete = licenseKeys;
-     if (type === "active")
-       keysToDelete = keysToDelete.filter((k) => k.status === "active");
-     if (type === "used")
-       keysToDelete = keysToDelete.filter((k) => k.status === "used");
+    if (result.isConfirmed) {
+      const { type, count } = result.value;
+      let keysToDelete = licenseKeys;
+      if (type === "active")
+        keysToDelete = keysToDelete.filter((k) => k.status === "active");
+      if (type === "used")
+        keysToDelete = keysToDelete.filter((k) => k.status === "used");
 
-     if (keysToDelete.length === 0) {
-       return Swal.fire("ข้อมูล", "ไม่มีคีย์ในระบบที่ตรงกับเงื่อนไข", "info");
-     }
+      if (keysToDelete.length === 0) {
+        return Swal.fire("ข้อมูล", "ไม่มีคีย์ในระบบที่ตรงกับเงื่อนไข", "info");
+      }
 
-     if (count && count > 0 && count < keysToDelete.length) {
-       keysToDelete = keysToDelete.slice(0, count);
-     }
+      if (count && count > 0 && count < keysToDelete.length) {
+        keysToDelete = keysToDelete.slice(0, count);
+      }
 
-     const confirm2 = await Swal.fire({
-       title: "ยืนยันขั้นสุดท้าย",
-       text: `คุณต้องการลบคีย์จำนวน ${keysToDelete.length} รายการใช่หรือไม่?`,
-       icon: "warning",
-       showCancelButton: true,
-       confirmButtonColor: "#ef4444",
-       confirmButtonText: "ยืนยันการลบ",
-       cancelButtonText: "ยกเลิก",
-     });
+      const confirm2 = await Swal.fire({
+        title: "ยืนยันขั้นสุดท้าย",
+        text: `คุณต้องการลบคีย์จำนวน ${keysToDelete.length} รายการใช่หรือไม่?`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#ef4444",
+        confirmButtonText: "ยืนยันการลบ",
+        cancelButtonText: "ยกเลิก",
+      });
 
-     if (confirm2.isConfirmed) {
-       Swal.fire({
-         title: "กำลังลบ...",
-         allowOutsideClick: false,
-         didOpen: () => {
-           Swal.showLoading();
-         },
-       });
-       try {
-         const ids = keysToDelete.map((k) => k.id);
-         const res = await axios.post("/api/license_keys/bulk_delete", {
-           ids,
-         });
-         const deletedCount = res.data.deletedCount;
-         setLicenseKeys((prev) => prev.filter((k) => !ids.includes(k.id)));
-         Swal.fire(
-           "ลบแล้ว",
-           `ลบคีย์สำเร็จจำนวน ${deletedCount} รายการ`,
-           "success",
-         );
-       } catch (err: any) {
-         Swal.fire("ข้อผิดพลาด", "ลบไม่สำเร็จ: " + err.message, "error");
-       }
-     }
-   }
- };
+      if (confirm2.isConfirmed) {
+        Swal.fire({
+          title: "กำลังลบ...",
+          allowOutsideClick: false,
+          didOpen: () => {
+            Swal.showLoading();
+          },
+        });
+        try {
+          const ids = keysToDelete.map((k) => k.id);
+          const res = await axios.post("/api/license_keys/bulk_delete", {
+            ids,
+          });
+          const deletedCount = res.data.deletedCount;
+          setLicenseKeys((prev) => prev.filter((k) => !ids.includes(k.id)));
+          Swal.fire(
+            "ลบแล้ว",
+            `ลบคีย์สำเร็จจำนวน ${deletedCount} รายการ`,
+            "success",
+          );
+        } catch (err: any) {
+          Swal.fire("ข้อผิดพลาด", "ลบไม่สำเร็จ: " + err.message, "error");
+        }
+      }
+    }
+  };
 
- const unblockIP = async (ip: string) => {
-   try {
-     await axios.delete(`/api/blocked_ips/${ip}`);
-     Swal.fire("สำเร็จ", "ปลดบล็อค IP เรียบร้อย", "success");
-     setBlockedIPs((prev) => prev.filter((i) => i.ip !== ip));
-   } catch (err) {
-     handleDbError(err, OperationType.DELETE, "blocked_ips/" + ip);
-     Swal.fire("ข้อผิดพลาด", "ไม่สำเร็จ: " + (err as Error).message, "error");
-   }
- };
+  const unblockIP = async (ip: string) => {
+    try {
+      await axios.delete(`/api/blocked_ips/${ip}`);
+      Swal.fire("สำเร็จ", "ปลดบล็อค IP เรียบร้อย", "success");
+      setBlockedIPs((prev) => prev.filter((i) => i.ip !== ip));
+    } catch (err) {
+      handleDbError(err, OperationType.DELETE, "blocked_ips/" + ip);
+      Swal.fire("ข้อผิดพลาด", "ไม่สำเร็จ: " + (err as Error).message, "error");
+    }
+  };
 
- const [useCustomCursor, setUseCustomCursor] = useState(() => {
-   // Disable custom cursor automatically on touch devices (pointer: coarse)
-   if (typeof window !== 'undefined' && window.matchMedia("(pointer: coarse)").matches) {
-     return false;
-   }
-   const saved = localStorage.getItem('apexstore_custom_cursor');
-   return saved !== 'false'; // default to true
- });
+  const [useCustomCursor, setUseCustomCursor] = useState(() => {
+    // Disable custom cursor automatically on touch devices (pointer: coarse)
+    if (
+      typeof window !== "undefined" &&
+      window.matchMedia("(pointer: coarse)").matches
+    ) {
+      return false;
+    }
+    const saved = localStorage.getItem("apexstore_custom_cursor");
+    return saved !== "false"; // default to true
+  });
 
- const toggleCustomCursor = () => {
-   setUseCustomCursor(prev => {
-     const next = !prev;
-     localStorage.setItem('apexstore_custom_cursor', String(next));
-     if (!next) {
-       document.body.style.cursor = 'auto';
-       document.documentElement.style.cursor = 'auto';
-       // Remove style tag if existing
-       const styleId = 'custom-cursor-style-override';
-       const el = document.getElementById(styleId);
-       if (el) el.remove();
-     } else {
-       // We let CustomCursor handle it
-     }
-     return next;
-   });
- };
+  const toggleCustomCursor = () => {
+    setUseCustomCursor((prev) => {
+      const next = !prev;
+      localStorage.setItem("apexstore_custom_cursor", String(next));
+      if (!next) {
+        document.body.style.cursor = "auto";
+        document.documentElement.style.cursor = "auto";
+        // Remove style tag if existing
+        const styleId = "custom-cursor-style-override";
+        const el = document.getElementById(styleId);
+        if (el) el.remove();
+      } else {
+        // We let CustomCursor handle it
+      }
+      return next;
+    });
+  };
 
- if (isIPBlocked)
-   return (
-     <div className="min-h-screen bg-[#09090b] flex items-center justify-center p-4">
-       <div className="w-full max-w-lg bg-primary text-primary-foreground border border-[#10b981]/20 p-12 text-center relative overflow-hidden">
-         <ShieldAlert className="w-20 h-20 text-[#10b981] mx-auto mb-6 " />
-         <h1 className="text-3xl font-medium text-[#10b981] mb-4 uppercase tracking-tighter">
-           Access Revoked
-         </h1>
-         <p className="text-muted-foreground text-sm leading-relaxed mb-8">
-           ที่อยู่ IP ของคุณ ({clientIp})
-           ถูกระงับการเข้าถึงระบบเนื่องจากละเมิดข้อตกลงการใช้งานหรือพบพฤติกรรมที่น่าสงสัย
-           หากคุณคิดว่าเป็นความผิดพลาด กรุณาติดต่อผู้ดูแลระบบ APEXSTORE
-         </p>
-         <div className="bg-[#09090b] p-4 text-[10px] text-muted-foreground font-mono mb-8">
-           Error Code: APEXSTORE_SECURITY_BLOCK_L4
-         </div>
-         <button
-           onClick={() => window.location.reload()}
-           className="bg-primary text-primary-foreground hover:bg-[#10b981] text-white px-8 py-3 text-xs font-medium transition-all"
-         >
-           TRY RECONNECTING
-         </button>
-       </div>
-     </div>
-   );
-
- const getViewTitle = () => {
-   switch (activeView) {
-     case "home": return "หน้าหลัก";
-     case "categories": return "สินค้าทั้งหมด";
-     case "category_products": return "หมวดหมู่สินค้า";
-     case "product_detail": return "รายละเอียดสินค้า";
-     case "wallet": return "เติมเงิน";
-     case "my_orders": return "คำสั่งซื้อของฉัน";
-     case "settings": return "การตั้งค่าผู้ใช้";
-     case "wallet_history": return "ประวัติเติมเงิน";
-     case "random_history": return "ประวัติการสุ่มสินค้า";
-     case "admin": return "จัดการหลังบ้าน";
-                                   default: return "APEXSTORE";
-   }
- };
-
- const isHomeViewReady = (Array.isArray(products) && Array.isArray(categories) && siteSettings !== null) || forceReveal;
- const isLoadingSkeleton = !isHomeViewReady && !dbErrorDetail;
-
+  if (isIPBlocked)
     return (
+      <div className="min-h-screen bg-[#09090b] flex items-center justify-center p-4">
+        <div className="w-full max-w-lg bg-primary text-primary-foreground border border-[#10b981]/20 p-12 text-center relative overflow-hidden">
+          <ShieldAlert className="w-20 h-20 text-[#10b981] mx-auto mb-6 " />
+          <h1 className="text-3xl font-medium text-[#10b981] mb-4 uppercase tracking-tighter">
+            Access Revoked
+          </h1>
+          <p className="text-muted-foreground text-sm leading-relaxed mb-8">
+            ที่อยู่ IP ของคุณ ({clientIp})
+            ถูกระงับการเข้าถึงระบบเนื่องจากละเมิดข้อตกลงการใช้งานหรือพบพฤติกรรมที่น่าสงสัย
+            หากคุณคิดว่าเป็นความผิดพลาด กรุณาติดต่อผู้ดูแลระบบ APEXSTORE
+          </p>
+          <div className="bg-[#09090b] p-4 text-[10px] text-muted-foreground font-mono mb-8">
+            Error Code: APEXSTORE_SECURITY_BLOCK_L4
+          </div>
+          <button
+            onClick={() => window.location.reload()}
+            className="bg-primary text-primary-foreground hover:bg-[#10b981] text-white px-8 py-3 text-xs font-medium transition-all"
+          >
+            TRY RECONNECTING
+          </button>
+        </div>
+      </div>
+    );
+
+  const getViewTitle = () => {
+    switch (activeView) {
+      case "home":
+        return "หน้าหลัก";
+      case "categories":
+        return "สินค้าทั้งหมด";
+      case "category_products":
+        return "หมวดหมู่สินค้า";
+      case "product_detail":
+        return "รายละเอียดสินค้า";
+      case "wallet":
+        return "เติมเงิน";
+      case "my_orders":
+        return "คำสั่งซื้อของฉัน";
+      case "settings":
+        return "การตั้งค่าผู้ใช้";
+      case "wallet_history":
+        return "ประวัติเติมเงิน";
+      case "random_history":
+        return "ประวัติการสุ่มสินค้า";
+      case "admin":
+        return "จัดการหลังบ้าน";
+      default:
+        return "APEXSTORE";
+    }
+  };
+
+  const isHomeViewReady =
+    (Array.isArray(products) &&
+      Array.isArray(categories) &&
+      siteSettings !== null) ||
+    forceReveal;
+  const isLoadingSkeleton = !isHomeViewReady && !dbErrorDetail;
+
+  return (
     <div className="relative min-h-screen w-full bg-[#000000] text-white font-sans selection:bg-[#050505]/80 overflow-x-hidden">
       <AnimatePresence mode="wait">
         {!isLoaded && <PortalLoader key="portal" />}
@@ -1685,1086 +1866,952 @@ function AppContent() {
         transition={{ duration: 1.0, ease: "easeInOut" }}
         className="min-h-screen w-full flex flex-col lg:flex-row relative"
       >
-     {useCustomCursor && <CustomCursor />}
-     {/* Popup banner removed as requested */}
+        {useCustomCursor && <CustomCursor />}
+        {/* Popup banner removed as requested */}
 
-     {/* Desktop Sidebar */}
-     <aside className="hidden lg:flex flex-col w-[260px] bg-[#000000] border-r border-[#1e1e1e] h-screen sticky top-0 shrink-0 overflow-y-auto no-scrollbar z-[70] select-none text-[13px]">
-       {/* Brand Header */}
-       <div className="px-5 pt-6 pb-4 w-full flex flex-col justify-start shrink-0">
-         <div className="flex items-center gap-3 w-full">
-           <img
-             src="https://img2.pic.in.th/983B3DCE-90A3-4822-8940-D6B81CCA63A3.png"
-             alt="APEXSTORE Logo"
-             className="h-8 object-contain cursor-pointer"
-             onClick={handleLogoClick}
-           />
-         </div>
-       </div>
+        {/* Desktop Sidebar */}
+        <aside className="hidden lg:flex flex-col w-[260px] bg-[#000000] border-r border-[#1e1e1e] h-screen sticky top-0 shrink-0 overflow-y-auto no-scrollbar z-[70] select-none text-[13px]">
+          {/* Brand Header */}
+          <div className="px-5 pt-6 pb-4 w-full flex flex-col justify-start shrink-0">
+            <div className="flex items-center gap-3 w-full">
+              <img
+                src="https://img2.pic.in.th/983B3DCE-90A3-4822-8940-D6B81CCA63A3.png"
+                alt="APEXSTORE Logo"
+                className="h-8 object-contain cursor-pointer"
+                onClick={handleLogoClick}
+              />
+            </div>
+          </div>
 
-       <div className="flex-1 px-3 space-y-6 pb-8">
-         
-         {/* Main Menu */}
-         <div>
-           <div className="px-3 mb-1.5 text-[10px] font-semibold text-zinc-500 tracking-wider">NAVIGATION</div>
-           <div className="flex flex-col gap-0.5">
-             <button onClick={() => { setActiveView("home"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-md transition-all ${activeView === "home" ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white hover:bg-white/[0.04]"}`}>
-               <Home className="w-4 h-4" /> หน้าแรก
-             </button>
-             <button onClick={() => { setActiveView("categories"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-md transition-all ${(activeView === "categories" || activeView === "category_products") ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white hover:bg-white/[0.04]"}`}>
-               <ShoppingCart className="w-4 h-4" /> สินค้าทั้งหมด
-             </button>
-             <button onClick={() => { if (user) { setActiveView("wallet"); } else { import("sweetalert2").then(s=>s.default.fire({icon:"info",title:"กรุณาเข้าสู่ระบบก่อน",text:"เข้าสู่ระบบเพื่อใช้งานฟังก์ชันนี้",timer:1500,showConfirmButton:false})); setActiveView("login"); }; window.scrollTo({ top: 0, behavior: "smooth" }); }} className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-md transition-all ${activeView === "wallet" ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white hover:bg-white/[0.04]"}`}>
-               <Wallet className="w-4 h-4" /> เติมเงิน
-             </button>
-             <button onClick={() => { if (user) { setActiveView("history"); } else { import("sweetalert2").then(s=>s.default.fire({icon:"info",title:"กรุณาเข้าสู่ระบบก่อน",text:"เข้าสู่ระบบเพื่อใช้งานฟังก์ชันนี้",timer:1500,showConfirmButton:false})); setActiveView("login"); }; window.scrollTo({ top: 0, behavior: "smooth" }); }} className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-md transition-all ${(activeView === "history" || activeView === "my_orders") ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white hover:bg-white/[0.04]"}`}>
-               <History className="w-4 h-4" /> ประวัติการสั่งซื้อ
-             </button>
-             
-           </div>
-         </div>
+          <div className="flex-1 px-3 space-y-6 pb-8">
+            {/* Main Menu */}
+            <div>
+              <div className="px-3 mb-1.5 text-[10px] font-semibold text-zinc-500 tracking-wider">
+                NAVIGATION
+              </div>
+              <div className="flex flex-col gap-0.5">
+                <button
+                  onClick={() => {
+                    setActiveView("home");
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                  className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-md transition-all ${activeView === "home" ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white hover:bg-white/[0.04]"}`}
+                >
+                  <Home className="w-4 h-4" /> หน้าแรก
+                </button>
+                <button
+                  onClick={() => {
+                    setActiveView("categories");
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                  className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-md transition-all ${activeView === "categories" || activeView === "category_products" ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white hover:bg-white/[0.04]"}`}
+                >
+                  <ShoppingCart className="w-4 h-4" /> สินค้าทั้งหมด
+                </button>
+                <button
+                  onClick={() => {
+                    if (user) {
+                      setActiveView("wallet");
+                    } else {
+                      import("sweetalert2").then((s) =>
+                        s.default.fire({
+                          icon: "info",
+                          title: "กรุณาเข้าสู่ระบบก่อน",
+                          text: "เข้าสู่ระบบเพื่อใช้งานฟังก์ชันนี้",
+                          timer: 1500,
+                          showConfirmButton: false,
+                        }),
+                      );
+                      setActiveView("login");
+                    }
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                  className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-md transition-all ${activeView === "wallet" ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white hover:bg-white/[0.04]"}`}
+                >
+                  <Wallet className="w-4 h-4" /> เติมเงิน
+                </button>
+                <button
+                  onClick={() => {
+                    if (user) {
+                      setActiveView("history");
+                    } else {
+                      import("sweetalert2").then((s) =>
+                        s.default.fire({
+                          icon: "info",
+                          title: "กรุณาเข้าสู่ระบบก่อน",
+                          text: "เข้าสู่ระบบเพื่อใช้งานฟังก์ชันนี้",
+                          timer: 1500,
+                          showConfirmButton: false,
+                        }),
+                      );
+                      setActiveView("login");
+                    }
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                  className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-md transition-all ${activeView === "history" || activeView === "my_orders" ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white hover:bg-white/[0.04]"}`}
+                >
+                  <History className="w-4 h-4" /> ประวัติการสั่งซื้อ
+                </button>
+              </div>
+            </div>
 
-         {/* Account */}
-         {user ? (
-           <div>
-             <div className="px-3 mb-1.5 text-[10px] font-semibold text-zinc-500 tracking-wider">ACCOUNT</div>
-             <div className="px-3">
-                <div className="p-3 bg-[#09090b] border border-[#1e1e1e] rounded-md flex flex-col gap-2.5">
-                   <div className="flex items-center gap-3">
-                     <div className="w-9 h-9 bg-[#050505] border border-[#1e1e1e] p-0.5 rounded-full overflow-hidden shadow-sm shrink-0">
-                       <img 
-                         loading="lazy" 
-                         src={getAvatarUrl(user?.id || userPlan?.username || user?.email?.split("@")[0] || "U")} 
-                         alt="Avatar" 
-                         className="w-full h-full object-cover rounded-full"
-                         referrerPolicy="no-referrer"
-                       />
-                     </div>
-                     <div className="flex flex-col overflow-hidden leading-tight justify-center h-9">
+            {/* Account */}
+            {user ? (
+              <div>
+                <div className="px-3 mb-1.5 text-[10px] font-semibold text-zinc-500 tracking-wider">
+                  ACCOUNT
+                </div>
+                <div className="px-3">
+                  <div className="p-3 bg-[#09090b] border border-[#1e1e1e] rounded-md flex flex-col gap-2.5">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 bg-[#050505] border border-[#1e1e1e] p-0.5 rounded-full overflow-hidden shadow-sm shrink-0">
+                        <img
+                          loading="lazy"
+                          src={getAvatarUrl(
+                            user?.id ||
+                              userPlan?.username ||
+                              user?.email?.split("@")[0] ||
+                              "U",
+                          )}
+                          alt="Avatar"
+                          className="w-full h-full object-cover rounded-full"
+                          referrerPolicy="no-referrer"
+                        />
+                      </div>
+                      <div className="flex flex-col overflow-hidden leading-tight justify-center h-9">
                         <span className="text-white font-medium text-sm truncate flex items-center gap-1.5">
-                           {userPlan?.username || user?.email?.split("@")[0]}
+                          {userPlan?.username || user?.email?.split("@")[0]}
                         </span>
                         <span className="text-zinc-500 text-xs truncate flex items-center gap-1 mt-0.5">
-                           {userPlan?.isPremium && <Crown className="w-3.5 h-3.5 text-amber-500 shrink-0" />} 
-                           {userPlan?.isPremium ? 'Premium Member' : 'Member'}
+                          {userPlan?.isPremium && (
+                            <Crown className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                          )}
+                          {userPlan?.isPremium ? "Premium Member" : "Member"}
                         </span>
-                     </div>
-                   </div>
-                   <div className="bg-[#141416] border border-[#1e1e1e] rounded-md p-2 flex justify-between items-center text-xs mt-1">
-                       <span className="text-zinc-400">ยอดเงินคงเหลือ</span>
-                       <span className="font-mono text-[#10b981] font-medium">{Math.floor(userPlan?.balance || 0).toLocaleString()} ฿</span>
-                   </div>
-                   
-                   <div className="flex w-full gap-2 mt-1">
-                              <button onClick={() => { setActiveView("profile"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="flex-1 flex items-center justify-center gap-2 py-1.5 bg-white/[0.04] hover:bg-white/[0.08] border border-[#1e1e1e] text-zinc-300 hover:text-white rounded transition-colors text-xs font-medium">
-                                 <User className="w-3.5 h-3.5" /> โปรไฟล์
-                              </button>
-                              <button onClick={() => { setActiveView("settings"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="flex-1 flex items-center justify-center gap-2 py-1.5 bg-white/[0.04] hover:bg-white/[0.08] border border-[#1e1e1e] text-zinc-300 hover:text-white rounded transition-colors text-xs font-medium">
-                                 <Settings className="w-3.5 h-3.5" /> ตั้งค่า
-                              </button>
-                           </div>
+                      </div>
+                    </div>
+                    <div className="bg-[#141416] border border-[#1e1e1e] rounded-md p-2 flex justify-between items-center text-xs mt-1">
+                      <span className="text-zinc-400">ยอดเงินคงเหลือ</span>
+                      <span className="font-mono text-[#10b981] font-medium">
+                        {Math.floor(userPlan?.balance || 0).toLocaleString()} ฿
+                      </span>
+                    </div>
+
+                    <div className="flex w-full gap-2 mt-1">
+                      <button
+                        onClick={() => {
+                          setActiveView("profile");
+                          window.scrollTo({ top: 0, behavior: "smooth" });
+                        }}
+                        className="flex-1 flex items-center justify-center gap-2 py-1.5 bg-white/[0.04] hover:bg-white/[0.08] border border-[#1e1e1e] text-zinc-300 hover:text-white rounded transition-colors text-xs font-medium"
+                      >
+                        <User className="w-3.5 h-3.5" /> โปรไฟล์
+                      </button>
+                      <button
+                        onClick={() => {
+                          setActiveView("settings");
+                          window.scrollTo({ top: 0, behavior: "smooth" });
+                        }}
+                        className="flex-1 flex items-center justify-center gap-2 py-1.5 bg-white/[0.04] hover:bg-white/[0.08] border border-[#1e1e1e] text-zinc-300 hover:text-white rounded transition-colors text-xs font-medium"
+                      >
+                        <Settings className="w-3.5 h-3.5" /> ตั้งค่า
+                      </button>
+                    </div>
+                  </div>
                 </div>
-             </div>
-           </div>
-         ) : (
-            <div>
-             <div className="px-3 mb-1.5 text-[10px] font-semibold text-zinc-500 tracking-wider">ACCOUNT</div>
-             <div className="flex flex-col gap-2 px-3">
-               <button onClick={() => { setActiveView("login"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="w-full flex items-center justify-center gap-2 py-2 bg-white text-black font-semibold text-sm rounded-md transition-all active:scale-95 whitespace-nowrap"><LogIn className="w-4 h-4" /> เข้าสู่ระบบ</button>
-               <button onClick={() => { setActiveView("signup"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="w-full flex items-center justify-center gap-2 py-1.5 bg-[#111] text-white font-semibold text-sm rounded-md border border-[#222] transition-all hover:bg-[#222] active:scale-95 whitespace-nowrap"><UserPlus className="w-4 h-4" /> สมัครสมาชิก</button>
-             </div>
-            </div>
-         )}
+              </div>
+            ) : (
+              <div>
+                <div className="px-3 mb-1.5 text-[10px] font-semibold text-zinc-500 tracking-wider">
+                  ACCOUNT
+                </div>
+                <div className="flex flex-col gap-2 px-3">
+                  <button
+                    onClick={() => {
+                      setActiveView("login");
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
+                    className="w-full flex items-center justify-center gap-2 py-2 bg-white text-black font-semibold text-sm rounded-md transition-all active:scale-95 whitespace-nowrap"
+                  >
+                    <LogIn className="w-4 h-4" /> เข้าสู่ระบบ
+                  </button>
+                  <button
+                    onClick={() => {
+                      setActiveView("signup");
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
+                    className="w-full flex items-center justify-center gap-2 py-1.5 bg-[#111] text-white font-semibold text-sm rounded-md border border-[#222] transition-all hover:bg-[#222] active:scale-95 whitespace-nowrap"
+                  >
+                    <UserPlus className="w-4 h-4" /> สมัครสมาชิก
+                  </button>
+                </div>
+              </div>
+            )}
 
-         {/* Admin / Logout */}
-         {user && (
-           <div>
-             <div className="h-px bg-[#1e1e1e] mb-3 mt-1 mx-3" />
-             <div className="flex flex-col gap-0.5">
-               {isAdmin && (
-                 <button onClick={() => { setActiveView("admin"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-md transition-all ${activeView === "admin" ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white hover:bg-white/[0.04]"}`}>
-                   <ShieldCheck className="w-4 h-4" /> จัดการระบบ
-                 </button>
-               )}
-               <button onClick={handleLogout} className="w-full flex items-center gap-3 px-3 py-1.5 rounded-md transition-all text-red-500/80 hover:text-red-500 hover:bg-red-500/10">
-                 <LogOut className="w-4 h-4" /> ออกจากระบบ
-               </button>
-             </div>
-           </div>
-         )}
-       </div>
-     </aside>
-{/* Main Content Area */}
-     <div className="flex-1 flex flex-col min-h-screen min-w-0 relative">
-       {/* Top Header */}
-       <header className="sticky top-0 z-[100] w-full bg-black/60 backdrop-blur-md border-b border-[#1e1e1e] flex-shrink-0 select-none">
-         <div className="flex items-center justify-between h-[80px] px-4 md:px-8 max-w-7xl mx-auto w-full">
-           {/* Logo with matching Icon size */}
-           <div 
-             className="flex items-center gap-3 select-none flex-shrink-0 cursor-pointer hover:scale-[1.02] active:scale-95 transition-all duration-200 group lg:hidden" 
-             onClick={() => {
-               setActiveView("home");
-               window.scrollTo({ top: 0, behavior: "smooth" });
-             }}
-           >
-             <img src="https://img2.pic.in.th/983B3DCE-90A3-4822-8940-D6B81CCA63A3.png" alt="APEXSTORE Logo" className="h-[36px] md:h-[40px] object-contain" />
-           </div>
-
-           <div className="hidden lg:flex items-center gap-2 select-none">
-             <span className="text-sm font-semibold tracking-[0.1em] text-white/90 uppercase">
-               {getViewTitle()}
-             </span>
-           </div>
-
-           {/* Right Section */}
-           <div className="flex items-center gap-2 md:gap-4">
-             
-             {/* Search Pill Button */}
-              <button
-                onClick={() => setShowSearchPopup(true)}
-                className="h-[38px] md:h-10 px-4 md:px-5 rounded-full flex items-center gap-2 md:gap-2.5 text-zinc-400 hover:text-white bg-[#0e0e11]/60 hover:bg-white/[0.04] border border-[#1e1e1e] hover:border-[#2e2e34] transition-all duration-200 active:scale-95 cursor-pointer select-none"
-                aria-label="Search"
+            {/* Admin / Logout */}
+            {user && (
+              <div>
+                <div className="h-px bg-[#1e1e1e] mb-3 mt-1 mx-3" />
+                <div className="flex flex-col gap-0.5">
+                  {isAdmin && (
+                    <button
+                      onClick={() => {
+                        setActiveView("admin");
+                        window.scrollTo({ top: 0, behavior: "smooth" });
+                      }}
+                      className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-md transition-all ${activeView === "admin" ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white hover:bg-white/[0.04]"}`}
+                    >
+                      <ShieldCheck className="w-4 h-4" /> จัดการระบบ
+                    </button>
+                  )}
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-3 px-3 py-1.5 rounded-md transition-all text-red-500/80 hover:text-red-500 hover:bg-red-500/10"
+                  >
+                    <LogOut className="w-4 h-4" /> ออกจากระบบ
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </aside>
+        {/* Main Content Area */}
+        <div className="flex-1 flex flex-col min-h-screen min-w-0 relative">
+          {/* Top Header */}
+          <header className="sticky top-0 z-[100] w-full bg-black/60 backdrop-blur-md border-b border-[#1e1e1e] flex-shrink-0 select-none">
+            <div className="flex items-center justify-between h-[80px] px-4 md:px-8 max-w-7xl mx-auto w-full">
+              {/* Logo with matching Icon size */}
+              <div
+                className="flex items-center gap-3 select-none flex-shrink-0 cursor-pointer hover:scale-[1.02] active:scale-95 transition-all duration-200 group lg:hidden"
+                onClick={() => {
+                  setActiveView("home");
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
               >
-                <Search className="w-4 h-4 text-zinc-500 shrink-0" />
-                <span className="text-xs md:text-sm font-sans tracking-wide text-zinc-400">ค้นหาสินค้า</span>
-              </button>
+                <img
+                  src="https://img2.pic.in.th/983B3DCE-90A3-4822-8940-D6B81CCA63A3.png"
+                  alt="APEXSTORE Logo"
+                  className="h-[36px] md:h-[40px] select-none"
+                />
+                <div className="flex items-center gap-2.5">
+                  <div className="w-[36px] h-[36px] md:w-[40px] md:h-[40px] bg-[#e11d48] flex items-center justify-center rounded-md shrink-0 shadow-lg shadow-rose-950/25 border border-rose-500/10 transition-transform duration-300 group-hover:rotate-6">
+                    <svg
+                      viewBox="0 0 24 24"
+                      className="w-[20px] h-[20px] md:w-[22px] md:h-[22px] text-white"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path
+                        d="M12 3c0.8 1.5 0.5 3-1 4M15 4c0.5 1 0.2 2-1 2.5"
+                        stroke="#ffedd5"
+                      />
+                      <path
+                        d="M18 10c0-3.3-2.7-6-6-6S6 6.7 6 10c0 3 2.5 5 5 5.5s5-2.5 5-5.5z"
+                        fill="currentColor"
+                      />
+                      <path
+                        d="M6 10.5l-2.5 0.5L6 11.5z"
+                        fill="#f59e0b"
+                        stroke="#f59e0b"
+                      />
+                      <circle cx="9" cy="9" r="1" fill="#000" />
+                    </svg>
+                  </div>
+                  <span className="text-white text-base md:text-lg font-black tracking-tight leading-none">
+                    {siteSettings?.site_name &&
+                    siteSettings.site_name !== "APEXSTORE"
+                      ? siteSettings.site_name
+                      : "ร้านไอดีไก่ตัน"}
+                  </span>
+                </div>
+              </div>
 
-             {/* Hamburger Trigger */}
-             <motion.button
-               whileTap={{ scale: 0.9 }}
-               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-               className="w-10 h-10 flex flex-col justify-center items-center gap-[5px] bg-white/[0.04] hover:bg-white/[0.08] border border-[#1e1e1e] transition-all duration-200 active:scale-95 cursor-pointer rounded-md ml-1 lg:hidden text-white relative z-[140]"
-               aria-label="Menu"
-             >
-               <motion.div 
-                 animate={{
-                   rotate: isMobileMenuOpen ? 45 : 0,
-                   y: isMobileMenuOpen ? 6.5 : 0,
-                 }}
-                 transition={{ duration: 0.3, ease: "easeInOut", delay: isMobileMenuOpen ? 0 : 0.2 }}
-                 className="w-5 h-[1.5px] bg-white rounded-full" 
-               />
-               <motion.div 
-                 animate={{
-                   opacity: isMobileMenuOpen ? 0 : 1,
-                   scale: isMobileMenuOpen ? 0 : 1,
-                 }}
-                 transition={{ duration: 0.2, ease: "easeInOut", delay: isMobileMenuOpen ? 0.2 : 0 }}
-                 className="w-5 h-[1.5px] bg-white rounded-full" 
-               />
-               <motion.div 
-                 animate={{
-                   rotate: isMobileMenuOpen ? -45 : 0,
-                   y: isMobileMenuOpen ? -6.5 : 0,
-                 }}
-                 transition={{ duration: 0.3, ease: "easeInOut", delay: isMobileMenuOpen ? 0 : 0.2 }}
-                 className="w-5 h-[1.5px] bg-white rounded-full" 
-               />
-             </motion.button>
-           </div>
-         </div>
-       </header>
+              <div
+                className="hidden lg:flex items-center gap-2 select-none"
+                style={{ display: "none" }}
+              >
+                <span className="text-sm font-semibold tracking-[0.1em] text-white/90 uppercase">
+                  {getViewTitle()}
+                </span>
+              </div>
 
-       {/* Mobile Menu Dropdown */}
-       <AnimatePresence>
-         {isMobileMenuOpen && (
-           <>
-             <motion.div key="backdrop" 
-               initial={{ opacity: 0 }}
-               animate={{ opacity: 1 }}
-               exit={{ opacity: 0 }}
-               onClick={() => setIsMobileMenuOpen(false)}
-               className="fixed inset-0 bg-black/60 backdrop-blur-md z-[120] lg:hidden"
-              />
-             <motion.div key="sidebar" 
-               initial={{ x: "100%" }}
-               animate={{ x: 0 }}
-               exit={{ x: "100%" }}
-               transition={{ type: "spring", stiffness: 350, damping: 28 }}
-               className="fixed top-0 right-0 bottom-0 h-screen w-full max-w-[320px] bg-[#101014] z-[130] flex flex-col lg:hidden overflow-y-auto no-scrollbar border-l border-[#1e1e1e] shadow-2xl"
-             >
-               {/* Mobile Sidebar Header with Logo and Close Icon */}
-               <div className="flex items-center justify-between h-[70px] px-6 border-b border-[#1e1e1e]/60 shrink-0 select-none">
-                 <motion.div 
-                   initial={{ opacity: 0, x: -10 }}
-                   animate={{ opacity: 1, x: 0 }}
-                   transition={{ delay: 0.12, duration: 0.2 }}
-                   className="flex items-center cursor-pointer"
-                   onClick={() => {
-                     setActiveView("home");
-                     setIsMobileMenuOpen(false);
-                     window.scrollTo({ top: 0, behavior: "smooth" });
-                   }}
-                 >
-                   <img 
-                     src="https://img2.pic.in.th/983B3DCE-90A3-4822-8940-D6B81CCA63A3.png" 
-                     alt="APEXSTORE Logo" 
-                     className="h-[32px] object-contain" 
-                   />
-                 </motion.div>
-                 
-                 <motion.button
-                   initial={{ opacity: 0, rotate: -30, scale: 0.9 }}
-                   animate={{ opacity: 1, rotate: 0, scale: 1 }}
-                   transition={{ delay: 0.15, type: "spring", stiffness: 300, damping: 20 }}
-                   whileHover={{ scale: 1.08, rotate: 90 }}
-                   whileTap={{ scale: 0.92 }}
-                   onClick={() => setIsMobileMenuOpen(false)}
-                   className="w-9 h-9 flex items-center justify-center rounded-md text-zinc-400 hover:text-white bg-white/[0.03] hover:bg-white/[0.08] border border-[#1e1e1e] transition-colors cursor-pointer"
-                   aria-label="Close menu"
-                 >
-                   <X className="w-4 h-4" />
-                 </motion.button>
-               </div>
+              {/* Right Section */}
+              <div className="flex items-center gap-2 md:gap-4">
+                {/* Search Pill Button */}
+                <button
+                  onClick={() => setShowSearchPopup(true)}
+                  className="h-[38px] md:h-10 px-4 md:px-5 rounded-full flex items-center gap-2 md:gap-2.5 text-zinc-400 hover:text-white bg-[#0e0e11]/60 hover:bg-white/[0.04] border border-[#1e1e1e] hover:border-[#2e2e34] transition-all duration-200 active:scale-95 cursor-pointer select-none"
+                  aria-label="Search"
+                >
+                  <Search className="w-4 h-4 text-zinc-500 shrink-0" />
+                  <span className="text-xs md:text-sm font-sans tracking-wide text-zinc-400">
+                    ค้นหาสินค้า
+                  </span>
+                </button>
 
-               {/* Menu Items */}
-               <div className="flex-1 px-3 space-y-3 overflow-y-auto no-scrollbar pb-5 mt-2 select-none text-[14px]">
-                 
-                 {/* Main Menu */}
-                 <div>
-                   <div className="px-3 mb-1.5 text-[10px] font-semibold text-zinc-500 tracking-wider">NAVIGATION</div>
-                   <div className="flex flex-col gap-0.5">
-                     <button onClick={() => { setActiveView("home"); setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }} className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-md transition-all ${activeView === "home" ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white"}`}>
-                       <Home className="w-4 h-4" /> หน้าแรก
-                     </button>
-                     <button onClick={() => { setActiveView("categories"); setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }} className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-md transition-all ${(activeView === "categories" || activeView === "category_products") ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white"}`}>
-                       <ShoppingCart className="w-4 h-4" /> สินค้าทั้งหมด
-                     </button>
-                     <button onClick={() => { if (user) { setActiveView("wallet"); } else { import("sweetalert2").then(s=>s.default.fire({icon:"info",title:"กรุณาเข้าสู่ระบบก่อน",text:"เข้าสู่ระบบเพื่อใช้งานฟังก์ชันนี้",timer:1500,showConfirmButton:false})); setActiveView("login"); }; setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }} className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-md transition-all ${activeView === "wallet" ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white"}`}>
-                       <Wallet className="w-4 h-4" /> เติมเงิน
-                     </button>
-                     <button onClick={() => { if (user) { setActiveView("history"); } else { import("sweetalert2").then(s=>s.default.fire({icon:"info",title:"กรุณาเข้าสู่ระบบก่อน",text:"เข้าสู่ระบบเพื่อใช้งานฟังก์ชันนี้",timer:1500,showConfirmButton:false})); setActiveView("login"); }; setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }} className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-md transition-all ${(activeView === "history" || activeView === "my_orders") ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white"}`}>
-                       <History className="w-4 h-4" /> ประวัติการสั่งซื้อ
-                     </button>
-                     
-                   </div>
-                 </div>
+                {/* Hamburger Trigger */}
+                <motion.button
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                  className="w-10 h-10 flex flex-col justify-center items-center gap-[5px] bg-white/[0.04] hover:bg-white/[0.08] border border-[#1e1e1e] transition-all duration-200 active:scale-95 cursor-pointer rounded-md ml-1 lg:hidden text-white relative z-[140]"
+                  aria-label="Menu"
+                >
+                  <motion.div
+                    animate={{
+                      rotate: isMobileMenuOpen ? 45 : 0,
+                      y: isMobileMenuOpen ? 6.5 : 0,
+                    }}
+                    transition={{
+                      duration: 0.3,
+                      ease: "easeInOut",
+                      delay: isMobileMenuOpen ? 0 : 0.2,
+                    }}
+                    className="w-5 h-[1.5px] bg-white rounded-full"
+                  />
+                  <motion.div
+                    animate={{
+                      opacity: isMobileMenuOpen ? 0 : 1,
+                      scale: isMobileMenuOpen ? 0 : 1,
+                    }}
+                    transition={{
+                      duration: 0.2,
+                      ease: "easeInOut",
+                      delay: isMobileMenuOpen ? 0.2 : 0,
+                    }}
+                    className="w-5 h-[1.5px] bg-white rounded-full"
+                  />
+                  <motion.div
+                    animate={{
+                      rotate: isMobileMenuOpen ? -45 : 0,
+                      y: isMobileMenuOpen ? -6.5 : 0,
+                    }}
+                    transition={{
+                      duration: 0.3,
+                      ease: "easeInOut",
+                      delay: isMobileMenuOpen ? 0 : 0.2,
+                    }}
+                    className="w-5 h-[1.5px] bg-white rounded-full"
+                  />
+                </motion.button>
+              </div>
+            </div>
+          </header>
 
-                 {/* Account */}
-                 {user ? (
-                   <div>
-                     <div className="px-3 mb-1.5 text-[10px] font-semibold text-zinc-500 tracking-wider">ACCOUNT</div>
-                     <div className="px-3">
-                        <div className="p-3 bg-[#09090b] border border-[#1e1e1e] rounded-md flex flex-col gap-2.5">
-                           <div className="flex items-center gap-3">
-                             <div className="w-9 h-9 bg-[#050505] border border-[#1e1e1e] p-0.5 rounded-full overflow-hidden shadow-sm shrink-0">
-                               <img 
-                                 loading="lazy" 
-                                 src={getAvatarUrl(user?.id || userPlan?.username || user?.email?.split("@")[0] || "U")} 
-                                 alt="Avatar" 
-                                 className="w-full h-full object-cover rounded-full"
-                                 referrerPolicy="no-referrer"
-                               />
-                             </div>
-                             <div className="flex flex-col overflow-hidden leading-tight justify-center h-9">
+          {/* Mobile Menu Dropdown */}
+          <AnimatePresence>
+            {isMobileMenuOpen && (
+              <>
+                <motion.div
+                  key="backdrop"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="fixed inset-0 bg-black/60 backdrop-blur-md z-[120] lg:hidden"
+                />
+                <motion.div
+                  key="sidebar"
+                  initial={{ x: "100%" }}
+                  animate={{ x: 0 }}
+                  exit={{ x: "100%" }}
+                  transition={{ type: "spring", stiffness: 350, damping: 28 }}
+                  className="fixed top-0 right-0 bottom-0 h-screen w-full max-w-[320px] bg-[#101014] z-[130] flex flex-col lg:hidden overflow-y-auto no-scrollbar border-l border-[#1e1e1e] shadow-2xl"
+                >
+                  {/* Mobile Sidebar Header with Logo and Close Icon */}
+                  <div className="flex items-center justify-between h-[70px] px-6 border-b border-[#1e1e1e]/60 shrink-0 select-none">
+                    <motion.div
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.12, duration: 0.2 }}
+                      className="flex items-center cursor-pointer"
+                      onClick={() => {
+                        setActiveView("home");
+                        setIsMobileMenuOpen(false);
+                        window.scrollTo({ top: 0, behavior: "smooth" });
+                      }}
+                    >
+                      <img
+                        src="https://img2.pic.in.th/983B3DCE-90A3-4822-8940-D6B81CCA63A3.png"
+                        alt="APEXSTORE Logo"
+                        className="h-[32px] object-contain"
+                      />
+                    </motion.div>
+
+                    <motion.button
+                      initial={{ opacity: 0, rotate: -30, scale: 0.9 }}
+                      animate={{ opacity: 1, rotate: 0, scale: 1 }}
+                      transition={{
+                        delay: 0.15,
+                        type: "spring",
+                        stiffness: 300,
+                        damping: 20,
+                      }}
+                      whileHover={{ scale: 1.08, rotate: 90 }}
+                      whileTap={{ scale: 0.92 }}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="w-9 h-9 flex items-center justify-center rounded-md text-zinc-400 hover:text-white bg-white/[0.03] hover:bg-white/[0.08] border border-[#1e1e1e] transition-colors cursor-pointer"
+                      aria-label="Close menu"
+                    >
+                      <X className="w-4 h-4" />
+                    </motion.button>
+                  </div>
+
+                  {/* Menu Items */}
+                  <div className="flex-1 px-3 space-y-3 overflow-y-auto no-scrollbar pb-5 mt-2 select-none text-[14px]">
+                    {/* Main Menu */}
+                    <div>
+                      <div className="px-3 mb-1.5 text-[10px] font-semibold text-zinc-500 tracking-wider">
+                        NAVIGATION
+                      </div>
+                      <div className="flex flex-col gap-0.5">
+                        <button
+                          onClick={() => {
+                            setActiveView("home");
+                            setIsMobileMenuOpen(false);
+                            window.scrollTo({ top: 0, behavior: "smooth" });
+                          }}
+                          className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-md transition-all ${activeView === "home" ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white"}`}
+                        >
+                          <Home className="w-4 h-4" /> หน้าแรก
+                        </button>
+                        <button
+                          onClick={() => {
+                            setActiveView("categories");
+                            setIsMobileMenuOpen(false);
+                            window.scrollTo({ top: 0, behavior: "smooth" });
+                          }}
+                          className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-md transition-all ${activeView === "categories" || activeView === "category_products" ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white"}`}
+                        >
+                          <ShoppingCart className="w-4 h-4" /> สินค้าทั้งหมด
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (user) {
+                              setActiveView("wallet");
+                            } else {
+                              import("sweetalert2").then((s) =>
+                                s.default.fire({
+                                  icon: "info",
+                                  title: "กรุณาเข้าสู่ระบบก่อน",
+                                  text: "เข้าสู่ระบบเพื่อใช้งานฟังก์ชันนี้",
+                                  timer: 1500,
+                                  showConfirmButton: false,
+                                }),
+                              );
+                              setActiveView("login");
+                            }
+                            setIsMobileMenuOpen(false);
+                            window.scrollTo({ top: 0, behavior: "smooth" });
+                          }}
+                          className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-md transition-all ${activeView === "wallet" ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white"}`}
+                        >
+                          <Wallet className="w-4 h-4" /> เติมเงิน
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (user) {
+                              setActiveView("history");
+                            } else {
+                              import("sweetalert2").then((s) =>
+                                s.default.fire({
+                                  icon: "info",
+                                  title: "กรุณาเข้าสู่ระบบก่อน",
+                                  text: "เข้าสู่ระบบเพื่อใช้งานฟังก์ชันนี้",
+                                  timer: 1500,
+                                  showConfirmButton: false,
+                                }),
+                              );
+                              setActiveView("login");
+                            }
+                            setIsMobileMenuOpen(false);
+                            window.scrollTo({ top: 0, behavior: "smooth" });
+                          }}
+                          className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-md transition-all ${activeView === "history" || activeView === "my_orders" ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white"}`}
+                        >
+                          <History className="w-4 h-4" /> ประวัติการสั่งซื้อ
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Account */}
+                    {user ? (
+                      <div>
+                        <div className="px-3 mb-1.5 text-[10px] font-semibold text-zinc-500 tracking-wider">
+                          ACCOUNT
+                        </div>
+                        <div className="px-3">
+                          <div className="p-3 bg-[#09090b] border border-[#1e1e1e] rounded-md flex flex-col gap-2.5">
+                            <div className="flex items-center gap-3">
+                              <div className="w-9 h-9 bg-[#050505] border border-[#1e1e1e] p-0.5 rounded-full overflow-hidden shadow-sm shrink-0">
+                                <img
+                                  loading="lazy"
+                                  src={getAvatarUrl(
+                                    user?.id ||
+                                      userPlan?.username ||
+                                      user?.email?.split("@")[0] ||
+                                      "U",
+                                  )}
+                                  alt="Avatar"
+                                  className="w-full h-full object-cover rounded-full"
+                                  referrerPolicy="no-referrer"
+                                />
+                              </div>
+                              <div className="flex flex-col overflow-hidden leading-tight justify-center h-9">
                                 <span className="text-white font-medium text-sm truncate flex items-center gap-1.5">
-                                   {userPlan?.username || user?.email?.split("@")[0]}
+                                  {userPlan?.username ||
+                                    user?.email?.split("@")[0]}
                                 </span>
                                 <span className="text-zinc-500 text-xs truncate flex items-center gap-1 mt-0.5">
-                                   {userPlan?.isPremium && <Crown className="w-3.5 h-3.5 text-amber-500 shrink-0" />} 
-                                   {userPlan?.isPremium ? 'Premium Member' : 'Member'}
+                                  {userPlan?.isPremium && (
+                                    <Crown className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                                  )}
+                                  {userPlan?.isPremium
+                                    ? "Premium Member"
+                                    : "Member"}
                                 </span>
-                             </div>
-                           </div>
-                           <div className="bg-[#141416] border border-[#1e1e1e] rounded-md p-2 flex justify-between items-center text-xs mt-1">
-                               <span className="text-zinc-400">ยอดเงินคงเหลือ</span>
-                               <span className="font-mono text-[#10b981] font-medium">{Math.floor(userPlan?.balance || 0).toLocaleString()} ฿</span>
-                           </div>
-                           
-                           <div className="flex w-full gap-2 mt-1">
-                              <button onClick={() => { setActiveView("profile"); setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="flex-1 flex items-center justify-center gap-2 py-1.5 bg-white/[0.04] hover:bg-white/[0.08] border border-[#1e1e1e] text-zinc-300 hover:text-white rounded transition-colors text-xs font-medium">
-                                 <User className="w-3.5 h-3.5" /> โปรไฟล์
+                              </div>
+                            </div>
+                            <div className="bg-[#141416] border border-[#1e1e1e] rounded-md p-2 flex justify-between items-center text-xs mt-1">
+                              <span className="text-zinc-400">
+                                ยอดเงินคงเหลือ
+                              </span>
+                              <span className="font-mono text-[#10b981] font-medium">
+                                {Math.floor(
+                                  userPlan?.balance || 0,
+                                ).toLocaleString()}{" "}
+                                ฿
+                              </span>
+                            </div>
+
+                            <div className="flex w-full gap-2 mt-1">
+                              <button
+                                onClick={() => {
+                                  setActiveView("profile");
+                                  setIsMobileMenuOpen(false);
+                                  window.scrollTo({
+                                    top: 0,
+                                    behavior: "smooth",
+                                  });
+                                }}
+                                className="flex-1 flex items-center justify-center gap-2 py-1.5 bg-white/[0.04] hover:bg-white/[0.08] border border-[#1e1e1e] text-zinc-300 hover:text-white rounded transition-colors text-xs font-medium"
+                              >
+                                <User className="w-3.5 h-3.5" /> โปรไฟล์
                               </button>
-                              <button onClick={() => { setActiveView("settings"); setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="flex-1 flex items-center justify-center gap-2 py-1.5 bg-white/[0.04] hover:bg-white/[0.08] border border-[#1e1e1e] text-zinc-300 hover:text-white rounded transition-colors text-xs font-medium">
-                                 <Settings className="w-3.5 h-3.5" /> ตั้งค่า
+                              <button
+                                onClick={() => {
+                                  setActiveView("settings");
+                                  setIsMobileMenuOpen(false);
+                                  window.scrollTo({
+                                    top: 0,
+                                    behavior: "smooth",
+                                  });
+                                }}
+                                className="flex-1 flex items-center justify-center gap-2 py-1.5 bg-white/[0.04] hover:bg-white/[0.08] border border-[#1e1e1e] text-zinc-300 hover:text-white rounded transition-colors text-xs font-medium"
+                              >
+                                <Settings className="w-3.5 h-3.5" /> ตั้งค่า
                               </button>
-                           </div>
+                            </div>
+                          </div>
                         </div>
-                     </div>
-                   </div>
-                 ) : (
-                   <div>
-                     <div className="px-3 mb-1.5 text-[10px] font-semibold text-zinc-500 tracking-wider">ACCOUNT</div>
-                     <div className="flex flex-col gap-2 px-3 pb-2">
-                       <button onClick={() => { setActiveView("login"); setIsMobileMenuOpen(false); }} className="w-full flex items-center justify-center gap-2 py-2.5 bg-white text-black font-semibold text-sm rounded-md transition-all active:scale-95 whitespace-nowrap"><LogIn className="w-4.5 h-4.5" /> เข้าสู่ระบบ</button>
-                       <button onClick={() => { setActiveView("signup"); setIsMobileMenuOpen(false); }} className="w-full flex items-center justify-center gap-2 py-2 bg-[#111] text-white font-semibold text-sm rounded-md border border-[#222] transition-all hover:bg-[#222] active:scale-95 whitespace-nowrap"><UserPlus className="w-4.5 h-4.5" /> สมัครสมาชิก</button>
-                     </div>
-                   </div>
-                 )}
+                      </div>
+                    ) : (
+                      <div>
+                        <div className="px-3 mb-1.5 text-[10px] font-semibold text-zinc-500 tracking-wider">
+                          ACCOUNT
+                        </div>
+                        <div className="flex flex-col gap-2 px-3 pb-2">
+                          <button
+                            onClick={() => {
+                              setActiveView("login");
+                              setIsMobileMenuOpen(false);
+                            }}
+                            className="w-full flex items-center justify-center gap-2 py-2.5 bg-white text-black font-semibold text-sm rounded-md transition-all active:scale-95 whitespace-nowrap"
+                          >
+                            <LogIn className="w-4.5 h-4.5" /> เข้าสู่ระบบ
+                          </button>
+                          <button
+                            onClick={() => {
+                              setActiveView("signup");
+                              setIsMobileMenuOpen(false);
+                            }}
+                            className="w-full flex items-center justify-center gap-2 py-2 bg-[#111] text-white font-semibold text-sm rounded-md border border-[#222] transition-all hover:bg-[#222] active:scale-95 whitespace-nowrap"
+                          >
+                            <UserPlus className="w-4.5 h-4.5" /> สมัครสมาชิก
+                          </button>
+                        </div>
+                      </div>
+                    )}
 
-                 {/* Tools */}
-                 {user && (
-                   <div>
-                     <div 
-                       className="px-3 mb-2 text-[10px] font-semibold text-zinc-500 tracking-wider flex items-center justify-between cursor-pointer"
-                       onClick={() => setIsMobileToolsOpen(!isMobileToolsOpen)}
-                     >
-                       <span>UTILITIES</span>
-                       <motion.div
-                         animate={{ rotate: isMobileToolsOpen ? 180 : 0 }}
-                         transition={{ duration: 0.2 }}
-                       >
-                         <ChevronDown className="w-3.5 h-3.5" />
-                       </motion.div>
-                     </div>
-                     <AnimatePresence>
-                       {isMobileToolsOpen && (
-                         <motion.div
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: "auto", opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            transition={{ duration: 0.2, ease: "easeInOut" }}
-                            className="overflow-hidden"
-                         >
-                           <div className="flex flex-col gap-0.5">
-                             {[].map(str => {
-                               const [vid, lbl] = str.split(':');
-                               return (
-                                 <button key={vid} onClick={() => { setActiveView(vid); setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }} className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-md transition-all ${activeView === vid ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white"}`}>
-                                   <ArrowUpRight className="w-4 h-4" /> {lbl}
-                                 </button>
-                               );
-                             })}
-                           </div>
-                         </motion.div>
-                       )}
-                     </AnimatePresence>
-                   </div>
-                 )}
+                    {/* Tools */}
+                    {user && (
+                      <div>
+                        <div
+                          className="px-3 mb-2 text-[10px] font-semibold text-zinc-500 tracking-wider flex items-center justify-between cursor-pointer"
+                          onClick={() =>
+                            setIsMobileToolsOpen(!isMobileToolsOpen)
+                          }
+                        >
+                          <span>UTILITIES</span>
+                          <motion.div
+                            animate={{ rotate: isMobileToolsOpen ? 180 : 0 }}
+                            transition={{ duration: 0.2 }}
+                          >
+                            <ChevronDown className="w-3.5 h-3.5" />
+                          </motion.div>
+                        </div>
+                        <AnimatePresence>
+                          {isMobileToolsOpen && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: "auto", opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              transition={{ duration: 0.2, ease: "easeInOut" }}
+                              className="overflow-hidden"
+                            >
+                              <div className="flex flex-col gap-0.5">
+                                {[].map((str) => {
+                                  const [vid, lbl] = str.split(":");
+                                  return (
+                                    <button
+                                      key={vid}
+                                      onClick={() => {
+                                        setActiveView(vid);
+                                        setIsMobileMenuOpen(false);
+                                        window.scrollTo({
+                                          top: 0,
+                                          behavior: "smooth",
+                                        });
+                                      }}
+                                      className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-md transition-all ${activeView === vid ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white"}`}
+                                    >
+                                      <ArrowUpRight className="w-4 h-4" /> {lbl}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    )}
 
-                 {/* Admin / Logout */}
-                 {user && (
-                   <div>
-                     <div className="h-px bg-[#1e1e1e] mb-3 mt-1 mx-3" />
-                     <div className="flex flex-col gap-0.5">
-                       {isAdmin && (
-                         <button onClick={() => { setActiveView("admin"); setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }} className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-md transition-all ${activeView === "admin" ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white"}`}>
-                           <ShieldCheck className="w-4 h-4" /> จัดการระบบ
-                         </button>
-                       )}
-                       <button onClick={() => { handleLogout(); setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="w-full flex items-center gap-3 px-3 py-1.5 rounded-md transition-all text-red-500/80 hover:text-red-500 hover:bg-red-500/10">
-                         <LogOut className="w-4 h-4" /> ออกจากระบบ
-                       </button>
-                     </div>
-                   </div>
-                 )}
-               </div>
-             </motion.div>
-           </>
-         )}
-       </AnimatePresence>
+                    {/* Admin / Logout */}
+                    {user && (
+                      <div>
+                        <div className="h-px bg-[#1e1e1e] mb-3 mt-1 mx-3" />
+                        <div className="flex flex-col gap-0.5">
+                          {isAdmin && (
+                            <button
+                              onClick={() => {
+                                setActiveView("admin");
+                                setIsMobileMenuOpen(false);
+                                window.scrollTo({ top: 0, behavior: "smooth" });
+                              }}
+                              className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-md transition-all ${activeView === "admin" ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white"}`}
+                            >
+                              <ShieldCheck className="w-4 h-4" /> จัดการระบบ
+                            </button>
+                          )}
+                          <button
+                            onClick={() => {
+                              handleLogout();
+                              setIsMobileMenuOpen(false);
+                              window.scrollTo({ top: 0, behavior: "smooth" });
+                            }}
+                            className="w-full flex items-center gap-3 px-3 py-1.5 rounded-md transition-all text-red-500/80 hover:text-red-500 hover:bg-red-500/10"
+                          >
+                            <LogOut className="w-4 h-4" /> ออกจากระบบ
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              </>
+            )}
+          </AnimatePresence>
 
-       {/* Verification Banner Removed */}
+          {/* Verification Banner Removed */}
 
-       {/* Global Page Header Removed */}
+          {/* Global Page Header Removed */}
 
-       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-0 sm:pt-2 pb-6 lg:pb-0 w-full flex-1 flex flex-col">
-         <Suspense
-           fallback={
-             <div className="flex-1 w-full flex items-center justify-center min-h-[50vh]">
-               <div className="w-8 h-8  border-[#1e1e1e] border-t-white rounded-full animate-spin" />
-             </div>
-           }
-         >
-         <AnimatePresence mode="wait">
-           <motion.div
-             key={activeView}
-             initial={{ opacity: 0, y: 15 }}
-             animate={{ opacity: 1, y: 0 }}
-             exit={{ opacity: 0, y: -15 }}
-             transition={{ duration: 0.2, ease: "easeOut" }}
-             className="flex-1 w-full flex flex-col min-h-0"
-           >
-                      {isLoadingSkeleton ? (
-              <SupplementaryLoader />
-            ) : (
-             <>
-               {activeView === "categories" && (
-             <CategoriesView
-               categories={categories}
-               products={products}
-               siteSettings={siteSettings}
-               onBack={() => setActiveView("home")}
-               onSelectCategory={(cat) => {
-                 setSelectedCategory(cat);
-                 setActiveView("category_products");
-               }}
-             />
-           )}
-           {activeView === "category_products" && selectedCategory && (
-             <CategoryProductsView
-               category={selectedCategory}
-               categories={categories}
-               products={products}
-               onBack={() => setActiveView("categories")}
-               onProductClick={(id) => {
-                 setSelectedProductId(id);
-                 setActiveView("product_detail");
-               }}
-             />
-           )}
-           {activeView === "home" && (
-             <HomeView
-               products={products}
-               categories={categories}
-               stats={siteStats}
-               user={userPlan || user}
-               siteSettings={siteSettings}
-               purchaseHistory={purchaseHistory}
-               setActiveView={setActiveView}
-               onProductClick={(id) => {
-                 setSelectedProductId(id);
-                 setActiveView("product_detail");
-               }}
-               onSelectCategory={(cat) => {
-                 setSelectedCategory(cat);
-                 setActiveView("category_products");
-               }}
-             />
-           )}
-           {activeView === "product_detail" && selectedProductId && (
-             <ProductDetailView
-               product={products.find((p) => p.id === selectedProductId)!}
-               user={user}
-               onBack={() => setActiveView("home")}
-               handlePurchase={async (p, q) => {
-                 await handlePurchase(p, q);
-               }}
-               setActiveView={setActiveView}
-             />
-           )}
-           {activeView === "contact" && (
-             <ContactView
-               onBack={() => setActiveView("home")}
-               facebookLink={
-                 siteSettings?.facebook_link || siteSettings?.contact_line
-               }
-               discordLink={siteSettings?.discord_link}
-               instagramLink={siteSettings?.instagram_link}
-               contactEmail={siteSettings?.contact_email}
-             />
-           )}
-           {activeView === "custom_page" && selectedPage && (
-             <PageView
-               page={selectedPage}
-               onBack={() => setActiveView("home")}
-             />
-           )}
-           {activeView === "login" && (
-             <AuthView initialMode="login" setActiveView={setActiveView} />
-           )}
-           {activeView === "signup" && (
-             <AuthView initialMode="signup" setActiveView={setActiveView} />
-           )}
-           {activeView === "profile" && (
-             <ProfileView
-               user={user}
-               userPlan={userPlan}
-               setUserPlan={setUserPlan}
-               clientIp={clientIp}
-               setActiveView={setActiveView}
-               handleLogout={handleLogout}
-               purchaseHistory={purchaseHistory.filter(
-                 (h) => h.uid === user?.id || h.userId === user?.id,
-               )}
-               usedKeysHistory={usedKeysHistory.filter(
-                 (h) => h.uid === user?.id,
-               )}
-             />
-           )}
-           
-           
-           
-           
-           {activeView === "wallet" && (
-              <WalletView
-                userPlan={userPlan}
-                setUserPlan={setUserPlan}
-                userId={user?.id}
-                siteSettings={siteSettings}
-                onTopupSuccess={(entry) => {
-                  setTopupHistory(prev => [entry, ...prev]);
-                  if (userPlan) {
-                    setUserPlan({
-                      ...userPlan,
-                      balance: (userPlan.balance || 0) + Number(entry.amount)
-                    });
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-0 sm:pt-2 pb-6 lg:pb-0 w-full flex-1 flex flex-col">
+            <Suspense
+              fallback={
+                <div className="flex-1 w-full flex items-center justify-center min-h-[50vh]">
+                  <div className="w-8 h-8  border-[#1e1e1e] border-t-white rounded-full animate-spin" />
+                </div>
+              }
+            >
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeView}
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -15 }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                  className="flex-1 w-full flex flex-col min-h-0"
+                >
+                  {isLoadingSkeleton ? (
+                    <SupplementaryLoader />
+                  ) : (
+                    <>
+                      {activeView === "categories" && (
+                        <CategoriesView
+                          categories={categories}
+                          products={products}
+                          siteSettings={siteSettings}
+                          onBack={() => setActiveView("home")}
+                          onSelectCategory={(cat) => {
+                            setSelectedCategory(cat);
+                            setActiveView("category_products");
+                          }}
+                        />
+                      )}
+                      {activeView === "category_products" &&
+                        selectedCategory && (
+                          <CategoryProductsView
+                            category={selectedCategory}
+                            categories={categories}
+                            products={products}
+                            onBack={() => setActiveView("categories")}
+                            onProductClick={(id) => {
+                              setSelectedProductId(id);
+                              setActiveView("product_detail");
+                            }}
+                          />
+                        )}
+                      {activeView === "home" && (
+                        <HomeView
+                          products={products}
+                          categories={categories}
+                          stats={siteStats}
+                          user={userPlan || user}
+                          siteSettings={siteSettings}
+                          purchaseHistory={purchaseHistory}
+                          setActiveView={setActiveView}
+                          onProductClick={(id) => {
+                            setSelectedProductId(id);
+                            setActiveView("product_detail");
+                          }}
+                          onSelectCategory={(cat) => {
+                            setSelectedCategory(cat);
+                            setActiveView("category_products");
+                          }}
+                        />
+                      )}
+                      {activeView === "product_detail" && selectedProductId && (
+                        <ProductDetailView
+                          product={
+                            products.find((p) => p.id === selectedProductId)!
+                          }
+                          user={user}
+                          onBack={() => setActiveView("home")}
+                          handlePurchase={async (p, q) => {
+                            await handlePurchase(p, q);
+                          }}
+                          setActiveView={setActiveView}
+                        />
+                      )}
+                      {activeView === "contact" && (
+                        <ContactView
+                          onBack={() => setActiveView("home")}
+                          facebookLink={
+                            siteSettings?.facebook_link ||
+                            siteSettings?.contact_line
+                          }
+                          discordLink={siteSettings?.discord_link}
+                          instagramLink={siteSettings?.instagram_link}
+                          contactEmail={siteSettings?.contact_email}
+                        />
+                      )}
+                      {activeView === "custom_page" && selectedPage && (
+                        <PageView
+                          page={selectedPage}
+                          onBack={() => setActiveView("home")}
+                        />
+                      )}
+                      {activeView === "login" && (
+                        <AuthView
+                          initialMode="login"
+                          setActiveView={setActiveView}
+                        />
+                      )}
+                      {activeView === "signup" && (
+                        <AuthView
+                          initialMode="signup"
+                          setActiveView={setActiveView}
+                        />
+                      )}
+                      {activeView === "profile" && (
+                        <ProfileView
+                          user={user}
+                          userPlan={userPlan}
+                          setUserPlan={setUserPlan}
+                          clientIp={clientIp}
+                          setActiveView={setActiveView}
+                          handleLogout={handleLogout}
+                          purchaseHistory={purchaseHistory.filter(
+                            (h) => h.uid === user?.id || h.userId === user?.id,
+                          )}
+                          usedKeysHistory={usedKeysHistory.filter(
+                            (h) => h.uid === user?.id,
+                          )}
+                        />
+                      )}
+
+                      {activeView === "wallet" && (
+                        <WalletView
+                          userPlan={userPlan}
+                          setUserPlan={setUserPlan}
+                          userId={user?.id}
+                          siteSettings={siteSettings}
+                          onTopupSuccess={(entry) => {
+                            setTopupHistory((prev) => [entry, ...prev]);
+                            if (userPlan) {
+                              setUserPlan({
+                                ...userPlan,
+                                balance:
+                                  (userPlan.balance || 0) +
+                                  Number(entry.amount),
+                              });
+                            }
+                          }}
+                        />
+                      )}
+
+                      {activeView === "redeem" && (
+                        <RedeemKeyView
+                          redeemKey={redeemKey}
+                          userEmail={user?.email}
+                          isLoggedIn={!!user}
+                          onBack={() => setActiveView("home")}
+                          onGoToStore={() => setActiveView("categories")}
+                          onLoginClick={() => setActiveView("login")}
+                        />
+                      )}
+
+                      {activeView === "settings" && (
+                        <SettingsView
+                          user={user}
+                          setActiveView={setActiveView}
+                        />
+                      )}
+
+                      {(activeView === "logs" ||
+                        activeView === "history" ||
+                        activeView === "order_history" ||
+                        activeView === "my_orders") && (
+                        <HistoryLogsView
+                          usedKeysHistory={usedKeysHistory.filter(
+                            (h) => h.uid === user?.id,
+                          )}
+                          purchaseHistory={purchaseHistory.filter(
+                            (h) => h.uid === user?.id || h.userId === user?.id,
+                          )}
+                          topupHistory={topupHistory.filter(
+                            (h) => h.uid === user?.id || h.userId === user?.id,
+                          )}
+                        />
+                      )}
+                      {activeView === "admin" && isAdmin && (
+                        <AdminDashboard
+                          licenseKeys={licenseKeys}
+                          usedKeysHistory={usedKeysHistory}
+                          blockedIPs={blockedIPs}
+                          adminTab={adminTab}
+                          setAdminTab={setAdminTab}
+                          isDBReady={isDBReady}
+                          dbErrorDetail={dbErrorDetail}
+                          adminUsername={adminUsername}
+                          setIsAdmin={setIsAdmin}
+                          addLicenseKey={addLicenseKey}
+                          blockIP={blockIP}
+                          deleteKey={deleteKey}
+                          bulkDeleteKeys={bulkDeleteKeys}
+                          unblockIP={unblockIP}
+                          products={products}
+                          setProducts={setProducts}
+                          siteStats={siteStats}
+                          setSiteStats={setSiteStats}
+                          customPages={customPages}
+                          setCustomPages={setCustomPages}
+                          categories={categories}
+                          setCategories={setCategories}
+                          usersList={usersList}
+                          onRefreshData={refreshAllSystemData}
+                        />
+                      )}
+                    </>
+                  )}
+                </motion.div>
+              </AnimatePresence>
+            </Suspense>
+          </div>
+
+          {/* Footer */}
+          <footer className="mt-auto pt-16 pb-8 border-t border-[#10b981]/10 relative overflow-hidden bg-[#09090b]">
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-px from-transparent via-[#10b981]/50 to-transparent"></div>
+
+            <div className="max-w-7xl mx-auto px-6 md:px-12 w-full">
+              <div className="flex justify-center items-center gap-4 text-xs text-muted-foreground">
+                <p>
+                  © {new Date().getFullYear()} เอเพ็กซ์สโตร์ — สงวนลิขสิทธิ์
+                </p>
+              </div>
+            </div>
+          </footer>
+
+          {/* Modals */}
+          <AnimatePresence>
+            <PrivacyModal isOpen={showPrivacy} onClose={() => setShowPrivacy(false)} />
+
+          <TermsModal isOpen={showTerms} onClose={() => setShowTerms(false)} />
+
+          <ContactUsModal isOpen={showContactUs} onClose={() => setShowContactUs(false)} siteSettings={siteSettings} />
+          </AnimatePresence>
+
+          <Suspense fallback={null}>
+            <KeyModal
+              show={showKeyModal}
+              onClose={() => setShowKeyModal(false)}
+              vipTab={vipTab}
+              redeemKey={redeemKey}
+              userEmail={user?.email}
+            />
+          </Suspense>
+
+          {/* Modals */}
+          <Suspense fallback={null}>
+            <SearchView
+              isOpen={showSearchPopup}
+              onClose={() => setShowSearchPopup(false)}
+              products={products}
+              onProductClick={(id) => {
+                setSelectedProductId(id);
+                setActiveView("product_detail");
+                setShowSearchPopup(false);
+              }}
+            />
+            {purchasedItemReceipt && (
+              <ReceiptModal
+                selectedItem={purchasedItemReceipt}
+                setSelectedItem={(item) => {
+                  setPurchasedItemReceipt(item);
+                  // When modal is manually closed
+                  if (!item) {
+                    setActiveView("history");
                   }
                 }}
               />
             )}
+          </Suspense>
+        </div>
 
-            {activeView === "redeem" && (
-              <RedeemKeyView
-                redeemKey={redeemKey}
-                userEmail={user?.email}
-                isLoggedIn={!!user}
-                onBack={() => setActiveView("home")}
-                onGoToStore={() => setActiveView("categories")}
-                onLoginClick={() => setActiveView("login")}
-              />
-            )}
-
-            {activeView === "settings" && (
-              <SettingsView
-                user={user}
-                setActiveView={setActiveView}
-              />
-            )}
-
-            {(activeView === "logs" || activeView === "history" || activeView === "order_history" || activeView === "my_orders") && (
-              <HistoryLogsView
-                usedKeysHistory={usedKeysHistory.filter(
-                  (h) => h.uid === user?.id,
-                )}
-                purchaseHistory={purchaseHistory.filter(
-                  (h) => h.uid === user?.id || h.userId === user?.id,
-                )}
-                topupHistory={topupHistory.filter(
-                  (h) => h.uid === user?.id || h.userId === user?.id,
-                )}
-              />
-            )}
-           {activeView === "admin" && isAdmin && (
-             <AdminDashboard
-
-
-               licenseKeys={licenseKeys}
-               usedKeysHistory={usedKeysHistory}
-               blockedIPs={blockedIPs}
-               adminTab={adminTab}
-               setAdminTab={setAdminTab}
-               isDBReady={isDBReady}
-               dbErrorDetail={dbErrorDetail}
-               adminUsername={adminUsername}
-               setIsAdmin={setIsAdmin}
-               addLicenseKey={addLicenseKey}
-               blockIP={blockIP}
-               deleteKey={deleteKey}
-               bulkDeleteKeys={bulkDeleteKeys}
-               unblockIP={unblockIP}
-               products={products}
-               setProducts={setProducts}
-               siteStats={siteStats}
-               setSiteStats={setSiteStats}
-               customPages={customPages}
-               setCustomPages={setCustomPages}
-               categories={categories}
-               setCategories={setCategories}
-               usersList={usersList}
-               onRefreshData={refreshAllSystemData}
-             />
-           )}
-             </>
-           )}
-           </motion.div>
-         </AnimatePresence>
-         </Suspense>
-       </div>
-
-       {/* Footer */}
-       <footer className="mt-auto pt-16 pb-8 border-t border-[#10b981]/10 relative overflow-hidden bg-[#09090b]">
-         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-px from-transparent via-[#10b981]/50 to-transparent"></div>
-
-         <div className="max-w-7xl mx-auto px-6 md:px-12 w-full">
-           <div className="flex justify-center items-center gap-4 text-xs text-muted-foreground">
-             <p>© {new Date().getFullYear()} เอเพ็กซ์สโตร์ — สงวนลิขสิทธิ์</p>
-           </div>
-         </div>
-       </footer>
-
-       {/* Modals */}
-       <AnimatePresence>
-         {showPrivacy && (
-           <motion.div
-             initial={{ opacity: 0 }}
-             animate={{ opacity: 1 }}
-             exit={{ opacity: 0 }}
-             className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-[100] font-sans"
-           >
-             <motion.div
-               initial={{ scale: 0.95, opacity: 0, y: 20 }}
-               animate={{ scale: 1, opacity: 1, y: 0 }}
-               exit={{ scale: 0.95, opacity: 0, y: 20 }}
-               transition={{ type: "spring", damping: 25, stiffness: 300 }}
-               className="bg-[#09090b] border border-[#1e1e1e] border p-6 sm:p-8 max-w-3xl w-full max-h-[90vh] flex flex-col relative"
-             >
-               <h2 className="text-xl sm:text-2xl font-medium mb-6 text-white flex items-center gap-2">
-                 <Shield className="w-6 h-6 shrink-0 text-[#10b981]" />{" "}
-                 นโยบายความเป็นส่วนตัว (Privacy Policy)
-               </h2>
-               <div className="overflow-y-auto pr-2 sm:pr-4 space-y-6 text-sm leading-relaxed text-muted-foreground scrollbar-thin scrollbar-thumb-zinc-700 flex-1">
-                 <p>
-                   <strong>อัปเดตล่าสุด:</strong>{" "}
-                   {new Date().toLocaleDateString("th-TH", {
-                     year: "numeric",
-                     month: "long",
-                     day: "numeric",
-                   })}
-                 </p>
-
-                 <div>
-                   <h3 className="font-medium text-white text-base mb-2">
-                     1. ข้อมูลที่เราเก็บรวบรวม
-                   </h3>
-                   <ul className="list-disc pl-5 space-y-1">
-                     <li>
-                       <strong>ข้อมูลระบุตัวตนและบัญชี:</strong>{" "}
-                       เมื่อคุณสมัครสมาชิก เราอาจจัดเก็บข้อมูลเช่น อีเมล
-                       ชื่อผู้ใช้ รหัสผ่าน (ที่ถูกเข้ารหัสและทำแฮชอย่างแน่นหนา)
-                       ข้อมูลสิทธิ์การใช้งาน (Role/VIP) และเครดิตคงเหลือของคุณ
-                     </li>
-                     <li>
-                       <strong>ข้อมูลการทำธุรกรรม (Transaction Data):</strong>{" "}
-                       หากมีการทำธุรกรรมเติมเงินซื้อสินค้า
-                       เราจะเก็บข้อมูลบันทึกการทำธุรกรรม เช่น เวลา จำนวนเงิน
-                       หมายเลขอ้างอิง เพื่อประเมิน วิเคราะห์
-                       และป้องกันการหลอกลวง
-                     </li>
-                     <li>
-                       <strong>ข้อมูล IP Address และ Log Files:</strong>{" "}
-                       ตามข้อบังคับและเพื่อความปลอดภัย เรามีการเก็บบันทึก IP
-                       Address, Browser Agent, เวลาเข้าระบบ
-                       และพฤติกรรมการใช้งาน
-                       เพื่อใช้เป็นหลักฐานและป้องกันเหตุโจมตีระบบ
-                     </li>
-                     <li>
-                       <strong>
-                         ข้อมูลการเชื่อมต่อคู่ค้า (External API):
-                       </strong>{" "}
-                       หากคุณผูกบัญชีบริการภายนอก เช่น Discord หรือ Telegram
-                       เรามีความจำเป็นต้องดึงข้อมูลสาธารณะหรือ Token
-                       ที่คุณอนุญาตเพื่อใช้ทำงานบนแพลตฟอร์มของเรา
-                     </li>
-                   </ul>
-                 </div>
-
-                 <div>
-                   <h3 className="font-medium text-white text-base mb-2">
-                     2. การปกป้องข้อมูล Combo และสินทรัพย์ของท่าน
-                   </h3>
-                   <p className="mb-2">
-                     
-                     ทางแพลตฟอร์มขอยืนยันว่า{" "}
-                     <strong>
-                       จะไม่มีการบันทึกหรือโจรกรรมข้อมูลบัญชี/รหัสผ่านหน้าเว็บแบบเต็มจำนวนเพื่อผลประโยชน์อื่นใด
-                     </strong>
-                   </p>
-                   <p>
-                     คีย์และข้อมูลที่คุณกรอกจะถูกใช้ประมวลผลเซสชั่นชั่วคราว
-                     (Volatile) ระหว่างเว็บและเซิร์ฟเวอร์
-                     และข้อมูลดิบจะถูกพิจารณาล้างออกทันทีเมื่อเสร็จสิ้นรอบ
-                     เพื่อสร้างความเชื่อมั่นสูงสุด 100% ให้แก่ผู้ใช้งาน
-                   </p>
-                 </div>
-
-                 <div>
-                   <h3 className="font-medium text-white text-base mb-2">
-                     3. การเปิดเผยข้อมูลแก่บุคคลที่สาม
-                   </h3>
-                   <p>
-                     เอเพ็กซ์สโตร์จะไม่นำข้อมูลส่วนตัว อีเมล
-                     หรือเงินคงเหลือของคุณไปเปิดเผย จำหน่าย
-                     หรือแลกเปลี่ยนกับบุคคลที่สามโดยเด็ดขาด <em>เว้นแต่:</em>
-                   </p>
-                   <ul className="list-disc pl-5 space-y-1 mt-2">
-                     <li>
-                       ผู้ให้บริการประมวลผลที่จำเป็น (Cloud Hosting, Payment
-                       Gateway) เฉพาะส่วนที่ต้องให้บริการ
-                     </li>
-                     <li>
-                       เป็นไปเพื่อปฏิบัติตามกฎหมาย มีคำสั่งศาล
-                       หรือคำสั่งของหน่วยงานที่มีอำนาจบังคับตามกฎหมาย
-                     </li>
-                     <li>
-                       เพื่อใช้ป้องกันและรักษาความปลอดภัยต่อชีวิต
-                       หรือปกป้องทรัพย์สินของ APEXSTORE{" "}
-                     </li>
-                   </ul>
-                 </div>
-
-                 <div>
-                   <h3 className="font-medium text-white text-base mb-2">
-                     4. คุกกี้ (Cookies) และการจัดเก็บ Cache
-                   </h3>
-                   <p>
-                     เราใช้คุกกี้ Session และ Local Storage
-                     เพื่อช่วยจดจำการเข้าสู่ระบบ สถานะการทำงาน หรือตั้งค่าธีม
-                     ลดภาระที่คุณต้องล็อกอินซ้ำ ไม่มีโฆษณาแทรกแซง ไม่มีการใช้
-                     Tracking Pixels นำมาวิเคราะห์ขายต่อ หากคุณลบแคช
-                     การเชื่อมต่อและการจดจำทั้งหมดที่คุณบันทึกไว้ในเบราว์เซอร์จะถูกล้างใหม่ทันที
-                   </p>
-                 </div>
-
-                 <div>
-                   <h3 className="font-medium text-white text-base mb-2">
-                     5. สิทธิของเจ้าของข้อมูล (Data Subject Rights)
-                   </h3>
-                   <p>
-                     ภายใต้กฎหมายที่มีผลบังคับ คุณมีสิทธิขอเข้าถึง แก้ไข
-                     แจ้งขอสำเนา หรือลบข้อมูลบัญชีของตนเองได้บางส่วน ทั้งนี้
-                     อาจมีข้อยกเว้นสำหรับประวัติการทำรายได้ ธุรกรรม
-                     ข้อมูลล็อกที่ขัดกฎหมายการลบข้อมูล (Data Retention)
-                     หากประสงค์ติดต่อเพื่อลบข้อมูล
-                     สามารถขอความช่วยเหลือแอดมินได้ผ่านหน้าติดต่อ
-                   </p>
-                 </div>
-
-                 <div>
-                   <h3 className="font-medium text-white text-base mb-2">
-                     6. การแก้ไขเปลี่ยนแปลงนโยบาย
-                   </h3>
-                   <p>
-                     ระบบขอสงวนสิทธิ์ในการแก้ไขปรับปรุง
-                     เปลี่ยนแปลงข้อความในนโยบายฉบับนี้โดยไม่ต้องแจ้งให้ผู้ใช้ทราบล่วงหน้า
-                     โดยสามารถตรวจสอบวันได้ที่หน้าหัวข้อ “อัปเดตล่าสุด”
-                     การเข้าถึงแพลตฟอร์มอย่างต่อเนื่องถือเป็นการยืนยันและการยอมรับข้อตกลงฉบับปรับปรุงแล้ว
-                   </p>
-                 </div>
-               </div>
-               <div className="pt-6 mt-6 border-t border-[#1e1e1e] border flex gap-3 flex-col sm:flex-row justify-end">
-                 <button
-                   onClick={() => setShowPrivacy(false)}
-                   className="bg-primary text-primary-foreground hover:bg-zinc-600/25 text-[#10b981] font-medium py-3 px-8 transition-colors w-full sm:w-auto"
-                 >
-                   ทำความเข้าใจและปิดหน้าต่าง
-                 </button>
-               </div>
-             </motion.div>
-           </motion.div>
-         )}
-
-         {showTerms && (
-           <motion.div
-             initial={{ opacity: 0 }}
-             animate={{ opacity: 1 }}
-             exit={{ opacity: 0 }}
-             className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-[100] font-sans"
-           >
-             <motion.div
-               initial={{ scale: 0.95, opacity: 0, y: 20 }}
-               animate={{ scale: 1, opacity: 1, y: 0 }}
-               exit={{ scale: 0.95, opacity: 0, y: 20 }}
-               transition={{ type: "spring", damping: 25, stiffness: 300 }}
-               className="bg-[#09090b] border border-[#1e1e1e] border p-6 sm:p-8 max-w-3xl w-full max-h-[90vh] flex flex-col relative"
-             >
-               <h2 className="text-xl sm:text-2xl font-medium mb-6 flex items-center gap-2 text-white">
-                 <ListChecks className="w-6 h-6 shrink-0 text-[#10b981]" />{" "}
-                 ข้อกำหนดการใช้งาน (Terms of Use)
-               </h2>
-               <div className="overflow-y-auto pr-2 sm:pr-4 space-y-6 text-sm leading-relaxed text-muted-foreground scrollbar-thin scrollbar-thumb-zinc-700 flex-1">
-                 <div>
-                   <h3 className="font-medium text-white text-base mb-2">
-                     1. การรับรองความยินยอมและผูกพัน
-                   </h3>
-                   <p>
-                     การเข้าถึงและใช้งานบริการ เครื่องมือตรวจสอบ บอท
-                     และผลิตภัณฑ์ของเรา
-                     ถือเป็นการรับรองว่าท่านได้ทำความเข้าใจและตกลงยอมรับเงื่อนไขการใช้บริการของ{" "}
-                     <strong>APEXSTORE</strong> อย่างครบถ้วนทุกประการ
-                     หากคุณไม่เห็นด้วยกับกฎหมายและข้อบังคับเหล่านี้กรุณายุติการเข้าถึงและการใช้งานโดยทันที
-                   </p>
-                 </div>
-
-                 <div>
-                   <h3 className="font-medium text-white text-base mb-2">
-                     2. ขอบเขตสิทธิ์ หน้าที่ และการใช้งานที่ยอมรับได้ (AUP)
-                   </h3>
-                   <p className="mb-2">
-                     คุณตกลงที่จะใช้สิทธิ์ในการเข้าถึงที่เรารับรอง
-                     เพื่อจุดประสงค์ส่วนตัวที่ถูกต้องตามกฎหมาย และยินยอมที่จะ{" "}
-                     <strong>ไม่กระทำ</strong> สิ่งเหล่านี้ไม่ว่ากรณีใดๆ :
-                   </p>
-                   <ul className="list-disc pl-5 space-y-1">
-                     <li>
-                       <strong>
-                         ห้ามวิศวกรรมย้อนกลับ (No Reverse Engineering):
-                       </strong>{" "}
-                       ห้ามดัดแปลง ชำแหละเจาะระบบ สแกนพอร์ต จำลอง API เถื่อน นำ
-                       API ผิดกฎหมายหรือ Bypass
-                       เข้าใช้บริการของเราโดยไม่ได้รับอนุญาต
-                     </li>
-                     <li>
-                       <strong>
-                         ห้ามกระทำละเมิดแพลตฟอร์มรุนแรง (Anti-DDoS, Spamming):
-                       </strong>{" "}
-                       ห้ามทดสอบความปลอดภัย ก่อความล่าช้า หรือกระหน่ำยิงแพ็กเกจ
-                       (Flood Requests) เพื่อทำลายความเสถียรของเซิร์ฟเวอร์
-                     </li>
-                     <li>
-                       <strong>ข้อพิพาทความเป็นเจ้าของข้อมูลส่วนบุคคล:</strong>{" "}
-                       ผู้ใช้งานจะต้องเป็นเจ้าของข้อมูล พาสเวิร์ด คีย์ บัญชี
-                       หรือมีสิทธิ์อนุญาตโดยชอบธรรมเท่านั้น
-                       หากท่านนำไปใช้งานในทางละเมิดผู้อื่น สิทธิ
-                       ความรับผิดชอบทางกฎหมายใดๆ
-                       ถือเป็นความรับผิดชอบของตัวลูกค้า/ผู้ใช้งานโดยเพียงผู้เดียวเท่านั้น
-                       ทางทีมงานจะไม่มีส่วนรู้เห็นในทุกกรณี
-                     </li>
-                     <li>
-                       <strong>การบ่อนทำลาย/แอบอ้าง:</strong> ห้ามคัดลอก
-                       ทำสำเนาเนื้อหา และผลิตภัณฑ์เพื่อไปชุบมือเปิบ แอบอ้าง
-                       หรือขายนอกแพลตฟอร์มโดยไม่ได้รับอนุญาต
-                     </li>
-                   </ul>
-                 </div>
-
-                 <div>
-                   <h3 className="font-medium text-white text-base mb-2">
-                     3. การชำระเงิน การเติมเงิน และนโยบายล้างบางเครดิต (No
-                     Refund Policy)
-                   </h3>
-                   <p className="mb-2">
-                     เมื่อคุณยืนยันเติมเครดิต ชำระคีย์ โอนเงินซื้อบัญชี
-                     หรือสินค้าดิจิทัลใน APEXSTORE คำสั่งซื้อดังกล่าว{" "}
-                     <strong>
-                       ไม่สามารถคืนเป็นเงินสด (Non-Refundable) ในทุกกรณี
-                     </strong>{" "}
-                     เครดิตในรหัสไม่สามารถโยกย้ายข้ามผู้ใช้ได้
-                     หากพบความผิดปกติของการเติมเงิน บัตรปลอม หรือการโกง
-                     แอดมินมีสิทธิเต็มที่ในการเพิกถอนยอด ล็อคแบน
-                     และยึดสินค้าทั้งหมดทันที
-                   </p>
-                   <p>
-                     สินค้ารับประกันการใช้งาน
-                     จะถูกอ้างอิงตามระยะเวลาประกันของสินค้าชิ้นนั้นๆ
-                     หากเลยเงื่อนไขที่กำหนดไว้จะไม่รับผิดชอบทุกกรณี
-                   </p>
-                 </div>
-
-                 <div>
-                   <h3 className="font-medium text-white text-base mb-2">
-                     4. ข้อยกเว้นและข้อจำกัดความรับผิดชอบ (Disclaimer)
-                   </h3>
-                   <p className="mb-2">
-                     การทำธุรกรรมและเครื่องมือนี้ ทำงานในรูปแบบ "ตามสภาพ (As
-                     is)" เราไม่รับประกัน 100% ว่าไม่มีข้อบกพร่อง การขัดข้อง
-                     ล่าช้า หรือผลเช็คต่างๆ จะแม่นยำเสมอไป
-                     ทั้งนี้เครื่องมือเราไร้สถานะ (No-Affiliation)
-                     ต่อนายจ้างหรือบริษัทแม่ของช่องโซเชียลนั้นๆ
-                   </p>
-                   <p>
-                     เราจะไม่รับผิดชอบจากความสูญเสีย โดนแบน ยอดวิวตก
-                     หรือความเสียหายในทางอ้อม ทางการค้า
-                     หรือทางปกครองที่เกิดจากการเข้าใช้บริการ ข้อมูลต่างๆ
-                     สามารถเข้าถึงได้ขึ้นอยู่กับความเสี่ยงของตนเอง
-                   </p>
-                 </div>
-
-                 <div>
-                   <h3 className="font-medium text-white text-base mb-2">
-                     5. สิทธิของการยุติการให้บริการ และ IP Ban
-                   </h3>
-                   <p>
-                     ทีมงาน APEXSTORE ถือสิทธิเด็ดขาดสูงสุดในการเตะ
-                     หรือถอดถอนผู้ใช้ ระงับบัญชี (Ban)
-                     เปลี่ยนแปลงแก้ไขการใช้งาน และระงับช่องทางการเข้าถึง (IP
-                     Blocking) โดยไม่ต้องแจ้งตักเตือนรวมถึงชดใช้ค่าเสียหายใดๆ
-                     ให้แก่ผู้ใช้งาน หากพบการทุจริต หรือคุกคามเจ้าหน้าที่
-                   </p>
-                 </div>
-
-                 <div>
-                   <h3 className="font-medium text-white text-base mb-2">
-                     6. การจัดการและระบบต่างๆ
-                   </h3>
-                 </div>
-                 <div>
-                   <h3 className="font-medium text-white text-base mb-2">
-                     ระบบและบริการของเรา
-                   </h3>
-                   <ul className="list-disc pl-5">
-                     <li>
-                       <strong>ระบบตรวจสอบไอดี (ตัวเช็ค):</strong>
-                       ทรงพลังที่รองรับบัญชีจำนวนมากพร้อมกัน
-                       โดยไม่สูญเสียความแม่นยำ
-                       ที่ทันสมัย
-                     </li>
-                     <li>
-                       <strong>Discord & Telegram Connect API:</strong>{" "}
-                       ให้บริการระบบดึงข้อมูล ยืนยันสลิป การรับยศบอท (Auto
-                       Role) และสิทธิพิเศษการจำลองเซิร์ฟเวอร์แบบเบ็ดเสร็จ
-                     </li>
-                     <li>
-                       <strong>Digital Marketplace & VIP Tiers:</strong>{" "}
-                       ร้านค้าจำหน่ายผลิตภัณฑ์ซอฟต์แวร์ คีย์โปรแกรม
-                       และคลังบัญชีพรีเมียม สำหรับลูกค้าสายโซเชียล
-                       รวมถึงลูกค้าองค์กร ด้วยระบบจัดการคลัง Stock ที่รวดเร็ว
-                       ตัดยอดและส่งสินค้าผ่านระบบอัตโนมัติตลอด 24 ชั่วโมง
-                     </li>
-                   </ul>
-                 </div>
-
-                 <div>
-                   <h3 className="font-medium text-white text-base mb-2">
-                     ความมุ่งมั่นด้านความปลอดภัย (Security Commitment)
-                   </h3>
-                   <p>
-                     รากฐานของโปรเจ็กต์คือการเก็บรักษาข้อมูลให้เป็นความลับ
-                     (Confidentiality)
-                     สถาปัตยกรรมเซิร์ฟเวอร์ของเรามีระบบการแฮชคีย์รหัสผ่าน
-                     การลดพึ่งพิงฐานข้อมูลที่เก็บรอยนิ้วมือของผู้ใช้ (Zero
-                     Logging Policy สำหรับเครดิตการเช็ค)
-                     
-                     ทำให้ข้อมูลการทำธุรกรรมของคุณได้รับการการันตี 100%
-                     ภายใต้ความน่าเชื่อถือของแพลตฟอร์ม
-                   </p>
-                 </div>
-
-                 <div>
-                   <h3 className="font-medium text-white text-base mb-2">
-                     ช่องทางติดต่อคอมมูนิตี้ (Contact & Community)
-                   </h3>
-                   <p className="mb-2">
-                     เราไม่ได้มีแต่เว็บขายของ
-                     แต่เราเติบโตด้วยแรงสุนทรีย์ของคอมมูนิตี้
-                     หากคุณประสบปัญหาในการใช้งาน พบช่องโหว่
-                     หรืออยากพูดคุยเสนอแนวทางใหม่ๆ:
-                   </p>
-                   <ul className="list-disc pl-5">
-                     <li>
-                       <strong>Discord Server:</strong> สถานที่เชื่อมสัมพันธ์
-                       ร้องขอเครดิต หรือสอบถามการเซ็ตอัปบอท
-                     </li>
-                     <li>
-                       <strong>Line Official:</strong> ทีม Support
-                       โดยผู้ดูแลมืออาชีพ (ตอบกลับรวดเร็วที่สุด)
-                     </li>
-                   </ul>
-                   <p className="mt-2 text-muted-foreground italic">
-                     "ขอบคุณผู้ใช้งานและพันธมิตรทุกคน
-                     ที่เล็งเห็นคุณค่าและก้าวเดินไปพร้อมกับ APEXSTORE
-                     ขวากหนามทางดิจิทัลไหนที่ยาก... เราพร้อมเบิกทางให้คุณ"
-                   </p>
-                 </div>
-               </div>
-               <div className="pt-6 mt-6 border-t border-[#1e1e1e] border flex justify-end w-full">
-                 <button
-                   onClick={() => setShowAboutUs(false)}
-                   className="bg-primary text-primary-foreground hover:bg-zinc-600/25 text-[#10b981] font-medium py-3 px-8 transition-all w-full sm:w-auto"
-                 >
-                   ปิดหน้าต่างนี้
-                 </button>
-               </div>
-             </motion.div>
-           </motion.div>
-         )}
-
-         {showContactUs && (
-           <motion.div
-             initial={{ opacity: 0 }}
-             animate={{ opacity: 1 }}
-             exit={{ opacity: 0 }}
-             className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-[100] font-sans"
-           >
-             <motion.div
-               initial={{ scale: 0.95, opacity: 0, y: 20 }}
-               animate={{ scale: 1, opacity: 1, y: 0 }}
-               exit={{ scale: 0.95, opacity: 0, y: 20 }}
-               transition={{ type: "spring", damping: 25, stiffness: 300 }}
-               className="bg-[#09090b] border border-[#1e1e1e] border p-6 sm:p-8 max-w-md w-full flex flex-col relative"
-             >
-               <div className="flex items-center justify-between mb-6">
-                 <h2 className="text-xl sm:text-2xl font-medium flex items-center gap-2 text-white">
-                   <Phone className="w-6 h-6 shrink-0 text-[#10b981]" />{" "}
-                   ติดต่อเรา
-                 </h2>
-                 <button
-                   onClick={() => setShowContactUs(false)}
-                   className="p-2 hover:bg-white/10 transition-colors"
-                 >
-                   <X className="w-5 h-5 text-muted-foreground" />
-                 </button>
-               </div>
-
-               <div className="space-y-4">
-                 <a
-                   href="https://discord.gg/EvFjgkSB4W"
-                   target="_blank"
-                   rel="noreferrer"
-                   className="flex items-center gap-4 p-4 bg-[#09090b] hover:bg-[#5865F2]/20 border border-[#5865F2]/20 text-white transition-all group"
-                 >
-                   <div className="w-12 h-12 bg-[#09090b] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                     <span className="font-medium text-xl block">D</span>
-                   </div>
-                   <div>
-                     <h3 className="font-medium text-lg">Discord</h3>
-                     <p className="text-muted-foreground text-sm">
-                       เข้าร่วมเซิร์ฟเวอร์ของเรา
-                     </p>
-                   </div>
-                 </a>
-
-                 {siteSettings?.contact_email && (
-                   <a
-                     href={`mailto:${siteSettings.contact_email}`}
-                     className="flex items-center gap-4 p-4 bg-[#09090b] hover:bg-[#1e1e1e] border border-[#1e1e1e] border hover:border-[#1e1e1e] text-white transition-all group"
-                   >
-                     <div className="w-12 h-12 bg-[#09090b] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                       <Mail className="w-6 h-6" />
-                     </div>
-                     <div>
-                       <h3 className="font-medium text-lg">Email</h3>
-                       <p className="text-muted-foreground text-sm">
-                         {siteSettings.contact_email}
-                       </p>
-                     </div>
-                   </a>
-                 )}
-               </div>
-
-               <div className="pt-6 mt-6 border-t border-[#1e1e1e] border flex justify-end w-full">
-                 <button
-                   onClick={() => setShowContactUs(false)}
-                   className="bg-primary text-primary-foreground hover:bg-zinc-600/25 text-[#10b981] font-medium py-3 px-8 transition-all w-full sm:w-auto"
-                 >
-                   ปิดหน้าต่างนี้
-                 </button>
-               </div>
-             </motion.div>
-           </motion.div>
-         )}
-       </AnimatePresence>
-
-       <Suspense fallback={null}>
-         <KeyModal
-           show={showKeyModal}
-           onClose={() => setShowKeyModal(false)}
-           vipTab={vipTab}
-           redeemKey={redeemKey}
-           userEmail={user?.email}
-         />
-       </Suspense>
-
-
-       {/* Modals */}
-       <Suspense fallback={null}>
-         <SearchView 
-           isOpen={showSearchPopup} 
-           onClose={() => setShowSearchPopup(false)} 
-           products={products} 
-           onProductClick={(id) => { 
-             setSelectedProductId(id); 
-             setActiveView("product_detail"); 
-             setShowSearchPopup(false);
-           }} 
-         />
-         {purchasedItemReceipt && (
-           <ReceiptModal
-             selectedItem={purchasedItemReceipt}
-             setSelectedItem={(item) => {
-               setPurchasedItemReceipt(item);
-               // When modal is manually closed
-               if (!item) {
-                 setActiveView("history");
-               }
-             }}
-           />
-         )}
-       </Suspense>
-
-     </div>
-
-     {/* Mobile Bottom Navigation Bar removed as per request */}
+        {/* Mobile Bottom Navigation Bar removed as per request */}
       </motion.div>
     </div>
   );
@@ -2774,8 +2821,12 @@ const SupplementaryLoader: React.FC = () => {
   return (
     <div className="flex-1 w-full flex flex-col items-center justify-center min-h-[50vh] bg-zinc-950/40 text-zinc-400 rounded-2xl p-8 border border-zinc-800/60 max-w-sm mx-auto my-12 text-center select-none animate-pulse">
       <div className="w-10 h-10 border-4 border-zinc-800 border-t-emerald-500 rounded-full animate-spin mb-4" />
-      <h3 className="text-sm font-semibold font-sans text-white tracking-wide">กำลังโหลดข้อมูลระบบ</h3>
-      <p className="text-[11px] text-zinc-500 font-sans mt-0.5">โปรดรอสักครู่ ระบบกำลังจัดเตรียมข้อมูลแอปพลิเคชัน...</p>
+      <h3 className="text-sm font-semibold font-sans text-white tracking-wide">
+        กำลังโหลดข้อมูลระบบ
+      </h3>
+      <p className="text-[11px] text-zinc-500 font-sans mt-0.5">
+        โปรดรอสักครู่ ระบบกำลังจัดเตรียมข้อมูลแอปพลิเคชัน...
+      </p>
     </div>
   );
 };
@@ -2811,16 +2862,16 @@ const PortalLoader: React.FC = () => {
 };
 
 export default function App() {
- return (
-   <GlobalErrorBoundary>
-     <BrowserRouter>
-       <Routes>
-         <Route path="*" element={<AppContent />} />
-       </Routes>
-     </BrowserRouter>
-     <Analytics />
-     <SpeedInsights />
-     <ToastContainer />
-   </GlobalErrorBoundary>
- );
+  return (
+    <GlobalErrorBoundary>
+      <BrowserRouter>
+        <Routes>
+          <Route path="*" element={<AppContent />} />
+        </Routes>
+      </BrowserRouter>
+      <Analytics />
+      <SpeedInsights />
+      <ToastContainer />
+    </GlobalErrorBoundary>
+  );
 }

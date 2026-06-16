@@ -87,13 +87,17 @@ function StatCard({
   unit,
   icon: Icon,
   accent,
+  subtext,
+  actionButton,
   delay = 0,
 }: {
   label: string;
   value: string | number;
-  unit: string;
+  unit?: string;
   icon: React.ElementType;
   accent: string;
+  subtext?: string;
+  actionButton?: React.ReactNode;
   delay?: number;
 }) {
   return (
@@ -102,24 +106,34 @@ function StatCard({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: false, amount: 0.1 }}
       transition={{ duration: 0.5, delay }}
-      className="relative bg-[#0d0d0d] border border-[#1e1e1e] rounded-md p-5 overflow-hidden group hover:border-[#1e1e1e] transition-colors duration-300"
+      className="relative bg-[#0d0d0d] border border-[#1e1e1e] rounded-md p-5 overflow-hidden group hover:border-[#2a2a2a] transition-all duration-300"
     >
       {/* Subtle glow */}
       <div
-        className="absolute -top-6 -right-6 w-24 h-24 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 "
-        style={{ background: accent }}
+        className="absolute -top-6 -right-6 w-24 h-24 rounded-full opacity-5 group-hover:opacity-10 transition-opacity duration-500 blur-xl pointer-events-none"
+        style={{ backgroundColor: accent }}
       />
-      <p className="text-xs text-white/40 font-medium tracking-wide uppercase mb-2">{label}</p>
-      <p className="text-3xl font-semibold text-white tracking-tight leading-none">
+      
+      <div className="flex justify-between items-start mb-2">
+        <p className="text-[11px] text-zinc-500 font-semibold tracking-wider uppercase">{label}</p>
+        {actionButton}
+      </div>
+
+      <p className="text-3xl font-extrabold text-white tracking-tight leading-none mt-2 flex items-baseline gap-1.5">
         {typeof value === "number" ? (
           <AnimatedNumber value={value} accent={accent} />
         ) : (
           value
         )}
+        {unit && <span className="text-sm font-semibold text-zinc-400">{unit}</span>}
       </p>
-      <p className="text-xs text-white/30 mt-1">{unit}</p>
-      <div className="absolute bottom-3 right-3 opacity-5 group-hover:opacity-10 transition-opacity duration-300">
-        <Icon className="w-10 h-10 text-white" />
+
+      {subtext && (
+        <p className="text-[10px] text-zinc-500/80 mt-2 font-mono font-medium">{subtext}</p>
+      )}
+
+      <div className="absolute bottom-3 right-3 opacity-15 text-zinc-700 pointer-events-none">
+        <Icon className="w-10 h-10" />
       </div>
     </motion.div>
   );
@@ -479,16 +493,17 @@ export const HomeView: React.FC<HomeViewProps> = ({
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
-          className="relative overflow-hidden rounded-md border border-[#1e1e1e] mb-3 bg-[#0d0d0d]"
+          className="relative overflow-hidden rounded-md border border-[#1e1e1e] mb-3 bg-[#0d0d0d] group w-full"
           style={{ aspectRatio: '2100 / 500' }}
         >
+          {/* Background Image with referral policy */}
           <img
             src="https://img2.pic.in.th/IMG_7177176d5344301b32a1.png"
             alt={siteSettings?.site_title || "ร้านค้า"}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover select-none pointer-events-none"
+            referrerPolicy="no-referrer"
             fetchPriority="high"
           />
-          <div className="absolute inset-0 bg-[#09090b]" />
         </motion.div>
 
         {/* ── Announcement Bar ── */}
