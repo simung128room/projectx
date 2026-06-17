@@ -154,31 +154,34 @@ export const MyOrdersView: React.FC<MyOrdersViewProps> = ({
     <div className="w-full max-w-4xl mx-auto px-4 py-8 select-none">
       
       {/* Header Panel */}
-      <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-semibold text-white flex items-center gap-3 tracking-tight">
-            <Receipt className="w-8 h-8 text-neon-green" />
+      <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-5 bg-[#1c1c1e]/40 backdrop-blur-2xl border border-white/[0.05] p-6 rounded-[28px] shadow-lg relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-[#10b981]/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="relative z-10">
+          <h1 className="text-2xl md:text-3xl font-bold text-white flex items-center gap-3 tracking-tight">
+            <div className="w-12 h-12 rounded-[16px] bg-[#10b981]/15 flex items-center justify-center shrink-0">
+              <Receipt className="w-6 h-6 text-[#10b981]" />
+            </div>
             ประวัติการสั่งซื้อและเติมเงิน
           </h1>
-          <p className="text-xs text-zinc-400 mt-2 font-medium">
+          <p className="text-sm text-zinc-400 mt-2 font-medium ml-1">
             ข้อมูลการซื้อสินค้า คีย์พรีเมี่ยม และรายรับ-รายจ่าย ทั้งหมดในบัญชีของคุณ
           </p>
         </div>
-        <div className="bg-[#0b0b0c] border border-[#1e1e1e] rounded-md px-4 py-2.5 flex items-center gap-2 max-w-max">
-          <ShieldCheck className="w-4 h-4 text-neon-green" />
-          <span className="text-[10px] font-medium text-zinc-400 uppercase tracking-wider">
+        <div className="bg-[#2c2c2e]/60 border border-white/[0.05] rounded-full px-5 py-2.5 flex items-center gap-2 max-w-max relative z-10 shadow-sm shrink-0">
+          <ShieldCheck className="w-4 h-4 text-[#10b981]" />
+          <span className="text-[11px] font-bold text-zinc-300 uppercase tracking-wider">
             บล็อกเชนเกตเวย์ความปลอดภัยสูง
           </span>
         </div>
       </div>
 
       {/* Tabs navigation - Horizontal grid cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {[
-          { id: 'normal', label: 'ซื้อสินค้าทั่วไป', count: normalPurchases.length, icon: ShoppingCart, color: 'text-[#10b981]' },
-          { id: 'special', label: 'ซื้อสินค้าพิเศษ', count: specialPurchases.length, icon: Star, color: 'text-amber-400' },
-          { id: 'angpao', label: 'เติมเงินซองอั่งเปา', count: angpaoTopups.length, icon: Gift, color: 'text-rose-400' },
-          { id: 'slip', label: 'เติมเงินแนบสลิป', count: slipTopups.length, icon: CreditCard, color: 'text-[#10b981]' }
+          { id: 'normal', label: 'ซื้อสินค้าทั่วไป', count: normalPurchases.length, icon: ShoppingCart, color: 'text-[#10b981]', bgInfo: 'bg-[#10b981]' },
+          { id: 'special', label: 'ซื้อสินค้าพิเศษ', count: specialPurchases.length, icon: Star, color: 'text-amber-400', bgInfo: 'bg-amber-400' },
+          { id: 'angpao', label: 'เติมเงินซองอั่งเปา', count: angpaoTopups.length, icon: Gift, color: 'text-rose-400', bgInfo: 'bg-rose-400' },
+          { id: 'slip', label: 'เติมเงินแนบสลิป', count: slipTopups.length, icon: CreditCard, color: 'text-[#0ea5e9]', bgInfo: 'bg-[#0ea5e9]' }
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -186,23 +189,25 @@ export const MyOrdersView: React.FC<MyOrdersViewProps> = ({
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`p-4 rounded-md border text-left flex flex-col justify-between transition-all relative overflow-hidden group cursor-pointer ${
+              className={`p-5 rounded-[24px] border text-left flex flex-col justify-between transition-all duration-300 relative overflow-hidden group cursor-pointer shadow-md ${
                 isActive 
-                  ? 'bg-white/[0.06] border-[#1e1e1e] shadow-sm' 
-                  : 'bg-[#000000] border-zinc-850 hover:bg-white/[0.04] hover:border-[#1e1e1e]'
+                  ? 'bg-[#2c2c2e]/80 border-white/[0.1] shadow-lg scale-[1.02]' 
+                  : 'bg-[#1c1c1e]/40 border-white/[0.02] hover:bg-[#2c2c2e]/50 hover:border-white/[0.05]'
               }`}
             >
-              {/* Highlight bar */}
+              {/* Highlight blur */}
               {isActive && (
-                <div className="absolute top-0 left-0 right-0 h-[2.5px] bg-neon-green " />
+                <div className={`absolute -top-10 -right-10 w-24 h-24 ${tab.bgInfo}/20 rounded-full blur-2xl pointer-events-none`} />
               )}
-              <div className="flex items-center justify-between">
-                <Icon className={`w-5 h-5 ${tab.color} ${isActive ? 'scale-110' : 'group-hover:scale-105'} transition-all`} />
-                <span className="text-[10px] font-mono font-medium text-zinc-500 bg-white/[0.04] px-2 py-0.5 rounded border border-[#1e1e1e]">
-                  {tab.count} รายการ
+              <div className="flex items-center justify-between relative z-10">
+                <div className={`w-10 h-10 rounded-[14px] flex items-center justify-center ${isActive ? `${tab.bgInfo}/20` : 'bg-white/[0.05]'} transition-colors`}>
+                  <Icon className={`w-5 h-5 ${tab.color} ${isActive ? 'scale-110' : 'group-hover:scale-105'} transition-transform`} />
+                </div>
+                <span className="text-xs font-bold font-mono text-zinc-400 bg-black/30 px-3 py-1 rounded-full border border-white/[0.05]">
+                  {tab.count}
                 </span>
               </div>
-              <span className={`text-[11px] sm:text-xs font-semibold mt-4 transition-colors ${isActive ? 'text-white' : 'text-zinc-400 group-hover:text-white'}`}>
+              <span className={`text-sm font-bold mt-4 transition-colors relative z-10 ${isActive ? 'text-white' : 'text-zinc-400 group-hover:text-zinc-200'}`}>
                 {tab.label}
               </span>
             </button>
@@ -211,21 +216,23 @@ export const MyOrdersView: React.FC<MyOrdersViewProps> = ({
       </div>
 
       {/* Main Container of Horizontal Cards */}
-      <div className="space-y-3.5">
+      <div className="space-y-4">
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -12 }}
-            transition={{ duration: 0.18 }}
-            className="space-y-3"
+            initial={{ opacity: 0, y: 12, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -12, scale: 0.98 }}
+            transition={{ type: "spring", stiffness: 400, damping: 30 }}
+            className="space-y-4"
           >
             {currentList.length === 0 ? (
-              <div className="border border-zinc-850 bg-[#000000] rounded-md py-16 px-4 text-center">
-                <ShoppingBag className="w-12 h-12 text-zinc-700 stroke-[1.5px] mx-auto mb-4" />
-                <p className="font-medium text-zinc-400 text-sm">ไม่พบประวัติการทำรายการ</p>
-                <p className="text-[11px] text-zinc-650 mt-1">คุณยังไม่มีการทำราการในหมวดหมู่นี้</p>
+              <div className="border border-white/[0.02] bg-[#1c1c1e]/40 backdrop-blur-xl rounded-[28px] py-16 px-4 text-center shadow-lg">
+                <div className="w-20 h-20 bg-white/[0.02] rounded-[24px] flex items-center justify-center mx-auto mb-5 shadow-inner">
+                  <ShoppingBag className="w-10 h-10 text-zinc-600 stroke-[1.5px]" />
+                </div>
+                <p className="font-bold text-zinc-300 text-lg">ไม่พบประวัติการทำรายการ</p>
+                <p className="text-sm text-zinc-500 mt-2 font-medium">คุณยังไม่มีการทำรายการในหมวดหมู่นี้</p>
               </div>
             ) : (
               currentList.map((item, idx) => {
@@ -238,30 +245,30 @@ export const MyOrdersView: React.FC<MyOrdersViewProps> = ({
                 return (
                   <div
                     key={item.id || idx}
-                    className="group bg-[#000000] border border-zinc-850 hover:border-[#1e1e1e] rounded-md p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 transition-all duration-200 shadow-sm hover:shadow-md relative overflow-hidden"
+                    className="group bg-[#1c1c1e]/40 backdrop-blur-md border border-white/[0.03] hover:border-white/[0.08] hover:bg-[#2c2c2e]/60 rounded-[24px] p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-5 transition-all duration-300 shadow-md hover:shadow-xl relative overflow-hidden"
                   >
                     {/* Horizontal Card Main Body */}
-                    <div className="flex items-center gap-4 min-w-0 flex-1">
+                    <div className="flex items-center gap-5 min-w-0 flex-1">
                       {/* Left Icon Block */}
-                      <div className={`w-12 h-12 rounded-md border flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-105 ${item.colorClass}`}>
-                        <Icon className="w-5 h-5" />
+                      <div className={`w-14 h-14 rounded-[20px] bg-black/20 flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-105 shadow-inner border border-white/[0.05] ${item.colorClass}`}>
+                        <Icon className="w-6 h-6" />
                       </div>
 
                       {/* Middle Texts */}
-                      <div className="min-w-0 flex-1">
+                      <div className="min-w-0 flex-1 space-y-1">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <h3 className="text-xs sm:text-sm font-semibold text-white truncate max-w-[220px] sm:max-w-md">
+                          <h3 className="text-base font-bold text-white truncate max-w-[220px] sm:max-w-md tracking-tight">
                             {item.displayTitle}
                           </h3>
                         </div>
                         
-                        <div className="flex items-center gap-3.5 mt-1.5 flex-wrap">
-                          <div className="flex items-center gap-1.5 text-[10px] font-mono font-medium text-zinc-500">
-                            <span>บิลไอดี:</span>
-                            <span className="text-zinc-400">{displayId}</span>
+                        <div className="flex items-center gap-4 flex-wrap">
+                          <div className="flex items-center gap-1.5 text-xs font-mono font-medium text-zinc-500">
+                            <span>ID:</span>
+                            <span className="text-zinc-400 bg-black/20 px-1.5 py-0.5 rounded-md border border-white/[0.05]">{displayId}</span>
                           </div>
                           
-                          <div className="flex items-center gap-1.5 text-[10px] font-medium text-zinc-550">
+                          <div className="flex items-center gap-1.5 text-xs font-medium text-zinc-500">
                             <Clock className="w-3.5 h-3.5" />
                             <span>{dateStr}</span>
                           </div>
@@ -270,12 +277,12 @@ export const MyOrdersView: React.FC<MyOrdersViewProps> = ({
                     </div>
 
                     {/* Right Price details and Status badges */}
-                    <div className="flex items-center justify-between md:justify-end gap-5 w-full md:w-auto border-t md:border-t-0 border-[#1e1e1e] pt-3 md:pt-0 shrink-0">
-                      <div className="flex flex-col md:items-end gap-1">
-                        <div className="text-[9px] text-zinc-650 font-semibold uppercase tracking-wider">
+                    <div className="flex items-center justify-between md:justify-end gap-6 w-full md:w-auto border-t md:border-t-0 border-white/[0.05] pt-4 md:pt-0 shrink-0">
+                      <div className="flex flex-col md:items-end gap-1.5">
+                        <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">
                           {item.isExpense ? 'ยอดชำระสุทธิ' : 'ยอดเติมเงิน'}
                         </div>
-                        <span className={`text-sm font-semibold font-mono tracking-tight ${
+                        <span className={`text-lg font-bold font-mono tracking-tight ${
                           item.isExpense ? 'text-rose-400' : 'text-[#10b981]'
                         }`}>
                           {item.isExpense ? '-' : '+'}{Math.floor(item.displayPrice).toLocaleString()} ฿
@@ -295,10 +302,10 @@ export const MyOrdersView: React.FC<MyOrdersViewProps> = ({
                             key: item.displayTitle,
                             secretData: item.secretData || item.key || item.code || 'อยู่ระหว่างการประมวลผลระบบ...',
                           })}
-                          className="w-8 h-8 rounded-md bg-white/[0.06] hover:bg-neon-green hover:text-black border border-[#1e1e1e] text-zinc-400 flex items-center justify-center transition-all duration-200 cursor-pointer"
+                          className="w-10 h-10 rounded-[14px] bg-white/[0.05] hover:bg-[#10b981] hover:text-black hover:scale-105 active:scale-95 text-zinc-400 flex items-center justify-center transition-all duration-200 cursor-pointer shadow-sm"
                           title="ดูบิลฉบับเต็ม"
                         >
-                          <Eye className="w-4 h-4" />
+                          <Eye className="w-5 h-5" />
                         </button>
                       </div>
                     </div>
@@ -313,11 +320,11 @@ export const MyOrdersView: React.FC<MyOrdersViewProps> = ({
 
       {/* Info notification */}
       {activeTab === 'special' && (
-        <div className="mt-6 bg-[#000000] border border-zinc-850 rounded-md p-4 flex gap-3.5 items-start">
-          <Info className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
-          <div className="space-y-0.5">
-            <p className="text-xs font-medium text-zinc-200">ข้อตกลงเกี่ยวกับการส่งมอบสินค้าพิเศษและแรนดอม</p>
-            <p className="text-[10px] sm:text-[11px] text-zinc-500 leading-relaxed font-semibold">
+        <div className="mt-8 bg-amber-500/10 border border-amber-500/20 backdrop-blur-xl rounded-[24px] p-5 flex gap-4 items-start shadow-md">
+          <Info className="w-6 h-6 text-amber-400 shrink-0 mt-0.5" />
+          <div className="space-y-1">
+            <p className="text-sm font-bold text-amber-400">ข้อตกลงเกี่ยวกับการส่งมอบสินค้าพิเศษและแรนดอม</p>
+            <p className="text-xs text-amber-500/80 leading-relaxed font-medium">
               ออเดอร์สินค้าพิเศษจะถูกเตรียมรหัสอัตโนมัติภายใน 5-15 นาที ท่านสามารถกดปุ่มรูปดวงตาด้านหลังรายการเพื่อแสดงข้อมูลรหัสไอดี, คีย์กิฟท์การ์ด, หรือลิงก์รับสินค้าได้ทันทีเมื่อสถานะเปลี่ยนเป็น สำเร็จ
             </p>
           </div>
