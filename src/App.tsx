@@ -2859,9 +2859,6 @@ const SupplementaryLoader: React.FC = () => {
   return (
     <div className="flex-1 w-full flex flex-col items-center justify-center min-h-[50vh] bg-[#000000] text-zinc-400 p-8 my-4 text-center select-none">
       <div className="flex flex-col items-center justify-center gap-6">
-        <div className="flex items-center justify-center opacity-70">
-          <img src="https://img2.pic.in.th/DFB0841D-C86A-45E7-B08A-D626DD682DD1.png" alt="APEXSTORE Logo" className="h-10 object-contain select-none grayscale" />
-        </div>
         <div className="w-8 h-8 border-4 border-zinc-800 border-t-white rounded-full animate-spin" />
         <div className="space-y-2 mt-4">
           <div className="w-32 h-4 bg-zinc-800/80 rounded-full animate-pulse" />
@@ -2881,23 +2878,6 @@ const PortalLoader: React.FC = () => {
       className="fixed inset-0 z-[99999] bg-[#000000] flex flex-col items-center justify-center font-sans overflow-hidden select-none"
     >
       <div className="flex flex-col items-center justify-center gap-8">
-        <motion.div
-          animate={{
-            y: [0, -18, 0],
-            scale: [1, 1.06, 1],
-          }}
-          transition={{
-            duration: 1.5,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-          className="relative"
-        >
-          <div className="flex items-center justify-center filter drop-shadow-[0_0_15px_rgba(255,255,255,0.15)]">
-            <img src="https://img2.pic.in.th/DFB0841D-C86A-45E7-B08A-D626DD682DD1.png" alt="APEXSTORE Logo" className="h-16 md:h-20 object-contain select-none opacity-90" />
-          </div>
-        </motion.div>
-        
         <div className="w-8 h-8 md:w-10 md:h-10 border-[3px] md:border-4 border-zinc-800 border-t-white rounded-full animate-spin" />
       </div>
     </motion.div>
