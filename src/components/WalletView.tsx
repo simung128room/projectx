@@ -394,7 +394,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
         </div>
 
         {/* ── Header Card: Current Balance Glassmorphic Widget ── */}
-        <div className="mb-8 relative overflow-hidden bg-[#09090b]/60 backdrop-blur-md border border-[#1e1e1e] p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 group">
+        <div className="mb-8 relative overflow-hidden bg-[#0a0a0c]/60 backdrop-blur-2xl saturate-150 border border-[#1e1e1e] p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 group rounded-xl">
           {/* Subtle line background decoration inside wallet stats card */}
           <div className="absolute inset-x-0 bottom-0 h-[2px] bg-gradient-to-r from-transparent via-[#10b981] to-transparent opacity-65 group-hover:opacity-100 transition-opacity duration-300" />
           

@@ -124,7 +124,7 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
                   key={product.id}
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.2, delay: Math.min(i, 10) * 0.03 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 30, delay: Math.min(i, 10) * 0.03 }}
                   className="group relative bg-[#0c0c0e] border border-[#1e1e1e] rounded-md overflow-hidden hover:border-[#1e1e1e] transition-colors duration-200 flex flex-col  shadow-sm"
                 >
                   {/* Image area with corner ribbon */}

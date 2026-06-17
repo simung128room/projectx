@@ -1880,7 +1880,7 @@ function AppContent() {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: isLoaded ? 1 : 0 }}
-        transition={{ duration: 1.0, ease: "easeInOut" }}
+        transition={{ type: "spring", stiffness: 400, damping: 30, duration: 0.8 }}
         className="min-h-screen w-full flex flex-col lg:flex-row-reverse relative"
       >
         {useCustomCursor && <CustomCursor />}
@@ -1891,11 +1891,6 @@ function AppContent() {
           <div className="w-[260px] h-full flex flex-col overflow-y-auto no-scrollbar shrink-0">
             {/* Brand Header */}
           <div className="px-5 pt-4 pb-4 w-full flex flex-col justify-start shrink-0">
-            <div className="flex items-center gap-2 text-[10px] text-zinc-500 mb-2 font-sans tracking-wide">
-              <span className="hover:text-zinc-300 cursor-pointer transition-colors" onClick={() => { setActiveView("privacy"); window.scrollTo(0,0); }}>นโยบายความเป็นส่วนตัว</span>
-              <span>|</span>
-              <span className="hover:text-zinc-300 cursor-pointer transition-colors" onClick={() => { setActiveView("terms"); window.scrollTo(0,0); }}>ข้อกำหนดการใช้งาน</span>
-            </div>
             <div className="flex items-center gap-3 w-full">
               <div
                 className="cursor-pointer select-none"
@@ -2113,16 +2108,8 @@ function AppContent() {
         </aside>
         {/* Main Content Area */}
         <div className="flex-1 flex flex-col min-h-screen min-w-0 relative transition-all duration-300">
-          {/* Top Banner for Policies (Mobile) */}
-          <div className="lg:hidden w-full bg-[#050505] flex justify-start py-1.5 px-4 text-[10px] text-zinc-500 font-sans tracking-wide border-b border-[#1e1e1e]">
-             <div className="flex gap-2.5 items-center w-full">
-               <span className="hover:text-zinc-300 cursor-pointer transition-colors" onClick={() => { setActiveView("privacy"); window.scrollTo(0,0); }}>นโยบายความเป็นส่วนตัว</span>
-               <span className="text-zinc-700">|</span>
-               <span className="hover:text-zinc-300 cursor-pointer transition-colors" onClick={() => { setActiveView("terms"); window.scrollTo(0,0); }}>ข้อกำหนดการใช้งาน</span>
-             </div>
-          </div>
           {/* Top Header */}
-          <header className="sticky top-[27px] lg:top-0 z-[100] w-full bg-black/60 backdrop-blur-md border-b border-[#1e1e1e] flex-shrink-0 select-none">
+          <header className="sticky top-0 z-[100] w-full bg-[#050505]/40 backdrop-blur-2xl saturate-150 border-b border-[#1e1e1e] flex-shrink-0 select-none">
             <div className="flex items-center justify-between h-[80px] px-4 md:px-8 mx-auto w-full">
               {/* Left Section: Mobile Logo + Desktop Toggle */}
               <div className="flex items-center gap-4 flex-shrink-0">
@@ -2230,14 +2217,14 @@ function AppContent() {
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="fixed inset-0 bg-black/60 backdrop-blur-md z-[120] lg:hidden"
+                  className="fixed inset-0 bg-[#000000]/50 backdrop-blur-3xl saturate-150 z-[120] lg:hidden"
                 />
                 <motion.div
                   key="sidebar"
                   initial={{ x: "100%" }}
                   animate={{ x: 0 }}
                   exit={{ x: "100%" }}
-                  transition={{ type: "spring", stiffness: 350, damping: 28 }}
+                  transition={{ type: "spring", stiffness: 450, damping: 35 }}
                   className="fixed top-0 right-0 bottom-0 h-screen w-full max-w-[320px] bg-[#101014] z-[130] flex flex-col lg:hidden overflow-y-auto no-scrollbar border-l border-[#1e1e1e] shadow-2xl"
                 >
                   {/* Mobile Sidebar Header with Logo and Close Icon */}
@@ -2795,10 +2782,17 @@ function AppContent() {
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-px from-transparent via-[#10b981]/50 to-transparent"></div>
 
             <div className="max-w-7xl mx-auto px-6 md:px-12 w-full">
-              <div className="flex justify-center items-center gap-4 text-xs text-muted-foreground">
-                <p>
-                  © {new Date().getFullYear()} เอเพ็กซ์สโตร์ — สงวนลิขสิทธิ์
-                </p>
+              <div className="flex flex-col justify-center items-center gap-2 text-xs text-muted-foreground">
+                <div className="flex items-center gap-2 mb-2 font-medium">
+                  <span className="hover:text-zinc-300 cursor-pointer transition-colors" onClick={() => { setActiveView("privacy"); window.scrollTo(0,0); }}>นโยบายความเป็นส่วนตัว</span>
+                  <span className="text-zinc-700">|</span>
+                  <span className="hover:text-zinc-300 cursor-pointer transition-colors" onClick={() => { setActiveView("terms"); window.scrollTo(0,0); }}>ข้อกำหนดการใช้งาน</span>
+                </div>
+                <div className="flex justify-center items-center gap-4">
+                  <p>
+                    © {new Date().getFullYear()} เอเพ็กซ์สโตร์ — สงวนลิขสิทธิ์
+                  </p>
+                </div>
               </div>
             </div>
           </footer>
@@ -2874,7 +2868,7 @@ const PortalLoader: React.FC = () => {
     <motion.div
       initial={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.8, ease: "easeInOut" }}
+      transition={{ type: "spring", stiffness: 400, damping: 30 }}
       className="fixed inset-0 z-[99999] bg-[#000000] flex flex-col items-center justify-center font-sans overflow-hidden select-none"
     >
       <div className="flex flex-col items-center justify-center gap-8">

@@ -210,7 +210,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
     </div>
 
       {showTurnstileModal && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-[80] animate-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 bg-[#000000]/60 backdrop-blur-2xl flex items-center justify-center p-4 z-[80] animate-in zoom-in-95 duration-200">
           <div className="bg-[#09090b] border border-[#1e1e1e]  p-6 sm:p-8 max-w-sm w-full relative overflow-hidden flex flex-col items-center ">
             <div className="mb-2 flex items-center justify-center w-full overflow-hidden" style={{ colorScheme: 'dark' }}>
               <div className="flex items-start justify-center w-full">

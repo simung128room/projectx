@@ -95,7 +95,7 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({
     if (isPurchase) {
       return (
         <div 
-          className="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200" 
+          className="fixed inset-0 bg-[#000000]/60 backdrop-blur-3xl saturate-150 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200" 
           onClick={() => setSelectedItem(null)}
         >
           <div 
@@ -215,7 +215,7 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({
 
     return (
       <div 
-        className="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200" 
+        className="fixed inset-0 bg-[#000000]/60 backdrop-blur-3xl saturate-150 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200" 
         onClick={() => setSelectedItem(null)}
       >
         <div 

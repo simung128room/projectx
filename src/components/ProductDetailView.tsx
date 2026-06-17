@@ -58,7 +58,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
           <motion.div
             className="w-full aspect-square relative overflow-hidden rounded-md bg-zinc-950 border border-[#1e1e1e] flex items-center justify-center group shadow-inner p-4"
             
-            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+            transition={{ type: "spring", stiffness: 400, damping: 30 }}
           >
             <div className="absolute inset-0 bg-[#09090b] z-10 pointer-events-none" />
             

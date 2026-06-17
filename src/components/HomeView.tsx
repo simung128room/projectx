@@ -165,7 +165,7 @@ function ShortcutBtn({
       initial={{ opacity: 0, y: 20, scale: 0.95 }}
       whileInView={{ opacity: 1, y: 0, scale: 1 }}
       viewport={{ once: false, amount: 0.1 }}
-      transition={{ duration: 0.4, delay }}
+      transition={{ type: "spring", stiffness: 350, damping: 30, delay }}
       
       
       onClick={onClick}
@@ -506,7 +506,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
+          transition={{ type: "spring", stiffness: 400, damping: 30 }}
           className="relative overflow-hidden rounded-md border border-[#1e1e1e] mb-3 bg-[#0d0d0d] group w-full"
           style={{ aspectRatio: '2100 / 500' }}
         >
@@ -525,7 +525,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
+            transition={{ type: "spring", stiffness: 400, damping: 30, delay: 0.2 }}
             className="mb-8 flex items-center bg-[#050505]/50 border border-[#1e1e1e] rounded-md px-4 py-2.5 overflow-hidden"
           >
             <div className="flex items-center justify-center bg-red-500/10 px-2.5 py-1.5 rounded-md border border-red-500/20 text-red-400 shrink-0 mr-3 shadow-sm gap-1.5 font-semibold text-xs select-none">

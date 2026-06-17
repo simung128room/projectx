@@ -71,7 +71,7 @@ const ProductManagerModal = ({
   });
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center sm:justify-end p-0 z-[100]" onClick={onClose}>
+    <div className="fixed inset-0 bg-[#000000]/60 backdrop-blur-3xl saturate-150 flex items-center justify-center sm:justify-end p-0 z-[100]" onClick={onClose}>
       <div 
         className="bg-[#09090b] border-none sm:border-l border-[#1e1e1e] border w-full sm:max-w-md h-full relative overflow-y-auto p-6 sm:p-8 animate-in slide-in-from-bottom-full sm:slide-in-from-right-full duration-300"
         onClick={e => e.stopPropagation()}
@@ -463,7 +463,7 @@ const AddStockModal = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-end p-0 z-50">
+    <div className="fixed inset-0 bg-[#000000]/60 backdrop-blur-3xl saturate-150 flex items-center justify-end p-0 z-50">
       <div className="bg-[#09090b] border-l border-[#1e1e1e] border w-full max-w-md h-full relative p-6 sm:p-8 overflow-y-auto animate-in slide-in-from-right-full duration-300">
         <h2 className="text-xl font-medium text-white mb-6 flex items-center gap-2">
           <Database className="w-5 h-5 text-[#10b981]" />
@@ -992,7 +992,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setIsNavOpen(false)}
-            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 lg:hidden"
+            className="fixed inset-0 bg-[#000000]/60 backdrop-blur-3xl saturate-150 z-40 lg:hidden"
           />
         )}
       </AnimatePresence>
@@ -1002,12 +1002,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         {/* Brand/Logo Area */}
         <div className="p-6 flex items-center justify-between border-b border-[#1e1e1e] border shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-[#10b981] text-white flex items-center justify-center flex-shrink-0 rounded-sm shadow-sm">
-              <Crown className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <h2 className="text-white font-semibold tracking-tight leading-none text-md uppercase">APEXSTORE</h2>
-              <p className="text-[9px] text-[#10b981] font-medium uppercase tracking-widest mt-1">Admin Console</p>
+            <div className="flex items-center justify-center flex-shrink-0">
+              <img src="https://img2.pic.in.th/DFB0841D-C86A-45E7-B08A-D626DD682DD1.png" alt="APEXSTORE Logo" className="h-8 object-contain" />
             </div>
           </div>
           <button onClick={() => setIsNavOpen(false)} className="lg:hidden p-2 text-zinc-400 hover:text-white bg-[#09090b] rounded-md">
@@ -1075,7 +1071,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden lg:pl-[280px]">
         {/* Top Header */}
-        <header className="h-[72px] bg-[#09090b] backdrop-blur-md border-b border-[#1e1e1e] border flex items-center justify-between px-4 lg:px-8 shrink-0 z-30 sticky top-0">
+        <header className="h-[72px] bg-[#09090b]/40 backdrop-blur-2xl saturate-150 border-b border-[#1e1e1e] border flex items-center justify-between px-4 lg:px-8 shrink-0 z-30 sticky top-0">
           <div className="flex items-center gap-4">
             <button 
               onClick={() => setIsNavOpen(true)}
