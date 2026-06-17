@@ -1895,9 +1895,8 @@ function AppContent() {
               className="flex flex-col items-center justify-center mb-6 pt-6 px-4 select-none cursor-pointer"
               onClick={handleLogoClick}
             >
-              <div className="flex items-center gap-2 group">
-                <div className="w-2.5 h-2.5 rounded-full bg-[#10b981] shadow-[0_0_10px_#10b981] animate-pulse" />
-                <span className="text-2xl font-bold tracking-tight text-white font-logo select-none whitespace-nowrap">
+              <div className="flex items-center group">
+                <span className="text-[34px] font-bold tracking-tight text-white font-logo select-none whitespace-nowrap hover:scale-[1.01] transition-transform">
                   apex<span className="text-[#10b981]">store</span>
                 </span>
               </div>
@@ -1905,24 +1904,29 @@ function AppContent() {
             </div>
 
             {/* Main Navigation */}
-            <div className="flex-1 space-y-6 overflow-y-auto no-scrollbar pr-0.5">
+            <div className="flex-1 space-y-4 overflow-y-auto no-scrollbar pr-0.5">
               {/* EXPLORE */}
               <div>
                 <h2 className="text-[10px] font-bold text-zinc-500 mb-2 px-3 uppercase tracking-wider">EXPLORE</h2>
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-1.5">
                   {/* Home */}
                   <button
                     onClick={() => {
                       setActiveView("home");
                       window.scrollTo({ top: 0, behavior: "smooth" });
                     }}
-                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl cursor-pointer transition-all duration-200 group ${activeView === "home" ? "bg-emerald-500/[0.06] text-[#10b981] font-semibold shadow-[0_0_15px_rgba(16,185,129,0.03),inset_0_1px_0_0_rgba(255,255,255,0.03)] border border-emerald-500/15" : "text-zinc-400 hover:text-white hover:bg-white/[0.03] border border-transparent"}`}
+                    className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg cursor-pointer transition-all duration-200 group relative overflow-hidden ${activeView === "home" ? "bg-white/[0.04] text-white font-semibold border border-white/5" : "text-zinc-400 hover:text-white hover:bg-white/[0.02] border border-transparent"}`}
                   >
                     <div className="flex items-center gap-2.5">
-                      <Home size={16} className={activeView === "home" ? "text-[#10b981]" : "text-zinc-400 group-hover:text-zinc-300"} />
-                      <span>หน้าแรก (Home)</span>
+                      <Home size={15} className={activeView === "home" ? "text-white" : "text-zinc-400 group-hover:text-zinc-200"} />
+                      <span className="text-[12.5px]">หน้าแรก (Home)</span>
                     </div>
-                    {activeView === "home" && <div className="w-1.5 h-1.5 rounded-full bg-[#10b981]" />}
+                    {activeView === "home" && (
+                      <>
+                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#10b981] shadow-[0_0_8px_#10b981]" />
+                        <div className="w-1.5 h-1.5 rounded-full bg-[#10b981] shadow-[0_0_6px_#10b981]" />
+                      </>
+                    )}
                   </button>
 
                   {/* History */}
@@ -1950,13 +1954,18 @@ function AppContent() {
                         );
                       }
                     }}
-                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl cursor-pointer transition-all duration-200 group ${activeView === "history" || activeView === "my_orders" ? "bg-emerald-500/[0.06] text-[#10b981] font-semibold shadow-[0_0_15px_rgba(16,185,129,0.03),inset_0_1px_0_0_rgba(255,255,255,0.03)] border border-emerald-500/15" : "text-zinc-400 hover:text-white hover:bg-white/[0.03] border border-transparent"}`}
+                    className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg cursor-pointer transition-all duration-200 group relative overflow-hidden ${activeView === "history" || activeView === "my_orders" ? "bg-white/[0.04] text-white font-semibold border border-white/5" : "text-zinc-400 hover:text-white hover:bg-white/[0.02] border border-transparent"}`}
                   >
                     <div className="flex items-center gap-2.5">
-                      <History size={16} className={activeView === "history" || activeView === "my_orders" ? "text-[#10b981]" : "text-zinc-400 group-hover:text-zinc-300"} />
-                      <span>ประวัติการสั่งซื้อ</span>
+                      <History size={15} className={activeView === "history" || activeView === "my_orders" ? "text-white" : "text-zinc-400 group-hover:text-zinc-200"} />
+                      <span className="text-[12.5px]">ประวัติการสั่งซื้อ</span>
                     </div>
-                    {(activeView === "history" || activeView === "my_orders") && <div className="w-1.5 h-1.5 rounded-full bg-[#10b981]" />}
+                    {(activeView === "history" || activeView === "my_orders") && (
+                      <>
+                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#10b981] shadow-[0_0_8px_#10b981]" />
+                        <div className="w-1.5 h-1.5 rounded-full bg-[#10b981] shadow-[0_0_6px_#10b981]" />
+                      </>
+                    )}
                   </button>
                 </div>
               </div>
@@ -1990,10 +1999,18 @@ function AppContent() {
                         );
                       }
                     }}
-                    className={`w-full flex items-center gap-2.5 px-4 py-3 rounded-xl font-semibold text-[13px] transition-all duration-200 cursor-pointer shadow-md select-none border ${activeView === "wallet" ? "bg-emerald-500/[0.08] border-emerald-500 text-[#10b981] shadow-[0_0_20px_rgba(16,185,129,0.08)]" : "bg-[#161619]/40 hover:bg-[#1f1f23]/60 text-zinc-100 hover:text-white border-[#242429] hover:border-zinc-700"}`}
+                    className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg font-semibold text-[12.5px] transition-all duration-200 cursor-pointer shadow-sm select-none border relative overflow-hidden ${activeView === "wallet" ? "bg-white/[0.04] text-white border-white/5 animate-pulse" : "bg-emerald-500/[0.04] hover:bg-emerald-500/[0.08] text-emerald-400 hover:text-white border-emerald-500/10 hover:border-emerald-500/20"}`}
                   >
-                    <Plus size={16} className={activeView === "wallet" ? "text-[#10b981]" : "text-emerald-500"} />
-                    <span>เติมเงินเข้าระบบ</span>
+                    <div className="flex items-center gap-2.5">
+                      <Plus size={15} className={activeView === "wallet" ? "text-white" : "text-emerald-400"} />
+                      <span className="text-[12.5px]">เติมเงินเข้าระบบ</span>
+                    </div>
+                    {activeView === "wallet" && (
+                      <>
+                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#10b981] shadow-[0_0_8px_#10b981]" />
+                        <div className="w-1.5 h-1.5 rounded-full bg-[#10b981] shadow-[0_0_6px_#10b981]" />
+                      </>
+                    )}
                   </button>
 
                   {/* สินค้าทั้งหมด */}
@@ -2002,13 +2019,18 @@ function AppContent() {
                       setActiveView("categories");
                       window.scrollTo({ top: 0, behavior: "smooth" });
                     }}
-                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl cursor-pointer transition-all duration-200 group ${activeView === "categories" || activeView === "category_products" ? "bg-emerald-500/[0.06] text-[#10b981] font-semibold shadow-[0_0_15px_rgba(16,185,129,0.03),inset_0_1px_0_0_rgba(255,255,255,0.03)] border border-emerald-500/15" : "text-zinc-400 hover:text-white hover:bg-white/[0.03] border border-transparent"}`}
+                    className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg cursor-pointer transition-all duration-200 group relative overflow-hidden ${activeView === "categories" || activeView === "category_products" ? "bg-white/[0.04] text-white font-semibold border border-white/5" : "text-zinc-400 hover:text-white hover:bg-white/[0.02] border border-transparent"}`}
                   >
                     <div className="flex items-center gap-2.5">
-                      <ShoppingCart size={16} className={activeView === "categories" || activeView === "category_products" ? "text-[#10b981]" : "text-zinc-400 group-hover:text-zinc-300"} />
-                      <span>สินค้าทั้งหมด</span>
+                      <ShoppingCart size={15} className={activeView === "categories" || activeView === "category_products" ? "text-white" : "text-zinc-400 group-hover:text-zinc-200"} />
+                      <span className="text-[12.5px]">สินค้าทั้งหมด</span>
                     </div>
-                    {(activeView === "categories" || activeView === "category_products") && <div className="w-1.5 h-1.5 rounded-full bg-[#10b981]" />}
+                    {(activeView === "categories" || activeView === "category_products") && (
+                      <>
+                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#10b981] shadow-[0_0_8px_#10b981]" />
+                        <div className="w-1.5 h-1.5 rounded-full bg-[#10b981] shadow-[0_0_6px_#10b981]" />
+                      </>
+                    )}
                   </button>
                 </div>
               </div>
@@ -2016,7 +2038,7 @@ function AppContent() {
               {/* MANAGE */}
               <div>
                 <h2 className="text-[10px] font-bold text-zinc-500 mb-2 px-3 uppercase tracking-wider">MANAGE</h2>
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-1.5">
                   {/* Admin Backoffice (if isAdmin) */}
                   {isAdmin && (
                     <button
@@ -2024,13 +2046,18 @@ function AppContent() {
                         setActiveView("admin");
                         window.scrollTo({ top: 0, behavior: "smooth" });
                       }}
-                      className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl cursor-pointer transition-all duration-200 group ${activeView === "admin" ? "bg-emerald-500/[0.06] text-[#10b981] font-semibold shadow-[0_0_15px_rgba(16,185,129,0.03),inset_0_1px_0_0_rgba(255,255,255,0.03)] border border-emerald-500/15" : "text-zinc-400 hover:text-white hover:bg-white/[0.03] border border-transparent"}`}
+                      className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg cursor-pointer transition-all duration-200 group relative overflow-hidden ${activeView === "admin" ? "bg-white/[0.04] text-white font-semibold border border-white/5" : "text-zinc-400 hover:text-white hover:bg-white/[0.02] border border-transparent"}`}
                     >
                       <div className="flex items-center gap-2.5">
-                        <ShieldCheck size={16} className={activeView === "admin" ? "text-[#10b981]" : "text-zinc-400 group-hover:text-zinc-300"} />
-                        <span>จัดการหลังบ้าน (Admin)</span>
+                        <ShieldCheck size={15} className={activeView === "admin" ? "text-white" : "text-zinc-400 group-hover:text-zinc-200"} />
+                        <span className="text-[12.5px]">จัดการหลังบ้าน (Admin)</span>
                       </div>
-                      {activeView === "admin" && <div className="w-1.5 h-1.5 rounded-full bg-[#10b981]" />}
+                      {activeView === "admin" && (
+                        <>
+                          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#10b981] shadow-[0_0_8px_#10b981]" />
+                          <div className="w-1.5 h-1.5 rounded-full bg-[#10b981] shadow-[0_0_6px_#10b981]" />
+                        </>
+                      )}
                     </button>
                   )}
 
@@ -2041,13 +2068,18 @@ function AppContent() {
                         setActiveView("profile");
                         window.scrollTo({ top: 0, behavior: "smooth" });
                       }}
-                      className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl cursor-pointer transition-all duration-200 group ${activeView === "profile" ? "bg-emerald-500/[0.06] text-[#10b981] font-semibold shadow-[0_0_15px_rgba(16,185,129,0.03),inset_0_1px_0_0_rgba(255,255,255,0.03)] border border-emerald-500/15" : "text-zinc-400 hover:text-white hover:bg-white/[0.03] border border-transparent"}`}
+                      className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg cursor-pointer transition-all duration-200 group relative overflow-hidden ${activeView === "profile" ? "bg-white/[0.04] text-white font-semibold border border-white/5" : "text-zinc-400 hover:text-white hover:bg-white/[0.02] border border-transparent"}`}
                     >
                       <div className="flex items-center gap-2.5">
-                        <User size={16} className={activeView === "profile" ? "text-[#10b981]" : "text-zinc-400 group-hover:text-zinc-300"} />
-                        <span>โปรไฟล์ของฉัน</span>
+                        <User size={15} className={activeView === "profile" ? "text-white" : "text-zinc-400 group-hover:text-zinc-200"} />
+                        <span className="text-[12.5px]">โปรไฟล์ของฉัน</span>
                       </div>
-                      {activeView === "profile" && <div className="w-1.5 h-1.5 rounded-full bg-[#10b981]" />}
+                      {activeView === "profile" && (
+                        <>
+                          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#10b981] shadow-[0_0_8px_#10b981]" />
+                          <div className="w-1.5 h-1.5 rounded-full bg-[#10b981] shadow-[0_0_6px_#10b981]" />
+                        </>
+                      )}
                     </button>
                   )}
 
@@ -2058,13 +2090,18 @@ function AppContent() {
                         setActiveView("settings");
                         window.scrollTo({ top: 0, behavior: "smooth" });
                       }}
-                      className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl cursor-pointer transition-all duration-200 group ${activeView === "settings" ? "bg-emerald-500/[0.06] text-[#10b981] font-semibold shadow-[0_0_15px_rgba(16,185,129,0.03),inset_0_1px_0_0_rgba(255,255,255,0.03)] border border-emerald-500/15" : "text-zinc-400 hover:text-white hover:bg-white/[0.03] border border-transparent"}`}
+                      className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg cursor-pointer transition-all duration-200 group relative overflow-hidden ${activeView === "settings" ? "bg-white/[0.04] text-white font-semibold border border-white/5" : "text-zinc-400 hover:text-white hover:bg-white/[0.02] border border-transparent"}`}
                     >
                       <div className="flex items-center gap-2.5">
-                        <Settings size={16} className={activeView === "settings" ? "text-[#10b981]" : "text-zinc-400 group-hover:text-zinc-300"} />
-                        <span>ตั้งค่าระบบ</span>
+                        <Settings size={15} className={activeView === "settings" ? "text-white" : "text-zinc-400 group-hover:text-zinc-200"} />
+                        <span className="text-[12.5px]">ตั้งค่าระบบ</span>
                       </div>
-                      {activeView === "settings" && <div className="w-1.5 h-1.5 rounded-full bg-[#10b981]" />}
+                      {activeView === "settings" && (
+                        <>
+                          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#10b981] shadow-[0_0_8px_#10b981]" />
+                          <div className="w-1.5 h-1.5 rounded-full bg-[#10b981] shadow-[0_0_6px_#10b981]" />
+                        </>
+                      )}
                     </button>
                   )}
                 </div>
@@ -2208,6 +2245,7 @@ function AppContent() {
             </div>
           </div>
         </aside>
+
         {/* Main Content Area */}
         <div className="flex-1 flex flex-col min-h-screen min-w-0 relative transition-all duration-300">
           {/* Top Header */}
@@ -2223,7 +2261,7 @@ function AppContent() {
                 >
                   <motion.div
                     animate={{
-                      rotate: isDesktopSidebarOpen ? 0 : 0,
+                      rotate: 0,
                       y: 0,
                     }}
                     transition={{ duration: 0.2 }}
@@ -2254,9 +2292,8 @@ function AppContent() {
                     window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
                 >
-                  <div className="flex items-center gap-1.5 py-1">
-                    <div className="w-2 h-2 rounded-full bg-[#10b981] shadow-[0_0_8px_#10b981]" />
-                    <span className="text-xl font-bold tracking-tight text-white font-logo select-none">
+                  <div className="flex items-center py-1">
+                    <span className="text-2xl font-bold tracking-tight text-white font-logo select-none">
                       apex<span className="text-[#10b981]">store</span>
                     </span>
                   </div>
@@ -2332,7 +2369,7 @@ function AppContent() {
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="fixed inset-0 bg-[#000000]/70 backdrop-blur-3xl saturate-150 z-[120] lg:hidden"
+                  className="fixed inset-0 bg-[#000000]/80 backdrop-blur-md z-[120] lg:hidden select-none touch-none"
                 />
                 <motion.div
                   key="sidebar"
@@ -2340,10 +2377,10 @@ function AppContent() {
                   animate={{ x: 0 }}
                   exit={{ x: "100%" }}
                   transition={{ type: "spring", stiffness: 450, damping: 35 }}
-                  className="fixed top-0 right-0 bottom-0 h-screen w-full max-w-[300px] bg-[#040404] z-[130] flex flex-col lg:hidden overflow-y-auto no-scrollbar border-l border-[#161619] shadow-2xl p-5 text-[#e3e3e3]"
+                  className="fixed top-0 right-0 bottom-0 h-[100dvh] w-full max-w-[300px] bg-[#040404] z-[130] flex flex-col lg:hidden overflow-hidden border-l border-[#161619] shadow-2xl p-5 text-[#e3e3e3] select-none"
                 >
                   {/* Mobile Sidebar Header with Logo and Close Icon */}
-                  <div className="flex items-center justify-between mb-6 shrink-0 select-none">
+                  <div className="flex items-center justify-between mb-4 shrink-0 select-none">
                     <motion.div
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
@@ -2355,9 +2392,8 @@ function AppContent() {
                         window.scrollTo({ top: 0, behavior: "smooth" });
                       }}
                     >
-                      <div className="flex items-center gap-1.5 py-1">
-                        <div className="w-2 h-2 rounded-full bg-[#10b981] shadow-[0_0_8px_#10b981]" />
-                        <span className="text-xl font-bold tracking-tight text-white font-logo select-none">
+                      <div className="flex items-center py-1">
+                        <span className="text-[30px] font-bold tracking-tight text-white font-logo select-none">
                           apex<span className="text-[#10b981]">store</span>
                         </span>
                       </div>
@@ -2382,14 +2418,14 @@ function AppContent() {
                     </motion.button>
                   </div>
 
-                  <div className="h-px bg-[#161619] w-full mb-6 shrink-0" />
+                  <div className="h-px bg-gradient-to-r from-transparent via-[#161619] to-transparent w-full mb-4 shrink-0" />
  
                   {/* Main Navigation */}
-                  <div className="flex-1 space-y-6 overflow-y-auto no-scrollbar pr-0.5">
+                  <div className="flex-1 space-y-4 overflow-y-auto no-scrollbar pr-0.5 pb-2">
                     {/* EXPLORE */}
                     <div>
                       <h2 className="text-[10px] font-bold text-zinc-500 mb-2 px-3 uppercase tracking-wider">EXPLORE</h2>
-                      <div className="flex flex-col gap-1">
+                      <div className="flex flex-col gap-1.5">
                         {/* Home */}
                         <button
                           onClick={() => {
@@ -2397,13 +2433,18 @@ function AppContent() {
                             setIsMobileMenuOpen(false);
                             window.scrollTo({ top: 0, behavior: "smooth" });
                           }}
-                          className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl cursor-pointer transition-all duration-200 group ${activeView === "home" ? "bg-emerald-500/[0.06] text-[#10b981] font-semibold shadow-[0_0_15px_rgba(16,185,129,0.03),inset_0_1px_0_0_rgba(255,255,255,0.03)] border border-emerald-500/15" : "text-zinc-400 hover:text-white hover:bg-white/[0.03] border border-transparent"}`}
+                          className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg cursor-pointer transition-all duration-200 group relative overflow-hidden ${activeView === "home" ? "bg-white/[0.04] text-white font-semibold border border-white/5" : "text-zinc-400 hover:text-white hover:bg-white/[0.02] border border-transparent"}`}
                         >
                           <div className="flex items-center gap-2.5">
-                            <Home size={16} className={activeView === "home" ? "text-[#10b981]" : "text-zinc-400 group-hover:text-zinc-300"} />
-                            <span className="text-sm font-medium">หน้าแรก (Home)</span>
+                            <Home size={15} className={activeView === "home" ? "text-white" : "text-zinc-400 group-hover:text-zinc-200"} />
+                            <span className="text-[12.5px]">หน้าแรก (Home)</span>
                           </div>
-                          {activeView === "home" && <div className="w-1.5 h-1.5 rounded-full bg-[#10b981]" />}
+                          {activeView === "home" && (
+                            <>
+                              <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#10b981] shadow-[0_0_8px_#10b981]" />
+                              <div className="w-1.5 h-1.5 rounded-full bg-[#10b981] shadow-[0_0_6px_#10b981]" />
+                            </>
+                          )}
                         </button>
 
                         {/* History */}
@@ -2433,13 +2474,18 @@ function AppContent() {
                               );
                             }
                           }}
-                          className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl cursor-pointer transition-all duration-200 group ${activeView === "history" || activeView === "my_orders" ? "bg-emerald-500/[0.06] text-[#10b981] font-semibold shadow-[0_0_15px_rgba(16,185,129,0.03),inset_0_1px_0_0_rgba(255,255,255,0.03)] border border-emerald-500/15" : "text-zinc-400 hover:text-white hover:bg-white/[0.03] border border-transparent"}`}
+                          className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg cursor-pointer transition-all duration-200 group relative overflow-hidden ${activeView === "history" || activeView === "my_orders" ? "bg-white/[0.04] text-white font-semibold border border-white/5" : "text-zinc-400 hover:text-white hover:bg-white/[0.02] border border-transparent"}`}
                         >
                           <div className="flex items-center gap-2.5">
-                            <History size={16} className={activeView === "history" || activeView === "my_orders" ? "text-[#10b981]" : "text-zinc-400 group-hover:text-zinc-300"} />
-                            <span className="text-sm font-medium">ประวัติการสั่งซื้อ</span>
+                            <History size={15} className={activeView === "history" || activeView === "my_orders" ? "text-white" : "text-zinc-400 group-hover:text-zinc-200"} />
+                            <span className="text-[12.5px]">ประวัติการสั่งซื้อ</span>
                           </div>
-                          {(activeView === "history" || activeView === "my_orders") && <div className="w-1.5 h-1.5 rounded-full bg-[#10b981]" />}
+                          {(activeView === "history" || activeView === "my_orders") && (
+                            <>
+                              <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#10b981] shadow-[0_0_8px_#10b981]" />
+                              <div className="w-1.5 h-1.5 rounded-full bg-[#10b981] shadow-[0_0_6px_#10b981]" />
+                            </>
+                          )}
                         </button>
                       </div>
                     </div>
@@ -2475,10 +2521,18 @@ function AppContent() {
                               );
                             }
                           }}
-                          className={`w-full flex items-center gap-2.5 px-4 py-3 rounded-xl font-semibold text-[13px] transition-all duration-200 cursor-pointer shadow-md select-none border ${activeView === "wallet" ? "bg-emerald-500/[0.08] border-emerald-500 text-[#10b981] shadow-[0_0_20px_rgba(16,185,129,0.08)]" : "bg-[#161619]/40 hover:bg-[#1f1f23]/60 text-zinc-100 hover:text-white border-[#242429] hover:border-zinc-700"}`}
+                          className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg font-semibold text-[12.5px] transition-all duration-200 cursor-pointer shadow-sm select-none border relative overflow-hidden ${activeView === "wallet" ? "bg-white/[0.04] text-white border-white/5 animate-pulse" : "bg-emerald-500/[0.04] hover:bg-emerald-500/[0.08] text-emerald-400 hover:text-white border-emerald-500/10 hover:border-emerald-500/20"}`}
                         >
-                          <Plus size={16} className={activeView === "wallet" ? "text-[#10b981]" : "text-emerald-500"} />
-                          <span>เติมเงินเข้าระบบ</span>
+                          <div className="flex items-center gap-2.5">
+                            <Plus size={15} className={activeView === "wallet" ? "text-white" : "text-emerald-400"} />
+                            <span className="text-[12.5px]">เติมเงินเข้าระบบ</span>
+                          </div>
+                          {activeView === "wallet" && (
+                            <>
+                              <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#10b981] shadow-[0_0_8px_#10b981]" />
+                              <div className="w-1.5 h-1.5 rounded-full bg-[#10b981] shadow-[0_0_6px_#10b981]" />
+                            </>
+                          )}
                         </button>
 
                         {/* สินค้าทั้งหมด */}
@@ -2488,13 +2542,18 @@ function AppContent() {
                             setIsMobileMenuOpen(false);
                             window.scrollTo({ top: 0, behavior: "smooth" });
                           }}
-                          className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl cursor-pointer transition-all duration-200 group ${activeView === "categories" || activeView === "category_products" ? "bg-emerald-500/[0.06] text-[#10b981] font-semibold shadow-[0_0_15px_rgba(16,185,129,0.03),inset_0_1px_0_0_rgba(255,255,255,0.03)] border border-emerald-500/15" : "text-zinc-400 hover:text-white hover:bg-white/[0.03] border border-transparent"}`}
+                          className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg cursor-pointer transition-all duration-200 group relative overflow-hidden ${activeView === "categories" || activeView === "category_products" ? "bg-white/[0.04] text-white font-semibold border border-white/5" : "text-zinc-400 hover:text-white hover:bg-white/[0.02] border border-transparent"}`}
                         >
                           <div className="flex items-center gap-2.5">
-                            <ShoppingCart size={16} className={activeView === "categories" || activeView === "category_products" ? "text-[#10b981]" : "text-zinc-400 group-hover:text-zinc-300"} />
-                            <span className="text-sm font-medium">สินค้าทั้งหมด</span>
+                            <ShoppingCart size={15} className={activeView === "categories" || activeView === "category_products" ? "text-white" : "text-zinc-400 group-hover:text-zinc-200"} />
+                            <span className="text-[12.5px]">สินค้าทั้งหมด</span>
                           </div>
-                          {(activeView === "categories" || activeView === "category_products") && <div className="w-1.5 h-1.5 rounded-full bg-[#10b981]" />}
+                          {(activeView === "categories" || activeView === "category_products") && (
+                            <>
+                              <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#10b981] shadow-[0_0_8px_#10b981]" />
+                              <div className="w-1.5 h-1.5 rounded-full bg-[#10b981] shadow-[0_0_6px_#10b981]" />
+                            </>
+                          )}
                         </button>
                       </div>
                     </div>
@@ -2502,7 +2561,7 @@ function AppContent() {
                     {/* MANAGE */}
                     <div>
                       <h2 className="text-[10px] font-bold text-zinc-500 mb-2 px-3 uppercase tracking-wider">MANAGE</h2>
-                      <div className="flex flex-col gap-1">
+                      <div className="flex flex-col gap-1.5">
                         {/* Admin Backoffice */}
                         {isAdmin && (
                           <button
@@ -2511,13 +2570,18 @@ function AppContent() {
                               setIsMobileMenuOpen(false);
                               window.scrollTo({ top: 0, behavior: "smooth" });
                             }}
-                            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl cursor-pointer transition-all duration-200 group ${activeView === "admin" ? "bg-emerald-500/[0.06] text-[#10b981] font-semibold shadow-[0_0_15px_rgba(16,185,129,0.03),inset_0_1px_0_0_rgba(255,255,255,0.03)] border border-emerald-500/15" : "text-zinc-400 hover:text-white hover:bg-white/[0.03] border border-transparent"}`}
+                            className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg cursor-pointer transition-all duration-200 group relative overflow-hidden ${activeView === "admin" ? "bg-white/[0.04] text-white font-semibold border border-white/5" : "text-zinc-400 hover:text-white hover:bg-white/[0.02] border border-transparent"}`}
                           >
                             <div className="flex items-center gap-2.5">
-                              <ShieldCheck size={16} className={activeView === "admin" ? "text-[#10b981]" : "text-zinc-400 group-hover:text-zinc-300"} />
-                              <span className="text-sm font-medium">จัดการหลังบ้าน (Admin)</span>
+                              <ShieldCheck size={15} className={activeView === "admin" ? "text-white" : "text-zinc-400 group-hover:text-zinc-200"} />
+                              <span className="text-[12.5px]">จัดการหลังบ้าน (Admin)</span>
                             </div>
-                            {activeView === "admin" && <div className="w-1.5 h-1.5 rounded-full bg-[#10b981]" />}
+                            {activeView === "admin" && (
+                              <>
+                                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#10b981] shadow-[0_0_8px_#10b981]" />
+                                <div className="w-1.5 h-1.5 rounded-full bg-[#10b981] shadow-[0_0_6px_#10b981]" />
+                              </>
+                            )}
                           </button>
                         )}
 
@@ -2529,13 +2593,18 @@ function AppContent() {
                               setIsMobileMenuOpen(false);
                               window.scrollTo({ top: 0, behavior: "smooth" });
                             }}
-                            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl cursor-pointer transition-all duration-200 group ${activeView === "profile" ? "bg-emerald-500/[0.06] text-[#10b981] font-semibold shadow-[0_0_15px_rgba(16,185,129,0.03),inset_0_1px_0_0_rgba(255,255,255,0.03)] border border-emerald-500/15" : "text-zinc-400 hover:text-white hover:bg-white/[0.03] border border-transparent"}`}
+                            className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg cursor-pointer transition-all duration-200 group relative overflow-hidden ${activeView === "profile" ? "bg-white/[0.04] text-white font-semibold border border-white/5" : "text-zinc-400 hover:text-white hover:bg-white/[0.02] border border-transparent"}`}
                           >
                             <div className="flex items-center gap-2.5">
-                              <User size={16} className={activeView === "profile" ? "text-[#10b981]" : "text-zinc-400 group-hover:text-zinc-300"} />
-                              <span className="text-sm font-medium">โปรไฟล์ของฉัน</span>
+                              <User size={15} className={activeView === "profile" ? "text-white" : "text-zinc-400 group-hover:text-zinc-200"} />
+                              <span className="text-[12.5px]">โปรไฟล์ของฉัน</span>
                             </div>
-                            {activeView === "profile" && <div className="w-1.5 h-1.5 rounded-full bg-[#10b981]" />}
+                            {activeView === "profile" && (
+                              <>
+                                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#10b981] shadow-[0_0_8px_#10b981]" />
+                                <div className="w-1.5 h-1.5 rounded-full bg-[#10b981] shadow-[0_0_6px_#10b981]" />
+                              </>
+                            )}
                           </button>
                         )}
 
@@ -2547,13 +2616,18 @@ function AppContent() {
                               setIsMobileMenuOpen(false);
                               window.scrollTo({ top: 0, behavior: "smooth" });
                             }}
-                            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl cursor-pointer transition-all duration-200 group ${activeView === "settings" ? "bg-emerald-500/[0.06] text-[#10b981] font-semibold shadow-[0_0_15px_rgba(16,185,129,0.03),inset_0_1px_0_0_rgba(255,255,255,0.03)] border border-emerald-500/15" : "text-zinc-400 hover:text-white hover:bg-white/[0.03] border border-transparent"}`}
+                            className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg cursor-pointer transition-all duration-200 group relative overflow-hidden ${activeView === "settings" ? "bg-white/[0.04] text-white font-semibold border border-white/5" : "text-zinc-400 hover:text-white hover:bg-white/[0.02] border border-transparent"}`}
                           >
                             <div className="flex items-center gap-2.5">
-                              <Settings size={16} className={activeView === "settings" ? "text-[#10b981]" : "text-zinc-400 group-hover:text-zinc-300"} />
-                              <span className="text-sm font-medium">ตั้งค่าระบบ</span>
+                              <Settings size={15} className={activeView === "settings" ? "text-white" : "text-zinc-400 group-hover:text-zinc-200"} />
+                              <span className="text-[12.5px]">ตั้งค่าระบบ</span>
                             </div>
-                            {activeView === "settings" && <div className="w-1.5 h-1.5 rounded-full bg-[#10b981]" />}
+                            {activeView === "settings" && (
+                              <>
+                                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#10b981] shadow-[0_0_8px_#10b981]" />
+                                <div className="w-1.5 h-1.5 rounded-full bg-[#10b981] shadow-[0_0_6px_#10b981]" />
+                              </>
+                            )}
                           </button>
                         )}
                       </div>
