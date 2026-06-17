@@ -6,8 +6,8 @@ import { supabase as auth } from '../../lib/supabase';
 
 import { Turnstile } from '@marsidev/react-turnstile';
 
-const rawEnvKey = (import.meta.env.TURNSTILE_SITE_KEY || '').trim();
-const TURNSTILE_SITE_KEY = rawEnvKey.length > 5 ? rawEnvKey : '0x4AAAAAADDNPyGBIV4MApep';
+const rawEnvKey = (import.meta.env.VITE_TURNSTILE_SITE_KEY || '').trim();
+const TURNSTILE_SITE_KEY = rawEnvKey.length > 5 ? rawEnvKey : null;
 
 interface AuthModalProps {
   show: boolean;

@@ -734,9 +734,8 @@ function AppContent() {
   const [showAdminLogin, setShowAdminLogin] = useState(false);
   const [dailyUsage, setDailyUsage] = useState<number>(0);
 
-  const rawEnvKey = (import.meta.env.TURNSTILE_SITE_KEY || "").trim();
-  const TURNSTILE_SITE_KEY =
-    rawEnvKey.length > 5 ? rawEnvKey : "0x4AAAAAADDNPyGBIV4MApep";
+  const rawEnvKey = (import.meta.env.VITE_TURNSTILE_SITE_KEY || "").trim();
+  const TURNSTILE_SITE_KEY = rawEnvKey.length > 5 ? rawEnvKey : null;
 
   function handleDbError(
     error: unknown,
