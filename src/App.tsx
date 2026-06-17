@@ -2113,15 +2113,37 @@ function AppContent() {
             <div className="flex items-center justify-between h-[80px] px-4 md:px-8 mx-auto w-full">
               {/* Left Section: Mobile Logo + Desktop Toggle */}
               <div className="flex items-center gap-4 flex-shrink-0">
-                <button
+                <motion.button
+                  whileTap={{ scale: 0.92 }}
                   onClick={() => setIsDesktopSidebarOpen(!isDesktopSidebarOpen)}
-                  className="hidden lg:flex w-10 h-10 flex-col justify-center items-center gap-[5px] bg-white/[0.04] hover:bg-white/[0.08] border border-[#1e1e1e] transition-all duration-200 active:scale-95 cursor-pointer rounded-md text-white"
+                  className="hidden lg:flex w-11 h-11 flex-col justify-center items-center gap-[5px] bg-[#1c1c1e]/40 hover:bg-[#2c2c2e]/60 active:bg-white/[0.1] border border-white/[0.05] hover:border-white/[0.12] transition-colors cursor-pointer rounded-xl text-white shadow-md relative group"
                   aria-label="Toggle Sidebar"
                 >
-                  <div className="w-5 h-[1.5px] bg-zinc-400 rounded-full" />
-                  <div className="w-5 h-[1.5px] bg-zinc-400 rounded-full" />
-                  <div className="w-5 h-[1.5px] bg-zinc-400 rounded-full" />
-                </button>
+                  <motion.div
+                    animate={{
+                      rotate: isDesktopSidebarOpen ? 0 : 0,
+                      y: 0,
+                    }}
+                    transition={{ duration: 0.2 }}
+                    className="w-5.5 h-[2px] bg-zinc-300 rounded-full group-hover:bg-white"
+                  />
+                  <motion.div
+                    animate={{
+                      opacity: 1,
+                      scale: 1,
+                    }}
+                    transition={{ duration: 0.2 }}
+                    className="w-5.5 h-[2px] bg-zinc-300 rounded-full group-hover:bg-white"
+                  />
+                  <motion.div
+                    animate={{
+                      rotate: 0,
+                      y: 0,
+                    }}
+                    transition={{ duration: 0.2 }}
+                    className="w-5.5 h-[2px] bg-zinc-300 rounded-full group-hover:bg-white"
+                  />
+                </motion.button>
                 
                 <div
                   className="flex items-center gap-3 select-none flex-shrink-0 cursor-pointer hover:scale-[1.02] active:scale-95 transition-all duration-200 group lg:hidden"
@@ -2161,22 +2183,21 @@ function AppContent() {
 
                 {/* Hamburger Trigger */}
                 <motion.button
-                  whileTap={{ scale: 0.9 }}
+                  whileTap={{ scale: 0.92 }}
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                  className="w-10 h-10 flex flex-col justify-center items-center gap-[5px] bg-white/[0.04] hover:bg-white/[0.08] border border-[#1e1e1e] transition-all duration-200 active:scale-95 cursor-pointer rounded-md ml-1 lg:hidden text-white relative z-[140]"
+                  className="w-11 h-11 flex flex-col justify-center items-center gap-[5.5px] bg-[#1c1c1e]/40 hover:bg-[#2c2c2e]/60 active:bg-white/[0.1] border border-white/[0.05] hover:border-white/[0.12] transition-colors cursor-pointer rounded-xl ml-1 lg:hidden text-white relative z-[140] shadow-md"
                   aria-label="Menu"
                 >
                   <motion.div
                     animate={{
                       rotate: isMobileMenuOpen ? 45 : 0,
-                      y: isMobileMenuOpen ? 6.5 : 0,
+                      y: isMobileMenuOpen ? 7.5 : 0,
                     }}
                     transition={{
-                      duration: 0.3,
+                      duration: 0.25,
                       ease: "easeInOut",
-                      delay: isMobileMenuOpen ? 0 : 0.2,
                     }}
-                    className="w-5 h-[1.5px] bg-white rounded-full"
+                    className="w-5.5 h-[2px] bg-white rounded-full"
                   />
                   <motion.div
                     animate={{
@@ -2186,21 +2207,19 @@ function AppContent() {
                     transition={{
                       duration: 0.2,
                       ease: "easeInOut",
-                      delay: isMobileMenuOpen ? 0.2 : 0,
                     }}
-                    className="w-5 h-[1.5px] bg-white rounded-full"
+                    className="w-5.5 h-[2px] bg-white rounded-full"
                   />
                   <motion.div
                     animate={{
                       rotate: isMobileMenuOpen ? -45 : 0,
-                      y: isMobileMenuOpen ? -6.5 : 0,
+                      y: isMobileMenuOpen ? -7.5 : 0,
                     }}
                     transition={{
-                      duration: 0.3,
+                      duration: 0.25,
                       ease: "easeInOut",
-                      delay: isMobileMenuOpen ? 0 : 0.2,
                     }}
-                    className="w-5 h-[1.5px] bg-white rounded-full"
+                    className="w-5.5 h-[2px] bg-white rounded-full"
                   />
                 </motion.button>
               </div>
