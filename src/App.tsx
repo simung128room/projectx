@@ -70,6 +70,7 @@ import {
   Music,
   ShieldCheck,
   ShoppingBag,
+  Bell,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import Swal from "sweetalert2";
@@ -1887,223 +1888,333 @@ function AppContent() {
         {/* Popup banner removed as requested */}
 
         {/* Desktop Sidebar */}
-        <aside className={`hidden lg:flex flex-col bg-[#000000] h-screen sticky top-0 shrink-0 overflow-hidden no-scrollbar z-[70] select-none text-[13px] transition-all duration-300 ease-in-out ${isDesktopSidebarOpen ? 'w-[260px] border-l border-[#1e1e1e]' : 'w-0 border-l-0 border-transparent'}`}>
-          <div className="w-[260px] h-full flex flex-col overflow-y-auto no-scrollbar shrink-0">
-            {/* Brand Header */}
-          <div className="px-5 pt-4 pb-4 w-full flex flex-col justify-start shrink-0">
-            <div className="flex items-center gap-3 w-full">
-              <div
-                className="cursor-pointer select-none"
-                onClick={handleLogoClick}
-              >
-                <img src="https://img2.pic.in.th/DFB0841D-C86A-45E7-B08A-D626DD682DD1.png" alt="APEXSTORE Logo" className="h-[120px] object-contain" />
+        <aside className={`hidden lg:flex flex-col bg-[#1e1e1e] h-screen sticky top-0 shrink-0 overflow-hidden no-scrollbar z-[70] select-none text-[13px] transition-all duration-300 ease-in-out ${isDesktopSidebarOpen ? 'w-[260px] border-l border-[#1e1e1e]' : 'w-0 border-l-0 border-transparent'}`}>
+          <div className="w-[260px] h-full flex flex-col no-scrollbar shrink-0 p-4 text-[#e3e3e3] bg-[#1e1e1e]">
+            {/* Header */}
+            <div 
+              className="flex items-center justify-between mb-8 px-2 cursor-pointer hover:bg-white/5 py-2.5 rounded-lg transition-colors shrink-0"
+              onClick={handleLogoClick}
+            >
+              <div className="flex items-center gap-3">
+                <img src="https://img2.pic.in.th/DFB0841D-C86A-45E7-B08A-D626DD682DD1.png" alt="APEXSTORE Logo" className="h-10 object-contain" />
               </div>
-            </div>
-          </div>
-
-          <div className="flex-1 px-3 space-y-6 pb-8">
-            {/* Main Menu */}
-            <div>
-              <div className="px-3 mb-1.5 text-[10px] font-semibold text-zinc-500 tracking-wider">
-                NAVIGATION
-              </div>
-              <div className="flex flex-col gap-0.5">
-                <button
-                  onClick={() => {
-                    setActiveView("home");
-                    window.scrollTo({ top: 0, behavior: "smooth" });
-                  }}
-                  className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-md transition-all ${activeView === "home" ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white hover:bg-white/[0.04]"}`}
-                >
-                  <Home className="w-4 h-4" /> หน้าแรก
-                </button>
-                <button
-                  onClick={() => {
-                    setActiveView("categories");
-                    window.scrollTo({ top: 0, behavior: "smooth" });
-                  }}
-                  className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-md transition-all ${activeView === "categories" || activeView === "category_products" ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white hover:bg-white/[0.04]"}`}
-                >
-                  <ShoppingCart className="w-4 h-4" /> สินค้าทั้งหมด
-                </button>
-                <button
-                  onClick={() => {
-                    if (user) {
-                      setActiveView("wallet");
-                      window.scrollTo({ top: 0, behavior: "smooth" });
-                    } else {
-                      import("sweetalert2").then((s) =>
-                        s.default.fire({
-                          icon: "info",
-                          title: "จำเป็นต้องเข้าสู่ระบบ",
-                          text: "กรุณาเข้าสู่ระบบก่อนเพื่อใช้งานเมนูเติมเงิน",
-                          showCancelButton: true,
-                          confirmButtonText: "ไปหน้าเข้าสู่ระบบ",
-                          cancelButtonText: "ยกเลิก",
-                          confirmButtonColor: "#10b981"
-                        }).then((result) => {
-                          if (result.isConfirmed) {
-                            setActiveView("login");
-                            window.scrollTo({ top: 0, behavior: "smooth" });
-                          }
-                        })
-                      );
-                    }
-                  }}
-                  className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-md transition-all ${activeView === "wallet" ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white hover:bg-white/[0.04]"}`}
-                >
-                  <Wallet className="w-4 h-4" /> เติมเงิน
-                </button>
-                <button
-                  onClick={() => {
-                    if (user) {
-                      setActiveView("history");
-                      window.scrollTo({ top: 0, behavior: "smooth" });
-                    } else {
-                      import("sweetalert2").then((s) =>
-                        s.default.fire({
-                          icon: "info",
-                          title: "จำเป็นต้องเข้าสู่ระบบ",
-                          text: "กรุณาเข้าสู่ระบบก่อนเพื่อดูประวัติการสั่งซื้อ",
-                          showCancelButton: true,
-                          confirmButtonText: "ไปหน้าเข้าสู่ระบบ",
-                          cancelButtonText: "ยกเลิก",
-                          confirmButtonColor: "#10b981"
-                        }).then((result) => {
-                          if (result.isConfirmed) {
-                            setActiveView("login");
-                            window.scrollTo({ top: 0, behavior: "smooth" });
-                          }
-                        })
-                      );
-                    }
-                  }}
-                  className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-md transition-all ${activeView === "history" || activeView === "my_orders" ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white hover:bg-white/[0.04]"}`}
-                >
-                  <History className="w-4 h-4" /> ประวัติการสั่งซื้อ
-                </button>
-              </div>
+              <ChevronDown size={20} className="text-zinc-500" />
             </div>
 
-            {/* Account */}
-            {user ? (
-              <div>
-                <div className="px-3 mb-1.5 text-[10px] font-semibold text-zinc-500 tracking-wider">
-                  ACCOUNT
-                </div>
-                <div className="px-3">
-                  <div className="p-3 bg-[#09090b] border border-[#1e1e1e] rounded-md flex flex-col gap-2.5">
+            {/* Main Navigation */}
+            <div className="flex-1 space-y-6 overflow-y-auto no-scrollbar pr-0.5">
+              {/* EXPLORE Section */}
+              <section>
+                <h2 className="text-xs font-semibold text-zinc-500 mb-2 px-2 uppercase tracking-wider">Explore</h2>
+                <div className="space-y-1">
+                  {/* Home (Playground) */}
+                  <button
+                    onClick={() => {
+                      setActiveView("home");
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
+                    className={`w-full flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer transition-colors group ${activeView === "home" ? "bg-white/[0.08] text-white" : "text-[#9e9e9e] hover:text-[#e3e3e3] hover:bg-white/5"}`}
+                  >
                     <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 bg-[#050505] border border-[#1e1e1e] p-0.5 rounded-full overflow-hidden shadow-sm shrink-0">
-                        <img
-                          loading="lazy"
-                          src={getAvatarUrl(
-                            user?.id ||
-                              userPlan?.username ||
-                              user?.email?.split("@")[0] ||
-                              "U",
-                          )}
-                          alt="Avatar"
-                          className="w-full h-full object-cover rounded-full"
-                          referrerPolicy="no-referrer"
-                        />
-                      </div>
-                      <div className="flex flex-col overflow-hidden leading-tight justify-center h-9">
-                        <span className="text-white font-medium text-sm truncate flex items-center gap-1.5">
-                          {userPlan?.username || user?.email?.split("@")[0]}
-                        </span>
-                        <span className="text-zinc-500 text-xs truncate flex items-center gap-1 mt-0.5">
-                          {userPlan?.isPremium && (
-                            <Crown className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                          )}
-                          {userPlan?.isPremium ? "Premium Member" : "Member"}
-                        </span>
-                      </div>
+                      <Terminal size={18} className={activeView === "home" ? "text-[#10b981]" : "text-zinc-400 group-hover:text-zinc-200"} />
+                      <span className="text-sm font-medium">หน้าแรก (Home)</span>
                     </div>
-                    <div className="bg-[#141416] border border-[#1e1e1e] rounded-md p-2 flex justify-between items-center text-xs mt-1">
-                      <span className="text-zinc-400">ยอดเงินคงเหลือ</span>
-                      <span className="font-mono text-[#10b981] font-medium">
-                        {Math.floor(userPlan?.balance || 0).toLocaleString()} ฿
-                      </span>
-                    </div>
+                  </button>
 
-                    <div className="flex w-full gap-2 mt-1">
-                      <button
-                        onClick={() => {
-                          setActiveView("profile");
-                          window.scrollTo({ top: 0, behavior: "smooth" });
-                        }}
-                        className="flex-1 flex items-center justify-center gap-2 py-1.5 bg-white/[0.04] hover:bg-white/[0.08] border border-[#1e1e1e] text-zinc-300 hover:text-white rounded transition-colors text-xs font-medium"
-                      >
-                        <User className="w-3.5 h-3.5" /> โปรไฟล์
-                      </button>
-                      <button
-                        onClick={() => {
-                          setActiveView("settings");
-                          window.scrollTo({ top: 0, behavior: "smooth" });
-                        }}
-                        className="flex-1 flex items-center justify-center gap-2 py-1.5 bg-white/[0.04] hover:bg-white/[0.08] border border-[#1e1e1e] text-zinc-300 hover:text-white rounded transition-colors text-xs font-medium"
-                      >
-                        <Settings className="w-3.5 h-3.5" /> ตั้งค่า
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div>
-                <div className="px-3 mb-1.5 text-[10px] font-semibold text-zinc-500 tracking-wider">
-                  ACCOUNT
-                </div>
-                <div className="flex flex-col gap-2 px-3">
+                  {/* History */}
                   <button
                     onClick={() => {
-                      setActiveView("login");
-                      window.scrollTo({ top: 0, behavior: "smooth" });
+                      if (user) {
+                        setActiveView("history");
+                        window.scrollTo({ top: 0, behavior: "smooth" });
+                      } else {
+                        import("sweetalert2").then((s) =>
+                          s.default.fire({
+                            icon: "info",
+                            title: "จำเป็นต้องเข้าสู่ระบบ",
+                            text: "กรุณาเข้าสู่ระบบก่อนเพื่อดูประวัติการสั่งซื้อ",
+                            showCancelButton: true,
+                            confirmButtonText: "ไปหน้าเข้าสู่ระบบ",
+                            cancelButtonText: "ยกเลิก",
+                            confirmButtonColor: "#10b981"
+                          }).then((result) => {
+                            if (result.isConfirmed) {
+                              setActiveView("login");
+                              window.scrollTo({ top: 0, behavior: "smooth" });
+                            }
+                          })
+                        );
+                      }
                     }}
-                    className="w-full flex items-center justify-center gap-2 py-2 bg-white text-black font-semibold text-sm rounded-md transition-all active:scale-95 whitespace-nowrap"
+                    className={`w-full flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer transition-colors group ${activeView === "history" || activeView === "my_orders" ? "bg-white/[0.08] text-white" : "text-[#9e9e9e] hover:text-[#e3e3e3] hover:bg-white/5"}`}
                   >
-                    <LogIn className="w-4 h-4" /> เข้าสู่ระบบ
-                  </button>
-                  <button
-                    onClick={() => {
-                      setActiveView("signup");
-                      window.scrollTo({ top: 0, behavior: "smooth" });
-                    }}
-                    className="w-full flex items-center justify-center gap-2 py-1.5 bg-[#111] text-white font-semibold text-sm rounded-md border border-[#222] transition-all hover:bg-[#222] active:scale-95 whitespace-nowrap"
-                  >
-                    <UserPlus className="w-4 h-4" /> สมัครสมาชิก
+                    <div className="flex items-center gap-3">
+                      <History size={18} className={activeView === "history" || activeView === "my_orders" ? "text-[#10b981]" : "text-zinc-400 group-hover:text-zinc-200"} />
+                      <span className="text-sm font-medium">ประวัติการสั่งซื้อ</span>
+                    </div>
                   </button>
                 </div>
-              </div>
-            )}
+              </section>
 
-            {/* Admin / Logout */}
-            {user && (
-              <div>
-                <div className="h-px bg-[#1e1e1e] mb-3 mt-1 mx-3" />
-                <div className="flex flex-col gap-0.5">
+              {/* BUILD Section */}
+              <section>
+                <h2 className="text-xs font-semibold text-zinc-500 mb-2 px-2 uppercase tracking-wider">Build</h2>
+                <div className="space-y-1">
+                  {/* Topup button styled precisely like the prominent rounded button */}
+                  <button
+                    onClick={() => {
+                      if (user) {
+                        setActiveView("wallet");
+                        window.scrollTo({ top: 0, behavior: "smooth" });
+                      } else {
+                        import("sweetalert2").then((s) =>
+                          s.default.fire({
+                            icon: "info",
+                            title: "จำเป็นต้องเข้าสู่ระบบ",
+                            text: "กรุณาเข้าสู่ระบบก่อนเพื่อใช้งานเมนูเติมเงิน",
+                            showCancelButton: true,
+                            confirmButtonText: "ไปหน้าเข้าสู่ระบบ",
+                            cancelButtonText: "ยกเลิก",
+                            confirmButtonColor: "#10b981"
+                          }).then((result) => {
+                            if (result.isConfirmed) {
+                              setActiveView("login");
+                              window.scrollTo({ top: 0, behavior: "smooth" });
+                            }
+                          })
+                        );
+                      }
+                    }}
+                    className="w-full flex items-center gap-3 px-3 py-2 bg-[#333333] hover:bg-[#444444] text-white rounded-xl cursor-pointer mb-2 transition-colors font-sans"
+                  >
+                    <Plus size={18} className="text-white" />
+                    <span className="font-semibold text-sm">เติมเงิน (Topup)</span>
+                  </button>
+
+                  {/* All products (My apps) */}
+                  <button
+                    onClick={() => {
+                      setActiveView("categories");
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
+                    className={`w-full flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer transition-colors group ${activeView === "categories" || activeView === "category_products" ? "bg-white/[0.08] text-white" : "text-[#9e9e9e] hover:text-[#e3e3e3] hover:bg-white/5"}`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <ShoppingCart size={18} className={activeView === "categories" || activeView === "category_products" ? "text-[#10b981]" : "text-zinc-400 group-hover:text-zinc-200"} />
+                      <span className="text-sm font-medium">สินค้าทั้งหมด</span>
+                    </div>
+                  </button>
+
+                  {/* Gallery section */}
+                  <button
+                    onClick={() => {
+                      setActiveView("categories");
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
+                    className="w-full flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer transition-colors group text-[#9e9e9e] hover:text-[#e3e3e3] hover:bg-white/5"
+                  >
+                    <div className="flex items-center gap-3">
+                      <ImageIcon size={18} className="text-zinc-400 group-hover:text-zinc-200" />
+                      <span className="text-sm font-medium">ภาพแกลเลอรีสินค้า</span>
+                    </div>
+                  </button>
+                </div>
+              </section>
+
+              {/* MANAGE Section */}
+              <section>
+                <h2 className="text-xs font-semibold text-zinc-500 mb-2 px-2 uppercase tracking-wider">Manage</h2>
+                <div className="space-y-1">
+                  {/* Dashboard (Admin view) */}
                   {isAdmin && (
                     <button
                       onClick={() => {
                         setActiveView("admin");
                         window.scrollTo({ top: 0, behavior: "smooth" });
                       }}
-                      className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-md transition-all ${activeView === "admin" ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white hover:bg-white/[0.04]"}`}
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer transition-colors group ${activeView === "admin" ? "bg-white/[0.08] text-white" : "text-[#9e9e9e] hover:text-[#e3e3e3] hover:bg-white/5"}`}
                     >
-                      <ShieldCheck className="w-4 h-4" /> จัดการระบบ
+                      <div className="flex items-center gap-3">
+                        <ShieldCheck size={18} className={activeView === "admin" ? "text-[#10b981]" : "text-zinc-400 group-hover:text-zinc-200"} />
+                        <span className="text-sm font-medium">จัดการระบบ (Admin)</span>
+                      </div>
+                      <ChevronRight size={16} className="text-[#9e9e9e]" />
                     </button>
                   )}
+
+                  {/* Profile */}
                   <button
-                    onClick={handleLogout}
-                    className="w-full flex items-center gap-3 px-3 py-1.5 rounded-md transition-all text-red-500/80 hover:text-red-500 hover:bg-red-500/10"
+                    onClick={() => {
+                      if (user) {
+                        setActiveView("profile");
+                        window.scrollTo({ top: 0, behavior: "smooth" });
+                      } else {
+                        setActiveView("login");
+                      }
+                    }}
+                    className={`w-full flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer transition-colors group ${activeView === "profile" ? "bg-white/[0.08] text-white" : "text-[#9e9e9e] hover:text-[#e3e3e3] hover:bg-white/5"}`}
                   >
-                    <LogOut className="w-4 h-4" /> ออกจากระบบ
+                    <div className="flex items-center gap-3">
+                      <User size={18} className={activeView === "profile" ? "text-[#10b981]" : "text-zinc-400 group-hover:text-zinc-200"} />
+                      <span className="text-sm font-medium">โปรไฟล์ของฉัน</span>
+                    </div>
+                    <ChevronRight size={16} className="text-[#9e9e9e]" />
                   </button>
                 </div>
+              </section>
+            </div>
+
+            {/* Footer Area */}
+            <div className="mt-auto pt-4 space-y-4 shrink-0">
+              {/* Upgrade Card / Premium Plan description */}
+              <div 
+                onClick={() => {
+                  import("sweetalert2").then((s) => s.default.fire({
+                    title: "👑 สมาชิกพรีเมียม (Premium Status)",
+                    html: `
+                      <div class="text-left text-sm space-y-2 leading-relaxed text-zinc-300">
+                        <p class="font-semibold text-[#10b981] mb-2">• ได้รับสิทธิ์ในการซื้อคีย์แบบจำกัดจำนวนล่วงหน้า!</p>
+                        <p>• รับคูปองลุ้นรับสินค้าฟรีและส่วนลดเติมเงินสะสมสูงสุด 20%</p>
+                        <p>• บริการหลังการขายพรีเมียมและการรับประกันสิทธิประโยชน์!</p>
+                      </div>
+                    `,
+                    background: "#1e1e1e",
+                    color: "#fff",
+                    confirmButtonColor: "#10b981",
+                    confirmButtonText: "รับทราบ"
+                  }));
+                }}
+                className="relative p-[1px] rounded-2xl overflow-hidden bg-gradient-to-r from-blue-500 via-purple-500 to-red-500 cursor-pointer shadow-lg hover:shadow-purple-500/10 transition-shadow active:scale-[0.98]"
+              >
+                <div className="bg-[#1e1e1e] p-4 rounded-[15px] space-y-1">
+                  <h3 className="text-sm font-medium text-white">Upgrade to unlock more</h3>
+                  <p className="text-xs text-gray-400 leading-relaxed">
+                    Access higher limits, Pro features, and custom services.
+                  </p>
+                </div>
               </div>
-            )}
-          </div>
+
+              {/* Action Icons Grid */}
+              <div className="grid grid-cols-4 gap-2">
+                {/* Bell icon */}
+                <button 
+                  onClick={() => {
+                    import("sweetalert2").then((s) => s.default.fire({
+                      title: "📢 ข่าวสารการประกาศ",
+                      text: "ขณะนี้หน้าร้านจัดส่งสติกเกอร์บูสเซิร์ฟเวอร์แบบออโต้ 100% สิทธิ์รับประกันคีย์ใช้งานมีผลทันทีหลังจากกดคัดลอก!",
+                      background: "#1e1e1e",
+                      color: "#fff",
+                      confirmButtonColor: "#10b981"
+                    }));
+                  }}
+                  className="flex items-center justify-center p-2 rounded-lg border border-zinc-700 bg-[#1e1e1e] hover:bg-white/5 transition-colors text-gray-400 hover:text-white"
+                >
+                  <Bell size={18} />
+                </button>
+
+                {/* Settings icon */}
+                <button 
+                  onClick={() => {
+                    if (user) {
+                      setActiveView("settings");
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    } else {
+                      setActiveView("login");
+                    }
+                  }}
+                  className={`flex items-center justify-center p-2 rounded-lg border border-zinc-700 transition-colors ${activeView === "settings" ? "bg-white/[0.08] text-white" : "bg-[#1e1e1e] hover:bg-white/5 text-gray-400 hover:text-white"}`}
+                >
+                  <Settings size={18} />
+                </button>
+
+                {/* Search icon */}
+                <button 
+                  onClick={() => {
+                    setActiveView("categories");
+                    setTimeout(() => {
+                      const searchInput = document.querySelector('input[placeholder="ค้นหาสินค้า..."]') as HTMLInputElement;
+                      if (searchInput) searchInput.focus();
+                    }, 100);
+                  }}
+                  className="flex items-center justify-center p-2 rounded-lg border border-zinc-700 bg-[#1e1e1e] hover:bg-white/5 transition-colors text-gray-400 hover:text-white"
+                >
+                  <Search size={18} />
+                </button>
+
+                {/* Key icon to redeem gift cards */}
+                <button 
+                  onClick={() => {
+                    if (user) {
+                      setActiveView("profile");
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                      import("sweetalert2").then((s) => s.default.fire({
+                        title: "🔑 เปิดใช้งานคีย์สต็อก",
+                        text: "คุณสามารถเปิดใช้งานคีย์หรือกิฟต์การ์ดที่ได้รับในหน้าเมนู 'โปรไฟล์' หรือใช้คีย์โดยตรงบนหน้าแผงควบคุม",
+                        icon: "info",
+                        background: "#1e1e1e",
+                        color: "#fff",
+                        confirmButtonColor: "#10b981"
+                      }));
+                    } else {
+                      setActiveView("login");
+                    }
+                  }}
+                  className="flex items-center justify-center p-2 rounded-lg border border-zinc-700 bg-[#1e1e1e] hover:bg-white/5 transition-colors text-gray-400 hover:text-white"
+                >
+                  <Key size={18} />
+                </button>
+              </div>
+
+              {/* User Profile avatar/info */}
+              {user ? (
+                <div 
+                  onClick={() => {
+                    setActiveView("profile");
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                  className="flex items-center gap-3 p-2 bg-white/5 hover:bg-white/10 rounded-xl cursor-pointer transition-colors"
+                >
+                  <div className="w-8 h-8 rounded-full bg-gray-650 overflow-hidden shrink-0 border border-white/10">
+                    <img 
+                      src={getAvatarUrl(user?.id || userPlan?.username || user?.email?.split("@")[0] || "U")} 
+                      alt="Profile" 
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="flex flex-col min-w-0 flex-1">
+                    <span className="text-sm truncate text-gray-300 font-medium">
+                      {userPlan?.username || user?.email?.split("@")[0]}
+                    </span>
+                    <span className="text-[10px] text-zinc-400 font-mono font-medium truncate">
+                      {Math.floor(userPlan?.balance || 0).toLocaleString()} ฿
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                <div 
+                  onClick={() => {
+                    setActiveView("login");
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                  className="flex items-center gap-3 p-2 bg-white/5 hover:bg-white/10 rounded-xl cursor-pointer transition-colors"
+                >
+                  <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center shrink-0">
+                    <User className="w-4 h-4 text-zinc-400" />
+                  </div>
+                  <span className="text-sm text-zinc-400 font-medium font-sans">เข้าสู่ระบบ / สมัครสมาชิก</span>
+                </div>
+              )}
+
+              {/* Logout Option */}
+              {user && (
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center gap-2 justify-center px-3 py-2 rounded-lg transition-colors text-red-400 hover:text-red-500 hover:bg-red-500/10 text-xs font-semibold"
+                >
+                  <LogOut className="w-3.5 h-3.5" /> ออกจากระบบ
+                </button>
+              )}
+            </div>
           </div>
         </aside>
         {/* Main Content Area */}
