@@ -1896,7 +1896,7 @@ function AppContent() {
                 className="cursor-pointer select-none"
                 onClick={handleLogoClick}
               >
-                <img src="https://img2.pic.in.th/DFB0841D-C86A-45E7-B08A-D626DD682DD1.png" alt="APEXSTORE Logo" className="h-8 object-contain" />
+                <img src="https://img2.pic.in.th/DFB0841D-C86A-45E7-B08A-D626DD682DD1.png" alt="APEXSTORE Logo" className="h-16 object-contain" />
               </div>
             </div>
           </div>
@@ -2153,7 +2153,7 @@ function AppContent() {
                   }}
                 >
                   <div className="flex items-center">
-                    <img src="https://img2.pic.in.th/DFB0841D-C86A-45E7-B08A-D626DD682DD1.png" alt="APEXSTORE Logo" className="h-[36px] md:h-[40px] select-none object-contain" />
+                    <img src="https://img2.pic.in.th/DFB0841D-C86A-45E7-B08A-D626DD682DD1.png" alt="APEXSTORE Logo" className="h-[56px] md:h-[64px] select-none object-contain" />
                   </div>
                 </div>
               </div>
@@ -2260,7 +2260,7 @@ function AppContent() {
                       }}
                     >
                       <div className="flex items-center">
-                        <img src="https://img2.pic.in.th/DFB0841D-C86A-45E7-B08A-D626DD682DD1.png" alt="APEXSTORE Logo" className="h-[32px] object-contain select-none" />
+                        <img src="https://img2.pic.in.th/DFB0841D-C86A-45E7-B08A-D626DD682DD1.png" alt="APEXSTORE Logo" className="h-[52px] object-contain select-none" />
                       </div>
                     </motion.div>
 
