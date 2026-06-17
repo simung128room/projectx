@@ -1886,12 +1886,14 @@ function AppContent() {
             {/* Brand Header */}
           <div className="px-5 pt-6 pb-4 w-full flex flex-col justify-start shrink-0">
             <div className="flex items-center gap-3 w-full">
-              <img
-                src="https://img2.pic.in.th/983B3DCE-90A3-4822-8940-D6B81CCA63A3.png"
-                alt="APEXSTORE Logo"
-                className="h-8 object-contain cursor-pointer"
+              <div
+                className="cursor-pointer select-none"
                 onClick={handleLogoClick}
-              />
+                style={{ fontFamily: "'Exo 2', 'Nexa', sans-serif" }}
+              >
+                <span className="text-2xl font-black italic tracking-tighter text-white">APEX</span>
+                <span className="text-2xl font-black italic tracking-tighter text-rose-600">STORE</span>
+              </div>
             </div>
           </div>
 
@@ -2124,46 +2126,11 @@ function AppContent() {
                     window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
                 >
-                  <img
-                    src="https://img2.pic.in.th/983B3DCE-90A3-4822-8940-D6B81CCA63A3.png"
-                    alt="APEXSTORE Logo"
-                    className="h-[36px] md:h-[40px] select-none"
-                  />
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-[36px] h-[36px] md:w-[40px] md:h-[40px] bg-[#e11d48] flex items-center justify-center rounded-md shrink-0 shadow-lg shadow-rose-950/25 border border-rose-500/10 transition-transform duration-300 group-hover:rotate-6">
-                      <svg
-                        viewBox="0 0 24 24"
-                        className="w-[20px] h-[20px] md:w-[22px] md:h-[22px] text-white"
-                        fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path
-                        d="M12 3c0.8 1.5 0.5 3-1 4M15 4c0.5 1 0.2 2-1 2.5"
-                        stroke="#ffedd5"
-                      />
-                      <path
-                        d="M18 10c0-3.3-2.7-6-6-6S6 6.7 6 10c0 3 2.5 5 5 5.5s5-2.5 5-5.5z"
-                        fill="currentColor"
-                      />
-                      <path
-                        d="M6 10.5l-2.5 0.5L6 11.5z"
-                        fill="#f59e0b"
-                        stroke="#f59e0b"
-                      />
-                      <circle cx="9" cy="9" r="1" fill="#000" />
-                    </svg>
+                  <div className="flex items-center" style={{ fontFamily: "'Exo 2', 'Nexa', sans-serif" }}>
+                    <span className="text-[26px] font-black italic tracking-tighter text-white">APEX</span>
+                    <span className="text-[26px] font-black italic tracking-tighter text-rose-600">STORE</span>
                   </div>
-                  <span className="text-white text-base md:text-lg font-black tracking-tight leading-none">
-                    {siteSettings?.site_name &&
-                    siteSettings.site_name !== "APEXSTORE"
-                      ? siteSettings.site_name
-                      : "ร้านไอดีไก่ตัน"}
-                  </span>
                 </div>
-              </div>
               </div>
 
               <div
@@ -2270,11 +2237,10 @@ function AppContent() {
                         window.scrollTo({ top: 0, behavior: "smooth" });
                       }}
                     >
-                      <img
-                        src="https://img2.pic.in.th/983B3DCE-90A3-4822-8940-D6B81CCA63A3.png"
-                        alt="APEXSTORE Logo"
-                        className="h-[32px] object-contain"
-                      />
+                      <div className="flex items-center" style={{ fontFamily: "'Exo 2', 'Nexa', sans-serif" }}>
+                        <span className="text-[22px] font-black italic tracking-tighter text-white">APEX</span>
+                        <span className="text-[22px] font-black italic tracking-tighter text-rose-600">STORE</span>
+                      </div>
                     </motion.div>
 
                     <motion.button
@@ -2902,11 +2868,13 @@ const PortalLoader: React.FC = () => {
         }}
         className="relative"
       >
-        <img
-          src="https://img2.pic.in.th/983B3DCE-90A3-4822-8940-D6B81CCA63A3.png"
-          alt="APEXSTORE Logo"
-          className="h-32 md:h-36 object-contain filter drop-shadow-[0_0_35px_rgba(16,185,129,0.30)]"
-        />
+        <div 
+          className="flex items-center justify-center filter drop-shadow-[0_0_35px_rgba(225,29,72,0.60)]" 
+          style={{ fontFamily: "'Exo 2', 'Nexa', sans-serif" }}
+        >
+          <span className="text-5xl md:text-6xl font-black italic tracking-tighter text-white">APEX</span>
+          <span className="text-5xl md:text-6xl font-black italic tracking-tighter text-rose-600">STORE</span>
+        </div>
       </motion.div>
     </motion.div>
   );
