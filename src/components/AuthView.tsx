@@ -220,7 +220,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-semibold text-white/60 tracking-wider pl-1 flex items-center gap-1.5 select-none uppercase">
                   <User className="w-3.5 h-3.5 text-white/40" />
-                  <span>ชื่อผู้ใช้ (Username)</span>
+                  <span>ชื่อผู้ใช้</span>
                 </label>
                 <div className="relative group">
                   <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within:text-white transition-colors">
@@ -231,7 +231,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
                     value={authUsername}
                     onChange={(e) => setAuthUsername(e.target.value)}
                     className="w-full pl-11 pr-4 py-3.5 bg-white/[0.04] border border-[#1e1e1e] hover:bg-white/[0.04] focus:bg-white/[0.04] focus:border-[#1e1e1e] rounded-md outline-none transition-all text-white text-sm placeholder:text-white/20 font-sans animate-none"
-                    placeholder="กรอกชื่อผู้ใช้ของคุณ"
+                    placeholder=""
                     required
                   />
                 </div>
@@ -244,7 +244,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
                 <div className="flex flex-col gap-1.5 mt-4">
                   <label className="text-xs font-semibold text-white/60 tracking-wider pl-1 flex items-center gap-1.5 select-none uppercase">
                     <Mail className="w-3.5 h-3.5 text-white/40" />
-                    <span>อีเมลติดต่อกลับ (Recovery Email)</span>
+                    <span>อีเมลติดต่อกลับ</span>
                   </label>
                   <div className="relative group">
                     <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within:text-white transition-colors">
@@ -255,7 +255,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
                       value={authEmail}
                       onChange={(e) => setAuthEmail(e.target.value)}
                       className="w-full pl-11 pr-4 py-3.5 bg-white/[0.04] border border-[#1e1e1e] hover:bg-white/[0.04] focus:bg-white/[0.04] focus:border-[#1e1e1e] rounded-md outline-none transition-all text-white text-sm placeholder:text-white/20 font-sans"
-                      placeholder="เช่น admin@yourdomain.com"
+                      placeholder=""
                       required
                     />
                   </div>
@@ -269,7 +269,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
                 <div className="flex flex-col gap-1.5 mt-4">
                   <label className="text-xs font-semibold text-[#39ff14]/85 tracking-wider pl-1 flex items-center gap-1.5 select-none uppercase animate-pulse">
                     <Shield className="w-3.5 h-3.5 text-[#39ff14]/60" />
-                    <span>รหัสยืนยัน OTP (6-Digit OTP Code)</span>
+                    <span>รหัสยืนยัน OTP</span>
                   </label>
                   <div className="relative group">
                     <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#39ff14]/40 group-focus-within:text-[#39ff14] transition-colors">
@@ -280,7 +280,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
                       value={otp}
                       onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
                       className="w-full pl-11 pr-4 py-3.5 bg-black/40 border border-[#39ff14]/30 hover:bg-black/50 focus:bg-black/50 focus:border-[#39ff14] rounded-md outline-none transition-all text-[#39ff14] text-sm placeholder:text-[#39ff14]/20 font-mono tracking-widest text-center"
-                      placeholder="XXXXXX"
+                      placeholder=""
                       required
                       maxLength={6}
                       minLength={6}
@@ -295,7 +295,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-semibold text-white/60 tracking-wider pl-1 flex items-center gap-1.5 select-none uppercase">
                   <Lock className="w-3.5 h-3.5 text-white/40" />
-                  <span>รหัสผ่าน (Password)</span>
+                  <span>รหัสผ่าน</span>
                 </label>
                 <div className="relative group">
                   <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within:text-white transition-colors">
@@ -306,7 +306,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
                     value={authPassword}
                     onChange={(e) => setAuthPassword(e.target.value)}
                     className="w-full pl-11 pr-12 py-3.5 bg-white/[0.04] border border-[#1e1e1e] hover:bg-white/[0.04] focus:bg-white/[0.04] focus:border-[#1e1e1e] rounded-md outline-none transition-all text-white text-sm placeholder:text-white/20 font-sans"
-                    placeholder="กรอกรหัสผ่านของคุณ (มากกว่า 8 ตัวอักษร)"
+                    placeholder=""
                     required
                     minLength={8}
                   />
@@ -353,7 +353,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
                       value={authConfirmPassword}
                       onChange={(e) => setAuthConfirmPassword(e.target.value)}
                       className="w-full pl-11 pr-12 py-3.5 bg-white/[0.04] border border-[#1e1e1e] hover:bg-white/[0.04] focus:bg-white/[0.04] focus:border-[#1e1e1e] rounded-md outline-none transition-all text-white text-sm placeholder:text-white/20 font-sans"
-                      placeholder="ป้อนรหัสผ่านเดิมอีกครั้งเพื่อความถูกต้อง"
+                      placeholder=""
                       required
                       minLength={8}
                     />

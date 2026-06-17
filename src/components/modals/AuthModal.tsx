@@ -165,7 +165,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
                   value={authUsername}
                   onChange={(e) => setAuthUsername(e.target.value)}
                   className="w-full bg-[#09090b] border border-[#1e1e1e]  py-3.5 pl-12 pr-4 outline-none focus:border-emerald-500/50 transition-all font-sans text-sm "
-                  placeholder="ชื่อผู้ใช้ / Username"
+                  placeholder=""
                   required
                 />
               </div>
@@ -179,7 +179,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
                   value={authPassword}
                   onChange={(e) => setAuthPassword(e.target.value)}
                   className="w-full bg-[#09090b] border border-[#1e1e1e]  py-3.5 pl-12 pr-4 outline-none focus:border-emerald-500/50 transition-all font-sans text-sm "
-                  placeholder="รหัสผ่าน / Password"
+                  placeholder=""
                   required
                   minLength={6}
                 />
