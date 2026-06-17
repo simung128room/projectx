@@ -2835,14 +2835,20 @@ function AppContent() {
 
 const SupplementaryLoader: React.FC = () => {
   return (
-    <div className="flex-1 w-full flex flex-col items-center justify-center min-h-[50vh] bg-zinc-950/40 text-zinc-400 rounded-2xl p-8 border border-zinc-800/60 max-w-sm mx-auto my-12 text-center select-none animate-pulse">
-      <div className="w-10 h-10 border-4 border-zinc-800 border-t-emerald-500 rounded-full animate-spin mb-4" />
-      <h3 className="text-sm font-semibold font-sans text-white tracking-wide">
-        กำลังโหลดข้อมูลระบบ
-      </h3>
-      <p className="text-[11px] text-zinc-500 font-sans mt-0.5">
-        โปรดรอสักครู่ ระบบกำลังจัดเตรียมข้อมูลแอปพลิเคชัน...
-      </p>
+    <div className="flex-1 w-full flex flex-col items-center justify-center min-h-[50vh] bg-[#000000] text-zinc-400 p-8 my-4 text-center select-none">
+      <div className="flex flex-col items-center justify-center gap-6">
+        <div 
+          className="flex items-center justify-center filter drop-shadow-[0_0_15px_rgba(255,255,255,0.15)] opacity-50" 
+          style={{ fontFamily: "'Exo 2', 'Nexa', sans-serif" }}
+        >
+          <span className="text-3xl font-black lowercase tracking-tighter" style={{ WebkitTextStroke: '1px white', color: 'transparent' }}>apexstore</span>
+        </div>
+        <div className="w-8 h-8 border-4 border-zinc-800 border-t-white rounded-full animate-spin" />
+        <div className="space-y-2 mt-4">
+          <div className="w-32 h-4 bg-zinc-800/80 rounded-full animate-pulse" />
+          <div className="w-48 h-3 bg-zinc-800/60 rounded-full animate-pulse" />
+        </div>
+      </div>
     </div>
   );
 };
@@ -2855,26 +2861,29 @@ const PortalLoader: React.FC = () => {
       transition={{ duration: 0.8, ease: "easeInOut" }}
       className="fixed inset-0 z-[99999] bg-[#000000] flex flex-col items-center justify-center font-sans overflow-hidden select-none"
     >
-      <motion.div
-        animate={{
-          y: [0, -18, 0],
-          scale: [1, 1.06, 1],
-        }}
-        transition={{
-          duration: 1.5,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
-        className="relative"
-      >
-        <div 
-          className="flex items-center justify-center filter drop-shadow-[0_0_35px_rgba(225,29,72,0.60)]" 
-          style={{ fontFamily: "'Exo 2', 'Nexa', sans-serif" }}
+      <div className="flex flex-col items-center justify-center gap-8">
+        <motion.div
+          animate={{
+            y: [0, -18, 0],
+            scale: [1, 1.06, 1],
+          }}
+          transition={{
+            duration: 1.5,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+          className="relative"
         >
-          <span className="text-5xl md:text-6xl font-black italic tracking-tighter text-white">APEX</span>
-          <span className="text-5xl md:text-6xl font-black italic tracking-tighter text-rose-600">STORE</span>
-        </div>
-      </motion.div>
+          <div 
+            className="flex items-center justify-center filter drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]" 
+            style={{ fontFamily: "'Exo 2', 'Nexa', sans-serif" }}
+          >
+            <span className="text-5xl md:text-6xl font-black lowercase tracking-tighter" style={{ WebkitTextStroke: '1.5px white', color: 'transparent' }}>apexstore</span>
+          </div>
+        </motion.div>
+        
+        <div className="w-8 h-8 md:w-10 md:h-10 border-[3px] md:border-4 border-zinc-800 border-t-white rounded-full animate-spin" />
+      </div>
     </motion.div>
   );
 };
