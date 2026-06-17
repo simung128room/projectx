@@ -767,6 +767,7 @@ function AppContent() {
   };
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isDesktopSidebarOpen, setIsDesktopSidebarOpen] = useState(true);
   const [isDesktopToolsOpen, setIsDesktopToolsOpen] = useState(false);
   const [isMobileToolsOpen, setIsMobileToolsOpen] = useState(false);
 
@@ -1880,8 +1881,9 @@ function AppContent() {
         {/* Popup banner removed as requested */}
 
         {/* Desktop Sidebar */}
-        <aside className="hidden lg:flex flex-col w-[260px] bg-[#000000] border-l border-[#1e1e1e] h-screen sticky top-0 shrink-0 overflow-y-auto no-scrollbar z-[70] select-none text-[13px]">
-          {/* Brand Header */}
+        <aside className={`hidden lg:flex flex-col bg-[#000000] h-screen sticky top-0 shrink-0 overflow-hidden no-scrollbar z-[70] select-none text-[13px] transition-all duration-300 ease-in-out ${isDesktopSidebarOpen ? 'w-[260px] border-l border-[#1e1e1e]' : 'w-0 border-l-0 border-transparent'}`}>
+          <div className="w-[260px] h-full flex flex-col overflow-y-auto no-scrollbar shrink-0">
+            {/* Brand Header */}
           <div className="px-5 pt-6 pb-4 w-full flex flex-col justify-start shrink-0">
             <div className="flex items-center gap-3 w-full">
               <img
@@ -2096,31 +2098,43 @@ function AppContent() {
               </div>
             )}
           </div>
+          </div>
         </aside>
         {/* Main Content Area */}
-        <div className="flex-1 flex flex-col min-h-screen min-w-0 relative">
+        <div className="flex-1 flex flex-col min-h-screen min-w-0 relative transition-all duration-300">
           {/* Top Header */}
           <header className="sticky top-0 z-[100] w-full bg-black/60 backdrop-blur-md border-b border-[#1e1e1e] flex-shrink-0 select-none">
-            <div className="flex items-center justify-between h-[80px] px-4 md:px-8 max-w-7xl mx-auto w-full">
-              {/* Logo with matching Icon size */}
-              <div
-                className="flex items-center gap-3 select-none flex-shrink-0 cursor-pointer hover:scale-[1.02] active:scale-95 transition-all duration-200 group lg:hidden"
-                onClick={() => {
-                  setActiveView("home");
-                  window.scrollTo({ top: 0, behavior: "smooth" });
-                }}
-              >
-                <img
-                  src="https://img2.pic.in.th/983B3DCE-90A3-4822-8940-D6B81CCA63A3.png"
-                  alt="APEXSTORE Logo"
-                  className="h-[36px] md:h-[40px] select-none"
-                />
-                <div className="flex items-center gap-2.5">
-                  <div className="w-[36px] h-[36px] md:w-[40px] md:h-[40px] bg-[#e11d48] flex items-center justify-center rounded-md shrink-0 shadow-lg shadow-rose-950/25 border border-rose-500/10 transition-transform duration-300 group-hover:rotate-6">
-                    <svg
-                      viewBox="0 0 24 24"
-                      className="w-[20px] h-[20px] md:w-[22px] md:h-[22px] text-white"
-                      fill="none"
+            <div className="flex items-center justify-between h-[80px] px-4 md:px-8 mx-auto w-full">
+              {/* Left Section: Mobile Logo + Desktop Toggle */}
+              <div className="flex items-center gap-4 flex-shrink-0">
+                <button
+                  onClick={() => setIsDesktopSidebarOpen(!isDesktopSidebarOpen)}
+                  className="hidden lg:flex w-10 h-10 flex-col justify-center items-center gap-[5px] bg-white/[0.04] hover:bg-white/[0.08] border border-[#1e1e1e] transition-all duration-200 active:scale-95 cursor-pointer rounded-md text-white"
+                  aria-label="Toggle Sidebar"
+                >
+                  <div className="w-5 h-[1.5px] bg-zinc-400 rounded-full" />
+                  <div className="w-5 h-[1.5px] bg-zinc-400 rounded-full" />
+                  <div className="w-5 h-[1.5px] bg-zinc-400 rounded-full" />
+                </button>
+                
+                <div
+                  className="flex items-center gap-3 select-none flex-shrink-0 cursor-pointer hover:scale-[1.02] active:scale-95 transition-all duration-200 group lg:hidden"
+                  onClick={() => {
+                    setActiveView("home");
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                >
+                  <img
+                    src="https://img2.pic.in.th/983B3DCE-90A3-4822-8940-D6B81CCA63A3.png"
+                    alt="APEXSTORE Logo"
+                    className="h-[36px] md:h-[40px] select-none"
+                  />
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-[36px] h-[36px] md:w-[40px] md:h-[40px] bg-[#e11d48] flex items-center justify-center rounded-md shrink-0 shadow-lg shadow-rose-950/25 border border-rose-500/10 transition-transform duration-300 group-hover:rotate-6">
+                      <svg
+                        viewBox="0 0 24 24"
+                        className="w-[20px] h-[20px] md:w-[22px] md:h-[22px] text-white"
+                        fill="none"
                       stroke="currentColor"
                       strokeWidth="2.5"
                       strokeLinecap="round"
@@ -2149,6 +2163,7 @@ function AppContent() {
                       : "ร้านไอดีไก่ตัน"}
                   </span>
                 </div>
+              </div>
               </div>
 
               <div
