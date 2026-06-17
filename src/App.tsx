@@ -147,6 +147,7 @@ import {
   TermsModal,
   ContactUsModal,
 } from "./components/modals/PolicyModals";
+import { PrivacyView, TermsView } from "./components/PolicyViews";
 import { getAvatarUrl } from "./lib/avatar";
 import { getUserRank } from "./lib/rank";
 import {
@@ -529,7 +530,9 @@ function AppContent() {
     | "log_categories"
     | "vip_logs"
     | "free_logs"
-    | "my_orders";
+    | "my_orders"
+    | "privacy"
+    | "terms";
 
   const [language, setLanguage] = useState<"th" | "en">("th");
 
@@ -1850,6 +1853,10 @@ function AppContent() {
         return "ประวัติเติมเงิน";
       case "random_history":
         return "ประวัติการสุ่มสินค้า";
+      case "privacy":
+        return "นโยบายความเป็นส่วนตัว";
+      case "terms":
+        return "ข้อกำหนดการใช้งาน";
       case "admin":
         return "จัดการหลังบ้าน";
       default:
@@ -1883,15 +1890,18 @@ function AppContent() {
         <aside className={`hidden lg:flex flex-col bg-[#000000] h-screen sticky top-0 shrink-0 overflow-hidden no-scrollbar z-[70] select-none text-[13px] transition-all duration-300 ease-in-out ${isDesktopSidebarOpen ? 'w-[260px] border-l border-[#1e1e1e]' : 'w-0 border-l-0 border-transparent'}`}>
           <div className="w-[260px] h-full flex flex-col overflow-y-auto no-scrollbar shrink-0">
             {/* Brand Header */}
-          <div className="px-5 pt-6 pb-4 w-full flex flex-col justify-start shrink-0">
+          <div className="px-5 pt-4 pb-4 w-full flex flex-col justify-start shrink-0">
+            <div className="flex items-center gap-2 text-[10px] text-zinc-500 mb-2 font-sans tracking-wide">
+              <span className="hover:text-zinc-300 cursor-pointer transition-colors" onClick={() => { setActiveView("privacy"); window.scrollTo(0,0); }}>นโยบายความเป็นส่วนตัว</span>
+              <span>|</span>
+              <span className="hover:text-zinc-300 cursor-pointer transition-colors" onClick={() => { setActiveView("terms"); window.scrollTo(0,0); }}>ข้อกำหนดการใช้งาน</span>
+            </div>
             <div className="flex items-center gap-3 w-full">
               <div
                 className="cursor-pointer select-none"
                 onClick={handleLogoClick}
-                style={{ fontFamily: "'Exo 2', 'Nexa', sans-serif" }}
               >
-                <span className="text-2xl font-black italic tracking-tighter text-white">APEX</span>
-                <span className="text-2xl font-black italic tracking-tighter text-rose-600">STORE</span>
+                <img src="https://img2.pic.in.th/DFB0841D-C86A-45E7-B08A-D626DD682DD1.png" alt="APEXSTORE Logo" className="h-8 object-contain" />
               </div>
             </div>
           </div>
@@ -2103,8 +2113,16 @@ function AppContent() {
         </aside>
         {/* Main Content Area */}
         <div className="flex-1 flex flex-col min-h-screen min-w-0 relative transition-all duration-300">
+          {/* Top Banner for Policies (Mobile) */}
+          <div className="lg:hidden w-full bg-[#050505] flex justify-start py-1.5 px-4 text-[10px] text-zinc-500 font-sans tracking-wide border-b border-[#1e1e1e]">
+             <div className="flex gap-2.5 items-center w-full">
+               <span className="hover:text-zinc-300 cursor-pointer transition-colors" onClick={() => { setActiveView("privacy"); window.scrollTo(0,0); }}>นโยบายความเป็นส่วนตัว</span>
+               <span className="text-zinc-700">|</span>
+               <span className="hover:text-zinc-300 cursor-pointer transition-colors" onClick={() => { setActiveView("terms"); window.scrollTo(0,0); }}>ข้อกำหนดการใช้งาน</span>
+             </div>
+          </div>
           {/* Top Header */}
-          <header className="sticky top-0 z-[100] w-full bg-black/60 backdrop-blur-md border-b border-[#1e1e1e] flex-shrink-0 select-none">
+          <header className="sticky top-[27px] lg:top-0 z-[100] w-full bg-black/60 backdrop-blur-md border-b border-[#1e1e1e] flex-shrink-0 select-none">
             <div className="flex items-center justify-between h-[80px] px-4 md:px-8 mx-auto w-full">
               {/* Left Section: Mobile Logo + Desktop Toggle */}
               <div className="flex items-center gap-4 flex-shrink-0">
@@ -2125,9 +2143,8 @@ function AppContent() {
                     window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
                 >
-                  <div className="flex items-center" style={{ fontFamily: "'Exo 2', 'Nexa', sans-serif" }}>
-                    <span className="text-[26px] font-black italic tracking-tighter text-white">APEX</span>
-                    <span className="text-[26px] font-black italic tracking-tighter text-rose-600">STORE</span>
+                  <div className="flex items-center">
+                    <img src="https://img2.pic.in.th/DFB0841D-C86A-45E7-B08A-D626DD682DD1.png" alt="APEXSTORE Logo" className="h-[36px] md:h-[40px] select-none object-contain" />
                   </div>
                 </div>
               </div>
@@ -2236,9 +2253,8 @@ function AppContent() {
                         window.scrollTo({ top: 0, behavior: "smooth" });
                       }}
                     >
-                      <div className="flex items-center" style={{ fontFamily: "'Exo 2', 'Nexa', sans-serif" }}>
-                        <span className="text-[22px] font-black italic tracking-tighter text-white">APEX</span>
-                        <span className="text-[22px] font-black italic tracking-tighter text-rose-600">STORE</span>
+                      <div className="flex items-center">
+                        <img src="https://img2.pic.in.th/DFB0841D-C86A-45E7-B08A-D626DD682DD1.png" alt="APEXSTORE Logo" className="h-[32px] object-contain select-none" />
                       </div>
                     </motion.div>
 
@@ -2761,6 +2777,12 @@ function AppContent() {
                           onRefreshData={refreshAllSystemData}
                         />
                       )}
+                      {activeView === "privacy" && (
+                        <PrivacyView onBack={() => { setActiveView("home"); window.scrollTo(0,0); }} />
+                      )}
+                      {activeView === "terms" && (
+                        <TermsView onBack={() => { setActiveView("home"); window.scrollTo(0,0); }} />
+                      )}
                     </>
                   )}
                 </motion.div>
@@ -2837,11 +2859,8 @@ const SupplementaryLoader: React.FC = () => {
   return (
     <div className="flex-1 w-full flex flex-col items-center justify-center min-h-[50vh] bg-[#000000] text-zinc-400 p-8 my-4 text-center select-none">
       <div className="flex flex-col items-center justify-center gap-6">
-        <div 
-          className="flex items-center justify-center filter drop-shadow-[0_0_15px_rgba(255,255,255,0.15)] opacity-50" 
-          style={{ fontFamily: "'Exo 2', 'Nexa', sans-serif" }}
-        >
-          <span className="text-3xl font-black lowercase tracking-tighter" style={{ WebkitTextStroke: '1px white', color: 'transparent' }}>apexstore</span>
+        <div className="flex items-center justify-center opacity-70">
+          <img src="https://img2.pic.in.th/DFB0841D-C86A-45E7-B08A-D626DD682DD1.png" alt="APEXSTORE Logo" className="h-10 object-contain select-none grayscale" />
         </div>
         <div className="w-8 h-8 border-4 border-zinc-800 border-t-white rounded-full animate-spin" />
         <div className="space-y-2 mt-4">
@@ -2874,11 +2893,8 @@ const PortalLoader: React.FC = () => {
           }}
           className="relative"
         >
-          <div 
-            className="flex items-center justify-center filter drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]" 
-            style={{ fontFamily: "'Exo 2', 'Nexa', sans-serif" }}
-          >
-            <span className="text-5xl md:text-6xl font-black lowercase tracking-tighter" style={{ WebkitTextStroke: '1.5px white', color: 'transparent' }}>apexstore</span>
+          <div className="flex items-center justify-center filter drop-shadow-[0_0_15px_rgba(255,255,255,0.15)]">
+            <img src="https://img2.pic.in.th/DFB0841D-C86A-45E7-B08A-D626DD682DD1.png" alt="APEXSTORE Logo" className="h-16 md:h-20 object-contain select-none opacity-90" />
           </div>
         </motion.div>
         
