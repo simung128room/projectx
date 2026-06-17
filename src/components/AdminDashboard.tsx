@@ -1003,7 +1003,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         <div className="p-6 flex items-center justify-between border-b border-[#1e1e1e] border shrink-0">
           <div className="flex items-center gap-3">
             <div className="flex items-center justify-center flex-shrink-0">
-              <img src="https://img2.pic.in.th/DFB0841D-C86A-45E7-B08A-D626DD682DD1.png" alt="APEXSTORE Logo" className="h-14 object-contain" />
+              <img src="https://img2.pic.in.th/DFB0841D-C86A-45E7-B08A-D626DD682DD1.png" alt="APEXSTORE Logo" className="h-[110px] object-contain" />
             </div>
           </div>
           <button onClick={() => setIsNavOpen(false)} className="lg:hidden p-2 text-zinc-400 hover:text-white bg-[#09090b] rounded-md">

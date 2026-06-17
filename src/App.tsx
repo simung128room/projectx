@@ -1896,7 +1896,7 @@ function AppContent() {
                 className="cursor-pointer select-none"
                 onClick={handleLogoClick}
               >
-                <img src="https://img2.pic.in.th/DFB0841D-C86A-45E7-B08A-D626DD682DD1.png" alt="APEXSTORE Logo" className="h-16 object-contain" />
+                <img src="https://img2.pic.in.th/DFB0841D-C86A-45E7-B08A-D626DD682DD1.png" alt="APEXSTORE Logo" className="h-[120px] object-contain" />
               </div>
             </div>
           </div>
@@ -2110,7 +2110,7 @@ function AppContent() {
         <div className="flex-1 flex flex-col min-h-screen min-w-0 relative transition-all duration-300">
           {/* Top Header */}
           <header className="sticky top-0 z-[100] w-full bg-[#050505]/40 backdrop-blur-2xl saturate-150 border-b border-[#1e1e1e] flex-shrink-0 select-none">
-            <div className="flex items-center justify-between h-[80px] px-4 md:px-8 mx-auto w-full">
+            <div className="flex items-center justify-between h-[150px] md:h-[165px] px-4 md:px-8 mx-auto w-full">
               {/* Left Section: Mobile Logo + Desktop Toggle */}
               <div className="flex items-center gap-4 flex-shrink-0">
                 <motion.button
@@ -2153,7 +2153,7 @@ function AppContent() {
                   }}
                 >
                   <div className="flex items-center">
-                    <img src="https://img2.pic.in.th/DFB0841D-C86A-45E7-B08A-D626DD682DD1.png" alt="APEXSTORE Logo" className="h-[56px] md:h-[64px] select-none object-contain" />
+                    <img src="https://img2.pic.in.th/DFB0841D-C86A-45E7-B08A-D626DD682DD1.png" alt="APEXSTORE Logo" className="h-[120px] md:h-[135px] select-none object-contain" />
                   </div>
                 </div>
               </div>
@@ -2247,7 +2247,7 @@ function AppContent() {
                   className="fixed top-0 right-0 bottom-0 h-screen w-full max-w-[320px] bg-[#101014] z-[130] flex flex-col lg:hidden overflow-y-auto no-scrollbar border-l border-[#1e1e1e] shadow-2xl"
                 >
                   {/* Mobile Sidebar Header with Logo and Close Icon */}
-                  <div className="flex items-center justify-between h-[70px] px-6 border-b border-[#1e1e1e]/60 shrink-0 select-none">
+                  <div className="flex items-center justify-between h-[150px] px-6 border-b border-[#1e1e1e]/60 shrink-0 select-none">
                     <motion.div
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
@@ -2260,7 +2260,7 @@ function AppContent() {
                       }}
                     >
                       <div className="flex items-center">
-                        <img src="https://img2.pic.in.th/DFB0841D-C86A-45E7-B08A-D626DD682DD1.png" alt="APEXSTORE Logo" className="h-[52px] object-contain select-none" />
+                        <img src="https://img2.pic.in.th/DFB0841D-C86A-45E7-B08A-D626DD682DD1.png" alt="APEXSTORE Logo" className="h-[110px] object-contain select-none" />
                       </div>
                     </motion.div>
 
