@@ -1303,10 +1303,20 @@ function AppContent() {
       ]);
       if (usedKeysRes?.data) setUsedKeysHistory(usedKeysRes.data);
       if (purchasesRes?.data) {
-        const purchaseData = Array.isArray(purchasesRes.data)
+        let purchaseData = Array.isArray(purchasesRes.data)
           ? purchasesRes.data
           : purchasesRes.data.data;
         if (Array.isArray(purchaseData)) {
+          purchaseData = purchaseData.map((p: any) => {
+            let name = p.productName;
+            try {
+              if (typeof name === 'string' && name.trim().startsWith('{')) {
+                const parsed = JSON.parse(name);
+                name = parsed.n || parsed.name || name;
+              }
+            } catch (e) {}
+            return { ...p, productName: name };
+          });
           setPurchaseHistory(purchaseData);
           if (purchasesRes.data.nextCursor) {
             setPurchasesNextCursor(purchasesRes.data.nextCursor);
@@ -1864,13 +1874,13 @@ function AppContent() {
         initial={{ opacity: 0 }}
         animate={{ opacity: isLoaded ? 1 : 0 }}
         transition={{ duration: 1.0, ease: "easeInOut" }}
-        className="min-h-screen w-full flex flex-col lg:flex-row relative"
+        className="min-h-screen w-full flex flex-col lg:flex-row-reverse relative"
       >
         {useCustomCursor && <CustomCursor />}
         {/* Popup banner removed as requested */}
 
         {/* Desktop Sidebar */}
-        <aside className="hidden lg:flex flex-col w-[260px] bg-[#000000] border-r border-[#1e1e1e] h-screen sticky top-0 shrink-0 overflow-y-auto no-scrollbar z-[70] select-none text-[13px]">
+        <aside className="hidden lg:flex flex-col w-[260px] bg-[#000000] border-l border-[#1e1e1e] h-screen sticky top-0 shrink-0 overflow-y-auto no-scrollbar z-[70] select-none text-[13px]">
           {/* Brand Header */}
           <div className="px-5 pt-6 pb-4 w-full flex flex-col justify-start shrink-0">
             <div className="flex items-center gap-3 w-full">
@@ -1912,19 +1922,25 @@ function AppContent() {
                   onClick={() => {
                     if (user) {
                       setActiveView("wallet");
+                      window.scrollTo({ top: 0, behavior: "smooth" });
                     } else {
                       import("sweetalert2").then((s) =>
                         s.default.fire({
                           icon: "info",
-                          title: "กรุณาเข้าสู่ระบบก่อน",
-                          text: "เข้าสู่ระบบเพื่อใช้งานฟังก์ชันนี้",
-                          timer: 1500,
-                          showConfirmButton: false,
-                        }),
+                          title: "จำเป็นต้องเข้าสู่ระบบ",
+                          text: "กรุณาเข้าสู่ระบบก่อนเพื่อใช้งานเมนูเติมเงิน",
+                          showCancelButton: true,
+                          confirmButtonText: "ไปหน้าเข้าสู่ระบบ",
+                          cancelButtonText: "ยกเลิก",
+                          confirmButtonColor: "#10b981"
+                        }).then((result) => {
+                          if (result.isConfirmed) {
+                            setActiveView("login");
+                            window.scrollTo({ top: 0, behavior: "smooth" });
+                          }
+                        })
                       );
-                      setActiveView("login");
                     }
-                    window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
                   className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-md transition-all ${activeView === "wallet" ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white hover:bg-white/[0.04]"}`}
                 >
@@ -1934,19 +1950,25 @@ function AppContent() {
                   onClick={() => {
                     if (user) {
                       setActiveView("history");
+                      window.scrollTo({ top: 0, behavior: "smooth" });
                     } else {
                       import("sweetalert2").then((s) =>
                         s.default.fire({
                           icon: "info",
-                          title: "กรุณาเข้าสู่ระบบก่อน",
-                          text: "เข้าสู่ระบบเพื่อใช้งานฟังก์ชันนี้",
-                          timer: 1500,
-                          showConfirmButton: false,
-                        }),
+                          title: "จำเป็นต้องเข้าสู่ระบบ",
+                          text: "กรุณาเข้าสู่ระบบก่อนเพื่อดูประวัติการสั่งซื้อ",
+                          showCancelButton: true,
+                          confirmButtonText: "ไปหน้าเข้าสู่ระบบ",
+                          cancelButtonText: "ยกเลิก",
+                          confirmButtonColor: "#10b981"
+                        }).then((result) => {
+                          if (result.isConfirmed) {
+                            setActiveView("login");
+                            window.scrollTo({ top: 0, behavior: "smooth" });
+                          }
+                        })
                       );
-                      setActiveView("login");
                     }
-                    window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
                   className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-md transition-all ${activeView === "history" || activeView === "my_orders" ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white hover:bg-white/[0.04]"}`}
                 >
@@ -2291,20 +2313,27 @@ function AppContent() {
                           onClick={() => {
                             if (user) {
                               setActiveView("wallet");
+                              setIsMobileMenuOpen(false);
+                              window.scrollTo({ top: 0, behavior: "smooth" });
                             } else {
                               import("sweetalert2").then((s) =>
                                 s.default.fire({
                                   icon: "info",
-                                  title: "กรุณาเข้าสู่ระบบก่อน",
-                                  text: "เข้าสู่ระบบเพื่อใช้งานฟังก์ชันนี้",
-                                  timer: 1500,
-                                  showConfirmButton: false,
-                                }),
+                                  title: "จำเป็นต้องเข้าสู่ระบบ",
+                                  text: "กรุณาเข้าสู่ระบบก่อนเพื่อใช้งานเมนูเติมเงิน",
+                                  showCancelButton: true,
+                                  confirmButtonText: "ไปหน้าเข้าสู่ระบบ",
+                                  cancelButtonText: "ยกเลิก",
+                                  confirmButtonColor: "#10b981"
+                                }).then((result) => {
+                                  if (result.isConfirmed) {
+                                    setActiveView("login");
+                                    setIsMobileMenuOpen(false);
+                                    window.scrollTo({ top: 0, behavior: "smooth" });
+                                  }
+                                })
                               );
-                              setActiveView("login");
                             }
-                            setIsMobileMenuOpen(false);
-                            window.scrollTo({ top: 0, behavior: "smooth" });
                           }}
                           className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-md transition-all ${activeView === "wallet" ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white"}`}
                         >
@@ -2314,20 +2343,27 @@ function AppContent() {
                           onClick={() => {
                             if (user) {
                               setActiveView("history");
+                              setIsMobileMenuOpen(false);
+                              window.scrollTo({ top: 0, behavior: "smooth" });
                             } else {
                               import("sweetalert2").then((s) =>
                                 s.default.fire({
                                   icon: "info",
-                                  title: "กรุณาเข้าสู่ระบบก่อน",
-                                  text: "เข้าสู่ระบบเพื่อใช้งานฟังก์ชันนี้",
-                                  timer: 1500,
-                                  showConfirmButton: false,
-                                }),
+                                  title: "จำเป็นต้องเข้าสู่ระบบ",
+                                  text: "กรุณาเข้าสู่ระบบก่อนเพื่อดูประวัติการสั่งซื้อ",
+                                  showCancelButton: true,
+                                  confirmButtonText: "ไปหน้าเข้าสู่ระบบ",
+                                  cancelButtonText: "ยกเลิก",
+                                  confirmButtonColor: "#10b981"
+                                }).then((result) => {
+                                  if (result.isConfirmed) {
+                                    setActiveView("login");
+                                    setIsMobileMenuOpen(false);
+                                    window.scrollTo({ top: 0, behavior: "smooth" });
+                                  }
+                                })
                               );
-                              setActiveView("login");
                             }
-                            setIsMobileMenuOpen(false);
-                            window.scrollTo({ top: 0, behavior: "smooth" });
                           }}
                           className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-md transition-all ${activeView === "history" || activeView === "my_orders" ? "bg-white/[0.06] text-white font-medium" : "text-zinc-400 hover:text-white"}`}
                         >

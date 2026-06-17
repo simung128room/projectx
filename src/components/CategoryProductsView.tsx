@@ -27,7 +27,7 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
   
   const filteredProducts =
     category === "all"
-      ? products
+      ? [...products]
       : products.filter(
           (p) =>
             p.category === category ||
@@ -35,6 +35,13 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
             p.category === categoryInfo?.name ||
             p.category === categoryInfo?.id,
         );
+        
+  // Sort products: in-stock first, then out-of-stock
+  filteredProducts.sort((a, b) => {
+    const aStock = Number(a.stock) > 0 ? 1 : 0;
+    const bStock = Number(b.stock) > 0 ? 1 : 0;
+    return bStock - aStock; // 1 (in-stock) comes before 0 (out-of-stock)
+  });
         
   const visibleProducts = filteredProducts.slice(0, renderLimit);
 

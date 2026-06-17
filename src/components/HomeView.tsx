@@ -418,8 +418,18 @@ export const HomeView: React.FC<HomeViewProps> = ({
     const fetchPurchases = async () => {
       try {
         const res = await axios.get("/api/latest-purchases");
-        if (res.data) {
-          setLatestPurchases(res.data);
+        if (res.data && Array.isArray(res.data)) {
+          const cleaned = res.data.map((p: any) => {
+            let name = p.productName;
+            try {
+              if (typeof name === 'string' && name.trim().startsWith('{')) {
+                const parsed = JSON.parse(name);
+                name = parsed.n || parsed.name || name;
+              }
+            } catch (e) {}
+            return { ...p, productName: name };
+          });
+          setLatestPurchases(cleaned);
         }
       } catch (e) {
         // silently fail or log
@@ -433,7 +443,11 @@ export const HomeView: React.FC<HomeViewProps> = ({
   }, []);
 
   const safeProducts = useMemo(() => (Array.isArray(products) ? products : []), [products]);
-  const recommendedProducts = useMemo(() => safeProducts.filter(p => Number(p.stock) > 0), [safeProducts]);
+  const recommendedProducts = useMemo(() => {
+    let inStock = safeProducts.filter(p => Number(p.stock) > 0);
+    if (inStock.length > 0) return inStock.slice(0, 6);
+    return safeProducts.slice(0, 6);
+  }, [safeProducts]);
 
   const totalSales =
     siteSettings?.stats_sales_override != null
@@ -774,7 +788,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
           {recommendedProducts.length === 0 ? (
             <div className="text-center py-20 text-white/30 text-sm">
-              ยังไม่มีสินค้าในขณะนี้
+              ร้านค้ายังไม่ได้เพิ่มสินค้าเข้ามาในระบบ
             </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
