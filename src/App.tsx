@@ -241,7 +241,6 @@ const LogCategoriesView = lazy(() =>
     default: module.LogCategoriesView,
   })),
 );
-import { CustomCursor } from "./components/CustomCursor";
 
 var TextPaint = `▒▄▀▄▒█▀▄▒██▀░▀▄▀
 2
@@ -1763,37 +1762,6 @@ function AppContent() {
       Swal.fire("ข้อผิดพลาด", "ไม่สำเร็จ: " + (err as Error).message, "error");
     }
   };
-
-  const [useCustomCursor, setUseCustomCursor] = useState(() => {
-    // Disable custom cursor automatically on touch devices (pointer: coarse)
-    if (
-      typeof window !== "undefined" &&
-      window.matchMedia("(pointer: coarse)").matches
-    ) {
-      return false;
-    }
-    const saved = localStorage.getItem("apexstore_custom_cursor");
-    return saved !== "false"; // default to true
-  });
-
-  const toggleCustomCursor = () => {
-    setUseCustomCursor((prev) => {
-      const next = !prev;
-      localStorage.setItem("apexstore_custom_cursor", String(next));
-      if (!next) {
-        document.body.style.cursor = "auto";
-        document.documentElement.style.cursor = "auto";
-        // Remove style tag if existing
-        const styleId = "custom-cursor-style-override";
-        const el = document.getElementById(styleId);
-        if (el) el.remove();
-      } else {
-        // We let CustomCursor handle it
-      }
-      return next;
-    });
-  };
-
   if (isIPBlocked)
     return (
       <div className="min-h-screen bg-[#09090b] flex items-center justify-center p-4">
@@ -1870,8 +1838,7 @@ function AppContent() {
         transition={{ type: "spring", stiffness: 400, damping: 30, duration: 0.8 }}
         className="min-h-screen w-full flex flex-col lg:flex-row-reverse relative"
       >
-        {useCustomCursor && <CustomCursor />}
-        {/* Popup banner removed as requested */}
+                {/* Popup banner removed as requested */}
 
         {/* Desktop Sidebar */}
         <aside className={`hidden lg:flex flex-col bg-[#040404] h-screen sticky top-0 shrink-0 overflow-hidden no-scrollbar z-[70] select-none text-[13px] transition-all duration-300 ease-in-out ${isDesktopSidebarOpen ? 'w-[260px] border-l border-[#161619]' : 'w-0 border-l-0 border-transparent'}`}>

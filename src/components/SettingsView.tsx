@@ -8,11 +8,9 @@ import { Skeleton } from './ui/Skeleton';
 interface SettingsViewProps {
   user?: any;
   setActiveView: (view: any) => void;
-  useCustomCursor?: boolean;
-  toggleCustomCursor?: () => void;
 }
 
-export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user, useCustomCursor, toggleCustomCursor }) => {
+export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user }) => {
   const [currentTab, setCurrentTab] = useState<'password' | 'delete' | 'preferences'>('password');
   const [isLoading, setIsLoading] = useState(false);
   
@@ -165,13 +163,6 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user,
                   <span className="text-sm font-semibold">เปลี่ยนรหัสผ่าน</span>
                 </button>
                 <button 
-                  onClick={() => setCurrentTab('preferences')}
-                  className={`w-full flex items-center gap-3.5 px-4 py-3.5 text-sm font-semibold rounded-md transition-all cursor-pointer ${currentTab === 'preferences' ? 'bg-white/[0.04] text-white border-l-2 border-neon-green pl-[14px]' : 'text-zinc-400 hover:text-white hover:bg-white/[0.04] hover:pl-[18px]'}`}
-                >
-                  <Settings className={`w-4.5 h-4.5 ${currentTab === 'preferences' ? 'text-neon-green' : 'text-zinc-500'}`} />
-                  <span className="text-sm font-semibold">การตั้งค่าแสดงผล</span>
-                </button>
-                <button 
                   onClick={() => setCurrentTab('delete')}
                   className={`w-full flex items-center gap-3.5 px-4 py-3.5 text-sm font-semibold rounded-md transition-all cursor-pointer ${currentTab === 'delete' ? 'bg-red-500/10 text-red-400 border-l-2 border-red-500 pl-[14px]' : 'text-red-400/85 hover:text-red-400 hover:bg-red-500/10 hover:pl-[18px]'}`}
                 >
@@ -267,31 +258,6 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user,
                         >
                           ลบบัญชีถาวร
                         </button>
-                      </div>
-                    </div>
-                  )}
-
-                  {currentTab === 'preferences' && (
-                    <div className="animate-in fade-in duration-300">
-                      <h3 className="text-base font-medium text-white mb-6">ตั้งค่าการแสดงผลทั่วไป</h3>
-                      <div className="space-y-4">
-                        <div className="flex items-center justify-between p-4 bg-[#0a0a0b] border border-[#1e1e1e] rounded-md">
-                          <div className="pr-4">
-                            <div className="text-sm font-semibold text-white mb-1">Custom Cursor</div>
-                            <div className="text-xs text-zinc-400 leading-normal">เปิด/ปิด เอฟเฟกต์เคอร์เซอร์ของเว็บไซต์ เพื่อลดการกระตุกบนเครื่องสเปกต่ำ</div>
-                          </div>
-                          <div className="flex items-center shrink-0">
-                            <label className="relative inline-flex items-center cursor-pointer">
-                              <input 
-                                type="checkbox" 
-                                className="sr-only peer" 
-                                checked={useCustomCursor ?? true} 
-                                onChange={toggleCustomCursor}
-                              />
-                              <div className="w-11 h-6 bg-[#050505] border border-zinc-850 rounded-full peer-focus:outline-none peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-zinc-300 after:border-[#1e1e1e] after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-neon-green"></div>
-                            </label>
-                          </div>
-                        </div>
                       </div>
                     </div>
                   )}
