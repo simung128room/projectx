@@ -227,15 +227,6 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             />
 
             <MenuShortcut
-              label="เปิดใช้งานคีย์ไลเซนส์"
-              subLabel="แลกของรางวัลหรือสิทธิ์ผู้ใช้พิเศษ"
-              icon={Key}
-              colorClass="text-zinc-400 group-hover:bg-zinc-500/10 animate-none"
-              glowColor="rgba(147,51,234,0.1)"
-              onClick={() => setActiveView('redeem')}
-            />
-
-            <MenuShortcut
               label="ระบบความปลอดภัย"
               subLabel="เปลี่ยนรหัสผ่านเพื่อป้องกันข้อมูล"
               icon={Settings}

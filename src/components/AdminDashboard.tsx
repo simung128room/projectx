@@ -941,13 +941,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       analytics: 'ข้อมูลวิเคราะห์',
       store: 'สินค้าในร้าน',
       categories: 'หมวดหมู่สินค้า',
+      stock: 'จัดการสต็อก',
       banners: 'ตั้งค่าแบนเนอร์',
       pages: 'ตั้งค่าหน้าเพจ',
+      preorders: 'จัดการ Pre-Order',
       users: 'สมาชิกทั้งหมด',
-      keys: 'LICENSE KEYS',
       history: 'ประวัติรายการ',
       ips: 'ความปลอดภัย',
-      bot: 'ระบบบอท',
       tools: 'ตัวช่วยแจกของ',
       api_keys: 'ระบบ API',
       settings: 'ตั้งค่าเว็บไซต์',
@@ -956,7 +956,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     return items[id] || id;
   };
 
-  const NavItem = ({ id, label, icon: Icon, color }: any) => {
+  const NavItem = ({ id, label, icon: Icon }: any) => {
     const isActive = adminTab === id;
     return (
       <button
@@ -966,7 +966,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         }}
         className={`w-full flex items-center gap-3 px-4 py-2.5 transition-all duration-200 relative group rounded-md ${
           isActive 
-            ? 'bg-[#050505]/60 text-[#10b981] font-medium shadow-sm' 
+            ? 'bg-[#050505]/60 text-[#10b981] font-semibold' 
             : 'text-zinc-400 hover:bg-[#050505]/20 hover:text-white'
         }`}
       >
@@ -974,7 +974,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-[#10b981] rounded-r-md shadow-sm" />
         )}
         <Icon className={`w-4 h-4 transition-transform duration-200 group-hover:scale-105 ${isActive ? 'text-[#10b981]' : 'text-zinc-500 group-hover:text-zinc-300'}`} />
-        <span className="text-xs font-semibold tracking-wide">{label}</span>
+        <span className="text-xs tracking-wide">{label}</span>
         {isActive && (
           <ChevronRight className="w-3 h-3 ml-auto opacity-75 text-[#10b981]" />
         )}
@@ -1004,13 +1004,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           <div className="flex items-center gap-3">
             <div className="flex items-center justify-center flex-shrink-0 gap-1.5 py-1">
               <div className="w-2 h-2 rounded-full bg-[#10b981] shadow-[0_0_8px_#10b981]" />
-              <span className="text-xl font-bold tracking-tight text-white font-logo select-none">
-                apex<span className="text-[#10b981]">store</span>
+              <span className="text-xl font-light tracking-tight text-white font-logo select-none">
+                apex<span className="text-[#10b981] font-light">store</span>
               </span>
             </div>
           </div>
           <button onClick={() => setIsNavOpen(false)} className="lg:hidden p-2 text-zinc-400 hover:text-white bg-[#09090b] rounded-md">
-             <X className="w-5 h-5" />
+             <X className="X w-5 h-5" />
           </button>
         </div>
 
@@ -1037,14 +1037,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           <div className="space-y-1">
             <p className="text-[10px] font-medium text-zinc-500 uppercase tracking-widest mb-2 px-3">ผู้ใช้งาน & ประวัติ</p>
             <NavItem id="users" label="สมาชิกทั้งหมด" icon={Users} />
-            <NavItem id="keys" label="LICENSE KEYS" icon={Key} />
             <NavItem id="history" label="ประวัติรายการ" icon={History} />
             <NavItem id="ips" label="ความปลอดภัย" icon={ShieldAlert} />
           </div>
 
           <div className="space-y-1">
             <p className="text-[10px] font-medium text-zinc-500 uppercase tracking-widest mb-2 px-3">เครื่องมือเสริม</p>
-
             <NavItem id="tools" label="ตัวช่วยแจกของ" icon={Gift} />
             <NavItem id="api_keys" label="ระบบ API" icon={Key} />
           </div>
@@ -1062,7 +1060,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </div>
             <button 
               onClick={() => setIsAdmin(false)}
-              className="p-2 text-red-400 hover:text-white hover:bg-red-500/20 transition-colors flex-shrink-0"
+              className="p-2 text-red-200 hover:text-white hover:bg-red-500/20 transition-colors flex-shrink-0"
               title="ออกจากระบบ"
             >
               <LogOut className="w-4 h-4" />
@@ -1110,15 +1108,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 exit={{ opacity: 0, y: -10 }}
                 className="space-y-8"
               >
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                 {[
                   { label: 'ผู้ใช้งานทั้งหมด', value: (siteStats?.users || 0).toLocaleString(), icon: Users, color: 'text-[#10b981]', bg: 'bg-[#10b981]/5', border: 'hover:border-[#10b981]/40' },
                   { label: 'ยอดขายทั้งหมด (สินค้า)', value: totalOrders.toLocaleString(), icon: Package, color: 'text-zinc-400', bg: 'bg-zinc-500/5', border: 'hover:border-[#1e1e1e]/40' },
-                  { label: 'คำสั่งซื้อที่สำเร็จ', value: totalOrders.toLocaleString(), icon: ShoppingCart, color: 'text-amber-400', bg: 'bg-amber-500/5', border: 'hover:border-amber-500/40' },
-                  { label: 'รายได้รวม (บาท)', value: totalRevenue.toLocaleString(), icon: Activity, color: 'text-[#10b981]', bg: 'bg-[#10b981]/5', border: 'hover:border-emerald-500/40' },
+                  { label: 'คำสั่งซื้อทั้งหมด', value: purchaseHistory.length.toLocaleString(), icon: ShoppingCart, color: 'text-amber-400', bg: 'bg-amber-500/5', border: 'hover:border-amber-500/40' },
+                  { label: 'สินค้าประเภทสต็อก', value: products.filter(p => !p.isPreOrder && p.stock > 0).length.toLocaleString(), icon: Database, color: 'text-blue-400', bg: 'bg-blue-500/5', border: 'hover:border-blue-500/40' }
                 ].map((stat, i) => (
-                  <div key={i} className={`bg-[#09090b] border border-[#1e1e1e] rounded-md p-6 relative overflow-hidden group transition-all duration-300 hover:translate-y-[-2px] hover:shadow-sm ${stat.border}`}>
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-[#050505]/40  rounded-full -mr-8 -mt-8 transition-transform duration-500 group-hover:scale-125"></div>
+                  <div key={i} className={`bg-[#050505]/40 border border-[#1e1e1e]/60 rounded-md p-6 relative overflow-hidden group transition-all duration-300 hover:translate-y-[-2px] hover:shadow-sm ${stat.border}`}>
                     <div className="flex items-center justify-between relative z-10">
                       <div>
                         <p className="text-zinc-500 text-[10px] font-medium uppercase tracking-wider mb-2">{stat.label}</p>

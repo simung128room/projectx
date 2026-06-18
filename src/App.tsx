@@ -131,9 +131,6 @@ import { useToastStore } from "./lib/toastStore";
 import { ToastContainer } from "./components/ui/Toast";
 import { GlobalErrorBoundary } from "./components/GlobalErrorBoundary";
 import { UserPlan } from "./types";
-const KeyModal = lazy(() =>
-  import("./components/modals/KeyModal").then((m) => ({ default: m.KeyModal })),
-);
 const ReceiptModal = lazy(() =>
   import("./components/modals/ReceiptModal").then((m) => ({
     default: m.ReceiptModal,
@@ -220,11 +217,6 @@ const HistoryLogsView = lazy(() =>
 const WalletView = lazy(() =>
   import("./components/WalletView").then((module) => ({
     default: module.WalletView,
-  })),
-);
-const RedeemKeyView = lazy(() =>
-  import("./components/RedeemKeyView").then((module) => ({
-    default: module.RedeemKeyView,
   })),
 );
 const historyImport = () => import("./components/HistoryView");
@@ -483,11 +475,6 @@ function AppContent() {
         title: "แอปพรีเมียม / บันเทิง",
       },
       { id: "gaming_id", name: "ไอดีเกมส์ยอดนิยม", title: "ไอดีเกมส์ยอดนิยม" },
-      {
-        id: "license_key",
-        name: "คีย์ใบอนุญาต / โปรแกรม",
-        title: "คีย์ใบอนุญาต / โปรแกรม",
-      },
     ];
   });
 
@@ -500,7 +487,6 @@ function AppContent() {
   const [adminTab, setAdminTab] = useState<string>("overview");
   const [isIPBlocked, setIsIPBlocked] = useState(false);
   const [lastUsageDate, setLastUsageDate] = useState<string>("");
-  const [showKeyModal, setShowKeyModal] = useState(false);
 
   // Navigation State
   type ViewType =
@@ -1896,8 +1882,8 @@ function AppContent() {
               onClick={handleLogoClick}
             >
               <div className="flex items-center group">
-                <span className="text-[34px] font-bold tracking-tight text-white font-logo select-none whitespace-nowrap hover:scale-[1.01] transition-transform">
-                  apex<span className="text-[#10b981]">store</span>
+                <span className="text-[34px] font-light tracking-tight text-white font-logo select-none whitespace-nowrap hover:scale-[1.01] transition-transform">
+                  apex<span className="text-[#10b981] font-light">store</span>
                 </span>
               </div>
               <div className="h-px bg-gradient-to-r from-transparent via-[#161619] to-transparent w-full my-4" />
@@ -2153,31 +2139,6 @@ function AppContent() {
                 >
                   <Search size={15} />
                 </button>
-
-                {/* Redeem Key */}
-                <button
-                  onClick={() => {
-                    if (user) {
-                      setActiveView("profile");
-                      window.scrollTo({ top: 0, behavior: "smooth" });
-                      import("sweetalert2").then((s) => s.default.fire({
-                        title: "🔑 เปิดใช้งานคีย์สต็อก",
-                        text: "คุณสามารถเปิดใช้งานคีย์หรือกิฟต์การ์ดที่ได้รับในหน้าเมนู 'โปรไฟล์' หรือใช้คีย์โดยตรงบนหน้าแผงควบคุม",
-                        icon: "info",
-                        background: "#1e1e1e",
-                        color: "#fff",
-                        confirmButtonColor: "#10b981"
-                      }));
-                    } else {
-                      setActiveView("login");
-                      window.scrollTo({ top: 0, behavior: "smooth" });
-                    }
-                  }}
-                  className="flex items-center justify-center p-2 rounded-xl border border-[#1d1d21] bg-[#111113]/60 hover:bg-[#1a1a1f] hover:border-zinc-700 transition-all text-zinc-400 hover:text-white cursor-pointer active:scale-95"
-                  title="เติมคีย์การ์ด"
-                >
-                  <Key size={15} />
-                </button>
               </div>
 
               {/* User Identity Box */}
@@ -2293,8 +2254,8 @@ function AppContent() {
                   }}
                 >
                   <div className="flex items-center py-1">
-                    <span className="text-2xl font-bold tracking-tight text-white font-logo select-none">
-                      apex<span className="text-[#10b981]">store</span>
+                    <span className="text-2xl font-light tracking-tight text-white font-logo select-none">
+                      apex<span className="text-[#10b981] font-light">store</span>
                     </span>
                   </div>
                 </div>
@@ -2393,8 +2354,8 @@ function AppContent() {
                       }}
                     >
                       <div className="flex items-center py-1">
-                        <span className="text-[30px] font-bold tracking-tight text-white font-logo select-none">
-                          apex<span className="text-[#10b981]">store</span>
+                        <span className="text-[30px] font-light tracking-tight text-white font-logo select-none">
+                          apex<span className="text-[#10b981] font-light">store</span>
                         </span>
                       </div>
                     </motion.div>
@@ -2681,31 +2642,6 @@ function AppContent() {
                       >
                         <Search size={15} />
                       </button>
-
-                      {/* Redeem Key */}
-                      <button
-                        onClick={() => {
-                          if (user) {
-                            setActiveView("profile");
-                            window.scrollTo({ top: 0, behavior: "smooth" });
-                            import("sweetalert2").then((s) => s.default.fire({
-                              title: "🔑 เปิดใช้งานคีย์สต็อก",
-                              text: "คุณสามารถเปิดใช้งานคีย์หรือกิฟต์การ์ดที่ได้รับในหน้าเมนู 'โปรไฟล์' หรือใช้คีย์โดยตรงบนหน้าแผงควบคุม",
-                              icon: "info",
-                              background: "#1e1e1e",
-                              color: "#fff",
-                              confirmButtonColor: "#10b981"
-                            }));
-                          } else {
-                            setActiveView("login");
-                            window.scrollTo({ top: 0, behavior: "smooth" });
-                          }
-                          setIsMobileMenuOpen(false);
-                        }}
-                        className="flex items-center justify-center p-2 rounded-xl border border-[#1d1d21] bg-[#111113]/60 hover:bg-[#1a1a1f] hover:border-zinc-700 transition-all text-zinc-400 hover:text-white cursor-pointer active:scale-[0.95]"
-                      >
-                        <Key size={15} />
-                      </button>
                     </div>
 
                     {/* User Identity Box */}
@@ -2931,17 +2867,6 @@ function AppContent() {
                         />
                       )}
 
-                      {activeView === "redeem" && (
-                        <RedeemKeyView
-                          redeemKey={redeemKey}
-                          userEmail={user?.email}
-                          isLoggedIn={!!user}
-                          onBack={() => setActiveView("home")}
-                          onGoToStore={() => setActiveView("categories")}
-                          onLoginClick={() => setActiveView("login")}
-                        />
-                      )}
-
                       {activeView === "settings" && (
                         <SettingsView
                           user={user}
@@ -3035,15 +2960,7 @@ function AppContent() {
           <ContactUsModal isOpen={showContactUs} onClose={() => setShowContactUs(false)} siteSettings={siteSettings} />
           </AnimatePresence>
 
-          <Suspense fallback={null}>
-            <KeyModal
-              show={showKeyModal}
-              onClose={() => setShowKeyModal(false)}
-              vipTab={vipTab}
-              redeemKey={redeemKey}
-              userEmail={user?.email}
-            />
-          </Suspense>
+
 
           {/* Modals */}
           <Suspense fallback={null}>
