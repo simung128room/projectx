@@ -137,7 +137,7 @@ export const AdminToolsManagement = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-medium text-white flex items-center gap-3">
-          <Gift className="w-6 h-6 text-[#10b981]" />
+          <Gift className="w-6 h-6 text-[#00e676]" />
           ระบบหมวดหมู่ / เนื้อหา
         </h2>
         <div className="flex bg-[#09090b] border border-[#1e1e1e]  p-1 ">
@@ -149,7 +149,7 @@ export const AdminToolsManagement = () => {
       {activeTab === 'categories' && (
         <div className="space-y-4">
           <div className="flex justify-end">
-            {!isAddingCategory && <button onClick={() => setIsAddingCategory(true)} className="bg-[#10b981] hover:bg-[#10b981] text-white px-4 py-2 text-sm font-medium flex items-center gap-2"><Plus className="w-4 h-4"/> เพิ่มหมวดหมู่</button>}
+            {!isAddingCategory && <button onClick={() => setIsAddingCategory(true)} className="bg-[#00e676] hover:bg-[#00e676] text-white px-4 py-2 text-sm font-medium flex items-center gap-2"><Plus className="w-4 h-4"/> เพิ่มหมวดหมู่</button>}
           </div>
 
           {isAddingCategory && (
@@ -170,12 +170,12 @@ export const AdminToolsManagement = () => {
                 </div>
                 <div className="flex items-center gap-2 mt-4">
                   <input type="checkbox" id="isVisibleCheck" checked={catIsVisible} onChange={e=>setCatIsVisible(e.target.checked)} className="w-4 h-4 rounded border-[#1e1e1e] " />
-                  <label htmlFor="isVisibleCheck" className="text-sm text-[#10b981] font-medium">เปิดใช้งาน</label>
+                  <label htmlFor="isVisibleCheck" className="text-sm text-[#00e676] font-medium">เปิดใช้งาน</label>
                 </div>
               </div>
               <div className="flex justify-end gap-2 mt-4">
                 <button onClick={() => setIsAddingCategory(false)} className="px-4 py-2 text-sm text-muted-foreground font-medium hover:text-white">ยกเลิก</button>
-                <button onClick={handleSaveCategory} className="bg-primary text-primary-foreground hover:bg-[#10b981] text-white px-6 py-2 text-sm font-medium flex items-center gap-2"><Check className="w-4 h-4"/> บันทึก</button>
+                <button onClick={handleSaveCategory} className="bg-primary text-primary-foreground hover:bg-[#00e676] text-white px-6 py-2 text-sm font-medium flex items-center gap-2"><Check className="w-4 h-4"/> บันทึก</button>
               </div>
             </div>
           )}
@@ -186,7 +186,7 @@ export const AdminToolsManagement = () => {
                 <div className="flex justify-between items-start mb-3">
                   <h3 className="text-lg font-semibold text-white">{c.name}</h3>
                   <div className="flex items-center gap-2">
-                      <button onClick={() => toggleCategoryVisibility(c.id)} className={`px-2 py-1 flex items-center text-xs font-medium ${c.isVisible ? 'bg-[#10b981]/20 text-[#10b981]' : 'bg-[#121212] text-muted-foreground'}`}>
+                      <button onClick={() => toggleCategoryVisibility(c.id)} className={`px-2 py-1 flex items-center text-xs font-medium ${c.isVisible ? 'bg-[#00e676]/20 text-[#00e676]' : 'bg-[#121212] text-muted-foreground'}`}>
                       {c.isVisible ? 'ON' : 'OFF'}
                     </button>
                     <button onClick={() => handleDeleteCategory(c.id)} className="text-red-500 hover:text-red-400 bg-red-500/10 p-1.5"><Trash2 className="w-4 h-4"/></button>
@@ -203,7 +203,7 @@ export const AdminToolsManagement = () => {
       {activeTab === 'items' && (
         <div className="space-y-4">
           <div className="flex justify-end">
-            {!isAddingItem && <button onClick={() => setIsAddingItem(true)} className="bg-[#10b981] hover:bg-[#10b981] text-white px-4 py-2 text-sm font-medium flex items-center gap-2"><Plus className="w-4 h-4"/> เพิ่มเนื้อหา</button>}
+            {!isAddingItem && <button onClick={() => setIsAddingItem(true)} className="bg-[#00e676] hover:bg-[#00e676] text-white px-4 py-2 text-sm font-medium flex items-center gap-2"><Plus className="w-4 h-4"/> เพิ่มเนื้อหา</button>}
           </div>
 
           {isAddingItem && (
@@ -242,7 +242,7 @@ export const AdminToolsManagement = () => {
                     {attachments.map((a, i) => (
                       <div key={i} className="flex items-center justify-between bg-[#09090b] border border-[#1e1e1e]  p-2 px-3 ">
                         <div className="flex items-center gap-3 truncate text-sm text-muted-foreground">
-                          {a.type === 'text' && <FileText className="w-4 h-4 text-[#10b981]"/>}
+                          {a.type === 'text' && <FileText className="w-4 h-4 text-[#00e676]"/>}
                           {a.type === 'image' && <ImageIcon className="w-4 h-4 text-sky-400"/>}
                           {a.type === 'file' && <Download className="w-4 h-4 text-amber-400"/>}
                           <span className="truncate max-w-[200px]">{a.data}</span>
@@ -265,7 +265,7 @@ export const AdminToolsManagement = () => {
 
               <div className="flex justify-end gap-2 mt-4">
                 <button onClick={() => setIsAddingItem(false)} className="px-4 py-2 text-sm text-muted-foreground font-medium hover:text-white">ยกเลิก</button>
-                <button onClick={handleSaveItem} className="bg-primary text-primary-foreground hover:bg-[#10b981] text-white px-6 py-2 text-sm font-medium flex items-center gap-2"><Check className="w-4 h-4"/> บันทึกเนื้อหา</button>
+                <button onClick={handleSaveItem} className="bg-primary text-primary-foreground hover:bg-[#00e676] text-white px-6 py-2 text-sm font-medium flex items-center gap-2"><Check className="w-4 h-4"/> บันทึกเนื้อหา</button>
               </div>
             </div>
           )}
@@ -277,8 +277,8 @@ export const AdminToolsManagement = () => {
               <div key={item.id} className="bg-[#09090b] border border-[#1e1e1e]  p-5 relative overflow-hidden group ">
                 <div className="flex justify-between items-start mb-3">
                   <div className="flex gap-2">
-                    <span className="text-[10px] font-medium bg-[#09090b] text-[#10b981] px-2 py-0.5 uppercase ">{cat?.name || 'ไม่ระบุ'}</span>
-                    <span className={`text-[10px] font-medium px-2 py-0.5 uppercase ${item.type === 'premium' ? 'bg-amber-500/20 text-amber-400' : 'bg-[#10b981]/20 text-[#10b981]'}`}>
+                    <span className="text-[10px] font-medium bg-[#09090b] text-[#00e676] px-2 py-0.5 uppercase ">{cat?.name || 'ไม่ระบุ'}</span>
+                    <span className={`text-[10px] font-medium px-2 py-0.5 uppercase ${item.type === 'premium' ? 'bg-amber-500/20 text-amber-400' : 'bg-[#00e676]/20 text-[#00e676]'}`}>
                       {item.type === 'premium' ? 'Premium' : 'Free'}
                     </span>
                   </div>

@@ -32,7 +32,7 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
       showCancelButton: true,
       confirmButtonText: 'อัปเดตข้อมูล',
       cancelButtonText: 'ยกเลิก',
-      confirmButtonColor: '#10b981',
+      confirmButtonColor: '#00e676',
       cancelButtonColor: '#71717a',
       background: '#09090b',
       color: '#fff'
@@ -65,7 +65,7 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
       `,
       showCancelButton: true,
       confirmButtonText: 'ยืนยัน',
-      confirmButtonColor: '#10b981',
+      confirmButtonColor: '#00e676',
       cancelButtonColor: '#71717a',
       background: '#09090b',
       color: '#fff',
@@ -98,7 +98,7 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
       icon: 'warning',
       showCancelButton: true,
       confirmButtonText: isBanned ? 'ปลดระงับ' : 'สกัดกั้นบัญชี',
-      confirmButtonColor: isBanned ? '#10B981' : '#EF4444',
+      confirmButtonColor: isBanned ? '#00e676' : '#EF4444',
       cancelButtonColor: '#71717a',
       background: '#09090b',
       color: '#fff'
@@ -129,7 +129,7 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
         <div className="bg-[#09090b] border border-[#1e1e1e] rounded-md p-6 relative overflow-hidden flex flex-col min-h-[500px]">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 border-b border-zinc-850 pb-4">
             <div>
-               <h3 className="font-medium text-white flex items-center gap-2"><Users className="w-5 h-5 text-[#10b981]" /> บัญชีสมาชิก (User Accounts)</h3>
+               <h3 className="font-medium text-white flex items-center gap-2"><Users className="w-5 h-5 text-[#00e676]" /> บัญชีสมาชิก (User Accounts)</h3>
                <p className="text-xs text-zinc-500 mt-1">บริหารสถิติผู้ซื้อ กำหนดบทบาท หรือปรับลดพอร์ตวงเงินแบบรายบุคคล</p>
             </div>
             
@@ -138,7 +138,7 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
               <input 
                 type="text" 
                 placeholder="ค้นหาชื่อ, อีเมลสมาชก..."
-                className="w-full bg-zinc-950 border border-zinc-850 focus:border-[#10b981] text-xs px-3 py-2 pl-9 rounded-md text-white focus:outline-none transition-colors"
+                className="w-full bg-zinc-950 border border-zinc-850 focus:border-[#00e676] text-xs px-3 py-2 pl-9 rounded-md text-white focus:outline-none transition-colors"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
               />
@@ -193,10 +193,10 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
                       {u.status === 'banned' ? (
                          <span className="px-2 py-0.5 text-[10px] rounded uppercase font-medium bg-rose-500/10 border border-rose-500/20 text-rose-400 inline-flex items-center gap-1"><Ban className="w-2.5 h-2.5"/> ระงับส่งออก</span>
                       ) : (
-                         <span className="px-2 py-0.5 text-[10px] rounded uppercase font-medium bg-[#10b981]/10 border border-emerald-500/20 text-[#10b981] inline-flex items-center gap-1"><CheckCircle className="w-2.5 h-2.5"/> เปิดบริการ</span>
+                         <span className="px-2 py-0.5 text-[10px] rounded uppercase font-medium bg-[#00e676]/10 border border-emerald-500/20 text-[#00e676] inline-flex items-center gap-1"><CheckCircle className="w-2.5 h-2.5"/> เปิดบริการ</span>
                       )}
                     </td>
-                    <td className="px-5 py-3.5 font-medium font-mono text-[#10b981] text-right">฿{(u.balance || 0).toLocaleString()}</td>
+                    <td className="px-5 py-3.5 font-medium font-mono text-[#00e676] text-right">฿{(u.balance || 0).toLocaleString()}</td>
                     <td className="px-5 py-3.5 text-right">
                        <button onClick={() => setSelectedUser(u)} className="px-3 py-1 bg-[#050505] hover:bg-[#0a0a0a] text-zinc-300 hover:text-white text-xs font-medium transition-all inline-flex items-center gap-1.5 rounded border border-[#1e1e1e]">
                           <Eye className="w-3.5 h-3.5" /> ตรวจสอบ
@@ -224,7 +224,7 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
             <div className="p-6 md:p-8 bg-zinc-950 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border-b border-zinc-850">
               <div className="flex items-center gap-4">
                 <div className="w-14 h-14 bg-[#050505] border border-[#1e1e1e] rounded-md text-zinc-400 flex items-center justify-center shrink-0">
-                  <Users className="w-6 h-6 text-[#10b981]" />
+                  <Users className="w-6 h-6 text-[#00e676]" />
                 </div>
                 <div>
                   <h2 className="text-base font-medium text-white mb-1">{selectedUser.email}</h2>
@@ -232,7 +232,7 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
                     <span className={`px-2 py-0.5 rounded border ${selectedUser.role === 'Admin' ? 'bg-zinc-500/10 border-[#1e1e1e]/20 text-zinc-400' : selectedUser.role === 'Premium' ? 'bg-amber-500/10 border-amber-500/20 text-amber-400' : 'bg-zinc-850 text-zinc-400 border-[#1e1e1e]'}`}>
                       {selectedUser.role || 'Member'}
                     </span>
-                    <span className={`px-2 py-0.5 rounded border ${selectedUser.status === 'banned' ? 'bg-rose-500/10 border-rose-500/20 text-rose-400' : 'bg-[#10b981]/10 border-emerald-500/20 text-[#10b981]'}`}>
+                    <span className={`px-2 py-0.5 rounded border ${selectedUser.status === 'banned' ? 'bg-rose-500/10 border-rose-500/20 text-rose-400' : 'bg-[#00e676]/10 border-emerald-500/20 text-[#00e676]'}`}>
                       {selectedUser.status === 'banned' ? 'ACCOUNT BANNED' : 'ACCOUNT ACTIVE'}
                     </span>
                   </div>
@@ -277,16 +277,16 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
                   <div className="space-y-6">
                     <div className="bg-zinc-950/45 border border-zinc-850 p-6 rounded-md shadow-sm">
                       <h4 className="text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-4 flex items-center gap-2 border-b border-[#1e1e1e] pb-2.5">
-                        <Wallet className="w-3.5 h-3.5 text-[#10b981]" /> สถานะพอร์ตและวงเงิน
+                        <Wallet className="w-3.5 h-3.5 text-[#00e676]" /> สถานะพอร์ตและวงเงิน
                       </h4>
                       <div className="mb-6">
                          <p className="text-[10px] font-medium text-zinc-500 uppercase tracking-wider mb-1">เงินคงค้างกระเป๋า</p>
-                         <p className="text-2xl font-semibold font-mono text-[#10b981]">฿{(selectedUser.balance || 0).toLocaleString()}</p>
+                         <p className="text-2xl font-semibold font-mono text-[#00e676]">฿{(selectedUser.balance || 0).toLocaleString()}</p>
                       </div>
                       <div className="flex gap-2.5">
                         <button 
                           onClick={() => handleUpdateBalance(selectedUser, 'add')} 
-                          className="flex-1 py-2 border border-emerald-500/30 bg-[#10b981]/5 text-[#10b981] hover:bg-[#10b981]/15 rounded-md text-xs font-medium transition-all flex items-center justify-center gap-2"
+                          className="flex-1 py-2 border border-emerald-500/30 bg-[#00e676]/5 text-[#00e676] hover:bg-[#00e676]/15 rounded-md text-xs font-medium transition-all flex items-center justify-center gap-2"
                         >
                           <HandCoins className="w-4 h-4" /> เพิ่มพวงกระเป๋าเงิน
                         </button>
@@ -310,7 +310,7 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
                     <div className="p-4 border border-zinc-850 bg-zinc-950/20 space-y-3.5 rounded-md">
                       <div>
                         <p className="text-[10px] font-medium text-zinc-500 uppercase">ตำแหน่งไอพีสุดท้าย</p>
-                        <p className="text-xs font-mono text-[#10b981] font-medium bg-zinc-950 w-max px-2.5 py-0.5 rounded border border-zinc-850 mt-1">{selectedUser.lastLoginIp || selectedUser.last_login_ip || 'ไม่ระบุ'}</p>
+                        <p className="text-xs font-mono text-[#00e676] font-medium bg-zinc-950 w-max px-2.5 py-0.5 rounded border border-zinc-850 mt-1">{selectedUser.lastLoginIp || selectedUser.last_login_ip || 'ไม่ระบุ'}</p>
                       </div>
                       <div className="grid grid-cols-2 gap-4 pt-1.5 border-t border-[#1e1e1e]/60">
                         <div>
@@ -335,7 +335,7 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
                            <div className="flex items-center gap-3">
                              <div className="p-2 bg-zinc-950 rounded-md text-zinc-500"><Edit className="w-4 h-4" /></div>
                              <div className="flex flex-col items-start text-left leading-tight">
-                                <span className="text-xs font-semibold text-white group-hover:text-[#10b981] transition-colors">ยกระดับ/ปรับบทบาทผู้สิทธิ์</span>
+                                <span className="text-xs font-semibold text-white group-hover:text-[#00e676] transition-colors">ยกระดับ/ปรับบทบาทผู้สิทธิ์</span>
                                 <span className="text-[10px] text-zinc-500 mt-1">เปลี่ยนขอบเขต Member / Premium / Admin</span>
                              </div>
                            </div>
@@ -348,7 +348,7 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
                             inputPlaceholder: 'ใส่รหัสผ่านใหม่ตรงนี้...', 
                             showCancelButton: true, 
                             confirmButtonText: 'เปลี่ยนรหัส', 
-                            confirmButtonColor: '#10b981',
+                            confirmButtonColor: '#00e676',
                             cancelButtonColor: '#71717a',
                             background: '#09090b',
                             color: '#fff'
@@ -366,19 +366,19 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
                            <div className="flex items-center gap-3">
                              <div className="p-2 bg-zinc-950 rounded-md text-zinc-500"><RefreshCw className="w-4 h-4" /></div>
                              <div className="flex flex-col items-start text-left leading-tight">
-                                <span className="text-xs font-semibold text-white group-hover:text-[#10b981] transition-colors">บังคับเปลี่ยนรหัสผ่าน</span>
+                                <span className="text-xs font-semibold text-white group-hover:text-[#00e676] transition-colors">บังคับเปลี่ยนรหัสผ่าน</span>
                                 <span className="text-[10px] text-zinc-500 mt-1">กำหนดคีย์พาสเวิร์ดใหม่ทดแทนค่าเดิมทันที</span>
                              </div>
                            </div>
                         </button>
 
-                        <button onClick={() => handleToggleBan(selectedUser)} className={`w-full flex items-center justify-between p-3.5 rounded-md border transition-all ${selectedUser.status === 'banned' ? 'border-emerald-500/20 bg-[#10b981]/5 hover:border-emerald-500/40' : 'border-rose-500/20 bg-rose-500/5 hover:border-rose-500/40'}`}>
+                        <button onClick={() => handleToggleBan(selectedUser)} className={`w-full flex items-center justify-between p-3.5 rounded-md border transition-all ${selectedUser.status === 'banned' ? 'border-emerald-500/20 bg-[#00e676]/5 hover:border-emerald-500/40' : 'border-rose-500/20 bg-rose-500/5 hover:border-rose-500/40'}`}>
                            <div className="flex items-center gap-3">
-                             <div className={`p-2 rounded-md ${selectedUser.status === 'banned' ? 'bg-[#10b981]/10 text-[#10b981]' : 'bg-rose-500/10 text-rose-400'}`}>
+                             <div className={`p-2 rounded-md ${selectedUser.status === 'banned' ? 'bg-[#00e676]/10 text-[#00e676]' : 'bg-rose-500/10 text-rose-400'}`}>
                                 {selectedUser.status === 'banned' ? <CheckCircle className="w-4 h-4" /> : <Ban className="w-4 h-4" />}
                              </div>
                              <div className="flex flex-col items-start text-left leading-tight">
-                                <span className={`text-xs font-semibold ${selectedUser.status === 'banned' ? 'text-[#10b981]' : 'text-rose-400'}`}>
+                                <span className={`text-xs font-semibold ${selectedUser.status === 'banned' ? 'text-[#00e676]' : 'text-rose-400'}`}>
                                   {selectedUser.status === 'banned' ? 'ปลดระงับบัญชีนี้' : 'สกัดกั้น/แบนบัญชีนี้'}
                                 </span>
                                 <span className="text-[10px] text-zinc-500 mt-1">
@@ -444,7 +444,7 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
                         <p className="text-sm font-medium text-white">เติมเงิน ({h.method})</p>
                         <p className="text-xs text-zinc-500 mt-1">{new Date(h.date).toLocaleString('th-TH')}</p>
                       </div>
-                      <p className="font-medium text-[#10b981] font-mono">+฿{h.amount}</p>
+                      <p className="font-medium text-[#00e676] font-mono">+฿{h.amount}</p>
                     </div>
                   )) : <p className="text-center text-xs font-semibold text-zinc-550 py-12">ไม่มีรายการสถิติการเติมเครดิตเข้าสโตร์</p>}
                 </div>
@@ -458,7 +458,7 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
                         <p className="text-sm font-medium font-mono text-zinc-300">{k.key || k.code || k.name || 'Key-' + i}</p>
                         <p className="text-xs text-zinc-500 mt-1">{new Date(k.used_at || k.date || new Date()).toLocaleString('th-TH')}</p>
                       </div>
-                      <span className="text-[10px] font-medium text-[#10b981] px-2.5 py-0.5 rounded-full bg-[#10b981]/10 border border-emerald-500/20 uppercase tracking-widest">Used / เติมแล้ว</span>
+                      <span className="text-[10px] font-medium text-[#00e676] px-2.5 py-0.5 rounded-full bg-[#00e676]/10 border border-emerald-500/20 uppercase tracking-widest">Used / เติมแล้ว</span>
                     </div>
                   )) : <p className="text-center text-xs font-semibold text-zinc-550 py-12">ไม่เคยพบรายการสะสมรางวัลหรือรหัสของขวัญ</p>}
                 </div>

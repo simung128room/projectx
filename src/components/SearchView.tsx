@@ -132,9 +132,9 @@ export const SearchView: React.FC<SearchViewProps> = ({ products, onClose, onPro
                             ฿{product.price > 0 ? product.price.toLocaleString() : "ฟรี"}
                           </span>
                           {product.stock > 0 ? (
-                            <span className="text-[#10b981] flex items-center gap-1">
-                              <div className="w-1.5 h-1.5 rounded-full bg-[#10b981]/50 relative">
-                                <div className="absolute inset-0 rounded-full bg-[#10b981] animate-ping opacity-75"></div>
+                            <span className="text-[#00e676] flex items-center gap-1">
+                              <div className="w-1.5 h-1.5 rounded-full bg-[#00e676]/50 relative">
+                                <div className="absolute inset-0 rounded-full bg-[#00e676] animate-ping opacity-75"></div>
                               </div>
                               สต็อก {product.stock}
                             </span>

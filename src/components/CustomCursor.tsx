@@ -89,7 +89,7 @@ export const CustomCursor: React.FC = () => {
       {/* Ring Ring */}
       <div
         ref={ringRef}
-        className="fixed top-0 left-0 border border-[#10b981]/50 pointer-events-none z-[9998]"
+        className="fixed top-0 left-0 border border-[#00e676]/50 pointer-events-none z-[9998]"
         style={{ transition: 'width 0.2s, height 0.2s, background-color 0.2s', willChange: 'transform, width, height' }}
       />
     </>

@@ -840,7 +840,7 @@ function AppContent() {
           },
           background: "#09090b",
           color: "#fff",
-          confirmButtonColor: "#10b981",
+          confirmButtonColor: "#00e676",
           cancelButtonColor: "#27272a",
         });
 
@@ -862,7 +862,7 @@ function AppContent() {
           },
           background: "#09090b",
           color: "#fff",
-          confirmButtonColor: "#10b981",
+          confirmButtonColor: "#00e676",
           cancelButtonColor: "#27272a",
         });
 
@@ -938,7 +938,7 @@ function AppContent() {
             ...newHistoryItem,
             title: "สั่งซื้อสำเร็จ",
             icon: ShoppingCart,
-            bg: "bg-[#10b981]",
+            bg: "bg-[#00e676]",
             color: "text-white",
           });
         }
@@ -1674,8 +1674,8 @@ function AppContent() {
       title: "ลบคีย์หลายรายการ",
       html: `
        <div class="text-left text-sm space-y-2 mb-4">
-         <div><span class="text-zinc-500">คีย์ทั้งหมด:</span> <span class="font-medium text-[#10b981]">${totalAll}</span> รายการ</div>
-         <div><span class="text-zinc-500">ยังไม่ได้ใช้:</span> <span class="font-medium text-[#10b981]">${totalActive}</span> รายการ</div>
+         <div><span class="text-zinc-500">คีย์ทั้งหมด:</span> <span class="font-medium text-[#00e676]">${totalAll}</span> รายการ</div>
+         <div><span class="text-zinc-500">ยังไม่ได้ใช้:</span> <span class="font-medium text-[#00e676]">${totalActive}</span> รายการ</div>
          <div><span class="text-zinc-500">ใช้แล้ว:</span> <span class="font-medium text-amber-500">${totalUsed}</span> รายการ</div>
        </div>
        <select id="bulk-delete-type" class="swal2-select" style="width: 100%; font-size: 14px; margin-bottom: 10px;">
@@ -1797,9 +1797,9 @@ function AppContent() {
   if (isIPBlocked)
     return (
       <div className="min-h-screen bg-[#09090b] flex items-center justify-center p-4">
-        <div className="w-full max-w-lg bg-primary text-primary-foreground border border-[#10b981]/20 p-12 text-center relative overflow-hidden">
-          <ShieldAlert className="w-20 h-20 text-[#10b981] mx-auto mb-6 " />
-          <h1 className="text-3xl font-medium text-[#10b981] mb-4 uppercase tracking-tighter">
+        <div className="w-full max-w-lg bg-primary text-primary-foreground border border-[#00e676]/20 p-12 text-center relative overflow-hidden">
+          <ShieldAlert className="w-20 h-20 text-[#00e676] mx-auto mb-6 " />
+          <h1 className="text-3xl font-medium text-[#00e676] mb-4 uppercase tracking-tighter">
             Access Revoked
           </h1>
           <p className="text-muted-foreground text-sm leading-relaxed mb-8">
@@ -1812,7 +1812,7 @@ function AppContent() {
           </div>
           <button
             onClick={() => window.location.reload()}
-            className="bg-primary text-primary-foreground hover:bg-[#10b981] text-white px-8 py-3 text-xs font-medium transition-all"
+            className="bg-primary text-primary-foreground hover:bg-[#00e676] text-white px-8 py-3 text-xs font-medium transition-all"
           >
             TRY RECONNECTING
           </button>
@@ -1883,7 +1883,7 @@ function AppContent() {
             >
               <div className="flex items-center group">
                 <span className="text-[34px] font-light tracking-tight text-white font-logo select-none whitespace-nowrap hover:scale-[1.01] transition-transform">
-                  apex<span className="text-[#10b981] font-light">store</span>
+                  apex<span className="text-[#00e676] font-light">store</span>
                 </span>
               </div>
               <div className="h-px bg-gradient-to-r from-transparent via-[#161619] to-transparent w-full my-4" />
@@ -1909,8 +1909,8 @@ function AppContent() {
                     </div>
                     {activeView === "home" && (
                       <>
-                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#10b981] shadow-[0_0_8px_#10b981]" />
-                        <div className="w-1.5 h-1.5 rounded-full bg-[#10b981] shadow-[0_0_6px_#10b981]" />
+                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#00e676] shadow-[0_0_8px_#00e676]" />
+                        <div className="w-1.5 h-1.5 rounded-full bg-[#00e676] shadow-[0_0_6px_#00e676]" />
                       </>
                     )}
                   </button>
@@ -1930,7 +1930,7 @@ function AppContent() {
                             showCancelButton: true,
                             confirmButtonText: "ไปหน้าเข้าสู่ระบบ",
                             cancelButtonText: "ยกเลิก",
-                            confirmButtonColor: "#10b981"
+                            confirmButtonColor: "#00e676"
                           }).then((result) => {
                             if (result.isConfirmed) {
                               setActiveView("login");
@@ -1948,8 +1948,8 @@ function AppContent() {
                     </div>
                     {(activeView === "history" || activeView === "my_orders") && (
                       <>
-                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#10b981] shadow-[0_0_8px_#10b981]" />
-                        <div className="w-1.5 h-1.5 rounded-full bg-[#10b981] shadow-[0_0_6px_#10b981]" />
+                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#00e676] shadow-[0_0_8px_#00e676]" />
+                        <div className="w-1.5 h-1.5 rounded-full bg-[#00e676] shadow-[0_0_6px_#00e676]" />
                       </>
                     )}
                   </button>
@@ -1975,7 +1975,7 @@ function AppContent() {
                             showCancelButton: true,
                             confirmButtonText: "ไปหน้าเข้าสู่ระบบ",
                             cancelButtonText: "ยกเลิก",
-                            confirmButtonColor: "#10b981"
+                            confirmButtonColor: "#00e676"
                           }).then((result) => {
                             if (result.isConfirmed) {
                               setActiveView("login");
@@ -1993,8 +1993,8 @@ function AppContent() {
                     </div>
                     {activeView === "wallet" && (
                       <>
-                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#10b981] shadow-[0_0_8px_#10b981]" />
-                        <div className="w-1.5 h-1.5 rounded-full bg-[#10b981] shadow-[0_0_6px_#10b981]" />
+                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#00e676] shadow-[0_0_8px_#00e676]" />
+                        <div className="w-1.5 h-1.5 rounded-full bg-[#00e676] shadow-[0_0_6px_#00e676]" />
                       </>
                     )}
                   </button>
@@ -2013,8 +2013,8 @@ function AppContent() {
                     </div>
                     {(activeView === "categories" || activeView === "category_products") && (
                       <>
-                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#10b981] shadow-[0_0_8px_#10b981]" />
-                        <div className="w-1.5 h-1.5 rounded-full bg-[#10b981] shadow-[0_0_6px_#10b981]" />
+                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#00e676] shadow-[0_0_8px_#00e676]" />
+                        <div className="w-1.5 h-1.5 rounded-full bg-[#00e676] shadow-[0_0_6px_#00e676]" />
                       </>
                     )}
                   </button>
@@ -2040,8 +2040,8 @@ function AppContent() {
                       </div>
                       {activeView === "admin" && (
                         <>
-                          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#10b981] shadow-[0_0_8px_#10b981]" />
-                          <div className="w-1.5 h-1.5 rounded-full bg-[#10b981] shadow-[0_0_6px_#10b981]" />
+                          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#00e676] shadow-[0_0_8px_#00e676]" />
+                          <div className="w-1.5 h-1.5 rounded-full bg-[#00e676] shadow-[0_0_6px_#00e676]" />
                         </>
                       )}
                     </button>
@@ -2062,8 +2062,8 @@ function AppContent() {
                       </div>
                       {activeView === "profile" && (
                         <>
-                          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#10b981] shadow-[0_0_8px_#10b981]" />
-                          <div className="w-1.5 h-1.5 rounded-full bg-[#10b981] shadow-[0_0_6px_#10b981]" />
+                          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#00e676] shadow-[0_0_8px_#00e676]" />
+                          <div className="w-1.5 h-1.5 rounded-full bg-[#00e676] shadow-[0_0_6px_#00e676]" />
                         </>
                       )}
                     </button>
@@ -2084,8 +2084,8 @@ function AppContent() {
                       </div>
                       {activeView === "settings" && (
                         <>
-                          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#10b981] shadow-[0_0_8px_#10b981]" />
-                          <div className="w-1.5 h-1.5 rounded-full bg-[#10b981] shadow-[0_0_6px_#10b981]" />
+                          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#00e676] shadow-[0_0_8px_#00e676]" />
+                          <div className="w-1.5 h-1.5 rounded-full bg-[#00e676] shadow-[0_0_6px_#00e676]" />
                         </>
                       )}
                     </button>
@@ -2105,7 +2105,7 @@ function AppContent() {
                       text: "ขณะนี้หน้าร้านจัดส่งสติกเกอร์บูสเซิร์ฟเวอร์แบบออโต้ 100% สิทธิ์รับประกันคีย์ใช้งานมีผลทันทีหลังจากกดคัดลอก!",
                       background: "#1e1e1e",
                       color: "#fff",
-                      confirmButtonColor: "#10b981"
+                      confirmButtonColor: "#00e676"
                     }));
                   }}
                   className="flex items-center justify-center p-2 rounded-xl border border-[#1d1d21] bg-[#111113]/60 hover:bg-[#1a1a1f] hover:border-zinc-700 transition-all text-zinc-400 hover:text-white cursor-pointer active:scale-95"
@@ -2125,7 +2125,7 @@ function AppContent() {
                       window.scrollTo({ top: 0, behavior: "smooth" });
                     }
                   }}
-                  className={`flex items-center justify-center p-2 rounded-xl border transition-all cursor-pointer active:scale-95 ${activeView === "settings" ? "bg-emerald-500/[0.08] border-emerald-500 text-[#10b981]" : "border-[#1d1d21] bg-[#111113]/60 hover:bg-[#1a1a1f] hover:border-zinc-700 text-zinc-400 hover:text-white"}`}
+                  className={`flex items-center justify-center p-2 rounded-xl border transition-all cursor-pointer active:scale-95 ${activeView === "settings" ? "bg-emerald-500/[0.08] border-emerald-500 text-[#00e676]" : "border-[#1d1d21] bg-[#111113]/60 hover:bg-[#1a1a1f] hover:border-zinc-700 text-zinc-400 hover:text-white"}`}
                   title="ตั้งค่าระบบ"
                 >
                   <Settings size={15} />
@@ -2255,7 +2255,7 @@ function AppContent() {
                 >
                   <div className="flex items-center py-1">
                     <span className="text-2xl font-light tracking-tight text-white font-logo select-none">
-                      apex<span className="text-[#10b981] font-light">store</span>
+                      apex<span className="text-[#00e676] font-light">store</span>
                     </span>
                   </div>
                 </div>
@@ -2355,7 +2355,7 @@ function AppContent() {
                     >
                       <div className="flex items-center py-1">
                         <span className="text-[30px] font-light tracking-tight text-white font-logo select-none">
-                          apex<span className="text-[#10b981] font-light">store</span>
+                          apex<span className="text-[#00e676] font-light">store</span>
                         </span>
                       </div>
                     </motion.div>
@@ -2402,8 +2402,8 @@ function AppContent() {
                           </div>
                           {activeView === "home" && (
                             <>
-                              <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#10b981] shadow-[0_0_8px_#10b981]" />
-                              <div className="w-1.5 h-1.5 rounded-full bg-[#10b981] shadow-[0_0_6px_#10b981]" />
+                              <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#00e676] shadow-[0_0_8px_#00e676]" />
+                              <div className="w-1.5 h-1.5 rounded-full bg-[#00e676] shadow-[0_0_6px_#00e676]" />
                             </>
                           )}
                         </button>
@@ -2424,7 +2424,7 @@ function AppContent() {
                                   showCancelButton: true,
                                   confirmButtonText: "ไปหน้าเข้าสู่ระบบ",
                                   cancelButtonText: "ยกเลิก",
-                                  confirmButtonColor: "#10b981"
+                                  confirmButtonColor: "#00e676"
                                 }).then((result) => {
                                   if (result.isConfirmed) {
                                     setActiveView("login");
@@ -2443,8 +2443,8 @@ function AppContent() {
                           </div>
                           {(activeView === "history" || activeView === "my_orders") && (
                             <>
-                              <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#10b981] shadow-[0_0_8px_#10b981]" />
-                              <div className="w-1.5 h-1.5 rounded-full bg-[#10b981] shadow-[0_0_6px_#10b981]" />
+                              <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#00e676] shadow-[0_0_8px_#00e676]" />
+                              <div className="w-1.5 h-1.5 rounded-full bg-[#00e676] shadow-[0_0_6px_#00e676]" />
                             </>
                           )}
                         </button>
@@ -2471,7 +2471,7 @@ function AppContent() {
                                   showCancelButton: true,
                                   confirmButtonText: "ไปหน้าเข้าสู่ระบบ",
                                   cancelButtonText: "ยกเลิก",
-                                  confirmButtonColor: "#10b981"
+                                  confirmButtonColor: "#00e676"
                                 }).then((result) => {
                                   if (result.isConfirmed) {
                                     setActiveView("login");
@@ -2490,8 +2490,8 @@ function AppContent() {
                           </div>
                           {activeView === "wallet" && (
                             <>
-                              <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#10b981] shadow-[0_0_8px_#10b981]" />
-                              <div className="w-1.5 h-1.5 rounded-full bg-[#10b981] shadow-[0_0_6px_#10b981]" />
+                              <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#00e676] shadow-[0_0_8px_#00e676]" />
+                              <div className="w-1.5 h-1.5 rounded-full bg-[#00e676] shadow-[0_0_6px_#00e676]" />
                             </>
                           )}
                         </button>
@@ -2511,8 +2511,8 @@ function AppContent() {
                           </div>
                           {(activeView === "categories" || activeView === "category_products") && (
                             <>
-                              <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#10b981] shadow-[0_0_8px_#10b981]" />
-                              <div className="w-1.5 h-1.5 rounded-full bg-[#10b981] shadow-[0_0_6px_#10b981]" />
+                              <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#00e676] shadow-[0_0_8px_#00e676]" />
+                              <div className="w-1.5 h-1.5 rounded-full bg-[#00e676] shadow-[0_0_6px_#00e676]" />
                             </>
                           )}
                         </button>
@@ -2539,8 +2539,8 @@ function AppContent() {
                             </div>
                             {activeView === "admin" && (
                               <>
-                                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#10b981] shadow-[0_0_8px_#10b981]" />
-                                <div className="w-1.5 h-1.5 rounded-full bg-[#10b981] shadow-[0_0_6px_#10b981]" />
+                                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#00e676] shadow-[0_0_8px_#00e676]" />
+                                <div className="w-1.5 h-1.5 rounded-full bg-[#00e676] shadow-[0_0_6px_#00e676]" />
                               </>
                             )}
                           </button>
@@ -2562,8 +2562,8 @@ function AppContent() {
                             </div>
                             {activeView === "profile" && (
                               <>
-                                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#10b981] shadow-[0_0_8px_#10b981]" />
-                                <div className="w-1.5 h-1.5 rounded-full bg-[#10b981] shadow-[0_0_6px_#10b981]" />
+                                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#00e676] shadow-[0_0_8px_#00e676]" />
+                                <div className="w-1.5 h-1.5 rounded-full bg-[#00e676] shadow-[0_0_6px_#00e676]" />
                               </>
                             )}
                           </button>
@@ -2585,8 +2585,8 @@ function AppContent() {
                             </div>
                             {activeView === "settings" && (
                               <>
-                                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#10b981] shadow-[0_0_8px_#10b981]" />
-                                <div className="w-1.5 h-1.5 rounded-full bg-[#10b981] shadow-[0_0_6px_#10b981]" />
+                                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#00e676] shadow-[0_0_8px_#00e676]" />
+                                <div className="w-1.5 h-1.5 rounded-full bg-[#00e676] shadow-[0_0_6px_#00e676]" />
                               </>
                             )}
                           </button>
@@ -2606,7 +2606,7 @@ function AppContent() {
                             text: "ขณะนี้หน้าร้านจัดส่งสติกเกอร์บูสเซิร์ฟเวอร์แบบออโต้ 100% สิทธิ์รับประกันคีย์ใช้งานมีผลทันทีหลังจากกดคัดลอก!",
                             background: "#1e1e1e",
                             color: "#fff",
-                            confirmButtonColor: "#10b981"
+                            confirmButtonColor: "#00e676"
                           }));
                           setIsMobileMenuOpen(false);
                         }}
@@ -2627,7 +2627,7 @@ function AppContent() {
                           }
                           setIsMobileMenuOpen(false);
                         }}
-                        className={`flex items-center justify-center p-2 rounded-xl border transition-all cursor-pointer active:scale-95 ${activeView === "settings" ? "bg-emerald-500/[0.08] border-emerald-500 text-[#10b981]" : "border-[#1d1d21] bg-[#111113]/60 hover:bg-[#1a1a1f] hover:border-zinc-700 text-zinc-400 hover:text-white"}`}
+                        className={`flex items-center justify-center p-2 rounded-xl border transition-all cursor-pointer active:scale-95 ${activeView === "settings" ? "bg-emerald-500/[0.08] border-emerald-500 text-[#00e676]" : "border-[#1d1d21] bg-[#111113]/60 hover:bg-[#1a1a1f] hover:border-zinc-700 text-zinc-400 hover:text-white"}`}
                       >
                         <Settings size={15} />
                       </button>
@@ -2932,8 +2932,8 @@ function AppContent() {
           </div>
 
           {/* Footer */}
-          <footer className="mt-auto pt-16 pb-8 border-t border-[#10b981]/10 relative overflow-hidden bg-[#09090b]">
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-px from-transparent via-[#10b981]/50 to-transparent"></div>
+          <footer className="mt-auto pt-16 pb-8 border-t border-[#00e676]/10 relative overflow-hidden bg-[#09090b]">
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-px from-transparent via-[#00e676]/50 to-transparent"></div>
 
             <div className="max-w-7xl mx-auto px-6 md:px-12 w-full">
               <div className="flex flex-col justify-center items-center gap-2 text-xs text-muted-foreground">

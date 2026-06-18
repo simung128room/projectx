@@ -1,20 +1,21 @@
-@import url('https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,1..1000&family=Prompt:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Exo+2:ital,wght@0,400..900;1,400..900&family=Inter:wght@400;500;600;700&family=Kanit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&family=Prompt:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=Kanit:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Prompt", "Kanit", "Inter", "Geist", system-ui, sans-serif;
-  --font-logo: "Google Sans Flex", "Prompt", sans-serif;
+  --font-sans: "Plus Jakarta Sans", "Inter", "Prompt", system-ui, sans-serif;
+  --font-display: "Space Grotesk", "Outfit", "Kanit", sans-serif;
+  --font-logo: "Space Grotesk", "Outfit", sans-serif;
   --font-mono: "JetBrains Mono", monospace;
-  --font-changa: "Kanit", "Prompt", sans-serif;
+  --font-changa: "Space Grotesk", "Kanit", "Prompt", sans-serif;
   
   --color-background: #000000;
-  --color-surface: #0a0a0a;
-  --color-border: #222222;
+  --color-surface: #070709;
+  --color-border: #141416;
   --color-text-primary: #ffffff;
-  --color-text-secondary: #888888;
-  --color-accent: #ffffff;
-  --color-user-bubble: #111111;
-  --color-input-bg: #050505;
+  --color-text-secondary: #a1a1aa;
+  --color-accent: #00e676;
+  --color-user-bubble: #0a0a0c;
+  --color-input-bg: #030304;
 }
 
 @layer base {
@@ -246,7 +247,7 @@
   }
 
   .custom-category-card:hover {
-    border-color: var(--accent, #10b981);
+    border-color: var(--accent, #00e676);
     transform: translateY(-4px);
     box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.6), 0 0 20px -3px var(--glow, rgba(0, 102, 255, 0.25));
   }
@@ -343,7 +344,7 @@
   }
 
   .custom-category-card:hover .custom-card-glow {
-    border-color: var(--accent, #10b981);
+    border-color: var(--accent, #00e676);
     box-shadow: inset 0 0 12px var(--glow, rgba(0, 102, 255, 0.2));
   }
 }
@@ -391,42 +392,42 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
-  --radius: 8px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --radius: 10px;
 
   --color-background: #000000;
-  --color-foreground: #fafafa;
-  --color-card: #040404;
-  --color-card-foreground: #fafafa;
-  --color-popover: #050505;
-  --color-popover-foreground: #fafafa;
-  --color-primary: #10b981;
+  --color-foreground: #ffffff;
+  --color-card: #070709;
+  --color-card-foreground: #ffffff;
+  --color-popover: #070709;
+  --color-popover-foreground: #ffffff;
+  --color-primary: #00e676;
   --color-primary-foreground: #000000;
-  --color-secondary: #111111;
-  --color-secondary-foreground: #fafafa;
-  --color-muted: #111111;
+  --color-secondary: #0c0c0e;
+  --color-secondary-foreground: #ffffff;
+  --color-muted: #111113;
   --color-muted-foreground: #a1a1aa;
-  --color-accent: #10b981;
+  --color-accent: #00e676;
   --color-accent-foreground: #000000;
-  --color-destructive: #ef4444;
-  --color-destructive-foreground: #fafafa;
-  --color-border: rgba(255, 255, 255, 0.05);
-  --color-input: rgba(255, 255, 255, 0.05);
-  --color-ring: #10b981;
+  --color-destructive: #ff3d60;
+  --color-destructive-foreground: #ffffff;
+  --color-border: #141416;
+  --color-input: #141416;
+  --color-ring: #00e676;
 
-  /* Brutalist accent colors -> Refined Cursor colors */
-  --color-neon-green: #10b981;
-  --color-neon-red: #ef4444;
-  --color-neon-yellow: #f59e0b;
-  --color-neon-blue: #10b981;
-  --color-neon-purple: #10b981;
+  /* Refined accent colors */
+  --color-neon-green: #00e676;
+  --color-neon-red: #ff3d60;
+  --color-neon-yellow: #ffb300;
+  --color-neon-blue: #00e676;
+  --color-neon-purple: #00e676;
 
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  --font-sans: "Prompt", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-display: "Prompt", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-sans: "Plus Jakarta Sans", "Inter", "Prompt", sans-serif;
+  --font-display: "Space Grotesk", "Outfit", "Kanit", sans-serif;
 }
 
 @layer base {
@@ -490,13 +491,16 @@
   .border-neon-red { border-color: var(--color-neon-red); }
   .border-neon-yellow { border-color: var(--color-neon-yellow); }
 
-  /* Brutalist border */
+  /* Brutalist border -> Modern Clean Board */
   .brutalist-border {
-    border: 2px solid oklch(0.97 0 0);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
   }
 
   .brutalist-border-accent {
-    border: 2px solid var(--color-neon-green);
+    border: 1px solid var(--color-accent);
+    border-radius: var(--radius-md);
+    box-shadow: 0 0 15px -3px rgba(0, 230, 118, 0.15);
   }
 
   /* Glitch text effect */
@@ -516,16 +520,14 @@
 
   .glitch::before {
     color: var(--color-neon-red);
-    animation: glitch-1 3s infinite;
     clip-path: polygon(0 0, 100% 0, 100% 35%, 0 35%);
-    transform: translate(-2px, 0);
+    transform: translate(-1px, 0);
   }
 
   .glitch::after {
     color: var(--color-neon-blue);
-    animation: glitch-2 3s infinite;
     clip-path: polygon(0 65%, 100% 65%, 100% 100%, 0 100%);
-    transform: translate(2px, 0);
+    transform: translate(1px, 0);
   }
 
   /* Scan line overlay */
@@ -537,8 +539,8 @@
       0deg,
       transparent,
       transparent 2px,
-      oklch(0 0 0 / 0.03) 2px,
-      oklch(0 0 0 / 0.03) 4px
+      rgba(255, 255, 255, 0.01) 2px,
+      rgba(255, 255, 255, 0.01) 4px
     );
     pointer-events: none;
     z-index: 1;
@@ -549,37 +551,47 @@
   .status-invalid { color: var(--color-neon-red); }
   .status-locked { color: var(--color-neon-yellow); }
   .status-blocked { color: var(--color-neon-purple); }
-  .status-timeout { color: oklch(0.55 0 0); }
-  .status-error { color: oklch(0.55 0 0); }
-  .status-pending { color: oklch(0.45 0 0); }
+  .status-timeout { color: #555; }
+  .status-error { color: #f55; }
+  .status-pending { color: #888; }
 
-  /* Brutalist card */
+  /* Brutalist card -> Premium Card Rounded */
   .brut-card {
-    background: oklch(0.09 0 0);
-    border: 1px solid oklch(0.18 0 0);
+    background-color: var(--color-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
     padding: 1.5rem;
+    box-shadow: 0 4px 20px -3px rgba(0, 0, 0, 0.4);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .brut-card:hover {
+    border-color: #202024;
   }
 
   .brut-card-highlight {
-    background: oklch(0.09 0 0);
-    border: 2px solid oklch(0.97 0 0);
+    background-color: var(--color-card);
+    border: 1px solid var(--color-accent);
+    border-radius: var(--radius-md);
     padding: 1.5rem;
+    box-shadow: 0 0 20px -5px rgba(0, 230, 118, 0.12);
   }
 
   /* Number display */
   .stat-number {
     font-family: var(--font-mono);
-    font-weight: 900;
-    letter-spacing: -0.04em;
+    font-weight: 800;
+    letter-spacing: -0.02em;
     line-height: 1;
   }
 
   /* Progress bar */
   .progress-track {
-    background: oklch(0.13 0 0);
+    background: #111113;
     height: 6px;
     width: 100%;
     overflow: hidden;
+    border-radius: 99px;
   }
 
   .progress-fill {
@@ -587,6 +599,7 @@
     background: var(--color-neon-green);
     transition: width 0.3s ease-out;
     position: relative;
+    border-radius: 99px;
   }
 
   .progress-fill::after {
@@ -596,54 +609,57 @@
     top: 0;
     height: 100%;
     width: 20px;
-    background: linear-gradient(to right, transparent, oklch(0.95 0.25 142));
+    background: linear-gradient(to right, transparent, rgba(0, 230, 118, 0.4));
     animation: pulse-right 1s ease-in-out infinite;
   }
 
   /* Table */
   .brut-table {
     width: 100%;
-    border-collapse: collapse;
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 0.85rem;
   }
 
   .brut-table th {
     text-align: left;
-    padding: 0.5rem 0.75rem;
-    border-bottom: 2px solid oklch(0.97 0 0);
-    font-weight: 700;
-    font-size: 0.65rem;
-    letter-spacing: 0.12em;
+    padding: 1rem 1.25rem;
+    border-bottom: 2px solid var(--color-border);
+    font-weight: 600;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
     text-transform: uppercase;
-    color: oklch(0.55 0 0);
+    color: var(--color-muted-foreground);
+    background-color: rgba(255, 255, 255, 0.01);
   }
 
   .brut-table td {
-    padding: 0.5rem 0.75rem;
-    border-bottom: 1px solid oklch(0.13 0 0);
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--color-border);
     vertical-align: middle;
+    color: rgba(255, 255, 255, 0.9);
   }
 
   .brut-table tr:hover td {
-    background: oklch(0.11 0 0);
+    background: rgba(255, 255, 255, 0.02);
   }
 
   /* Input */
   .brut-input {
-    background: oklch(0.09 0 0);
-    border: 1px solid oklch(0.22 0 0);
-    color: oklch(0.97 0 0);
-    padding: 0.625rem 0.875rem;
-    font-family: var(--font-mono);
+    background: var(--color-input-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    color: #ffffff;
+    padding: 0.75rem 1rem;
     font-size: 0.875rem;
     width: 100%;
     outline: none;
-    transition: border-color 0.15s;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
   }
 
   .brut-input:focus {
-    border-color: oklch(0.97 0 0);
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 1px var(--color-accent);
   }
 
   /* Button */
@@ -652,58 +668,67 @@
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    padding: 0.625rem 1.25rem;
-    font-family: var(--font-mono);
+    padding: 0.75rem 1.5rem;
     font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
+    font-weight: 600;
+    letter-spacing: 0.05em;
     text-transform: uppercase;
     cursor: pointer;
-    transition: all 0.15s;
-    border: 2px solid oklch(0.97 0 0);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
     background: transparent;
-    color: oklch(0.97 0 0);
+    color: #ffffff;
     user-select: none;
   }
 
   .brut-btn:hover {
-    background: oklch(0.97 0 0);
-    color: oklch(0.06 0 0);
+    background: #ffffff;
+    color: #000000;
+    border-color: #ffffff;
   }
 
   .brut-btn:active {
-    transform: scale(0.97);
+    transform: scale(0.98);
   }
 
   .brut-btn-primary {
-    background: oklch(0.97 0 0);
-    color: oklch(0.06 0 0);
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+    color: #000000;
   }
 
   .brut-btn-primary:hover {
-    background: oklch(0.82 0.22 142);
-    border-color: oklch(0.82 0.22 142);
-    color: oklch(0.06 0 0);
+    background: #00c853;
+    border-color: #00c853;
+    color: #000000;
+    box-shadow: 0 0 15px -3px rgba(0, 230, 118, 0.3);
   }
 
   .brut-btn-danger {
-    border-color: var(--color-neon-red);
-    color: var(--color-neon-red);
+    border-color: var(--color-destructive);
+    color: var(--color-destructive);
+    background: rgba(255, 61, 96, 0.05);
   }
 
   .brut-btn-danger:hover {
-    background: var(--color-neon-red);
-    color: oklch(0.97 0 0);
+    background: var(--color-destructive);
+    border-color: var(--color-destructive);
+    color: #ffffff;
+    box-shadow: 0 0 15px -3px rgba(255, 61, 96, 0.3);
   }
 
   .brut-btn-success {
-    border-color: var(--color-neon-green);
-    color: var(--color-neon-green);
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+    background: rgba(0, 230, 118, 0.05);
   }
 
   .brut-btn-success:hover {
-    background: var(--color-neon-green);
-    color: oklch(0.06 0 0);
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+    color: #000000;
+    box-shadow: 0 0 15px -3px rgba(0, 230, 118, 0.3);
   }
 
   .brut-btn:disabled {
@@ -716,19 +741,20 @@
   .brut-tag {
     display: inline-flex;
     align-items: center;
-    padding: 0.15rem 0.5rem;
+    padding: 0.25rem 0.625rem;
     font-family: var(--font-mono);
     font-size: 0.65rem;
     font-weight: 700;
     letter-spacing: 0.1em;
     text-transform: uppercase;
     border: 1px solid currentColor;
+    border-radius: 4px;
   }
 
   /* Divider */
   .brut-divider {
     border: none;
-    border-top: 1px solid oklch(0.18 0 0);
+    border-top: 1px solid var(--color-border);
     margin: 0;
   }
 

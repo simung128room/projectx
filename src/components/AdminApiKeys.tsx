@@ -129,7 +129,7 @@ export const AdminApiKeys: React.FC = () => {
       <div className="flex justify-between items-center bg-zinc-950/20 p-4 border border-[#1e1e1e] rounded-md">
         <div>
           <h2 className="text-lg font-medium text-white flex items-center gap-2">
-            <Key className="w-5 h-5 text-[#10b981]" />
+            <Key className="w-5 h-5 text-[#00e676]" />
             จัดการกุญแจเชื่อมต่อ (API Keys Management)
           </h2>
           <p className="text-xs text-zinc-500 mt-1">
@@ -141,7 +141,7 @@ export const AdminApiKeys: React.FC = () => {
           className={`px-4 py-2 text-xs font-medium flex items-center gap-2 rounded-md transition-all duration-200 ${
             isAdding 
               ? 'border border-[#1e1e1e] bg-[#050505] text-zinc-400 hover:text-white' 
-              : 'bg-[#10b981] hover:bg-[#10b981] text-white shadow-sm'
+              : 'bg-[#00e676] hover:bg-[#00e676] text-white shadow-sm'
           }`}
         >
           {isAdding ? <XCircle className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
@@ -159,7 +159,7 @@ export const AdminApiKeys: React.FC = () => {
               value={newKeyName}
               onChange={e => setNewKeyName(e.target.value)}
               placeholder="เช่น script สำหรับเชื่อมต่อระบบอื่นๆ"
-              className="w-full bg-zinc-950 border border-zinc-850 focus:border-[#10b981]/60 rounded-md px-4 py-2.5 text-white text-sm focus:outline-none transition-colors"
+              className="w-full bg-zinc-950 border border-zinc-850 focus:border-[#00e676]/60 rounded-md px-4 py-2.5 text-white text-sm focus:outline-none transition-colors"
             />
           </div>
           
@@ -169,7 +169,7 @@ export const AdminApiKeys: React.FC = () => {
               id="isLifetime"
               checked={isLifetime}
               onChange={e => setIsLifetime(e.target.checked)}
-              className="w-4 h-4 rounded bg-zinc-950 border-[#1e1e1e] text-[#10b981] focus:ring-[#10b981] cursor-pointer"
+              className="w-4 h-4 rounded bg-zinc-950 border-[#1e1e1e] text-[#00e676] focus:ring-[#00e676] cursor-pointer"
             />
             <label htmlFor="isLifetime" className="text-sm font-medium text-zinc-200 cursor-pointer select-none">สิทธิ์ถาวร (Lifetime Period)</label>
           </div>
@@ -183,13 +183,13 @@ export const AdminApiKeys: React.FC = () => {
                 required
                 value={expireDays}
                 onChange={e => setExpireDays(e.target.value)}
-                className="w-full bg-zinc-950 border border-zinc-850 focus:border-[#10b981]/60 rounded-md px-4 py-2.5 text-white text-sm focus:outline-none transition-colors"
+                className="w-full bg-zinc-950 border border-zinc-850 focus:border-[#00e676]/60 rounded-md px-4 py-2.5 text-white text-sm focus:outline-none transition-colors"
               />
             </div>
           )}
           
           <div className="pt-2 border-t border-[#1e1e1e] flex justify-end">
-             <button type="submit" className="bg-[#10b981] hover:bg-[#10b981] text-white text-xs font-medium py-2 px-5 rounded-md transition-colors">
+             <button type="submit" className="bg-[#00e676] hover:bg-[#00e676] text-white text-xs font-medium py-2 px-5 rounded-md transition-colors">
                ยืนยันการผลิตรหัสเชื่อมต่อ (Generate Key)
              </button>
           </div>
@@ -214,7 +214,7 @@ export const AdminApiKeys: React.FC = () => {
               {isLoading ? (
                 <tr>
                   <td colSpan={7} className="text-center py-12">
-                     <Loader2 className="w-6 h-6 animate-spin text-[#10b981] mx-auto mb-1" />
+                     <Loader2 className="w-6 h-6 animate-spin text-[#00e676] mx-auto mb-1" />
                      <span className="text-xs text-zinc-550 font-semibold">กำลังเชื่อมโยงเซิร์ฟเวอร์หลัก...</span>
                   </td>
                 </tr>
@@ -227,7 +227,7 @@ export const AdminApiKeys: React.FC = () => {
                   <tr key={k.key} className="hover:bg-[#050505]/10 transition-colors">
                     <td className="px-5 py-3.5">
                       {k.status === 'active' ? (
-                        <span className="bg-[#10b981]/10 text-[#10b981] px-2 py-0.5 rounded text-[10px] uppercase font-medium border border-emerald-500/20">Active</span>
+                        <span className="bg-[#00e676]/10 text-[#00e676] px-2 py-0.5 rounded text-[10px] uppercase font-medium border border-emerald-500/20">Active</span>
                       ) : k.status === 'expired' ? (
                         <span className="bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded text-[10px] uppercase font-medium border border-amber-500/20">Expired</span>
                       ) : (
@@ -236,7 +236,7 @@ export const AdminApiKeys: React.FC = () => {
                     </td>
                     <td className="px-5 py-3.5 font-medium text-white text-xs">{k.name}</td>
                     <td className="px-5 py-3.5">
-                      <span className="font-mono text-xs text-[#10b981] font-medium select-all cursor-pointer bg-zinc-950 border border-zinc-850 px-2 py-1 rounded">
+                      <span className="font-mono text-xs text-[#00e676] font-medium select-all cursor-pointer bg-zinc-950 border border-zinc-850 px-2 py-1 rounded">
                         {k.key}
                       </span>
                     </td>
@@ -254,7 +254,7 @@ export const AdminApiKeys: React.FC = () => {
                           className={`p-1.5 rounded-md border transition-all ${
                             k.status === 'active' 
                               ? 'border-amber-500/30 bg-amber-500/5 text-amber-400 hover:bg-amber-500/15 hover:border-amber-500/60' 
-                              : 'border-emerald-500/30 bg-[#10b981]/5 text-[#10b981] hover:bg-[#10b981]/15 hover:border-emerald-500/60'
+                              : 'border-emerald-500/30 bg-[#00e676]/5 text-[#00e676] hover:bg-[#00e676]/15 hover:border-emerald-500/60'
                           }`}
                           title={k.status === 'active' ? 'Disable Key' : 'Enable Key'}
                         >

@@ -14,21 +14,21 @@ export const KeyModal: React.FC<KeyModalProps> = ({ show, onClose, vipTab, redee
 
   return (
     <div className="fixed inset-0 bg-[#09090b] flex items-center justify-center p-4 z-[70] font-sans animate-in zoom-in-95 duration-200 overflow-y-auto ">
-      <div className="bg-[#09090b] border-[#1e1e1e]  border border-[#10b981]/25 p-6 sm:p-8 max-w-lg w-full relative overflow-hidden my-8 ">
+      <div className="bg-[#09090b] border-[#1e1e1e]  border border-[#00e676]/25 p-6 sm:p-8 max-w-lg w-full relative overflow-hidden my-8 ">
         <div className="absolute top-0 right-0 w-64 h-64 bg-primary text-primary-foreground pointer-events-none"></div>
 
         <div className="text-center mb-6 relative z-10">
-            <div className="w-16 h-16 bg-primary text-primary-foreground flex items-center justify-center mx-auto mb-4 border border-[#10b981]/20">
-              <Crown className="w-8 h-8 text-[#10b981]" />
+            <div className="w-16 h-16 bg-primary text-primary-foreground flex items-center justify-center mx-auto mb-4 border border-[#00e676]/20">
+              <Crown className="w-8 h-8 text-[#00e676]" />
             </div>
             <h2 className="text-2xl font-medium text-white mb-2 tracking-tight">VIP MEMBER</h2>
             <div className="text-sm text-muted-foreground mb-6 space-y-2">
                 <p>สิทธิพิเศษระดับพรีเมียม:</p>
                 <ul className="text-left inline-block space-y-1">
-                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-[#10b981]" /> ตรวจสอบไอดีไม่จำกัด (Unlimited Checks)</li>
-                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-[#10b981]" /> Bypass DataDome ความเร็วสูง</li>
-                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-[#10b981]" /> บันทึกประวัติการตรวจสอบย้อนหลัง</li>
-                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-[#10b981]" /> ไม่ต้องติด Captcha (Turnstile)</li>
+                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-[#00e676]" /> ตรวจสอบไอดีไม่จำกัด (Unlimited Checks)</li>
+                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-[#00e676]" /> Bypass DataDome ความเร็วสูง</li>
+                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-[#00e676]" /> บันทึกประวัติการตรวจสอบย้อนหลัง</li>
+                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-[#00e676]" /> ไม่ต้องติด Captcha (Turnstile)</li>
                 </ul>
             </div>
             <a href="https://discord.gg/yourlink" target="_blank" rel="noopener noreferrer" className="mt-4 inline-flex items-center gap-2 px-6 py-2.5 bg-[#09090b] hover:bg-[#4752C4] text-white text-sm font-medium transition-all hover:scale-105 ">
@@ -48,10 +48,10 @@ export const KeyModal: React.FC<KeyModalProps> = ({ show, onClose, vipTab, redee
                   <label className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider mb-2 block">คีย์สำหรับรายเดือน/รายปี (Key)</label>
                   <div className="relative">
                     <KeyIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <input required name="key" type="text" className="w-full bg-[#09090b] border border-[#1e1e1e]  py-3 pl-10 pr-4 text-sm focus:border-[#10b981] outline-none text-white transition-all placeholder:text-zinc-400 " placeholder="APEXSTORE-XXXXX-XXXXX" />
+                    <input required name="key" type="text" className="w-full bg-[#09090b] border border-[#1e1e1e]  py-3 pl-10 pr-4 text-sm focus:border-[#00e676] outline-none text-white transition-all placeholder:text-zinc-400 " placeholder="APEXSTORE-XXXXX-XXXXX" />
                   </div>
               </div>
-              <button type="submit" className="w-full from-[#10b981] to-emerald-700 hover:from-emerald-400 hover:to-emerald-600 text-white font-medium py-3.5 transition-all mt-4">
+              <button type="submit" className="w-full from-[#00e676] to-emerald-700 hover:from-emerald-400 hover:to-emerald-600 text-white font-medium py-3.5 transition-all mt-4">
                 เปิดใช้งาน
               </button>
             </form>

@@ -40,8 +40,8 @@ export const RedeemKeyView: React.FC<RedeemKeyViewProps> = ({ redeemKey, userEma
           </button>
           
           <div className="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground border border-[#1e1e1e] ">
-            <Sparkles className="w-4 h-4 text-[#10b981]" />
-            <span className="text-[#10b981] text-[10px] font-semibold uppercase tracking-[0.2em]">Key Activation</span>
+            <Sparkles className="w-4 h-4 text-[#00e676]" />
+            <span className="text-[#00e676] text-[10px] font-semibold uppercase tracking-[0.2em]">Key Activation</span>
           </div>
         </div>
 
@@ -57,7 +57,7 @@ export const RedeemKeyView: React.FC<RedeemKeyViewProps> = ({ redeemKey, userEma
                   <KeyIcon className="w-8 h-8 text-white" />
                 </div>
                 <h2 className="text-3xl font-semibold text-white tracking-tight mb-3">
-                  อัพเกรดเป็น <span className="text-[#10b981]">Premium</span>
+                  อัพเกรดเป็น <span className="text-[#00e676]">Premium</span>
                 </h2>
               </div>
 
@@ -92,7 +92,7 @@ export const RedeemKeyView: React.FC<RedeemKeyViewProps> = ({ redeemKey, userEma
                   <div>
                     <div className={`relative transition-all duration-300 bg-[#09090b]  ${isFocused || keyInput ? 'border-[#1e1e1e]' : 'border-[#1e1e1e] hover:border-[#1e1e1e]'} ${!isLoggedIn ? 'opacity-50 select-none pointer-events-none' : ''} `}>
                       <div className="flex items-center gap-4 px-5">
-                        <KeyIcon className={`w-6 h-6 transition-colors duration-300 ${isFocused || keyInput ? 'text-[#10b981]' : 'text-zinc-400'}`} />
+                        <KeyIcon className={`w-6 h-6 transition-colors duration-300 ${isFocused || keyInput ? 'text-[#00e676]' : 'text-zinc-400'}`} />
                         <input 
                           required
                           disabled={!isLoggedIn}
@@ -108,8 +108,8 @@ export const RedeemKeyView: React.FC<RedeemKeyViewProps> = ({ redeemKey, userEma
                     </div>
                     {!isLoggedIn && (
                       <div className="mt-3 text-center">
-                        <p className="text-sm font-medium text-[#10b981] mb-2">กรุณาเข้าสู่ระบบก่อนกรอกคีย์</p>
-                        <button type="button" onClick={onLoginClick} className="px-4 py-2 bg-primary text-primary-foreground text-[#10b981] text-sm font-medium hover:bg-zinc-600/20 transition-colors">เข้าสู่ระบบ / สมัครสมาชิก</button>
+                        <p className="text-sm font-medium text-[#00e676] mb-2">กรุณาเข้าสู่ระบบก่อนกรอกคีย์</p>
+                        <button type="button" onClick={onLoginClick} className="px-4 py-2 bg-primary text-primary-foreground text-[#00e676] text-sm font-medium hover:bg-zinc-600/20 transition-colors">เข้าสู่ระบบ / สมัครสมาชิก</button>
                       </div>
                     )}
                   </div>

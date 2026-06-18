@@ -81,7 +81,7 @@ export const PopupBanner: React.FC<PopupBannerProps> = ({ enabled, imgUrl, linkU
                     checked={dontShow}
                     onChange={(e) => setDontShow(e.target.checked)}
                   />
-                  <div className={`w-5 h-5 rounded  transition-all duration-300 flex items-center justify-center ${dontShow ? 'bg-zinc-600 border-[#10b981]' : 'bg-[#0B0D0F] border-[#1e1e1e] group-hover:border-[#1e1e1e]'}`}>
+                  <div className={`w-5 h-5 rounded  transition-all duration-300 flex items-center justify-center ${dontShow ? 'bg-zinc-600 border-[#00e676]' : 'bg-[#0B0D0F] border-[#1e1e1e] group-hover:border-[#1e1e1e]'}`}>
                     {dontShow && <Check className="w-3.5 h-3.5 text-white" />}
                   </div>
                 </div>

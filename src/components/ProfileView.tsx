@@ -170,7 +170,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 referrerPolicy="no-referrer"
               />
             </div>
-            <div className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full border border-zinc-950 flex items-center justify-center text-[10px] shadow bg-[#10b981]`} title={role}>
+            <div className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full border border-zinc-950 flex items-center justify-center text-[10px] shadow bg-[#00e676]`} title={role}>
               👑
             </div>
           </div>
@@ -221,7 +221,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               label="ประวัติการสั่งซื้อ"
               subLabel="คำสั่งซื้อสินค้าและเติมเงินเดี่ยว"
               icon={Package}
-              colorClass="text-[#10b981] group-hover:bg-[#10b981]/10 animate-none"
+              colorClass="text-[#00e676] group-hover:bg-[#00e676]/10 animate-none"
               glowColor="rgba(59,130,246,0.1)"
               onClick={() => setActiveView('my_orders')}
             />
@@ -292,7 +292,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               <button 
                 type="submit" 
                 disabled={isUpdating}
-                className="bg-neon-green hover:bg-[#10b981] text-black font-semibold py-2.5 px-6 shrink-0 transition-all text-xs rounded-md cursor-pointer uppercase tracking-wider shadow-sm shadow-neon-green/5 disabled:opacity-50"
+                className="bg-neon-green hover:bg-[#00e676] text-black font-semibold py-2.5 px-6 shrink-0 transition-all text-xs rounded-md cursor-pointer uppercase tracking-wider shadow-sm shadow-neon-green/5 disabled:opacity-50"
               >
                 {isUpdating ? 'กำลังบันทึก...' : 'บันทึกข้อมูลอย่างเป็นทางการ'}
               </button>

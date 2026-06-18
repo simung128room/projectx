@@ -66,7 +66,7 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({
   const generalPurchases = purchaseHistory.filter(p => !p.productName.includes('คีย์') && p.price < 500);
 
   const StatusBadge = ({ status = 'SUCCESS' }: { status?: string }) => (
-    <span className="text-[9px] font-bold tracking-wider uppercase px-2 py-1 bg-[#10b981]/10 text-[#10b981] border border-[#10b981]/25 select-none font-mono">
+    <span className="text-[9px] font-bold tracking-wider uppercase px-2 py-1 bg-[#00e676]/10 text-[#00e676] border border-[#00e676]/25 select-none font-mono">
       {status}
     </span>
   );
@@ -81,7 +81,7 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({
         className="text-zinc-500 hover:text-white transition-colors shrink-0 p-1 bg-zinc-900 border border-zinc-800 rounded hover:border-zinc-700 cursor-pointer"
         title="คัดลอกโค้ด"
       >
-        {copiedId === id ? <Check className="w-3.5 h-3.5 text-[#10b981]"/> : <Copy className="w-3.5 h-3.5"/>}
+        {copiedId === id ? <Check className="w-3.5 h-3.5 text-[#00e676]"/> : <Copy className="w-3.5 h-3.5"/>}
       </button>
     </div>
   );
@@ -103,7 +103,7 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({
             onClick={e => e.stopPropagation()}
           >
             {/* Upper Decorative Cyber Lines */}
-            <div className="h-1 bg-gradient-to-r from-[#10b981] via-[#10b981] to-[#7c3aed]" />
+            <div className="h-1 bg-gradient-to-r from-[#00e676] via-[#00e676] to-[#7c3aed]" />
             
             {/* Header section designed as high quality digital receipt */}
             <div className="p-6 pb-4 relative">
@@ -113,14 +113,14 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({
               >
                 <X className="w-4 h-4" />
               </button>
-              <span className="text-[10px] font-mono font-black text-[#10b981] uppercase tracking-widest bg-[#10b981]/10 px-2 py-0.5 border border-[#10b981]/20">
+              <span className="text-[10px] font-mono font-black text-[#00e676] uppercase tracking-widest bg-[#00e676]/10 px-2 py-0.5 border border-[#00e676]/20">
                 DIGITAL RECEIPT
               </span>
               <h3 className="text-xl font-bold text-white mt-3.5 mb-1 tracking-tight">
                 รายละเอียดคำสั่งซื้อ
               </h3>
               <p className="text-zinc-400 text-xs font-mono">
-                ID: <span className="text-[#10b981]">BILL-{item.id?.toUpperCase()}</span>
+                ID: <span className="text-[#00e676]">BILL-{item.id?.toUpperCase()}</span>
               </p>
             </div>
 
@@ -154,13 +154,13 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({
                 
                 <div className="flex justify-between items-center relative z-10">
                   <span className="text-xs font-bold text-zinc-400 uppercase select-none">ยอดชำระสุทธิ</span>
-                  <span className="text-lg font-bold text-[#10b981] font-mono">฿{item.price?.toLocaleString() || 0}</span>
+                  <span className="text-lg font-bold text-[#00e676] font-mono">฿{item.price?.toLocaleString() || 0}</span>
                 </div>
               </div>
 
               {/* Product item breakdown info */}
               <div className="space-y-3">
-                <h4 className="text-[10px] uppercase font-bold tracking-widest text-[#10b981] pl-0.5 select-none">ข้อมูลใบส่งมอบสินค้า</h4>
+                <h4 className="text-[10px] uppercase font-bold tracking-widest text-[#00e676] pl-0.5 select-none">ข้อมูลใบส่งมอบสินค้า</h4>
                 <div className="bg-[#121214] border border-[#222225] p-4 flex flex-col gap-4">
                   <div className="flex gap-3.5 items-center">
                     <div className="w-12 h-12 bg-zinc-900 border border-zinc-850 flex items-center justify-center shrink-0 text-zinc-400">
@@ -203,7 +203,7 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({
             <div className="p-6">
               <button 
                 onClick={() => setSelectedItem(null)}
-                className="w-full py-3 bg-[#10b981] hover:bg-[#0d9668] text-black text-xs font-bold uppercase tracking-widest transition-all cursor-pointer"
+                className="w-full py-3 bg-[#00e676] hover:bg-[#0d9668] text-black text-xs font-bold uppercase tracking-widest transition-all cursor-pointer"
               >
                 เสร็จสิ้นนำเสนอรายละเอียด
               </button>
@@ -222,7 +222,7 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({
           className="bg-[#09090b] border border-[#1e1e1e] w-full max-w-sm overflow-hidden relative shadow-2xl"
           onClick={e => e.stopPropagation()}
         >
-          <div className="h-1 bg-gradient-to-r from-[#10b981] to-[#7c3aed]" />
+          <div className="h-1 bg-gradient-to-r from-[#00e676] to-[#7c3aed]" />
           
           <div className="flex justify-between items-center p-6 border-b border-zinc-900">
             <h3 className="font-bold text-base text-white tracking-tight">รายละเอียดแบบจำแนก</h3>
@@ -237,7 +237,7 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({
           <div className="p-6 space-y-4">
             <div className="flex justify-between items-center border-b border-zinc-900 pb-3">
               <span className="text-zinc-500 text-xs font-semibold uppercase tracking-wider">หมายเลขรายการ</span>
-              <span className="font-mono font-bold text-xs bg-[#121214] border border-zinc-800 px-2 py-0.5 text-[#10b981]">
+              <span className="font-mono font-bold text-xs bg-[#121214] border border-zinc-800 px-2 py-0.5 text-[#00e676]">
                 BILL-{item.id?.toUpperCase()}
               </span>
             </div>
@@ -263,7 +263,7 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({
                 <div className="border-t border-zinc-800 my-1 pb-1" />
                 <div className="flex justify-between items-center">
                   <span className="text-zinc-400 text-xs">จำนวนเงินเครดิต</span>
-                  <span className="text-lg font-bold text-[#10b981] font-mono">
+                  <span className="text-lg font-bold text-[#00e676] font-mono">
                     +{item.amount?.toLocaleString() || 0} ฿
                   </span>
                 </div>
@@ -314,8 +314,8 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({
 
     if (type === 'topup') {
       title = `ยอดเติมเงินเข้าบัญชี (${item.type || 'บัญชีเปรียบสระ'})`;
-      amountNode = <span className="font-bold text-[#10b981] text-base font-mono">+{Number(item.amount || item.money || 0).toLocaleString()} ฿</span>;
-      cardLeftStroke = "bg-[#10b981]";
+      amountNode = <span className="font-bold text-[#00e676] text-base font-mono">+{Number(item.amount || item.money || 0).toLocaleString()} ฿</span>;
+      cardLeftStroke = "bg-[#00e676]";
     } else if (type === 'key_use') {
       title = "ประมวลผลใช้งานคีย์ลิขสิทธิ์ (Redeem)";
       amountNode = <span className="font-semibold text-zinc-500 text-sm font-mono">-</span>;
@@ -342,7 +342,7 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({
         
         <div className="flex flex-col gap-2 flex-1 pl-2">
           <div className="flex items-center gap-3 flex-wrap">
-             <span className="font-bold text-white text-base tracking-tight leading-tight group-hover:text-[#10b981] transition-colors">
+             <span className="font-bold text-white text-base tracking-tight leading-tight group-hover:text-[#00e676] transition-colors">
                {title}
              </span>
              <StatusBadge status="SUCCESS" />
@@ -391,13 +391,13 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({
     <div className="w-full max-w-5xl mx-auto p-4 md:p-8 animate-in fade-in duration-500 font-sans text-white pb-20 relative">
       
       {/* Glow decorative graphics */}
-      <div className="absolute top-[-5%] left-[20%] w-[250px] h-[250px] bg-[#10b981]/5 rounded-full blur-[70px] pointer-events-none select-none" />
+      <div className="absolute top-[-5%] left-[20%] w-[250px] h-[250px] bg-[#00e676]/5 rounded-full blur-[70px] pointer-events-none select-none" />
       <div className="absolute bottom-[10%] right-[10%] w-[300px] h-[300px] bg-[#7c3aed]/5 rounded-full blur-[80px] pointer-events-none select-none" />
 
       {/* Header with exquisite clean layout */}
       <div className="mb-8 pl-1 relative">
         <div className="flex items-center gap-3 mb-2.5">
-          <div className="w-10 h-10 bg-[#10b981]/10 text-[#10b981] border border-[#10b981]/25 flex items-center justify-center relative shadow-sm shrink-0">
+          <div className="w-10 h-10 bg-[#00e676]/10 text-[#00e676] border border-[#00e676]/25 flex items-center justify-center relative shadow-sm shrink-0">
             <History className="w-5 h-5" />
           </div>
           <h1 className="text-2xl sm:text-3xl font-semibold text-white tracking-tight leading-none">
@@ -426,7 +426,7 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({
                 onClick={() => setFilter(tab.id as any)}
                 className={`flex items-center gap-2 px-4 py-2.5 font-bold text-xs uppercase tracking-wider transition-all border cursor-pointer ${ 
                   active 
-                    ? 'bg-[#10b981]/10 text-white border-[#10b981] shadow-[inset_0_0_8px_rgba(16,185,129,0.15)] ring-1 ring-[#10b981]/30' 
+                    ? 'bg-[#00e676]/10 text-white border-[#00e676] shadow-[inset_0_0_8px_rgba(16,185,129,0.15)] ring-1 ring-[#00e676]/30' 
                     : 'text-zinc-500 border-transparent hover:text-white hover:bg-zinc-900 hover:border-zinc-800' 
                 }`}
               >
@@ -451,7 +451,7 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({
             >
               <div className="flex items-center justify-between border-b border-zinc-900 pb-3 pl-1 select-none">
                 <h2 className="text-base font-bold flex items-center gap-2 text-white">
-                  <Key className="w-4 h-4 text-[#10b981]" /> ประวัติและคีย์ที่ผ่านการ Redeem
+                  <Key className="w-4 h-4 text-[#00e676]" /> ประวัติและคีย์ที่ผ่านการ Redeem
                 </h2>
                 <span className="text-[10px] font-mono text-zinc-500 font-semibold uppercase">TOTAL: {usedKeysHistory.length}</span>
               </div>
@@ -478,7 +478,7 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({
             >
               <div className="flex items-center justify-between border-b border-zinc-900 pb-3 pl-1 select-none">
                 <h2 className="text-base font-bold flex items-center gap-2 text-white">
-                  <Wallet className="w-4 h-4 text-[#10b981]" /> รายการเสร็จสิ้นยอดเติมทรัพย์สิน
+                  <Wallet className="w-4 h-4 text-[#00e676]" /> รายการเสร็จสิ้นยอดเติมทรัพย์สิน
                 </h2>
                 <span className="text-[10px] font-mono text-zinc-500 font-semibold uppercase">TOTAL: {topupHistory.length}</span>
               </div>
@@ -505,7 +505,7 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({
             >
               <div className="flex items-center justify-between border-b border-zinc-900 pb-3 pl-1 select-none">
                 <h2 className="text-base font-bold flex items-center gap-2 text-white">
-                  <ShoppingCart className="w-4 h-4 text-[#10b981]" /> รายละเอียดจัดซื้อรหัสคีย์
+                  <ShoppingCart className="w-4 h-4 text-[#00e676]" /> รายละเอียดจัดซื้อรหัสคีย์
                 </h2>
                 <span className="text-[10px] font-mono text-zinc-500 font-semibold uppercase">TOTAL: {keyPurchases.length}</span>
               </div>

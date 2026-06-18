@@ -58,7 +58,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({ categories = [],
           bgImage={siteSettings?.banners?.[0] || "https://img1.pic.in.th/images/-81_20260601213128.png"}
           index={0}
           onClick={() => onSelectCategory('all')}
-          accentColor="#10b981"
+          accentColor="#00e676"
           glowColor="transparent"
           gradientFrom="#0a0a0a"
         />
@@ -73,7 +73,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({ categories = [],
             bgImage={c.bannerUrl || undefined}
             index={i + 1}
             onClick={() => onSelectCategory(c.id || c.name || c.title)}
-            accentColor="#10b981"
+            accentColor="#00e676"
             glowColor="transparent"
             gradientFrom="#0a0a0a"
           />

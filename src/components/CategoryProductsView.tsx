@@ -178,7 +178,7 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
 
                   {/* Content */}
                   <div className="p-4 sm:p-5 flex flex-col flex-1 bg-[#0c0c0e]">
-                    <h3 className="text-sm font-semibold text-white leading-snug line-clamp-1 mb-3 group-hover:text-[#10b981] transition-colors">
+                    <h3 className="text-sm font-semibold text-white leading-snug line-clamp-1 mb-3 group-hover:text-[#00e676] transition-colors">
                       {formatProductName(product.name)}
                     </h3>
 
@@ -196,7 +196,7 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
                       </span>
 
                       {product.stock > 0 ? (
-                        <span className="ml-auto bg-[#10b981]/10 text-[#10b981] border border-emerald-500/20 text-[9px] font-semibold px-1.5 py-0.5 rounded-md leading-none select-none">
+                        <span className="ml-auto bg-[#00e676]/10 text-[#00e676] border border-emerald-500/20 text-[9px] font-semibold px-1.5 py-0.5 rounded-md leading-none select-none">
                           พร้อมจำหน่าย
                         </span>
                       ) : (

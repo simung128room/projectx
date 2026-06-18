@@ -28,7 +28,7 @@ export const ContactView: React.FC<ContactViewProps> = ({
 
       <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-8 bg-[#09090b] border border-[#1e1e1e]  p-6 ">
         <div className="flex items-center gap-4">
-          <div className="bg-primary text-primary-foreground text-[#10b981] p-4">
+          <div className="bg-primary text-primary-foreground text-[#00e676] p-4">
             <MessageSquare className="w-8 h-8" />
           </div>
           <div>

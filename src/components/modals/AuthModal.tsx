@@ -126,10 +126,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 ">
       <div className="w-full max-w-sm bg-[#09090b] border border-[#1e1e1e]  p-8 animate-in fade-in zoom-in duration-300 overflow-hidden relative ">
-      <div className={`absolute top-0 right-0 w-32 h-32 -mr-16 -mt-16 ${authMode === 'login' ? 'bg-[#10b981]/10' : 'bg-[#10b981]/10'}`}></div>
+      <div className={`absolute top-0 right-0 w-32 h-32 -mr-16 -mt-16 ${authMode === 'login' ? 'bg-[#00e676]/10' : 'bg-[#00e676]/10'}`}></div>
       <div className="flex flex-col items-center text-center mb-6 relative z-10">
-        <div className={`w-16 h-16 flex items-center justify-center mb-4 border ${authMode === 'login' ? 'bg-[#10b981]/10 border-emerald-500/20' : 'bg-[#10b981]/10 border-emerald-500/20'}`}>
-          {authMode === 'login' ? <User className="w-8 h-8 text-[#10b981]" /> : <User className="w-8 h-8 text-[#10b981]" />}
+        <div className={`w-16 h-16 flex items-center justify-center mb-4 border ${authMode === 'login' ? 'bg-[#00e676]/10 border-emerald-500/20' : 'bg-[#00e676]/10 border-emerald-500/20'}`}>
+          {authMode === 'login' ? <User className="w-8 h-8 text-[#00e676]" /> : <User className="w-8 h-8 text-[#00e676]" />}
         </div>
         <h2 className="text-xl font-medium tracking-tight">{authMode === 'login' ? 'เข้าสู่ระบบ' : 'สมัครสมาชิก'}</h2>
         <p className="text-muted-foreground text-xs mt-1">
@@ -142,14 +142,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
         <button
           type="button"
           onClick={() => setAuthMode('login')}
-          className={`flex-1 py-2 text-xs font-medium transition-all ${authMode === 'login' ? 'bg-[#10b981]/20 text-[#10b981]' : 'text-zinc-500 hover:text-white'}`}
+          className={`flex-1 py-2 text-xs font-medium transition-all ${authMode === 'login' ? 'bg-[#00e676]/20 text-[#00e676]' : 'text-zinc-500 hover:text-white'}`}
         >
           เข้าสู่ระบบ / Login
         </button>
         <button
           type="button"
           onClick={() => setAuthMode('signup')}
-          className={`flex-1 py-2 text-xs font-medium transition-all ${authMode === 'signup' ? 'bg-[#10b981]/20 text-[#10b981]' : 'text-zinc-500 hover:text-white'}`}
+          className={`flex-1 py-2 text-xs font-medium transition-all ${authMode === 'signup' ? 'bg-[#00e676]/20 text-[#00e676]' : 'text-zinc-500 hover:text-white'}`}
         >
           สมัครสมาชิก / Sign up
         </button>
@@ -190,7 +190,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
         <button 
           type="submit"
           disabled={authLoading}
-          className={`w-full py-4 mt-6 text-sm font-medium transition-all flex items-center justify-center gap-2 ${ authMode === 'login' ? 'bg-[#10b981] hover:bg-[#10b981]' : 'bg-emerald-700 hover:bg-[#10b981]' } disabled:opacity-50 disabled:cursor-not-allowed`}
+          className={`w-full py-4 mt-6 text-sm font-medium transition-all flex items-center justify-center gap-2 ${ authMode === 'login' ? 'bg-[#00e676] hover:bg-[#00e676]' : 'bg-emerald-700 hover:bg-[#00e676]' } disabled:opacity-50 disabled:cursor-not-allowed`}
         >
           {authLoading ? (
             <div className="w-5 h-5  border-[#1e1e1e] border-t-white animate-spin"></div>
@@ -226,7 +226,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
                     className="w-full"
                   />
                 ) : (
-                  <div className="p-3 text-[#10b981] text-center text-[10px] font-medium">
+                  <div className="p-3 text-[#00e676] text-center text-[10px] font-medium">
                     ยังไม่ได้ตั้งค่า TURNSTILE_SITE_KEY<br/>Bypass Mode Active
                   </div>
                 )}
@@ -238,7 +238,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
                   setShowTurnstileModal(false);
                   executeAuth("bypass");
                 }}
-                className="w-full bg-[#10b981] hover:bg-[#10b981] text-white font-medium py-3.5 transition-all mb-4 text-xs"
+                className="w-full bg-[#00e676] hover:bg-[#00e676] text-white font-medium py-3.5 transition-all mb-4 text-xs"
               >
                 ดำเนินการต่อ (Bypass)
               </button>

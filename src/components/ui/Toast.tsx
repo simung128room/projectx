@@ -12,18 +12,18 @@ const Toast: React.FC<{ toast: ToastType; onClose: (id: string) => void }> = ({ 
   }, [toast, onClose]);
 
   const icons = {
-    success: <CheckCircle2 className="w-5 h-5 text-[#10b981]" />,
+    success: <CheckCircle2 className="w-5 h-5 text-[#00e676]" />,
     error: <AlertCircle className="w-5 h-5 text-red-500" />,
     warning: <AlertTriangle className="w-5 h-5 text-amber-500" />,
-    info: <Info className="w-5 h-5 text-[#10b981]" />,
-    payment: <ShoppingBag className="w-5 h-5 text-[#10b981]" />
+    info: <Info className="w-5 h-5 text-[#00e676]" />,
+    payment: <ShoppingBag className="w-5 h-5 text-[#00e676]" />
   };
 
   const bgColors = {
     success: 'bg-[#050505] border-emerald-500/20 shadow-emerald-500/5',
     error: 'bg-[#050505] border-red-500/20 shadow-red-500/5',
     warning: 'bg-[#050505] border-amber-500/20 shadow-amber-500/5',
-    info: 'bg-[#050505] border-[#10b981]/20 shadow-sm/5',
+    info: 'bg-[#050505] border-[#00e676]/20 shadow-sm/5',
     payment: 'bg-[#050505] border-[#1e1e1e]/20 shadow-purple-500/5'
   };
 

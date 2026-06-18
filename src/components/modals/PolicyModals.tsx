@@ -26,7 +26,7 @@ export const PrivacyModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
         className="bg-[#09090b] border border-[#1e1e1e] p-6 sm:p-8 max-w-3xl w-full max-h-[90vh] flex flex-col relative"
       >
         <h2 className="text-xl sm:text-2xl font-medium mb-6 text-white flex items-center gap-2">
-          <Shield className="w-6 h-6 shrink-0 text-[#10b981]" />{" "}
+          <Shield className="w-6 h-6 shrink-0 text-[#00e676]" />{" "}
           นโยบายความเป็นส่วนตัว (Privacy Policy)
         </h2>
         <div className="overflow-y-auto pr-2 sm:pr-4 space-y-6 text-sm leading-relaxed text-muted-foreground scrollbar-thin scrollbar-thumb-zinc-700 flex-1">
@@ -160,7 +160,7 @@ export const PrivacyModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
         <div className="pt-6 mt-6 border-t border-[#1e1e1e] flex gap-3 flex-col sm:flex-row justify-end">
           <button
             onClick={onClose}
-            className="bg-primary text-primary-foreground hover:bg-zinc-600/25 text-[#10b981] font-medium py-3 px-8 transition-colors w-full sm:w-auto cursor-pointer"
+            className="bg-primary text-primary-foreground hover:bg-zinc-600/25 text-[#00e676] font-medium py-3 px-8 transition-colors w-full sm:w-auto cursor-pointer"
           >
             ทำความเข้าใจและปิดหน้าต่าง
           </button>
@@ -189,7 +189,7 @@ export const TermsModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
         className="bg-[#09090b] border border-[#1e1e1e] p-6 sm:p-8 max-w-3xl w-full max-h-[90vh] flex flex-col relative"
       >
         <h2 className="text-xl sm:text-2xl font-medium mb-6 flex items-center gap-2 text-white">
-          <ListChecks className="w-6 h-6 shrink-0 text-[#10b981]" />{" "}
+          <ListChecks className="w-6 h-6 shrink-0 text-[#00e676]" />{" "}
           ข้อกำหนดการใช้งาน (Terms of Use)
         </h2>
         <div className="overflow-y-auto pr-2 sm:pr-4 space-y-6 text-sm leading-relaxed text-muted-foreground scrollbar-thin scrollbar-thumb-zinc-700 flex-1">
@@ -378,7 +378,7 @@ export const TermsModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
         <div className="pt-6 mt-6 border-t border-[#1e1e1e] flex justify-end w-full">
           <button
             onClick={onClose}
-            className="bg-primary text-primary-foreground hover:bg-zinc-600/25 text-[#10b981] font-medium py-3 px-8 transition-all w-full sm:w-auto cursor-pointer"
+            className="bg-primary text-primary-foreground hover:bg-zinc-600/25 text-[#00e676] font-medium py-3 px-8 transition-all w-full sm:w-auto cursor-pointer"
           >
             ปิดหน้าต่างนี้
           </button>
@@ -412,7 +412,7 @@ export const ContactUsModal: React.FC<ContactModalProps> = ({ isOpen, onClose, s
       >
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl sm:text-2xl font-medium flex items-center gap-2 text-white">
-            <Phone className="w-6 h-6 shrink-0 text-[#10b981]" />{" "}
+            <Phone className="w-6 h-6 shrink-0 text-[#00e676]" />{" "}
             ติดต่อเรา
           </h2>
           <button
@@ -462,7 +462,7 @@ export const ContactUsModal: React.FC<ContactModalProps> = ({ isOpen, onClose, s
         <div className="pt-6 mt-6 border-t border-[#1e1e1e] flex justify-end w-full">
           <button
             onClick={onClose}
-            className="bg-primary text-primary-foreground hover:bg-zinc-600/25 text-[#10b981] font-medium py-3 px-8 transition-all w-full sm:w-auto cursor-pointer"
+            className="bg-primary text-primary-foreground hover:bg-zinc-600/25 text-[#00e676] font-medium py-3 px-8 transition-all w-full sm:w-auto cursor-pointer"
           >
             ปิดหน้าต่างนี้
           </button>

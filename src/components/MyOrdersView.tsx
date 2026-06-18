@@ -55,7 +55,7 @@ export const MyOrdersView: React.FC<MyOrdersViewProps> = ({
           displayPrice: p.price || p.money || 0,
           isExpense: true,
           icon: ShoppingCart,
-          colorClass: 'text-[#10b981] bg-[#10b981]/10 border-emerald-500/10'
+          colorClass: 'text-[#00e676] bg-[#00e676]/10 border-emerald-500/10'
         }));
       case 'special':
         return specialPurchases.map(p => ({
@@ -85,7 +85,7 @@ export const MyOrdersView: React.FC<MyOrdersViewProps> = ({
           displayPrice: t.amount || t.money || 0,
           isExpense: false,
           icon: CreditCard,
-          colorClass: 'text-[#10b981] bg-[#10b981]/10 border-emerald-500/10'
+          colorClass: 'text-[#00e676] bg-[#00e676]/10 border-emerald-500/10'
         }));
       default:
         return [];
@@ -104,15 +104,15 @@ export const MyOrdersView: React.FC<MyOrdersViewProps> = ({
       case 'success':
       case 'completed':
         return (
-          <span className="bg-[#10b981]/10 text-[#10b981] px-3 py-1 text-[10px] font-semibold uppercase border border-emerald-500/20 rounded-md flex items-center gap-1.5 w-max">
-            <div className="w-1.5 h-1.5 bg-[#10b981] rounded-full"></div>
+          <span className="bg-[#00e676]/10 text-[#00e676] px-3 py-1 text-[10px] font-semibold uppercase border border-emerald-500/20 rounded-md flex items-center gap-1.5 w-max">
+            <div className="w-1.5 h-1.5 bg-[#00e676] rounded-full"></div>
             สำเร็จ
           </span>
         );
       case 'preorder':
         return (
-          <span className="bg-[#10b981]/10 text-[#10b981] px-3 py-1 text-[10px] font-semibold uppercase border border-emerald-500/20 rounded-md flex items-center gap-1.5 w-max">
-            <div className="w-1.5 h-1.5 bg-[#10b981] rounded-full "></div>
+          <span className="bg-[#00e676]/10 text-[#00e676] px-3 py-1 text-[10px] font-semibold uppercase border border-emerald-500/20 rounded-md flex items-center gap-1.5 w-max">
+            <div className="w-1.5 h-1.5 bg-[#00e676] rounded-full "></div>
             พรีออเดอร์
           </span>
         );
@@ -132,8 +132,8 @@ export const MyOrdersView: React.FC<MyOrdersViewProps> = ({
         );
       default:
         return (
-          <span className="bg-[#10b981]/10 text-[#10b981] px-3 py-1 text-[10px] font-semibold uppercase border border-emerald-500/20 rounded-md flex items-center gap-1.5 w-max">
-            <div className="w-1.5 h-1.5 bg-[#10b981] rounded-full"></div>
+          <span className="bg-[#00e676]/10 text-[#00e676] px-3 py-1 text-[10px] font-semibold uppercase border border-emerald-500/20 rounded-md flex items-center gap-1.5 w-max">
+            <div className="w-1.5 h-1.5 bg-[#00e676] rounded-full"></div>
             สำเร็จ
           </span>
         );
@@ -155,11 +155,11 @@ export const MyOrdersView: React.FC<MyOrdersViewProps> = ({
       
       {/* Header Panel */}
       <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-5 bg-[#1c1c1e]/40 backdrop-blur-2xl border border-white/[0.05] p-6 rounded-[28px] shadow-lg relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-[#10b981]/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-0 right-0 w-32 h-32 bg-[#00e676]/10 rounded-full blur-3xl pointer-events-none" />
         <div className="relative z-10">
           <h1 className="text-2xl md:text-3xl font-bold text-white flex items-center gap-3 tracking-tight">
-            <div className="w-12 h-12 rounded-[16px] bg-[#10b981]/15 flex items-center justify-center shrink-0">
-              <Receipt className="w-6 h-6 text-[#10b981]" />
+            <div className="w-12 h-12 rounded-[16px] bg-[#00e676]/15 flex items-center justify-center shrink-0">
+              <Receipt className="w-6 h-6 text-[#00e676]" />
             </div>
             ประวัติการสั่งซื้อและเติมเงิน
           </h1>
@@ -168,7 +168,7 @@ export const MyOrdersView: React.FC<MyOrdersViewProps> = ({
           </p>
         </div>
         <div className="bg-[#2c2c2e]/60 border border-white/[0.05] rounded-full px-5 py-2.5 flex items-center gap-2 max-w-max relative z-10 shadow-sm shrink-0">
-          <ShieldCheck className="w-4 h-4 text-[#10b981]" />
+          <ShieldCheck className="w-4 h-4 text-[#00e676]" />
           <span className="text-[11px] font-bold text-zinc-300 uppercase tracking-wider">
             บล็อกเชนเกตเวย์ความปลอดภัยสูง
           </span>
@@ -178,7 +178,7 @@ export const MyOrdersView: React.FC<MyOrdersViewProps> = ({
       {/* Tabs navigation - Horizontal grid cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {[
-          { id: 'normal', label: 'ซื้อสินค้าทั่วไป', count: normalPurchases.length, icon: ShoppingCart, color: 'text-[#10b981]', bgInfo: 'bg-[#10b981]' },
+          { id: 'normal', label: 'ซื้อสินค้าทั่วไป', count: normalPurchases.length, icon: ShoppingCart, color: 'text-[#00e676]', bgInfo: 'bg-[#00e676]' },
           { id: 'special', label: 'ซื้อสินค้าพิเศษ', count: specialPurchases.length, icon: Star, color: 'text-amber-400', bgInfo: 'bg-amber-400' },
           { id: 'angpao', label: 'เติมเงินซองอั่งเปา', count: angpaoTopups.length, icon: Gift, color: 'text-rose-400', bgInfo: 'bg-rose-400' },
           { id: 'slip', label: 'เติมเงินแนบสลิป', count: slipTopups.length, icon: CreditCard, color: 'text-[#0ea5e9]', bgInfo: 'bg-[#0ea5e9]' }
@@ -283,7 +283,7 @@ export const MyOrdersView: React.FC<MyOrdersViewProps> = ({
                           {item.isExpense ? 'ยอดชำระสุทธิ' : 'ยอดเติมเงิน'}
                         </div>
                         <span className={`text-lg font-bold font-mono tracking-tight ${
-                          item.isExpense ? 'text-rose-400' : 'text-[#10b981]'
+                          item.isExpense ? 'text-rose-400' : 'text-[#00e676]'
                         }`}>
                           {item.isExpense ? '-' : '+'}{Math.floor(item.displayPrice).toLocaleString()} ฿
                         </span>
@@ -302,7 +302,7 @@ export const MyOrdersView: React.FC<MyOrdersViewProps> = ({
                             key: item.displayTitle,
                             secretData: item.secretData || item.key || item.code || 'อยู่ระหว่างการประมวลผลระบบ...',
                           })}
-                          className="w-10 h-10 rounded-[14px] bg-white/[0.05] hover:bg-[#10b981] hover:text-black hover:scale-105 active:scale-95 text-zinc-400 flex items-center justify-center transition-all duration-200 cursor-pointer shadow-sm"
+                          className="w-10 h-10 rounded-[14px] bg-white/[0.05] hover:bg-[#00e676] hover:text-black hover:scale-105 active:scale-95 text-zinc-400 flex items-center justify-center transition-all duration-200 cursor-pointer shadow-sm"
                           title="ดูบิลฉบับเต็ม"
                         >
                           <Eye className="w-5 h-5" />

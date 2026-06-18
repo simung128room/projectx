@@ -71,7 +71,7 @@ export const AdminCategoriesManagement: React.FC<AdminCategoriesManagementProps>
       }
       
       setProducts(updatedProducts);
-      Swal.fire({ title: 'สำเร็จ', text: 'อัปเดตสินค้าในหมวดหมู่เรียบร้อย', icon: 'success', background: '#09090b', color: '#fff', confirmButtonColor: '#10b981' });
+      Swal.fire({ title: 'สำเร็จ', text: 'อัปเดตสินค้าในหมวดหมู่เรียบร้อย', icon: 'success', background: '#09090b', color: '#fff', confirmButtonColor: '#00e676' });
       setManagingProductsForCategory(null);
     } catch (err) {
       console.error(err);
@@ -98,7 +98,7 @@ export const AdminCategoriesManagement: React.FC<AdminCategoriesManagementProps>
         setIsAdding(false);
       }
       setFormData({ name: '', title: '', subtitle: '', bannerUrl: '' });
-      Swal.fire({ title: 'สำเร็จ', text: 'บันทึกหมวดหมู่เรียบร้อย', icon: 'success', background: '#09090b', color: '#fff', confirmButtonColor: '#10b981' });
+      Swal.fire({ title: 'สำเร็จ', text: 'บันทึกหมวดหมู่เรียบร้อย', icon: 'success', background: '#09090b', color: '#fff', confirmButtonColor: '#00e676' });
     } catch (err) {
       console.error(err);
       Swal.fire({ title: 'Error', text: 'ไม่สามารถบันทึกได้', icon: 'error', background: '#09090b', color: '#fff', confirmButtonColor: '#EF4444' });
@@ -135,14 +135,14 @@ export const AdminCategoriesManagement: React.FC<AdminCategoriesManagementProps>
       <div className="flex justify-between items-center bg-zinc-950/20 p-4 border border-[#1e1e1e] rounded-md">
         <div>
           <h2 className="text-lg font-medium text-white flex items-center gap-2">
-            <Package className="w-5 h-5 text-[#10b981]" />
+            <Package className="w-5 h-5 text-[#00e676]" />
             จัดการหมวดหมู่สินค้า
           </h2>
           <p className="text-xs text-zinc-500 mt-0.5">บริหารจัดการและกำหนดรายการสินค้าในหมวดหมู่ต่างๆ ของสโตร์</p>
         </div>
         <button 
           onClick={() => { setIsAdding(true); setFormData({ name: '', title: '', subtitle: '', bannerUrl: '' }); }}
-          className="bg-[#10b981] hover:bg-[#10b981] text-white font-medium py-2 px-4 text-xs transition-colors flex items-center gap-2 rounded-md shadow-sm"
+          className="bg-[#00e676] hover:bg-[#00e676] text-white font-medium py-2 px-4 text-xs transition-colors flex items-center gap-2 rounded-md shadow-sm"
         >
           <Plus className="w-4 h-4" /> เพิ่มหมวดหมู่
         </button>
@@ -160,7 +160,7 @@ export const AdminCategoriesManagement: React.FC<AdminCategoriesManagementProps>
               </p>
             </div>
             <div className="p-2.5 bg-[#050505]/50 border border-[#1e1e1e] rounded-md">
-              {editingCategory ? <Edit className="w-5 h-5 text-amber-500" /> : <Package className="w-5 h-5 text-[#10b981]" />}
+              {editingCategory ? <Edit className="w-5 h-5 text-amber-500" /> : <Package className="w-5 h-5 text-[#00e676]" />}
             </div>
           </div>
           
@@ -169,13 +169,13 @@ export const AdminCategoriesManagement: React.FC<AdminCategoriesManagementProps>
               <div className="space-y-5 md:col-span-1">
                 <div className="group">
                   <label className="block text-xs font-medium text-zinc-400 mb-2">
-                    ชื่ออ้างอิงของระบบ (English เท่านั้น) <span className="text-[#10b981]">*</span>
+                    ชื่ออ้างอิงของระบบ (English เท่านั้น) <span className="text-[#00e676]">*</span>
                   </label>
                   <input 
                     type="text" 
                     value={formData.name || ''} 
                     onChange={e => setFormData({...formData, name: e.target.value})} 
-                    className="w-full bg-zinc-950 border border-[#1e1e1e] focus:border-[#10b981]/60 rounded-md px-4 py-2.5 text-white text-sm focus:outline-none transition-colors" 
+                    className="w-full bg-zinc-950 border border-[#1e1e1e] focus:border-[#00e676]/60 rounded-md px-4 py-2.5 text-white text-sm focus:outline-none transition-colors" 
                     placeholder="เช่น game_accounts" 
                   />
                   <p className="text-[10px] text-zinc-500 mt-1.5 ml-1">สำหรับประมวลผลหลังบ้าน โปรดใช้ตัวอักษรภาษาอังกฤษ พิมพ์เล็ก</p>
@@ -183,13 +183,13 @@ export const AdminCategoriesManagement: React.FC<AdminCategoriesManagementProps>
                 
                 <div className="group">
                   <label className="block text-xs font-medium text-zinc-400 mb-2">
-                    ชื่อหมวดหมู่ที่แสดง <span className="text-[#10b981]">*</span>
+                    ชื่อหมวดหมู่ที่แสดง <span className="text-[#00e676]">*</span>
                   </label>
                   <input 
                     type="text" 
                     value={formData.title || ''} 
                     onChange={e => setFormData({...formData, title: e.target.value})} 
-                    className="w-full bg-zinc-950 border border-[#1e1e1e] focus:border-[#10b981]/60 rounded-md px-4 py-2.5 text-white text-sm focus:outline-none transition-colors" 
+                    className="w-full bg-zinc-950 border border-[#1e1e1e] focus:border-[#00e676]/60 rounded-md px-4 py-2.5 text-white text-sm focus:outline-none transition-colors" 
                     placeholder="เช่น บัญชีเกม" 
                   />
                   <p className="text-[10px] text-zinc-500 mt-1.5 ml-1">ชื่อหมวดหมู่ที่ลูกค้าเห็นบนหน้าเว็บ</p>
@@ -204,7 +204,7 @@ export const AdminCategoriesManagement: React.FC<AdminCategoriesManagementProps>
                   <textarea 
                     value={formData.subtitle || ''} 
                     onChange={e => setFormData({...formData, subtitle: e.target.value})} 
-                    className="w-full h-[122px] bg-zinc-950 border border-[#1e1e1e] focus:border-[#10b981]/60 rounded-md px-4 py-2.5 text-white text-sm focus:outline-none transition-colors resize-none" 
+                    className="w-full h-[122px] bg-zinc-950 border border-[#1e1e1e] focus:border-[#00e676]/60 rounded-md px-4 py-2.5 text-white text-sm focus:outline-none transition-colors resize-none" 
                     placeholder="เขียนอธิบายภาพรวมสั้นๆ เกี่ยวกับสิทธิพิเสษ หรือหมวดหมู่นี้..." 
                   />
                 </div>
@@ -222,7 +222,7 @@ export const AdminCategoriesManagement: React.FC<AdminCategoriesManagementProps>
                         type="text" 
                         value={formData.bannerUrl || ''} 
                         onChange={e => setFormData({...formData, bannerUrl: e.target.value})} 
-                        className="w-full bg-zinc-950 border border-[#1e1e1e] focus:border-[#10b981]/60 rounded-md pl-10 pr-4 py-2.5 text-white text-sm focus:outline-none transition-colors" 
+                        className="w-full bg-zinc-950 border border-[#1e1e1e] focus:border-[#00e676]/60 rounded-md pl-10 pr-4 py-2.5 text-white text-sm focus:outline-none transition-colors" 
                         placeholder="https://example.com/banner.jpg" 
                       />
                     </div>
@@ -257,7 +257,7 @@ export const AdminCategoriesManagement: React.FC<AdminCategoriesManagementProps>
               </button>
               <button 
                 onClick={saveCategory} 
-                className="bg-[#10b981] hover:bg-[#10b981] text-white px-4 py-2 text-xs font-medium flex items-center gap-2 rounded-md transition-colors active:scale-95"
+                className="bg-[#00e676] hover:bg-[#00e676] text-white px-4 py-2 text-xs font-medium flex items-center gap-2 rounded-md transition-colors active:scale-95"
               >
                 <Save className="w-4 h-4"/> {editingCategory ? 'อัปเดตหมวดหมู่' : 'สร้างหมวดหมู่'}
               </button>
@@ -282,7 +282,7 @@ export const AdminCategoriesManagement: React.FC<AdminCategoriesManagementProps>
                 <tr key={c.id} className="hover:bg-[#050505]/10 transition-all group">
                   <td className="px-6 py-4">
                     {c.bannerUrl ? (
-                      <div className="w-20 h-11 overflow-hidden rounded-md border border-zinc-850 group-hover:border-[#10b981]/40 transition-colors">
+                      <div className="w-20 h-11 overflow-hidden rounded-md border border-zinc-850 group-hover:border-[#00e676]/40 transition-colors">
                         <img loading="lazy" src={c.bannerUrl || undefined} alt={c.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                       </div>
                     ) : (
@@ -311,7 +311,7 @@ export const AdminCategoriesManagement: React.FC<AdminCategoriesManagementProps>
                     <div className="flex items-center justify-end gap-2">
                       <button 
                         onClick={() => setManagingProductsForCategory(c)} 
-                        className="p-2 border border-emerald-500/30 bg-[#10b981]/5 text-[#10b981] hover:bg-[#10b981]/15 hover:border-emerald-500/60 rounded-md transition-all duration-150 flex items-center gap-1 px-3" 
+                        className="p-2 border border-emerald-500/30 bg-[#00e676]/5 text-[#00e676] hover:bg-[#00e676]/15 hover:border-emerald-500/60 rounded-md transition-all duration-150 flex items-center gap-1 px-3" 
                         title="จัดการสินค้าในหมวดหมู่นี้"
                       >
                         <ShoppingCart className="w-3.5 h-3.5" />
@@ -363,7 +363,7 @@ export const AdminCategoriesManagement: React.FC<AdminCategoriesManagementProps>
             
             <div className="flex flex-col min-h-0 flex-1">
               <h2 className="text-base font-medium text-white mb-1 flex items-center gap-2">
-                <ShoppingCart className="w-5 h-5 text-[#10b981]" />
+                <ShoppingCart className="w-5 h-5 text-[#00e676]" />
                 จัดของเข้าหมวดหมู่: {managingProductsForCategory.title}
               </h2>
               <p className="text-xs text-zinc-500 mb-6 font-medium">
@@ -386,13 +386,13 @@ export const AdminCategoriesManagement: React.FC<AdminCategoriesManagementProps>
                         onClick={() => toggleProductSelection(p.id)}
                         className={`flex items-center gap-3.5 p-3 rounded-md border cursor-pointer transition-all ${ 
                           isChecked 
-                            ? 'bg-[#10b981]/5 border-emerald-500/30 shadow-sm' 
+                            ? 'bg-[#00e676]/5 border-emerald-500/30 shadow-sm' 
                             : 'bg-[#050505]/30 border-[#1e1e1e] hover:bg-[#050505]/60 hover:border-[#1e1e1e]' 
                         }`}
                       >
                         <div className={`w-5 h-5 flex items-center justify-center shrink-0 rounded border transition-colors ${ 
                           isChecked 
-                            ? 'bg-[#10b981] border-emerald-400 text-black' 
+                            ? 'bg-[#00e676] border-emerald-400 text-black' 
                             : 'bg-zinc-950 border-[#1e1e1e]' 
                         }`}>
                           {isChecked && <Check className="w-3.5 h-3.5 stroke-[3]" />}
@@ -408,7 +408,7 @@ export const AdminCategoriesManagement: React.FC<AdminCategoriesManagementProps>
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="font-medium text-white text-xs truncate">{p.name}</p>
-                          <p className="text-[10px] text-[#10b981] font-medium font-mono tracking-wide mt-0.5">฿{(p.price || 0).toLocaleString()}</p>
+                          <p className="text-[10px] text-[#00e676] font-medium font-mono tracking-wide mt-0.5">฿{(p.price || 0).toLocaleString()}</p>
                         </div>
                       </div>
                     );
@@ -427,7 +427,7 @@ export const AdminCategoriesManagement: React.FC<AdminCategoriesManagementProps>
               <button 
                 onClick={saveCategoryProducts} 
                 disabled={isUpdatingProducts}
-                className="px-5 py-2 text-xs font-medium bg-[#10b981] hover:bg-[#10b981] text-white flex items-center gap-2 rounded-md transition-colors disabled:opacity-50"
+                className="px-5 py-2 text-xs font-medium bg-[#00e676] hover:bg-[#00e676] text-white flex items-center gap-2 rounded-md transition-colors disabled:opacity-50"
               >
                 {isUpdatingProducts ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
                 บันทึกสินค้า

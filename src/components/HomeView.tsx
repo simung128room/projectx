@@ -106,41 +106,41 @@ function StatCard({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: false, amount: 0.1 }}
       transition={{ duration: 0.5, delay }}
-      className="relative bg-[#0d0d0d] border border-[#1e1e1e] rounded-md p-5 overflow-hidden group hover:border-[#2a2a2a] transition-all duration-300"
+      className="relative bg-zinc-950/45 border border-zinc-900 rounded-2xl p-6 overflow-hidden group hover:border-[#00e676]/35 transition-all duration-300"
     >
       {/* Subtle glow */}
       <div
-        className="absolute -top-6 -right-6 w-24 h-24 rounded-full opacity-5 group-hover:opacity-10 transition-opacity duration-500 blur-xl pointer-events-none"
+        className="absolute -top-6 -right-6 w-24 h-24 rounded-full opacity-5 group-hover:opacity-15 transition-opacity duration-500 blur-xl pointer-events-none"
         style={{ backgroundColor: accent }}
       />
       
       <div className="flex justify-between items-start mb-2">
-        <p className="text-[11px] text-zinc-500 font-semibold tracking-wider uppercase">{label}</p>
+        <p className="text-[10px] text-zinc-500 font-bold tracking-widest uppercase font-display">{label}</p>
         {actionButton}
       </div>
-
-      <p className="text-3xl font-extrabold text-white tracking-tight leading-none mt-2 flex items-baseline gap-1.5">
+ 
+      <p className="text-3xl font-extrabold text-white tracking-tight leading-none mt-2 flex items-baseline gap-1.5 font-display">
         {typeof value === "number" ? (
           <AnimatedNumber value={value} accent={accent} />
         ) : (
           value
         )}
-        {unit && <span className="text-sm font-semibold text-zinc-400">{unit}</span>}
+        {unit && <span className="text-xs font-semibold text-zinc-500 font-sans">{unit}</span>}
       </p>
-
+ 
       {subtext && (
-        <p className="text-[10px] text-zinc-500/80 mt-2 font-mono font-medium">{subtext}</p>
+        <p className="text-[10px] text-zinc-600 mt-2.5 font-mono font-medium">{subtext}</p>
       )}
-
-      <div className="absolute bottom-3 right-3 opacity-15 text-zinc-700 pointer-events-none">
-        <Icon className="w-10 h-10" />
+ 
+      <div className="absolute bottom-4 right-4 opacity-10 text-zinc-650 group-hover:opacity-20 group-hover:scale-105 duration-305 transition-all pointer-events-none">
+        <Icon className="w-9 h-9" />
       </div>
     </motion.div>
   );
 }
-
+ 
 // ─── Shortcut Button ──────────────────────────────────────────────────────────
-
+ 
 interface ShortcutBtnProps {
   label: string;
   subLabel: string;
@@ -150,7 +150,7 @@ interface ShortcutBtnProps {
   onClick: () => void;
   delay?: number;
 }
-
+ 
 function ShortcutBtn({
   label,
   subLabel,
@@ -166,29 +166,27 @@ function ShortcutBtn({
       whileInView={{ opacity: 1, y: 0, scale: 1 }}
       viewport={{ once: false, amount: 0.1 }}
       transition={{ type: "spring", stiffness: 350, damping: 30, delay }}
-      
-      
       onClick={onClick}
-      className="relative overflow-hidden text-left bg-[#0d0d0d] border border-[#1e1e1e] hover:border-[#1e1e1e] rounded-md p-4 sm:p-5 flex items-center gap-4 transition-colors duration-200 w-full group cursor-pointer"
+      className="relative overflow-hidden text-left bg-zinc-950/45 border border-zinc-900 hover:border-[#00e676]/30 rounded-2xl p-5 flex items-center gap-4 transition-all duration-300 w-full group cursor-pointer"
     >
       {/* Dynamic Glow */}
       <div
-        className="absolute -top-12 -right-12 w-24 h-24 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500  pointer-events-none"
+        className="absolute -top-12 -right-12 w-24 h-24 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
         style={{ background: glowColor }}
       />
       
       {/* Icon Frame */}
-      <div className={`p-3 rounded-md bg-white/[0.04] border border-[#1e1e1e] group-hover:border-transparent group- duration-300 ${colorClass} shrink-0`}>
-        <Icon className="w-5 h-5 font-medium" />
+      <div className={`p-3.5 rounded-xl bg-white/[0.02] border border-zinc-900 group-hover:border-transparent group-hover:bg-zinc-900/60 transition-all duration-300 ${colorClass} shrink-0`}>
+        <Icon className="w-5 h-5 font-semibold" />
       </div>
-
+ 
       <div className="flex flex-col min-w-0">
-        <span className="text-xs sm:text-sm font-semibold text-white tracking-wider uppercase">{label}</span>
-        <span className="text-[10px] text-white/30 group-hover:text-white/50 duration-300 tracking-normal truncate mt-0.5 font-medium font-mono">{subLabel}</span>
+        <span className="text-xs sm:text-sm font-bold text-white tracking-wider uppercase font-display">{label}</span>
+        <span className="text-[10px] text-zinc-500 group-hover:text-zinc-400 transition-colors duration-300 tracking-normal truncate mt-1 font-medium font-mono">{subLabel}</span>
       </div>
-
+ 
       {/* Decorative arrow */}
-      <div className="ml-auto opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-colors duration-200 text-white/40 shrink-0">
+      <div className="ml-auto opacity-0 group-hover:opacity-100 group-hover:translate-x-1 duration-300 text-zinc-500 group-hover:text-[#00e676] shrink-0 transition-all">
         <ChevronRight className="w-4 h-4" />
       </div>
     </motion.button>
@@ -230,18 +228,18 @@ function CategoryChip({
       viewport={{ once: false, amount: 0.1 }}
       transition={{ duration: 0.5, delay }}
       onClick={onClick}
-      className="relative group overflow-hidden rounded-md border border-[#1e1e1e] bg-[#0c0c0e] hover:border-[#1e1e1e] transition-colors duration-200 flex flex-col cursor-pointer  shadow-sm"
+      className="relative group overflow-hidden rounded-2xl border border-zinc-900 bg-[#070709] hover:border-[#00e676]/35 transition-all duration-300 flex flex-col cursor-pointer shadow-lg hover:shadow-[#00e676]/5"
     >
       {/* Banner Area */}
       <div 
-        className="relative w-full overflow-hidden shrink-0 bg-[#141416]"
+        className="relative w-full overflow-hidden shrink-0 bg-zinc-950"
         style={{ aspectRatio: '2100 / 500' }}
       >
             {cat.bannerUrl || (catProducts[0] && catProducts[0].imageUrl) ? (
           <img
             src={cat.bannerUrl || catProducts[0]?.imageUrl}
             alt={cat.name || cat.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-60 group-hover:opacity-85"
+            className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500 opacity-50 group-hover:opacity-75"
             referrerPolicy="no-referrer"
             loading="lazy"
             onError={(e) => {
@@ -249,31 +247,31 @@ function CategoryChip({
             }}
           />
         ) : (
-          <div className="w-full h-full bg-[#09090b] flex items-center justify-center">
+          <div className="w-full h-full bg-zinc-950 flex items-center justify-center">
             <Package className="w-8 h-8 text-white/10" />
           </div>
         )}
         
         {/* Gradients */}
-        <div className="absolute inset-0 bg-[#09090b] opacity-90" />
-        <div className="absolute inset-0 bg-[#09090b]" />
+        <div className="absolute inset-0 bg-zinc-950 opacity-80" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#070709] via-transparent to-transparent" />
       </div>
 
       {/* Content Area */}
-      <div className="p-4 sm:p-5 flex flex-col justify-between flex-1 bg-[#0c0c0e]">
-        <h3 className="text-base sm:text-lg font-semibold text-white px-0.5 tracking-wide uppercase truncate mb-1">
+      <div className="p-5 flex flex-col justify-between flex-1 bg-[#070709]">
+        <h3 className="text-base sm:text-lg font-bold text-white px-0.5 tracking-wide uppercase truncate mb-1 font-display">
           {cat.name || cat.title}
         </h3>
         
-        <div className="flex items-center justify-between text-xs font-semibold mt-3 pt-3 border-t border-[#1e1e1e]">
+        <div className="flex items-center justify-between text-xs font-semibold mt-4 pt-4 border-t border-zinc-900">
           {/* Item Count */}
-          <span className="text-white/40 flex items-center gap-1.5 uppercase font-medium tracking-wider">
-            <Package className="w-3.5 h-3.5 text-white/35 shrink-0" />
-            <span>มีสินค้าทั้งหมด <span className="text-neon-green font-semibold">{productCount}</span> รายการ</span>
+          <span className="text-zinc-500 flex items-center gap-1.5 uppercase font-medium tracking-wider font-sans">
+            <Package className="w-4 h-4 text-zinc-650 shrink-0" />
+            <span>มีสินค้าทั้งหมด <span className="text-[#00e676] font-bold font-mono">{productCount}</span> รายการ</span>
           </span>
           
           {/* Price Range */}
-          <span className="text-white font-mono font-semibold tracking-wider text-xs bg-white/[0.06] px-2.5 py-1.5 rounded-md border border-[#1e1e1e] shadow-sm">
+          <span className="text-white font-mono font-semibold tracking-wider text-xs bg-[#00e676]/5 px-3 py-1.5 rounded-xl border border-zinc-900 shadow-sm">
             {priceRangeStr}
           </span>
         </div>
@@ -309,10 +307,10 @@ function ProductCard({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: false, amount: 0.1 }}
       transition={{ duration: 0.5, delay }}
-      className="group relative bg-[#0c0c0e] border border-[#1e1e1e] rounded-md overflow-hidden hover:border-[#1e1e1e] transition-colors duration-200 flex flex-col  shadow-sm"
+      className="group relative bg-[#070709] border border-zinc-900 rounded-2xl overflow-hidden hover:border-[#00e676]/35 transition-all duration-300 flex flex-col shadow-lg hover:shadow-[#00e676]/5"
     >
       {/* Image area with corner ribbon */}
-      <div className="relative aspect-square w-full bg-[#141416] overflow-hidden shrink-0">
+      <div className="relative aspect-square w-full bg-zinc-950 overflow-hidden shrink-0">
         {hasImage ? (
           <img
             src={product.imageUrl}
@@ -334,14 +332,14 @@ function ProductCard({
         {/* Diagonal "Best Seller" ribbon in image corner */}
         {isHot && (
           <div className="absolute top-0 right-0 overflow-hidden w-20 h-20 pointer-events-none z-10">
-            <div className="absolute top-3 -right-6 bg-[#09090b] text-white text-[9px] font-semibold uppercase py-1 w-24 text-center transform rotate-45 shadow-md border-b border-[#1e1e1e]">
+            <div className="absolute top-3 -right-6 bg-zinc-950 text-[#00e676] text-[9px] font-bold uppercase py-1 w-24 text-center transform rotate-45 shadow-md border-b border-zinc-900 font-display">
               Best Seller
             </div>
           </div>
         )}
 
         {/* Overlay gradient */}
-        <div className="absolute inset-0 bg-[#09090b] opacity-80" />
+        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 opacity-40" />
 
         {/* Discount Badge on left */}
         {discount !== null && (
@@ -352,13 +350,13 @@ function ProductCard({
       </div>
 
       {/* Content */}
-      <div className="p-4 sm:p-5 flex flex-col flex-1">
-        <h3 className="text-sm font-semibold text-white leading-snug line-clamp-1 mb-3 group-hover:text-neon-green transition-colors">
+      <div className="p-5 flex flex-col flex-1 bg-[#070709]">
+        <h3 className="text-sm font-semibold text-white leading-snug line-clamp-2 mb-3 group-hover:text-[#00e676] transition-colors font-sans">
           {formatProductName(product.name)}
         </h3>
 
         {/* "ราคาสินค้า" subtle label */}
-        <span className="text-[10px] font-medium text-white/30 uppercase tracking-wider block mb-1">ราคาสินค้า</span>
+        <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-1 font-display">ราคาสินค้า</span>
 
         {/* Price row */}
         <div className="flex flex-wrap items-center gap-2 mb-4">
@@ -366,16 +364,16 @@ function ProductCard({
             <span className="text-xs text-red-500/80 line-through font-mono font-medium">฿{product.originalPrice.toLocaleString()}</span>
           ) : null}
           
-          <span className="text-base font-semibold text-amber-400 tracking-tight font-mono">
+          <span className="text-base font-bold text-amber-400 tracking-tight font-mono">
             ฿{product.price.toLocaleString()}
           </span>
 
           {product.stock > 0 ? (
-            <span className="ml-auto bg-[#10b981]/10 text-[#10b981] border border-emerald-500/20 text-[9px] font-semibold px-1.5 py-0.5 rounded-md leading-none select-none">
+            <span className="ml-auto bg-[#00e676]/10 text-[#00e676] border border-[#00e676]/15 text-[9px] font-bold px-2 py-0.5 rounded-xl leading-none select-none">
               พร้อมจำหน่าย
             </span>
           ) : (
-            <span className="ml-auto bg-red-500/10 text-red-400 border border-red-500/20 text-[9px] font-semibold px-1.5 py-0.5 rounded-md leading-none select-none">
+            <span className="ml-auto bg-red-500/10 text-red-400 border border-red-500/15 text-[9px] font-bold px-2 py-0.5 rounded-xl leading-none select-none">
               สินค้าหมด
             </span>
           )}
@@ -384,16 +382,16 @@ function ProductCard({
         {/* Buy Button */}
         <button
           onClick={onClick}
-          className="w-full flex items-center justify-center gap-2 bg-white/[0.04] hover:bg-white/[0.08] text-[#10b981] border border-[#1e1e1e] hover:border-[#10b981] py-2.5 rounded-md text-xs font-medium transition-colors duration-200 ease-out mt-auto shadow-sm hover:shadow-sm active:scale-[0.98] cursor-pointer"
+          className="w-full flex items-center justify-center gap-2 bg-[#00e676]/5 hover:bg-[#00e676] text-[#00e676] hover:text-black border border-zinc-900 hover:border-transparent py-2.5 rounded-xl text-xs font-bold transition-all duration-300 mt-auto shadow-sm active:scale-[0.98] cursor-pointer"
         >
           <ShoppingCart className="w-3.5 h-3.5" />
           สั่งซื้อสินค้า
         </button>
 
         {/* Stock Row Box */}
-        <div className="mt-3.5 py-1.5 rounded-md bg-white/[0.04] border border-[#1e1e1e] flex items-center justify-center gap-2 text-[10px] text-white/40 font-semibold uppercase tracking-widest leading-none">
-          <Package className="w-3.5 h-3.5 text-white/20 shrink-0" />
-          <span>คงเหลือ <span className="text-white/70 font-mono">{product.stock.toLocaleString()}</span> ชิ้น</span>
+        <div className="mt-3.5 py-2 rounded-xl bg-zinc-950/85 border border-zinc-900 flex items-center justify-center gap-2 text-[10px] text-zinc-500 font-semibold uppercase tracking-widest leading-none">
+          <Package className="w-3.5 h-3.5 text-zinc-650 shrink-0" />
+          <span>คงเหลือ <span className="text-zinc-300 font-bold font-mono">{product.stock.toLocaleString()}</span> ชิ้น</span>
         </div>
       </div>
     </motion.div>
@@ -583,7 +581,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
               label="สั่งซื้อสินค้า"
               subLabel="GO SHOPPING"
               icon={ShoppingCart}
-              colorClass="text-[#10b981] group-hover:bg-[#10b981]/10 group-hover:text-emerald-300"
+              colorClass="text-[#00e676] group-hover:bg-[#00e676]/10 group-hover:text-emerald-300"
               glowColor="rgba(16,185,129,0.15)"
               onClick={() => setActiveView("categories")}
               delay={0.1}
@@ -592,7 +590,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
               label="ประวัติสั่งซื้อ"
               subLabel="ORDER HISTORY"
               icon={History}
-              colorClass="text-[#10b981] group-hover:bg-[#10b981]/10 group-hover:text-emerald-300"
+              colorClass="text-[#00e676] group-hover:bg-[#00e676]/10 group-hover:text-emerald-300"
               glowColor="rgba(99,102,241,0.15)"
               onClick={() => setActiveView("order_history")}
               delay={0.2}
@@ -665,11 +663,11 @@ export const HomeView: React.FC<HomeViewProps> = ({
             className="flex items-center justify-between mb-4 bg-zinc-950/20 px-1.5 py-1.5 rounded-md border border-[#1e1e1e]"
           >
             <div className="flex items-center gap-2">
-              <History className="w-4 h-4 text-[#10b981] " />
+              <History className="w-4 h-4 text-[#00e676] " />
               <h2 className="text-sm font-semibold text-white/90 tracking-wider uppercase">รายการสั่งซื้อล่าสุด (REAL-TIME UPDATES)</h2>
             </div>
-            <div className="flex items-center gap-1 text-[10px] uppercase font-semibold text-[#10b981] tracking-widest bg-[#10b981]/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#10b981] animate-ping" />
+            <div className="flex items-center gap-1 text-[10px] uppercase font-semibold text-[#00e676] tracking-widest bg-[#00e676]/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#00e676] animate-ping" />
               <span>LIVE</span>
             </div>
           </motion.div>
@@ -728,7 +726,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                               {p.productName}
                             </span>
                             <span className="text-[10px] text-zinc-400 mt-0.5">
-                              ซื้อ: <span className="text-[#10b981] font-semibold font-mono">+{p.quantity}</span> ชิ้น
+                              ซื้อ: <span className="text-[#00e676] font-semibold font-mono">+{p.quantity}</span> ชิ้น
                             </span>
                             <span className="text-[9px] text-[#888] font-mono font-medium truncate mt-0.5">
                               {getRelativeTime(p.date)}
@@ -738,10 +736,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
                         {/* Price point */}
                         <div className="flex flex-col items-end shrink-0 pl-1 border-l border-[#1e1e1e]">
-                          <span className="text-xs font-semibold text-[#10b981] font-mono tracking-tight leading-none mb-1">
+                          <span className="text-xs font-semibold text-[#00e676] font-mono tracking-tight leading-none mb-1">
                             ฿{p.price}
                           </span>
-                          <span className="text-[8px] font-semibold text-[#10b981]/50 bg-[#10b981]/5 border border-emerald-500/10 px-1 py-0.25 rounded font-mono tracking-widest uppercase">
+                          <span className="text-[8px] font-semibold text-[#00e676]/50 bg-[#00e676]/5 border border-emerald-500/10 px-1 py-0.25 rounded font-mono tracking-widest uppercase">
                             PAID
                           </span>
                         </div>

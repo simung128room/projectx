@@ -40,8 +40,8 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ purchaseHistory = [], 
       title: 'ประวัติการซื้อสินค้าทั่วไป',
       subtitle: 'Shop History',
       icon: ShoppingCart,
-      bg: 'bg-[#10b981]/10 border border-emerald-500/20',
-      color: 'text-[#10b981]'
+      bg: 'bg-[#00e676]/10 border border-emerald-500/20',
+      color: 'text-[#00e676]'
     },
     {
       id: 'key_usage',
@@ -64,8 +64,8 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ purchaseHistory = [], 
       title: 'ประวัติการเติมเงิน (ธนาคาร)',
       subtitle: 'Bank Slip History',
       icon: CreditCard,
-      bg: 'bg-[#10b981]/10 border border-emerald-500/20',
-      color: 'text-[#10b981]'
+      bg: 'bg-[#00e676]/10 border border-emerald-500/20',
+      color: 'text-[#00e676]'
     }
   ];
 
@@ -85,13 +85,13 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ purchaseHistory = [], 
   const getFilteredData = (categoryId: string) => {
     switch(categoryId) {
       case 'normal_product':
-        return purchaseHistory.filter(p => !p.is_special).map(p => ({ ...p, type: 'normal_product', title: p.productName || 'ซื้อสินค้า', icon: ShoppingCart, color: 'text-[#10b981]', bg: 'bg-[#10b981]/10 border border-emerald-500/20', money: -(p.price || 0), date: p.date || p.timestamp }));
+        return purchaseHistory.filter(p => !p.is_special).map(p => ({ ...p, type: 'normal_product', title: p.productName || 'ซื้อสินค้า', icon: ShoppingCart, color: 'text-[#00e676]', bg: 'bg-[#00e676]/10 border border-emerald-500/20', money: -(p.price || 0), date: p.date || p.timestamp }));
       case 'special_product':
         return purchaseHistory.filter(p => p.is_special).map(p => ({ ...p, type: 'special_product', title: p.productName || 'สินค้าพิเศษ', icon: Star, color: 'text-amber-400', bg: 'bg-amber-505/10 border border-amber-505/20', money: -(p.price || 0), date: p.date || p.timestamp }));
       case 'topup_gift':
         return topupHistory.filter(t => t.method?.toLowerCase().includes('gift') || t.method?.toLowerCase().includes('อั่งเปา')).map(t => ({ ...t, type: 'topup_gift', title: 'TrueMoney Wallet (อังเปา)', icon: Gift, color: 'text-red-400', bg: 'bg-red-505/10 border border-red-550/20', money: t.amount, date: t.date || t.timestamp }));
       case 'topup_slip':
-        return topupHistory.filter(t => !t.method?.toLowerCase().includes('gift') && !t.method?.toLowerCase().includes('อั่งเปา')).map(t => ({ ...t, type: 'topup_slip', title: 'ธนาคาร เช็คสลิป', icon: CreditCard, color: 'text-[#10b981]', bg: 'bg-cyan-505/10 border border-cyan-550/20', money: t.amount, date: t.date || t.timestamp }));
+        return topupHistory.filter(t => !t.method?.toLowerCase().includes('gift') && !t.method?.toLowerCase().includes('อั่งเปา')).map(t => ({ ...t, type: 'topup_slip', title: 'ธนาคาร เช็คสลิป', icon: CreditCard, color: 'text-[#00e676]', bg: 'bg-cyan-505/10 border border-cyan-550/20', money: t.amount, date: t.date || t.timestamp }));
       case 'key_usage':
         return usedKeysHistory.map(k => ({ ...k, type: 'key_usage', title: 'เปิดใช้งานคีย์', icon: Key, color: 'text-zinc-400', bg: 'bg-purple-505/10 border border-purple-550/20', money: 0, date: k.used_at || k.date || new Date().toISOString(), productName: k.key || k.code }));
       default:

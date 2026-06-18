@@ -103,7 +103,7 @@ export const AdminPagesManagement: React.FC<AdminPagesManagementProps> = ({ cust
                 type="text" 
                 value={formData.title}
                 onChange={(e) => setFormData({...formData, title: e.target.value})}
-                className="w-full bg-zinc-950 border border-zinc-805 border-[#1e1e1e] focus:border-[#10b981]/60 rounded-md px-4 py-2.5 text-white text-sm focus:outline-none transition-colors"
+                className="w-full bg-zinc-950 border border-zinc-805 border-[#1e1e1e] focus:border-[#00e676]/60 rounded-md px-4 py-2.5 text-white text-sm focus:outline-none transition-colors"
                 placeholder="เช่น เงื่อนไขการรับประกันสินค้า"
               />
             </div>
@@ -113,7 +113,7 @@ export const AdminPagesManagement: React.FC<AdminPagesManagementProps> = ({ cust
                 type="text" 
                 value={formData.slug}
                 onChange={(e) => setFormData({...formData, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-')})}
-                className="w-full bg-zinc-950 border border-zinc-805 border-[#1e1e1e] focus:border-[#10b981]/60 rounded-md px-4 py-2.5 text-white text-sm focus:outline-none transition-colors"
+                className="w-full bg-zinc-950 border border-zinc-805 border-[#1e1e1e] focus:border-[#00e676]/60 rounded-md px-4 py-2.5 text-white text-sm focus:outline-none transition-colors"
                 placeholder="เช่น warranty, terms"
               />
             </div>
@@ -124,7 +124,7 @@ export const AdminPagesManagement: React.FC<AdminPagesManagementProps> = ({ cust
             <textarea 
               value={formData.content}
               onChange={(e) => setFormData({...formData, content: e.target.value})}
-              className="w-full bg-zinc-950 border border-zinc-805 border-[#1e1e1e] focus:border-[#10b981]/60 rounded-md px-4 py-3 text-sm text-zinc-300 focus:outline-none transition-colors h-72 font-mono"
+              className="w-full bg-zinc-950 border border-zinc-805 border-[#1e1e1e] focus:border-[#00e676]/60 rounded-md px-4 py-3 text-sm text-zinc-300 focus:outline-none transition-colors h-72 font-mono"
               placeholder="# หัวข้อย่อย&#10;รายละเอียดโปรแกรม เงื่อนไขสิทธิ์รับประกันกรณีคีย์ใช้งานไม่ได้..."
             />
           </div>
@@ -139,7 +139,7 @@ export const AdminPagesManagement: React.FC<AdminPagesManagementProps> = ({ cust
             </button>
             <button 
               type="submit"
-              className="px-4 py-2 text-xs font-medium bg-[#10b981] hover:bg-[#10b981] text-white flex items-center gap-2 rounded-md transition-colors"
+              className="px-4 py-2 text-xs font-medium bg-[#00e676] hover:bg-[#00e676] text-white flex items-center gap-2 rounded-md transition-colors"
             >
               <Save className="w-3.5 h-3.5" /> บันทึกหน้าเพจ
             </button>
@@ -154,14 +154,14 @@ export const AdminPagesManagement: React.FC<AdminPagesManagementProps> = ({ cust
       <div className="flex justify-between items-center bg-zinc-950/20 p-4 border border-[#1e1e1e] rounded-md">
         <div>
           <h2 className="text-lg font-medium text-white flex items-center gap-2">
-            <FileText className="w-5 h-5 text-[#10b981]" />
+            <FileText className="w-5 h-5 text-[#00e676]" />
             จัดการหน้าเพจบทความย่อย
           </h2>
           <p className="text-xs text-zinc-500 mt-1">เพิ่มเติมหน้ากฎระเบียบ ข้อตกลง และติดต่อสอบถาม เพิ่มความน่าเชื่อถือให้กับแพลตฟอร์ม</p>
         </div>
         <button 
           onClick={handleCreateNew}
-          className="bg-[#10b981] hover:bg-[#10b981] text-white font-medium py-2 px-4 text-xs transition-colors flex items-center gap-2 rounded-md shadow-sm"
+          className="bg-[#00e676] hover:bg-[#00e676] text-white font-medium py-2 px-4 text-xs transition-colors flex items-center gap-2 rounded-md shadow-sm"
         >
           <Plus className="w-4 h-4" /> สร้างหน้าเพจใหม่
         </button>
@@ -179,12 +179,12 @@ export const AdminPagesManagement: React.FC<AdminPagesManagementProps> = ({ cust
             {customPages.map(page => (
               <div key={page.id} className="p-4 flex items-center justify-between hover:bg-[#050505]/10 transition-colors group">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-zinc-950 border border-[#1e1e1e] rounded-md text-[#10b981] flex items-center justify-center">
+                  <div className="w-10 h-10 bg-zinc-950 border border-[#1e1e1e] rounded-md text-[#00e676] flex items-center justify-center">
                     <FileText className="w-5 h-5" />
                   </div>
                   <div>
                     <h4 className="font-medium text-white text-sm">{page.title.replace(/^#+\s*/, '')}</h4>
-                    <p className="text-[10px] text-zinc-500 font-mono mt-0.5">ลิงก์เข้าสู่หน้า: <span className="text-[#10b981]">/{page.slug}</span></p>
+                    <p className="text-[10px] text-zinc-500 font-mono mt-0.5">ลิงก์เข้าสู่หน้า: <span className="text-[#00e676]">/{page.slug}</span></p>
                   </div>
                 </div>
                 <div className="flex gap-2">
