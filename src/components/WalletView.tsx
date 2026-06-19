@@ -76,7 +76,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
       background: '#09090b',
       color: '#ffffff',
       customClass: {
-        popup: 'border border-#1f2937'
+        popup: 'border border-gray-200'
       }
     });
 
@@ -108,7 +108,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
         color: '#ffffff',
         confirmButtonColor: '#ff2c2c',
         customClass: {
-          popup: 'border border-#1f2937'
+          popup: 'border border-gray-200'
         }
       });
       return;
@@ -127,7 +127,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
         Swal.showLoading();
       },
       customClass: {
-        popup: 'border border-#1f2937'
+        popup: 'border border-gray-200'
       }
     });
 
@@ -182,7 +182,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
           color: '#ffffff',
           confirmButtonColor: '#3b82f6',
           customClass: {
-            popup: 'border border-#1f2937'
+            popup: 'border border-gray-200'
           }
         });
         setTruemoneyLink('');
@@ -196,7 +196,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
           color: '#ffffff',
           confirmButtonColor: '#ff2c2c',
           customClass: {
-            popup: 'border border-#1f2937'
+            popup: 'border border-gray-200'
           }
         });
       }
@@ -209,7 +209,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
         color: '#ffffff',
         confirmButtonColor: '#ff2c2c',
         customClass: {
-          popup: 'border border-#1f2937'
+          popup: 'border border-gray-200'
         }
       });
     } finally {
@@ -231,7 +231,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
         Swal.showLoading();
       },
       customClass: {
-        popup: 'border border-#1f2937'
+        popup: 'border border-gray-200'
       }
     });
 
@@ -287,7 +287,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
             color: '#ffffff',
             confirmButtonColor: '#3b82f6',
             customClass: {
-              popup: 'border border-#1f2937'
+              popup: 'border border-gray-200'
             }
           });
           setSelectedFile(null);
@@ -302,7 +302,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
             color: '#ffffff',
             confirmButtonColor: '#ff2c2c',
             customClass: {
-              popup: 'border border-#1f2937'
+              popup: 'border border-gray-200'
             }
           });
         }
@@ -315,7 +315,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
           color: '#ffffff',
           confirmButtonColor: '#ff2c2c',
           customClass: {
-            popup: 'border border-#1f2937'
+            popup: 'border border-gray-200'
           }
         });
       } finally {
@@ -367,7 +367,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
         color: '#ffffff',
         confirmButtonColor: '#ff2c2c',
         customClass: {
-          popup: 'border border-#1f2937'
+          popup: 'border border-gray-200'
         }
       });
     }
@@ -385,7 +385,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
         color: '#ffffff',
         confirmButtonColor: '#ff2c2c',
         customClass: {
-          popup: 'border border-#1f2937'
+          popup: 'border border-gray-200'
         }
       });
     }
@@ -393,7 +393,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
 
   return (
     <AnimatedScroll direction="up" hideOnScroll={true}>
-      <div className="w-full max-w-xl mx-auto px-4 py-8 font-sans min-h-screen text-white relative z-10">
+      <div className="w-full max-w-xl mx-auto px-4 py-8 font-sans min-h-screen text-black relative z-10">
         
         {/* Subtle high-tech circular glows mirroring kaitunshop premium visual design */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-xl h-full pointer-events-none overflow-hidden select-none -z-10">
@@ -411,9 +411,9 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
               <Wallet className="w-8 h-8" />
             </div>
             <div>
-              <p className="text-xs font-medium text-zinc-400 tracking-wider">ช่องกระเป๋าเงินของคุณ</p>
-              <p className="text-3xl font-bold text-white mt-1 flex items-baseline gap-1">
-                ฿{(userPlan?.balance || 0).toLocaleString()} <span className="text-sm text-zinc-400 font-medium">บาท</span>
+              <p className="text-xs font-medium text-gray-600 tracking-wider">ช่องกระเป๋าเงินของคุณ</p>
+              <p className="text-3xl font-bold text-black mt-1 flex items-baseline gap-1">
+                ฿{(userPlan?.balance || 0).toLocaleString()} <span className="text-sm text-gray-600 font-medium">บาท</span>
               </p>
             </div>
           </div>
@@ -437,10 +437,10 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
               className="space-y-6"
             >
               <div className="text-center mb-8">
-                <h1 className="text-3xl font-bold text-white tracking-tight flex items-center justify-center gap-3">
+                <h1 className="text-3xl font-bold text-black tracking-tight flex items-center justify-center gap-3">
                   <Coins className="w-8 h-8 text-[#3b82f6]" /> ช่องทางการชำระเงิน
                 </h1>
-                <p className="text-zinc-400 text-sm font-medium mt-3 max-w-sm mx-auto leading-relaxed">
+                <p className="text-gray-600 text-sm font-medium mt-3 max-w-sm mx-auto leading-relaxed">
                   เลือกวิธีการชำระเงินที่คุณสะดวกเพื่อรับเครดิตในระบบแบบอัปเดตทันใจ
                 </p>
               </div>
@@ -458,22 +458,22 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
 
                     <div className="space-y-2">
                        <div className="flex items-center gap-2 flex-wrap">
-                         <h3 className="text-xl font-bold text-white tracking-tight">ซองอั่งเปา (Angpao Link)</h3>
+                         <h3 className="text-xl font-bold text-black tracking-tight">ซองอั่งเปา (Angpao Link)</h3>
                          <span className="px-2.5 py-1 bg-[#fca211]/20 text-[#fca211] text-[10px] font-bold tracking-wider rounded-full">
                            AUTO
                          </span>
                        </div>
-                       <p className="text-zinc-400 text-sm font-medium leading-relaxed">
+                       <p className="text-gray-600 text-sm font-medium leading-relaxed">
                          TrueMoney Wallet • กรอกลิงก์ซองของขวัญอั่งเปาเพื่อรับเงินเข้ากระเป๋าบัญชี
                        </p>
-                       <div className="flex items-center gap-1.5 text-xs text-zinc-500 font-medium pb-2">
+                       <div className="flex items-center gap-1.5 text-xs text-gray-500 font-medium pb-2">
                          <Percent className="w-4 h-4" /> 
                          <span>หักค่าธรรมเนียมเพียง 2.9%</span>
                        </div>
                     </div>
                   </div>
 
-                  <span className="px-3 py-1.5 bg-[#2c2c2e]/60 border border-white/[0.05] text-zinc-300 text-[11px] font-bold uppercase tracking-wider rounded-full select-none shrink-0 self-start sm:self-center shadow-sm">
+                  <span className="px-3 py-1.5 bg-[#2c2c2e]/60 border border-white/[0.05] text-gray-700 text-[11px] font-bold uppercase tracking-wider rounded-full select-none shrink-0 self-start sm:self-center shadow-sm">
                     Online
                   </span>
                 </div>
@@ -501,12 +501,12 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
 
                     <div className="space-y-2">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <h3 className="text-xl font-bold text-white tracking-tight">โอนเงินธนาคาร (เช็คสลิป)</h3>
+                        <h3 className="text-xl font-bold text-black tracking-tight">โอนเงินธนาคาร (เช็คสลิป)</h3>
                         <span className="px-2.5 py-1 bg-[#3b82f6]/20 text-[#3b82f6] text-[10px] font-bold tracking-wider rounded-full">
                           AUTO
                         </span>
                       </div>
-                      <p className="text-zinc-400 text-sm font-medium leading-relaxed">
+                      <p className="text-gray-600 text-sm font-medium leading-relaxed">
                         โอนเข้าธนาคารร้านค้าแล้วอัปโหลดสลิปนำไปสแกนรวดเร็วผ่านธนาคารโดยไม่มีค่าบริการ
                       </p>
                       <div className="flex items-center gap-1.5 text-xs text-[#3b82f6] font-medium pb-2">
@@ -532,7 +532,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
               </div>
 
               {/* Security info disclaimer badge */}
-              <div className="p-5 rounded-[20px] bg-[#1c1c1e]/40 backdrop-blur-xl border border-white/[0.05] flex gap-4 text-zinc-400 select-none shadow-md">
+              <div className="p-5 rounded-[20px] bg-[#1c1c1e]/40 backdrop-blur-xl border border-white/[0.05] flex gap-4 text-gray-600 select-none shadow-md">
                 <ShieldCheck className="w-6 h-6 text-[#3b82f6] shrink-0" />
                 <p className="text-xs leading-relaxed font-medium">
                   ธุรกรรมทางการเงินทั้งหมดดำเนินรายการอย่างเป็นสัดส่วน ปลอดภัย 100% ภายใต้นโยบาย Zero-Data Retention ความเป็นส่วนตัวของลูกค้าเป็นความสำคัญอันดับหนึ่งของเรา
@@ -557,7 +557,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
               {/* Back button */}
               <button 
                 onClick={() => setActiveView('main')}
-                className="absolute top-6 right-6 p-2 rounded-full bg-white/[0.05] hover:bg-white/[0.1] text-zinc-400 hover:text-white transition-colors cursor-pointer select-none"
+                className="absolute top-6 right-6 p-2 rounded-full bg-white/[0.05] hover:bg-white/[0.1] text-gray-600 hover:text-black transition-colors cursor-pointer select-none"
                 title="ย้อนกลับ"
               >
                 <X className="w-5 h-5" />
@@ -569,8 +569,8 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
                   <Gift className="w-7 h-7 text-[#fca211]" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-white tracking-tight">เติมเงินซองอั่งเปา</h2>
-                  <p className="text-sm text-zinc-400 font-medium mt-1">กรอกลิงก์ของขวัญ TrueMoney Wallet</p>
+                  <h2 className="text-2xl font-bold text-black tracking-tight">เติมเงินซองอั่งเปา</h2>
+                  <p className="text-sm text-gray-600 font-medium mt-1">กรอกลิงก์ของขวัญ TrueMoney Wallet</p>
                 </div>
               </div>
 
@@ -580,7 +580,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
                   <h4 className="text-sm font-bold flex items-center gap-2 select-none uppercase tracking-wide">
                     <AlertTriangle className="w-5 h-5 text-rose-500 shrink-0" /> โปรดทราบเงื่อนไข
                   </h4>
-                  <p className="text-xs font-medium leading-relaxed mt-2 text-zinc-300">
+                  <p className="text-xs font-medium leading-relaxed mt-2 text-gray-700">
                     ห้ามนำลิงก์อั่งเปาที่สแกนแล้วหรือลิงก์เปล่ามากรอก การละเมิดนโยบายจะถูกแบนถาวร
                   </p>
                 </div>
@@ -589,7 +589,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
                   <h4 className="text-sm font-bold flex items-center gap-2 select-none uppercase tracking-wide">
                     <Percent className="w-5 h-5 shrink-0" /> ค่าธรรมเนียม
                   </h4>
-                  <p className="text-xs font-medium leading-relaxed mt-2 text-zinc-300">
+                  <p className="text-xs font-medium leading-relaxed mt-2 text-gray-700">
                     เนื่องจากผู้ให้บริการระบบชำระเงิน มีการคิดค่าธรรมเนียม <strong className="text-[#fca211]">2.9%</strong> ของยอดเติมจริง
                   </p>
                 </div>
@@ -598,7 +598,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
               {/* Input Form */}
               <form onSubmit={handleTruemoneyTopup} className="space-y-6">
                 <div className="space-y-3">
-                  <label className="block text-sm font-bold text-zinc-300 ml-1">
+                  <label className="block text-sm font-bold text-gray-700 ml-1">
                     ลิงก์ซองอั่งเปา (Angpao Link)
                   </label>
                   <input
@@ -606,7 +606,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
                     value={truemoneyLink}
                     onChange={(e) => setTruemoneyLink(e.target.value)}
                     placeholder="https://gift.truemoney.com/campaign/?v=..."
-                    className="w-full bg-[#121212]/50 border-none rounded-[20px] focus:ring-2 focus:ring-[#fca211] focus:bg-[#121212]/80 p-5 text-white text-base placeholder:text-zinc-600 focus:outline-none transition-all shadow-inner font-medium"
+                    className="w-full bg-[#121212]/50 border-none rounded-[20px] focus:ring-2 focus:ring-[#fca211] focus:bg-[#121212]/80 p-5 text-black text-base placeholder:text-zinc-600 focus:outline-none transition-all shadow-inner font-medium"
                     required
                   />
                 </div>
@@ -614,13 +614,13 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
                 <button
                   type="submit"
                   disabled={isVerifying}
-                  className="w-full py-5 rounded-[20px] bg-[#fca211] hover:bg-[#e0910f] disabled:bg-[#3a3a3c] disabled:text-zinc-500 text-black font-bold text-sm uppercase transition-transform duration-200 flex items-center justify-center gap-2 cursor-pointer active:scale-95 shadow-lg"
+                  className="w-full py-5 rounded-[20px] bg-[#fca211] hover:bg-[#e0910f] disabled:bg-[#3a3a3c] disabled:text-gray-500 text-black font-bold text-sm uppercase transition-transform duration-200 flex items-center justify-center gap-2 cursor-pointer active:scale-95 shadow-lg"
                 >
                   <CheckCircle2 className="w-5 h-5 shrink-0" /> ยืนยันตรวจสอบ & เติมเงิน
                 </button>
               </form>
 
-              <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3 text-zinc-500 text-xs font-semibold select-none text-center">
+              <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3 text-gray-500 text-xs font-semibold select-none text-center">
                 <span>GATEWAY: TRUEMONEY_ANGPAO</span>
                 <span className="hidden sm:block">•</span>
                 <span>SECURE TRANSACTION VIA TLS</span>
@@ -643,7 +643,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
               {/* Back button */}
               <button 
                 onClick={() => setActiveView('main')}
-                className="absolute top-6 right-6 p-2 rounded-full bg-white/[0.05] hover:bg-white/[0.1] text-zinc-400 hover:text-white transition-colors cursor-pointer select-none"
+                className="absolute top-6 right-6 p-2 rounded-full bg-white/[0.05] hover:bg-white/[0.1] text-gray-600 hover:text-black transition-colors cursor-pointer select-none"
                 title="ย้อนกลับ"
               >
                 <X className="w-5 h-5" />
@@ -655,8 +655,8 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
                   <Landmark className="w-7 h-7 text-[#3b82f6]" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-white tracking-tight">โอนผ่านธนาคาร & ยืนยันสลิป</h2>
-                  <p className="text-sm text-zinc-400 font-medium mt-1">รับยอดทันที ไม่หักค่าบริการ 0%</p>
+                  <h2 className="text-2xl font-bold text-black tracking-tight">โอนผ่านธนาคาร & ยืนยันสลิป</h2>
+                  <p className="text-sm text-gray-600 font-medium mt-1">รับยอดทันที ไม่หักค่าบริการ 0%</p>
                 </div>
               </div>
 
@@ -668,25 +668,25 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
                   <Coins className="w-5 h-5 text-[#3b82f6]" /> บัญชีรับฝากสโตร์ (ธนาคารผู้รับเงิน)
                 </h4>
                 
-                <div className="text-sm space-y-4 text-zinc-300 font-medium">
+                <div className="text-sm space-y-4 text-gray-700 font-medium">
                   <div className="flex justify-between items-baseline gap-2 border-b border-white/[0.05] pb-3">
-                    <span className="text-zinc-500 select-none">สถาบันธนาคาร:</span>
-                    <span className="font-bold text-white text-base">{bankName}</span>
+                    <span className="text-gray-500 select-none">สถาบันธนาคาร:</span>
+                    <span className="font-bold text-black text-base">{bankName}</span>
                   </div>
                   <div className="flex justify-between items-baseline gap-2 border-b border-white/[0.05] pb-3">
-                    <span className="text-zinc-500 select-none">นามผู้ถือบัญชี:</span>
-                    <span className="font-bold text-white text-base">{bankAccountHolder}</span>
+                    <span className="text-gray-500 select-none">นามผู้ถือบัญชี:</span>
+                    <span className="font-bold text-black text-base">{bankAccountHolder}</span>
                   </div>
                   <div className="flex justify-between items-center gap-2">
-                    <span className="text-zinc-500 select-none">เลขที่บัญชี:</span>
+                    <span className="text-gray-500 select-none">เลขที่บัญชี:</span>
                     <div className="flex items-center gap-3">
-                      <span className="font-extrabold text-lg text-white font-mono tracking-wider select-all">{bankAccountNumber}</span>
+                      <span className="font-extrabold text-lg text-black font-mono tracking-wider select-all">{bankAccountNumber}</span>
                       <button 
                         onClick={handleCopyAccount}
                         className={`p-2 rounded-xl transition-all shrink-0 cursor-pointer shadow-sm ${
                           isCopying 
                             ? 'bg-[#3b82f6] text-black border-transparent' 
-                            : 'bg-white/[0.05] hover:bg-white/[0.1] text-zinc-400 hover:text-white border-transparent'
+                            : 'bg-white/[0.05] hover:bg-white/[0.1] text-gray-600 hover:text-black border-transparent'
                         }`}
                         title="คลิกเพื่อคัดลอกบัญชี"
                       >
@@ -714,7 +714,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
                   onDragOver={handleDragOver}
                   onDragLeave={handleDragLeave}
                   onDrop={handleDrop}
-                  className={`flex flex-col items-center justify-center w-full min-h-[200px] p-8 rounded-[24px] transition-all duration-300 border-2 border-dashed border-white/10 relative cursor-pointer ${
+                  className={`flex flex-col items-center justify-center w-full min-h-[200px] p-8 rounded-[24px] transition-all duration-300 border-2 border-dashed border-gray-200 relative cursor-pointer ${
                     isDragActive 
                       ? 'bg-[#3b82f6]/5 border-#3b82f6 scale-[0.99] shadow-inner' 
                       : 'bg-[#1c1c1e]/40 hover:border-[#3b82f6/50 hover:bg-[#2c2c2e]/60'
@@ -725,7 +725,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
                     <div className="flex flex-col items-center gap-4 w-full my-1 animate-in zoom-in-95 duration-200">
                       <div className="w-32 h-40 bg-black/40 rounded-2xl overflow-hidden relative shadow-lg">
                         <img src={filePreview} alt="Slip" className="w-full h-full object-cover" />
-                        <div className="absolute inset-x-0 bottom-0 bg-black/80 text-[10px] text-zinc-300 py-1.5 text-center font-bold">
+                        <div className="absolute inset-x-0 bottom-0 bg-black/80 text-[10px] text-gray-700 py-1.5 text-center font-bold">
                           เปลี่ยนไฟล์รูป
                         </div>
                       </div>
@@ -741,7 +741,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
                       <span className="text-base font-bold text-[#3b82f6] block">
                         ถ่ายรูป หรือ เลือกไฟล์สลิปของคุณ
                       </span>
-                      <span className="text-xs text-zinc-500 font-medium mt-3 text-center px-4 max-w-sm leading-relaxed">
+                      <span className="text-xs text-gray-500 font-medium mt-3 text-center px-4 max-w-sm leading-relaxed">
                         ระบบรองรับสลิปโอนเงินที่มี QR Code (ไม่เกิน 30MB)
                       </span>
                     </div>
@@ -755,7 +755,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
                   <p className="text-sm font-bold flex items-center gap-2 mb-3 uppercase tracking-wide">
                     <Info className="w-5 h-5 text-[#3b82f6] shrink-0" /> ขั้นตอนทำเงิน
                   </p>
-                  <div className="text-xs font-medium space-y-2 text-zinc-300 leading-relaxed">
+                  <div className="text-xs font-medium space-y-2 text-gray-700 leading-relaxed">
                     <p>1. คัดลอกเลขบัญชี โอนเงินตามยอดที่ต้องการ</p>
                     <p>2. บันทึกและรูปถ่ายสลิปธุรกรรมอย่างชัดเจน</p>
                     <p>3. กดยืนยันปุ่มสแกนด้านล่าง</p>
@@ -766,7 +766,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
                   <p className="text-sm font-bold flex items-center gap-2 mb-3 uppercase tracking-wide">
                     <AlertTriangle className="w-5 h-5 text-[#fca211] shrink-0" /> ข้อจำกัด
                   </p>
-                  <div className="text-xs font-medium space-y-2 text-zinc-300 leading-relaxed">
+                  <div className="text-xs font-medium space-y-2 text-gray-700 leading-relaxed">
                     <p>• รูปภาพสลิปที่ใช้ซ้ำแล้ว จะไม่แปรยอดอีก</p>
                     <p>• ตรวจเช็คชื่อผู้รับปลายทางให้ตรง</p>
                     <p>• ไม่สามารถถอนทรัพย์คืนได้ในทุกกรณี</p>
@@ -779,12 +779,12 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
                 <button
                   onClick={executeSlipUpload}
                   disabled={isVerifying || !selectedFile}
-                  className="w-full py-5 rounded-[20px] bg-[#3b82f6] hover:bg-[#0d9668] disabled:bg-[#3a3a3c] disabled:text-zinc-500 text-black font-bold text-sm uppercase transition-transform duration-200 flex items-center justify-center gap-2 cursor-pointer active:scale-95 shadow-lg"
+                  className="w-full py-5 rounded-[20px] bg-[#3b82f6] hover:bg-[#0d9668] disabled:bg-[#3a3a3c] disabled:text-gray-500 text-black font-bold text-sm uppercase transition-transform duration-200 flex items-center justify-center gap-2 cursor-pointer active:scale-95 shadow-lg"
                 >
                   <UploadCloud className="w-5 h-5 shrink-0" /> ยืนยันสแกนตรวจสอบสลิป
                 </button>
                 
-                <p className="text-xs text-zinc-500 font-medium flex items-center justify-center gap-2 select-none text-center pt-2">
+                <p className="text-xs text-gray-500 font-medium flex items-center justify-center gap-2 select-none text-center pt-2">
                   <Lightbulb className="w-4 h-4 text-[#fca211] shrink-0 animate-bounce" /> สลิปจะได้รับการตรวจจับรายละเอียด อนุมัติยอดทันใจคุณ
                 </p>
               </div>

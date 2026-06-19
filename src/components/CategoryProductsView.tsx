@@ -51,7 +51,7 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
         <div className="flex items-center gap-4">
           <button
             onClick={onBack}
-            className="p-3 bg-[#0B0C10] hover:bg-[#121212] border border-#1f2937  transition-colors group shrink-0 "
+            className="p-3 bg-white hover:bg-[#121212] border border-gray-200  transition-colors group shrink-0 "
           >
             <ArrowLeft className="w-5 h-5 text-muted-foreground group-hover:text-white" />
           </button>
@@ -66,7 +66,7 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
                 </div>
               ) : (
                 <div className="flex items-center gap-3 uppercase">
-                  <div className="w-12 h-12 bg-[#0B0C10] flex items-center justify-center ">
+                  <div className="w-12 h-12 bg-white flex items-center justify-center ">
                     <ShoppingCart className="w-7 h-7 text-white" />
                   </div>
                   {categoryInfo?.title || category}
@@ -85,7 +85,7 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
       {/* Category Banner Image (2100 x 500 style) */}
       {category !== "all" && categoryInfo?.bannerUrl && (
         <div 
-          className="relative w-full rounded-md overflow-hidden border border-#1f2937 bg-[#111218] mb-10 group shadow-sm"
+          className="relative w-full rounded-md overflow-hidden border border-gray-200 bg-white mb-10 group shadow-sm"
           style={{ aspectRatio: '2100 / 500' }}
         >
           <img
@@ -94,12 +94,12 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
             className="w-full h-full object-cover  opacity-75 group-hover:opacity-90"
             referrerPolicy="no-referrer"
           />
-          <div className="absolute inset-0 bg-[#0B0C10]" />
+          <div className="absolute inset-0 bg-white" />
         </div>
       )}
 
       {!filteredProducts || filteredProducts.length === 0 ? (
-        <div className=" border-dashed border-#1f2937 bg-[#0B0C10] p-16 text-center ">
+        <div className=" border-dashed border-gray-200 bg-white p-16 text-center ">
           <div className=" mb-6 flex justify-center">
             <Package className="w-16 h-16 text-muted-foreground" />
           </div>
@@ -125,7 +125,7 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ type: "spring", stiffness: 400, damping: 30, delay: Math.min(i, 10) * 0.03 }}
-                  className="group relative bg-[#0c0c0e] border border-#1f2937 rounded-md overflow-hidden hover:border-[#1f2937 transition-colors duration-200 flex flex-col  shadow-sm"
+                  className="group relative bg-[#0c0c0e] border border-gray-200 rounded-md overflow-hidden hover:border-[#1f2937 transition-colors duration-200 flex flex-col  shadow-sm"
                 >
                   {/* Image area with corner ribbon */}
                   <div className="relative aspect-square w-full bg-[#141416] overflow-hidden shrink-0">
@@ -153,20 +153,20 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
                       <span className="text-4xl font-semibold text-white mix-blend-overlay opacity-65">
                         {(formatProductName(product.name) || "P")[0].toUpperCase()}
                       </span>
-                      <span className="text-[10px] font-medium text-white/50 uppercase tracking-widest mt-1">{product.category || "STORETH"}</span>
+                      <span className="text-[10px] font-medium text-gray-500 uppercase tracking-widest mt-1">{product.category || "STORETH"}</span>
                     </div>
 
                     {/* Diagonal "Best Seller" ribbon in image corner */}
                     {isHot && (
                       <div className="absolute top-0 right-0 overflow-hidden w-20 h-20 pointer-events-none z-10">
-                        <div className="absolute top-3 -right-6 bg-[#0B0C10] text-white text-[9px] font-semibold uppercase py-1 w-24 text-center transform rotate-45 shadow-md border-b border-#1f2937">
+                        <div className="absolute top-3 -right-6 bg-white text-white text-[9px] font-semibold uppercase py-1 w-24 text-center transform rotate-45 shadow-md border-b border-gray-200">
                           Best Seller
                         </div>
                       </div>
                     )}
 
                     {/* Overlay gradient */}
-                    <div className="absolute inset-0 bg-[#0B0C10] opacity-80" />
+                    <div className="absolute inset-0 bg-white opacity-80" />
 
                     {/* Discount Badge on left */}
                     {discount !== null && (
@@ -214,7 +214,7 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
                     ) : (
                       <button
                         onClick={() => onProductClick(product.id)}
-                        className="w-full flex items-center justify-center gap-2 bg-[#0B0C10] hover:from-blue-500 hover:to-blue-400 text-white py-2.5 rounded-md text-xs font-semibold transition-all duration-200 mt-auto shadow-md"
+                        className="w-full flex items-center justify-center gap-2 bg-white hover:from-blue-500 hover:to-blue-400 text-white py-2.5 rounded-md text-xs font-semibold transition-all duration-200 mt-auto shadow-md"
                       >
                         <ShoppingCart className="w-3.5 h-3.5" />
                         สั่งซื้อสินค้า
@@ -222,7 +222,7 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
                     )}
 
                     {/* Stock Row Box */}
-                    <div className="mt-3.5 py-1.5 rounded-md bg-white/[0.04] border border-#1f2937 flex items-center justify-center gap-2 text-[10px] text-white/40 font-semibold uppercase tracking-widest leading-none">
+                    <div className="mt-3.5 py-1.5 rounded-md bg-white/[0.04] border border-gray-200 flex items-center justify-center gap-2 text-[10px] text-white/40 font-semibold uppercase tracking-widest leading-none">
                       <Package className="w-3.5 h-3.5 text-white/20 shrink-0" />
                       <span>คงเหลือ <span className="text-white/70 font-mono">{product.stock >= 999999 ? "ไม่จำกัด" : product.stock.toLocaleString()}</span> ชิ้น</span>
                     </div>
@@ -236,7 +236,7 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
             <div className="mt-12 flex justify-center">
               <button
                 onClick={() => setRenderLimit(prev => prev + 20)}
-                className="px-8 py-3 bg-[#0B0C10] border border-#1f2937  hover:border-[#1f2937 text-white font-medium transition-all active:scale-95 "
+                className="px-8 py-3 bg-white border border-gray-200  hover:border-[#1f2937 text-white font-medium transition-all active:scale-95 "
               >
                 โหลดเพิ่มเติม ({filteredProducts.length - visibleProducts.length} รายการ)
               </button>

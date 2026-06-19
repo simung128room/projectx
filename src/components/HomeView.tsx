@@ -106,7 +106,7 @@ function StatCard({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: false, amount: 0.1 }}
       transition={{ duration: 0.5, delay }}
-      className="relative bg-gray-900/45 border border-gray-800 rounded-2xl p-6 overflow-hidden group hover:border-[#3b82f6]/35 transition-all duration-300"
+      className="relative bg-white/45 border border-gray-200 rounded-2xl p-6 overflow-hidden group hover:border-[#3b82f6]/35 transition-all duration-300"
     >
       {/* Subtle glow */}
       <div
@@ -115,7 +115,7 @@ function StatCard({
       />
       
       <div className="flex justify-between items-start mb-2">
-        <p className="text-[10px] text-zinc-500 font-bold tracking-widest uppercase font-display">{label}</p>
+        <p className="text-[10px] text-gray-500 font-bold tracking-widest uppercase font-display">{label}</p>
         {actionButton}
       </div>
  
@@ -125,7 +125,7 @@ function StatCard({
         ) : (
           value
         )}
-        {unit && <span className="text-xs font-semibold text-zinc-500 font-sans">{unit}</span>}
+        {unit && <span className="text-xs font-semibold text-gray-500 font-sans">{unit}</span>}
       </p>
  
       {subtext && (
@@ -167,7 +167,7 @@ function ShortcutBtn({
       viewport={{ once: false, amount: 0.1 }}
       transition={{ type: "spring", stiffness: 350, damping: 30, delay }}
       onClick={onClick}
-      className="relative overflow-hidden text-left bg-gray-900/45 border border-gray-800 hover:border-[#3b82f6/30 rounded-2xl p-5 flex items-center gap-4 transition-all duration-300 w-full group cursor-pointer"
+      className="relative overflow-hidden text-left bg-white/45 border border-gray-200 hover:border-[#3b82f6/30 rounded-2xl p-5 flex items-center gap-4 transition-all duration-300 w-full group cursor-pointer"
     >
       {/* Dynamic Glow */}
       <div
@@ -176,17 +176,17 @@ function ShortcutBtn({
       />
       
       {/* Icon Frame */}
-      <div className={`p-3.5 rounded-xl bg-white/[0.02] border border-gray-800 group-hover:border-transparent group-hover:bg-gray-800/60 transition-all duration-300 ${colorClass} shrink-0`}>
+      <div className={`p-3.5 rounded-xl bg-white/[0.02] border border-gray-200 group-hover:border-transparent group-hover:bg-gray-100/60 transition-all duration-300 ${colorClass} shrink-0`}>
         <Icon className="w-5 h-5 font-semibold" />
       </div>
  
       <div className="flex flex-col min-w-0">
         <span className="text-xs sm:text-sm font-bold text-white tracking-wider uppercase font-display">{label}</span>
-        <span className="text-[10px] text-zinc-500 group-hover:text-zinc-400 transition-colors duration-300 tracking-normal truncate mt-1 font-medium font-mono">{subLabel}</span>
+        <span className="text-[10px] text-gray-500 group-hover:text-gray-600 transition-colors duration-300 tracking-normal truncate mt-1 font-medium font-mono">{subLabel}</span>
       </div>
  
       {/* Decorative arrow */}
-      <div className="ml-auto opacity-0 group-hover:opacity-100 group-hover:translate-x-1 duration-300 text-zinc-500 group-hover:text-[#3b82f6] shrink-0 transition-all">
+      <div className="ml-auto opacity-0 group-hover:opacity-100 group-hover:translate-x-1 duration-300 text-gray-500 group-hover:text-[#3b82f6] shrink-0 transition-all">
         <ChevronRight className="w-4 h-4" />
       </div>
     </motion.button>
@@ -228,11 +228,11 @@ function CategoryChip({
       viewport={{ once: false, amount: 0.1 }}
       transition={{ duration: 0.5, delay }}
       onClick={onClick}
-      className="relative group overflow-hidden rounded-2xl border border-gray-800 bg-[#111218] hover:border-[#3b82f6]/35 transition-all duration-300 flex flex-col cursor-pointer shadow-lg hover:shadow-[#3b82f6]/5"
+      className="relative group overflow-hidden rounded-2xl border border-gray-200 bg-white hover:border-[#3b82f6]/35 transition-all duration-300 flex flex-col cursor-pointer shadow-lg hover:shadow-[#3b82f6]/5"
     >
       {/* Banner Area */}
       <div 
-        className="relative w-full overflow-hidden shrink-0 bg-gray-900"
+        className="relative w-full overflow-hidden shrink-0 bg-white"
         style={{ aspectRatio: '1 / 1' }}
       >
             {cat.bannerUrl || (catProducts[0] && catProducts[0].imageUrl) ? (
@@ -247,31 +247,31 @@ function CategoryChip({
             }}
           />
         ) : (
-          <div className="w-full h-full bg-gray-900 flex items-center justify-center">
+          <div className="w-full h-full bg-white flex items-center justify-center">
             <Package className="w-8 h-8 text-white/10" />
           </div>
         )}
         
         {/* Gradients */}
-        <div className="absolute inset-0 bg-gray-900 opacity-80" />
+        <div className="absolute inset-0 bg-white opacity-80" />
         <div className="absolute inset-0 bg-gradient-to-t from-[#111218] via-transparent to-transparent" />
       </div>
 
       {/* Content Area */}
-      <div className="p-5 flex flex-col justify-between flex-1 bg-[#111218]">
+      <div className="p-5 flex flex-col justify-between flex-1 bg-white">
         <h3 className="text-base sm:text-lg font-bold text-white px-0.5 tracking-wide uppercase truncate mb-1 font-display">
           {cat.name || cat.title}
         </h3>
         
-        <div className="flex items-center justify-between text-xs font-semibold mt-4 pt-4 border-t border-gray-800">
+        <div className="flex items-center justify-between text-xs font-semibold mt-4 pt-4 border-t border-gray-200">
           {/* Item Count */}
-          <span className="text-zinc-500 flex items-center gap-1.5 uppercase font-medium tracking-wider font-sans">
+          <span className="text-gray-500 flex items-center gap-1.5 uppercase font-medium tracking-wider font-sans">
             <Package className="w-4 h-4 text-zinc-650 shrink-0" />
             <span>มีสินค้าทั้งหมด <span className="text-[#3b82f6] font-bold font-mono">{productCount}</span> รายการ</span>
           </span>
           
           {/* Price Range */}
-          <span className="text-white font-mono font-semibold tracking-wider text-xs bg-[#3b82f6]/5 px-3 py-1.5 rounded-xl border border-gray-800 shadow-sm">
+          <span className="text-white font-mono font-semibold tracking-wider text-xs bg-[#3b82f6]/5 px-3 py-1.5 rounded-xl border border-gray-200 shadow-sm">
             {priceRangeStr}
           </span>
         </div>
@@ -307,10 +307,10 @@ function ProductCard({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: false, amount: 0.1 }}
       transition={{ duration: 0.5, delay }}
-      className="group relative bg-[#111218] border border-gray-800 rounded-2xl overflow-hidden hover:border-[#3b82f6]/35 transition-all duration-300 flex flex-col shadow-lg hover:shadow-[#3b82f6]/5"
+      className="group relative bg-white border border-gray-200 rounded-2xl overflow-hidden hover:border-[#3b82f6]/35 transition-all duration-300 flex flex-col shadow-lg hover:shadow-[#3b82f6]/5"
     >
       {/* Image area with corner ribbon */}
-      <div className="relative aspect-square w-full bg-gray-900 overflow-hidden shrink-0">
+      <div className="relative aspect-square w-full bg-white overflow-hidden shrink-0">
         {hasImage ? (
           <img
             src={product.imageUrl}
@@ -332,7 +332,7 @@ function ProductCard({
         {/* Diagonal "Best Seller" ribbon in image corner */}
         {isHot && (
           <div className="absolute top-0 right-0 overflow-hidden w-20 h-20 pointer-events-none z-10">
-            <div className="absolute top-3 -right-6 bg-gray-900 text-[#3b82f6] text-[9px] font-bold uppercase py-1 w-24 text-center transform rotate-45 shadow-md border-b border-gray-800 font-display">
+            <div className="absolute top-3 -right-6 bg-white text-[#3b82f6] text-[9px] font-bold uppercase py-1 w-24 text-center transform rotate-45 shadow-md border-b border-gray-200 font-display">
               Best Seller
             </div>
           </div>
@@ -350,13 +350,13 @@ function ProductCard({
       </div>
 
       {/* Content */}
-      <div className="p-5 flex flex-col flex-1 bg-[#111218]">
+      <div className="p-5 flex flex-col flex-1 bg-white">
         <h3 className="text-sm font-semibold text-white leading-snug line-clamp-2 mb-3 group-hover:text-[#3b82f6] transition-colors font-sans">
           {formatProductName(product.name)}
         </h3>
 
         {/* "ราคาสินค้า" subtle label */}
-        <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-1 font-display">ราคาสินค้า</span>
+        <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1 font-display">ราคาสินค้า</span>
 
         {/* Price row */}
         <div className="flex flex-wrap items-center gap-2 mb-4">
@@ -382,14 +382,14 @@ function ProductCard({
         {/* Buy Button */}
         <button
           onClick={onClick}
-          className="w-full flex items-center justify-center gap-2 bg-[#3b82f6]/5 hover:bg-[#3b82f6] text-[#3b82f6] hover:text-white border border-gray-800 hover:border-transparent py-2.5 rounded-xl text-xs font-bold transition-all duration-300 mt-auto shadow-sm active:scale-[0.98] cursor-pointer"
+          className="w-full flex items-center justify-center gap-2 bg-[#3b82f6]/5 hover:bg-[#3b82f6] text-[#3b82f6] hover:text-white border border-gray-200 hover:border-transparent py-2.5 rounded-xl text-xs font-bold transition-all duration-300 mt-auto shadow-sm active:scale-[0.98] cursor-pointer"
         >
           <ShoppingCart className="w-3.5 h-3.5" />
           สั่งซื้อสินค้า
         </button>
 
         {/* Stock Row Box */}
-        <div className="mt-3.5 py-2 rounded-xl bg-gray-900/85 border border-gray-800 flex items-center justify-center gap-2 text-[10px] text-zinc-500 font-semibold uppercase tracking-widest leading-none">
+        <div className="mt-3.5 py-2 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center gap-2 text-[10px] text-gray-500 font-semibold uppercase tracking-widest leading-none">
           <Package className="w-3.5 h-3.5 text-zinc-650 shrink-0" />
           <span>คงเหลือ <span className="text-zinc-300 font-bold font-mono">{product.stock.toLocaleString()}</span> ชิ้น</span>
         </div>
@@ -497,7 +497,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
   }, [latestPurchases]);
 
   return (
-    <div className="w-full min-h-screen bg-[#0B0C10] text-white font-sans antialiased">
+    <div className="w-full min-h-screen bg-white text-white font-sans antialiased">
       <div className="max-w-6xl mx-auto px-4 md:px-6 pb-24 pt-6">
 
         {/* ── Hero Banner ── */}
@@ -505,7 +505,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ type: "spring", stiffness: 400, damping: 30 }}
-          className="relative overflow-hidden rounded-md border border-#1f2937 mb-3 bg-[#111218] group w-full"
+          className="relative overflow-hidden rounded-md border border-#1f2937 mb-3 bg-white group w-full"
           style={{ aspectRatio: '1 / 1' }}
         >
           {/* Background Image with referral policy */}
@@ -524,7 +524,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ type: "spring", stiffness: 400, damping: 30, delay: 0.2 }}
-            className="mb-8 flex items-center bg-[#111218]/50 border border-#1f2937 rounded-md px-4 py-2.5 overflow-hidden"
+            className="mb-8 flex items-center bg-white/50 border border-#1f2937 rounded-md px-4 py-2.5 overflow-hidden"
           >
             <div className="flex items-center justify-center bg-red-500/10 px-2.5 py-1.5 rounded-md border border-red-500/20 text-red-400 shrink-0 mr-3 shadow-sm gap-1.5 font-semibold text-xs select-none">
               <Bell className="w-3.5 h-3.5 animate-bounce" />
@@ -660,7 +660,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: false, amount: 0.1 }}
             transition={{ duration: 0.5 }}
-            className="flex items-center justify-between mb-4 bg-gray-900/20 px-1.5 py-1.5 rounded-md border border-#1f2937"
+            className="flex items-center justify-between mb-4 bg-white/20 px-1.5 py-1.5 rounded-md border border-#1f2937"
           >
             <div className="flex items-center gap-2">
               <History className="w-4 h-4 text-[#3b82f6] " />
@@ -679,8 +679,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
             className="relative w-full overflow-hidden"
           >
             {/* Ambient vignette masks */}
-            <div className="absolute top-0 bottom-0 left-0 w-8 bg-[#0B0C10] z-10 pointer-events-none" />
-            <div className="absolute top-0 bottom-0 right-0 w-8 bg-[#0B0C10] z-10 pointer-events-none" />
+            <div className="absolute top-0 bottom-0 left-0 w-8 bg-white z-10 pointer-events-none" />
+            <div className="absolute top-0 bottom-0 right-0 w-8 bg-white z-10 pointer-events-none" />
 
             {latestPurchases.length === 0 ? (
               <div className="p-6 text-center text-white/40 text-sm font-medium flex flex-col items-center gap-2 bg-[#0c0c0e]/50 border border-#1f2937 rounded-md">
@@ -701,12 +701,12 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     return (
                       <div
                         key={`${p.dbId || idx}-${idx}`}
-                        className="w-[280px] h-[68px] shrink-0 bg-[#0B0C10]/85 backdrop-blur-md border border-#1f2937 hover:border-blue-500/30 rounded-md px-3 py-2 flex items-center justify-between gap-3 transition-colors duration-250 select-none shadow-sm hover:shadow-sm"
+                        className="w-[280px] h-[68px] shrink-0 bg-white/85 backdrop-blur-md border border-#1f2937 hover:border-blue-500/30 rounded-md px-3 py-2 flex items-center justify-between gap-3 transition-colors duration-250 select-none shadow-sm hover:shadow-sm"
                       >
                         {/* Thumb & detail */}
                         <div className="flex items-center gap-2.5 overflow-hidden min-w-0 flex-1">
                           {/* Image Wrapper */}
-                          <div className="w-10 h-10 rounded-md shrink-0 bg-gray-900 border border-#1f2937 overflow-hidden flex items-center justify-center p-0.5 shadow-inner">
+                          <div className="w-10 h-10 rounded-md shrink-0 bg-white border border-#1f2937 overflow-hidden flex items-center justify-center p-0.5 shadow-inner">
                             <img
                               src={imageUrl}
                               alt=""
@@ -725,7 +725,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                             <span className="text-xs font-medium text-white tracking-wide truncate leading-snug">
                               {p.productName}
                             </span>
-                            <span className="text-[10px] text-zinc-400 mt-0.5">
+                            <span className="text-[10px] text-gray-600 mt-0.5">
                               ซื้อ: <span className="text-[#3b82f6] font-semibold font-mono">+{p.quantity}</span> ชิ้น
                             </span>
                             <span className="text-[9px] text-[#888] font-mono font-medium truncate mt-0.5">
@@ -757,7 +757,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
           initial={{ opacity: 0, scaleX: 0 }}
           animate={{ opacity: 1, scaleX: 1 }}
           transition={{ duration: 0.7 }}
-          className="w-full h-2 rounded-full bg-[#0B0C10] mb-10"
+          className="w-full h-2 rounded-full bg-white mb-10"
         />
 
         {/* ── Products ── */}

@@ -150,7 +150,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center p-4 relative overflow-hidden bg-[#0B0C10] text-white">
+    <div className="min-h-screen w-full flex items-center justify-center p-4 relative overflow-hidden bg-white text-black">
       {/* Immersive Background */}
       <div className="absolute inset-0 z-0 select-none pointer-events-none">
         <img 
@@ -158,15 +158,15 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
           alt="Background" 
           className="w-full h-full object-cover opacity-15 blur-lg transform scale-105"
         />
-        <div className="absolute inset-0 bg-[#0B0C10]" />
-        <div className="absolute inset-0 bg-[#0B0C10]" />
+        <div className="absolute inset-0 bg-white" />
+        <div className="absolute inset-0 bg-white" />
       </div>
 
       <motion.div 
         initial={{ opacity: 0, scale: 0.96, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-        className="w-full max-w-md bg-[#111218]/80 backdrop-blur-xl border border-white/5 relative z-10 p-8 sm:p-10 rounded-md shadow-sm"
+        className="w-full max-w-md bg-white/80 backdrop-blur-xl border border-gray-200 relative z-10 p-8 sm:p-10 rounded-md shadow-sm"
       >
         {/* Header / Brand */}
         <div className="text-center mb-8 flex flex-col items-center">
@@ -180,34 +180,34 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
             <img src="https://img2.pic.in.th/983B3DCE-90A3-4822-8940-D6B81CCA63A3.png" alt="APEXSTORE Logo" className="h-[48px] md:h-[56px] object-contain drop-shadow-[0_0_12px_rgba(0,230,118,0.3)] hover:scale-105 transition-transform duration-300" />
           </motion.div>
           
-          <h1 className="text-xl font-medium tracking-wide text-white mb-1.5">
+          <h1 className="text-xl font-medium tracking-wide text-black mb-1.5">
             {authMode === 'login' ? 'Welcome Back' : authMode === 'forgot' ? 'Reset Password' : 'Create an Account'}
           </h1>
-          <p className="text-xs text-white/40 tracking-wider font-medium uppercase">
+          <p className="text-xs text-gray-500 tracking-wider font-medium uppercase">
             {authMode === 'login' ? 'กรุณาเข้าสู่ระบบเพื่อดำเนินการต่อ' : authMode === 'forgot' ? 'กรอกอีเมลเพื่อกู้คืนรหัสผ่าน' : 'สมัครสมาชิกเพื่อเริ่มต้นใช้งาน'}
           </p>
         </div>
 
         {/* Authentication Mode Switcher Pill */}
         {authMode !== 'forgot' && (
-          <div className="p-1 rounded-md bg-white/[0.06] border border-#1f2937 flex gap-1 mb-8 relative">
+          <div className="p-1 rounded-md bg-gray-100 border border-gray-200 flex gap-1 mb-8 relative">
             <button
               type="button"
               onClick={() => { setAuthMode('login'); setActiveView('login'); }}
-              className={`flex-1 py-2.5 rounded-md text-xs font-medium tracking-wider uppercase transition-all duration-300 z-10 ${authMode === 'login' ? 'text-white' : 'text-white/40 hover:text-white/70'}`}
+              className={`flex-1 py-2.5 rounded-md text-xs font-medium tracking-wider uppercase transition-all duration-300 z-10 ${authMode === 'login' ? 'text-black' : 'text-gray-500 hover:text-gray-700'}`}
             >
               ลงชื่อเข้าใช้
             </button>
             <button
               type="button"
               onClick={() => { setAuthMode('signup'); setActiveView('signup'); }}
-              className={`flex-1 py-2.5 rounded-md text-xs font-medium tracking-wider uppercase transition-all duration-300 z-10 ${authMode === 'signup' ? 'text-white' : 'text-white/40 hover:text-white/70'}`}
+              className={`flex-1 py-2.5 rounded-md text-xs font-medium tracking-wider uppercase transition-all duration-300 z-10 ${authMode === 'signup' ? 'text-black' : 'text-gray-500 hover:text-gray-700'}`}
             >
               สมัครสมาชิก
             </button>
             {/* Sliding Pill Background */}
             <div 
-              className="absolute top-1 bottom-1 w-[calc(50%-4px)] bg-white/10 rounded-md shadow-md transition-all duration-300 ease-out z-0"
+              className="absolute top-1 bottom-1 w-[calc(50%-4px)] bg-white shadow border border-gray-200 rounded-md shadow-md transition-all duration-300 ease-out z-0"
               style={{ left: authMode === 'login' ? '4px' : 'calc(50%)' }}
             />
           </div>
@@ -218,19 +218,19 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
             {/* Username field */}
             <motion.div layout key="username" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} transition={{ duration: 0.2 }}>
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-white/60 tracking-wider pl-1 flex items-center gap-1.5 select-none uppercase">
-                  <User className="w-3.5 h-3.5 text-white/40" />
+                <label className="text-xs font-semibold text-gray-600 tracking-wider pl-1 flex items-center gap-1.5 select-none uppercase">
+                  <User className="w-3.5 h-3.5 text-gray-500" />
                   <span>ชื่อผู้ใช้</span>
                 </label>
                 <div className="relative group">
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within:text-white transition-colors">
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-black transition-colors">
                     <User className="w-4.5 h-4.5" />
                   </div>
                   <input 
                     type="text" 
                     value={authUsername}
                     onChange={(e) => setAuthUsername(e.target.value)}
-                    className="w-full pl-11 pr-4 py-3.5 bg-white/[0.04] border border-#1f2937 hover:bg-white/[0.04] focus:bg-white/[0.04] focus:border-#1f2937 rounded-md outline-none transition-all text-white text-sm placeholder:text-white/20 font-sans animate-none"
+                    className="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 hover:bg-gray-50 focus:bg-gray-50 focus:border-gray-200 rounded-md outline-none transition-all text-black text-sm placeholder:text-gray-300 font-sans animate-none"
                     placeholder=""
                     required
                   />
@@ -242,19 +242,19 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
             {(authMode === 'signup' || authMode === 'forgot') && (
               <motion.div layout key="email" initial={{ opacity: 0, height: 0, scale: 0.95 }} animate={{ opacity: 1, height: 'auto', scale: 1 }} exit={{ opacity: 0, height: 0, scale: 0.95 }} transition={{ duration: 0.2 }}>
                 <div className="flex flex-col gap-1.5 mt-4">
-                  <label className="text-xs font-semibold text-white/60 tracking-wider pl-1 flex items-center gap-1.5 select-none uppercase">
-                    <Mail className="w-3.5 h-3.5 text-white/40" />
+                  <label className="text-xs font-semibold text-gray-600 tracking-wider pl-1 flex items-center gap-1.5 select-none uppercase">
+                    <Mail className="w-3.5 h-3.5 text-gray-500" />
                     <span>อีเมลติดต่อกลับ</span>
                   </label>
                   <div className="relative group">
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within:text-white transition-colors">
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-black transition-colors">
                       <Mail className="w-4.5 h-4.5" />
                     </div>
                     <input 
                       type="email" 
                       value={authEmail}
                       onChange={(e) => setAuthEmail(e.target.value)}
-                      className="w-full pl-11 pr-4 py-3.5 bg-white/[0.04] border border-#1f2937 hover:bg-white/[0.04] focus:bg-white/[0.04] focus:border-#1f2937 rounded-md outline-none transition-all text-white text-sm placeholder:text-white/20 font-sans"
+                      className="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 hover:bg-gray-50 focus:bg-gray-50 focus:border-gray-200 rounded-md outline-none transition-all text-black text-sm placeholder:text-gray-300 font-sans"
                       placeholder=""
                       required
                     />
@@ -293,19 +293,19 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
             {/* Password field */}
             <motion.div layout key="password" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} transition={{ duration: 0.2 }} className={authMode !== 'login' ? 'mt-4' : ''}>
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-white/60 tracking-wider pl-1 flex items-center gap-1.5 select-none uppercase">
-                  <Lock className="w-3.5 h-3.5 text-white/40" />
+                <label className="text-xs font-semibold text-gray-600 tracking-wider pl-1 flex items-center gap-1.5 select-none uppercase">
+                  <Lock className="w-3.5 h-3.5 text-gray-500" />
                   <span>รหัสผ่าน</span>
                 </label>
                 <div className="relative group">
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within:text-white transition-colors">
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-black transition-colors">
                     <Lock className="w-4.5 h-4.5" />
                   </div>
                   <input 
                     type={showPassword ? "text" : "password"}
                     value={authPassword}
                     onChange={(e) => setAuthPassword(e.target.value)}
-                    className="w-full pl-11 pr-12 py-3.5 bg-white/[0.04] border border-#1f2937 hover:bg-white/[0.04] focus:bg-white/[0.04] focus:border-#1f2937 rounded-md outline-none transition-all text-white text-sm placeholder:text-white/20 font-sans"
+                    className="w-full pl-11 pr-12 py-3.5 bg-gray-50 border border-gray-200 hover:bg-gray-50 focus:bg-gray-50 focus:border-gray-200 rounded-md outline-none transition-all text-black text-sm placeholder:text-gray-300 font-sans"
                     placeholder=""
                     required
                     minLength={8}
@@ -313,7 +313,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
                   <button 
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-4 flex items-center text-white/20 hover:text-white transition-colors p-1"
+                    className="absolute inset-y-0 right-4 flex items-center text-gray-300 hover:text-black transition-colors p-1"
                   >
                     {showPassword ? <EyeOff className="w-4.5 h-4.5" /> : <Eye className="w-4.5 h-4.5" />}
                   </button>
@@ -324,7 +324,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
             {/* Password strength indicator */}
             {authMode === 'signup' && authPassword && (
               <motion.div layout key="strength" className="space-y-1.5 mt-2">
-                <div className="flex justify-between text-[11px] font-medium text-white/30 px-1">
+                <div className="flex justify-between text-[11px] font-medium text-gray-400 px-1">
                   <span>ความปลอดภัย</span>
                   <span className={strength.score >= 4 ? "text-[#39ff14]" : strength.score >= 3 ? "text-amber-400" : "text-rose-450"}>
                     {strength.label}
@@ -340,19 +340,19 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
             {(authMode === 'signup' || authMode === 'forgot') && (
               <motion.div layout key="confirmPassword" initial={{ opacity: 0, height: 0, scale: 0.95 }} animate={{ opacity: 1, height: 'auto', scale: 1 }} exit={{ opacity: 0, height: 0, scale: 0.95 }} transition={{ duration: 0.2 }}>
                 <div className="flex flex-col gap-1.5 mt-4">
-                  <label className="text-xs font-semibold text-white/60 tracking-wider pl-1 flex items-center gap-1.5 select-none uppercase">
-                    <Shield className="w-3.5 h-3.5 text-white/40" />
+                  <label className="text-xs font-semibold text-gray-600 tracking-wider pl-1 flex items-center gap-1.5 select-none uppercase">
+                    <Shield className="w-3.5 h-3.5 text-gray-500" />
                     <span>ยืนยันรหัสผ่านอีกครั้ง</span>
                   </label>
                   <div className="relative group">
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within:text-white transition-colors">
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-black transition-colors">
                       <Shield className="w-4.5 h-4.5" />
                     </div>
                     <input 
                       type={showConfirmPassword ? "text" : "password"}
                       value={authConfirmPassword}
                       onChange={(e) => setAuthConfirmPassword(e.target.value)}
-                      className="w-full pl-11 pr-12 py-3.5 bg-white/[0.04] border border-#1f2937 hover:bg-white/[0.04] focus:bg-white/[0.04] focus:border-#1f2937 rounded-md outline-none transition-all text-white text-sm placeholder:text-white/20 font-sans"
+                      className="w-full pl-11 pr-12 py-3.5 bg-gray-50 border border-gray-200 hover:bg-gray-50 focus:bg-gray-50 focus:border-gray-200 rounded-md outline-none transition-all text-black text-sm placeholder:text-gray-300 font-sans"
                       placeholder=""
                       required
                       minLength={8}
@@ -360,7 +360,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
                     <button 
                       type="button"
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute inset-y-0 right-4 flex items-center text-white/20 hover:text-white transition-colors p-1"
+                      className="absolute inset-y-0 right-4 flex items-center text-gray-300 hover:text-black transition-colors p-1"
                     >
                       {showConfirmPassword ? <EyeOff className="w-4.5 h-4.5" /> : <Eye className="w-4.5 h-4.5" />}
                     </button>
@@ -374,13 +374,13 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
           {authMode === 'login' && (
             <div className="flex justify-between items-center px-1 mt-2">
               <label className="flex items-center gap-2 cursor-pointer group">
-                 <input type="checkbox" className="w-3.5 h-3.5 rounded border-#1f2937 bg-white/5 checked:bg-white/20 text-white focus:ring-0 focus:ring-offset-0 transition-colors" />
-                 <span className="text-[11px] text-white/40 group-hover:text-white/70 transition-colors">จดจำการเข้าระบบ</span>
+                 <input type="checkbox" className="w-3.5 h-3.5 rounded border-gray-200 bg-white/5 checked:bg-gray-100 text-black focus:ring-0 focus:ring-offset-0 transition-colors" />
+                 <span className="text-[11px] text-gray-500 group-hover:text-gray-700 transition-colors">จดจำการเข้าระบบ</span>
               </label>
               <button
                 type="button"
                 onClick={() => setAuthMode('forgot')}
-                className="text-[11px] font-medium text-white/40 hover:text-white transition-colors"
+                className="text-[11px] font-medium text-gray-500 hover:text-black transition-colors"
               >
                 ลืมรหัสผ่าน?
               </button>
@@ -420,17 +420,17 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
         </form>
         
         {/* Sub Navigation Links */}
-        <div className="mt-8 pt-6 border-t border-#1f2937 text-center">
+        <div className="mt-8 pt-6 border-t border-gray-200 text-center">
           {authMode === 'forgot' ? (
             <button 
               onClick={() => setAuthMode('login')} 
-              className="text-white/40 hover:text-white text-xs font-semibold flex items-center justify-center gap-1.5 mx-auto transition-colors"
+              className="text-gray-500 hover:text-black text-xs font-semibold flex items-center justify-center gap-1.5 mx-auto transition-colors"
             >
               <ArrowLeft className="w-3.5 h-3.5" /> กลับไปหน้าเข้าสู่ระบบ
             </button>
           ) : (
-            <p className="text-white/30 text-xs mt-2">
-              เมื่อเข้าสู่ระบบ คุณยอมรับ <a href="#" onClick={(e)=>{e.preventDefault();setActiveView("custom_page");}} className="text-white/60 hover:text-white cursor-pointer underline underline-offset-2 decoration-white/20 transition-colors">ข้อกำหนด</a> และ <a href="#" onClick={(e)=>{e.preventDefault();setActiveView("custom_page");}} className="text-white/60 hover:text-white cursor-pointer underline underline-offset-2 decoration-white/20 transition-colors">นโยบายความเป็นส่วนตัว</a> ของเรา
+            <p className="text-gray-400 text-xs mt-2">
+              เมื่อเข้าสู่ระบบ คุณยอมรับ <a href="#" onClick={(e)=>{e.preventDefault();setActiveView("custom_page");}} className="text-gray-600 hover:text-black cursor-pointer underline underline-offset-2 decoration-white/20 transition-colors">ข้อกำหนด</a> และ <a href="#" onClick={(e)=>{e.preventDefault();setActiveView("custom_page");}} className="text-gray-600 hover:text-black cursor-pointer underline underline-offset-2 decoration-white/20 transition-colors">นโยบายความเป็นส่วนตัว</a> ของเรา
             </p>
           )}
         </div>
