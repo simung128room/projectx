@@ -2404,19 +2404,28 @@ function AppContent() {
                         />
                       )}
                       {activeView === "product_detail" && selectedProductId && (
-                        <Suspense fallback={<SkeletonProductDetailLoader />}>
-                        <ProductDetailView
-                          product={
-                            products.find((p) => p.id === selectedProductId)!
+                        <Suspense
+                          fallback={
+                            <div className="w-full max-w-7xl mx-auto px-4 py-12 animate-pulse font-sans">
+                              <div className="bg-gray-100 rounded-3xl h-[350px] w-full mb-6" />
+                              <div className="h-8 bg-gray-100 rounded-lg w-2/3 mb-4" />
+                              <div className="h-5 bg-gray-100 rounded-lg w-1/2 mb-8" />
+                              <div className="h-10 bg-gray-100 rounded-lg w-1/3" />
+                            </div>
                           }
-                          user={user}
-                          onBack={() => setActiveView("home")}
-                          handlePurchase={async (p, q) => {
-                            await handlePurchase(p, q);
-                          }}
-                          setActiveView={setActiveView}
-                        /> 
-                      </Suspense>
+                        >
+                          <ProductDetailView
+                            product={
+                              products.find((p) => p.id === selectedProductId)!
+                            }
+                            user={user}
+                            onBack={() => setActiveView("home")}
+                            handlePurchase={async (p, q) => {
+                              await handlePurchase(p, q);
+                            }}
+                            setActiveView={setActiveView}
+                          />
+                        </Suspense>
                       )}
                       {activeView === "contact" && (
                         <ContactView
