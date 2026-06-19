@@ -8,7 +8,7 @@
   --font-mono: "JetBrains Mono", monospace;
   --font-changa: "Space Grotesk", "Kanit", "Prompt", sans-serif;
   
-  --color-background: #000000;
+  --color-background: #0B0C10;
   --color-surface: #070709;
   --color-border: #141416;
   --color-text-primary: #ffffff;
@@ -397,7 +397,7 @@
   --radius-xl: 18px;
   --radius: 10px;
 
-  --color-background: #000000;
+  --color-background: #0B0C10;
   --color-foreground: #ffffff;
   --color-card: #070709;
   --color-card-foreground: #ffffff;
@@ -418,7 +418,7 @@
   --color-ring: #00e676;
 
   /* Refined accent colors */
-  --color-neon-green: #00e676;
+  --color-neon-green: #3b82f6;
   --color-neon-red: #ff3d60;
   --color-neon-yellow: #ffb300;
   --color-neon-blue: #00e676;

@@ -128,7 +128,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
       whileHover={{ y: -2 }}
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
-      className="relative overflow-hidden text-left bg-[#000000] border border-[#1e1e1e] hover:border-[#1e1e1e] rounded-md p-5 flex items-center gap-4 transition-all duration-300 w-full group cursor-pointer shadow-sm"
+      className="relative overflow-hidden text-left bg-[#0B0C10] border border-#1f2937 hover:border-[#1f2937 rounded-md p-5 flex items-center gap-4 transition-all duration-300 w-full group cursor-pointer shadow-sm"
     >
       {/* Background radial highlight */}
       <div 
@@ -136,7 +136,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
         style={{ bg: glowColor } as any}
       />
       {/* Icon enclosure */}
-      <div className={`p-3.5 rounded-md bg-white/[0.04] border border-[#1e1e1e] group-hover:border-transparent group-hover:scale-105 duration-300 transition-all shrink-0 ${colorClass}`}>
+      <div className={`p-3.5 rounded-md bg-white/[0.04] border border-#1f2937 group-hover:border-transparent group-hover:scale-105 duration-300 transition-all shrink-0 ${colorClass}`}>
         <Icon className="w-5 h-5 font-medium" />
       </div>
       <div className="flex flex-col min-w-0">
@@ -153,15 +153,15 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 
   return (
     <AnimatedScroll direction="up" hideOnScroll={true}>
-      <div className="max-w-4xl mx-auto px-4 py-8 font-sans space-y-8 select-none">
+      <div className="max-w-6xl mx-auto px-4 py-8 font-sans space-y-8 select-none">
         
         {/* TOP INTEGRATED PROFILE HERO */}
-        <div className="relative overflow-hidden bg-[#000000] border border-zinc-850 rounded-md p-6 sm:p-8 shadow-md flex flex-col sm:flex-row items-center gap-6">
+        <div className="relative overflow-hidden bg-[#0B0C10] border border-zinc-850 rounded-md p-6 sm:p-8 shadow-md flex flex-col sm:flex-row items-center gap-6">
           
           
 
           <div className="relative shrink-0">
-            <div className="w-20 h-20 bg-[#050505] border border-[#1e1e1e] p-1 rounded-full overflow-hidden shadow-sm">
+            <div className="w-20 h-20 bg-[#111218] border border-#1f2937 p-1 rounded-full overflow-hidden shadow-sm">
               <img 
                 loading="lazy" 
                 src={getAvatarUrl(user?.id || username)} 
@@ -170,7 +170,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 referrerPolicy="no-referrer"
               />
             </div>
-            <div className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full border border-zinc-950 flex items-center justify-center text-[10px] shadow bg-[#00e676]`} title={role}>
+            <div className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full border border-gray-900 flex items-center justify-center text-[10px] shadow bg-[#3b82f6]`} title={role}>
               👑
             </div>
           </div>
@@ -180,7 +180,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               <h1 className="text-xl font-medium text-white tracking-tight truncate max-w-[240px] sm:max-w-md">
                 {username}
               </h1>
-              <span className="text-[9px] font-semibold uppercase tracking-wider px-2.5 py-1 bg-neon-green/10 text-neon-green border border-neon-green/20 rounded-md shrink-0">
+              <span className="text-[9px] font-semibold uppercase tracking-wider px-2.5 py-1 bg-blue-600/10 text-blue-500 border border-blue-500/20 rounded-md shrink-0">
                 {role}
               </span>
             </div>
@@ -200,7 +200,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
         {/* ACCOUNT NAVIGATION MENU - MAIN MENU STYLE SHORTCUTS */}
         <div className="space-y-4">
           <div className="flex items-center gap-2 py-1 select-none">
-            <span className="w-1.5 h-3.5 rounded-full bg-neon-green " />
+            <span className="w-1.5 h-3.5 rounded-full bg-blue-600 " />
             <span className="text-[10px] font-semibold text-zinc-500 uppercase tracking-[0.2em]">
               เมนูข้อมูลบัญชีและการตั้งค่า • USER DASHBOARD
             </span>
@@ -221,7 +221,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               label="ประวัติการสั่งซื้อ"
               subLabel="คำสั่งซื้อสินค้าและเติมเงินเดี่ยว"
               icon={Package}
-              colorClass="text-[#00e676] group-hover:bg-[#00e676]/10 animate-none"
+              colorClass="text-[#3b82f6] group-hover:bg-[#3b82f6]/10 animate-none"
               glowColor="rgba(59,130,246,0.1)"
               onClick={() => setActiveView('my_orders')}
             />
@@ -254,7 +254,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                   background: '#09090b',
                   color: '#fff',
                   customClass: {
-                    popup: 'rounded-md border border-[#1e1e1e]'
+                    popup: 'rounded-md border border-#1f2937'
                   }
                 }).then((result) => {
                   if (result.isConfirmed) {
@@ -268,9 +268,9 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
         </div>
 
         {/* PROFILE METADATA DETAILS EDIT FORM */}
-        <div className="bg-[#000000] border border-zinc-850 rounded-md p-6 shadow-md relative overflow-hidden">
-          <div className="flex items-center gap-2 border-b border-[#1e1e1e]/60 pb-3 mb-5">
-            <UserCheck className="w-4.5 h-4.5 text-neon-green" />
+        <div className="bg-[#0B0C10] border border-zinc-850 rounded-md p-6 shadow-md relative overflow-hidden">
+          <div className="flex items-center gap-2 border-b border-#1f2937/60 pb-3 mb-5">
+            <UserCheck className="w-4.5 h-4.5 text-blue-500" />
             <h2 className="text-sm font-medium text-white uppercase tracking-wider">แก้ไขข้อมูลสมาชิกและโปรไฟล์</h2>
           </div>
 
@@ -284,7 +284,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 placeholder="ระบุชื่อจริงสำหรับการเชื่อมเคาน์เตอร์ธุรกรรม"
-                className="w-full bg-[#0a0a0b] border border-[#1e1e1e] focus:border-neon-green/45 rounded-md py-3 px-4 text-xs text-white outline-none transition-all placeholder:text-zinc-650 font-semibold" 
+                className="w-full bg-[#0a0a0b] border border-#1f2937 focus:border-blue-500/45 rounded-md py-3 px-4 text-xs text-white outline-none transition-all placeholder:text-zinc-650 font-semibold" 
               />
             </div>
 
@@ -292,7 +292,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               <button 
                 type="submit" 
                 disabled={isUpdating}
-                className="bg-neon-green hover:bg-[#00e676] text-black font-semibold py-2.5 px-6 shrink-0 transition-all text-xs rounded-md cursor-pointer uppercase tracking-wider shadow-sm shadow-neon-green/5 disabled:opacity-50"
+                className="bg-blue-600 hover:bg-[#3b82f6] text-black font-semibold py-2.5 px-6 shrink-0 transition-all text-xs rounded-md cursor-pointer uppercase tracking-wider shadow-sm shadow-neon-green/5 disabled:opacity-50"
               >
                 {isUpdating ? 'กำลังบันทึก...' : 'บันทึกข้อมูลอย่างเป็นทางการ'}
               </button>

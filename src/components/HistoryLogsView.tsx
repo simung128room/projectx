@@ -54,7 +54,7 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({
       background: '#09090b',
       color: '#ffffff',
       customClass: {
-        popup: 'border border-[#1e1e1e]'
+        popup: 'border border-#1f2937'
       }
     });
 
@@ -66,7 +66,7 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({
   const generalPurchases = purchaseHistory.filter(p => !p.productName.includes('คีย์') && p.price < 500);
 
   const StatusBadge = ({ status = 'SUCCESS' }: { status?: string }) => (
-    <span className="text-[9px] font-bold tracking-wider uppercase px-2 py-1 bg-[#00e676]/10 text-[#00e676] border border-[#00e676]/25 select-none font-mono">
+    <span className="text-[9px] font-bold tracking-wider uppercase px-2 py-1 bg-[#3b82f6]/10 text-[#3b82f6] border border-#3b82f6/25 select-none font-mono">
       {status}
     </span>
   );
@@ -78,10 +78,10 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({
       </span>
       <button 
         onClick={() => handleCopy(text, id)}
-        className="text-zinc-500 hover:text-white transition-colors shrink-0 p-1 bg-zinc-900 border border-zinc-800 rounded hover:border-zinc-700 cursor-pointer"
+        className="text-zinc-500 hover:text-white transition-colors shrink-0 p-1 bg-gray-800 border border-zinc-800 rounded hover:border-zinc-700 cursor-pointer"
         title="คัดลอกโค้ด"
       >
-        {copiedId === id ? <Check className="w-3.5 h-3.5 text-[#00e676]"/> : <Copy className="w-3.5 h-3.5"/>}
+        {copiedId === id ? <Check className="w-3.5 h-3.5 text-[#3b82f6]"/> : <Copy className="w-3.5 h-3.5"/>}
       </button>
     </div>
   );
@@ -95,39 +95,39 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({
     if (isPurchase) {
       return (
         <div 
-          className="fixed inset-0 bg-[#000000]/60 backdrop-blur-3xl saturate-150 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200" 
+          className="fixed inset-0 bg-[#0B0C10]/60 backdrop-blur-3xl saturate-150 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200" 
           onClick={() => setSelectedItem(null)}
         >
           <div 
-            className="bg-[#09090b] border border-[#1e1e1e] w-full max-w-sm overflow-hidden relative shadow-2xl transition-all"
+            className="bg-[#0B0C10] border border-#1f2937 w-full max-w-sm overflow-hidden relative shadow-2xl transition-all"
             onClick={e => e.stopPropagation()}
           >
             {/* Upper Decorative Cyber Lines */}
-            <div className="h-1 bg-gradient-to-r from-[#00e676] via-[#00e676] to-[#7c3aed]" />
+            <div className="h-1 bg-gradient-to-r from-#3b82f6 via-#3b82f6 to-[#7c3aed]" />
             
             {/* Header section designed as high quality digital receipt */}
             <div className="p-6 pb-4 relative">
               <button 
                 onClick={() => setSelectedItem(null)} 
-                className="absolute top-4 right-4 text-zinc-500 hover:text-white transition-colors p-1 bg-zinc-900 border border-zinc-800 hover:border-zinc-750 cursor-pointer"
+                className="absolute top-4 right-4 text-zinc-500 hover:text-white transition-colors p-1 bg-gray-800 border border-zinc-800 hover:border-zinc-750 cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
-              <span className="text-[10px] font-mono font-black text-[#00e676] uppercase tracking-widest bg-[#00e676]/10 px-2 py-0.5 border border-[#00e676]/20">
+              <span className="text-[10px] font-mono font-black text-[#3b82f6] uppercase tracking-widest bg-[#3b82f6]/10 px-2 py-0.5 border border-#3b82f6/20">
                 DIGITAL RECEIPT
               </span>
               <h3 className="text-xl font-bold text-white mt-3.5 mb-1 tracking-tight">
                 รายละเอียดคำสั่งซื้อ
               </h3>
               <p className="text-zinc-400 text-xs font-mono">
-                ID: <span className="text-[#00e676]">BILL-{item.id?.toUpperCase()}</span>
+                ID: <span className="text-[#3b82f6]">BILL-{item.id?.toUpperCase()}</span>
               </p>
             </div>
 
             {/* Receipt container content */}
             <div className="px-6 space-y-4">
               <div className="bg-[#121214] border border-[#222225] p-5 relative overflow-hidden">
-                <div className="absolute top-4 right-4 w-12 h-12 bg-zinc-900/40 rounded-full border border-zinc-800 flex items-center justify-center pointer-events-none opacity-20">
+                <div className="absolute top-4 right-4 w-12 h-12 bg-gray-800/40 rounded-full border border-zinc-800 flex items-center justify-center pointer-events-none opacity-20">
                   <FileCheck2 className="w-5 h-5 text-white" />
                 </div>
                 
@@ -154,16 +154,16 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({
                 
                 <div className="flex justify-between items-center relative z-10">
                   <span className="text-xs font-bold text-zinc-400 uppercase select-none">ยอดชำระสุทธิ</span>
-                  <span className="text-lg font-bold text-[#00e676] font-mono">฿{item.price?.toLocaleString() || 0}</span>
+                  <span className="text-lg font-bold text-[#3b82f6] font-mono">฿{item.price?.toLocaleString() || 0}</span>
                 </div>
               </div>
 
               {/* Product item breakdown info */}
               <div className="space-y-3">
-                <h4 className="text-[10px] uppercase font-bold tracking-widest text-[#00e676] pl-0.5 select-none">ข้อมูลใบส่งมอบสินค้า</h4>
+                <h4 className="text-[10px] uppercase font-bold tracking-widest text-[#3b82f6] pl-0.5 select-none">ข้อมูลใบส่งมอบสินค้า</h4>
                 <div className="bg-[#121214] border border-[#222225] p-4 flex flex-col gap-4">
                   <div className="flex gap-3.5 items-center">
-                    <div className="w-12 h-12 bg-zinc-900 border border-zinc-850 flex items-center justify-center shrink-0 text-zinc-400">
+                    <div className="w-12 h-12 bg-gray-800 border border-zinc-850 flex items-center justify-center shrink-0 text-zinc-400">
                       <Package className="w-6 h-6 text-zinc-500" />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -176,7 +176,7 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({
 
                   <button 
                     onClick={() => setShowSecret(!showSecret)}
-                    className="w-full py-2 bg-zinc-900 hover:bg-zinc-850 border border-zinc-800 hover:border-zinc-700 text-zinc-300 text-xs font-semibold tracking-wider transition-all cursor-pointer flex items-center justify-center gap-1"
+                    className="w-full py-2 bg-gray-800 hover:bg-zinc-850 border border-zinc-800 hover:border-zinc-700 text-zinc-300 text-xs font-semibold tracking-wider transition-all cursor-pointer flex items-center justify-center gap-1"
                   >
                     {showSecret ? 'ซ่อนกุญแจความลับ' : 'เปิดข้อมูลสินค้า / รหัสผลิตภัณฑ์'}
                   </button>
@@ -203,7 +203,7 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({
             <div className="p-6">
               <button 
                 onClick={() => setSelectedItem(null)}
-                className="w-full py-3 bg-[#00e676] hover:bg-[#0d9668] text-black text-xs font-bold uppercase tracking-widest transition-all cursor-pointer"
+                className="w-full py-3 bg-[#3b82f6] hover:bg-[#0d9668] text-black text-xs font-bold uppercase tracking-widest transition-all cursor-pointer"
               >
                 เสร็จสิ้นนำเสนอรายละเอียด
               </button>
@@ -215,41 +215,41 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({
 
     return (
       <div 
-        className="fixed inset-0 bg-[#000000]/60 backdrop-blur-3xl saturate-150 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200" 
+        className="fixed inset-0 bg-[#0B0C10]/60 backdrop-blur-3xl saturate-150 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200" 
         onClick={() => setSelectedItem(null)}
       >
         <div 
-          className="bg-[#09090b] border border-[#1e1e1e] w-full max-w-sm overflow-hidden relative shadow-2xl"
+          className="bg-[#0B0C10] border border-#1f2937 w-full max-w-sm overflow-hidden relative shadow-2xl"
           onClick={e => e.stopPropagation()}
         >
-          <div className="h-1 bg-gradient-to-r from-[#00e676] to-[#7c3aed]" />
+          <div className="h-1 bg-gradient-to-r from-#3b82f6 to-[#7c3aed]" />
           
-          <div className="flex justify-between items-center p-6 border-b border-zinc-900">
+          <div className="flex justify-between items-center p-6 border-b border-gray-800">
             <h3 className="font-bold text-base text-white tracking-tight">รายละเอียดแบบจำแนก</h3>
             <button 
               onClick={() => setSelectedItem(null)} 
-              className="p-1 bg-zinc-900 border border-zinc-800 text-zinc-500 hover:text-white transition-colors cursor-pointer"
+              className="p-1 bg-gray-800 border border-zinc-800 text-zinc-500 hover:text-white transition-colors cursor-pointer"
             >
               <X className="w-4 h-4"/>
             </button>
           </div>
 
           <div className="p-6 space-y-4">
-            <div className="flex justify-between items-center border-b border-zinc-900 pb-3">
+            <div className="flex justify-between items-center border-b border-gray-800 pb-3">
               <span className="text-zinc-500 text-xs font-semibold uppercase tracking-wider">หมายเลขรายการ</span>
-              <span className="font-mono font-bold text-xs bg-[#121214] border border-zinc-800 px-2 py-0.5 text-[#00e676]">
+              <span className="font-mono font-bold text-xs bg-[#121214] border border-zinc-800 px-2 py-0.5 text-[#3b82f6]">
                 BILL-{item.id?.toUpperCase()}
               </span>
             </div>
 
-            <div className="flex justify-between items-center border-b border-zinc-900 pb-3">
+            <div className="flex justify-between items-center border-b border-gray-800 pb-3">
               <span className="text-zinc-500 text-xs font-semibold uppercase tracking-wider">เวลาการบันทึก</span>
               <span className="text-xs text-white font-mono font-semibold">
                 {new Date(item.timestamp || item.usedAt || item.date).toLocaleString('th-TH')}
               </span>
             </div>
 
-            <div className="flex justify-between items-center border-b border-zinc-900 pb-3">
+            <div className="flex justify-between items-center border-b border-gray-800 pb-3">
               <span className="text-zinc-500 text-xs font-semibold uppercase tracking-wider">สถานะเครือข่าย</span>
               <StatusBadge status="SUCCESS" />
             </div>
@@ -263,7 +263,7 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({
                 <div className="border-t border-zinc-800 my-1 pb-1" />
                 <div className="flex justify-between items-center">
                   <span className="text-zinc-400 text-xs">จำนวนเงินเครดิต</span>
-                  <span className="text-lg font-bold text-[#00e676] font-mono">
+                  <span className="text-lg font-bold text-[#3b82f6] font-mono">
                     +{item.amount?.toLocaleString() || 0} ฿
                   </span>
                 </div>
@@ -289,7 +289,7 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({
           <div className="p-6 pt-0">
             <button 
               onClick={() => setSelectedItem(null)}
-              className="w-full py-3 bg-zinc-900 hover:bg-zinc-850 border border-zinc-800 hover:border-zinc-700 text-zinc-300 text-xs font-bold uppercase tracking-widest transition-colors cursor-pointer"
+              className="w-full py-3 bg-gray-800 hover:bg-zinc-850 border border-zinc-800 hover:border-zinc-700 text-zinc-300 text-xs font-bold uppercase tracking-widest transition-colors cursor-pointer"
             >
               ปิดบันทึกรายละเอียด
             </button>
@@ -314,8 +314,8 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({
 
     if (type === 'topup') {
       title = `ยอดเติมเงินเข้าบัญชี (${item.type || 'บัญชีเปรียบสระ'})`;
-      amountNode = <span className="font-bold text-[#00e676] text-base font-mono">+{Number(item.amount || item.money || 0).toLocaleString()} ฿</span>;
-      cardLeftStroke = "bg-[#00e676]";
+      amountNode = <span className="font-bold text-[#3b82f6] text-base font-mono">+{Number(item.amount || item.money || 0).toLocaleString()} ฿</span>;
+      cardLeftStroke = "bg-[#3b82f6]";
     } else if (type === 'key_use') {
       title = "ประมวลผลใช้งานคีย์ลิขสิทธิ์ (Redeem)";
       amountNode = <span className="font-semibold text-zinc-500 text-sm font-mono">-</span>;
@@ -335,14 +335,14 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({
     return (
       <div 
         key={item.id} 
-        className="bg-[#09090b]/80 border border-[#1e1e1e] p-5 hover:border-[#1e1e1e] transition-all flex flex-col md:flex-row md:items-center justify-between gap-5 group relative overflow-hidden"
+        className="bg-[#0B0C10]/80 border border-#1f2937 p-5 hover:border-[#1f2937 transition-all flex flex-col md:flex-row md:items-center justify-between gap-5 group relative overflow-hidden"
       >
         {/* Glow-highlight bar on the left indicating status */}
         <div className={`absolute top-0 left-0 w-1 h-full ${cardLeftStroke} opacity-40 group-hover:opacity-100 transition-all duration-350`} />
         
         <div className="flex flex-col gap-2 flex-1 pl-2">
           <div className="flex items-center gap-3 flex-wrap">
-             <span className="font-bold text-white text-base tracking-tight leading-tight group-hover:text-[#00e676] transition-colors">
+             <span className="font-bold text-white text-base tracking-tight leading-tight group-hover:text-[#3b82f6] transition-colors">
                {title}
              </span>
              <StatusBadge status="SUCCESS" />
@@ -354,7 +354,7 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({
           </div>
         </div>
         
-        <div className="flex flex-row flex-wrap md:flex-nowrap items-center justify-between md:items-center gap-4 border-t md:border-t-0 border-[#1e1e1e] pt-4 md:pt-0 pl-2 md:pl-0 mt-1 md:mt-0">
+        <div className="flex flex-row flex-wrap md:flex-nowrap items-center justify-between md:items-center gap-4 border-t md:border-t-0 border-#1f2937 pt-4 md:pt-0 pl-2 md:pl-0 mt-1 md:mt-0">
           <div className="flex flex-col items-start md:items-end w-full md:w-auto font-mono">
             <span className="text-[9px] uppercase tracking-widest font-bold text-zinc-500 mb-0.5 md:hidden select-none">จำนวนเงิน</span>
             {amountNode}
@@ -362,7 +362,7 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({
           
           <button 
             onClick={() => setSelectedItem({ details: item, type })}
-            className="px-5 py-2.5 bg-zinc-900 hover:bg-zinc-850 hover:text-white border border-zinc-850 hover:border-zinc-700 text-zinc-400 text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap active:scale-95 w-full md:w-auto cursor-pointer"
+            className="px-5 py-2.5 bg-gray-800 hover:bg-zinc-850 hover:text-white border border-zinc-850 hover:border-zinc-700 text-zinc-400 text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap active:scale-95 w-full md:w-auto cursor-pointer"
           >
             ดูรายละเอียด
           </button>
@@ -374,7 +374,7 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({
   const renderPurchaseList = (list: any[], type: string, emptyMessage: string) => {
     if (list.length === 0) {
       return (
-        <div className="py-16 flex flex-col items-center justify-center text-zinc-500 border border-dashed border-[#1e1e1e] bg-[#09090b]/40 relative overflow-hidden select-none">
+        <div className="py-16 flex flex-col items-center justify-center text-zinc-500 border border-dashed border-#1f2937 bg-[#0B0C10]/40 relative overflow-hidden select-none">
           <ShoppingCart className="w-8 h-8 mb-3.5 text-zinc-650 opacity-40" />
           <p className="font-semibold text-xs tracking-wide uppercase">{emptyMessage}</p>
         </div>
@@ -388,16 +388,16 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({
   };
 
   return (
-    <div className="w-full max-w-5xl mx-auto p-4 md:p-8 animate-in fade-in duration-500 font-sans text-white pb-20 relative">
+    <div className="w-full max-w-6xl mx-auto p-4 md:p-8 animate-in fade-in duration-500 font-sans text-white pb-20 relative">
       
       {/* Glow decorative graphics */}
-      <div className="absolute top-[-5%] left-[20%] w-[250px] h-[250px] bg-[#00e676]/5 rounded-full blur-[70px] pointer-events-none select-none" />
+      <div className="absolute top-[-5%] left-[20%] w-[250px] h-[250px] bg-[#3b82f6]/5 rounded-full blur-[70px] pointer-events-none select-none" />
       <div className="absolute bottom-[10%] right-[10%] w-[300px] h-[300px] bg-[#7c3aed]/5 rounded-full blur-[80px] pointer-events-none select-none" />
 
       {/* Header with exquisite clean layout */}
       <div className="mb-8 pl-1 relative">
         <div className="flex items-center gap-3 mb-2.5">
-          <div className="w-10 h-10 bg-[#00e676]/10 text-[#00e676] border border-[#00e676]/25 flex items-center justify-center relative shadow-sm shrink-0">
+          <div className="w-10 h-10 bg-[#3b82f6]/10 text-[#3b82f6] border border-#3b82f6/25 flex items-center justify-center relative shadow-sm shrink-0">
             <History className="w-5 h-5" />
           </div>
           <h1 className="text-2xl sm:text-3xl font-semibold text-white tracking-tight leading-none">
@@ -411,7 +411,7 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({
 
       {/* High impact Filter Tabs - Smooth horizontal responsive rail */}
       <div className="overflow-x-auto pb-4 mb-6 scrollbar-none w-full">
-        <div className="flex bg-[#09090b]/80 border border-[#1e1e1e] p-1 gap-1.5 w-fit min-w-max select-none">
+        <div className="flex bg-[#0B0C10]/80 border border-#1f2937 p-1 gap-1.5 w-fit min-w-max select-none">
           {[
             { id: 'key_purchase', label: 'ซื้อคีย์', icon: ShoppingCart },
             { id: 'keys', label: 'ใช้คีย์', icon: Key },
@@ -426,8 +426,8 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({
                 onClick={() => setFilter(tab.id as any)}
                 className={`flex items-center gap-2 px-4 py-2.5 font-bold text-xs uppercase tracking-wider transition-all border cursor-pointer ${ 
                   active 
-                    ? 'bg-[#00e676]/10 text-white border-[#00e676] shadow-[inset_0_0_8px_rgba(16,185,129,0.15)] ring-1 ring-[#00e676]/30' 
-                    : 'text-zinc-500 border-transparent hover:text-white hover:bg-zinc-900 hover:border-zinc-800' 
+                    ? 'bg-[#3b82f6]/10 text-white border-#3b82f6 shadow-[inset_0_0_8px_rgba(16,185,129,0.15)] ring-1 ring-#3b82f6/30' 
+                    : 'text-zinc-500 border-transparent hover:text-white hover:bg-gray-800 hover:border-zinc-800' 
                 }`}
               >
                 <tab.icon className="w-3.5 h-3.5 shrink-0" />
@@ -449,14 +449,14 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({
               exit={{ opacity: 0, y: -10 }}
               className="flex flex-col gap-4 font-sans"
             >
-              <div className="flex items-center justify-between border-b border-zinc-900 pb-3 pl-1 select-none">
+              <div className="flex items-center justify-between border-b border-gray-800 pb-3 pl-1 select-none">
                 <h2 className="text-base font-bold flex items-center gap-2 text-white">
-                  <Key className="w-4 h-4 text-[#00e676]" /> ประวัติและคีย์ที่ผ่านการ Redeem
+                  <Key className="w-4 h-4 text-[#3b82f6]" /> ประวัติและคีย์ที่ผ่านการ Redeem
                 </h2>
                 <span className="text-[10px] font-mono text-zinc-500 font-semibold uppercase">TOTAL: {usedKeysHistory.length}</span>
               </div>
               {usedKeysHistory.length === 0 ? (
-                <div className="py-16 flex flex-col items-center justify-center text-zinc-500 border border-dashed border-[#1e1e1e] bg-[#09090b]/40 select-none">
+                <div className="py-16 flex flex-col items-center justify-center text-zinc-500 border border-dashed border-#1f2937 bg-[#0B0C10]/40 select-none">
                   <Key className="w-8 h-8 mb-3.5 text-zinc-650 opacity-40" />
                   <p className="font-semibold text-xs tracking-wide uppercase">ยังไม่มีพฤติกรรมการใช้งานคีย์ในระบบสำนักสโตร์</p>
                 </div>
@@ -476,14 +476,14 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({
               exit={{ opacity: 0, y: -10 }}
               className="flex flex-col gap-4 font-sans"
             >
-              <div className="flex items-center justify-between border-b border-zinc-900 pb-3 pl-1 select-none">
+              <div className="flex items-center justify-between border-b border-gray-800 pb-3 pl-1 select-none">
                 <h2 className="text-base font-bold flex items-center gap-2 text-white">
-                  <Wallet className="w-4 h-4 text-[#00e676]" /> รายการเสร็จสิ้นยอดเติมทรัพย์สิน
+                  <Wallet className="w-4 h-4 text-[#3b82f6]" /> รายการเสร็จสิ้นยอดเติมทรัพย์สิน
                 </h2>
                 <span className="text-[10px] font-mono text-zinc-500 font-semibold uppercase">TOTAL: {topupHistory.length}</span>
               </div>
               {topupHistory.length === 0 ? (
-                <div className="py-16 flex flex-col items-center justify-center text-zinc-500 border border-dashed border-[#1e1e1e] bg-[#09090b]/40 select-none">
+                <div className="py-16 flex flex-col items-center justify-center text-zinc-500 border border-dashed border-#1f2937 bg-[#0B0C10]/40 select-none">
                   <Wallet className="w-8 h-8 mb-3.5 text-zinc-650 opacity-40" />
                   <p className="font-semibold text-xs tracking-wide uppercase">ยังไม่ปรากฏยอดสะสมเติมทรัพย์ในระบบ</p>
                 </div>
@@ -503,9 +503,9 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({
               exit={{ opacity: 0, y: -10 }}
               className="flex flex-col gap-4 font-sans"
             >
-              <div className="flex items-center justify-between border-b border-zinc-900 pb-3 pl-1 select-none">
+              <div className="flex items-center justify-between border-b border-gray-800 pb-3 pl-1 select-none">
                 <h2 className="text-base font-bold flex items-center gap-2 text-white">
-                  <ShoppingCart className="w-4 h-4 text-[#00e676]" /> รายละเอียดจัดซื้อรหัสคีย์
+                  <ShoppingCart className="w-4 h-4 text-[#3b82f6]" /> รายละเอียดจัดซื้อรหัสคีย์
                 </h2>
                 <span className="text-[10px] font-mono text-zinc-500 font-semibold uppercase">TOTAL: {keyPurchases.length}</span>
               </div>
@@ -521,7 +521,7 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({
               exit={{ opacity: 0, y: -10 }}
               className="flex flex-col gap-4 font-sans"
             >
-              <div className="flex items-center justify-between border-b border-zinc-900 pb-3 pl-1 select-none">
+              <div className="flex items-center justify-between border-b border-gray-800 pb-3 pl-1 select-none">
                 <h2 className="text-base font-bold flex items-center gap-2 text-white">
                   <Package className="w-4 h-4 text-fuchsia-400" /> จัดซื้อสินค้าธรรมดาทั่วไป
                 </h2>
@@ -539,7 +539,7 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({
               exit={{ opacity: 0, y: -10 }}
               className="flex flex-col gap-4 font-sans"
             >
-              <div className="flex items-center justify-between border-b border-zinc-900 pb-3 pl-1 select-none">
+              <div className="flex items-center justify-between border-b border-gray-800 pb-3 pl-1 select-none">
                 <h2 className="text-base font-bold flex items-center gap-2 text-white">
                   <Crown className="w-4 h-4 text-[#7c3aed]" /> รายการนำเข้าฝากสินค้าพรีเมียมพิเศษ
                 </h2>

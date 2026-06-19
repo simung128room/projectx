@@ -291,7 +291,7 @@ function ElapsedTimeDisplay({
 
   if (elapsedTime === "00:00:00.000") return null;
   return (
-    <div className="px-3 py-1 bg-[#09090b] border border-[#1e1e1e] text-xs font-mono text-muted-foreground font-medium">
+    <div className="px-3 py-1 bg-[#0B0C10] border border-#1f2937 text-xs font-mono text-muted-foreground font-medium">
       {elapsedTime}
     </div>
   );
@@ -839,7 +839,7 @@ function AppContent() {
           },
           background: "#09090b",
           color: "#fff",
-          confirmButtonColor: "#00e676",
+          confirmButtonColor: "#3b82f6",
           cancelButtonColor: "#27272a",
         });
 
@@ -861,7 +861,7 @@ function AppContent() {
           },
           background: "#09090b",
           color: "#fff",
-          confirmButtonColor: "#00e676",
+          confirmButtonColor: "#3b82f6",
           cancelButtonColor: "#27272a",
         });
 
@@ -937,7 +937,7 @@ function AppContent() {
             ...newHistoryItem,
             title: "สั่งซื้อสำเร็จ",
             icon: ShoppingCart,
-            bg: "bg-[#00e676]",
+            bg: "bg-[#3b82f6]",
             color: "text-white",
           });
         }
@@ -1546,7 +1546,7 @@ function AppContent() {
     const { value: formValues } = await Swal.fire({
       title: "สร้างคีย์ใหม่",
       html:
-        '<select id="swal-input1" class="swal2-input bg-[#050505] border-[#1e1e1e] text-white w-full">' +
+        '<select id="swal-input1" class="swal2-input bg-[#111218] border-#1f2937 text-white w-full">' +
         '<option value="Day">1 วัน (Day)</option>' +
         '<option value="Week">7 วัน (Week)</option>' +
         '<option value="Month">1 เดือน (Month)</option>' +
@@ -1554,7 +1554,7 @@ function AppContent() {
         '<option value="Year">1 ปี (Year)</option>' +
         '<option value="Lifetime">ถาวร (Lifetime)</option>' +
         "</select>" +
-        '<input id="swal-input2" class="swal2-input bg-[#050505] border-[#1e1e1e] text-white w-full" placeholder="จำนวนคีย์ (1-50)" type="number" value="1">',
+        '<input id="swal-input2" class="swal2-input bg-[#111218] border-#1f2937 text-white w-full" placeholder="จำนวนคีย์ (1-50)" type="number" value="1">',
       focusConfirm: false,
       background: "#ffffff",
       color: "#18181b",
@@ -1602,8 +1602,8 @@ function AppContent() {
     const { value: ipData } = await Swal.fire({
       title: "บล็อค IP ผู้ใช้",
       html:
-        '<input id="swal-ip" class="swal2-input bg-[#050505] border-[#1e1e1e] text-white w-full" placeholder="IP Address เช่น 1.1.1.1">' +
-        '<input id="swal-reason" class="swal2-input bg-[#050505] border-[#1e1e1e] text-white w-full" placeholder="เหตุผลการบล็อค">',
+        '<input id="swal-ip" class="swal2-input bg-[#111218] border-#1f2937 text-white w-full" placeholder="IP Address เช่น 1.1.1.1">' +
+        '<input id="swal-reason" class="swal2-input bg-[#111218] border-#1f2937 text-white w-full" placeholder="เหตุผลการบล็อค">',
       focusConfirm: false,
       background: "#ffffff",
       color: "#18181b",
@@ -1673,8 +1673,8 @@ function AppContent() {
       title: "ลบคีย์หลายรายการ",
       html: `
        <div class="text-left text-sm space-y-2 mb-4">
-         <div><span class="text-zinc-500">คีย์ทั้งหมด:</span> <span class="font-medium text-[#00e676]">${totalAll}</span> รายการ</div>
-         <div><span class="text-zinc-500">ยังไม่ได้ใช้:</span> <span class="font-medium text-[#00e676]">${totalActive}</span> รายการ</div>
+         <div><span class="text-zinc-500">คีย์ทั้งหมด:</span> <span class="font-medium text-[#3b82f6]">${totalAll}</span> รายการ</div>
+         <div><span class="text-zinc-500">ยังไม่ได้ใช้:</span> <span class="font-medium text-[#3b82f6]">${totalActive}</span> รายการ</div>
          <div><span class="text-zinc-500">ใช้แล้ว:</span> <span class="font-medium text-amber-500">${totalUsed}</span> รายการ</div>
        </div>
        <select id="bulk-delete-type" class="swal2-select" style="width: 100%; font-size: 14px; margin-bottom: 10px;">
@@ -1764,10 +1764,10 @@ function AppContent() {
   };
   if (isIPBlocked)
     return (
-      <div className="min-h-screen bg-[#09090b] flex items-center justify-center p-4">
-        <div className="w-full max-w-lg bg-primary text-primary-foreground border border-[#00e676]/20 p-12 text-center relative overflow-hidden">
-          <ShieldAlert className="w-20 h-20 text-[#00e676] mx-auto mb-6 " />
-          <h1 className="text-3xl font-medium text-[#00e676] mb-4 uppercase tracking-tighter">
+      <div className="min-h-screen bg-[#0B0C10] flex items-center justify-center p-4">
+        <div className="w-full max-w-lg bg-primary text-primary-foreground border border-#3b82f6/20 p-12 text-center relative overflow-hidden">
+          <ShieldAlert className="w-20 h-20 text-[#3b82f6] mx-auto mb-6 " />
+          <h1 className="text-3xl font-medium text-[#3b82f6] mb-4 uppercase tracking-tighter">
             Access Revoked
           </h1>
           <p className="text-muted-foreground text-sm leading-relaxed mb-8">
@@ -1775,12 +1775,12 @@ function AppContent() {
             ถูกระงับการเข้าถึงระบบเนื่องจากละเมิดข้อตกลงการใช้งานหรือพบพฤติกรรมที่น่าสงสัย
             หากคุณคิดว่าเป็นความผิดพลาด กรุณาติดต่อผู้ดูแลระบบ APEXSTORE
           </p>
-          <div className="bg-[#09090b] p-4 text-[10px] text-muted-foreground font-mono mb-8">
+          <div className="bg-[#0B0C10] p-4 text-[10px] text-muted-foreground font-mono mb-8">
             Error Code: APEXSTORE_SECURITY_BLOCK_L4
           </div>
           <button
             onClick={() => window.location.reload()}
-            className="bg-primary text-primary-foreground hover:bg-[#00e676] text-white px-8 py-3 text-xs font-medium transition-all"
+            className="bg-primary text-primary-foreground hover:bg-[#3b82f6] text-white px-8 py-3 text-xs font-medium transition-all"
           >
             TRY RECONNECTING
           </button>
@@ -1827,7 +1827,7 @@ function AppContent() {
   const isLoadingSkeleton = !isHomeViewReady && !dbErrorDetail;
 
   return (
-    <div className="relative min-h-screen w-full bg-[#000000] text-white font-sans selection:bg-[#050505]/80 overflow-x-hidden">
+    <div className="relative min-h-screen w-full bg-[#0B0C10] text-white font-sans selection:bg-[#111218]/80 overflow-x-hidden">
       <AnimatePresence mode="wait">
         {!isLoaded && <PortalLoader key="portal" />}
       </AnimatePresence>
@@ -1844,7 +1844,7 @@ function AppContent() {
         <div className="flex-1 flex flex-col min-h-screen min-w-0 relative transition-all duration-300">
           
         {/* Desktop Top Navbar (Matches Image) */}
-        <nav className="hidden lg:flex items-center justify-between px-6 py-4 bg-[#0B0C10] text-white sticky top-0 z-[100] border-b border-[#161619]">
+        <nav className="hidden lg:flex items-center justify-between px-6 py-4 bg-[#0B0C10] text-white sticky top-0 z-[100] border-b border-#1f2937">
           <div className="flex items-center gap-8">
             <div 
               className="flex items-center gap-2 cursor-pointer hover:scale-105 transition-transform"
@@ -1916,10 +1916,10 @@ function AppContent() {
                 <div className="flex items-center gap-3">
                   <button 
                     onClick={() => setActiveView("wallet")}
-                    className="px-4 py-2 rounded-lg text-sm font-medium bg-[#111218] border border-gray-800 flex items-center gap-2 hover:border-emerald-500/50 transition-colors"
+                    className="px-4 py-2 rounded-lg text-sm font-medium bg-[#111218] border border-gray-800 flex items-center gap-2 hover:border-blue-500/50 transition-colors"
                   >
-                    <Wallet className="w-4 h-4 text-emerald-500" />
-                    <span className="text-emerald-400 font-mono">฿{user.balance.toFixed(2)}</span>
+                    <Wallet className="w-4 h-4 text-blue-500" />
+                    <span className="text-blue-400 font-mono">฿{user.balance.toFixed(2)}</span>
                   </button>
                   <div className="relative group">
                     <button 
@@ -1963,7 +1963,7 @@ function AppContent() {
         </nav>
 
         {/* Mobile Header */}
-        <header className="sticky top-0 z-[100] w-full bg-[#0B0C10]/90 backdrop-blur-xl border-b border-[#161619] lg:hidden select-none">
+        <header className="sticky top-0 z-[100] w-full bg-[#0B0C10]/90 backdrop-blur-xl border-b border-#1f2937 lg:hidden select-none">
           <div className="flex items-center justify-between h-[80px] px-4 md:px-8 mx-auto w-full">
             <div className="flex items-center gap-4 flex-shrink-0">
               <div
@@ -2023,7 +2023,7 @@ function AppContent() {
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="fixed inset-0 bg-[#000000]/80 backdrop-blur-md z-[120] lg:hidden select-none touch-none"
+                  className="fixed inset-0 bg-[#0B0C10]/80 backdrop-blur-md z-[120] lg:hidden select-none touch-none"
                 />
                 <motion.div
                   key="sidebar"
@@ -2031,7 +2031,7 @@ function AppContent() {
                   animate={{ x: 0 }}
                   exit={{ x: "100%" }}
                   transition={{ type: "spring", stiffness: 450, damping: 35 }}
-                  className="fixed top-0 right-0 bottom-0 h-[100dvh] w-full max-w-[300px] bg-[#040404] z-[130] flex flex-col lg:hidden overflow-hidden border-l border-[#161619] shadow-2xl p-5 text-[#e3e3e3] select-none"
+                  className="fixed top-0 right-0 bottom-0 h-[100dvh] w-full max-w-[300px] bg-[#0B0C10] z-[130] flex flex-col lg:hidden overflow-hidden border-l border-#1f2937 shadow-2xl p-5 text-[#e3e3e3] select-none"
                 >
                   {/* Mobile Sidebar Header with Logo and Close Icon */}
                   <div className="flex items-center justify-between mb-4 shrink-0 select-none">
@@ -2068,14 +2068,14 @@ function AppContent() {
                       whileHover={{ scale: 1.08, rotate: 90 }}
                       whileTap={{ scale: 0.92 }}
                       onClick={() => setIsMobileMenuOpen(false)}
-                      className="w-9 h-9 flex items-center justify-center rounded-xl text-zinc-400 hover:text-white bg-white/[0.03] hover:bg-white/[0.08] border border-[#161619] transition-colors cursor-pointer"
+                      className="w-9 h-9 flex items-center justify-center rounded-xl text-zinc-400 hover:text-white bg-white/[0.03] hover:bg-white/[0.08] border border-#1f2937 transition-colors cursor-pointer"
                       aria-label="Close menu"
                     >
                       <X className="w-4 h-4" />
                     </motion.button>
                   </div>
 
-                  <div className="h-px bg-gradient-to-r from-transparent via-[#161619] to-transparent w-full mb-4 shrink-0" />
+                  <div className="h-px bg-gradient-to-r from-transparent via-#1f2937 to-transparent w-full mb-4 shrink-0" />
  
                   {/* Main Navigation */}
                   <div className="flex-1 space-y-4 overflow-y-auto no-scrollbar pr-0.5 pb-2">
@@ -2098,8 +2098,8 @@ function AppContent() {
                           </div>
                           {activeView === "home" && (
                             <>
-                              <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#00e676] shadow-[0_0_8px_#00e676]" />
-                              <div className="w-1.5 h-1.5 rounded-full bg-[#00e676] shadow-[0_0_6px_#00e676]" />
+                              <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#3b82f6] shadow-[0_0_8px_#3b82f6]" />
+                              <div className="w-1.5 h-1.5 rounded-full bg-[#3b82f6] shadow-[0_0_6px_#3b82f6]" />
                             </>
                           )}
                         </button>
@@ -2120,7 +2120,7 @@ function AppContent() {
                                   showCancelButton: true,
                                   confirmButtonText: "ไปหน้าเข้าสู่ระบบ",
                                   cancelButtonText: "ยกเลิก",
-                                  confirmButtonColor: "#00e676"
+                                  confirmButtonColor: "#3b82f6"
                                 }).then((result) => {
                                   if (result.isConfirmed) {
                                     setActiveView("login");
@@ -2139,8 +2139,8 @@ function AppContent() {
                           </div>
                           {(activeView === "history" || activeView === "my_orders") && (
                             <>
-                              <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#00e676] shadow-[0_0_8px_#00e676]" />
-                              <div className="w-1.5 h-1.5 rounded-full bg-[#00e676] shadow-[0_0_6px_#00e676]" />
+                              <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#3b82f6] shadow-[0_0_8px_#3b82f6]" />
+                              <div className="w-1.5 h-1.5 rounded-full bg-[#3b82f6] shadow-[0_0_6px_#3b82f6]" />
                             </>
                           )}
                         </button>
@@ -2167,7 +2167,7 @@ function AppContent() {
                                   showCancelButton: true,
                                   confirmButtonText: "ไปหน้าเข้าสู่ระบบ",
                                   cancelButtonText: "ยกเลิก",
-                                  confirmButtonColor: "#00e676"
+                                  confirmButtonColor: "#3b82f6"
                                 }).then((result) => {
                                   if (result.isConfirmed) {
                                     setActiveView("login");
@@ -2178,16 +2178,16 @@ function AppContent() {
                               );
                             }
                           }}
-                          className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg font-semibold text-[12.5px] transition-all duration-200 cursor-pointer shadow-sm select-none border relative overflow-hidden ${activeView === "wallet" ? "bg-white/[0.04] text-white border-white/5 animate-pulse" : "bg-emerald-500/[0.04] hover:bg-emerald-500/[0.08] text-emerald-400 hover:text-white border-emerald-500/10 hover:border-emerald-500/20"}`}
+                          className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg font-semibold text-[12.5px] transition-all duration-200 cursor-pointer shadow-sm select-none border relative overflow-hidden ${activeView === "wallet" ? "bg-white/[0.04] text-white border-white/5 animate-pulse" : "bg-blue-500/[0.04] hover:bg-blue-500/[0.08] text-blue-400 hover:text-white border-blue-500/10 hover:border-blue-500/20"}`}
                         >
                           <div className="flex items-center gap-2.5">
-                            <Plus size={15} className={activeView === "wallet" ? "text-white" : "text-emerald-400"} />
+                            <Plus size={15} className={activeView === "wallet" ? "text-white" : "text-blue-400"} />
                             <span className="text-[12.5px]">เติมเงินเข้าระบบ</span>
                           </div>
                           {activeView === "wallet" && (
                             <>
-                              <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#00e676] shadow-[0_0_8px_#00e676]" />
-                              <div className="w-1.5 h-1.5 rounded-full bg-[#00e676] shadow-[0_0_6px_#00e676]" />
+                              <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#3b82f6] shadow-[0_0_8px_#3b82f6]" />
+                              <div className="w-1.5 h-1.5 rounded-full bg-[#3b82f6] shadow-[0_0_6px_#3b82f6]" />
                             </>
                           )}
                         </button>
@@ -2207,8 +2207,8 @@ function AppContent() {
                           </div>
                           {(activeView === "categories" || activeView === "category_products") && (
                             <>
-                              <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#00e676] shadow-[0_0_8px_#00e676]" />
-                              <div className="w-1.5 h-1.5 rounded-full bg-[#00e676] shadow-[0_0_6px_#00e676]" />
+                              <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#3b82f6] shadow-[0_0_8px_#3b82f6]" />
+                              <div className="w-1.5 h-1.5 rounded-full bg-[#3b82f6] shadow-[0_0_6px_#3b82f6]" />
                             </>
                           )}
                         </button>
@@ -2235,8 +2235,8 @@ function AppContent() {
                             </div>
                             {activeView === "admin" && (
                               <>
-                                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#00e676] shadow-[0_0_8px_#00e676]" />
-                                <div className="w-1.5 h-1.5 rounded-full bg-[#00e676] shadow-[0_0_6px_#00e676]" />
+                                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#3b82f6] shadow-[0_0_8px_#3b82f6]" />
+                                <div className="w-1.5 h-1.5 rounded-full bg-[#3b82f6] shadow-[0_0_6px_#3b82f6]" />
                               </>
                             )}
                           </button>
@@ -2258,8 +2258,8 @@ function AppContent() {
                             </div>
                             {activeView === "profile" && (
                               <>
-                                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#00e676] shadow-[0_0_8px_#00e676]" />
-                                <div className="w-1.5 h-1.5 rounded-full bg-[#00e676] shadow-[0_0_6px_#00e676]" />
+                                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#3b82f6] shadow-[0_0_8px_#3b82f6]" />
+                                <div className="w-1.5 h-1.5 rounded-full bg-[#3b82f6] shadow-[0_0_6px_#3b82f6]" />
                               </>
                             )}
                           </button>
@@ -2281,8 +2281,8 @@ function AppContent() {
                             </div>
                             {activeView === "settings" && (
                               <>
-                                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#00e676] shadow-[0_0_8px_#00e676]" />
-                                <div className="w-1.5 h-1.5 rounded-full bg-[#00e676] shadow-[0_0_6px_#00e676]" />
+                                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#3b82f6] shadow-[0_0_8px_#3b82f6]" />
+                                <div className="w-1.5 h-1.5 rounded-full bg-[#3b82f6] shadow-[0_0_6px_#3b82f6]" />
                               </>
                             )}
                           </button>
@@ -2292,7 +2292,7 @@ function AppContent() {
                   </div>
 
                   {/* Bottom Row & Profile identity */}
-                  <div className="mt-auto pt-4 border-t border-[#161619] space-y-4 shrink-0">
+                  <div className="mt-auto pt-4 border-t border-#1f2937 space-y-4 shrink-0">
                     <div className="grid grid-cols-4 gap-1.5 px-1">
                       {/* Bell */}
                       <button
@@ -2302,7 +2302,7 @@ function AppContent() {
                             text: "ขณะนี้หน้าร้านจัดส่งสติกเกอร์บูสเซิร์ฟเวอร์แบบออโต้ 100% สิทธิ์รับประกันคีย์ใช้งานมีผลทันทีหลังจากกดคัดลอก!",
                             background: "#1e1e1e",
                             color: "#fff",
-                            confirmButtonColor: "#00e676"
+                            confirmButtonColor: "#3b82f6"
                           }));
                           setIsMobileMenuOpen(false);
                         }}
@@ -2323,7 +2323,7 @@ function AppContent() {
                           }
                           setIsMobileMenuOpen(false);
                         }}
-                        className={`flex items-center justify-center p-2 rounded-xl border transition-all cursor-pointer active:scale-95 ${activeView === "settings" ? "bg-emerald-500/[0.08] border-emerald-500 text-[#00e676]" : "border-[#1d1d21] bg-[#111113]/60 hover:bg-[#1a1a1f] hover:border-zinc-700 text-zinc-400 hover:text-white"}`}
+                        className={`flex items-center justify-center p-2 rounded-xl border transition-all cursor-pointer active:scale-95 ${activeView === "settings" ? "bg-blue-500/[0.08] border-blue-500 text-[#3b82f6]" : "border-[#1d1d21] bg-[#111113]/60 hover:bg-[#1a1a1f] hover:border-zinc-700 text-zinc-400 hover:text-white"}`}
                       >
                         <Settings size={15} />
                       </button>
@@ -2351,7 +2351,7 @@ function AppContent() {
                           }}
                           className="flex items-center gap-3 p-2 bg-[#0d0d0f] hover:bg-[#151518] border border-[#1b1b1e] rounded-xl cursor-pointer transition-all"
                         >
-                          <div className="w-8 h-8 rounded-full bg-[#161619] overflow-hidden shrink-0 border border-white/5 relative">
+                          <div className="w-8 h-8 rounded-full bg-#1f2937 overflow-hidden shrink-0 border border-white/5 relative">
                             <img 
                               src={getAvatarUrl(user?.id || userPlan?.username || user?.email?.split("@")[0] || "U")} 
                               alt="Profile" 
@@ -2392,7 +2392,7 @@ function AppContent() {
                             setIsMobileMenuOpen(false);
                             window.scrollTo({ top: 0, behavior: "smooth" });
                           }}
-                          className="w-full flex items-center justify-center gap-2 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold text-xs rounded-xl shadow-lg transition-all cursor-pointer whitespace-nowrap active:scale-[0.98]"
+                          className="w-full flex items-center justify-center gap-2 py-2.5 bg-gradient-to-r from-blue-500 to-teal-500 hover:from-blue-600 hover:to-teal-600 text-white font-bold text-xs rounded-xl shadow-lg transition-all cursor-pointer whitespace-nowrap active:scale-[0.98]"
                         >
                           <LogIn size={14} /> เข้าสู่ระบบ
                         </button>
@@ -2402,7 +2402,7 @@ function AppContent() {
                             setIsMobileMenuOpen(false);
                             window.scrollTo({ top: 0, behavior: "smooth" });
                           }}
-                          className="w-full flex items-center justify-center gap-2 py-2 bg-zinc-950/40 hover:bg-zinc-900 border border-zinc-900 text-zinc-300 hover:text-white font-semibold text-xs rounded-xl transition-all cursor-pointer whitespace-nowrap active:scale-[0.98]"
+                          className="w-full flex items-center justify-center gap-2 py-2 bg-gray-900/40 hover:bg-gray-800 border border-gray-800 text-zinc-300 hover:text-white font-semibold text-xs rounded-xl transition-all cursor-pointer whitespace-nowrap active:scale-[0.98]"
                         >
                           <UserPlus size={14} /> สมัครสมาชิก
                         </button>
@@ -2423,7 +2423,7 @@ function AppContent() {
             <Suspense
               fallback={
                 <div className="flex-1 w-full flex items-center justify-center min-h-[50vh]">
-                  <div className="w-8 h-8 border-4 border-[#1e1e1e] border-t-white rounded-full animate-spin" />
+                  <div className="w-8 h-8 border-4 border-#1f2937 border-t-white rounded-full animate-spin" />
                 </div>
               }
             >
@@ -2632,8 +2632,8 @@ function AppContent() {
           </div>
 
           {/* Footer */}
-          <footer className="mt-auto pt-16 pb-8 border-t border-[#00e676]/10 relative overflow-hidden bg-[#09090b]">
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-px from-transparent via-[#00e676]/50 to-transparent"></div>
+          <footer className="mt-auto pt-16 pb-8 border-t border-#3b82f6/10 relative overflow-hidden bg-[#0B0C10]">
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-px from-transparent via-#3b82f6/50 to-transparent"></div>
 
             <div className="max-w-7xl mx-auto px-6 md:px-12 w-full">
               <div className="flex flex-col justify-center items-center gap-2 text-xs text-muted-foreground">
@@ -2690,13 +2690,13 @@ function AppContent() {
         </div>
 
         {/* Mobile Bottom Navigation Bar */}
-        <nav className="fixed bottom-0 left-0 right-0 z-[90] lg:hidden bg-[#040404]/95 backdrop-blur-xl border-t border-[#161619] pb-safe">
+        <nav className="fixed bottom-0 left-0 right-0 z-[90] lg:hidden bg-[#0B0C10]/95 backdrop-blur-xl border-t border-#1f2937 pb-safe">
           <div className="flex items-center justify-around px-2 py-2">
             
             <button
               onClick={() => setActiveView("home")}
               aria-label="หน้าหลัก"
-              className={"flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all duration-200 min-w-[56px] " + (activeView === "home" ? "text-[#00e676]" : "text-zinc-500 active:text-zinc-300")}
+              className={"flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all duration-200 min-w-[56px] " + (activeView === "home" ? "text-[#3b82f6]" : "text-zinc-500 active:text-zinc-300")}
             >
               <Home size={20} strokeWidth={activeView === "home" ? 2.5 : 1.8} />
               <span className="text-[9px] font-semibold tracking-wider uppercase">หลัก</span>
@@ -2705,7 +2705,7 @@ function AppContent() {
             <button
               onClick={() => setActiveView("categories")}
               aria-label="สินค้า"
-              className={"flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all duration-200 min-w-[56px] " + ((activeView === "categories" || activeView === "category_products" || activeView === "product_detail") ? "text-[#00e676]" : "text-zinc-500 active:text-zinc-300")}
+              className={"flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all duration-200 min-w-[56px] " + ((activeView === "categories" || activeView === "category_products" || activeView === "product_detail") ? "text-[#3b82f6]" : "text-zinc-500 active:text-zinc-300")}
             >
               <ShoppingCart size={20} strokeWidth={activeView === "categories" ? 2.5 : 1.8} />
               <span className="text-[9px] font-semibold tracking-wider uppercase">สินค้า</span>
@@ -2717,12 +2717,12 @@ function AppContent() {
                 setActiveView("wallet");
               }}
               aria-label="เติมเงิน"
-              className={"flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all duration-200 min-w-[56px] relative " + (activeView === "wallet" ? "text-[#00e676]" : "text-emerald-400")}
+              className={"flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all duration-200 min-w-[56px] relative " + (activeView === "wallet" ? "text-[#3b82f6]" : "text-blue-400")}
             >
-              <div className="w-11 h-11 bg-[#00e676] rounded-full flex items-center justify-center -mt-5 shadow-lg shadow-emerald-500/25 border-2 border-[#040404]">
+              <div className="w-11 h-11 bg-[#3b82f6] rounded-full flex items-center justify-center -mt-5 shadow-lg shadow-blue-500/25 border-2 border-[#040404]">
                 <Plus size={22} className="text-black" strokeWidth={2.5} />
               </div>
-              <span className="text-[9px] font-semibold tracking-wider uppercase text-emerald-400">เติมเงิน</span>
+              <span className="text-[9px] font-semibold tracking-wider uppercase text-blue-400">เติมเงิน</span>
             </button>
 
             <button
@@ -2731,7 +2731,7 @@ function AppContent() {
                 setActiveView("history");
               }}
               aria-label="ประวัติ"
-              className={"flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all duration-200 min-w-[56px] " + ((activeView === "history" || activeView === "my_orders") ? "text-[#00e676]" : "text-zinc-500 active:text-zinc-300")}
+              className={"flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all duration-200 min-w-[56px] " + ((activeView === "history" || activeView === "my_orders") ? "text-[#3b82f6]" : "text-zinc-500 active:text-zinc-300")}
             >
               <History size={20} strokeWidth={activeView === "history" ? 2.5 : 1.8} />
               <span className="text-[9px] font-semibold tracking-wider uppercase">ประวัติ</span>
@@ -2743,7 +2743,7 @@ function AppContent() {
                 setActiveView("profile");
               }}
               aria-label="โปรไฟล์"
-              className={"flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all duration-200 min-w-[56px] " + (activeView === "profile" ? "text-[#00e676]" : "text-zinc-500 active:text-zinc-300")}
+              className={"flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all duration-200 min-w-[56px] " + (activeView === "profile" ? "text-[#3b82f6]" : "text-zinc-500 active:text-zinc-300")}
             >
               <User size={20} strokeWidth={activeView === "profile" ? 2.5 : 1.8} />
               <span className="text-[9px] font-semibold tracking-wider uppercase">บัญชี</span>
@@ -2758,7 +2758,7 @@ function AppContent() {
 
 const SupplementaryLoader: React.FC = () => {
   return (
-    <div className="flex-1 w-full flex flex-col items-center justify-center min-h-[50vh] bg-[#000000] text-zinc-400 p-8 my-4 text-center select-none">
+    <div className="flex-1 w-full flex flex-col items-center justify-center min-h-[50vh] bg-[#0B0C10] text-zinc-400 p-8 my-4 text-center select-none">
       <div className="flex flex-col items-center justify-center gap-6">
         <div className="w-8 h-8 border-4 border-zinc-800 border-t-white rounded-full animate-spin" />
         <div className="space-y-2 mt-4">
@@ -2776,7 +2776,7 @@ const PortalLoader: React.FC = () => {
       initial={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ type: "spring", stiffness: 400, damping: 30 }}
-      className="fixed inset-0 z-[99999] bg-[#000000] flex flex-col items-center justify-center font-sans overflow-hidden select-none"
+      className="fixed inset-0 z-[99999] bg-[#0B0C10] flex flex-col items-center justify-center font-sans overflow-hidden select-none"
     >
       <div className="flex flex-col items-center justify-center gap-8">
         <div className="w-8 h-8 md:w-10 md:h-10 border-[3px] md:border-4 border-zinc-800 border-t-white rounded-full animate-spin" />

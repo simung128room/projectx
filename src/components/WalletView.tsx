@@ -76,7 +76,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
       background: '#09090b',
       color: '#ffffff',
       customClass: {
-        popup: 'border border-[#1e1e1e]'
+        popup: 'border border-#1f2937'
       }
     });
 
@@ -108,7 +108,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
         color: '#ffffff',
         confirmButtonColor: '#ff2c2c',
         customClass: {
-          popup: 'border border-[#1e1e1e]'
+          popup: 'border border-#1f2937'
         }
       });
       return;
@@ -127,7 +127,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
         Swal.showLoading();
       },
       customClass: {
-        popup: 'border border-[#1e1e1e]'
+        popup: 'border border-#1f2937'
       }
     });
 
@@ -180,9 +180,9 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
           icon: 'success',
           background: '#09090b',
           color: '#ffffff',
-          confirmButtonColor: '#00e676',
+          confirmButtonColor: '#3b82f6',
           customClass: {
-            popup: 'border border-[#1e1e1e]'
+            popup: 'border border-#1f2937'
           }
         });
         setTruemoneyLink('');
@@ -196,7 +196,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
           color: '#ffffff',
           confirmButtonColor: '#ff2c2c',
           customClass: {
-            popup: 'border border-[#1e1e1e]'
+            popup: 'border border-#1f2937'
           }
         });
       }
@@ -209,7 +209,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
         color: '#ffffff',
         confirmButtonColor: '#ff2c2c',
         customClass: {
-          popup: 'border border-[#1e1e1e]'
+          popup: 'border border-#1f2937'
         }
       });
     } finally {
@@ -231,7 +231,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
         Swal.showLoading();
       },
       customClass: {
-        popup: 'border border-[#1e1e1e]'
+        popup: 'border border-#1f2937'
       }
     });
 
@@ -285,9 +285,9 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
             icon: 'success',
             background: '#09090b',
             color: '#ffffff',
-            confirmButtonColor: '#00e676',
+            confirmButtonColor: '#3b82f6',
             customClass: {
-              popup: 'border border-[#1e1e1e]'
+              popup: 'border border-#1f2937'
             }
           });
           setSelectedFile(null);
@@ -302,7 +302,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
             color: '#ffffff',
             confirmButtonColor: '#ff2c2c',
             customClass: {
-              popup: 'border border-[#1e1e1e]'
+              popup: 'border border-#1f2937'
             }
           });
         }
@@ -315,7 +315,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
           color: '#ffffff',
           confirmButtonColor: '#ff2c2c',
           customClass: {
-            popup: 'border border-[#1e1e1e]'
+            popup: 'border border-#1f2937'
           }
         });
       } finally {
@@ -367,7 +367,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
         color: '#ffffff',
         confirmButtonColor: '#ff2c2c',
         customClass: {
-          popup: 'border border-[#1e1e1e]'
+          popup: 'border border-#1f2937'
         }
       });
     }
@@ -385,7 +385,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
         color: '#ffffff',
         confirmButtonColor: '#ff2c2c',
         customClass: {
-          popup: 'border border-[#1e1e1e]'
+          popup: 'border border-#1f2937'
         }
       });
     }
@@ -397,17 +397,17 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
         
         {/* Subtle high-tech circular glows mirroring kaitunshop premium visual design */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-xl h-full pointer-events-none overflow-hidden select-none -z-10">
-          <div className="absolute top-[-10%] left-[50%] -translate-x-1/2 w-[350px] h-[350px] bg-[#00e676]/5 rounded-full blur-[80px]" />
+          <div className="absolute top-[-10%] left-[50%] -translate-x-1/2 w-[350px] h-[350px] bg-[#3b82f6]/5 rounded-full blur-[80px]" />
           <div className="absolute bottom-[20%] left-[-20%] w-[250px] h-[250px] bg-[#7c3aed]/5 rounded-full blur-[60px]" />
         </div>
 
         {/* ── Header Card: Current Balance Glassmorphic Widget ── */}
         <div className="mb-8 relative overflow-hidden bg-[#1c1c1e]/40 backdrop-blur-3xl saturate-150 border border-white/[0.05] p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 group rounded-[32px] shadow-2xl">
           {/* Subtle line background decoration inside wallet stats card */}
-          <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-transparent via-[#00e676] to-transparent opacity-65 group-hover:opacity-100 transition-opacity duration-500" />
+          <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-transparent via-#3b82f6 to-transparent opacity-65 group-hover:opacity-100 transition-opacity duration-500" />
           
           <div className="flex items-center gap-5">
-            <div className="w-16 h-16 rounded-2xl bg-[#00e676]/15 text-[#00e676] flex items-center justify-center shrink-0">
+            <div className="w-16 h-16 rounded-2xl bg-[#3b82f6]/15 text-[#3b82f6] flex items-center justify-center shrink-0">
               <Wallet className="w-8 h-8" />
             </div>
             <div>
@@ -418,8 +418,8 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
             </div>
           </div>
 
-          <div className="px-4 py-2 bg-[#00e676]/15 text-[#00e676] text-xs font-semibold flex items-center gap-2 rounded-full select-none self-start sm:self-center shadow-lg">
-            <span className="w-2 h-2 bg-[#00e676] rounded-full animate-pulse" />
+          <div className="px-4 py-2 bg-[#3b82f6]/15 text-[#3b82f6] text-xs font-semibold flex items-center gap-2 rounded-full select-none self-start sm:self-center shadow-lg">
+            <span className="w-2 h-2 bg-[#3b82f6] rounded-full animate-pulse" />
             <span>พร้อมเติมเงินเข้าระบบ</span>
           </div>
         </div>
@@ -438,7 +438,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
             >
               <div className="text-center mb-8">
                 <h1 className="text-3xl font-bold text-white tracking-tight flex items-center justify-center gap-3">
-                  <Coins className="w-8 h-8 text-[#00e676]" /> ช่องทางการชำระเงิน
+                  <Coins className="w-8 h-8 text-[#3b82f6]" /> ช่องทางการชำระเงิน
                 </h1>
                 <p className="text-zinc-400 text-sm font-medium mt-3 max-w-sm mx-auto leading-relaxed">
                   เลือกวิธีการชำระเงินที่คุณสะดวกเพื่อรับเครดิตในระบบแบบอัปเดตทันใจ
@@ -490,33 +490,33 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
 
               {/* Option 2: Bank Slip Scanner */}
               <div className="group relative bg-[#1c1c1e]/40 backdrop-blur-xl border border-white/[0.05] p-6 lg:p-8 rounded-[28px] transition-all duration-500 overflow-hidden shadow-lg">
-                <div className="absolute top-0 right-0 w-40 h-40 bg-[#00e676]/10 rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute top-0 right-0 w-40 h-40 bg-[#3b82f6]/10 rounded-full blur-3xl pointer-events-none" />
 
                 <div className="flex flex-col sm:flex-row items-start justify-between gap-5 relative z-10">
                   <div className="flex items-start gap-5">
                     {/* Emerald bank landmark icon */}
-                    <div className="w-16 h-16 rounded-[20px] bg-[#00e676]/15 flex items-center justify-center shrink-0 shadow-inner">
-                      <Landmark className="w-8 h-8 text-[#00e676]" />
+                    <div className="w-16 h-16 rounded-[20px] bg-[#3b82f6]/15 flex items-center justify-center shrink-0 shadow-inner">
+                      <Landmark className="w-8 h-8 text-[#3b82f6]" />
                     </div>
 
                     <div className="space-y-2">
                       <div className="flex items-center gap-2 flex-wrap">
                         <h3 className="text-xl font-bold text-white tracking-tight">โอนเงินธนาคาร (เช็คสลิป)</h3>
-                        <span className="px-2.5 py-1 bg-[#00e676]/20 text-[#00e676] text-[10px] font-bold tracking-wider rounded-full">
+                        <span className="px-2.5 py-1 bg-[#3b82f6]/20 text-[#3b82f6] text-[10px] font-bold tracking-wider rounded-full">
                           AUTO
                         </span>
                       </div>
                       <p className="text-zinc-400 text-sm font-medium leading-relaxed">
                         โอนเข้าธนาคารร้านค้าแล้วอัปโหลดสลิปนำไปสแกนรวดเร็วผ่านธนาคารโดยไม่มีค่าบริการ
                       </p>
-                      <div className="flex items-center gap-1.5 text-xs text-[#00e676] font-medium pb-2">
+                      <div className="flex items-center gap-1.5 text-xs text-[#3b82f6] font-medium pb-2">
                         <CheckCircle className="w-4 h-4" /> 
                         <span>ฟรีไม่มีค่าบริการ 0%</span>
                       </div>
                     </div>
                   </div>
 
-                  <span className="px-3 py-1.5 bg-[#2c2c2e]/60 border border-white/[0.05] text-[#00e676] text-[11px] font-bold uppercase tracking-wider rounded-full select-none shrink-0 self-start sm:self-center shadow-sm">
+                  <span className="px-3 py-1.5 bg-[#2c2c2e]/60 border border-white/[0.05] text-[#3b82f6] text-[11px] font-bold uppercase tracking-wider rounded-full select-none shrink-0 self-start sm:self-center shadow-sm">
                     ฟรี 0%
                   </span>
                 </div>
@@ -524,7 +524,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
                 <div className="mt-4 relative z-10">
                   <button
                     onClick={() => setActiveView('bank')}
-                    className="w-full py-4 rounded-[16px] bg-[#00e676] hover:bg-[#0ea5e9] hover:bg-[#0d9668] text-black font-bold text-sm flex items-center justify-center gap-2 transition-transform duration-200 cursor-pointer active:scale-[0.98] shadow-lg"
+                    className="w-full py-4 rounded-[16px] bg-[#3b82f6] hover:bg-[#0ea5e9] hover:bg-[#0d9668] text-black font-bold text-sm flex items-center justify-center gap-2 transition-transform duration-200 cursor-pointer active:scale-[0.98] shadow-lg"
                   >
                     เริ่มเติมเงิน <ArrowRight className="w-5 h-5" />
                   </button>
@@ -533,7 +533,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
 
               {/* Security info disclaimer badge */}
               <div className="p-5 rounded-[20px] bg-[#1c1c1e]/40 backdrop-blur-xl border border-white/[0.05] flex gap-4 text-zinc-400 select-none shadow-md">
-                <ShieldCheck className="w-6 h-6 text-[#00e676] shrink-0" />
+                <ShieldCheck className="w-6 h-6 text-[#3b82f6] shrink-0" />
                 <p className="text-xs leading-relaxed font-medium">
                   ธุรกรรมทางการเงินทั้งหมดดำเนินรายการอย่างเป็นสัดส่วน ปลอดภัย 100% ภายใต้นโยบาย Zero-Data Retention ความเป็นส่วนตัวของลูกค้าเป็นความสำคัญอันดับหนึ่งของเรา
                 </p>
@@ -638,7 +638,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
               transition={{ type: "spring", stiffness: 400, damping: 30 }}
               className="bg-[#1c1c1e]/40 backdrop-blur-xl border border-white/[0.05] p-6 sm:p-10 rounded-[32px] relative overflow-hidden space-y-8 shadow-2xl"
             >
-              <div className="absolute top-0 right-0 w-64 h-64 bg-[#00e676]/5 rounded-full blur-3xl pointer-events-none" />
+              <div className="absolute top-0 right-0 w-64 h-64 bg-[#3b82f6]/5 rounded-full blur-3xl pointer-events-none" />
 
               {/* Back button */}
               <button 
@@ -651,8 +651,8 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
 
               {/* Header */}
               <div className="flex items-center gap-4 mb-4">
-                <div className="w-14 h-14 rounded-[20px] bg-[#00e676]/15 flex items-center justify-center shrink-0">
-                  <Landmark className="w-7 h-7 text-[#00e676]" />
+                <div className="w-14 h-14 rounded-[20px] bg-[#3b82f6]/15 flex items-center justify-center shrink-0">
+                  <Landmark className="w-7 h-7 text-[#3b82f6]" />
                 </div>
                 <div>
                   <h2 className="text-2xl font-bold text-white tracking-tight">โอนผ่านธนาคาร & ยืนยันสลิป</h2>
@@ -662,10 +662,10 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
 
               {/* Cyber Display bank account card */}
               <div className="bg-[#2c2c2e]/60 rounded-[24px] p-6 space-y-5 select-text relative overflow-hidden shadow-lg border border-white/[0.05]">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-[#00e676]/10 rounded-full blur-2xl pointer-events-none" />
+                <div className="absolute top-0 right-0 w-32 h-32 bg-[#3b82f6]/10 rounded-full blur-2xl pointer-events-none" />
                 
-                <h4 className="text-sm font-bold text-[#00e676] flex items-center gap-2 select-none uppercase tracking-wide">
-                  <Coins className="w-5 h-5 text-[#00e676]" /> บัญชีรับฝากสโตร์ (ธนาคารผู้รับเงิน)
+                <h4 className="text-sm font-bold text-[#3b82f6] flex items-center gap-2 select-none uppercase tracking-wide">
+                  <Coins className="w-5 h-5 text-[#3b82f6]" /> บัญชีรับฝากสโตร์ (ธนาคารผู้รับเงิน)
                 </h4>
                 
                 <div className="text-sm space-y-4 text-zinc-300 font-medium">
@@ -685,7 +685,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
                         onClick={handleCopyAccount}
                         className={`p-2 rounded-xl transition-all shrink-0 cursor-pointer shadow-sm ${
                           isCopying 
-                            ? 'bg-[#00e676] text-black border-transparent' 
+                            ? 'bg-[#3b82f6] text-black border-transparent' 
                             : 'bg-white/[0.05] hover:bg-white/[0.1] text-zinc-400 hover:text-white border-transparent'
                         }`}
                         title="คลิกเพื่อคัดลอกบัญชี"
@@ -716,8 +716,8 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
                   onDrop={handleDrop}
                   className={`flex flex-col items-center justify-center w-full min-h-[200px] p-8 rounded-[24px] transition-all duration-300 border-2 border-dashed border-white/10 relative cursor-pointer ${
                     isDragActive 
-                      ? 'bg-[#00e676]/5 border-[#00e676] scale-[0.99] shadow-inner' 
-                      : 'bg-[#1c1c1e]/40 hover:border-[#00e676]/50 hover:bg-[#2c2c2e]/60'
+                      ? 'bg-[#3b82f6]/5 border-#3b82f6 scale-[0.99] shadow-inner' 
+                      : 'bg-[#1c1c1e]/40 hover:border-[#3b82f6/50 hover:bg-[#2c2c2e]/60'
                   }`}
                 >
 
@@ -729,16 +729,16 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
                           เปลี่ยนไฟล์รูป
                         </div>
                       </div>
-                      <span className="text-sm font-bold text-[#00e676] max-w-[280px] truncate">
+                      <span className="text-sm font-bold text-[#3b82f6] max-w-[280px] truncate">
                         {selectedFile?.name || 'สลิปพร้อมสแกน'}
                       </span>
                     </div>
                   ) : (
                     <div className="flex flex-col items-center py-4 select-none">
                       <div className="w-16 h-16 bg-white/[0.05] flex items-center justify-center mb-4 rounded-[20px] shadow-sm animate-pulse">
-                        <Camera className="w-8 h-8 text-[#00e676]" />
+                        <Camera className="w-8 h-8 text-[#3b82f6]" />
                       </div>
-                      <span className="text-base font-bold text-[#00e676] block">
+                      <span className="text-base font-bold text-[#3b82f6] block">
                         ถ่ายรูป หรือ เลือกไฟล์สลิปของคุณ
                       </span>
                       <span className="text-xs text-zinc-500 font-medium mt-3 text-center px-4 max-w-sm leading-relaxed">
@@ -751,9 +751,9 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
 
               {/* Custom Accordion Instructions Container */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-[#00e676]/10 rounded-[20px] p-5 select-none text-[#00e676]">
+                <div className="bg-[#3b82f6]/10 rounded-[20px] p-5 select-none text-[#3b82f6]">
                   <p className="text-sm font-bold flex items-center gap-2 mb-3 uppercase tracking-wide">
-                    <Info className="w-5 h-5 text-[#00e676] shrink-0" /> ขั้นตอนทำเงิน
+                    <Info className="w-5 h-5 text-[#3b82f6] shrink-0" /> ขั้นตอนทำเงิน
                   </p>
                   <div className="text-xs font-medium space-y-2 text-zinc-300 leading-relaxed">
                     <p>1. คัดลอกเลขบัญชี โอนเงินตามยอดที่ต้องการ</p>
@@ -779,7 +779,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
                 <button
                   onClick={executeSlipUpload}
                   disabled={isVerifying || !selectedFile}
-                  className="w-full py-5 rounded-[20px] bg-[#00e676] hover:bg-[#0d9668] disabled:bg-[#3a3a3c] disabled:text-zinc-500 text-black font-bold text-sm uppercase transition-transform duration-200 flex items-center justify-center gap-2 cursor-pointer active:scale-95 shadow-lg"
+                  className="w-full py-5 rounded-[20px] bg-[#3b82f6] hover:bg-[#0d9668] disabled:bg-[#3a3a3c] disabled:text-zinc-500 text-black font-bold text-sm uppercase transition-transform duration-200 flex items-center justify-center gap-2 cursor-pointer active:scale-95 shadow-lg"
                 >
                   <UploadCloud className="w-5 h-5 shrink-0" /> ยืนยันสแกนตรวจสอบสลิป
                 </button>
