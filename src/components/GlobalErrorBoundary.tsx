@@ -55,6 +55,13 @@ export class GlobalErrorBoundary extends React.Component<ErrorBoundaryProps, Err
                     ขออภัย ระบบขัดข้องกะทันหัน ข้อมูลข้อผิดพลาดถูกส่งไปยังทีมพัฒนาแล้ว โปรดลองใหม่อีกครั้งหรือกลับหน้าหลัก
                 </p>
 
+                {this.state.error && (
+                  <div className="text-left bg-red-500/10 border border-red-500/20 rounded p-4 mb-6 overflow-auto max-h-60 font-mono text-xs text-red-400">
+                    <div className="font-bold mb-1">Error: {this.state.error.message}</div>
+                    <pre className="whitespace-pre-wrap text-[10px] opacity-80">{this.state.error.stack}</pre>
+                  </div>
+                )}
+
                 <div className="flex flex-col gap-3">
                     <button
                         onClick={this.handleReload}
