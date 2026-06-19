@@ -42,7 +42,7 @@ export const ProductManagerModal = ({
         className="bg-[#09090b] border-none sm:border-l border-[#1e1e1e] border w-full sm:max-w-md h-full relative overflow-y-auto p-6 sm:p-8 animate-in slide-in-from-bottom-full sm:slide-in-from-right-full duration-300"
         onClick={e => e.stopPropagation()}
       >
-        <button onClick={onClose} className="absolute top-6 right-6 text-muted-foreground hover:text-white transition-colors bg-[#09090b] p-2">
+        <button onClick={onClose} className="absolute top-6 right-6 text-zinc-400 hover:text-white transition-colors bg-[#09090b] p-2">
           <X className="w-5 h-5" />
         </button>
         <h2 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
@@ -52,7 +52,7 @@ export const ProductManagerModal = ({
         
         <div className="space-y-4">
           <div>
-            <label className="block text-xs font-medium text-muted-foreground mb-1">ชื่อสินค้า</label>
+            <label className="block text-xs font-medium text-zinc-400 mb-1">ชื่อสินค้า</label>
             <input 
               type="text" 
               value={formData.name} 
@@ -62,7 +62,7 @@ export const ProductManagerModal = ({
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-muted-foreground mb-1">รายละเอียด</label>
+            <label className="block text-xs font-medium text-zinc-400 mb-1">รายละเอียด</label>
             <textarea 
               value={formData.description} 
               onChange={e => setFormData({...formData, description: e.target.value})}
@@ -72,7 +72,7 @@ export const ProductManagerModal = ({
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-medium text-muted-foreground mb-1">ราคาปัจจุบัน (THB)</label>
+              <label className="block text-xs font-medium text-zinc-400 mb-1">ราคาปัจจุบัน (THB)</label>
               <input 
                 type="number" 
                 value={formData.price} 
@@ -82,7 +82,7 @@ export const ProductManagerModal = ({
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-muted-foreground mb-1">ราคาเต็ม (ถ้ามี)</label>
+              <label className="block text-xs font-medium text-zinc-400 mb-1">ราคาเต็ม (ถ้ามี)</label>
               <input 
                 type="number" 
                 value={formData.originalPrice} 
@@ -94,7 +94,7 @@ export const ProductManagerModal = ({
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-medium text-muted-foreground mb-1">สต๊อก</label>
+              <label className="block text-xs font-medium text-zinc-400 mb-1">สต๊อก</label>
               <input 
                 type="number" 
                 min={0}
@@ -105,7 +105,7 @@ export const ProductManagerModal = ({
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-muted-foreground mb-1">หมวดหมู่</label>
+              <label className="block text-xs font-medium text-zinc-400 mb-1">หมวดหมู่</label>
               <select 
                 value={formData.category} 
                 onChange={e => setFormData({...formData, category: e.target.value})}
@@ -119,7 +119,7 @@ export const ProductManagerModal = ({
             </div>
           </div>
           <div>
-            <label className="block text-xs font-medium text-muted-foreground mb-1">ป้ายกำกับ (Tag)</label>
+            <label className="block text-xs font-medium text-zinc-400 mb-1">ป้ายกำกับ (Tag)</label>
             <select 
               value={formData.tag || ''} 
               onChange={e => setFormData({...formData, tag: e.target.value})}
@@ -133,7 +133,7 @@ export const ProductManagerModal = ({
             </select>
           </div>
           <div>
-            <label className="block text-xs font-medium text-muted-foreground mb-1">URL รูปภาพ</label>
+            <label className="block text-xs font-medium text-zinc-400 mb-1">URL รูปภาพ</label>
             <input 
               type="text" 
               value={formData.imageUrl} 
@@ -155,13 +155,13 @@ export const ProductManagerModal = ({
               <label htmlFor="isPreOrder" className="text-xs font-medium text-white select-none cursor-pointer block">
                 สินค้า Pre-Order (กำลังจัดหาไอดี)
               </label>
-              <span className="text-[10px] text-muted-foreground block mt-0.5">เปิดใช้งานหากสินค้าประเภทนี้ต้องการให้แอดมินจัดหาไอดีให้ภายหลังชำระเงิน</span>
+              <span className="text-[10px] text-zinc-400 block mt-0.5">เปิดใช้งานหากสินค้าประเภทนี้ต้องการให้แอดมินจัดหาไอดีให้ภายหลังชำระเงิน</span>
             </div>
           </div>
 
           {formData.isPreOrder && (
             <div className="p-3 bg-[#050505]/30 border border-[#1e1e1e]/40 rounded space-y-2 animate-in fade-in slide-in-from-top-2 duration-200">
-              <label className="block text-[11px] font-medium text-muted-foreground">
+              <label className="block text-[11px] font-medium text-zinc-400">
                 ตัวเลือกประเภทไอดี (แยกด้วยเครื่องหมายจุลภาค , เช่น: AR10, AR30, Garena, Gmail)
               </label>
               <input 

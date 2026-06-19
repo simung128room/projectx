@@ -166,7 +166,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
         initial={{ opacity: 0, scale: 0.96, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-        className="w-full max-w-md bg-[#050505]/80 backdrop- border border-white/5 relative z-10 p-8 sm:p-10 rounded-md shadow-sm"
+        className="w-full max-w-md bg-[#050505]/80 backdrop-blur-xl border border-white/5 relative z-10 p-8 sm:p-10 rounded-md shadow-sm"
       >
         {/* Header / Brand */}
         <div className="text-center mb-8 flex flex-col items-center">
@@ -177,7 +177,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
             className="mb-6 cursor-pointer"
             onClick={() => setActiveView("home")}
           >
-            <img src="https://img2.pic.in.th/983B3DCE-90A3-4822-8940-D6B81CCA63A3.png" alt="APEXSTORE Logo" className="h-[48px] md:h-[56px] object-contain drop- hover:scale-105 transition-transform duration-300" />
+            <img src="https://img2.pic.in.th/983B3DCE-90A3-4822-8940-D6B81CCA63A3.png" alt="APEXSTORE Logo" className="h-[48px] md:h-[56px] object-contain drop-shadow-[0_0_12px_rgba(0,230,118,0.3)] hover:scale-105 transition-transform duration-300" />
           </motion.div>
           
           <h1 className="text-xl font-medium tracking-wide text-white mb-1.5">

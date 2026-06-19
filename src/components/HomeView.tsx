@@ -315,7 +315,7 @@ function ProductCard({
           <img
             src={product.imageUrl}
             alt={formatProductName(product.name)}
-            className="w-full h-full object-cover group- "
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
             onError={() => setImgError(true)}
             referrerPolicy="no-referrer"
             loading="lazy"

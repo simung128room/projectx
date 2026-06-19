@@ -168,7 +168,11 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
             image: 'https://img1.pic.in.th/images/IMG_6172.png'
           };
           if (onTopupSuccess) onTopupSuccess(historyEntry);
-        } catch(e) { console.error("Caught error:", e); }
+        } catch(e: any) {
+    console.error("Caught error:", e);
+    const msg = e?.response?.data?.error || e?.message || "เกิดข้อผิดพลาด กรุณาลองใหม่";
+    Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: msg, confirmButtonColor: '#ef4444', background: '#09090b', color: '#fff' });
+  }
 
         Swal.fire({
           title: 'เติมเงินสำเร็จ!',
@@ -269,7 +273,11 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
               image: 'https://img1.pic.in.th/images/IMG_6164.png'
             };
             if (onTopupSuccess) onTopupSuccess(historyEntry);
-          } catch(e) { console.error("Caught error:", e); }
+          } catch(e: any) {
+    console.error("Caught error:", e);
+    const msg = e?.response?.data?.error || e?.message || "เกิดข้อผิดพลาด กรุณาลองใหม่";
+    Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: msg, confirmButtonColor: '#ef4444', background: '#09090b', color: '#fff' });
+  }
           
           Swal.fire({
             title: 'ตรวจสอบสำเร็จ!',

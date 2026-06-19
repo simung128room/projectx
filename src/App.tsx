@@ -291,7 +291,7 @@ function ElapsedTimeDisplay({
 
   if (elapsedTime === "00:00:00.000") return null;
   return (
-    <div className="px-3 py-1 bg-[#09090b] border border-[#1e1e1e] border text-xs font-mono text-muted-foreground font-medium">
+    <div className="px-3 py-1 bg-[#09090b] border border-[#1e1e1e] text-xs font-mono text-muted-foreground font-medium">
       {elapsedTime}
     </div>
   );
@@ -2184,7 +2184,7 @@ function AppContent() {
                 <motion.button
                   whileTap={{ scale: 0.92 }}
                   onClick={() => setIsDesktopSidebarOpen(!isDesktopSidebarOpen)}
-                  className="hidden lg:flex w-11 h-11 flex-col justify-center items-center gap-[5px] bg-[#1c1c1e]/40 hover:bg-[#2c2c2e]/60 active:bg-white/[0.1] border border-white/[0.05] hover:border-white/[0.12] transition-colors cursor-pointer rounded-xl text-white shadow-md relative group"
+                  aria-label="Toggle sidebar" title="Toggle sidebar" className="hidden lg:flex w-11 h-11 flex-col justify-center items-center gap-[5px] bg-[#1c1c1e]/40 hover:bg-[#2c2c2e]/60 active:bg-white/[0.1] border border-white/[0.05] hover:border-white/[0.12] transition-colors cursor-pointer rounded-xl text-white shadow-md relative group"
                   aria-label="Toggle Sidebar"
                 >
                   <motion.div
@@ -2246,7 +2246,7 @@ function AppContent() {
                 <motion.button
                   whileTap={{ scale: 0.92 }}
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                  className="w-11 h-11 flex flex-col justify-center items-center gap-[5.5px] bg-[#1c1c1e]/40 hover:bg-[#2c2c2e]/60 active:bg-white/[0.1] border border-white/[0.05] hover:border-white/[0.12] transition-colors cursor-pointer rounded-xl ml-1 lg:hidden text-white relative z-[140] shadow-md"
+                  aria-label="เปิดเมนู" className="w-11 h-11 flex flex-col justify-center items-center gap-[5.5px] bg-[#1c1c1e]/40 hover:bg-[#2c2c2e]/60 active:bg-white/[0.1] border border-white/[0.05] hover:border-white/[0.12] transition-colors cursor-pointer rounded-xl ml-1 lg:hidden text-white relative z-[140] shadow-md"
                   aria-label="Menu"
                 >
                   <motion.div
@@ -2690,20 +2690,21 @@ function AppContent() {
           {/* Global Page Header Removed */}
 
           <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-0 sm:pt-2 pb-6 lg:pb-0 w-full flex-1 flex flex-col">
+            <GlobalErrorBoundary>
             <Suspense
               fallback={
                 <div className="flex-1 w-full flex items-center justify-center min-h-[50vh]">
-                  <div className="w-8 h-8  border-[#1e1e1e] border-t-white rounded-full animate-spin" />
+                  <div className="w-8 h-8 border-4 border-[#1e1e1e] border-t-white rounded-full animate-spin" />
                 </div>
               }
             >
               <AnimatePresence mode="wait">
                 <motion.div
                   key={activeView}
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -15 }}
-                  transition={{ duration: 0.2, ease: "easeOut" }}
+                  initial={{ opacity: 0, y: 20, scale: 0.99 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -10, scale: 0.99 }}
+                  transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
                   className="flex-1 w-full flex flex-col min-h-0"
                 >
                   {isLoadingSkeleton ? (
@@ -2755,6 +2756,7 @@ function AppContent() {
                         />
                       )}
                       {activeView === "product_detail" && selectedProductId && (
+                        <Suspense fallback={<SkeletonProductDetailLoader />}>
                         <ProductDetailView
                           product={
                             products.find((p) => p.id === selectedProductId)!
@@ -2765,7 +2767,8 @@ function AppContent() {
                             await handlePurchase(p, q);
                           }}
                           setActiveView={setActiveView}
-                        />
+                        /> 
+                      </Suspense>
                       )}
                       {activeView === "contact" && (
                         <ContactView
@@ -2896,6 +2899,7 @@ function AppContent() {
                 </motion.div>
               </AnimatePresence>
             </Suspense>
+          </GlobalErrorBoundary>
           </div>
 
           {/* Footer */}
@@ -2956,7 +2960,68 @@ function AppContent() {
           </Suspense>
         </div>
 
-        {/* Mobile Bottom Navigation Bar removed as per request */}
+        {/* Mobile Bottom Navigation Bar */}
+        <nav className="fixed bottom-0 left-0 right-0 z-[90] lg:hidden bg-[#040404]/95 backdrop-blur-xl border-t border-[#161619] pb-safe">
+          <div className="flex items-center justify-around px-2 py-2">
+            
+            <button
+              onClick={() => setActiveView("home")}
+              aria-label="หน้าหลัก"
+              className={"flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all duration-200 min-w-[56px] " + (activeView === "home" ? "text-[#00e676]" : "text-zinc-500 active:text-zinc-300")}
+            >
+              <Home size={20} strokeWidth={activeView === "home" ? 2.5 : 1.8} />
+              <span className="text-[9px] font-semibold tracking-wider uppercase">หลัก</span>
+            </button>
+
+            <button
+              onClick={() => setActiveView("categories")}
+              aria-label="สินค้า"
+              className={"flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all duration-200 min-w-[56px] " + ((activeView === "categories" || activeView === "category_products" || activeView === "product_detail") ? "text-[#00e676]" : "text-zinc-500 active:text-zinc-300")}
+            >
+              <ShoppingCart size={20} strokeWidth={activeView === "categories" ? 2.5 : 1.8} />
+              <span className="text-[9px] font-semibold tracking-wider uppercase">สินค้า</span>
+            </button>
+
+            <button
+              onClick={() => {
+                if (!user) { setActiveView("login"); return; }
+                setActiveView("wallet");
+              }}
+              aria-label="เติมเงิน"
+              className={"flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all duration-200 min-w-[56px] relative " + (activeView === "wallet" ? "text-[#00e676]" : "text-emerald-400")}
+            >
+              <div className="w-11 h-11 bg-[#00e676] rounded-full flex items-center justify-center -mt-5 shadow-lg shadow-emerald-500/25 border-2 border-[#040404]">
+                <Plus size={22} className="text-black" strokeWidth={2.5} />
+              </div>
+              <span className="text-[9px] font-semibold tracking-wider uppercase text-emerald-400">เติมเงิน</span>
+            </button>
+
+            <button
+              onClick={() => {
+                if (!user) { setActiveView("login"); return; }
+                setActiveView("history");
+              }}
+              aria-label="ประวัติ"
+              className={"flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all duration-200 min-w-[56px] " + ((activeView === "history" || activeView === "my_orders") ? "text-[#00e676]" : "text-zinc-500 active:text-zinc-300")}
+            >
+              <History size={20} strokeWidth={activeView === "history" ? 2.5 : 1.8} />
+              <span className="text-[9px] font-semibold tracking-wider uppercase">ประวัติ</span>
+            </button>
+
+            <button
+              onClick={() => {
+                if (!user) { setActiveView("login"); return; }
+                setActiveView("profile");
+              }}
+              aria-label="โปรไฟล์"
+              className={"flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all duration-200 min-w-[56px] " + (activeView === "profile" ? "text-[#00e676]" : "text-zinc-500 active:text-zinc-300")}
+            >
+              <User size={20} strokeWidth={activeView === "profile" ? 2.5 : 1.8} />
+              <span className="text-[9px] font-semibold tracking-wider uppercase">บัญชี</span>
+            </button>
+
+          </div>
+        </nav>
       </motion.div>
     </div>
   );

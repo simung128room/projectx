@@ -108,3 +108,61 @@ export const SkeletonGenericLoader: React.FC = () => {
     </div>
   );
 };
+
+
+export const SkeletonProductDetailLoader: React.FC = () => {
+  return (
+    <div className="w-full max-w-5xl mx-auto px-4 py-2 animate-pulse">
+      {/* Breadcrumb skeleton */}
+      <div className="flex items-center justify-between gap-4 mb-6">
+        <div className="w-32 h-9 rounded-md bg-white/[0.06]" />
+        <div className="hidden sm:flex items-center gap-2">
+          <div className="w-16 h-3 rounded bg-white/[0.04]" />
+          <div className="w-2 h-2 rounded bg-white/[0.03]" />
+          <div className="w-24 h-3 rounded bg-white/[0.04]" />
+        </div>
+      </div>
+
+      {/* Main container */}
+      <div className="border border-[#1e1e1e] rounded-md overflow-hidden grid grid-cols-1 md:grid-cols-12 gap-0 shimmer-bg">
+        {/* Left: Image */}
+        <div className="md:col-span-5 p-6 md:p-8 border-b md:border-b-0 md:border-r border-[#1e1e1e]">
+          <div className="w-full aspect-square rounded-md bg-white/[0.04]" />
+          <div className="mt-4 p-4 rounded-md border border-[#1e1e1e] flex flex-col gap-3">
+            <div className="flex justify-between">
+              <div className="w-24 h-3 rounded bg-white/[0.05]" />
+              <div className="w-20 h-3 rounded bg-white/[0.06]" />
+            </div>
+            <div className="flex justify-between">
+              <div className="w-28 h-3 rounded bg-white/[0.05]" />
+              <div className="w-20 h-3 rounded bg-white/[0.06]" />
+            </div>
+          </div>
+        </div>
+
+        {/* Right: Details */}
+        <div className="md:col-span-7 p-6 md:p-8 flex flex-col gap-5">
+          <div className="flex gap-2">
+            <div className="w-16 h-5 rounded-md bg-white/[0.05]" />
+            <div className="w-16 h-5 rounded-md bg-white/[0.05]" />
+          </div>
+          <div className="w-3/4 h-8 rounded-md bg-white/[0.07]" />
+          <div className="p-5 rounded-md border border-[#1e1e1e] flex justify-between">
+            <div>
+              <div className="w-20 h-2 rounded bg-white/[0.04] mb-2" />
+              <div className="w-32 h-10 rounded bg-white/[0.08]" />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="h-20 rounded-md border border-[#1e1e1e] bg-white/[0.03]" />
+            <div className="h-20 rounded-md border border-[#1e1e1e] bg-white/[0.03]" />
+          </div>
+          <div className="h-28 rounded-md border border-[#1e1e1e] bg-white/[0.03]" />
+          <div className="border-t border-[#1e1e1e] pt-6 mt-auto">
+            <div className="w-full h-12 rounded-md bg-[#00e676]/20" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};

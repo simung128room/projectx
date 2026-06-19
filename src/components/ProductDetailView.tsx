@@ -47,7 +47,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
       </div>
 
       {/* Main Details Container with Glowing Backdrop */}
-      <div className="relative bg-[#000000]/90 backdrop- border border-[#1e1e1e] rounded-md overflow-hidden shadow-sm grid grid-cols-1 md:grid-cols-12 gap-0">
+      <div className="relative bg-[#000000]/90 backdrop-blur-sm border border-[#1e1e1e] rounded-md overflow-hidden shadow-sm grid grid-cols-1 md:grid-cols-12 gap-0">
         
         {/* Glow Effects in Backdrop */}
         <div className="absolute top-1/4 left-1/4 w-72 h-72 rounded-full bg-[#00e676]/5  pointer-events-none" />
@@ -106,21 +106,21 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
           <div>
             {/* Header / Type / stock Tag */}
             <div className="flex items-center gap-2 mb-4">
-              <span className="px-2.5 py-0.75 bg-[#00e676]/10 text-[#00e676] border border-emerald-500/25 text-[10px] font-mono font-semibold rounded-md tracking-widest uppercase">
+              <span className="px-2.5 py-1 bg-[#00e676]/10 text-[#00e676] border border-emerald-500/25 text-[10px] font-mono font-semibold rounded-md tracking-widest uppercase">
                 PRODUCT
               </span>
               {product.isPreOrder ? (
-                <span className="px-2.5 py-0.75 bg-[#00e676]/10 text-[#00e676] border border-emerald-500/20 text-[10px] font-mono font-semibold rounded-md tracking-wider flex items-center gap-1">
+                <span className="px-2.5 py-1 bg-[#00e676]/10 text-[#00e676] border border-emerald-500/20 text-[10px] font-mono font-semibold rounded-md tracking-wider flex items-center gap-1">
                   <span className="w-1.5 h-1.5 bg-[#00e676] rounded-full animate-ping" />
                   PRE-ORDER
                 </span>
               ) : product.stock > 0 ? (
-                <span className="px-2.5 py-0.75 bg-[#00e676]/10 text-[#00e676] border border-emerald-500/20 text-[10px] font-mono font-semibold rounded-md tracking-wider flex items-center gap-1">
+                <span className="px-2.5 py-1 bg-[#00e676]/10 text-[#00e676] border border-emerald-500/20 text-[10px] font-mono font-semibold rounded-md tracking-wider flex items-center gap-1">
                   <span className="w-1.5 h-1.5 bg-[#00e676] rounded-full animate-ping" />
                   INSTOCK
                 </span>
               ) : (
-                <span className="px-2.5 py-0.75 bg-red-500/10 text-red-400 border border-red-500/20 text-[10px] font-mono font-semibold rounded-md tracking-wider">
+                <span className="px-2.5 py-1 bg-red-500/10 text-red-400 border border-red-500/20 text-[10px] font-mono font-semibold rounded-md tracking-wider">
                   OUT OF STOCK
                 </span>
               )}
@@ -324,7 +324,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
                     className="flex-1 py-3 bg-[#00e676] hover:bg-[#00e676] text-black font-semibold transition-all rounded-md text-xs disabled:opacity-50 flex items-center justify-center gap-2 active:scale-95 border border-emerald-400/20 shadow-sm shadow-emerald-500/5 cursor-pointer"
                   >
                     {showConfirmPurchase === 'loading' as any ? (
-                      <><div className="w-3.5 h-3.5  border-black border-t-transparent rounded-full animate-spin"></div> <span>กำลังทำรายการคอยสักครู่...</span></>
+                      <><div className="w-3.5 h-3.5 border-2 border-black border-t-transparent rounded-full animate-spin"></div> <span>กำลังทำรายการคอยสักครู่...</span></>
                     ) : 'ชำระเงินทันที'}
                   </button>
                 </div>
