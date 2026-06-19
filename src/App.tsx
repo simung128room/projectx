@@ -1840,454 +1840,180 @@ function AppContent() {
       >
                 {/* Popup banner removed as requested */}
 
-        {/* Desktop Sidebar */}
-        <aside className={`hidden lg:flex flex-col bg-[#040404] h-screen sticky top-0 shrink-0 overflow-hidden no-scrollbar z-[70] select-none text-[13px] transition-all duration-300 ease-in-out ${isDesktopSidebarOpen ? 'w-[260px] border-l border-[#161619]' : 'w-0 border-l-0 border-transparent'}`}>
-          <div className="w-[260px] h-full flex flex-col no-scrollbar shrink-0 p-4 text-[#e3e3e3] bg-[#040404]">
-            {/* Header */}
+        {/* Main Content Area */}
+        <div className="flex-1 flex flex-col min-h-screen min-w-0 relative transition-all duration-300">
+          
+        {/* Desktop Top Navbar (Matches Image) */}
+        <nav className="hidden lg:flex items-center justify-between px-6 py-4 bg-[#0B0C10] text-white sticky top-0 z-[100] border-b border-[#161619]">
+          <div className="flex items-center gap-8">
             <div 
-              className="flex flex-col items-center justify-center mb-6 pt-6 px-4 select-none cursor-pointer"
-              onClick={handleLogoClick}
+              className="flex items-center gap-2 cursor-pointer hover:scale-105 transition-transform"
+              onClick={() => { setActiveView("home"); window.scrollTo({ top: 0, behavior: "smooth" }); }}
             >
-              <div className="flex items-center group">
-                <span className="text-[34px] font-light tracking-tight text-white font-logo select-none whitespace-nowrap hover:scale-[1.01] transition-transform">
-                  apex<span className="text-[#00e676] font-light">store</span>
-                </span>
+              <div className="bg-blue-600 p-2 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/20">
+                <Gamepad2 className="w-5 h-5 text-white" />
               </div>
-              <div className="h-px bg-gradient-to-r from-transparent via-[#161619] to-transparent w-full my-4" />
+              <span className="font-bold text-xl tracking-wider select-none text-white">
+                THIS<span className="text-blue-500">GAME</span>
+              </span>
             </div>
-
-            {/* Main Navigation */}
-            <div className="flex-1 space-y-4 overflow-y-auto no-scrollbar pr-0.5">
-              {/* EXPLORE */}
-              <div>
-                <h2 className="text-[10px] font-bold text-zinc-500 mb-2 px-3 uppercase tracking-wider">EXPLORE</h2>
-                <div className="flex flex-col gap-1.5">
-                  {/* Home */}
-                  <button
-                    onClick={() => {
-                      setActiveView("home");
-                      window.scrollTo({ top: 0, behavior: "smooth" });
-                    }}
-                    className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg cursor-pointer transition-all duration-200 group relative overflow-hidden ${activeView === "home" ? "bg-white/[0.04] text-white font-semibold border border-white/5" : "text-zinc-400 hover:text-white hover:bg-white/[0.02] border border-transparent"}`}
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <Home size={15} className={activeView === "home" ? "text-white" : "text-zinc-400 group-hover:text-zinc-200"} />
-                      <span className="text-[12.5px]">หน้าแรก (Home)</span>
-                    </div>
-                    {activeView === "home" && (
-                      <>
-                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#00e676] shadow-[0_0_8px_#00e676]" />
-                        <div className="w-1.5 h-1.5 rounded-full bg-[#00e676] shadow-[0_0_6px_#00e676]" />
-                      </>
-                    )}
-                  </button>
-
-                  {/* History */}
-                  <button
-                    onClick={() => {
-                      if (user) {
-                        setActiveView("history");
-                        window.scrollTo({ top: 0, behavior: "smooth" });
-                      } else {
-                        import("sweetalert2").then((s) =>
-                          s.default.fire({
-                            icon: "info",
-                            title: "จำเป็นต้องเข้าสู่ระบบ",
-                            text: "กรุณาเข้าสู่ระบบก่อนเพื่อดูประวัติการสั่งซื้อ",
-                            showCancelButton: true,
-                            confirmButtonText: "ไปหน้าเข้าสู่ระบบ",
-                            cancelButtonText: "ยกเลิก",
-                            confirmButtonColor: "#00e676"
-                          }).then((result) => {
-                            if (result.isConfirmed) {
-                              setActiveView("login");
-                              window.scrollTo({ top: 0, behavior: "smooth" });
-                            }
-                          })
-                        );
-                      }
-                    }}
-                    className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg cursor-pointer transition-all duration-200 group relative overflow-hidden ${activeView === "history" || activeView === "my_orders" ? "bg-white/[0.04] text-white font-semibold border border-white/5" : "text-zinc-400 hover:text-white hover:bg-white/[0.02] border border-transparent"}`}
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <History size={15} className={activeView === "history" || activeView === "my_orders" ? "text-white" : "text-zinc-400 group-hover:text-zinc-200"} />
-                      <span className="text-[12.5px]">ประวัติการสั่งซื้อ</span>
-                    </div>
-                    {(activeView === "history" || activeView === "my_orders") && (
-                      <>
-                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#00e676] shadow-[0_0_8px_#00e676]" />
-                        <div className="w-1.5 h-1.5 rounded-full bg-[#00e676] shadow-[0_0_6px_#00e676]" />
-                      </>
-                    )}
-                  </button>
-                </div>
-              </div>
-
-              {/* BUILD */}
-              <div>
-                <h2 className="text-[10px] font-bold text-zinc-500 mb-2 px-3 uppercase tracking-wider">BUILD</h2>
-                <div className="flex flex-col gap-1.5">
-                  {/* + เติมเงินเข้าระบบ - Prominent layout button like "+ New app" */}
-                  <button
-                    onClick={() => {
-                      if (user) {
-                        setActiveView("wallet");
-                        window.scrollTo({ top: 0, behavior: "smooth" });
-                      } else {
-                        import("sweetalert2").then((s) =>
-                          s.default.fire({
-                            icon: "info",
-                            title: "จำเป็นต้องเข้าสู่ระบบ",
-                            text: "กรุณาเข้าสู่ระบบก่อนเพื่อใช้งานเมนูเติมเงิน",
-                            showCancelButton: true,
-                            confirmButtonText: "ไปหน้าเข้าสู่ระบบ",
-                            cancelButtonText: "ยกเลิก",
-                            confirmButtonColor: "#00e676"
-                          }).then((result) => {
-                            if (result.isConfirmed) {
-                              setActiveView("login");
-                              window.scrollTo({ top: 0, behavior: "smooth" });
-                            }
-                          })
-                        );
-                      }
-                    }}
-                    className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg font-semibold text-[12.5px] transition-all duration-200 cursor-pointer shadow-sm select-none border relative overflow-hidden ${activeView === "wallet" ? "bg-white/[0.04] text-white border-white/5 animate-pulse" : "bg-emerald-500/[0.04] hover:bg-emerald-500/[0.08] text-emerald-400 hover:text-white border-emerald-500/10 hover:border-emerald-500/20"}`}
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <Plus size={15} className={activeView === "wallet" ? "text-white" : "text-emerald-400"} />
-                      <span className="text-[12.5px]">เติมเงินเข้าระบบ</span>
-                    </div>
-                    {activeView === "wallet" && (
-                      <>
-                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#00e676] shadow-[0_0_8px_#00e676]" />
-                        <div className="w-1.5 h-1.5 rounded-full bg-[#00e676] shadow-[0_0_6px_#00e676]" />
-                      </>
-                    )}
-                  </button>
-
-                  {/* สินค้าทั้งหมด */}
-                  <button
-                    onClick={() => {
-                      setActiveView("categories");
-                      window.scrollTo({ top: 0, behavior: "smooth" });
-                    }}
-                    className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg cursor-pointer transition-all duration-200 group relative overflow-hidden ${activeView === "categories" || activeView === "category_products" ? "bg-white/[0.04] text-white font-semibold border border-white/5" : "text-zinc-400 hover:text-white hover:bg-white/[0.02] border border-transparent"}`}
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <ShoppingCart size={15} className={activeView === "categories" || activeView === "category_products" ? "text-white" : "text-zinc-400 group-hover:text-zinc-200"} />
-                      <span className="text-[12.5px]">สินค้าทั้งหมด</span>
-                    </div>
-                    {(activeView === "categories" || activeView === "category_products") && (
-                      <>
-                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#00e676] shadow-[0_0_8px_#00e676]" />
-                        <div className="w-1.5 h-1.5 rounded-full bg-[#00e676] shadow-[0_0_6px_#00e676]" />
-                      </>
-                    )}
-                  </button>
-                </div>
-              </div>
-
-              {/* MANAGE */}
-              <div>
-                <h2 className="text-[10px] font-bold text-zinc-500 mb-2 px-3 uppercase tracking-wider">MANAGE</h2>
-                <div className="flex flex-col gap-1.5">
-                  {/* Admin Backoffice (if isAdmin) */}
-                  {isAdmin && (
-                    <button
-                      onClick={() => {
-                        setActiveView("admin");
-                        window.scrollTo({ top: 0, behavior: "smooth" });
-                      }}
-                      className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg cursor-pointer transition-all duration-200 group relative overflow-hidden ${activeView === "admin" ? "bg-white/[0.04] text-white font-semibold border border-white/5" : "text-zinc-400 hover:text-white hover:bg-white/[0.02] border border-transparent"}`}
-                    >
-                      <div className="flex items-center gap-2.5">
-                        <ShieldCheck size={15} className={activeView === "admin" ? "text-white" : "text-zinc-400 group-hover:text-zinc-200"} />
-                        <span className="text-[12.5px]">จัดการหลังบ้าน (Admin)</span>
-                      </div>
-                      {activeView === "admin" && (
-                        <>
-                          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#00e676] shadow-[0_0_8px_#00e676]" />
-                          <div className="w-1.5 h-1.5 rounded-full bg-[#00e676] shadow-[0_0_6px_#00e676]" />
-                        </>
-                      )}
-                    </button>
-                  )}
-
-                  {/* Profile view (Dashboard / Profile equivalent) */}
-                  {user && (
-                    <button
-                      onClick={() => {
-                        setActiveView("profile");
-                        window.scrollTo({ top: 0, behavior: "smooth" });
-                      }}
-                      className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg cursor-pointer transition-all duration-200 group relative overflow-hidden ${activeView === "profile" ? "bg-white/[0.04] text-white font-semibold border border-white/5" : "text-zinc-400 hover:text-white hover:bg-white/[0.02] border border-transparent"}`}
-                    >
-                      <div className="flex items-center gap-2.5">
-                        <User size={15} className={activeView === "profile" ? "text-white" : "text-zinc-400 group-hover:text-zinc-200"} />
-                        <span className="text-[12.5px]">โปรไฟล์ของฉัน</span>
-                      </div>
-                      {activeView === "profile" && (
-                        <>
-                          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#00e676] shadow-[0_0_8px_#00e676]" />
-                          <div className="w-1.5 h-1.5 rounded-full bg-[#00e676] shadow-[0_0_6px_#00e676]" />
-                        </>
-                      )}
-                    </button>
-                  )}
-
-                  {/* Settings view */}
-                  {user && (
-                    <button
-                      onClick={() => {
-                        setActiveView("settings");
-                        window.scrollTo({ top: 0, behavior: "smooth" });
-                      }}
-                      className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg cursor-pointer transition-all duration-200 group relative overflow-hidden ${activeView === "settings" ? "bg-white/[0.04] text-white font-semibold border border-white/5" : "text-zinc-400 hover:text-white hover:bg-white/[0.02] border border-transparent"}`}
-                    >
-                      <div className="flex items-center gap-2.5">
-                        <Settings size={15} className={activeView === "settings" ? "text-white" : "text-zinc-400 group-hover:text-zinc-200"} />
-                        <span className="text-[12.5px]">ตั้งค่าระบบ</span>
-                      </div>
-                      {activeView === "settings" && (
-                        <>
-                          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-r bg-[#00e676] shadow-[0_0_8px_#00e676]" />
-                          <div className="w-1.5 h-1.5 rounded-full bg-[#00e676] shadow-[0_0_6px_#00e676]" />
-                        </>
-                      )}
-                    </button>
-                  )}
-                </div>
-              </div>
+            
+            <div className="flex items-center gap-6 text-[13.5px] font-medium text-gray-300">
+              <button 
+                onClick={() => { setActiveView("home"); window.scrollTo(0,0); }} 
+                className={`transition hover:text-white ${activeView === "home" ? "text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]" : ""}`}
+              >
+                หน้าหลัก
+              </button>
+              <button 
+                onClick={() => { setActiveView("categories"); window.scrollTo(0,0); }} 
+                className={`transition hover:text-white ${(activeView === "categories" || activeView === "category_products" || activeView === "product_detail") ? "text-white" : ""}`}
+              >
+                เกมออฟไลน์
+              </button>
+              <button onClick={() => { setActiveView("categories"); window.scrollTo(0,0); }} className="transition hover:text-white">
+                หมวดหมู่
+              </button>
+              <button onClick={() => { setActiveView("policy"); window.scrollTo(0,0); }} className={`transition hover:text-white ${activeView === "policy" ? "text-white" : ""}`}>
+                ช่วยเหลือ
+              </button>
+              <button onClick={() => { setActiveView("contact"); window.scrollTo(0,0); }} className={`transition hover:text-white ${activeView === "contact" ? "text-white" : ""}`}>
+                ติดต่อเรา
+              </button>
             </div>
+          </div>
 
-            {/* Bottom Row & Profile identity */}
-            <div className="mt-auto pt-4 border-t border-[#161619] space-y-4 shrink-0">
-              <div className="grid grid-cols-4 gap-1.5 px-1">
-                {/* Bell */}
-                <button
-                  onClick={() => {
-                    import("sweetalert2").then((s) => s.default.fire({
-                      title: "📢 ข่าวสารการประกาศ",
-                      text: "ขณะนี้หน้าร้านจัดส่งสติกเกอร์บูสเซิร์ฟเวอร์แบบออโต้ 100% สิทธิ์รับประกันคีย์ใช้งานมีผลทันทีหลังจากกดคัดลอก!",
-                      background: "#1e1e1e",
-                      color: "#fff",
-                      confirmButtonColor: "#00e676"
-                    }));
-                  }}
-                  className="flex items-center justify-center p-2 rounded-xl border border-[#1d1d21] bg-[#111113]/60 hover:bg-[#1a1a1f] hover:border-zinc-700 transition-all text-zinc-400 hover:text-white cursor-pointer active:scale-95"
-                  title="ข่าวประกาศ"
-                >
-                  <Bell size={15} />
-                </button>
-
-                {/* Settings */}
-                <button
-                  onClick={() => {
-                    if (user) {
-                      setActiveView("settings");
-                      window.scrollTo({ top: 0, behavior: "smooth" });
-                    } else {
-                      setActiveView("login");
-                      window.scrollTo({ top: 0, behavior: "smooth" });
-                    }
-                  }}
-                  className={`flex items-center justify-center p-2 rounded-xl border transition-all cursor-pointer active:scale-95 ${activeView === "settings" ? "bg-emerald-500/[0.08] border-emerald-500 text-[#00e676]" : "border-[#1d1d21] bg-[#111113]/60 hover:bg-[#1a1a1f] hover:border-zinc-700 text-zinc-400 hover:text-white"}`}
-                  title="ตั้งค่าระบบ"
-                >
-                  <Settings size={15} />
-                </button>
-
-                {/* Search */}
-                <button
-                  onClick={() => setShowSearchPopup(true)}
-                  className="flex items-center justify-center p-2 rounded-xl border border-[#1d1d21] bg-[#111113]/60 hover:bg-[#1a1a1f] hover:border-zinc-700 transition-all text-zinc-400 hover:text-white cursor-pointer active:scale-95"
-                  title="ค้นหา"
-                >
-                  <Search size={15} />
-                </button>
-              </div>
-
-              {/* User Identity Box */}
-              {user ? (
-                <div className="space-y-2">
-                  <div 
-                    onClick={() => {
-                      setActiveView("profile");
-                      window.scrollTo({ top: 0, behavior: "smooth" });
-                    }}
-                    className="flex items-center gap-3 p-2 bg-[#0d0d0f] hover:bg-[#151518] border border-[#1b1b1e] rounded-xl cursor-pointer transition-all"
+          <div className="flex items-center gap-4">
+            <div className="relative group cursor-pointer" onClick={() => setShowSearchPopup(true)}>
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-hover:text-white transition-colors" />
+              <input 
+                type="text" 
+                placeholder="ค้นหาเกม..." 
+                className="bg-[#111218] border border-gray-800 rounded-full py-2 pl-10 pr-4 text-sm w-56 lg:w-64 focus:outline-none focus:border-blue-500 transition-colors placeholder:text-gray-500 text-white cursor-pointer pointer-events-none"
+                readOnly
+              />
+            </div>
+            
+            <Globe className="w-5 h-5 text-gray-400 cursor-pointer hover:text-white transition hidden md:block" />
+            
+            <div className="flex items-center gap-3">
+              {!user ? (
+                <>
+                  <button 
+                    className="px-5 py-2 rounded-lg text-sm font-medium border border-gray-700 text-zinc-300 hover:text-white hover:bg-gray-800 hover:border-gray-600 transition"
+                    onClick={() => setActiveView("login")}
                   >
-                    <div className="w-8 h-8 rounded-full bg-[#161619] overflow-hidden shrink-0 border border-white/5 relative">
-                      <img 
-                        src={getAvatarUrl(user?.id || userPlan?.username || user?.email?.split("@")[0] || "U")} 
-                        alt="Profile" 
-                        className="w-full h-full object-cover rounded-full"
-                        referrerPolicy="no-referrer"
-                      />
-                      {userPlan?.isPremium && (
-                        <div className="absolute -bottom-1 -right-1 bg-amber-500 rounded-full p-0.5 border border-[#000]">
-                          <Crown className="w-2 h-2 text-black" />
-                        </div>
+                    เข้าสู่ระบบ
+                  </button>
+                  <button 
+                    className="px-5 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-500 transition shadow-lg shadow-blue-500/20"
+                    onClick={() => setActiveView("login")}
+                  >
+                    สมัครสมาชิก
+                  </button>
+                </>
+              ) : (
+                <div className="flex items-center gap-3">
+                  <button 
+                    onClick={() => setActiveView("wallet")}
+                    className="px-4 py-2 rounded-lg text-sm font-medium bg-[#111218] border border-gray-800 flex items-center gap-2 hover:border-emerald-500/50 transition-colors"
+                  >
+                    <Wallet className="w-4 h-4 text-emerald-500" />
+                    <span className="text-emerald-400 font-mono">฿{user.balance.toFixed(2)}</span>
+                  </button>
+                  <div className="relative group">
+                    <button 
+                      onClick={() => setActiveView("profile")}
+                      className="flex items-center justify-center w-10 h-10 rounded-full bg-blue-600 text-white font-semibold hover:bg-blue-500 transition shadow-md shadow-blue-500/20 uppercase"
+                    >
+                      {user.username.charAt(0)}
+                    </button>
+                    <div className="absolute right-0 top-full mt-2 w-48 bg-[#0B0C10] border border-gray-800 rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all flex flex-col p-2 z-[110]">
+                      <div className="px-3 pb-2 pt-1 text-xs text-gray-400 border-b border-gray-800 mb-1">{user.username}</div>
+                      <button 
+                        onClick={() => setActiveView("history")} 
+                        className="text-left px-3 py-2 text-sm text-gray-300 hover:bg-[#111218] hover:text-white rounded-lg transition"
+                      >
+                        ประวัติการสั่งซื้อ
+                      </button>
+                      {user.role === 'admin' && (
+                        <button 
+                          onClick={() => setActiveView("admin")} 
+                          className="text-left px-3 py-2 text-sm text-amber-400 hover:bg-[#111218] hover:text-amber-300 rounded-lg transition"
+                        >
+                          จัดการระบบ (Admin)
+                        </button>
                       )}
-                    </div>
-                    <div className="flex flex-col min-w-0 flex-1 leading-tight">
-                      <span className="text-xs truncate text-[#e3e3e3] font-medium font-sans">
-                        {userPlan?.username || user?.email?.split("@")[0]}
-                      </span>
-                      <span className="text-[10px] text-zinc-500 font-mono mt-0.5">
-                        {Math.floor(userPlan?.balance || 0).toLocaleString()} ฿
-                      </span>
+                      <div className="h-px bg-gray-800 w-full my-1" />
+                      <button 
+                        onClick={() => {
+                           handleLogout();
+                           setActiveView("home");
+                        }} 
+                        className="text-left px-3 py-2 text-sm text-red-400 hover:bg-red-500/10 hover:text-red-300 rounded-lg transition"
+                      >
+                        ออกจากระบบ
+                      </button>
                     </div>
                   </div>
-
-                  <button
-                    onClick={handleLogout}
-                    className="w-full flex items-center gap-1.5 justify-center py-2 rounded-xl bg-red-950/10 hover:bg-red-950/20 border border-red-500/10 hover:border-red-500/20 transition-all duration-200 text-red-400 hover:text-red-300 text-[11px] font-semibold cursor-pointer active:scale-[0.98]"
-                  >
-                    <LogOut size={13} /> ออกจากระบบ
-                  </button>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  <button 
-                    onClick={() => {
-                      setActiveView("login");
-                      window.scrollTo({ top: 0, behavior: "smooth" });
-                    }}
-                    className="w-full flex items-center justify-center gap-2 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold text-xs rounded-xl shadow-lg transition-all cursor-pointer whitespace-nowrap active:scale-[0.98]"
-                  >
-                    <LogIn size={14} /> เข้าสู่ระบบ
-                  </button>
-                  <button 
-                    onClick={() => {
-                      setActiveView("signup");
-                      window.scrollTo({ top: 0, behavior: "smooth" });
-                    }}
-                    className="w-full flex items-center justify-center gap-2 py-2 bg-zinc-950/40 hover:bg-zinc-900 border border-zinc-900 text-zinc-300 hover:text-white font-semibold text-xs rounded-xl transition-all cursor-pointer whitespace-nowrap active:scale-[0.98]"
-                  >
-                    <UserPlus size={14} /> สมัครสมาชิก
-                  </button>
                 </div>
               )}
             </div>
           </div>
-        </aside>
+        </nav>
 
-        {/* Main Content Area */}
-        <div className="flex-1 flex flex-col min-h-screen min-w-0 relative transition-all duration-300">
-          {/* Top Header */}
-          <header className="sticky top-0 z-[100] w-full bg-[#050505]/40 backdrop-blur-2xl saturate-150 border-b border-[#161619] flex-shrink-0 select-none">
-            <div className="flex items-center justify-between h-[95px] md:h-[110px] px-4 md:px-8 mx-auto w-full">
-              {/* Left Section: Mobile Logo + Desktop Toggle */}
-              <div className="flex items-center gap-4 flex-shrink-0">
-                <motion.button
-                  whileTap={{ scale: 0.92 }}
-                  onClick={() => setIsDesktopSidebarOpen(!isDesktopSidebarOpen)}
-                  aria-label="Toggle sidebar" title="Toggle sidebar" className="hidden lg:flex w-11 h-11 flex-col justify-center items-center gap-[5px] bg-[#1c1c1e]/40 hover:bg-[#2c2c2e]/60 active:bg-white/[0.1] border border-white/[0.05] hover:border-white/[0.12] transition-colors cursor-pointer rounded-xl text-white shadow-md relative group"
-                  aria-label="Toggle Sidebar"
-                >
-                  <motion.div
-                    animate={{
-                      rotate: 0,
-                      y: 0,
-                    }}
-                    transition={{ duration: 0.2 }}
-                    className="w-5.5 h-[2px] bg-zinc-300 rounded-full group-hover:bg-white"
-                  />
-                  <motion.div
-                    animate={{
-                      opacity: 1,
-                      scale: 1,
-                    }}
-                    transition={{ duration: 0.2 }}
-                    className="w-5.5 h-[2px] bg-zinc-300 rounded-full group-hover:bg-white"
-                  />
-                  <motion.div
-                    animate={{
-                      rotate: 0,
-                      y: 0,
-                    }}
-                    transition={{ duration: 0.2 }}
-                    className="w-5.5 h-[2px] bg-zinc-300 rounded-full group-hover:bg-white"
-                  />
-                </motion.button>
-                
-                <div
-                  className="flex items-center gap-2 select-none flex-shrink-0 cursor-pointer hover:scale-[1.02] active:scale-95 transition-all duration-200 group lg:hidden"
-                  onClick={() => {
-                    setActiveView("home");
-                    window.scrollTo({ top: 0, behavior: "smooth" });
-                  }}
-                >
-                  <div className="flex items-center py-1">
-                    <span className="text-2xl font-light tracking-tight text-white font-logo select-none">
-                      apex<span className="text-[#00e676] font-light">store</span>
-                    </span>
-                  </div>
+        {/* Mobile Header */}
+        <header className="sticky top-0 z-[100] w-full bg-[#0B0C10]/90 backdrop-blur-xl border-b border-[#161619] lg:hidden select-none">
+          <div className="flex items-center justify-between h-[80px] px-4 md:px-8 mx-auto w-full">
+            <div className="flex items-center gap-4 flex-shrink-0">
+              <div
+                className="flex items-center gap-2 cursor-pointer"
+                onClick={() => {
+                  setActiveView("home");
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+              >
+                <div className="bg-blue-600 p-2 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/20">
+                  <Gamepad2 className="w-4 h-4 text-white" />
                 </div>
-              </div>
-
-              {/* Right Section */}
-              <div className="flex items-center gap-2 md:gap-4">
-                {/* Search Pill Button */}
-                <button
-                  onClick={() => setShowSearchPopup(true)}
-                  className="h-[38px] md:h-10 px-4 md:px-5 rounded-full flex items-center gap-2 md:gap-2.5 text-zinc-400 hover:text-white bg-[#0e0e11]/60 hover:bg-white/[0.04] border border-[#161619] hover:border-[#2e2e34] transition-all duration-200 active:scale-95 cursor-pointer select-none"
-                  aria-label="Search"
-                >
-                  <Search className="w-4 h-4 text-zinc-500 shrink-0" />
-                  <span className="text-xs md:text-sm font-sans tracking-wide text-zinc-400">
-                    ค้นหาสินค้า
-                  </span>
-                </button>
-
-                {/* Hamburger Trigger */}
-                <motion.button
-                  whileTap={{ scale: 0.92 }}
-                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                  aria-label="เปิดเมนู" className="w-11 h-11 flex flex-col justify-center items-center gap-[5.5px] bg-[#1c1c1e]/40 hover:bg-[#2c2c2e]/60 active:bg-white/[0.1] border border-white/[0.05] hover:border-white/[0.12] transition-colors cursor-pointer rounded-xl ml-1 lg:hidden text-white relative z-[140] shadow-md"
-                  aria-label="Menu"
-                >
-                  <motion.div
-                    animate={{
-                      rotate: isMobileMenuOpen ? 45 : 0,
-                      y: isMobileMenuOpen ? 7.5 : 0,
-                    }}
-                    transition={{
-                      duration: 0.25,
-                      ease: "easeInOut",
-                    }}
-                    className="w-5.5 h-[2px] bg-white rounded-full"
-                  />
-                  <motion.div
-                    animate={{
-                      opacity: isMobileMenuOpen ? 0 : 1,
-                      scale: isMobileMenuOpen ? 0 : 1,
-                    }}
-                    transition={{
-                      duration: 0.2,
-                      ease: "easeInOut",
-                    }}
-                    className="w-5.5 h-[2px] bg-white rounded-full"
-                  />
-                  <motion.div
-                    animate={{
-                      rotate: isMobileMenuOpen ? -45 : 0,
-                      y: isMobileMenuOpen ? -7.5 : 0,
-                    }}
-                    transition={{
-                      duration: 0.25,
-                      ease: "easeInOut",
-                    }}
-                    className="w-5.5 h-[2px] bg-white rounded-full"
-                  />
-                </motion.button>
+                <span className="font-bold text-lg tracking-wider select-none text-white">
+                  THIS<span className="text-blue-500">GAME</span>
+                </span>
               </div>
             </div>
-          </header>
 
-          {/* Mobile Menu Dropdown */}
+            <div className="flex items-center gap-3 md:gap-4">
+              <button
+                onClick={() => setShowSearchPopup(true)}
+                className="w-10 h-10 flex items-center justify-center rounded-full bg-[#111218] border border-gray-800 text-gray-400 hover:text-white transition-colors"
+                aria-label="Search"
+              >
+                <Search className="w-4 h-4" />
+              </button>
+
+              <motion.button
+                whileTap={{ scale: 0.92 }}
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                aria-label="Menu" 
+                className="w-10 h-10 flex flex-col justify-center items-center gap-[5px] bg-[#111218] active:bg-[#1c1c1e] border border-gray-800 transition-colors cursor-pointer rounded-lg text-white"
+              >
+                <motion.div
+                  animate={{ rotate: isMobileMenuOpen ? 45 : 0, y: isMobileMenuOpen ? 7 : 0 }}
+                  className="w-5 h-[2px] bg-white rounded-full"
+                />
+                <motion.div
+                  animate={{ opacity: isMobileMenuOpen ? 0 : 1, scale: isMobileMenuOpen ? 0 : 1 }}
+                  className="w-5 h-[2px] bg-white rounded-full"
+                />
+                <motion.div
+                  animate={{ rotate: isMobileMenuOpen ? -45 : 0, y: isMobileMenuOpen ? -7 : 0 }}
+                  className="w-5 h-[2px] bg-white rounded-full"
+                />
+              </motion.button>
+            </div>
+          </div>
+        </header>
+{/* Mobile Menu Dropdown */}
           <AnimatePresence>
             {isMobileMenuOpen && (
               <>
@@ -2320,9 +2046,12 @@ function AppContent() {
                         window.scrollTo({ top: 0, behavior: "smooth" });
                       }}
                     >
-                      <div className="flex items-center py-1">
-                        <span className="text-[30px] font-light tracking-tight text-white font-logo select-none">
-                          apex<span className="text-[#00e676] font-light">store</span>
+                      <div className="flex items-center gap-2">
+                        <div className="bg-blue-600 p-1.5 rounded flex items-center justify-center">
+                          <Gamepad2 className="w-4 h-4 text-white" />
+                        </div>
+                        <span className="font-bold text-xl tracking-wider select-none text-white">
+                          THIS<span className="text-blue-500">GAME</span>
                         </span>
                       </div>
                     </motion.div>
