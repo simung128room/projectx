@@ -22,6 +22,10 @@
       ]
     },
     "allowImportingTsExtensions": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "downlevelIteration": true,
+    "resolveJsonModule": true,
     "noEmit": true
   },
   "include": ["src", "server.ts", "*.d.ts"]

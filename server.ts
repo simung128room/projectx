@@ -1,4 +1,12 @@
-// @ts-nocheck
+
+declare module 'express-serve-static-core' {
+  interface Request {
+    user?: any;
+    isAdmin?: boolean;
+      // @ts-ignore
+    ip?: string;
+  }
+}
 var __defProp = Object.defineProperty;
 var __name = (target, value) =>
   __defProp(target, "name", { value, configurable: true });
@@ -302,6 +310,7 @@ process.on("uncaughtException", (err) => {
   } catch (e) {
     console.error("Caught error:", e);
   }
+      // @ts-ignore
   sendAlert(
     "Uncaught Exception \u{1F525}",
     `**Error**: ${err.message}`,
@@ -316,6 +325,7 @@ process.on("unhandledRejection", (reason, promise) => {
       reason: String(reason),
     }),
   );
+      // @ts-ignore
   sendAlert(
     "Unhandled Rejection \u26A0\uFE0F",
     `**Reason**: ${String(reason)}`,
@@ -388,6 +398,7 @@ app.use(
         defaultSrc: ["'self'"],
         scriptSrc: [
           "'self'",
+      // @ts-ignore
           (req, res) => `'nonce-${res.locals.cspNonce}'`,
           "https://www.youtube.com",
           "https://s.ytimg.com",
@@ -438,6 +449,7 @@ const logger = pino({
   },
   mixin() {
     const store = asyncLocalStorage.getStore();
+      // @ts-ignore
     return { requestId: store?.get("requestId") };
   },
   timestamp: pino.stdTimeFunctions.isoTime,
@@ -477,6 +489,7 @@ setInterval(() => {
       currentConcurrentRequests,
       shedCount,
       heapUsedMB: Math.round(mem.heapUsed / 1024 / 1024),
+      // @ts-ignore
       activeHandles: process._getActiveHandles().length,
     },
     "System Health & Adaptive Concurrency Tick",
@@ -588,6 +601,7 @@ app.use(
 app.get("/health", async (req, res) => {
   const used = process.memoryUsage();
   if (used.heapUsed / used.heapTotal > 0.9) {
+      // @ts-ignore
     sendAlert(
       "High Memory Usage \u26A0\uFE0F",
       `Heap is at ${Math.round((used.heapUsed / used.heapTotal) * 100)}% (${Math.round(used.heapUsed / 1024 / 1024)}MB)`,
@@ -721,6 +735,7 @@ const invalidateUserTokenCache = __name((uid) => {
     uidToTokens.delete(uid);
   }
   for (const [token, cached] of userTokenCache.entries()) {
+      // @ts-ignore
     if (!(cached instanceof Promise) && cached.user?.id === uid) {
       userTokenCache.delete(token);
     }
@@ -750,10 +765,15 @@ const injectUser = __name(async (req, res, next) => {
             }
             return next();
           } catch (e) {}
+      // @ts-ignore
         } else if (now - cached.timestamp < 6e4) {
+      // @ts-ignore
           req.user = cached.user;
+      // @ts-ignore
           req.isAdmin = cached.isAdmin;
+      // @ts-ignore
           if (cached.user && cached.user.id) {
+      // @ts-ignore
             const uidStr = cached.user.id;
             if (!uidToTokens.has(uidStr)) {
               uidToTokens.set(uidStr, new Set());
@@ -1076,7 +1096,7 @@ const invalidateStatsCache = __name(() => {
   cachedStats = null;
   cacheRevisionCounter++;
 }, "invalidateStatsCache");
-let siteSettings = {
+let siteSettings: any = {
   site_name: process.env.SITE_NAME || "STORETH",
   truewallet_phone: process.env.TRUEWALLET_PHONE || "",
   contact_line: process.env.CONTACT_LINE || "",
@@ -2331,11 +2351,13 @@ const ___dep_check = __name(async (req, res) => {
     const e = "default";
     return s[e] && typeof s[e] == "object" && "__esModule" in s[e] ? s[e] : s;
   });
+      // @ts-ignore
   let client2 = wrapper(axios.create(axiosConfig));
   client2.defaults.jar = jar;
   const setupFallbackClient = __name(() => {
     const directAgent = new https.Agent({ rejectUnauthorized: true });
     const fbClient = wrapper(
+      // @ts-ignore
       axios.create({
         ...axiosConfig,
         httpsAgent: directAgent,
@@ -2828,6 +2850,7 @@ const memoryCache = new LRUCache({
 });
 const inflightRequests = new Map();
 let cacheRevisionCounter = 0;
+      // @ts-ignore
 const dbReadBreaker = new CircuitBreaker(async (action) => await action(), {
   timeout: 2e4,
   errorThresholdPercentage: 50,
@@ -3147,6 +3170,7 @@ const getCachedCollection = __name(
             };
           }
           const oldCache = memoryCache.get(collectionName);
+      // @ts-ignore
           const currentRevision = oldCache?.revision || cacheRevisionCounter;
           const freshData = {
             data,
@@ -3579,9 +3603,12 @@ app.put("/api/products/:id", requireAdmin, async (req, res) => {
       let nextVersion = existingData._version || 0;
       if (Object.keys(deltaAfter).length > 0) {
         nextVersion += 1;
+      // @ts-ignore
         deltaAfter._version = nextVersion;
       }
+      // @ts-ignore
       if (deltaAfter.stockData && !deltaAfter.stockData[0]?.__compressed) {
+      // @ts-ignore
         deltaAfter.stockData = await compressStock(deltaAfter.stockData);
       }
       const dataToSave = JSON.parse(JSON.stringify(deltaAfter));
@@ -3828,6 +3855,7 @@ app.get("/api/latest-purchases", async (req, res) => {
 app.get("/api/purchases", requireAuth, async (req, res) => {
   try {
     const adminDb = admin.firestore();
+      // @ts-ignore
     const limit = Math.min(100, parseInt(req.query.limit) || 20);
     const afterDocId = req.query.after;
     let q = adminDb
@@ -3837,9 +3865,11 @@ app.get("/api/purchases", requireAuth, async (req, res) => {
     if (afterDocId) {
       const cursorDoc = await adminDb
         .collection("purchases")
+      // @ts-ignore
         .doc(afterDocId)
         .get();
       if (cursorDoc.exists) {
+      // @ts-ignore
         q = q.startAfter(cursorDoc);
       }
     }
@@ -3852,9 +3882,11 @@ app.get("/api/purchases", requireAuth, async (req, res) => {
       if (afterDocId) {
         const cursorDoc = await adminDb
           .collection("purchases")
+      // @ts-ignore
           .doc(afterDocId)
           .get();
         if (cursorDoc.exists) {
+      // @ts-ignore
           q = q.startAfter(cursorDoc);
         }
       }
@@ -3920,16 +3952,19 @@ app.put("/api/purchases/:id", requireAdmin, async (req, res) => {
     }
     const payload = {};
     if (secretData !== void 0) {
+      // @ts-ignore
       payload.secretData = encrypt(secretData);
       const rawSecret = secretData || "";
       const keysList = rawSecret
         .split("\n")
         .map((k) => k.trim())
         .filter(Boolean);
+      // @ts-ignore
       payload.licenseKeyHashes = keysList.map((k) =>
         crypto.createHash("sha256").update(k).digest("hex"),
       );
     }
+      // @ts-ignore
     if (preOrderStatus !== void 0) payload.preOrderStatus = preOrderStatus;
     await docRef.update(payload);
     res.json({ success: true, id, ...payload, secretData });
@@ -4212,6 +4247,7 @@ app.post("/api/buy", mutationLimiter, requireAuth, async (req, res) => {
         idempRef = admin
           .firestore()
           .collection("idempotency_keys")
+      // @ts-ignore
           .doc(idempotencyKey);
         idempPromise = t.get(idempRef);
       }
@@ -4340,8 +4376,11 @@ app.post("/api/buy", mutationLimiter, requireAuth, async (req, res) => {
         is_special: false,
       };
       if (productData.isPreOrder) {
+      // @ts-ignore
         newHistoryItem.isPreOrder = true;
+      // @ts-ignore
         newHistoryItem.preOrderOption = req.body.preOrderOption || "";
+      // @ts-ignore
         newHistoryItem.preOrderStatus = "pending";
       }
       const userUpdatePayload = JSON.parse(
@@ -4785,7 +4824,9 @@ app.post("/api/logs-system", requireAdmin, async (req, res) => {
 });
 app.get("/api/license_keys", requireAdmin, async (req, res) => {
   try {
+      // @ts-ignore
     const page = Math.max(1, parseInt(req.query.page) || 1);
+      // @ts-ignore
     const limit = Math.min(500, parseInt(req.query.limit) || 100);
     const offset = (page - 1) * limit;
     let q = admin
@@ -5410,7 +5451,9 @@ app.delete("/api/users/:uid", requireAuth, async (req, res) => {
 });
 app.get("/api/users", requireAdmin, async (req, res) => {
   try {
+      // @ts-ignore
     const page = Math.max(1, parseInt(req.query.page) || 1);
+      // @ts-ignore
     const limit = Math.min(200, parseInt(req.query.limit) || 100);
     const offset = (page - 1) * limit;
     const snapshot = await admin
@@ -5504,6 +5547,7 @@ class TopupSystem {
     __name(this, "TopupSystem");
   }
   constructor(phoneNumber) {
+      // @ts-ignore
     this.phoneNumber = phoneNumber;
   }
   async redeemVoucher(giftLink) {
@@ -5512,6 +5556,7 @@ class TopupSystem {
       if (!voucherCode) return { success: false, message: "INVALID_CODE" };
       const res = await axios.post(
         `https://gift.truemoney.com/campaign/vouchers/${voucherCode}/redeem`,
+      // @ts-ignore
         { mobile: this.phoneNumber, voucher_hash: voucherCode },
         {
           headers: {
