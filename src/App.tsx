@@ -1853,34 +1853,45 @@ function AppContent() {
               className="flex items-center cursor-pointer select-none" 
               onClick={() => { setActiveView('home'); window.scrollTo(0,0); }}
             >
-              <span className="text-[20px] font-sans font-extrabold text-[#1a1a1a] tracking-tight flex items-center">
-                Sunoid<span className="w-[5px] h-[5px] bg-[#facc15] mx-[3px] rounded-[1px] self-end mb-[4px]"></span>shop
+              <span className="text-[20px] font-sans font-extrabold text-[#1a1a1a] tracking-tight">
+                Sunoid<span className="inline-block w-[4.5px] h-[4.5px] bg-blue-600 mx-[1.5px] rounded-[1px] align-baseline"></span>shop
               </span>
             </div>
 
-            <button 
-              className="md:hidden p-2 text-muted-foreground hover:text-foreground transition-all duration-300 px-0 outline-none select-none z-[1001]" 
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              aria-label="เมนู"
-            >
-              <div className="w-5 h-5 flex flex-col justify-center items-center gap-1 relative">
-                <motion.span
-                  animate={isMobileMenuOpen ? { rotate: 45, y: 5 } : { rotate: 0, y: 0 }}
-                  transition={{ type: "spring", stiffness: 280, damping: 22 }}
-                  className="w-5 h-0.5 bg-[#1e1e20] rounded-full block transform origin-center"
-                />
-                <motion.span
-                  animate={isMobileMenuOpen ? { opacity: 0, scale: 0.8 } : { opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.15 }}
-                  className="w-5 h-0.5 bg-[#1e1e20] rounded-full block my-[1.5px]"
-                />
-                <motion.span
-                  animate={isMobileMenuOpen ? { rotate: -45, y: -5 } : { rotate: 0, y: 0 }}
-                  transition={{ type: "spring", stiffness: 280, damping: 22 }}
-                  className="w-5 h-0.5 bg-[#1e1e20] rounded-full block transform origin-center"
-                />
-              </div>
-            </button>
+            <div className="flex items-center gap-1 md:hidden z-[1001]">
+              {!isMobileMenuOpen && (
+                <button 
+                  onClick={() => setShowSearchPopup(true)}
+                  className="p-2 text-[#1e1e20] hover:text-blue-600 transition-colors cursor-pointer"
+                  aria-label="ค้นหาสินค้า"
+                >
+                  <Search className="w-[19px] h-[19px]" />
+                </button>
+              )}
+              <button 
+                className="p-2 text-muted-foreground hover:text-foreground transition-all duration-300 px-0 outline-none select-none" 
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                aria-label="เมนู"
+              >
+                <div className="w-5 h-5 flex flex-col justify-center items-center gap-1 relative">
+                  <motion.span
+                    animate={isMobileMenuOpen ? { rotate: 45, y: 5 } : { rotate: 0, y: 0 }}
+                    transition={{ type: "spring", stiffness: 280, damping: 22 }}
+                    className="w-5 h-0.5 bg-[#1e1e20] rounded-full block transform origin-center"
+                  />
+                  <motion.span
+                    animate={isMobileMenuOpen ? { opacity: 0, scale: 0.8 } : { opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.15 }}
+                    className="w-5 h-0.5 bg-[#1e1e20] rounded-full block my-[1.5px]"
+                  />
+                  <motion.span
+                    animate={isMobileMenuOpen ? { rotate: -45, y: -5 } : { rotate: 0, y: 0 }}
+                    transition={{ type: "spring", stiffness: 280, damping: 22 }}
+                    className="w-5 h-0.5 bg-[#1e1e20] rounded-full block transform origin-center"
+                  />
+                </div>
+              </button>
+            </div>
 
             {/* Desktop Links */}
             <div className="hidden items-center gap-6 md:flex">
@@ -2010,8 +2021,8 @@ function AppContent() {
                 {/* Header */}
                 <div className="flex items-center justify-between mb-6 shrink-0 mt-2">
                   <div className="flex items-center select-none cursor-pointer" onClick={() => { setActiveView('home'); setIsMobileMenuOpen(false); window.scrollTo(0,0); }}>
-                    <span className="text-[20px] font-sans font-extrabold text-[#1a1a1a] tracking-tight flex items-center">
-                      Sunoid<span className="w-[5px] h-[5px] bg-[#facc15] mx-[3px] rounded-[1px] self-end mb-[4px]"></span>shop
+                    <span className="text-[20px] font-sans font-extrabold text-[#1a1a1a] tracking-tight">
+                      Sunoid<span className="inline-block w-[4.5px] h-[4.5px] bg-blue-600 mx-[1.5px] rounded-[1px] align-baseline"></span>shop
                     </span>
                   </div>
                   <button 
@@ -2364,8 +2375,8 @@ function AppContent() {
             <div className="container mx-auto px-8 py-12">
               <div className="mb-8">
                 <div className="flex items-center gap-1.5 text-sm text-muted-foreground select-none">
-                  <span className="text-[17px] font-sans font-extrabold text-[#1a1a1a] tracking-tight flex items-center">
-                    Sunoid<span className="w-[3.5px] h-[3.5px] bg-[#facc15] mx-[2.5px] rounded-[1px] self-end mb-[3px]"></span>shop
+                  <span className="text-[17px] font-sans font-extrabold text-[#1a1a1a] tracking-tight">
+                    Sunoid<span className="inline-block w-[3.5px] h-[3.5px] bg-blue-600 mx-[1.2px] rounded-[0.8px] align-baseline"></span>shop
                   </span>
                   <span>&gt;</span>
                   <span>Sunoid.shop Store Online</span>
