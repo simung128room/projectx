@@ -393,11 +393,11 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
 
   return (
     <AnimatedScroll direction="up" hideOnScroll={true}>
-      <div className="w-full max-w-xl mx-auto px-5 py-8 font-sans min-h-screen text-zinc-800 relative z-10 select-none">
+      <div className="w-full max-w-xl mx-auto px-6 py-8 font-sans bg-[#f8fafc] border border-zinc-200/60 rounded-[32px] text-zinc-800 relative z-10 select-none shadow-sm mt-4">
         
         {/* Decorative ambient glows */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-xl h-full pointer-events-none overflow-hidden select-none -z-10">
-          <div className="absolute top-[-5%] left-[50%] -translate-x-1/2 w-[300px] h-[300px] bg-blue-500/5 rounded-full blur-[80px]" />
+          <div className="absolute top-[-5%] left-[50%] -translate-x-1/2 w-[300px] h-[300px] bg-blue-500/10 rounded-full blur-[80px]" />
         </div>
 
         <AnimatePresence mode="wait">
@@ -414,8 +414,8 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
             >
               {/* Header */}
               <div className="text-left mt-4 mb-2">
-                <h1 className="text-3xl font-extrabold text-[#1e1e20] tracking-tight">
-                  เติมเงิน
+                <h1 className="text-2xl font-black text-[#1e1e20] tracking-tight">
+                  ช่องทางชำระเงิน
                 </h1>
                 <p className="text-zinc-500 text-sm font-medium mt-1">
                   เลือกวิธีการเติมเงินที่คุณต้องการ
@@ -423,9 +423,9 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
               </div>
 
               {/* Account Balance Banner */}
-              <div className="bg-[#f8fafc] border border-slate-100 p-5 rounded-2xl flex items-center justify-between shadow-sm">
+              <div className="bg-white border border-slate-200/60 p-5 rounded-2xl flex items-center justify-between shadow-sm">
                 <span className="text-zinc-500 font-bold text-sm">ยอดเงินในบัญชี:</span>
-                <span className="text-[#13c2c2] font-black text-xl font-mono">
+                <span className="text-[#13c2c2] font-black text-2xl tracking-tight">
                   ฿{(userPlan?.balance || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </span>
               </div>
@@ -637,7 +637,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
                   <div className="flex justify-between items-center gap-2 pt-0.5">
                     <span className="text-zinc-400">เลขที่บัญชี:</span>
                     <div className="flex items-center gap-2">
-                      <span className="font-mono bg-white px-2 py-1 border border-zinc-100 rounded-lg text-sm font-black select-all text-zinc-800 text-right">{bankAccountNumber}</span>
+                      <span className="bg-white px-3 py-1 border border-zinc-200 rounded-lg text-sm font-black select-all text-zinc-800 text-right tracking-wider">{bankAccountNumber}</span>
                       <button 
                         onClick={handleCopyAccount}
                         className={`p-1.5 rounded-lg border transition-colors cursor-pointer ${
