@@ -50,7 +50,7 @@ export const HomeView = (props: any) => {
         <div className="relative z-10 max-w-3xl flex flex-col items-center animate-in fade-in slide-in-from-bottom-8 duration-700">
           <div className="bg-[#3b82f6]/10 text-[#3b82f6] border border-[#3b82f6]/20 px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-6 flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-            ต้อนรับสู่ VHOUSE SPACE
+            ต้อนรับสู่ Sunoid.shop
           </div>
           <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-4 text-[#1e1e20] leading-tight">
             ไอดีเกมราคาถูก คุณภาพสูง <br/>
@@ -59,7 +59,7 @@ export const HomeView = (props: any) => {
             </span>
           </h1>
           <p className="text-sm sm:text-base text-muted-foreground mb-8 max-w-xl">
-            VHOUSE ให้บริการจัดจำหน่ายไอดีเกมชั้นนำราคาประหยัด มีสินค้าให้เลือกหลากหลาย ปลอดภัย มั่นใจได้ 100% พร้อมบริการดูแลตลอด 24 ชั่วโมง
+            Sunoid.shop ให้บริการจัดจำหน่ายไอดีเกมชั้นนำราคาประหยัด มีสินค้าให้เลือกหลากหลาย ปลอดภัย มั่นใจได้ 100% พร้อมบริการดูแลตลอด 24 ชั่วโมง
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
             <button 
@@ -209,7 +209,7 @@ export const HomeView = (props: any) => {
              <div className="w-12 h-12 bg-blue-500/10 text-blue-500 rounded-xl flex items-center justify-center mb-6">
                <ShieldCheck className="w-6 h-6" />
              </div>
-             <h2 className="text-2xl sm:text-3xl font-bold mb-4 text-[#1e1e20]">เชื่อมั่นใน <span className="text-blue-500">VHOUSE</span></h2>
+             <h2 className="text-2xl sm:text-3xl font-bold mb-4 text-[#1e1e20]">เชื่อมั่นใน <span className="text-blue-500">Sunoid.shop</span></h2>
              <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
                ทีมงานมีประสบการณ์ดูแลระบบมายาวนานกว่า 3 ปี พร้อมดูแลแก้ไขปัญหา หากพบเจอบัคหรือปัญหาการใช้งานแจ้งทีมงานได้ทันที บริการหลังการขายเป็นเลิศ
              </p>

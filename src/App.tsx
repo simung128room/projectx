@@ -1850,13 +1850,12 @@ function AppContent() {
           <div className="container mx-auto flex h-[55px] items-center justify-between px-4">
             
             <div 
-              className="flex items-center gap-[1.725px] cursor-pointer" 
+              className="flex items-center cursor-pointer select-none" 
               onClick={() => { setActiveView('home'); window.scrollTo(0,0); }}
             >
-              <div className="bg-black p-1 rounded-full flex items-center justify-center mr-1">
-                <Gamepad2 className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-[16.1px] font-bold text-foreground tracking-tight">VHOUSE</span>
+              <span className="text-[20px] font-sans font-extrabold text-[#1a1a1a] tracking-tight flex items-center">
+                Sunoid<span className="w-[5px] h-[5px] bg-[#facc15] mx-[3px] rounded-[1px] self-end mb-[4px]"></span>shop
+              </span>
             </div>
 
             <button 
@@ -2006,15 +2005,14 @@ function AppContent() {
                 animate={{ x: 0 }}
                 exit={{ x: "100%" }}
                 transition={{ type: "spring", damping: 28, stiffness: 240 }}
-                className="fixed inset-y-0 right-0 w-full sm:w-[360px] bg-white shadow-2xl z-[1000] flex flex-col p-6 font-sans text-neutral-800 md:hidden"
+                className="fixed inset-y-0 right-0 w-[300px] max-w-[85vw] bg-white shadow-2xl z-[1000] flex flex-col p-6 font-sans text-neutral-800 md:hidden"
               >
                 {/* Header */}
                 <div className="flex items-center justify-between mb-6 shrink-0 mt-2">
-                  <div className="flex items-center gap-2">
-                    <div className="bg-black p-1 rounded-full flex items-center justify-center mr-1">
-                      <Gamepad2 className="w-5 h-5 text-white" />
-                    </div>
-                    <span className="font-extrabold text-[17px] text-[#1e1e20] tracking-tight">VHOUSE</span>
+                  <div className="flex items-center select-none cursor-pointer" onClick={() => { setActiveView('home'); setIsMobileMenuOpen(false); window.scrollTo(0,0); }}>
+                    <span className="text-[20px] font-sans font-extrabold text-[#1a1a1a] tracking-tight flex items-center">
+                      Sunoid<span className="w-[5px] h-[5px] bg-[#facc15] mx-[3px] rounded-[1px] self-end mb-[4px]"></span>shop
+                    </span>
                   </div>
                   <button 
                     onClick={() => setIsMobileMenuOpen(false)}
@@ -2365,11 +2363,12 @@ function AppContent() {
           <footer className="mt-auto bg-muted border-t border-border">
             <div className="container mx-auto px-8 py-12">
               <div className="mb-8">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <span className="font-bold text-foreground border border-border bg-card p-1 rounded-sm"><Gamepad2 className="w-3 h-3 text-foreground inline-block"/></span>
-                  <span className="font-bold text-foreground text-[16px]">VHOUSE</span>
+                <div className="flex items-center gap-1.5 text-sm text-muted-foreground select-none">
+                  <span className="text-[17px] font-sans font-extrabold text-[#1a1a1a] tracking-tight flex items-center">
+                    Sunoid<span className="w-[3.5px] h-[3.5px] bg-[#facc15] mx-[2.5px] rounded-[1px] self-end mb-[3px]"></span>shop
+                  </span>
                   <span>&gt;</span>
-                  <span>VHOUSE Store Online</span>
+                  <span>Sunoid.shop Store Online</span>
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
@@ -2387,14 +2386,14 @@ function AppContent() {
                   </ul>
                 </div>
                 <div>
-                  <h3 className="font-bold text-sm text-foreground mb-4">VHOUSE Store</h3>
+                  <h3 className="font-bold text-sm text-foreground mb-4">Sunoid.shop Store</h3>
                   <ul className="space-y-2">
                     <li><button onClick={() => { setActiveView('categories'); window.scrollTo(0,0); }} className="text-sm text-muted-foreground hover:text-foreground transition-colors">ซื้อไอดีเกม</button></li>
                     <li><button onClick={() => { setActiveView('wallet'); window.scrollTo(0,0); }} className="text-sm text-muted-foreground hover:text-foreground transition-colors">เติมเงิน</button></li>
                   </ul>
                 </div>
                 <div>
-                  <h3 className="font-bold text-sm text-foreground mb-4">เกี่ยวกับ VHOUSE</h3>
+                  <h3 className="font-bold text-sm text-foreground mb-4">เกี่ยวกับ Sunoid.shop</h3>
                   <ul className="space-y-2">
                     <li><button onClick={() => { setActiveView('home'); window.scrollTo(0,0); }} className="text-sm text-muted-foreground hover:text-foreground transition-colors">หน้าแรก</button></li>
                     <li><a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">เข้าร่วม Discord</a></li>
@@ -2405,12 +2404,12 @@ function AppContent() {
                 <p className="text-sm text-muted-foreground">
                   อีกหลากหลายวิธีในการเลือกซื้อ:{' '}
                   <button onClick={() => { setActiveView('categories'); window.scrollTo(0,0); }} className="text-blue-600 hover:underline">
-                    ค้นหา VHOUSE SPACE
+                    ค้นหา Sunoid.shop
                   </button> หรือ <button onClick={() => { setActiveView('categories'); window.scrollTo(0,0); }} className="text-blue-600 hover:underline">ร้านค้าอื่นๆ</button> ใกล้คุณ
                 </p>
               </div>
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 text-xs text-muted-foreground">
-                <p>Copyright © 2026 VHOUSE Inc. สงวนสิทธิ์ทุกประการ</p>
+                <p>Copyright © 2026 Sunoid.shop Inc. สงวนสิทธิ์ทุกประการ</p>
                 <div className="flex flex-wrap items-center gap-3">
                   <button className="hover:text-foreground transition-colors">ข้อกำหนดการใช้งาน</button>
                   <span>|</span>
