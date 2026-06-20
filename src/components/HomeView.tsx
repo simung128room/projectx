@@ -1,191 +1,153 @@
-"use client";
-
 import React from "react";
-
-/**
- * VHOUSE SPACE — homepage clone
- * เว็บเช่าเว็บไซต์ (Apple Store–style layout)
- * Single-file TSX component. Drop into a Next.js / React + Tailwind project.
- */
-
-const NAV_LINKS = [
-  { label: "เช่าเว็บไซต์", href: "/model" },
-  { label: "ร้าน", href: "/store" },
-  { label: "เติมเงิน", href: "/topup" },
-];
-
-const PRODUCTS = [
-  {
-    id: "vhouse-space",
-    eyebrow: "VHOUSE SPACE",
-    title: "VHOUSE SPACE",
-    desc: "แพลตฟอร์มเช่าเว็บไซต์ของเรา",
-    cta: "เรียนรู้เพิ่มเติม",
-    href: "/store",
-    image: "https://img2.pic.in.th/pic/Screenshot-2025-10-31-145506.png",
-    dark: true,
-  },
-  {
-    id: "webchao",
-    eyebrow: "WEBCHAO",
-    title: "WEBCHAO",
-    desc: "เทมเพลตเว็บไซต์สำเร็จรูป ใช้งานง่าย",
-    cta: "ดูรายละเอียด",
-    href: "/store",
-    image: "https://img5.pic.in.th/file/secure-sv1/Screenshot-2025-10-31-145511.png",
-    dark: false,
-  },
-  {
-    id: "professional",
-    eyebrow: "PROFESSIONAL",
-    title: "PROFESSIONAL",
-    desc: "สำหรับธุรกิจที่ต้องการความเป็นมืออาชีพ",
-    cta: "ดูรายละเอียด",
-    href: "/store",
-    image: "https://img2.pic.in.th/pic/Screenshot-2025-10-31-145515.png",
-    dark: true,
-  },
-];
-
-const FOOTER_COLUMNS: { heading: string; links: { label: string; href: string }[] }[] = [
-  {
-    heading: "เลือกซื้อและเรียนรู้",
-    links: [
-      { label: "ร้าน", href: "/store" },
-      { label: "เช่าเว็บไซต์", href: "/store" },
-    ],
-  },
-  {
-    heading: "บัญชี",
-    links: [
-      { label: "จัดการบัญชีของคุณ", href: "/profile" },
-      { label: "โปรไฟล์", href: "/profile" },
-    ],
-  },
-  {
-    heading: "VHOUSE Store",
-    links: [
-      { label: "ร้านค้า", href: "/store" },
-      { label: "เช่าเว็บไซต์", href: "/store" },
-      { label: "เติมเงิน", href: "/topup" },
-    ],
-  },
-  {
-    heading: "เกี่ยวกับ VHOUSE",
-    links: [
-      { label: "หน้าแรก", href: "/" },
-      { label: "เข้าร่วม Discord", href: "https://discord.gg/yF6SCWvg" },
-    ],
-  },
-];
+import { Gamepad2, ArrowRight, ShoppingCart, ShieldCheck, Server, Activity, Users, CreditCard } from "lucide-react";
+import { ProductCard } from "./ProductCard";
 
 export const HomeView = (props: any) => {
+  const {
+    products = [], 
+    stats, 
+    user, 
+    siteSettings, 
+    setActiveView, 
+    onProductClick, 
+  } = props;
+
+  const recentProducts = [...products].sort((a: any,b: any) => b.id.localeCompare(a.id)).slice(0, 4);
 
   return (
-    <div className="bg-white text-[#1d1d1f] antialiased pb-24 lg:pb-0">
-      {/* ===== Hero ===== */}
-      <section className="flex flex-col items-center bg-gradient-to-b from-[#fbfbfd] to-[#f5f5f7] px-6 pb-12 pt-16 text-center text-[#1d1d1f]">
-        <p className="text-sm font-semibold text-[#86868b]">VHOUSE SPACE</p>
-        <h1 className="mt-2 text-[48px] md:text-[64px] font-semibold tracking-tight leading-tight">
-          VHOUSE SPACE
-        </h1>
-        <p className="mt-4 text-xl text-[#86868b] sm:text-[28px]">เช่าเว็บไซต์ราคาถูก</p>
+    <div className="w-full text-foreground pb-24 lg:pb-0 overflow-x-hidden bg-[#faf8f5]">
+      
+      {/* ===== Hero Gradient Banner (Elegant Cream & Blue Gradient) ===== */}
+      <section className="relative w-full overflow-hidden min-h-[40vh] sm:min-h-[50vh] flex flex-col items-center justify-center p-6 text-center border-b border-[#e6e2da] bg-gradient-to-b from-[#faf6ee] via-[#faf8f5] to-transparent">
+        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-blue-500/5 to-transparent opacity-60 pointer-events-none" />
+        <div className="absolute -top-24 -right-24 w-96 h-96 bg-blue-500/10 rounded-full blur-[100px] pointer-events-none" />
+        <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-[#caa95e]/10 rounded-full blur-[100px] pointer-events-none" />
 
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-base md:text-[19px]">
-          <a href="/store" className="text-[#06c] hover:underline">
-            ดูรายละเอียด&nbsp;&gt;
-          </a>
-          <a href="/store" className="text-[#06c] hover:underline">
-            เลือกซื้อ&nbsp;&gt;
-          </a>
-        </div>
-
-        <div className="mt-14 w-full max-w-5xl overflow-hidden rounded-2xl shadow-xl border border-black/5">
-          <img
-            src="https://img5.pic.in.th/file/secure-sv1/Screenshot-2025-10-31-145454.png"
-            alt="MODELV"
-            className="w-full object-cover"
-          />
-        </div>
-      </section>
-
-      {/* ===== MODELV feature strip ===== */}
-      <section className="bg-white px-6 py-20 text-center border-t border-black/5">
-        <p className="text-sm font-semibold text-[#f56300]">ใหม่</p>
-        <h2 className="mt-2 text-[40px] md:text-[56px] font-semibold tracking-tight leading-tight">MODELV</h2>
-        <p className="mt-4 text-[21px] text-[#1d1d1f] md:text-[24px]">
-          เช่าเว็บไซต์เริ่มต้นที่ ฿199
-        </p>
-        <a
-          href="/store"
-          className="mt-5 inline-block text-[19px] text-[#06c] hover:underline"
-        >
-          ดูรายละเอียด&nbsp;&gt;
-        </a>
-
-        <div className="mx-auto mt-14 max-w-4xl overflow-hidden rounded-2xl border border-black/5 shadow-lg">
-          <img
-            src="https://img.youtube.com/vi/h0Bqtjj6SRQ/maxresdefault.jpg"
-            alt="ชมเว็บตัวอย่าง MODELV"
-            className="w-full object-cover"
-          />
-        </div>
-
-        <div className="mx-auto mt-8 flex max-w-3xl flex-wrap justify-center gap-4 text-[14px] text-[#1d1d1f] font-semibold">
-          <span className="rounded-full bg-black/[0.04] px-4 py-1.5">ได้รับทันที</span>
-          <span className="rounded-full bg-black/[0.04] px-4 py-1.5">พร้อมใช้งาน</span>
+        <div className="relative z-10 max-w-3xl flex flex-col items-center animate-in fade-in slide-in-from-bottom-8 duration-700">
+          <div className="bg-[#3b82f6]/10 text-[#3b82f6] border border-[#3b82f6]/20 px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-6 flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+            ต้อนรับสู่ VHOUSE SPACE
+          </div>
+          <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-4 text-[#1e1e20] leading-tight">
+            เช่าเว็บไซต์ราคาประหยัด <br/>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-teal-600">
+              มั่นคง และ ปลอดภัย
+            </span>
+          </h1>
+          <p className="text-sm sm:text-base text-muted-foreground mb-8 max-w-xl">
+            VHOUSE ให้บริการเช่าเว็บไซต์หลากหลายรูปแบบ ระบบเสถียร ใช้งานง่าย เปิดใช้งานได้ทันที มีแอดมินดูแล
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-4">
+            <button 
+              onClick={() => setActiveView('categories')}
+              className="bg-[#3b82f6] hover:bg-blue-600 text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2 transition-all shadow-md shadow-blue-500/10 active:scale-95 cursor-pointer"
+            >
+              เลือกซื้อสินค้า <ShoppingCart className="w-4 h-4" />
+            </button>
+            <button 
+              onClick={() => {
+                if(!user) { setActiveView('login'); return; }
+                setActiveView('wallet');
+              }}
+              className="bg-white hover:bg-[#faf6ee] border border-[#e6e2da] text-[#1e1e20] px-8 py-3 rounded-xl font-bold flex items-center gap-2 transition-all active:scale-95 cursor-pointer"
+            >
+              เติมเงินเข้าระบบ <CreditCard className="w-4 h-4 text-blue-500" />
+            </button>
+          </div>
         </div>
       </section>
 
-      {/* ===== Product grid ===== */}
-      <section className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 max-w-[2560px] mx-auto bg-white">
-        {PRODUCTS.map((p) => (
-          <article
-            key={p.id}
-            className={`flex flex-col items-center px-8 pt-16 pb-0 text-center overflow-hidden h-[580px] justify-between relative rounded-3xl ${
-              p.dark ? "bg-black text-[#f5f5f7]" : "bg-[#fbfbfd] text-[#1d1d1f]"
-            }`}
+      {/* ===== Stats Grid ===== */}
+      <section className="px-4 py-8 max-w-7xl mx-auto -mt-12 relative z-20">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="bg-white border border-[#e6e2da] p-5 rounded-2xl flex flex-col gap-2 shadow-sm">
+            <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500 mb-2">
+              <Users className="w-4 h-4" />
+            </div>
+            <span className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">สมาชิกทั้งหมด</span>
+            <span className="text-2xl font-bold text-[#1e1e20]">{stats?.totalUsers?.toLocaleString() || '1,000+'}</span>
+          </div>
+          <div className="bg-white border border-[#e6e2da] p-5 rounded-2xl flex flex-col gap-2 shadow-sm">
+            <div className="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center text-green-500 mb-2">
+              <ShoppingCart className="w-4 h-4" />
+            </div>
+            <span className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">สินค้าที่ขายแล้ว</span>
+            <span className="text-2xl font-bold text-[#1e1e20]">{stats?.totalOrders?.toLocaleString() || '2,500+'}</span>
+          </div>
+          <div className="bg-white border border-[#e6e2da] p-5 rounded-2xl flex flex-col gap-2 shadow-sm">
+            <div className="w-10 h-10 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-500 mb-2">
+              <Server className="w-4 h-4" />
+            </div>
+            <span className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">จำนวนสินค้า</span>
+            <span className="text-2xl font-bold text-[#1e1e20]">{products?.length || '50+'}</span>
+          </div>
+          <div className="bg-white border border-[#e6e2da] p-5 rounded-2xl flex flex-col gap-2 shadow-sm">
+            <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-500 mb-2">
+              <Activity className="w-4 h-4" />
+            </div>
+            <span className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">อัพไทม์ระบบ</span>
+            <span className="text-2xl font-bold text-[#1e1e20]">99.9%</span>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== Recent Products ===== */}
+      <section className="max-w-7xl mx-auto px-4 py-8">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h2 className="text-xl sm:text-2xl font-bold flex items-center gap-2 text-[#1e1e20]">
+              <Gamepad2 className="w-5 h-5 text-blue-500" /> สินค้าแนะนำ
+            </h2>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-1">เลือกซื้อเว็บไซต์และแพลตฟอร์มที่กำลังมาแรง</p>
+          </div>
+          <button 
+            onClick={() => setActiveView('categories')}
+            className="text-xs sm:text-sm font-semibold text-blue-500 hover:text-blue-600 flex items-center gap-1 group transition-colors cursor-pointer"
           >
-            <div className="z-10 w-full">
-              <p className={`text-sm font-semibold ${p.dark ? "text-[#f56300]" : "text-[#f56300]"}`}>
-                {p.eyebrow}
-              </p>
-              <h3 className="mt-2 text-[32px] md:text-[40px] font-semibold tracking-tight leading-tight">{p.title}</h3>
-              <p className={`mt-3 text-[19px] ${p.dark ? "text-[#86868b]" : "text-[#1d1d1f]"}`}>
-                {p.desc}
-              </p>
-              <a
-                href={p.href}
-                className="mt-4 text-[17px] inline-block text-[#2997ff] hover:underline"
-              >
-                {p.cta}&nbsp;&gt;
-              </a>
-            </div>
-            <div className="mt-8 w-full max-w-[80%] mx-auto flex-1 flex items-end justify-center relative translate-y-4">
-              <img src={p.image} alt={p.title} className="w-full h-auto object-cover object-top shadow-md border border-black/10 rounded-t-xl" />
-            </div>
-          </article>
-        ))}
+            ดูทั้งหมด <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          </button>
+        </div>
+        
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+          {recentProducts.map((p: any) => (
+             <ProductCard 
+               key={p.id} 
+               product={p} 
+               onProductClick={onProductClick}
+             />
+          ))}
+        </div>
+        {recentProducts.length === 0 && (
+          <div className="w-full text-center py-12 text-muted-foreground bg-white border border-[#e6e2da] rounded-2xl">
+            ยังไม่มีสินค้า แอดมินกำลังเพิ่มสินค้าเข้าสู่ระบบ...
+          </div>
+        )}
       </section>
 
-      {/* ===== Top-up banner ===== */}
-      <div className="p-4 bg-white">
-          <section className="bg-[#fbfbfd] rounded-3xl mx-auto px-6 py-20 text-center text-[#1d1d1f] overflow-hidden relative border border-black/[0.02]">
-            <div className="relative z-10 max-w-2xl mx-auto">
-                <p className="text-sm font-semibold text-[#86868b] mb-2 uppercase tracking-wide">Payments</p>
-                <h3 className="text-[40px] md:text-[56px] font-semibold tracking-tight leading-tight">เติมเงินเข้าระบบ</h3>
-                <p className="mt-4 text-[21px] text-[#1d1d1f]">เติมเงินง่าย ใช้ซื้อเว็บไซต์และบริการได้ทันที รวดเร็วและปลอดภัย</p>
-                <div className="flex gap-4 justify-center mt-6">
-                    <a
-                    href="/topup"
-                    className="inline-block rounded-full bg-[#0071e3] px-6 py-3 text-[17px] font-semibold text-white hover:bg-[#0077ED] transition-colors"
-                    >
-                    เติมเงินตอนนี้
-                    </a>
-                </div>
-            </div>
-          </section>
-      </div>
+      {/* ===== Features Banner ===== */}
+      <section className="max-w-7xl mx-auto px-4 py-12 mb-12">
+        <div className="bg-white border border-[#e6e2da] rounded-3xl p-8 md:p-12 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8 shadow-sm">
+           <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-bl from-blue-500/5 to-transparent rounded-full blur-[80px] pointer-events-none" />
+           <div className="relative z-10 max-w-xl text-left">
+             <div className="w-12 h-12 bg-blue-500/10 text-blue-500 rounded-xl flex items-center justify-center mb-6">
+               <ShieldCheck className="w-6 h-6" />
+             </div>
+             <h2 className="text-2xl sm:text-3xl font-bold mb-4 text-[#1e1e20]">เชื่อมั่นใน <span className="text-blue-500">VHOUSE</span></h2>
+             <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+               ทีมงานมีประสบการณ์ดูแลระบบมายาวนานกว่า 3 ปี พร้อมดูแลแก้ไขปัญหา หากพบเจอบัคหรือปัญหาการใช้งานแจ้งทีมงานได้ทันที บริการหลังการขายเป็นเลิศ
+             </p>
+           </div>
+           <div className="relative z-10 shrink-0 w-full md:w-auto flex justify-end">
+             <button 
+                onClick={() => window.open(siteSettings?.facebook_link || '#', '_blank')}
+                className="bg-white hover:bg-[#faf6ee] border border-[#e6e2da] text-[#1e1e20] px-8 py-4 rounded-2xl font-bold flex items-center gap-2 transition-all active:scale-95 shadow-sm cursor-pointer"
+              >
+                ติดต่อทีมงาน <ArrowRight className="w-4 h-4 text-blue-500" />
+              </button>
+           </div>
+        </div>
+      </section>
+
     </div>
   );
 };

@@ -27,49 +27,49 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
   return (
     <div
       onClick={onClick}
-      className="relative group overflow-hidden rounded-2xl border border-gray-800 bg-[#111218] hover:border-#3b82f6/35 transition-all duration-300 flex flex-col cursor-pointer shadow-lg hover:shadow-#3b82f6/5"
+      className="relative group overflow-hidden rounded-2xl border border-[#e6e2da] bg-white hover:border-[#3b82f6]/45 transition-all duration-300 flex flex-col cursor-pointer shadow-sm hover:shadow-md hover:-translate-y-0.5"
       style={{ animationDelay: `${index * 0.05}s` }}
     >
       {/* Banner Area */}
       <div 
-        className="relative w-full overflow-hidden shrink-0 bg-gray-900"
+        className="relative w-full overflow-hidden shrink-0 bg-[#f2efe9]"
         style={{ aspectRatio: '2100 / 500' }}
       >
         {bgImage ? (
           <img
             src={bgImage}
             alt={title}
-            className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500 opacity-50 group-hover:opacity-75"
+            className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500 opacity-80 group-hover:opacity-95"
             referrerPolicy="no-referrer"
           />
         ) : (
-          <div className="w-full h-full bg-gray-900 flex items-center justify-center">
-            <Package className="w-8 h-8 text-white/10" />
+          <div className="w-full h-full bg-[#f2efe9] flex items-center justify-center">
+            <Package className="w-8 h-8 text-[#1e1e20]/10" />
           </div>
         )}
         
-        {/* Gradients */}
-        <div className="absolute inset-0 bg-gray-900 opacity-80" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#1e1e1e] via-transparent to-transparent" />
+        {/* Subtle light overlay to make titles pop on any image */}
+        <div className="absolute inset-0 bg-white/20" />
+        <div className="absolute inset-0 bg-gradient-to-t from-white via-white/10 to-transparent" />
       </div>
 
       {/* Content Area */}
-      <div className="p-5 flex flex-col justify-between flex-1 bg-[#111218]">
-        <h3 className="text-base sm:text-lg font-bold text-white px-0.5 tracking-wide uppercase truncate mb-1 font-display">
+      <div className="p-5 flex flex-col justify-between flex-1 bg-white">
+        <h3 className="text-base sm:text-lg font-bold text-[#1e1e20] px-0.5 tracking-wide uppercase truncate mb-1">
           {title}
         </h3>
         
-        <div className="flex items-center justify-between text-xs font-semibold mt-4 pt-4 border-t border-gray-800">
+        <div className="flex items-center justify-between text-xs font-semibold mt-4 pt-4 border-t border-[#e6e2da]">
           {/* Item Count */}
-          <span className="text-zinc-500 flex items-center gap-1.5 uppercase font-medium tracking-wider font-sans">
-            <Package className="w-4 h-4 text-zinc-650 shrink-0" />
-            <span>มีสินค้าทั้งหมด <span className="text-#3b82f6 font-bold font-mono">{itemCountDesc?.replace(/[^0-9]/g, '') || '0'}</span> รายการ</span>
+          <span className="text-muted-foreground flex items-center gap-1.5 uppercase font-medium tracking-wider">
+            <Package className="w-4 h-4 text-muted-foreground shrink-0" />
+            <span>มีสินค้าทั้งหมด <span className="text-blue-500 font-bold font-mono">{itemCountDesc?.replace(/[^0-9]/g, '') || '0'}</span> รายการ</span>
           </span>
           
           {/* Price Range */}
           {priceRangeStr && (
-            <span className="text-white font-mono font-semibold tracking-wider text-xs bg-#3b82f6/5 px-3 py-1.5 rounded-xl border border-gray-800 shadow-sm">
-              {priceRangeStr.replace("฿", "")}
+            <span className="text-[#10b981] font-mono font-semibold tracking-wider text-xs bg-[#10b981]/5 px-3 py-1.5 rounded-xl border border-[#10b981]/15 shadow-sm">
+              {priceRangeStr.includes("-") ? priceRangeStr : priceRangeStr.replace("฿", "")}
             </span>
           )}
         </div>
@@ -77,5 +77,3 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
     </div>
   );
 };
-
-
