@@ -17,6 +17,7 @@ interface HomeViewProps {
   setActiveView: (view: any) => void;
   onProductClick: (id: string) => void;
   onSelectCategory: (categoryId: string) => void;
+  isLoading?: boolean;
 }
 
 // ─── Animated Number Generator ───────────────────────────────────────────────
@@ -374,6 +375,64 @@ function ProductCard({
   );
 }
 
+
+function HomeViewSkeleton() {
+  return (
+    <div className="w-full min-h-screen bg-[#070707] text-white font-sans antialiased" aria-busy="true">
+      <div className="max-w-4xl mx-auto px-4 md:px-6 pb-24 pt-6">
+        <div className="relative overflow-hidden rounded-2xl border border-white/[0.07] mb-3 aspect-[21/5] bg-white/[0.06] animate-pulse" />
+        <div className="mb-8 flex items-center bg-zinc-900/50 border border-white/[0.06] rounded-xl px-4 py-2.5 gap-3">
+          <div className="h-8 w-20 rounded-lg bg-red-500/10 animate-pulse" />
+          <div className="h-4 flex-1 rounded-full bg-white/[0.07] animate-pulse" />
+        </div>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="rounded-xl border border-white/[0.06] bg-[#0d0d0d] p-5 space-y-3">
+              <div className="h-3 w-20 rounded-full bg-white/[0.08] animate-pulse" />
+              <div className="h-8 w-16 rounded-lg bg-white/[0.1] animate-pulse" />
+              <div className="h-3 w-10 rounded-full bg-white/[0.06] animate-pulse" />
+            </div>
+          ))}
+        </div>
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-8">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="rounded-xl border border-white/[0.06] bg-[#0d0d0d] p-5 flex items-center gap-4">
+              <div className="h-11 w-11 rounded-xl bg-white/[0.08] animate-pulse" />
+              <div className="flex-1 space-y-2">
+                <div className="h-3 w-24 rounded-full bg-white/[0.1] animate-pulse" />
+                <div className="h-2.5 w-16 rounded-full bg-white/[0.06] animate-pulse" />
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="mb-10 space-y-4">
+          <div className="h-6 w-44 rounded-full bg-white/[0.08] animate-pulse" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="h-36 rounded-2xl border border-white/[0.08] bg-[#0c0c0e] animate-pulse" />
+            ))}
+          </div>
+        </div>
+        <div className="space-y-4">
+          <div className="h-8 w-52 rounded-full bg-white/[0.08] animate-pulse" />
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="rounded-2xl border border-white/[0.08] bg-[#0c0c0e] overflow-hidden">
+                <div className="aspect-square bg-white/[0.06] animate-pulse" />
+                <div className="p-4 space-y-3">
+                  <div className="h-4 w-3/4 rounded bg-white/[0.08] animate-pulse" />
+                  <div className="h-5 w-20 rounded bg-amber-400/[0.12] animate-pulse" />
+                  <div className="h-9 rounded-xl bg-blue-500/[0.14] animate-pulse" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export const HomeView: React.FC<HomeViewProps> = ({
@@ -385,6 +444,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
   setActiveView,
   onProductClick,
   onSelectCategory,
+  isLoading = false,
 }) => {
   const [latestPurchases, setLatestPurchases] = useState<any[]>([]);
 
@@ -451,6 +511,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
     }
     return [...items, ...items];
   }, [latestPurchases]);
+
+  if (isLoading) {
+    return <HomeViewSkeleton />;
+  }
 
   return (
     <div className="w-full min-h-screen bg-[#070707] text-white font-sans antialiased">
