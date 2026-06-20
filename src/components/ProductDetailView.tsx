@@ -307,7 +307,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
                 <div className="flex items-center gap-3 w-full">
                   <button 
                     onClick={() => setShowConfirmPurchase(false)}
-                    className="flex-1 py-3 bg-card hover:bg-[#0a0a0a] text-gray-700 font-medium transition-all rounded-md text-xs active:scale-95 border border-border cursor-pointer"
+                    className="flex-1 py-3 bg-card hover:bg-muted text-gray-700 font-medium transition-all rounded-md text-xs active:scale-95 border border-border cursor-pointer"
                   >
                     ยกเลิกขั้นตอนชำระเงิน
                   </button>

@@ -51,7 +51,7 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
         <div className="flex items-center gap-4">
           <button
             onClick={onBack}
-            className="p-3 bg-card hover:bg-[#121212] border border-border  transition-colors group shrink-0 "
+            className="p-3 bg-card hover:bg-card border border-border  transition-colors group shrink-0 "
           >
             <ArrowLeft className="w-5 h-5 text-muted-foreground group-hover:text-white" />
           </button>
@@ -125,10 +125,10 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ type: "spring", stiffness: 400, damping: 30, delay: Math.min(i, 10) * 0.03 }}
-                  className="group relative bg-[#121212] border border-border rounded-md overflow-hidden hover:border-[#1f2937 transition-colors duration-200 flex flex-col  shadow-sm"
+                  className="group relative bg-card border border-border rounded-md overflow-hidden hover:border-[#1f2937 transition-colors duration-200 flex flex-col  shadow-sm"
                 >
                   {/* Image area with corner ribbon */}
-                  <div className="relative aspect-square w-full bg-[#141416] overflow-hidden shrink-0">
+                  <div className="relative aspect-square w-full bg-muted overflow-hidden shrink-0">
                     {product.imageUrl && product.imageUrl.trim() !== "" ? (
                       <img loading="lazy"
                         src={product.imageUrl}
@@ -177,7 +177,7 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
                   </div>
 
                   {/* Content */}
-                  <div className="p-4 sm:p-5 flex flex-col flex-1 bg-[#121212]">
+                  <div className="p-4 sm:p-5 flex flex-col flex-1 bg-card">
                     <h3 className="text-sm font-semibold text-white leading-snug line-clamp-1 mb-3 group-hover:text-[#3b82f6] transition-colors">
                       {formatProductName(product.name)}
                     </h3>

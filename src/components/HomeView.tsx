@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 
 /**
  * VHOUSE SPACE — homepage clone
@@ -79,76 +79,10 @@ const FOOTER_COLUMNS: { heading: string; links: { label: string; href: string }[
   },
 ];
 
-export const HomeView = () => {
-  const [menuOpen, setMenuOpen] = useState(false);
+export const HomeView = (props: any) => {
 
   return (
-    <div className="min-h-screen bg-white text-[#1d1d1f] antialiased pb-24 lg:pb-0">
-      {/* ===== Navbar ===== */}
-      <header className="sticky top-0 z-50 border-b border-black/10 bg-white/80 backdrop-blur-xl">
-        <nav className="mx-auto flex h-[48px] max-w-[1024px] items-center justify-between px-4 text-[13px] font-medium text-black">
-          <a href="/" className="flex items-center gap-2">
-            <img
-              src="https://www.vhouse.space/photo/profile-1.png"
-              alt="VHOUSE"
-              className="h-5 w-5 rounded-full object-cover"
-            />
-            <span className="hidden sm:inline font-semibold">VHOUSE</span>
-          </a>
-
-          <ul className="hidden gap-8 md:flex">
-            {NAV_LINKS.map((link) => (
-              <li key={link.href}>
-                <a
-                  href={link.href}
-                  className="text-black/80 transition-colors hover:text-black"
-                >
-                  {link.label}
-                </a>
-              </li>
-            ))}
-          </ul>
-
-          <div className="flex items-center gap-5">
-            <a
-              href="/topup"
-              className="hidden text-black/80 transition-colors hover:text-black sm:inline"
-            >
-              เติมเงิน
-            </a>
-            <a href="/profile" aria-label="โปรไฟล์" className="text-black/80 hover:text-black">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="12" cy="8" r="4" />
-                <path d="M4 21c0-4 4-7 8-7s8 3 8 7" />
-              </svg>
-            </a>
-            <button
-              className="text-black/80 hover:text-black md:hidden"
-              onClick={() => setMenuOpen((o) => !o)}
-              aria-label="เมนู"
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M3 6h18M3 12h18M3 18h18" />
-              </svg>
-            </button>
-          </div>
-        </nav>
-
-        {menuOpen && (
-          <div className="border-t border-black/10 bg-white px-4 py-3 md:hidden">
-            {NAV_LINKS.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                className="block py-2 text-sm text-black/80 hover:text-black"
-              >
-                {link.label}
-              </a>
-            ))}
-          </div>
-        )}
-      </header>
-
+    <div className="bg-white text-[#1d1d1f] antialiased pb-24 lg:pb-0">
       {/* ===== Hero ===== */}
       <section className="flex flex-col items-center bg-gradient-to-b from-[#fbfbfd] to-[#f5f5f7] px-6 pb-12 pt-16 text-center text-[#1d1d1f]">
         <p className="text-sm font-semibold text-[#86868b]">VHOUSE SPACE</p>
@@ -252,61 +186,6 @@ export const HomeView = () => {
             </div>
           </section>
       </div>
-
-      {/* ===== Footer ===== */}
-      <footer className="bg-[#f5f5f7] px-6 pt-8 pb-10 text-[12px] text-[#6e6e73]">
-        <div className="mx-auto max-w-[1024px]">
-          <p className="border-b border-black/10 pb-4 text-[12px]">
-            * เงื่อนไขเป็นไปตามที่บริษัทกำหนด
-          </p>
-
-          <div className="grid grid-cols-2 gap-8 py-8 md:grid-cols-4">
-            {FOOTER_COLUMNS.map((col) => (
-              <div key={col.heading}>
-                <h4 className="mb-2 font-semibold text-[#1d1d1f]">{col.heading}</h4>
-                <ul className="space-y-2">
-                  {col.links.map((l) => (
-                    <li key={l.label}>
-                      <a href={l.href} className="hover:text-[#1d1d1f] transition-colors">
-                        {l.label}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-
-          <div className="border-t border-black/10 py-4">
-            <p>
-              อีกหลากหลายวิธีในการเลือกซื้อ:{" "}
-              <a href="/store" className="text-[#06c] hover:underline">
-                ค้นหา VHOUSE SPACE
-              </a>{" "}
-              หรือ{" "}
-              <a href="/store" className="text-[#06c] hover:underline">
-                ร้านค้าอื่นๆ
-              </a>{" "}
-              ใกล้คุณ
-            </p>
-          </div>
-
-          <div className="flex flex-col gap-2 border-t border-black/10 py-4 sm:flex-row sm:items-center sm:justify-between">
-            <p>Copyright © 2025 VHOUSE Inc. สงวนสิทธิ์ทุกประการ</p>
-            <div className="flex flex-wrap gap-4">
-              <a href="/terms" className="hover:text-[#1d1d1f]">
-                นโยบายความเป็นส่วนตัว
-              </a>
-              <a href="/terms" className="hover:text-[#1d1d1f]">
-                ข้อกำหนดการใช้งาน
-              </a>
-              <a href="/store" className="hover:text-[#1d1d1f]">
-                การขายและการคืนเงิน
-              </a>
-            </div>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 };

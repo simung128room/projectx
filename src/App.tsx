@@ -1969,8 +1969,8 @@ function AppContent() {
                         <div className="bg-blue-600 p-1.5 rounded flex items-center justify-center">
                           <Gamepad2 className="w-4 h-4 text-white" />
                         </div>
-                        <span className="font-bold text-xl tracking-wider select-none text-white">
-                          THIS<span className="text-blue-500">GAME</span>
+                        <span className="font-bold text-xl tracking-wider select-none text-foreground">
+                          VHOUSE<span className="text-blue-500">SPACE</span>
                         </span>
                       </div>
                     </motion.div>
@@ -2225,7 +2225,7 @@ function AppContent() {
                           }));
                           setIsMobileMenuOpen(false);
                         }}
-                        className="flex items-center justify-center p-2 rounded-xl border border-[#1d1d21] bg-[#111113]/60 hover:bg-[#1a1a1f] hover:border-gray-300 transition-all text-muted-foreground hover:text-white cursor-pointer active:scale-95"
+                        className="flex items-center justify-center p-2 rounded-xl border border-[#1d1d21] bg-card hover:bg-muted hover:border-gray-300 transition-all text-muted-foreground hover:text-white cursor-pointer active:scale-95"
                       >
                         <Bell size={15} />
                       </button>
@@ -2242,7 +2242,7 @@ function AppContent() {
                           }
                           setIsMobileMenuOpen(false);
                         }}
-                        className={`flex items-center justify-center p-2 rounded-xl border transition-all cursor-pointer active:scale-95 ${activeView === "settings" ? "bg-blue-500/[0.08] border-blue-500 text-[#3b82f6]" : "border-[#1d1d21] bg-[#111113]/60 hover:bg-[#1a1a1f] hover:border-gray-300 text-muted-foreground hover:text-white"}`}
+                        className={`flex items-center justify-center p-2 rounded-xl border transition-all cursor-pointer active:scale-95 ${activeView === "settings" ? "bg-blue-500/[0.08] border-blue-500 text-[#3b82f6]" : "border-[#1d1d21] bg-card hover:bg-muted hover:border-gray-300 text-muted-foreground hover:text-white"}`}
                       >
                         <Settings size={15} />
                       </button>
@@ -2253,7 +2253,7 @@ function AppContent() {
                           setShowSearchPopup(true);
                           setIsMobileMenuOpen(false);
                         }}
-                        className="flex items-center justify-center p-2 rounded-xl border border-[#1d1d21] bg-[#111113]/60 hover:bg-[#1a1a1f] hover:border-gray-300 transition-all text-muted-foreground hover:text-white cursor-pointer active:scale-95"
+                        className="flex items-center justify-center p-2 rounded-xl border border-[#1d1d21] bg-card hover:bg-muted hover:border-gray-300 transition-all text-muted-foreground hover:text-white cursor-pointer active:scale-95"
                       >
                         <Search size={15} />
                       </button>
@@ -2268,7 +2268,7 @@ function AppContent() {
                             setIsMobileMenuOpen(false);
                             window.scrollTo({ top: 0, behavior: "smooth" });
                           }}
-                          className="flex items-center gap-3 p-2 bg-[#0d0d0f] hover:bg-[#151518] border border-[#1b1b1e] rounded-xl cursor-pointer transition-all"
+                          className="flex items-center gap-3 p-2 bg-card hover:bg-muted border border-[#1b1b1e] rounded-xl cursor-pointer transition-all"
                         >
                           <div className="w-8 h-8 rounded-full bg-#1f2937 overflow-hidden shrink-0 border border-white/5 relative">
                             <img 
