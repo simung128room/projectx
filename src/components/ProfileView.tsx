@@ -128,7 +128,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
       whileHover={{ y: -2 }}
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
-      className="relative overflow-hidden text-left bg-card border border-border hover:border-[#1f2937 rounded-md p-5 flex items-center gap-4 transition-all duration-300 w-full group cursor-pointer shadow-sm"
+      className="relative overflow-hidden text-left bg-white border border-[#e6e2da] hover:border-blue-500/40 rounded-xl p-5 flex items-center gap-4 transition-all duration-300 w-full group cursor-pointer shadow-sm"
     >
       {/* Background radial highlight */}
       <div 

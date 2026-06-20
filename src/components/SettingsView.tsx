@@ -146,34 +146,34 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user 
     <AnimatedScroll direction="up">
       <div className="font-sans px-4 pb-12">
         <div className="max-w-4xl mx-auto mt-6">
-          <div className="bg-[#070708] border border-[#374151] overflow-hidden flex flex-col md:flex-row rounded-md shadow-md">
+          <div className="bg-white border border-[#e6e2da] overflow-hidden flex flex-col md:flex-row rounded-2xl shadow-sm">
             
             {/* Sidebar Tabs */}
-            <div className="md:w-1/3 bg-[#09090a] border-b md:border-b-0 md:border-r border-[#374151] p-6 flex flex-col justify-start">
-              <h2 className="text-lg font-medium text-white mb-6 flex items-center gap-2.5">
-                <ShieldCheck className="w-5 h-5 text-neon-green" /> ตั้งค่าผู้ใช้
+            <div className="md:w-1/3 bg-[#faf8f5] border-b md:border-b-0 md:border-r border-[#e6e2da] p-6 flex flex-col justify-start">
+              <h2 className="text-base font-bold text-[#1e1e20] mb-6 flex items-center gap-2.5">
+                <ShieldCheck className="w-5 h-5 text-[#3b82f6]" /> ตั้งค่าผู้ใช้
               </h2>
               
               <div className="space-y-1.5">
                 <button 
                   onClick={() => setCurrentTab('password')}
-                  className={`w-full flex items-center gap-3.5 px-4 py-3.5 text-sm font-semibold rounded-md transition-all cursor-pointer ${currentTab === 'password' ? 'bg-card/[0.04] text-white border-l-2 border-neon-green pl-[14px]' : 'text-zinc-400 hover:text-white hover:bg-card/[0.04] hover:pl-[18px]'}`}
+                  className={`w-full flex items-center gap-3.5 px-4 py-3.5 text-sm font-semibold rounded-xl transition-all cursor-pointer ${currentTab === 'password' ? 'bg-[#3b82f6]/10 text-[#3b82f6] border-l-2 border-[#3b82f6] pl-[14px]' : 'text-zinc-500 hover:text-[#1e1e20] hover:bg-[#f2efe9]/40 hover:pl-[18px]'}`}
                 >
-                  <Key className={`w-4.5 h-4.5 ${currentTab === 'password' ? 'text-neon-green' : 'text-zinc-500'}`} />
-                  <span className="text-sm font-semibold">เปลี่ยนรหัสผ่าน</span>
+                  <Key className={`w-4.5 h-4.5 ${currentTab === 'password' ? 'text-[#3b82f6]' : 'text-zinc-400'}`} />
+                  <span className="text-sm font-bold">เปลี่ยนรหัสผ่าน</span>
                 </button>
                 <button 
                   onClick={() => setCurrentTab('delete')}
-                  className={`w-full flex items-center gap-3.5 px-4 py-3.5 text-sm font-semibold rounded-md transition-all cursor-pointer ${currentTab === 'delete' ? 'bg-red-500/10 text-red-400 border-l-2 border-red-500 pl-[14px]' : 'text-red-400/85 hover:text-red-400 hover:bg-red-500/10 hover:pl-[18px]'}`}
+                  className={`w-full flex items-center gap-3.5 px-4 py-3.5 text-sm font-semibold rounded-xl transition-all cursor-pointer ${currentTab === 'delete' ? 'bg-red-500/10 text-red-600 border-l-2 border-red-500 pl-[14px]' : 'text-red-500/80 hover:text-red-650 hover:bg-red-50 hover:pl-[18px]'}`}
                 >
-                  <Trash2 className="w-4.5 h-4.5 text-red-500/85" />
-                  <span className="text-sm font-semibold">ลบบัญชี</span>
+                  <Trash2 className="w-4.5 h-4.5 text-red-500" />
+                  <span className="text-sm font-bold">ลบบัญชี</span>
                 </button>
               </div>
             </div>
 
             {/* Content Area */}
-            <div className="md:w-2/3 p-6 sm:p-8">
+            <div className="md:w-2/3 p-6 sm:p-8 bg-white">
               {isLoading ? (
                 <div className="space-y-6 animate-in fade-in duration-300">
                   <Skeleton className="h-8 w-1/3 mb-6" />
@@ -193,50 +193,50 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user 
                 <>
                   {currentTab === 'password' && (
                     <div className="animate-in fade-in duration-300">
-                      <h3 className="text-base font-medium text-white mb-6">เปลี่ยนรหัสผ่านใหม่</h3>
+                      <h3 className="text-base font-bold text-[#1e1e20] mb-6">เปลี่ยนรหัสผ่านใหม่</h3>
                       <div className="space-y-4">
                         <div>
-                          <label className="text-[10px] text-zinc-400 font-medium uppercase tracking-wider mb-2 block">รหัสผ่านเดิม</label>
+                          <label className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mb-2 block">รหัสผ่านเดิม</label>
                           <div className="relative">
-                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-zinc-500" />
+                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-zinc-400" />
                             <input 
                               type="password" 
                               placeholder="••••••••" 
                               value={oldPassword} 
                               onChange={e => setOldPassword(e.target.value)} 
-                              className="w-full bg-[#0a0a0b] border border-[#374151] rounded-md py-3 pl-11 pr-4 text-sm text-white focus:border-neon-green/50 focus:ring-1 focus:ring-neon-green/10 outline-none transition-all placeholder:text-zinc-650"
+                              className="w-full bg-[#fcfbfa] border border-[#e6e2da] rounded-xl py-3 pl-11 pr-4 text-sm text-[#1e1e20] focus:border-blue-500/60 focus:ring-1 focus:ring-blue-500/10 outline-none transition-all placeholder:text-zinc-400"
                             />
                           </div>
                         </div>
                         <div>
-                          <label className="text-[10px] text-zinc-400 font-medium uppercase tracking-wider mb-2 block">รหัสผ่านใหม่</label>
+                          <label className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mb-2 block">รหัสผ่านใหม่</label>
                           <div className="relative">
-                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-zinc-500" />
+                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-zinc-400" />
                             <input 
                               type="password" 
                               placeholder="••••••••" 
                               value={newPassword} 
                               onChange={e => setNewPassword(e.target.value)} 
-                              className="w-full bg-[#0a0a0b] border border-[#374151] rounded-md py-3 pl-11 pr-4 text-sm text-white focus:border-neon-green/50 focus:ring-1 focus:ring-neon-green/10 outline-none transition-all placeholder:text-zinc-650"
+                              className="w-full bg-[#fcfbfa] border border-[#e6e2da] rounded-xl py-3 pl-11 pr-4 text-sm text-[#1e1e20] focus:border-blue-500/60 focus:ring-1 focus:ring-blue-500/10 outline-none transition-all placeholder:text-zinc-400"
                             />
                           </div>
                         </div>
                         <div>
-                          <label className="text-[10px] text-zinc-400 font-medium uppercase tracking-wider mb-2 block">ยืนยันรหัสผ่านใหม่</label>
+                          <label className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mb-2 block">ยืนยันรหัสผ่านใหม่</label>
                           <div className="relative">
-                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-zinc-500" />
+                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-zinc-400" />
                             <input 
                               type="password" 
                               placeholder="••••••••" 
                               value={confirmPassword} 
                               onChange={e => setConfirmPassword(e.target.value)} 
-                              className="w-full bg-[#0a0a0b] border border-[#374151] rounded-md py-3 pl-11 pr-4 text-sm text-white focus:border-neon-green/50 focus:ring-1 focus:ring-neon-green/10 outline-none transition-all placeholder:text-zinc-650"
+                              className="w-full bg-[#fcfbfa] border border-[#e6e2da] rounded-xl py-3 pl-11 pr-4 text-sm text-[#1e1e20] focus:border-blue-500/60 focus:ring-1 focus:ring-blue-500/10 outline-none transition-all placeholder:text-zinc-400"
                             />
                           </div>
                         </div>
                         <button 
                           onClick={handleChangePassword} 
-                          className="w-full bg-neon-green hover:bg-neon-green/95 text-foreground font-semibold py-3.5 transition-all text-sm rounded-md uppercase tracking-wider cursor-pointer"
+                          className="w-full bg-[#3b82f6] hover:bg-blue-600 text-white font-bold py-3.5 transition-all text-sm rounded-xl uppercase tracking-wider cursor-pointer shadow-md shadow-blue-500/10 active:scale-[0.98]"
                         >
                           ยืนยันการเปลี่ยนรหัสผ่าน
                         </button>
@@ -246,15 +246,15 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user 
 
                   {currentTab === 'delete' && (
                     <div className="animate-in fade-in duration-300">
-                      <div className="bg-red-500/10 border border-red-500/20 p-6 text-center rounded-md">
-                        <ShieldAlert className="w-12 h-12 text-red-550 mx-auto mb-4" />
-                        <h3 className="text-base font-medium text-white mb-2">ลบบัญชีผู้ใช้งาน</h3>
-                        <p className="text-xs text-zinc-400 mb-6 leading-relaxed">
+                      <div className="bg-red-50 border border-red-200/60 p-6 text-center rounded-2xl">
+                        <ShieldAlert className="w-12 h-12 text-red-500 mx-auto mb-4" />
+                        <h3 className="text-base font-bold text-red-650 mb-2">ลบบัญชีผู้ใช้งาน</h3>
+                        <p className="text-xs text-zinc-500 mb-6 leading-relaxed">
                           คำเตือน: หากคุณลบบัญชี ข้อมูลประวัติการสั่งซื้อ ยอดเงินคงเหลือ และข้อมูลส่วนตัวทั้งหมดจะถูกลบออกถาวรและไม่สามารถกู้คืนได้
                         </p>
                         <button 
                           onClick={handleDeleteAccount}
-                          className="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-3.5 transition-all text-sm rounded-md uppercase tracking-wider cursor-pointer"
+                          className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 transition-all text-sm rounded-xl uppercase tracking-wider cursor-pointer active:scale-[0.98]"
                         >
                           ลบบัญชีถาวร
                         </button>

@@ -716,8 +716,8 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
                   onDrop={handleDrop}
                   className={`flex flex-col items-center justify-center w-full min-h-[200px] p-8 rounded-[24px] transition-all duration-300 border-2 border-dashed border-border relative cursor-pointer ${
                     isDragActive 
-                      ? 'bg-[#3b82f6]/5 border-#3b82f6 scale-[0.99] shadow-inner' 
-                      : 'bg-card hover:border-[#3b82f6/50 hover:bg-muted'
+                      ? 'bg-[#3b82f6]/5 border-[#3b82f6] scale-[0.99] shadow-inner' 
+                      : 'bg-card hover:border-[#3b82f6]/50 hover:bg-muted'
                   }`}
                 >
 
