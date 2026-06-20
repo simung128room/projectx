@@ -146,10 +146,10 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user 
     <AnimatedScroll direction="up">
       <div className="font-sans px-4 pb-12">
         <div className="max-w-4xl mx-auto mt-6">
-          <div className="bg-white border border-[#e6e2da] overflow-hidden flex flex-col md:flex-row rounded-2xl shadow-sm">
+          <div className="bg-white border border-[#e2e8f0] overflow-hidden flex flex-col md:flex-row rounded-2xl shadow-sm">
             
             {/* Sidebar Tabs */}
-            <div className="md:w-1/3 bg-[#faf8f5] border-b md:border-b-0 md:border-r border-[#e6e2da] p-6 flex flex-col justify-start">
+            <div className="md:w-1/3 bg-slate-50 border-b md:border-b-0 md:border-r border-[#e2e8f0] p-6 flex flex-col justify-start">
               <h2 className="text-base font-bold text-[#1e1e20] mb-6 flex items-center gap-2.5">
                 <ShieldCheck className="w-5 h-5 text-[#3b82f6]" /> ตั้งค่าผู้ใช้
               </h2>
@@ -157,7 +157,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user 
               <div className="space-y-1.5">
                 <button 
                   onClick={() => setCurrentTab('password')}
-                  className={`w-full flex items-center gap-3.5 px-4 py-3.5 text-sm font-semibold rounded-xl transition-all cursor-pointer ${currentTab === 'password' ? 'bg-[#3b82f6]/10 text-[#3b82f6] border-l-2 border-[#3b82f6] pl-[14px]' : 'text-zinc-500 hover:text-[#1e1e20] hover:bg-[#f2efe9]/40 hover:pl-[18px]'}`}
+                  className={`w-full flex items-center gap-3.5 px-4 py-3.5 text-sm font-semibold rounded-xl transition-all cursor-pointer ${currentTab === 'password' ? 'bg-[#3b82f6]/10 text-[#3b82f6] border-l-2 border-[#3b82f6] pl-[14px]' : 'text-zinc-500 hover:text-[#1e1e20] hover:bg-slate-100 hover:pl-[18px]'}`}
                 >
                   <Key className={`w-4.5 h-4.5 ${currentTab === 'password' ? 'text-[#3b82f6]' : 'text-zinc-400'}`} />
                   <span className="text-sm font-bold">เปลี่ยนรหัสผ่าน</span>
@@ -204,7 +204,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user 
                               placeholder="••••••••" 
                               value={oldPassword} 
                               onChange={e => setOldPassword(e.target.value)} 
-                              className="w-full bg-[#fcfbfa] border border-[#e6e2da] rounded-xl py-3 pl-11 pr-4 text-sm text-[#1e1e20] focus:border-blue-500/60 focus:ring-1 focus:ring-blue-500/10 outline-none transition-all placeholder:text-zinc-400"
+                              className="w-full bg-white border border-[#e2e8f0] rounded-xl py-3 pl-11 pr-4 text-sm text-[#1e1e20] focus:border-blue-500/60 focus:ring-1 focus:ring-blue-500/10 outline-none transition-all placeholder:text-zinc-400"
                             />
                           </div>
                         </div>
@@ -217,7 +217,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user 
                               placeholder="••••••••" 
                               value={newPassword} 
                               onChange={e => setNewPassword(e.target.value)} 
-                              className="w-full bg-[#fcfbfa] border border-[#e6e2da] rounded-xl py-3 pl-11 pr-4 text-sm text-[#1e1e20] focus:border-blue-500/60 focus:ring-1 focus:ring-blue-500/10 outline-none transition-all placeholder:text-zinc-400"
+                              className="w-full bg-white border border-[#e2e8f0] rounded-xl py-3 pl-11 pr-4 text-sm text-[#1e1e20] focus:border-blue-500/60 focus:ring-1 focus:ring-blue-500/10 outline-none transition-all placeholder:text-zinc-400"
                             />
                           </div>
                         </div>
@@ -230,7 +230,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user 
                               placeholder="••••••••" 
                               value={confirmPassword} 
                               onChange={e => setConfirmPassword(e.target.value)} 
-                              className="w-full bg-[#fcfbfa] border border-[#e6e2da] rounded-xl py-3 pl-11 pr-4 text-sm text-[#1e1e20] focus:border-blue-500/60 focus:ring-1 focus:ring-blue-500/10 outline-none transition-all placeholder:text-zinc-400"
+                              className="w-full bg-white border border-[#e2e8f0] rounded-xl py-3 pl-11 pr-4 text-sm text-[#1e1e20] focus:border-blue-500/60 focus:ring-1 focus:ring-blue-500/10 outline-none transition-all placeholder:text-zinc-400"
                             />
                           </div>
                         </div>

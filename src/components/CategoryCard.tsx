@@ -27,12 +27,12 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
   return (
     <div
       onClick={onClick}
-      className="relative group overflow-hidden rounded-2xl border border-[#e6e2da] bg-white hover:border-[#3b82f6]/45 transition-all duration-300 flex flex-col cursor-pointer shadow-sm hover:shadow-md hover:-translate-y-0.5"
+      className="relative group overflow-hidden rounded-2xl border border-[#e2e8f0] bg-white hover:border-[#3b82f6]/45 transition-all duration-300 flex flex-col cursor-pointer shadow-sm hover:shadow-md hover:-translate-y-0.5"
       style={{ animationDelay: `${index * 0.05}s` }}
     >
       {/* Banner Area */}
       <div 
-        className="relative w-full overflow-hidden shrink-0 bg-[#f2efe9]"
+        className="relative w-full overflow-hidden shrink-0 bg-[#f1f5f9]"
         style={{ aspectRatio: '1640 / 500' }}
       >
         {bgImage ? (
@@ -43,7 +43,7 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
             referrerPolicy="no-referrer"
           />
         ) : (
-          <div className="w-full h-full bg-[#f2efe9] flex items-center justify-center">
+          <div className="w-full h-full bg-[#f1f5f9] flex items-center justify-center">
             <Package className="w-8 h-8 text-[#1e1e20]/10" />
           </div>
         )}
@@ -59,7 +59,7 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
           {title}
         </h3>
         
-        <div className="flex items-center justify-between text-xs font-semibold mt-4 pt-4 border-t border-[#e6e2da]">
+        <div className="flex items-center justify-between text-xs font-semibold mt-4 pt-4 border-t border-[#e2e8f0]">
           {/* Item Count */}
           <span className="text-muted-foreground flex items-center gap-1.5 uppercase font-medium tracking-wider">
             <Package className="w-4 h-4 text-muted-foreground shrink-0" />

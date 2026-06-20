@@ -1858,36 +1858,37 @@ function AppContent() {
               </span>
             </div>
 
-            <div className="flex items-center gap-1 md:hidden z-[1001]">
+            <div className="flex items-center gap-2.5 md:hidden z-[1001]">
               {!isMobileMenuOpen && (
                 <button 
                   onClick={() => setShowSearchPopup(true)}
-                  className="p-2 text-[#1e1e20] hover:text-blue-600 transition-colors cursor-pointer"
+                  className="flex items-center gap-1.5 border border-zinc-200 rounded-full px-3 py-1.5 bg-white hover:bg-slate-50 text-zinc-500 hover:text-[#1e1e20] transition-colors cursor-pointer shadow-sm select-none h-8.5"
                   aria-label="ค้นหาสินค้า"
                 >
-                  <Search className="w-[19px] h-[19px]" />
+                  <Search className="w-3.5 h-3.5 text-zinc-400" />
+                  <span className="text-xs font-bold tracking-wide">ค้นหาสินค้า</span>
                 </button>
               )}
               <button 
-                className="p-2 text-muted-foreground hover:text-foreground transition-all duration-300 px-0 outline-none select-none" 
+                className="p-2 text-muted-foreground hover:text-foreground transition-all duration-300 px-0 outline-none select-none relative h-9 w-9 flex items-center justify-center cursor-pointer" 
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 aria-label="เมนู"
               >
-                <div className="w-5 h-5 flex flex-col justify-center items-center gap-1 relative">
+                <div className="w-5 h-4.5 relative flex flex-col justify-between items-center">
                   <motion.span
-                    animate={isMobileMenuOpen ? { rotate: 45, y: 5 } : { rotate: 0, y: 0 }}
-                    transition={{ type: "spring", stiffness: 280, damping: 22 }}
-                    className="w-5 h-0.5 bg-[#1e1e20] rounded-full block transform origin-center"
+                    animate={isMobileMenuOpen ? { rotate: 45, y: 8 } : { rotate: 0, y: 0 }}
+                    transition={{ type: "spring", stiffness: 260, damping: 25 }}
+                    className="w-5 h-0.5 bg-[#1e1e20] rounded-full absolute top-0 left-0"
                   />
                   <motion.span
-                    animate={isMobileMenuOpen ? { opacity: 0, scale: 0.8 } : { opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.15 }}
-                    className="w-5 h-0.5 bg-[#1e1e20] rounded-full block my-[1.5px]"
+                    animate={isMobileMenuOpen ? { opacity: 0, x: -8 } : { opacity: 1, x: 0 }}
+                    transition={{ type: "spring", stiffness: 260, damping: 25 }}
+                    className="w-5 h-0.5 bg-[#1e1e20] rounded-full absolute top-[8px] left-0"
                   />
                   <motion.span
-                    animate={isMobileMenuOpen ? { rotate: -45, y: -5 } : { rotate: 0, y: 0 }}
-                    transition={{ type: "spring", stiffness: 280, damping: 22 }}
-                    className="w-5 h-0.5 bg-[#1e1e20] rounded-full block transform origin-center"
+                    animate={isMobileMenuOpen ? { rotate: -45, y: -8 } : { rotate: 0, y: 0 }}
+                    transition={{ type: "spring", stiffness: 260, damping: 25 }}
+                    className="w-5 h-0.5 bg-[#1e1e20] rounded-full absolute bottom-0 left-0"
                   />
                 </div>
               </button>
@@ -1968,7 +1969,16 @@ function AppContent() {
                 )}
             </div>
 
-            <div className="hidden items-center md:flex">
+            <div className="hidden items-center md:flex gap-4">
+              <button 
+                onClick={() => setShowSearchPopup(true)}
+                className="flex items-center gap-2 border border-zinc-200 rounded-full px-4 py-1.5 bg-white hover:bg-slate-50 text-zinc-500 hover:text-zinc-800 transition-colors h-9 cursor-pointer shadow-sm"
+                aria-label="ค้นหาสินค้า"
+              >
+                <Search className="w-3.5 h-3.5 text-zinc-400" />
+                <span className="text-xs font-bold tracking-wide">ค้นหาสินค้า</span>
+              </button>
+
               {!user ? (
                 <button 
                   onClick={() => setActiveView('login')}
@@ -1978,13 +1988,13 @@ function AppContent() {
                 </button>
               ) : (
                 <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-1.5 bg-[#f2efe9] px-3 py-1.5 rounded-full border border-[#e6e2da]">
+                  <div className="flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-full border border-[#e2e8f0]">
                     <Wallet className="h-3.5 w-3.5 text-blue-500" />
                     <span className="text-xs font-bold text-[#1e1e20]">฿{(userPlan?.balance ?? 0).toFixed(2)}</span>
                   </div>
                   <button 
                     onClick={() => setActiveView('profile')}
-                    className="flex items-center gap-[4px] text-[13.8px] font-bold text-[#1e1e20] hover:bg-[#f2efe9] px-3 py-1.5 rounded-lg border border-transparent hover:border-[#e6e2da] transition-colors cursor-pointer"
+                    className="flex items-center gap-[4px] text-[13.8px] font-bold text-[#1e1e20] hover:bg-slate-50 px-3 py-1.5 rounded-lg border border-transparent hover:border-[#e2e8f0] transition-colors cursor-pointer"
                   >
                     <User className="h-[13.8px] w-[13.8px] text-blue-500" /> โปรไฟล์
                   </button>
@@ -2003,20 +2013,20 @@ function AppContent() {
               <motion.div
                 key="sidebar-overlay"
                 initial={{ opacity: 0 }}
-                animate={{ opacity: 0.4 }}
+                animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="fixed inset-0 bg-black z-[999] md:hidden"
+                className="fixed inset-0 bg-black/20 backdrop-blur-[2px] z-[999] md:hidden"
               />
 
               {/* Sidebar Drawer Panel */}
               <motion.div
                 key="sidebar-drawer"
-                initial={{ x: "100%" }}
-                animate={{ x: 0 }}
-                exit={{ x: "100%" }}
-                transition={{ type: "spring", damping: 28, stiffness: 240 }}
-                className="fixed inset-y-0 right-0 w-[300px] max-w-[85vw] bg-white shadow-2xl z-[1000] flex flex-col p-6 font-sans text-neutral-800 md:hidden"
+                initial={{ x: "110%", opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: "110%", opacity: 0 }}
+                transition={{ type: "spring", damping: 30, stiffness: 250 }}
+                className="fixed right-3.5 top-3.5 bottom-3.5 w-[290px] max-w-[85vw] bg-white rounded-3xl border border-neutral-100/80 shadow-2xl shadow-zinc-950/15 z-[1000] flex flex-col p-6 font-sans text-neutral-800 md:hidden"
               >
                 {/* Header */}
                 <div className="flex items-center justify-between mb-6 shrink-0 mt-2">

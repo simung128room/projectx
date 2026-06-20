@@ -32,10 +32,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onProductClic
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ type: "spring", stiffness: 400, damping: 30, delay: Math.min(index, 10) * 0.03 }}
-      className="group relative bg-white border border-[#e6e2da] rounded-2xl overflow-hidden hover:border-[#3b82f6]/40 transition-colors duration-200 flex flex-col shadow-sm hover:shadow-md"
+      className="group relative bg-white border border-[#e2e8f0] rounded-2xl overflow-hidden hover:border-[#3b82f6]/40 transition-colors duration-200 flex flex-col shadow-sm hover:shadow-md"
     >
       {/* Image area with corner ribbon */}
-      <div className="relative aspect-square w-full bg-[#f2efe9] overflow-hidden shrink-0 pointer-events-none">
+      <div className="relative aspect-square w-full bg-slate-50 overflow-hidden shrink-0 pointer-events-none">
         {product.imageUrl && product.imageUrl.trim() !== "" ? (
           <img loading="lazy"
             src={product.imageUrl}
@@ -84,7 +84,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onProductClic
       </div>
 
       {/* Content */}
-      <div className="p-4 sm:p-5 flex flex-col flex-1 bg-white border-t border-[#e6e2da] mt-[-10px] z-10 rounded-t-2xl">
+      <div className="p-4 sm:p-5 flex flex-col flex-1 bg-white border-t border-[#e2e8f0] mt-[-10px] z-10 rounded-t-2xl">
         <h3 className="text-sm font-bold text-[#1e1e20] leading-snug line-clamp-2 min-h-[40px] mb-3 group-hover:text-[#3b82f6] transition-colors cursor-pointer" onClick={() => onProductClick(product.id)}>
           {formatProductName(product.name)}
         </h3>
@@ -129,7 +129,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onProductClic
         )}
 
         {/* Stock Row Box */}
-        <div className="mt-3.5 py-2 rounded-xl bg-[#faf8f5] border border-[#e6e2da] flex items-center justify-center gap-2 text-[10px] text-muted-foreground font-bold uppercase tracking-wider leading-none">
+        <div className="mt-3.5 py-2 rounded-xl bg-slate-50 border border-[#e2e8f0] flex items-center justify-center gap-2 text-[10px] text-muted-foreground font-bold uppercase tracking-wider leading-none">
           <Package className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
           <span>คงเหลือ <span className="text-[#1e1e20] font-mono">{product.stock >= 999999 ? "ไม่จำกัด" : product.stock.toLocaleString()}</span> ชิ้น</span>
         </div>

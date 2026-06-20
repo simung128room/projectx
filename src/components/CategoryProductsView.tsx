@@ -52,7 +52,7 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
         <div className="flex items-center gap-4">
           <button
             onClick={onBack}
-            className="p-3 bg-white hover:bg-[#f2efe9] border border-[#e6e2da] rounded-xl transition-colors group shrink-0 cursor-pointer"
+            className="p-3 bg-white hover:bg-slate-50 border border-[#e2e8f0] rounded-xl transition-colors group shrink-0 cursor-pointer"
           >
             <ArrowLeft className="w-5 h-5 text-muted-foreground group-hover:text-[#1e1e20]" />
           </button>
@@ -60,14 +60,14 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
             <h1 className="text-3xl sm:text-4xl font-bold text-[#1e1e20] tracking-tight flex items-center gap-3">
               {category === "all" ? (
                 <div className="flex items-center gap-3 uppercase">
-                  <div className="w-12 h-12 bg-white border border-[#e6e2da] text-blue-500 flex items-center justify-center rounded-xl">
+                  <div className="w-12 h-12 bg-white border border-[#e2e8f0] text-blue-500 flex items-center justify-center rounded-xl">
                     <Package className="w-6 h-6 text-blue-500" />
                   </div>
                   สินค้าทั้งหมด
                 </div>
               ) : (
                 <div className="flex items-center gap-3 uppercase">
-                  <div className="w-12 h-12 bg-white border border-[#e6e2da] text-blue-500 flex items-center justify-center rounded-xl">
+                  <div className="w-12 h-12 bg-white border border-[#e2e8f0] text-blue-500 flex items-center justify-center rounded-xl">
                     <ShoppingCart className="w-6 h-6 text-blue-500" />
                   </div>
                   {categoryInfo?.title || category}
@@ -86,7 +86,7 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
       {/* Category Banner Image (1640 x 500 style) */}
       {category !== "all" && categoryInfo?.bannerUrl && (
         <div 
-          className="relative w-full rounded-2xl overflow-hidden border border-[#e6e2da] bg-white mb-10 group shadow-sm"
+          className="relative w-full rounded-2xl overflow-hidden border border-[#e2e8f0] bg-white mb-10 group shadow-sm"
           style={{ aspectRatio: '1640 / 500' }}
         >
           <img
@@ -99,7 +99,7 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
       )}
 
       {!filteredProducts || filteredProducts.length === 0 ? (
-        <div className="border border-dashed border-[#e6e2da] bg-white rounded-2xl p-16 text-center">
+        <div className="border border-dashed border-[#e2e8f0] bg-white rounded-2xl p-16 text-center">
           <div className="mb-6 flex justify-center">
             <Package className="w-16 h-16 text-muted-foreground" />
           </div>
@@ -127,7 +127,7 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
             <div className="mt-12 flex justify-center">
               <button
                 onClick={() => setRenderLimit(prev => prev + 20)}
-                className="px-8 py-3 bg-white border border-[#e6e2da] text-[#1e1e20] hover:bg-[#f2efe9] rounded-xl font-bold transition-all active:scale-95 cursor-pointer"
+                className="px-8 py-3 bg-white border border-[#e2e8f0] text-[#1e1e20] hover:bg-slate-50 rounded-xl font-bold transition-all active:scale-95 cursor-pointer"
               >
                 โหลดเพิ่มเติม ({filteredProducts.length - visibleProducts.length} รายการ)
               </button>

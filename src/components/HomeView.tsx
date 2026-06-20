@@ -39,13 +39,13 @@ export const HomeView = (props: any) => {
   const visibleProducts = sortedProducts.slice(0, 8);
 
   return (
-    <div className="w-full text-foreground pb-24 lg:pb-0 overflow-x-hidden bg-[#faf8f5]">
+    <div className="w-full text-foreground pb-24 lg:pb-0 overflow-x-hidden bg-white">
       
-      {/* ===== Hero Gradient Banner (Elegant Cream & Blue Gradient) ===== */}
-      <section className="relative w-full overflow-hidden min-h-[40vh] sm:min-h-[50vh] flex flex-col items-center justify-center p-6 text-center border-b border-[#e6e2da] bg-gradient-to-b from-[#faf6ee] via-[#faf8f5] to-transparent">
+      {/* ===== Hero Gradient Banner ===== */}
+      <section className="relative w-full overflow-hidden min-h-[40vh] sm:min-h-[50vh] flex flex-col items-center justify-center p-6 text-center border-b border-[#e2e8f0] bg-gradient-to-b from-white via-white to-transparent">
         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-blue-500/5 to-transparent opacity-60 pointer-events-none" />
         <div className="absolute -top-24 -right-24 w-96 h-96 bg-blue-500/10 rounded-full blur-[100px] pointer-events-none" />
-        <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-[#caa95e]/10 rounded-full blur-[100px] pointer-events-none" />
+        <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-blue-500/5 rounded-full blur-[100px] pointer-events-none" />
 
         <div className="relative z-10 max-w-3xl flex flex-col items-center animate-in fade-in slide-in-from-bottom-8 duration-700">
           <div className="bg-[#3b82f6]/10 text-[#3b82f6] border border-[#3b82f6]/20 px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-6 flex items-center gap-2">
@@ -73,7 +73,7 @@ export const HomeView = (props: any) => {
                 if(!user) { setActiveView('login'); return; }
                 setActiveView('wallet');
               }}
-              className="bg-white hover:bg-[#faf6ee] border border-[#e6e2da] text-[#1e1e20] px-8 py-3 rounded-xl font-bold flex items-center gap-2 transition-all active:scale-95 cursor-pointer"
+              className="bg-white hover:bg-slate-50 border border-[#e2e8f0] text-[#1e1e20] px-8 py-3 rounded-xl font-bold flex items-center gap-2 transition-all active:scale-95 cursor-pointer"
             >
               เติมเงินเข้าระบบ <CreditCard className="w-4 h-4 text-blue-500" />
             </button>
@@ -84,28 +84,28 @@ export const HomeView = (props: any) => {
       {/* ===== Stats Grid ===== */}
       <section className="px-4 py-8 max-w-7xl mx-auto -mt-12 relative z-20">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-white border border-[#e6e2da] p-5 rounded-2xl flex flex-col gap-2 shadow-sm">
+          <div className="bg-white border border-[#e2e8f0] p-5 rounded-2xl flex flex-col gap-2 shadow-sm">
             <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500 mb-2">
               <Users className="w-4 h-4" />
             </div>
             <span className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">สมาชิกทั้งหมด</span>
             <span className="text-2xl font-bold text-[#1e1e20]">{stats?.totalUsers?.toLocaleString() || '1,000+'}</span>
           </div>
-          <div className="bg-white border border-[#e6e2da] p-5 rounded-2xl flex flex-col gap-2 shadow-sm">
+          <div className="bg-white border border-[#e2e8f0] p-5 rounded-2xl flex flex-col gap-2 shadow-sm">
             <div className="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center text-green-500 mb-2">
               <ShoppingCart className="w-4 h-4" />
             </div>
             <span className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">สินค้าที่ขายแล้ว</span>
             <span className="text-2xl font-bold text-[#1e1e20]">{stats?.totalOrders?.toLocaleString() || '2,500+'}</span>
           </div>
-          <div className="bg-white border border-[#e6e2da] p-5 rounded-2xl flex flex-col gap-2 shadow-sm">
+          <div className="bg-white border border-[#e2e8f0] p-5 rounded-2xl flex flex-col gap-2 shadow-sm">
             <div className="w-10 h-10 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-500 mb-2">
               <Server className="w-4 h-4" />
             </div>
             <span className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">จำนวนสินค้า</span>
             <span className="text-2xl font-bold text-[#1e1e20]">{products?.length || '50+'}</span>
           </div>
-          <div className="bg-white border border-[#e6e2da] p-5 rounded-2xl flex flex-col gap-2 shadow-sm">
+          <div className="bg-white border border-[#e2e8f0] p-5 rounded-2xl flex flex-col gap-2 shadow-sm">
             <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-500 mb-2">
               <Activity className="w-4 h-4" />
             </div>
@@ -145,7 +145,7 @@ export const HomeView = (props: any) => {
             className={`flex items-center gap-1 px-4 py-2.5 rounded-full text-xs font-bold whitespace-nowrap transition-all border cursor-pointer ${
               activeCategory === 'all'
                 ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-500/10'
-                : 'bg-white text-muted-foreground border-[#e6e2da] hover:text-[#1e1e20]'
+                : 'bg-white text-muted-foreground border-[#e2e8f0] hover:text-[#1e1e20]'
             }`}
           >
             <Package className="w-3.5 h-3.5" />
@@ -162,11 +162,11 @@ export const HomeView = (props: any) => {
                 className={`flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs font-bold whitespace-nowrap transition-all border cursor-pointer ${
                   isActive
                     ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-500/10'
-                    : 'bg-white text-zinc-500 border-[#e6e2da] hover:text-[#1e1e20]'
+                    : 'bg-white text-zinc-500 border-[#e2e8f0] hover:text-[#1e1e20]'
                 }`}
               >
                 <span>{c.title}</span>
-                <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-bold font-mono ${isActive ? 'bg-blue-500/15 text-white' : 'bg-[#f2efe9] text-muted-foreground'}`}>
+                <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-bold font-mono ${isActive ? 'bg-blue-500/15 text-white' : 'bg-slate-100 text-muted-foreground'}`}>
                   {count}
                 </span>
               </button>
@@ -195,7 +195,7 @@ export const HomeView = (props: any) => {
         </AnimatePresence>
 
         {visibleProducts.length === 0 && (
-          <div className="w-full text-center py-16 text-muted-foreground bg-white border border-[#e6e2da] rounded-2xl">
+          <div className="w-full text-center py-16 text-muted-foreground bg-white border border-[#e2e8f0] rounded-2xl">
             ยังไม่มีสินค้าในหมวดหมู่นี้ในระบบอัพเดท...
           </div>
         )}
@@ -203,7 +203,7 @@ export const HomeView = (props: any) => {
 
       {/* ===== Features Banner ===== */}
       <section className="max-w-7xl mx-auto px-4 py-12 mb-12">
-        <div className="bg-white border border-[#e6e2da] rounded-3xl p-8 md:p-12 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8 shadow-sm">
+        <div className="bg-white border border-[#e2e8f0] rounded-3xl p-8 md:p-12 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8 shadow-sm">
            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-bl from-blue-500/5 to-transparent rounded-full blur-[80px] pointer-events-none" />
            <div className="relative z-10 max-w-xl text-left">
              <div className="w-12 h-12 bg-blue-500/10 text-blue-500 rounded-xl flex items-center justify-center mb-6">
@@ -217,7 +217,7 @@ export const HomeView = (props: any) => {
            <div className="relative z-10 shrink-0 w-full md:w-auto flex justify-end">
              <button 
                 onClick={() => window.open(siteSettings?.facebook_link || '#', '_blank')}
-                className="bg-white hover:bg-[#faf6ee] border border-[#e6e2da] text-[#1e1e20] px-8 py-4 rounded-2xl font-bold flex items-center gap-2 transition-all active:scale-95 shadow-sm cursor-pointer"
+                className="bg-white hover:bg-[#f1f5f9] border border-[#e2e8f0] text-[#1e1e20] px-8 py-4 rounded-2xl font-bold flex items-center gap-2 transition-all active:scale-95 shadow-sm cursor-pointer"
               >
                 ติดต่อทีมงาน <ArrowRight className="w-4 h-4 text-blue-500" />
               </button>
