@@ -1762,6 +1762,7 @@ function AppContent() {
       Swal.fire("ข้อผิดพลาด", "ไม่สำเร็จ: " + (err as Error).message, "error");
     }
   };
+
   if (isIPBlocked)
     return (
       <div className="min-h-screen bg-card flex items-center justify-center p-4">
@@ -1857,13 +1858,28 @@ function AppContent() {
               </div>
               <span className="text-[16.1px] font-bold text-foreground tracking-tight">VHOUSE</span>
             </div>
-
-            {/* Mobile Toggle */}
             <button 
-              className="md:hidden p-2 text-muted-foreground hover:text-foreground transition-colors px-0" 
+              className="md:hidden p-2 text-muted-foreground hover:text-foreground transition-all duration-300 px-0 outline-none select-none z-[1001]" 
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              aria-label="เมนู"
             >
-              <Menu className="h-6 w-6" />
+              <div className="w-5 h-5 flex flex-col justify-center items-center gap-1 relative">
+                <motion.span
+                  animate={isMobileMenuOpen ? { rotate: 45, y: 5 } : { rotate: 0, y: 0 }}
+                  transition={{ type: "spring", stiffness: 280, damping: 22 }}
+                  className="w-5 h-0.5 bg-[#1e1e20] rounded-full block transform origin-center"
+                />
+                <motion.span
+                  animate={isMobileMenuOpen ? { opacity: 0, scale: 0.8 } : { opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.15 }}
+                  className="w-5 h-0.5 bg-[#1e1e20] rounded-full block my-[1.5px]"
+                />
+                <motion.span
+                  animate={isMobileMenuOpen ? { rotate: -45, y: -5 } : { rotate: 0, y: 0 }}
+                  transition={{ type: "spring", stiffness: 280, damping: 22 }}
+                  className="w-5 h-0.5 bg-[#1e1e20] rounded-full block transform origin-center"
+                />
+              </div>
             </button>
 
             {/* Desktop Links */}
@@ -1955,7 +1971,8 @@ function AppContent() {
             
           </div>
         </nav>
-{/* Mobile Menu Sidebar Drawer */}
+
+        {/* Mobile Menu Sidebar Drawer */}
           <AnimatePresence>
             {isMobileMenuOpen && (
               <>
@@ -1975,122 +1992,194 @@ function AppContent() {
                   initial={{ x: "100%" }}
                   animate={{ x: 0 }}
                   exit={{ x: "100%" }}
-                  transition={{ type: "spring", damping: 26, stiffness: 220 }}
-                  className="fixed inset-y-0 right-0 w-[290px] bg-white border-l border-border shadow-2xl z-[1000] flex flex-col p-6 font-sans text-[#1e1e20] md:hidden"
+                  transition={{ type: "spring", damping: 28, stiffness: 240 }}
+                  className="fixed inset-y-0 right-0 w-full sm:w-[360px] bg-white shadow-2xl z-[1000] flex flex-col p-6 font-sans text-neutral-800 md:hidden"
                 >
                   {/* Header */}
-                  <div className="flex items-center justify-between mb-8 shrink-0">
+                  <div className="flex items-center justify-between mb-6 shrink-0 mt-2">
                     <div className="flex items-center gap-2">
-                      <div className="bg-black p-1.5 rounded-full flex items-center justify-center">
-                        <Gamepad2 className="w-5 h-5 text-white" />
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-slate-900 to-indigo-950 flex items-center justify-center relative overflow-hidden shadow-md">
+                        <div className="absolute inset-0 bg-blue-500/20 blur-[1px]" />
+                        <svg viewBox="0 0 24 24" fill="currentColor" className="w-4.5 h-4.5 text-cyan-400 drop-shadow-[0_0_2px_rgba(34,211,238,0.7)] z-10">
+                          <path d="M12 2L15 9L22 12L15 15L12 22L9 15L2 12L9 9Z" />
+                        </svg>
                       </div>
-                      <span className="font-bold text-[16px] text-foreground tracking-tight">VHOUSE</span>
+                      <span className="font-extrabold text-[17px] text-[#1e1e20] tracking-tight">VHOUSE</span>
                     </div>
                     <button 
                       onClick={() => setIsMobileMenuOpen(false)}
-                      className="p-1.5 rounded-xl text-muted-foreground hover:text-foreground hover:bg-[#f2efe9]/40 transition-colors"
+                      className="p-1 text-zinc-400 hover:text-black transition-colors cursor-pointer"
+                      aria-label="ปิดเมนู"
                     >
-                      <X className="w-5 h-5" />
+                      <X className="w-6 h-6 stroke-[1.5]" />
                     </button>
                   </div>
 
-                  {/* Nav Links */}
-                  <div className="flex flex-col gap-2.5 flex-1 overflow-y-auto">
-                    <button
-                      onClick={() => { setActiveView('home'); setIsMobileMenuOpen(false); window.scrollTo(0,0); }}
-                      className={`text-left text-sm font-bold p-3 rounded-xl transition-colors ${
-                        activeView === 'home' ? 'text-blue-600 bg-blue-50/50' : 'text-[#1e1e20] hover:text-blue-600 hover:bg-[#f2efe9]/30'
-                      }`}
-                    >
-                      หน้าแรก
-                    </button>
-                    <button
-                      onClick={() => { setActiveView('categories'); setIsMobileMenuOpen(false); window.scrollTo(0,0); }}
-                      className={`text-left text-sm font-bold p-3 rounded-xl transition-colors ${
-                        activeView === 'categories' || activeView === 'category_products' || activeView === 'product_detail' ? 'text-blue-600 bg-blue-50/50' : 'text-[#1e1e20] hover:text-blue-600 hover:bg-[#f2efe9]/30'
-                      }`}
-                    >
-                      ซื้อไอดีเกม
-                    </button>
-                    <button
-                      onClick={() => { 
-                        setIsMobileMenuOpen(false);
-                        if (!user) { setActiveView('login'); return; }
-                        setActiveView('wallet'); 
-                      }}
-                      className={`text-left text-sm font-bold p-3 rounded-xl transition-colors ${
-                        activeView === 'wallet' ? 'text-blue-600 bg-blue-50/50' : 'text-[#1e1e20] hover:text-blue-600 hover:bg-[#f2efe9]/30'
-                      }`}
-                    >
-                      เติมเงิน
-                    </button>
-                    <button
-                      onClick={() => { 
-                        setIsMobileMenuOpen(false);
-                        if (!user) { setActiveView('login'); return; }
-                        setActiveView('profile'); 
-                      }}
-                      className={`text-left text-sm font-bold p-3 rounded-xl transition-colors ${
-                        activeView === 'profile' ? 'text-blue-600 bg-blue-50/50' : 'text-[#1e1e20] hover:text-blue-600 hover:bg-[#f2efe9]/30'
-                      }`}
-                    >
-                      โปรไฟล์
-                    </button>
-                    <button
-                      onClick={() => { 
-                        setIsMobileMenuOpen(false);
-                        if (!user) { setActiveView('login'); return; }
-                        setActiveView('history'); 
-                      }}
-                      className={`text-left text-sm font-bold p-3 rounded-xl transition-colors ${
-                        activeView === 'history' ? 'text-blue-600 bg-blue-50/50' : 'text-[#1e1e20] hover:text-blue-600 hover:bg-[#f2efe9]/30'
-                      }`}
-                    >
-                      ประวัติการสั่งซื้อ
-                    </button>
-                    {isAdmin && (
+                  {/* Nav Links scrollable container */}
+                  <div className="flex flex-col flex-1 overflow-y-auto pr-1 py-4 space-y-5 select-none" style={{ scrollbarWidth: 'none' }}>
+                    
+                    {/* Section 1: Services */}
+                    <div className="flex flex-col space-y-3.5">
                       <button
-                        onClick={() => { setActiveView('admin'); setIsMobileMenuOpen(false); window.scrollTo(0,0); }}
-                        className={`text-left text-sm font-bold p-3 rounded-xl transition-colors ${
-                          activeView === 'admin' ? 'text-blue-600 bg-blue-50/50' : 'text-[#1e1e20] hover:text-blue-500 hover:bg-[#f2efe9]/30'
-                        }`}
+                        onClick={() => { setActiveView('categories'); setIsMobileMenuOpen(false); window.scrollTo(0,0); }}
+                        className="text-left text-sm font-semibold text-zinc-500 hover:text-black transition-colors pl-1 py-1 cursor-pointer"
                       >
-                        จัดการระบบ (Admin)
+                        เช่าเว็บไซต์
                       </button>
-                    )}
-                  </div>
+                      <button
+                        onClick={() => { setActiveView('categories'); setIsMobileMenuOpen(false); window.scrollTo(0,0); }}
+                        className="text-left text-sm font-semibold text-[#1e1e20] hover:text-blue-600 transition-colors pl-1 py-1 cursor-pointer"
+                      >
+                        ร้าน
+                      </button>
+                      <button
+                        onClick={() => { 
+                          setIsMobileMenuOpen(false);
+                          if (!user) { setActiveView('login'); return; }
+                          setActiveView('wallet'); 
+                        }}
+                        className="text-left text-sm font-semibold text-zinc-500 hover:text-black transition-colors pl-1 py-1 cursor-pointer"
+                      >
+                        เติมเงิน
+                      </button>
+                    </div>
 
-                  {/* Profile & Wallet summary footer */}
-                  <div className="mt-auto border-t border-border pt-4 shrink-0">
-                    {!user ? (
-                      <button
-                        onClick={() => { setIsMobileMenuOpen(false); setActiveView('login'); }}
-                        className="w-full flex items-center justify-center gap-2 text-sm font-bold bg-[#3b82f6] text-white py-3 rounded-xl hover:bg-blue-600 transition-colors cursor-pointer shadow-md shadow-blue-500/10"
-                      >
-                        <User className="w-4 h-4" /> เข้าสู่ระบบ
-                      </button>
-                    ) : (
-                      <div className="flex flex-col gap-3">
-                        <div className="flex items-center gap-3 bg-[#f2efe9]/50 p-3 rounded-[16px] border border-[#e6e2da]">
-                          <div className="bg-blue-100 text-blue-600 p-2 rounded-xl">
-                            <Wallet className="w-4 h-4" />
+                    {/* Divider 1 */}
+                    <hr className="border-t border-zinc-100" />
+
+                    {/* Section 2: Contact Us */}
+                    <div className="flex flex-col">
+                      <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest pl-1 mb-3.5">ติดต่อเรา</span>
+                      <div className="flex flex-col space-y-3.5">
+                        <a
+                          href={siteSettings?.discord_link || "https://discord.gg/"}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-left text-sm font-semibold text-zinc-500 hover:text-black transition-colors pl-1 py-0.5 block cursor-pointer"
+                        >
+                          Discord
+                        </a>
+                        <a
+                          href={siteSettings?.facebook_link || siteSettings?.contact_line || "https://line.me/"}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-left text-sm font-semibold text-zinc-500 hover:text-black transition-colors pl-1 py-0.5 block cursor-pointer"
+                        >
+                          LINE
+                        </a>
+                        <a
+                          href="https://youtube.com/"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-left text-sm font-semibold text-zinc-500 hover:text-black transition-colors pl-1 py-0.5 block cursor-pointer"
+                        >
+                          YouTube
+                        </a>
+                      </div>
+                    </div>
+
+                    {/* Divider 2 */}
+                    <hr className="border-t border-zinc-100" />
+
+                    {/* Section 3: Quick Links */}
+                    <div className="flex flex-col">
+                      <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest pl-1 mb-3.5 font-sans">ลิงก์ด่วน</span>
+                      <div className="flex flex-col space-y-3.5">
+                        <button
+                          onClick={() => { setActiveView('home'); setIsMobileMenuOpen(false); window.scrollTo(0,0); }}
+                          className={`text-left text-sm font-semibold pl-1 py-0.5 transition-colors cursor-pointer ${
+                            activeView === 'home' ? 'text-blue-600 font-bold' : 'text-zinc-500'
+                          }`}
+                        >
+                          หน้าแรก
+                        </button>
+                        <button
+                          onClick={() => { setActiveView('categories'); setIsMobileMenuOpen(false); window.scrollTo(0,0); }}
+                          className={`text-left text-sm font-semibold pl-1 py-0.5 transition-colors cursor-pointer ${
+                            activeView === 'categories' || activeView === 'category_products' ? 'text-blue-600 font-bold' : 'text-zinc-500'
+                          }`}
+                        >
+                          ร้านค้า
+                        </button>
+                        <button
+                          onClick={() => { 
+                            setIsMobileMenuOpen(false);
+                            if (!user) { setActiveView('login'); return; }
+                            setActiveView('wallet'); 
+                          }}
+                          className={`text-left text-sm font-semibold pl-1 py-0.5 transition-colors cursor-pointer ${
+                            activeView === 'wallet' ? 'text-blue-600 font-bold' : 'text-zinc-500'
+                          }`}
+                        >
+                          เติมเงิน
+                        </button>
+                        <button
+                          onClick={() => { 
+                            setIsMobileMenuOpen(false);
+                            if (!user) { setActiveView('login'); return; }
+                            setActiveView('profile'); 
+                          }}
+                          className={`text-left text-sm font-semibold pl-1 py-0.5 transition-colors cursor-pointer ${
+                            activeView === 'profile' ? 'text-blue-600 font-bold' : 'text-zinc-500'
+                          }`}
+                        >
+                          โปรไฟล์
+                        </button>
+                        {isAdmin && (
+                          <button
+                            onClick={() => { setActiveView('admin'); setIsMobileMenuOpen(false); window.scrollTo(0,0); }}
+                            className={`text-left text-sm font-semibold pl-1 py-0.5 transition-colors cursor-pointer ${
+                              activeView === 'admin' ? 'text-blue-600 font-bold' : 'text-zinc-500'
+                            }`}
+                          >
+                            จัดการร้านค้าของฉัน
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Divider 3 */}
+                    <hr className="border-t border-zinc-100" />
+
+                    {/* Section 4: Account Label */}
+                    <div className="flex flex-col pb-6">
+                      <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest pl-1 mb-3.5">บัญชี</span>
+                      
+                      {!user ? (
+                        /* Premium glowing rainbow line bottom button exactly like screenshot */
+                        <div className="relative overflow-hidden rounded-xl border border-zinc-200 bg-white transition-all duration-300 shadow-sm hover:shadow-md cursor-pointer mt-1">
+                          <button
+                            onClick={() => { setIsMobileMenuOpen(false); setActiveView('login'); }}
+                            className="w-full text-center py-3.5 text-sm font-bold text-neutral-800 bg-white cursor-pointer hover:bg-neutral-50 transition-colors"
+                          >
+                            เข้าสู่ระบบ
+                          </button>
+                          {/* Rainbow glowing bottom layer edge */}
+                          <div className="absolute bottom-0 left-0 right-0 h-[3.5px] bg-gradient-to-r from-[#10b981] via-[#06b6d4] via-[#3b82f6] via-[#8b5cf6] via-[#ec4899] via-[#f59e0b] to-[#10b981]" />
+                        </div>
+                      ) : (
+                        <div className="flex flex-col gap-3">
+                          <div className="bg-zinc-50 border border-zinc-100 p-3 rounded-xl">
+                            <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">บัญชีผู้ใช้งาน</p>
+                            <p className="text-xs font-bold text-zinc-800 mt-0.5 truncate">{userPlan?.username || user?.email?.split('@')[0]}</p>
+                            <p className="text-[11px] text-muted-foreground mt-0.5">ยอดเงินคงเหลือ: <span className="font-bold text-blue-600 font-mono">฿{(userPlan?.balance ?? 0).toFixed(2)}</span></p>
                           </div>
-                          <div className="min-w-0">
-                            <p className="text-xs font-bold text-foreground truncate">{userPlan?.username || user?.email?.split('@')[0]}</p>
-                            <p className="text-[10px] text-muted-foreground mt-0.5">ยอดเงินคงเหลือ: <span className="font-bold text-blue-650">฿{(userPlan?.balance ?? 0).toFixed(2)}</span></p>
+                          <div className="relative overflow-hidden rounded-xl border border-red-200 bg-white transition-all duration-300 shadow-sm hover:shadow-md cursor-pointer">
+                            <button
+                              onClick={() => {
+                                setIsMobileMenuOpen(false);
+                                handleLogout();
+                              }}
+                              className="w-full text-center py-3 text-xs font-bold text-red-500 bg-white cursor-pointer hover:bg-red-50/50 transition-colors"
+                            >
+                              ออกจากระบบ
+                            </button>
+                            <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-gradient-to-r from-red-500 via-orange-400 via-yellow-400 to-red-600" />
                           </div>
                         </div>
-                        <button
-                          onClick={() => {
-                            setIsMobileMenuOpen(false);
-                            handleLogout();
-                          }}
-                          className="w-full text-center text-xs font-bold text-red-550 bg-red-50/50 hover:bg-red-50 p-2.5 rounded-xl transition-colors border border-red-200"
-                        >
-                          ออกจากระบบ
-                        </button>
-                      </div>
-                    )}
+                      )}
+                    </div>
+
                   </div>
                 </motion.div>
               </>
