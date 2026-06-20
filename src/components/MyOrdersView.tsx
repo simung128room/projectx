@@ -157,13 +157,13 @@ export const MyOrdersView: React.FC<MyOrdersViewProps> = ({
       <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-5 bg-[#1c1c1e]/40 backdrop-blur-2xl border border-white/[0.05] p-6 rounded-[28px] shadow-lg relative overflow-hidden">
         <div className="absolute top-0 right-0 w-32 h-32 bg-[#3b82f6]/10 rounded-full blur-3xl pointer-events-none" />
         <div className="relative z-10">
-          <h1 className="text-2xl md:text-3xl font-bold text-black flex items-center gap-3 tracking-tight">
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground flex items-center gap-3 tracking-tight">
             <div className="w-12 h-12 rounded-[16px] bg-[#3b82f6]/15 flex items-center justify-center shrink-0">
               <Receipt className="w-6 h-6 text-[#3b82f6]" />
             </div>
             ประวัติการสั่งซื้อและเติมเงิน
           </h1>
-          <p className="text-sm text-gray-600 mt-2 font-medium ml-1">
+          <p className="text-sm text-muted-foreground mt-2 font-medium ml-1">
             ข้อมูลการซื้อสินค้า คีย์พรีเมี่ยม และรายรับ-รายจ่าย ทั้งหมดในบัญชีของคุณ
           </p>
         </div>
@@ -200,14 +200,14 @@ export const MyOrdersView: React.FC<MyOrdersViewProps> = ({
                 <div className={`absolute -top-10 -right-10 w-24 h-24 ${tab.bgInfo}/20 rounded-full blur-2xl pointer-events-none`} />
               )}
               <div className="flex items-center justify-between relative z-10">
-                <div className={`w-10 h-10 rounded-[14px] flex items-center justify-center ${isActive ? `${tab.bgInfo}/20` : 'bg-white/[0.05]'} transition-colors`}>
+                <div className={`w-10 h-10 rounded-[14px] flex items-center justify-center ${isActive ? `${tab.bgInfo}/20` : 'bg-card/[0.05]'} transition-colors`}>
                   <Icon className={`w-5 h-5 ${tab.color} ${isActive ? 'scale-110' : 'group-hover:scale-105'} transition-transform`} />
                 </div>
-                <span className="text-xs font-bold font-mono text-gray-600 bg-black/30 px-3 py-1 rounded-full border border-white/[0.05]">
+                <span className="text-xs font-bold font-mono text-muted-foreground bg-black/30 px-3 py-1 rounded-full border border-white/[0.05]">
                   {tab.count}
                 </span>
               </div>
-              <span className={`text-sm font-bold mt-4 transition-colors relative z-10 ${isActive ? 'text-black' : 'text-gray-600 group-hover:text-zinc-200'}`}>
+              <span className={`text-sm font-bold mt-4 transition-colors relative z-10 ${isActive ? 'text-foreground' : 'text-muted-foreground group-hover:text-zinc-200'}`}>
                 {tab.label}
               </span>
             </button>
@@ -228,11 +228,11 @@ export const MyOrdersView: React.FC<MyOrdersViewProps> = ({
           >
             {currentList.length === 0 ? (
               <div className="border border-white/[0.02] bg-[#1c1c1e]/40 backdrop-blur-xl rounded-[28px] py-16 px-4 text-center shadow-lg">
-                <div className="w-20 h-20 bg-white/[0.02] rounded-[24px] flex items-center justify-center mx-auto mb-5 shadow-inner">
+                <div className="w-20 h-20 bg-card/[0.02] rounded-[24px] flex items-center justify-center mx-auto mb-5 shadow-inner">
                   <ShoppingBag className="w-10 h-10 text-zinc-600 stroke-[1.5px]" />
                 </div>
                 <p className="font-bold text-gray-700 text-lg">ไม่พบประวัติการทำรายการ</p>
-                <p className="text-sm text-gray-500 mt-2 font-medium">คุณยังไม่มีการทำรายการในหมวดหมู่นี้</p>
+                <p className="text-sm text-muted-foreground mt-2 font-medium">คุณยังไม่มีการทำรายการในหมวดหมู่นี้</p>
               </div>
             ) : (
               currentList.map((item, idx) => {
@@ -250,25 +250,25 @@ export const MyOrdersView: React.FC<MyOrdersViewProps> = ({
                     {/* Horizontal Card Main Body */}
                     <div className="flex items-center gap-5 min-w-0 flex-1">
                       {/* Left Icon Block */}
-                      <div className={`w-14 h-14 rounded-[20px] bg-gray-100 flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-105 shadow-inner border border-white/[0.05] ${item.colorClass}`}>
+                      <div className={`w-14 h-14 rounded-[20px] bg-muted flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-105 shadow-inner border border-white/[0.05] ${item.colorClass}`}>
                         <Icon className="w-6 h-6" />
                       </div>
 
                       {/* Middle Texts */}
                       <div className="min-w-0 flex-1 space-y-1">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <h3 className="text-base font-bold text-black truncate max-w-[220px] sm:max-w-md tracking-tight">
+                          <h3 className="text-base font-bold text-foreground truncate max-w-[220px] sm:max-w-md tracking-tight">
                             {item.displayTitle}
                           </h3>
                         </div>
                         
                         <div className="flex items-center gap-4 flex-wrap">
-                          <div className="flex items-center gap-1.5 text-xs font-mono font-medium text-gray-500">
+                          <div className="flex items-center gap-1.5 text-xs font-mono font-medium text-muted-foreground">
                             <span>ID:</span>
-                            <span className="text-gray-600 bg-gray-100 px-1.5 py-0.5 rounded-md border border-white/[0.05]">{displayId}</span>
+                            <span className="text-muted-foreground bg-muted px-1.5 py-0.5 rounded-md border border-white/[0.05]">{displayId}</span>
                           </div>
                           
-                          <div className="flex items-center gap-1.5 text-xs font-medium text-gray-500">
+                          <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
                             <Clock className="w-3.5 h-3.5" />
                             <span>{dateStr}</span>
                           </div>
@@ -279,7 +279,7 @@ export const MyOrdersView: React.FC<MyOrdersViewProps> = ({
                     {/* Right Price details and Status badges */}
                     <div className="flex items-center justify-between md:justify-end gap-6 w-full md:w-auto border-t md:border-t-0 border-white/[0.05] pt-4 md:pt-0 shrink-0">
                       <div className="flex flex-col md:items-end gap-1.5">
-                        <div className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">
+                        <div className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">
                           {item.isExpense ? 'ยอดชำระสุทธิ' : 'ยอดเติมเงิน'}
                         </div>
                         <span className={`text-lg font-bold font-mono tracking-tight ${
@@ -302,7 +302,7 @@ export const MyOrdersView: React.FC<MyOrdersViewProps> = ({
                             key: item.displayTitle,
                             secretData: item.secretData || item.key || item.code || 'อยู่ระหว่างการประมวลผลระบบ...',
                           })}
-                          className="w-10 h-10 rounded-[14px] bg-white/[0.05] hover:bg-[#3b82f6] hover:text-black hover:scale-105 active:scale-95 text-gray-600 flex items-center justify-center transition-all duration-200 cursor-pointer shadow-sm"
+                          className="w-10 h-10 rounded-[14px] bg-card/[0.05] hover:bg-[#3b82f6] hover:text-foreground hover:scale-105 active:scale-95 text-muted-foreground flex items-center justify-center transition-all duration-200 cursor-pointer shadow-sm"
                           title="ดูบิลฉบับเต็ม"
                         >
                           <Eye className="w-5 h-5" />

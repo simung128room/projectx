@@ -22,7 +22,7 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
   bgImage,
   index = 0,
   onClick,
-  accentColor = "#00e676",
+  accentColor = "#364153",
 }) => {
   return (
     <div
@@ -50,7 +50,7 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
         
         {/* Gradients */}
         <div className="absolute inset-0 bg-gray-900 opacity-80" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#070709] via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#1e1e1e] via-transparent to-transparent" />
       </div>
 
       {/* Content Area */}

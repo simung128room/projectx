@@ -1,21 +1,52 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&family=Prompt:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=Kanit:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap');
 @import "tailwindcss";
 
+@font-face {
+  font-family: 'lineSeedSansTH';
+  src: url('https://www.vhouse.space/_next/static/media/LINESeedSansTH_W_Rg-s.p.8bdc44bc.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'lineSeedSansTH';
+  src: url('https://www.vhouse.space/_next/static/media/LINESeedSansTH_W_Bd-s.p.87fa4382.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'lineSeedSansTH';
+  src: url('https://www.vhouse.space/_next/static/media/LINESeedSansTH_W_He-s.p.e12d79b2.woff') format('woff');
+  font-weight: 800;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'lineSeedSansTH';
+  src: url('https://www.vhouse.space/_next/static/media/LINESeedSansTH_W_XBd-s.p.ebd8e19e.woff') format('woff');
+  font-weight: 900;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'lineSeedSansTH';
+  src: url('https://www.vhouse.space/_next/static/media/LINESeedSansTH_W_Th-s.p.fac1fa96.woff') format('woff');
+  font-weight: 100;
+  font-style: normal;
+}
+
 @theme {
-  --font-sans: "Plus Jakarta Sans", "Inter", "Prompt", system-ui, sans-serif;
-  --font-display: "Space Grotesk", "Outfit", "Kanit", sans-serif;
-  --font-logo: "Space Grotesk", "Outfit", sans-serif;
+  --font-sans: "lineSeedSansTH", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", sans-serif;
+  --font-display: "lineSeedSansTH", "Roboto", sans-serif;
+  --font-logo: "lineSeedSansTH", sans-serif;
   --font-mono: "JetBrains Mono", monospace;
-  --font-changa: "Space Grotesk", "Kanit", "Prompt", sans-serif;
+  --font-changa: "lineSeedSansTH", sans-serif;
   
-  --color-background: #0B0C10;
-  --color-surface: #070709;
-  --color-border: #141416;
+  --color-background: #121212;
+  --color-surface: #1e1e1e;
+  --color-border: #364153;
   --color-text-primary: #ffffff;
   --color-text-secondary: #a1a1aa;
-  --color-accent: #00e676;
-  --color-user-bubble: #0a0a0c;
-  --color-input-bg: #030304;
+  --color-accent: #364153;
+  --color-user-bubble: #1e1e1e;
+  --color-input-bg: #121212;
 }
 
 @layer base {
@@ -58,6 +89,42 @@
   img {
     max-width: 100%;
     height: auto;
+  }
+
+  h1 {
+    font-size: 72px;
+    font-weight: 700;
+    line-height: 86px;
+    letter-spacing: -1.2px;
+    font-family: var(--font-sans);
+  }
+  h2 {
+    font-size: 52px;
+    font-weight: 700;
+    line-height: 72px;
+    letter-spacing: -1.8px;
+    font-family: var(--font-sans);
+  }
+  h3 {
+    font-size: 38px;
+    font-weight: 700;
+    line-height: 46px;
+    letter-spacing: 0px;
+    font-family: var(--font-sans);
+  }
+  h4 {
+    font-size: 28px;
+    font-weight: 600;
+    line-height: 34px;
+    letter-spacing: 0px;
+    font-family: var(--font-sans);
+  }
+  p {
+    font-size: 20px;
+    font-weight: 500;
+    line-height: 28px;
+    letter-spacing: 0px;
+    font-family: var(--font-sans);
   }
 }
 
@@ -247,7 +314,7 @@
   }
 
   .custom-category-card:hover {
-    border-color: var(--accent, #00e676);
+    border-color: var(--accent, #364153);
     transform: translateY(-4px);
     box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.6), 0 0 20px -3px var(--glow, rgba(0, 102, 255, 0.25));
   }
@@ -344,7 +411,7 @@
   }
 
   .custom-category-card:hover .custom-card-glow {
-    border-color: var(--accent, #00e676);
+    border-color: var(--accent, #364153);
     box-shadow: inset 0 0 12px var(--glow, rgba(0, 102, 255, 0.2));
   }
 }
@@ -397,41 +464,41 @@
   --radius-xl: 18px;
   --radius: 10px;
 
-  --color-background: #0B0C10;
+  --color-background: #121212;
   --color-foreground: #ffffff;
-  --color-card: #070709;
+  --color-card: #121212;
   --color-card-foreground: #ffffff;
-  --color-popover: #070709;
+  --color-popover: #121212;
   --color-popover-foreground: #ffffff;
-  --color-primary: #00e676;
-  --color-primary-foreground: #000000;
-  --color-secondary: #0c0c0e;
+  --color-primary: #364153;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #364153;
   --color-secondary-foreground: #ffffff;
-  --color-muted: #111113;
+  --color-muted: #1e1e1e;
   --color-muted-foreground: #a1a1aa;
-  --color-accent: #00e676;
-  --color-accent-foreground: #000000;
+  --color-accent: #364153;
+  --color-accent-foreground: #ffffff;
   --color-destructive: #ff3d60;
   --color-destructive-foreground: #ffffff;
-  --color-border: #141416;
-  --color-input: #141416;
-  --color-ring: #00e676;
+  --color-border: #364153;
+  --color-input: #1e1e1e;
+  --color-ring: #364153;
 
   /* Refined accent colors */
   --color-neon-green: #3b82f6;
   --color-neon-red: #ff3d60;
   --color-neon-yellow: #ffb300;
-  --color-neon-blue: #00e676;
-  --color-neon-purple: #00e676;
+  --color-neon-blue: #364153;
+  --color-neon-purple: #364153;
 
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  --font-sans: "Plus Jakarta Sans", "Inter", "Prompt", sans-serif;
-  --font-display: "Space Grotesk", "Outfit", "Kanit", sans-serif;
+  --font-sans: "lineSeedSansTH", "Roboto", sans-serif;
+  --font-display: "lineSeedSansTH", "Roboto", sans-serif;
 }
 
 @layer base {
   * {
-    @apply border-[#1e1e1e];
+    @apply border-[#374151];
     box-sizing: border-box;
   }
 
@@ -445,6 +512,41 @@
     font-feature-settings: "kern" 1, "liga" 1;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1 {
+    font-size: 72px;
+    font-weight: 700;
+    line-height: 86px;
+    letter-spacing: -1.2px;
+  }
+
+  h2 {
+    font-size: 52px;
+    font-weight: 700;
+    line-height: 72px;
+    letter-spacing: -1.8px;
+  }
+
+  h3 {
+    font-size: 38px;
+    font-weight: 700;
+    line-height: 46px;
+    letter-spacing: 0px;
+  }
+
+  h4 {
+    font-size: 28px;
+    font-weight: 600;
+    line-height: 34px;
+    letter-spacing: 0px;
+  }
+
+  p {
+    font-size: 20px;
+    font-weight: 500;
+    line-height: 28px;
+    letter-spacing: 0px;
   }
 
   /* Scrollbar styling */
@@ -499,7 +601,7 @@
   .brutalist-border-accent {
     border: 1px solid var(--color-accent);
     border-radius: var(--radius-md);
-    box-shadow: 0 0 15px -3px rgba(0, 230, 118, 0.15);
+    box-shadow: 0 0 15px -3px rgba(54, 65, 83, 0.15);
   }
 
   /* Glitch text effect */
@@ -573,7 +675,7 @@
     border: 1px solid var(--color-accent);
     border-radius: var(--radius-md);
     padding: 1.5rem;
-    box-shadow: 0 0 20px -5px rgba(0, 230, 118, 0.12);
+    box-shadow: 0 0 20px -5px rgba(54, 65, 83, 0.12);
   }
 
   /* Number display */
@@ -608,7 +710,7 @@
     top: 0;
     height: 100%;
     width: 20px;
-    background: linear-gradient(to right, transparent, rgba(0, 230, 118, 0.4));
+    background: linear-gradient(to right, transparent, rgba(54, 65, 83, 0.4));
     animation: pulse-right 1s ease-in-out infinite;
   }
 
@@ -667,24 +769,23 @@
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    padding: 0.75rem 1.5rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
+    padding: 8px 16px;
+    font-size: 16px;
+    font-weight: 400;
+    min-width: 120px;
+    min-height: 40px;
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
+    border: 1px solid #ffffff;
+    border-radius: 4px;
     background: transparent;
     color: #ffffff;
     user-select: none;
+    text-decoration: none;
   }
 
   .brut-btn:hover {
-    background: #ffffff;
-    color: #000000;
-    border-color: #ffffff;
+    background: rgba(255, 255, 255, 0.1);
   }
 
   .brut-btn:active {
@@ -692,16 +793,14 @@
   }
 
   .brut-btn-primary {
-    background: var(--color-accent);
-    border-color: var(--color-accent);
-    color: #000000;
+    background: #ffffff;
+    border-color: transparent;
+    color: #121212;
   }
 
   .brut-btn-primary:hover {
-    background: #00c853;
-    border-color: #00c853;
-    color: #000000;
-    box-shadow: 0 0 15px -3px rgba(0, 230, 118, 0.3);
+    background: #e5e5e5;
+    color: #121212;
   }
 
   .brut-btn-danger {
@@ -720,14 +819,14 @@
   .brut-btn-success {
     border-color: var(--color-accent);
     color: var(--color-accent);
-    background: rgba(0, 230, 118, 0.05);
+    background: rgba(54, 65, 83, 0.05);
   }
 
   .brut-btn-success:hover {
     background: var(--color-accent);
     border-color: var(--color-accent);
     color: #000000;
-    box-shadow: 0 0 15px -3px rgba(0, 230, 118, 0.3);
+    box-shadow: 0 0 15px -3px rgba(54, 65, 83, 0.3);
   }
 
   .brut-btn:disabled {

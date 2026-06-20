@@ -54,10 +54,10 @@ export const SearchView: React.FC<SearchViewProps> = ({ products, onClose, onPro
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -20 }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="w-full max-w-3xl bg-[#050505] border border-[#1e1e1e] shadow-md rounded-md overflow-hidden relative z-10 flex flex-col max-h-[80vh]"
+            className="w-full max-w-3xl bg-[#050505] border border-[#374151] shadow-md rounded-md overflow-hidden relative z-10 flex flex-col max-h-[80vh]"
           >
             {/* Header / Search Input */}
-            <div className="p-4 border-b border-[#1e1e1e] flex items-center gap-3 bg-[#111]">
+            <div className="p-4 border-b border-[#374151] flex items-center gap-3 bg-[#111]">
               <Search className="w-5 h-5 text-zinc-500 flex-shrink-0" />
               <input 
                 ref={inputRef}
@@ -69,7 +69,7 @@ export const SearchView: React.FC<SearchViewProps> = ({ products, onClose, onPro
               />
               <button 
                 onClick={onClose}
-                className="w-8 h-8 rounded-full bg-white/[0.05] hover:bg-white/[0.1] flex items-center justify-center text-zinc-400 hover:text-white transition-colors"
+                className="w-8 h-8 rounded-full bg-card/[0.05] hover:bg-card/[0.1] flex items-center justify-center text-zinc-400 hover:text-white transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -96,10 +96,10 @@ export const SearchView: React.FC<SearchViewProps> = ({ products, onClose, onPro
                         onProductClick(product.id);
                         onClose();
                       }}
-                      className="bg-[#111] border border-[#1e1e1e] rounded-md p-3 cursor-pointer hover:border-[#1e1e1e] hover:bg-white/[0.04] transition-all flex gap-3 items-center group"
+                      className="bg-[#111] border border-[#374151] rounded-md p-3 cursor-pointer hover:border-[#374151] hover:bg-card/[0.04] transition-all flex gap-3 items-center group"
                     >
                       {/* Image Thumbnail */}
-                      <div className="w-16 h-16 rounded-md overflow-hidden relative shrink-0 bg-[#050505] border border-[#1e1e1e]">
+                      <div className="w-16 h-16 rounded-md overflow-hidden relative shrink-0 bg-[#050505] border border-[#374151]">
                         {product.imageUrl && product.imageUrl.trim() !== "" ? (
                           <img 
                             src={product.imageUrl} 
@@ -132,9 +132,9 @@ export const SearchView: React.FC<SearchViewProps> = ({ products, onClose, onPro
                             ฿{product.price > 0 ? product.price.toLocaleString() : "ฟรี"}
                           </span>
                           {product.stock > 0 ? (
-                            <span className="text-[#00e676] flex items-center gap-1">
-                              <div className="w-1.5 h-1.5 rounded-full bg-[#00e676]/50 relative">
-                                <div className="absolute inset-0 rounded-full bg-[#00e676] animate-ping opacity-75"></div>
+                            <span className="text-[#364153] flex items-center gap-1">
+                              <div className="w-1.5 h-1.5 rounded-full bg-[#364153]/50 relative">
+                                <div className="absolute inset-0 rounded-full bg-[#364153] animate-ping opacity-75"></div>
                               </div>
                               สต็อก {product.stock}
                             </span>

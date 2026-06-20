@@ -39,8 +39,8 @@ export class GlobalErrorBoundary extends React.Component<ErrorBoundaryProps, Err
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen bg-[#09090b] flex items-center justify-center p-6 font-sans ">
-          <div className="max-w-md w-full bg-[#09090b] border border-[#1e1e1e]  p-10 text-center relative overflow-hidden ">
+        <div className="min-h-screen bg-[#121212] flex items-center justify-center p-6 font-sans ">
+          <div className="max-w-md w-full bg-[#121212] border border-[#374151]  p-10 text-center relative overflow-hidden ">
             {/* Background Decoration */}
             <div className="absolute -top-24 -left-24 w-48 h-48 bg-red-500/10"></div>
             <div className="absolute -bottom-24 -right-24 w-48 h-48 bg-primary text-primary-foreground"></div>
@@ -71,13 +71,13 @@ export class GlobalErrorBoundary extends React.Component<ErrorBoundaryProps, Err
                     </button>
                     <button
                         onClick={this.handleGoHome}
-                        className="w-full flex items-center justify-center gap-2 py-4 bg-[#09090b] hover:bg-white/10 text-muted-foreground hover:text-white font-medium text-sm transition-all "
+                        className="w-full flex items-center justify-center gap-2 py-4 bg-[#121212] hover:bg-card/10 text-muted-foreground hover:text-white font-medium text-sm transition-all "
                     >
                         <Home className="w-4 h-4" /> กลับสู่หน้าหลัก
                     </button>
                 </div>
 
-                <div className="mt-8 pt-8 border-t border-[#1e1e1e]  text-[10px] text-muted-foreground font-mono uppercase tracking-widest">
+                <div className="mt-8 pt-8 border-t border-[#374151]  text-[10px] text-muted-foreground font-mono uppercase tracking-widest">
                     Reference ID: {Math.random().toString(36).substring(7).toUpperCase()}
                 </div>
             </div>

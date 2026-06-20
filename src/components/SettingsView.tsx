@@ -26,13 +26,13 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user 
 
   const handleChangePassword = async () => {
     if (!oldPassword) {
-      return Swal.fire({ icon: 'error', title: 'ข้อผิดพลาด', text: 'กรุณากรอกรหัสผ่านเดิม', background: '#09090b', color: '#fff' });
+      return Swal.fire({ icon: 'error', title: 'ข้อผิดพลาด', text: 'กรุณากรอกรหัสผ่านเดิม', background: '#121212', color: '#fff' });
     }
     if (!newPassword || !confirmPassword) {
-      return Swal.fire({ icon: 'error', title: 'ข้อผิดพลาด', text: 'กรุณากรอกข้อมูลให้ครบถ้วน', background: '#09090b', color: '#fff' });
+      return Swal.fire({ icon: 'error', title: 'ข้อผิดพลาด', text: 'กรุณากรอกข้อมูลให้ครบถ้วน', background: '#121212', color: '#fff' });
     }
     if (newPassword !== confirmPassword) {
-      return Swal.fire({ icon: 'error', title: 'ข้อผิดพลาด', text: 'รหัสผ่านใหม่และยืนยันรหัสผ่านไม่ตรงกัน', background: '#09090b', color: '#fff' });
+      return Swal.fire({ icon: 'error', title: 'ข้อผิดพลาด', text: 'รหัสผ่านใหม่และยืนยันรหัสผ่านไม่ตรงกัน', background: '#121212', color: '#fff' });
     }
 
     try {
@@ -58,7 +58,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user 
         title: 'เปลี่ยนรหัสผ่านสำเร็จ',
         text: 'รหัสผ่านของคุณถูกอัปเดตเรียบร้อยแล้ว',
         icon: 'success',
-        background: '#09090b',
+        background: '#121212',
         color: '#fff'
       });
       setOldPassword('');
@@ -69,7 +69,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user 
          title: 'เกิดข้อผิดพลาด',
          text: error.message || 'ไม่สามารถเปลี่ยนรหัสผ่านได้',
          icon: 'error',
-         background: '#09090b',
+         background: '#121212',
          color: '#fff'
       });
     } finally {
@@ -89,10 +89,10 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user 
       cancelButtonColor: '#18181b',
       confirmButtonText: 'ลบบัญชีถาวร',
       cancelButtonText: 'ยกเลิก',
-      background: '#09090b',
+      background: '#121212',
       color: '#fff',
       customClass: {
-        input: 'bg-[#050505] border-[#1e1e1e] text-white rounded-md'
+        input: 'bg-[#050505] border-[#374151] text-white rounded-md'
       }
     });
 
@@ -123,7 +123,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user 
           title: 'ลบบัญชีสำเร็จ',
           text: 'บัญชีของคุณถูกลบออกจากระบบแล้ว',
           icon: 'success',
-          background: '#09090b',
+          background: '#121212',
           color: '#fff'
         }).then(() => {
           window.location.reload();
@@ -133,7 +133,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user 
           title: 'เกิดข้อผิดพลาด',
           text: error.message || 'ไม่สามารถลบบัญชีได้',
           icon: 'error',
-          background: '#09090b',
+          background: '#121212',
           color: '#fff'
         });
       } finally {
@@ -146,10 +146,10 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user 
     <AnimatedScroll direction="up">
       <div className="font-sans px-4 pb-12">
         <div className="max-w-4xl mx-auto mt-6">
-          <div className="bg-[#070708] border border-[#1e1e1e] overflow-hidden flex flex-col md:flex-row rounded-md shadow-md">
+          <div className="bg-[#070708] border border-[#374151] overflow-hidden flex flex-col md:flex-row rounded-md shadow-md">
             
             {/* Sidebar Tabs */}
-            <div className="md:w-1/3 bg-[#09090a] border-b md:border-b-0 md:border-r border-[#1e1e1e] p-6 flex flex-col justify-start">
+            <div className="md:w-1/3 bg-[#09090a] border-b md:border-b-0 md:border-r border-[#374151] p-6 flex flex-col justify-start">
               <h2 className="text-lg font-medium text-white mb-6 flex items-center gap-2.5">
                 <ShieldCheck className="w-5 h-5 text-neon-green" /> ตั้งค่าผู้ใช้
               </h2>
@@ -157,7 +157,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user 
               <div className="space-y-1.5">
                 <button 
                   onClick={() => setCurrentTab('password')}
-                  className={`w-full flex items-center gap-3.5 px-4 py-3.5 text-sm font-semibold rounded-md transition-all cursor-pointer ${currentTab === 'password' ? 'bg-white/[0.04] text-white border-l-2 border-neon-green pl-[14px]' : 'text-zinc-400 hover:text-white hover:bg-white/[0.04] hover:pl-[18px]'}`}
+                  className={`w-full flex items-center gap-3.5 px-4 py-3.5 text-sm font-semibold rounded-md transition-all cursor-pointer ${currentTab === 'password' ? 'bg-card/[0.04] text-white border-l-2 border-neon-green pl-[14px]' : 'text-zinc-400 hover:text-white hover:bg-card/[0.04] hover:pl-[18px]'}`}
                 >
                   <Key className={`w-4.5 h-4.5 ${currentTab === 'password' ? 'text-neon-green' : 'text-zinc-500'}`} />
                   <span className="text-sm font-semibold">เปลี่ยนรหัสผ่าน</span>
@@ -204,7 +204,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user 
                               placeholder="••••••••" 
                               value={oldPassword} 
                               onChange={e => setOldPassword(e.target.value)} 
-                              className="w-full bg-[#0a0a0b] border border-[#1e1e1e] rounded-md py-3 pl-11 pr-4 text-sm text-white focus:border-neon-green/50 focus:ring-1 focus:ring-neon-green/10 outline-none transition-all placeholder:text-zinc-650"
+                              className="w-full bg-[#0a0a0b] border border-[#374151] rounded-md py-3 pl-11 pr-4 text-sm text-white focus:border-neon-green/50 focus:ring-1 focus:ring-neon-green/10 outline-none transition-all placeholder:text-zinc-650"
                             />
                           </div>
                         </div>
@@ -217,7 +217,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user 
                               placeholder="••••••••" 
                               value={newPassword} 
                               onChange={e => setNewPassword(e.target.value)} 
-                              className="w-full bg-[#0a0a0b] border border-[#1e1e1e] rounded-md py-3 pl-11 pr-4 text-sm text-white focus:border-neon-green/50 focus:ring-1 focus:ring-neon-green/10 outline-none transition-all placeholder:text-zinc-650"
+                              className="w-full bg-[#0a0a0b] border border-[#374151] rounded-md py-3 pl-11 pr-4 text-sm text-white focus:border-neon-green/50 focus:ring-1 focus:ring-neon-green/10 outline-none transition-all placeholder:text-zinc-650"
                             />
                           </div>
                         </div>
@@ -230,13 +230,13 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user 
                               placeholder="••••••••" 
                               value={confirmPassword} 
                               onChange={e => setConfirmPassword(e.target.value)} 
-                              className="w-full bg-[#0a0a0b] border border-[#1e1e1e] rounded-md py-3 pl-11 pr-4 text-sm text-white focus:border-neon-green/50 focus:ring-1 focus:ring-neon-green/10 outline-none transition-all placeholder:text-zinc-650"
+                              className="w-full bg-[#0a0a0b] border border-[#374151] rounded-md py-3 pl-11 pr-4 text-sm text-white focus:border-neon-green/50 focus:ring-1 focus:ring-neon-green/10 outline-none transition-all placeholder:text-zinc-650"
                             />
                           </div>
                         </div>
                         <button 
                           onClick={handleChangePassword} 
-                          className="w-full bg-neon-green hover:bg-neon-green/95 text-black font-semibold py-3.5 transition-all text-sm rounded-md uppercase tracking-wider cursor-pointer"
+                          className="w-full bg-neon-green hover:bg-neon-green/95 text-foreground font-semibold py-3.5 transition-all text-sm rounded-md uppercase tracking-wider cursor-pointer"
                         >
                           ยืนยันการเปลี่ยนรหัสผ่าน
                         </button>

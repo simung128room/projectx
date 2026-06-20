@@ -32,35 +32,35 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
       <div className="flex items-center justify-between gap-4 mb-6">
         <button 
           onClick={onBack} 
-          className="group text-gray-600 hover:text-black transition-colors duration-200 flex items-center gap-2 font-semibold text-xs uppercase tracking-wider bg-gray-50 hover:bg-white/80 px-4 py-2.5 rounded-md border border-gray-200"
+          className="group text-muted-foreground hover:text-foreground transition-colors duration-200 flex items-center gap-2 font-semibold text-xs uppercase tracking-wider bg-muted hover:bg-card/80 px-4 py-2.5 rounded-md border border-border"
         >
           <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" />
           <span>กลับสู่หน้าหลัก</span>
         </button>
-        <div className="hidden sm:flex items-center gap-2 text-xs text-gray-500 font-mono">
+        <div className="hidden sm:flex items-center gap-2 text-xs text-muted-foreground font-mono">
           <span>PORTAL</span>
           <ChevronRight className="w-3 h-3 text-zinc-700" />
           <span>CATALOG</span>
           <ChevronRight className="w-3 h-3 text-zinc-700" />
-          <span className="text-gray-600 truncate max-w-[180px]">{formatProductName(product.name)}</span>
+          <span className="text-muted-foreground truncate max-w-[180px]">{formatProductName(product.name)}</span>
         </div>
       </div>
 
       {/* Main Details Container with Glowing Backdrop */}
-      <div className="relative bg-white/90 backdrop-blur-sm border border-gray-200 rounded-md overflow-hidden shadow-sm grid grid-cols-1 md:grid-cols-12 gap-0">
+      <div className="relative bg-card/90 backdrop-blur-sm border border-border rounded-md overflow-hidden shadow-sm grid grid-cols-1 md:grid-cols-12 gap-0">
         
         {/* Glow Effects in Backdrop */}
         <div className="absolute top-1/4 left-1/4 w-72 h-72 rounded-full bg-[#3b82f6]/5  pointer-events-none" />
         <div className="absolute bottom-1/4 right-1/4 w-72 h-72 rounded-full bg-[#3b82f6]/5  pointer-events-none" />
 
         {/* Left Side: Product Image (5 Columns) */}
-        <div className="md:col-span-5 p-6 md:p-8 flex flex-col justify-start border-b md:border-b-0 md:border-r border-gray-200 relative z-10">
+        <div className="md:col-span-5 p-6 md:p-8 flex flex-col justify-start border-b md:border-b-0 md:border-r border-border relative z-10">
           <motion.div
-            className="w-full aspect-square relative overflow-hidden rounded-md bg-white border border-gray-200 flex items-center justify-center group shadow-inner p-4"
+            className="w-full aspect-square relative overflow-hidden rounded-md bg-card border border-border flex items-center justify-center group shadow-inner p-4"
             
             transition={{ type: "spring", stiffness: 400, damping: 30 }}
           >
-            <div className="absolute inset-0 bg-white z-10 pointer-events-none" />
+            <div className="absolute inset-0 bg-card z-10 pointer-events-none" />
             
             <img 
               loading="lazy" 
@@ -76,12 +76,12 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
             {/* Float tags */}
             <div className="absolute top-4 left-4 z-20 flex flex-col gap-1.5 items-start">
               {discount && (
-                <span className="bg-[#3b82f6] text-black text-[10px] font-semibold font-mono px-2.5 py-1 rounded-md tracking-wider border border-blue-400/20 shadow-md uppercase">
+                <span className="bg-[#3b82f6] text-foreground text-[10px] font-semibold font-mono px-2.5 py-1 rounded-md tracking-wider border border-blue-400/20 shadow-md uppercase">
                   -{discount}% OFF
                 </span>
               )}
               {product.tag && (
-                <span className="bg-black text-white text-[9px] font-semibold font-mono px-2.5 py-1 rounded-md tracking-wider border border-gray-200 shadow-md uppercase">
+                <span className="bg-black text-white text-[9px] font-semibold font-mono px-2.5 py-1 rounded-md tracking-wider border border-border shadow-md uppercase">
                   {product.tag}
                 </span>
               )}
@@ -89,13 +89,13 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
           </motion.div>
 
           {/* Quick status notes underneath logo/image */}
-          <div className="mt-4 flex flex-col gap-2.5 bg-gray-50 p-4 rounded-md border border-gray-200">
+          <div className="mt-4 flex flex-col gap-2.5 bg-muted p-4 rounded-md border border-border">
             <div className="flex items-center justify-between text-[11px]">
-              <span className="text-gray-500 font-mono">ENCRYPTION KEY</span>
+              <span className="text-muted-foreground font-mono">ENCRYPTION KEY</span>
               <span className="text-[#3b82f6] font-mono font-medium">AES-256 SECURED</span>
             </div>
             <div className="flex items-center justify-between text-[11px]">
-              <span className="text-gray-500 font-mono">DELIVERY SYSTEM</span>
+              <span className="text-muted-foreground font-mono">DELIVERY SYSTEM</span>
               <span className="text-[#3b82f6] font-mono font-medium">INSTANT / AUTO</span>
             </div>
           </div>
@@ -127,20 +127,20 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
             </div>
 
             {/* Product Title */}
-            <h1 className="text-2xl sm:text-3xl font-semibold text-black leading-tight tracking-tight mb-4 select-all">
+            <h1 className="text-2xl sm:text-3xl font-semibold text-foreground leading-tight tracking-tight mb-4 select-all">
               {formatProductName(product.name)}
             </h1>
 
             {/* Premium Pricing Panel */}
-            <div className="bg-white rounded-md p-5 border border-gray-200 mb-6 flex items-baseline justify-between select-none">
+            <div className="bg-card rounded-md p-5 border border-border mb-6 flex items-baseline justify-between select-none">
               <div>
-                <span className="text-[10px] font-semibold font-mono text-gray-500 tracking-widest block mb-1">CURRENT OFFER</span>
+                <span className="text-[10px] font-semibold font-mono text-muted-foreground tracking-widest block mb-1">CURRENT OFFER</span>
                 <div className="flex items-baseline gap-3">
                   <span className="text-3xl sm:text-4xl font-semibold text-[#3b82f6] font-mono tracking-tight">
                     ฿{(product.price || 0).toLocaleString()}
                   </span>
                   {product.originalPrice && product.price && product.originalPrice > product.price && (
-                    <span className="text-sm sm:text-base font-medium text-gray-500 line-through font-mono">
+                    <span className="text-sm sm:text-base font-medium text-muted-foreground line-through font-mono">
                       ฿{(product.originalPrice || 0).toLocaleString()}
                     </span>
                   )}
@@ -159,21 +159,21 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
 
             {/* Stock / Sold count Grid */}
             <div className="grid grid-cols-2 gap-4 mb-6">
-              <div className="bg-black/20 border border-gray-200 p-4 rounded-md">
-                <div className="text-gray-500 text-[10px] font-medium font-mono tracking-wider uppercase mb-1 flex items-center gap-1.5">
+              <div className="bg-black/20 border border-border p-4 rounded-md">
+                <div className="text-muted-foreground text-[10px] font-medium font-mono tracking-wider uppercase mb-1 flex items-center gap-1.5">
                   <Box className="w-3.5 h-3.5 text-[#3b82f6]/60" />
                   คงเหลือในคลัง
                 </div>
-                <div className="text-lg font-semibold text-black font-mono">
+                <div className="text-lg font-semibold text-foreground font-mono">
                   {product.isPreOrder ? 'เปิดรับ PRE-ORDER' : product.stock >= 999999 ? 'UNLIMITED' : `${product.stock} ชิ้น`}
                 </div>
               </div>
-              <div className="bg-black/20 border border-gray-200 p-4 rounded-md">
-                <div className="text-gray-500 text-[10px] font-medium font-mono tracking-wider uppercase mb-1 flex items-center gap-1.5">
+              <div className="bg-black/20 border border-border p-4 rounded-md">
+                <div className="text-muted-foreground text-[10px] font-medium font-mono tracking-wider uppercase mb-1 flex items-center gap-1.5">
                   <ShoppingCart className="w-3.5 h-3.5 text-[#3b82f6]/60" />
                   ขายออกไปแล้ว
                 </div>
-                <div className="text-lg font-semibold text-black font-mono">
+                <div className="text-lg font-semibold text-foreground font-mono">
                   {(product.soldCount || 0).toLocaleString()} ครั้ง
                 </div>
               </div>
@@ -184,7 +184,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <FileText className="w-4 h-4 text-[#3b82f6]" />
-                  <span className="text-xs font-semibold text-gray-600 uppercase tracking-widest font-mono">รายละเอียดสินค้า</span>
+                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-widest font-mono">รายละเอียดสินค้า</span>
                 </div>
                 
                 {/* Share Product Button */}
@@ -195,7 +195,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
                       addToast({ title: "คัดลอกลิงก์แล้ว", message: "แชร์ลิงก์นี้ให้เพื่อนสิ!", type: "success" });
                     });
                   }}
-                  className="text-[10px] font-semibold text-gray-600 hover:text-black transition-colors flex items-center gap-1.5 bg-white/40 hover:bg-white/90 border border-gray-200 px-3 py-1.5 rounded-md active:scale-95 cursor-pointer"
+                  className="text-[10px] font-semibold text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5 bg-card/40 hover:bg-card/90 border border-border px-3 py-1.5 rounded-md active:scale-95 cursor-pointer"
                 >
                   <Share2 className="w-3 h-3 text-[#3b82f6]" /> 
                   <span>แชร์สินค้านี้</span>
@@ -203,26 +203,26 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
               </div>
 
               {/* Glowing description text body */}
-              <div className="text-gray-700 text-xs sm:text-sm leading-relaxed whitespace-pre-wrap bg-white/40 p-5 border border-gray-200 rounded-md min-h-[110px] max-h-56 overflow-y-auto no-scrollbar font-normal">
+              <div className="text-gray-700 text-xs sm:text-sm leading-relaxed whitespace-pre-wrap bg-card/40 p-5 border border-border rounded-md min-h-[110px] max-h-56 overflow-y-auto no-scrollbar font-normal">
                 {product.description || "ไม่มีรายละเอียดสินค้าเพิ่มเติมนอกจากชื่อสินค้า"}
               </div>
             </div>
           </div>
 
           {/* Quantity Controls & Dynamic Ordering Action */}
-          <div className="border-t border-gray-200 pt-6 mt-2">
+          <div className="border-t border-border pt-6 mt-2">
             {!showConfirmPurchase ? (
               <div className="space-y-4 font-sans">
                 <div className="flex flex-row items-center justify-between gap-4">
                   <div className="flex items-center gap-1">
-                    <span className="text-xs font-semibold text-gray-600 font-mono tracking-widest uppercase">เลือกจำนวน</span>
+                    <span className="text-xs font-semibold text-muted-foreground font-mono tracking-widest uppercase">เลือกจำนวน</span>
                   </div>
                   
                   {/* Digital stepper widget */}
-                  <div className="flex items-center gap-2 bg-white p-1 rounded-md border border-gray-200">
+                  <div className="flex items-center gap-2 bg-card p-1 rounded-md border border-border">
                     <button
                       onClick={() => setPurchaseQuantity(Math.max(1, purchaseQuantity - 1))}
-                      className="w-10 h-10 bg-gray-100 hover:bg-white flex items-center justify-center font-semibold text-sm rounded-md hover:text-[#3b82f6] transition-colors disabled:opacity-30 active:scale-95 text-black cursor-pointer"
+                      className="w-10 h-10 bg-muted hover:bg-card flex items-center justify-center font-semibold text-sm rounded-md hover:text-[#3b82f6] transition-colors disabled:opacity-30 active:scale-95 text-foreground cursor-pointer"
                       disabled={purchaseQuantity <= 1}
                     >
                       -
@@ -236,12 +236,12 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
                         const val = parseInt(e.target.value);
                         if (!isNaN(val)) setPurchaseQuantity(Math.min(product.isPreOrder ? 999 : (product.stock >= 999999 ? 999 : product.stock), Math.max(1, val)));
                       }}
-                      className="w-14 h-10 bg-transparent text-center font-semibold text-sm text-black outline-none font-mono"
+                      className="w-14 h-10 bg-transparent text-center font-semibold text-sm text-foreground outline-none font-mono"
                       disabled={!product.isPreOrder && product.stock === 0}
                     />
                     <button
                       onClick={() => setPurchaseQuantity(Math.min(product.isPreOrder ? 999 : (product.stock >= 999999 ? 999 : product.stock), purchaseQuantity + 1))}
-                      className="w-10 h-10 bg-gray-100 hover:bg-white flex items-center justify-center font-semibold text-sm rounded-md hover:text-[#3b82f6] transition-colors disabled:opacity-30 active:scale-95 text-black cursor-pointer"
+                      className="w-10 h-10 bg-muted hover:bg-card flex items-center justify-center font-semibold text-sm rounded-md hover:text-[#3b82f6] transition-colors disabled:opacity-30 active:scale-95 text-foreground cursor-pointer"
                       disabled={!product.isPreOrder && (product.stock === 0 || purchaseQuantity >= product.stock)}
                     >
                       +
@@ -262,7 +262,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
                         cancelButtonText: 'ปิดหน้านี้',
                         confirmButtonColor: '#3b82f6',
                         cancelButtonColor: '#1f1f2e',
-                        background: '#09090b',
+                        background: '#121212',
                         color: '#fff'
                       }).then((result) => {
                         if (result.isConfirmed) {
@@ -277,11 +277,11 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
                   disabled={!product.isPreOrder && product.stock <= 0}
                   className={`w-full py-4 text-sm font-semibold tracking-widest uppercase transition-colors duration-200 flex items-center justify-center gap-2 rounded-md shadow-sm border ${
                     product.isPreOrder || product.stock > 0 
-                      ? 'bg-[#3b82f6] hover:bg-[#3b82f6] text-black border-blue-400/20 cursor-pointer active:scale-98 shadow-blue-500/10 font-medium' 
-                      : 'bg-white text-gray-500 border-gray-200 cursor-not-allowed'
+                      ? 'bg-[#3b82f6] hover:bg-[#3b82f6] text-foreground border-blue-400/20 cursor-pointer active:scale-98 shadow-blue-500/10 font-medium' 
+                      : 'bg-card text-muted-foreground border-border cursor-not-allowed'
                   }`}
                 >
-                  <ShoppingCart className="w-4 h-4 text-black" />
+                  <ShoppingCart className="w-4 h-4 text-foreground" />
                   {product.isPreOrder ? 'สั่งซื้อ PRE-ORDER' : product.stock > 0 ? 'ยืนยันสั่งชื้อสินค้า' : 'สินค้าหมดชั่วคราว'}
                 </button>
               </div>
@@ -297,9 +297,9 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
                     <AlertCircle className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-sm text-black uppercase tracking-wider mb-0.5 font-mono">CONFIRM CHECKOUT LIST</h3>
-                    <p className="text-gray-600 text-xs leading-relaxed">
-                      โปรดยืนยันการซื้อ <span className="font-medium text-black">{formatProductName(product.name)}</span> จำนวน <span className="font-semibold text-black">{purchaseQuantity}</span> ชิ้น ราคารวม <span className="font-semibold text-[#3b82f6] font-mono">฿{(product.price * purchaseQuantity).toLocaleString()}</span>
+                    <h3 className="font-semibold text-sm text-foreground uppercase tracking-wider mb-0.5 font-mono">CONFIRM CHECKOUT LIST</h3>
+                    <p className="text-muted-foreground text-xs leading-relaxed">
+                      โปรดยืนยันการซื้อ <span className="font-medium text-foreground">{formatProductName(product.name)}</span> จำนวน <span className="font-semibold text-foreground">{purchaseQuantity}</span> ชิ้น ราคารวม <span className="font-semibold text-[#3b82f6] font-mono">฿{(product.price * purchaseQuantity).toLocaleString()}</span>
                     </p>
                   </div>
                 </div>
@@ -307,7 +307,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
                 <div className="flex items-center gap-3 w-full">
                   <button 
                     onClick={() => setShowConfirmPurchase(false)}
-                    className="flex-1 py-3 bg-white hover:bg-[#0a0a0a] text-gray-700 font-medium transition-all rounded-md text-xs active:scale-95 border border-gray-200 cursor-pointer"
+                    className="flex-1 py-3 bg-card hover:bg-[#0a0a0a] text-gray-700 font-medium transition-all rounded-md text-xs active:scale-95 border border-border cursor-pointer"
                   >
                     ยกเลิกขั้นตอนชำระเงิน
                   </button>
@@ -321,7 +321,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
                         setShowConfirmPurchase(false);
                       }
                     }}
-                    className="flex-1 py-3 bg-[#3b82f6] hover:bg-[#3b82f6] text-black font-semibold transition-all rounded-md text-xs disabled:opacity-50 flex items-center justify-center gap-2 active:scale-95 border border-blue-400/20 shadow-sm shadow-blue-500/5 cursor-pointer"
+                    className="flex-1 py-3 bg-[#3b82f6] hover:bg-[#3b82f6] text-foreground font-semibold transition-all rounded-md text-xs disabled:opacity-50 flex items-center justify-center gap-2 active:scale-95 border border-blue-400/20 shadow-sm shadow-blue-500/5 cursor-pointer"
                   >
                     {showConfirmPurchase === 'loading' as any ? (
                       <><div className="w-3.5 h-3.5 border-2 border-black border-t-transparent rounded-full animate-spin"></div> <span>กำลังทำรายการคอยสักครู่...</span></>

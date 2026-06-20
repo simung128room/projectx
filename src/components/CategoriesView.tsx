@@ -37,7 +37,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({ categories = [],
       <div className="flex items-center gap-4 mb-8">
         <button 
           onClick={onBack}
-          className="p-3 bg-white hover:bg-[#121212] border border-gray-200  transition-colors group "
+          className="p-3 bg-card hover:bg-[#121212] border border-border  transition-colors group "
         >
           <ArrowLeft className="w-5 h-5 text-muted-foreground group-hover:text-white" />
         </button>

@@ -40,10 +40,10 @@ export const LogCategoriesView: React.FC<LogCategoriesViewProps> = ({ userPlan, 
           icon: 'warning',
           title: 'สำหรับสมาชิก VIP เท่านั้น!',
           text: 'คุณต้องเป็น VIP จึงจะสามารถดูหรือดาวน์โหลดได้',
-          background: '#09090b',
+          background: '#121212',
           color: '#fff',
           confirmButtonText: 'ตกลง',
-          confirmButtonColor: '#00e676'
+          confirmButtonColor: '#364153'
        });
        return;
     }
@@ -53,7 +53,7 @@ export const LogCategoriesView: React.FC<LogCategoriesViewProps> = ({ userPlan, 
             icon: 'error',
             title: 'ไม่พบเนื้อหา',
             text: 'ถูกซ่อนหรือไม่มีข้อมูล',
-            background: '#09090b',
+            background: '#121212',
             color: '#fff'
         });
         return;
@@ -69,15 +69,15 @@ export const LogCategoriesView: React.FC<LogCategoriesViewProps> = ({ userPlan, 
           return `<img loading="lazy" src="${safeUrl}" class="w-full rounded-md mb-2" />`;
         }
         if (att.type === 'file') {
-          return `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="block w-full py-2 bg-[#00e676] text-white rounded-md text-center font-medium mb-2">ดาวน์โหลดไฟล์</a>`;
+          return `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="block w-full py-2 bg-[#364153] text-white rounded-md text-center font-medium mb-2">ดาวน์โหลดไฟล์</a>`;
         }
-        return `<div class="bg-[#050505] border border-[#1e1e1e] p-3 rounded-md mb-2 text-left text-sm text-zinc-300 break-all select-all font-mono max-h-48 overflow-y-auto">${(att.data || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>`;
+        return `<div class="bg-[#050505] border border-[#374151] p-3 rounded-md mb-2 text-left text-sm text-zinc-300 break-all select-all font-mono max-h-48 overflow-y-auto">${(att.data || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>`;
     }).join('');
 
     Swal.fire({
         title: item.title,
         html: `<div class="mt-4">${htmlAttachments}</div>`,
-        background: '#09090b',
+        background: '#121212',
         color: '#fff',
         confirmButtonText: 'ปิด',
         confirmButtonColor: '#333'
@@ -103,25 +103,25 @@ export const LogCategoriesView: React.FC<LogCategoriesViewProps> = ({ userPlan, 
        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
          <div>
             <h1 className="text-3xl sm:text-4xl font-semibold text-white tracking-tight flex items-center gap-3">
-              <Gift className="w-8 h-8 text-[#00e676]" /> {filterType === 'vip' ? 'VIP PH LOG' : filterType === 'free' ? 'FREE FH LOG' : 'ทรัพยากร / เครื่องมือ'}
+              <Gift className="w-8 h-8 text-[#364153]" /> {filterType === 'vip' ? 'VIP PH LOG' : filterType === 'free' ? 'FREE FH LOG' : 'ทรัพยากร / เครื่องมือ'}
             </h1>
             <p className="text-sm font-medium text-muted-foreground mt-2">ดาวน์โหลดไฟล์และเอกสารฟรี & พรีเมียม</p>
          </div>
          {isAdmin && (
-           <button onClick={() => setShowAdmin(!showAdmin)} className="flex bg-[#09090b] text-white px-4 py-2 text-sm font-medium self-start md:self-auto hover:-translate-y-1 transition-all ">
+           <button onClick={() => setShowAdmin(!showAdmin)} className="flex bg-[#121212] text-white px-4 py-2 text-sm font-medium self-start md:self-auto hover:-translate-y-1 transition-all ">
               {showAdmin ? 'ปิดจัดการเนื้อหา' : 'เพิ่มเนื้อหา (แอดมิน)'}
            </button>
          )}
        </div>
 
        {showAdmin ? (
-         <div className="bg-[#09090b] border border-[#1e1e1e]  p-4 sm:p-6 mb-8 ">
+         <div className="bg-[#121212] border border-[#374151]  p-4 sm:p-6 mb-8 ">
            <AdminToolsManagement />
          </div>
        ) : selectedCategory ? (
          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
             <div className="flex items-center gap-4 mb-6">
-               <button onClick={() => setSelectedCategory(null)} className="px-4 py-2 bg-[#09090b] hover:bg-white/10 border border-[#1e1e1e]  text-white font-medium text-sm ">
+               <button onClick={() => setSelectedCategory(null)} className="px-4 py-2 bg-[#121212] hover:bg-card/10 border border-[#374151]  text-white font-medium text-sm ">
                  กลับ
                </button>
                <h2 className="text-xl font-medium text-white flex items-center gap-2">
@@ -130,7 +130,7 @@ export const LogCategoriesView: React.FC<LogCategoriesViewProps> = ({ userPlan, 
                </h2>
                <div className="ml-auto w-48 relative">
                  <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                 <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="ค้นหา..." className="w-full bg-[#09090b] border border-[#1e1e1e]  pl-9 pr-4 py-2 text-sm text-white " />
+                 <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="ค้นหา..." className="w-full bg-[#121212] border border-[#374151]  pl-9 pr-4 py-2 text-sm text-white " />
                </div>
             </div>
 
@@ -138,12 +138,12 @@ export const LogCategoriesView: React.FC<LogCategoriesViewProps> = ({ userPlan, 
               {currentItems.map((item) => {
                  const isLocked = item.type === 'premium' && !isVip;
                  return (
-                    <div key={item.id} onClick={() => handleOpenItem(item)} className={`bg-[#09090b] border border-[#1e1e1e]  p-5 cursor-pointer hover:border-[#00e676]/30 transition-all ${isLocked ? 'opacity-80' : 'hover:-translate-y-1 '}`}>
+                    <div key={item.id} onClick={() => handleOpenItem(item)} className={`bg-[#121212] border border-[#374151]  p-5 cursor-pointer hover:border-[#364153]/30 transition-all ${isLocked ? 'opacity-80' : 'hover:-translate-y-1 '}`}>
                       <div className="flex justify-between items-start mb-3">
-                        <span className={`text-[10px] font-medium px-2 py-0.5 uppercase ${item.type === 'premium' ? 'bg-amber-500/20 text-amber-400' : 'bg-[#00e676]/20 text-[#00e676]'}`}>
+                        <span className={`text-[10px] font-medium px-2 py-0.5 uppercase ${item.type === 'premium' ? 'bg-amber-500/20 text-amber-400' : 'bg-[#364153]/20 text-[#364153]'}`}>
                           {item.type === 'premium' ? 'Premium' : 'Free'}
                         </span>
-                        {isLocked ? <Lock className="w-4 h-4 text-muted-foreground"/> : <Download className="w-4 h-4 text-[#00e676]"/>}
+                        {isLocked ? <Lock className="w-4 h-4 text-muted-foreground"/> : <Download className="w-4 h-4 text-[#364153]"/>}
                       </div>
                       <h3 className="text-lg font-medium text-white mb-2">{item.title}</h3>
                       {item.keyword && <span className="text-[10px] text-muted-foreground font-medium">#{item.keyword}</span>}
@@ -165,21 +165,21 @@ export const LogCategoriesView: React.FC<LogCategoriesViewProps> = ({ userPlan, 
                    animate={{ opacity: 1, y: 0 }}
                    transition={{ delay: i * 0.05 }}
                    onClick={() => { setSelectedCategory(c); setSearch(''); }}
-                   className="bg-[#09090b] border border-[#1e1e1e]  hover:border-[#00e676]/30 overflow-hidden transition-all cursor-pointer group flex flex-col pt-2 "
+                   className="bg-[#121212] border border-[#374151]  hover:border-[#364153]/30 overflow-hidden transition-all cursor-pointer group flex flex-col pt-2 "
                  >
                    <div className="p-6 flex-1 flex flex-col">
                       <div className="flex items-center justify-between mb-4">
-                        <div className="w-12 h-12 bg-[#09090b] border border-[#1e1e1e]  flex items-center justify-center text-[#00e676] group-hover:scale-110 transition-transform ">
+                        <div className="w-12 h-12 bg-[#121212] border border-[#374151]  flex items-center justify-center text-[#364153] group-hover:scale-110 transition-transform ">
                           <Folder className="w-6 h-6" />
                         </div>
                         {c.isVip && <span className="bg-amber-500/10 text-amber-500 border border-amber-500/20 px-3 py-1 text-xs font-semibold uppercase tracking-wider">VIP</span>}
                       </div>
-                      <h2 className="text-xl font-semibold text-white group-hover:text-[#00e676] transition-colors tracking-tight">{c.name}</h2>
+                      <h2 className="text-xl font-semibold text-white group-hover:text-[#364153] transition-colors tracking-tight">{c.name}</h2>
                       <p className="text-sm text-muted-foreground mt-1 mb-4 flex-1">{c.subtitle}</p>
                       
-                      <div className="w-full flex items-center justify-between pt-4 border-t border-[#1e1e1e]  mt-auto">
+                      <div className="w-full flex items-center justify-between pt-4 border-t border-[#374151]  mt-auto">
                         <span className="text-xs font-medium text-muted-foreground">{catItemsCount} รายการ</span>
-                        <div className="w-8 h-8 bg-[#09090b] flex items-center justify-center text-muted-foreground group-hover:bg-zinc-600/10 group-hover:text-[#00e676] transition-all ">
+                        <div className="w-8 h-8 bg-[#121212] flex items-center justify-center text-muted-foreground group-hover:bg-zinc-600/10 group-hover:text-[#364153] transition-all ">
                           <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-all" />
                         </div>
                       </div>
