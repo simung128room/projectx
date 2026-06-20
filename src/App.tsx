@@ -1816,7 +1816,7 @@ function AppContent() {
       case "admin":
         return "จัดการหลังบ้าน";
       default:
-        return "APEXSTORE";
+        return "Sunoid.shop";
     }
   };
 
@@ -1839,7 +1839,13 @@ function AppContent() {
         transition={{ type: "spring", stiffness: 400, damping: 30, duration: 0.8 }}
         className="min-h-screen w-full flex flex-col lg:flex-row-reverse relative"
       >
-                {/* Popup banner removed as requested */}
+        <Suspense fallback={null}>
+          <PopupBanner
+            enabled={siteSettings?.popup_enabled ?? false}
+            imgUrl={siteSettings?.popup_img_url ?? ""}
+            linkUrl={siteSettings?.popup_link ?? ""}
+          />
+        </Suspense>
 
         {/* Main Content Area */}
         <div className="flex-1 flex flex-col min-h-screen min-w-0 relative transition-all duration-300">
@@ -1898,10 +1904,10 @@ function AppContent() {
             <div className="hidden items-center gap-1.5 lg:gap-3 md:flex">
                 <button 
                   onClick={() => { setActiveView('home'); window.scrollTo(0,0); }}
-                  className={`text-[13px] font-bold transition-all py-1.5 px-3 rounded-full cursor-pointer flex items-center gap-1.5 ${
+                  className={`text-[13px] font-bold transition-all py-1.5 px-3.5 rounded-full cursor-pointer flex items-center gap-1.5 ${
                     activeView === 'home' 
-                      ? 'text-blue-600 bg-blue-50/70 border border-blue-105/30' 
-                      : 'text-zinc-650 hover:text-blue-605 hover:bg-zinc-100/50 border border-transparent'
+                      ? 'text-blue-600 bg-blue-50 border border-blue-100/30' 
+                      : 'text-zinc-650 hover:text-blue-600 hover:bg-zinc-100/50'
                   }`}
                 >
                   <Home className="w-3.8 h-3.8" />
@@ -1909,10 +1915,10 @@ function AppContent() {
                 </button>
                 <button 
                   onClick={() => { setActiveView('categories'); window.scrollTo(0,0); }}
-                  className={`text-[13px] font-bold transition-all py-1.5 px-3 rounded-full cursor-pointer flex items-center gap-1.5 ${
+                  className={`text-[13px] font-bold transition-all py-1.5 px-3.5 rounded-full cursor-pointer flex items-center gap-1.5 ${
                     activeView === 'categories' || activeView === 'category_products' || activeView === 'product_detail'
-                      ? 'text-blue-600 bg-blue-50/70 border border-blue-105/30' 
-                      : 'text-zinc-655 hover:text-blue-605 hover:bg-zinc-100/50 border border-transparent'
+                      ? 'text-blue-600 bg-blue-50 border border-blue-100/30' 
+                      : 'text-zinc-655 hover:text-blue-600 hover:bg-zinc-100/50'
                   }`}
                 >
                   <Gamepad2 className="w-3.8 h-3.8" />
@@ -1923,10 +1929,10 @@ function AppContent() {
                     if (!user) { setActiveView('login'); return; }
                     setActiveView('wallet'); 
                   }}
-                  className={`text-[13px] font-bold transition-all py-1.5 px-3 rounded-full cursor-pointer flex items-center gap-1.5 ${
+                  className={`text-[13px] font-bold transition-all py-1.5 px-3.5 rounded-full cursor-pointer flex items-center gap-1.5 ${
                     activeView === 'wallet' 
-                      ? 'text-blue-600 bg-blue-50/70 border border-blue-105/30' 
-                      : 'text-zinc-655 hover:text-blue-605 hover:bg-zinc-100/50 border border-transparent'
+                      ? 'text-blue-600 bg-blue-50 border border-blue-100/30' 
+                      : 'text-zinc-655 hover:text-blue-600 hover:bg-zinc-100/50'
                   }`}
                 >
                   <Wallet className="w-3.8 h-3.8" />
@@ -1937,10 +1943,10 @@ function AppContent() {
                     if (!user) { setActiveView('login'); return; }
                     setActiveView('history'); 
                   }}
-                  className={`text-[13px] font-bold transition-all py-1.5 px-3 rounded-full cursor-pointer flex items-center gap-1.5 ${
+                  className={`text-[13px] font-bold transition-all py-1.5 px-3.5 rounded-full cursor-pointer flex items-center gap-1.5 ${
                     activeView === 'history' 
-                      ? 'text-blue-600 bg-blue-50/70 border border-blue-105/30' 
-                      : 'text-zinc-655 hover:text-blue-605 hover:bg-zinc-100/50 border border-transparent'
+                      ? 'text-blue-600 bg-blue-50 border border-blue-100/30' 
+                      : 'text-zinc-655 hover:text-blue-600 hover:bg-zinc-100/50'
                   }`}
                 >
                   <History className="w-3.8 h-3.8" />
@@ -1951,10 +1957,10 @@ function AppContent() {
                     if (!user) { setActiveView('login'); return; }
                     setActiveView('profile'); 
                   }}
-                  className={`text-[13px] font-bold transition-all py-1.5 px-3 rounded-full cursor-pointer flex items-center gap-1.5 ${
+                  className={`text-[13px] font-bold transition-all py-1.5 px-3.5 rounded-full cursor-pointer flex items-center gap-1.5 ${
                     activeView === 'profile' 
-                      ? 'text-blue-600 bg-blue-50/70 border border-blue-105/30' 
-                      : 'text-zinc-655 hover:text-blue-605 hover:bg-zinc-100/50 border border-transparent'
+                      ? 'text-blue-600 bg-blue-50 border border-blue-100/30' 
+                      : 'text-zinc-655 hover:text-blue-600 hover:bg-zinc-100/50'
                   }`}
                 >
                   <User className="w-3.8 h-3.8" />
@@ -1963,10 +1969,10 @@ function AppContent() {
                 {isAdmin && (
                   <button 
                     onClick={() => { setActiveView('admin'); window.scrollTo(0,0); }}
-                    className={`text-[13px] font-bold transition-all py-1.5 px-3 rounded-full cursor-pointer flex items-center gap-1.5 ${
+                    className={`text-[13px] font-bold transition-all py-1.5 px-3.5 rounded-full cursor-pointer flex items-center gap-1.5 ${
                       activeView === 'admin' 
-                        ? 'text-blue-600 bg-blue-50/70 border border-blue-105/30' 
-                        : 'text-zinc-655 hover:text-blue-605 hover:bg-zinc-100/50 border border-transparent'
+                        ? 'text-blue-600 bg-blue-50 border border-blue-100/30' 
+                        : 'text-zinc-655 hover:text-blue-600 hover:bg-zinc-100/50'
                     }`}
                   >
                     <ShieldAlert className="w-3.8 h-3.8" />
@@ -2032,7 +2038,7 @@ function AppContent() {
                 animate={{ x: 0, opacity: 1 }}
                 exit={{ x: "110%", opacity: 0 }}
                 transition={{ type: "spring", damping: 30, stiffness: 250 }}
-                className="fixed right-0 top-0 bottom-0 h-full w-[295px] max-w-[85vw] bg-white border-l border-zinc-150 shadow-2xl z-[1000] flex flex-col p-6 font-sans text-neutral-800 md:hidden rounded-l-[32px]"
+                className="fixed right-3.5 top-3.5 bottom-3.5 w-[290px] max-w-[85vw] bg-white border border-neutral-100/80 shadow-2xl shadow-zinc-950/15 z-[1000] flex flex-col p-6 font-sans text-neutral-800 md:hidden rounded-3xl"
               >
                 {/* Header */}
                 <div className="flex items-center justify-between mb-6 shrink-0 mt-2">
@@ -2146,7 +2152,7 @@ function AppContent() {
                     
                     {!user ? (
                       /* Premium glowing rainbow line bottom button exactly like screenshot */
-                      <div className="relative overflow-hidden rounded-xl border border-zinc-200 bg-white transition-all duration-300 shadow-sm hover:shadow-md cursor-pointer mt-1">
+                      <div className="relative overflow-hidden rounded-2xl border border-zinc-200 bg-white transition-all duration-300 shadow-sm hover:shadow-md cursor-pointer mt-1">
                         <button
                           onClick={() => { setIsMobileMenuOpen(false); setActiveView('login'); }}
                           className="w-full text-center py-3.5 text-sm font-bold text-neutral-800 bg-white cursor-pointer hover:bg-neutral-50 transition-colors"
@@ -2158,7 +2164,7 @@ function AppContent() {
                       </div>
                     ) : (
                       <div className="flex flex-col gap-3">
-                        <div className="bg-zinc-50 border border-zinc-100 p-3 rounded-xl">
+                        <div className="bg-zinc-50 border border-zinc-100 p-3 rounded-2xl">
                           <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">บัญชีผู้ใช้งาน</p>
                           <p className="text-xs font-bold text-zinc-800 mt-0.5 truncate">{userPlan?.username || user?.email?.split('@')[0]}</p>
                           <p className="text-[11px] text-muted-foreground mt-0.5">ยอดเงินคงเหลือ: <span className="font-bold text-blue-600 font-mono">฿{(userPlan?.balance ?? 0).toFixed(2)}</span></p>

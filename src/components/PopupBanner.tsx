@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Check } from 'lucide-react';
+import { X, Check, Megaphone } from 'lucide-react';
 
 interface PopupBannerProps {
   enabled: boolean;
@@ -20,8 +20,8 @@ export const PopupBanner: React.FC<PopupBannerProps> = ({ enabled, imgUrl, linkU
 
     const hideUntil = localStorage.getItem('hidePopupUntil');
     if (!hideUntil || Date.now() > parseInt(hideUntil, 10)) {
-      // Add a slight delay so it doesn't instantly snap on load
-      const showTimer = setTimeout(() => setIsOpen(true), 1500);
+      // Small 1.2s delay for perfect transition on page enter
+      const showTimer = setTimeout(() => setIsOpen(true), 1200);
       return () => clearTimeout(showTimer);
     }
   }, [enabled]);
@@ -34,37 +34,69 @@ export const PopupBanner: React.FC<PopupBannerProps> = ({ enabled, imgUrl, linkU
     setIsOpen(false);
   };
 
-  const ImageContent = () => (
-    <img loading="lazy" 
-      src={imgUrl || "https://images.unsplash.com/photo-1607083206968-13611e3d76db?auto=format&fit=crop&q=80&w=1500&h=1500"} 
-      alt="Announcement" 
-      className="w-full max-h-[70vh] object-contain"
-    />
-  );
+  const ImageContent = () => {
+    if (!imgUrl) {
+      return (
+        <div className="w-full py-12 px-6 flex flex-col items-center justify-center text-center bg-gradient-to-br from-slate-50 to-blue-50/30">
+          <div className="w-14 h-14 rounded-none bg-blue-50 flex items-center justify-center border-2 border-blue-600 mb-4 animate-bounce">
+            <Megaphone className="w-6 h-6 text-blue-600" />
+          </div>
+          <h3 className="text-base font-black text-zinc-900 tracking-tight uppercase">ข่าวประกาศจากทางร้าน</h3>
+          <p className="text-xs text-zinc-500 font-bold max-w-xs mt-2 line-clamp-3">
+            ยินดีต้อนรับสู่ร้านค้าจำหน่ายไอดีเกมชั้นนำ ระบบเติมเงินและสั่งซื้ออัตโนมัติทำงานอย่างสมบูรณ์แบบ 24 ชั่วโมง
+          </p>
+        </div>
+      );
+    }
+
+    return (
+      <img 
+        loading="lazy" 
+        src={imgUrl} 
+        alt="Announcement Banner" 
+        className="w-full h-auto max-h-[60vh] object-cover border-b border-zinc-100 block"
+      />
+    );
+  };
 
   return (
     <AnimatePresence>
       {isOpen && (
-        <div 
-          className="fixed top-24 right-4 sm:top-28 sm:right-6 z-[100] pointer-events-none flex"
-        >
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-zinc-950/40 backdrop-blur-sm pointer-events-auto">
+          {/* Overlay click to close */}
+          <div className="absolute inset-0 cursor-default" onClick={handleClose} />
+          
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, x: 40 }}
-            animate={{ opacity: 1, scale: 1, x: 0 }}
-            exit={{ opacity: 0, scale: 0.95, x: 40 }}
-            transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="relative w-[calc(100vw-2rem)] max-w-[340px] sm:max-w-[400px] max-h-[85vh] bg-[#121212] overflow-hidden flex flex-col pointer-events-auto border border-[#374151]  "
+            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.98, y: 10 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className="relative w-full max-w-[430px] bg-white border-2 border-zinc-900 shadow-2xl flex flex-col z-10 rounded-none overflow-hidden select-none"
           >
+            {/* Elegant Corner Close Pin */}
             <button
               onClick={handleClose}
-              className="absolute top-4 right-4 z-10 w-10 h-10 bg-[#121212] hover:bg-black/70 flex items-center justify-center text-white transition-colors "
+              className="absolute -top-1 -right-1 z-[11] w-9 h-9 bg-zinc-900 hover:bg-red-650 flex items-center justify-center text-white transition-all cursor-pointer border-b border-l border-zinc-800"
+              aria-label="Close"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4.5 h-4.5" />
             </button>
+
+            {/* Banner Frame Info badge (small overlay) */}
+            <div className="bg-zinc-900 text-white px-3.5 py-2.5 flex items-center gap-2 border-b border-zinc-950 shrink-0">
+              <Megaphone className="w-4 h-4 text-blue-400 shrink-0" />
+              <span className="text-[11px] font-black tracking-widest uppercase text-zinc-200">ANNOUNCEMENT / ประชาสัมพันธ์</span>
+            </div>
             
-            <div className="w-full flex-1 overflow-auto bg-[#121212] flex items-center justify-center ">
+            {/* Content box */}
+            <div className="w-full flex-1 overflow-y-auto max-h-[65vh] bg-white">
               {linkUrl ? (
-                <a href={linkUrl} target="_blank" rel="noopener noreferrer" className="w-full h-full flex items-center justify-center">
+                <a 
+                  href={linkUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="w-full h-full block hover:opacity-95 transition-opacity"
+                >
                   <ImageContent />
                 </a>
               ) : (
@@ -72,23 +104,28 @@ export const PopupBanner: React.FC<PopupBannerProps> = ({ enabled, imgUrl, linkU
               )}
             </div>
 
-            <div className="p-4 sm:px-6 bg-[#121212] flex-shrink-0 flex flex-wrap items-center justify-between border-t border-[#374151]  gap-4 ">
-              <label className="flex items-center gap-3 cursor-pointer group">
-                <div className="relative flex items-center justify-center">
+            {/* Bottom Panel */}
+            <div className="p-3.5 px-4 bg-zinc-50 flex items-center justify-between border-t border-zinc-200 shrink-0 gap-4 mt-auto">
+              <label className="flex items-center gap-2.5 cursor-pointer group">
+                <div className="relative flex items-center justify-center shrink-0">
                   <input 
                     type="checkbox" 
                     className="sr-only" 
                     checked={dontShow}
                     onChange={(e) => setDontShow(e.target.checked)}
                   />
-                  <div className={`w-5 h-5 rounded  transition-all duration-300 flex items-center justify-center ${dontShow ? 'bg-zinc-600 border-[#364153]' : 'bg-[#121212] border-[#374151] group-hover:border-[#374151]'}`}>
-                    {dontShow && <Check className="w-3.5 h-3.5 text-white" />}
+                  <div className={`w-[18px] h-[18px] border-2 transition-all duration-200 flex items-center justify-center rounded-none bg-white ${dontShow ? 'bg-zinc-900 border-zinc-900' : 'border-zinc-300 group-hover:border-zinc-400'}`}>
+                    {dontShow && <Check className="w-3.5 h-3.5 text-white stroke-[3.5]" />}
                   </div>
                 </div>
-                <span className="text-muted-foreground text-sm font-semibold select-none group-hover:text-white transition-colors">ไม่แสดงอีกใน 24 ชั่วโมง</span>
+                <span className="text-zinc-500 text-xs font-bold select-none group-hover:text-zinc-805 transition-colors">ไม่แสดงอีกภายใน 24 ชม.</span>
               </label>
-              <button onClick={handleClose} className="px-5 py-2.5 bg-[#121212] hover:bg-[#050505] hover:text-white text-white text-sm font-medium transition-colors ">
-                ปิดหน้าต่าง
+
+              <button 
+                onClick={handleClose} 
+                className="px-4 py-2 bg-zinc-900 hover:bg-zinc-800 text-white text-[11px] font-black uppercase tracking-wider transition-colors cursor-pointer border border-zinc-950 rounded-none shrink-0"
+              >
+                ตกลง / รับทราบ
               </button>
             </div>
           </motion.div>
