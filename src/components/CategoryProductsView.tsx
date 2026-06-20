@@ -83,11 +83,11 @@ export const CategoryProductsView: React.FC<CategoryProductsViewProps> = ({
         </div>
       </div>
 
-      {/* Category Banner Image (2100 x 500 style) */}
+      {/* Category Banner Image (1640 x 500 style) */}
       {category !== "all" && categoryInfo?.bannerUrl && (
         <div 
           className="relative w-full rounded-2xl overflow-hidden border border-[#e6e2da] bg-white mb-10 group shadow-sm"
-          style={{ aspectRatio: '2100 / 500' }}
+          style={{ aspectRatio: '1640 / 500' }}
         >
           <img
             src={categoryInfo.bannerUrl}

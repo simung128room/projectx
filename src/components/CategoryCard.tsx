@@ -33,7 +33,7 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
       {/* Banner Area */}
       <div 
         className="relative w-full overflow-hidden shrink-0 bg-[#f2efe9]"
-        style={{ aspectRatio: '2100 / 500' }}
+        style={{ aspectRatio: '1640 / 500' }}
       >
         {bgImage ? (
           <img

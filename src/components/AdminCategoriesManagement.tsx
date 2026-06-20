@@ -227,7 +227,7 @@ export const AdminCategoriesManagement: React.FC<AdminCategoriesManagementProps>
                       />
                     </div>
                     <p className="text-[10px] text-zinc-500">
-                      แนะนำให้ใช้ลิงก์รูปภาพสัดส่วนแนวนอน (16:9) เพื่อให้สอดรับกับหน้าแสดงผลฝั่งลูกค้า
+                      แนะนำให้ใช้รูปภาพขนาด <strong className="text-blue-400 font-bold">1640 x 500</strong> พิกเซล เพื่อการแสดงผลหน้าปกหมวดหมู่ที่สวยงาม สมบูรณ์ และได้สัดส่วนชัดเจนที่สุด
                     </p>
                   </div>
                   

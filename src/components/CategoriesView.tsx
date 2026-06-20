@@ -361,7 +361,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 className="relative w-full rounded-2xl overflow-hidden border border-[#e6e2da] bg-white mb-6 group shadow-sm shrink-0"
-                style={{ aspectRatio: '2100 / 500' }}
+                style={{ aspectRatio: '1640 / 500' }}
               >
                 <img
                   src={categoryInfo.bannerUrl}
