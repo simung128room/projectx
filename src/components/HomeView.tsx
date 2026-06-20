@@ -29,13 +29,13 @@ export const HomeView = (props: any) => {
             ต้อนรับสู่ VHOUSE SPACE
           </div>
           <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-4 text-[#1e1e20] leading-tight">
-            เช่าเว็บไซต์ราคาประหยัด <br/>
+            ไอดีเกมราคาถูก คุณภาพสูง <br/>
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-teal-600">
-              มั่นคง และ ปลอดภัย
+              ปลอดภัย และ จัดส่งทันที
             </span>
           </h1>
           <p className="text-sm sm:text-base text-muted-foreground mb-8 max-w-xl">
-            VHOUSE ให้บริการเช่าเว็บไซต์หลากหลายรูปแบบ ระบบเสถียร ใช้งานง่าย เปิดใช้งานได้ทันที มีแอดมินดูแล
+            VHOUSE ให้บริการจัดจำหน่ายไอดีเกมชั้นนำราคาประหยัด มีสินค้าให้เลือกหลากหลาย ปลอดภัย มั่นใจได้ 100% พร้อมบริการดูแลตลอด 24 ชั่วโมง
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
             <button 

@@ -1869,38 +1869,61 @@ function AppContent() {
             {/* Desktop Links */}
             <div className="hidden items-center gap-6 md:flex">
                 <button 
-                  onClick={() => { setActiveView('categories'); window.scrollTo(0,0); }}
-                  className="text-[13.8px] font-medium transition-colors text-gray-700 hover:text-foreground"
-                >
-                  เช่าเว็บไซต์
-                </button>
-                <button 
-                  onClick={() => { setActiveView('categories'); window.scrollTo(0,0); }}
-                  className="text-[13.8px] font-medium transition-colors text-gray-700 hover:text-foreground"
-                >
-                  ร้าน
-                </button>
-                <button 
                   onClick={() => { setActiveView('home'); window.scrollTo(0,0); }}
-                  className="text-[13.8px] font-medium transition-colors text-gray-700 hover:text-foreground"
+                  className={`text-[13.8px] font-semibold transition-colors py-1 px-2 rounded-lg cursor-pointer ${
+                    activeView === 'home' 
+                      ? 'text-blue-600 bg-blue-50/50' 
+                      : 'text-[#1e1e20] hover:text-blue-600 hover:bg-zinc-100/50'
+                  }`}
                 >
                   หน้าแรก
+                </button>
+                <button 
+                  onClick={() => { setActiveView('categories'); window.scrollTo(0,0); }}
+                  className={`text-[13.8px] font-semibold transition-colors py-1 px-2 rounded-lg cursor-pointer ${
+                    activeView === 'categories' || activeView === 'category_products' || activeView === 'product_detail'
+                      ? 'text-blue-600 bg-blue-50/50' 
+                      : 'text-[#1e1e20] hover:text-blue-600 hover:bg-zinc-100/50'
+                  }`}
+                >
+                  ซื้อไอดีเกม
                 </button>
                 <button 
                   onClick={() => { 
                     if (!user) { setActiveView('login'); return; }
                     setActiveView('wallet'); 
                   }}
-                  className="text-[13.8px] font-medium transition-colors text-gray-700 hover:text-foreground"
+                  className={`text-[13.8px] font-semibold transition-colors py-1 px-2 rounded-lg cursor-pointer ${
+                    activeView === 'wallet' 
+                      ? 'text-blue-600 bg-blue-50/50' 
+                      : 'text-[#1e1e20] hover:text-blue-600 hover:bg-zinc-100/50'
+                  }`}
                 >
                   เติมเงิน
                 </button>
                 <button 
                   onClick={() => { 
                     if (!user) { setActiveView('login'); return; }
+                    setActiveView('history'); 
+                  }}
+                  className={`text-[13.8px] font-semibold transition-colors py-1 px-2 rounded-lg cursor-pointer ${
+                    activeView === 'history' 
+                      ? 'text-blue-600 bg-blue-50/50' 
+                      : 'text-[#1e1e20] hover:text-blue-600 hover:bg-zinc-100/50'
+                  }`}
+                >
+                  ประวัติการสั่งซื้อ
+                </button>
+                <button 
+                  onClick={() => { 
+                    if (!user) { setActiveView('login'); return; }
                     setActiveView('profile'); 
                   }}
-                  className="text-[13.8px] font-medium transition-colors text-gray-700 hover:text-foreground"
+                  className={`text-[13.8px] font-semibold transition-colors py-1 px-2 rounded-lg cursor-pointer ${
+                    activeView === 'profile' 
+                      ? 'text-blue-600 bg-blue-50/50' 
+                      : 'text-[#1e1e20] hover:text-blue-600 hover:bg-zinc-100/50'
+                  }`}
                 >
                   โปรไฟล์
                 </button>
@@ -1910,21 +1933,21 @@ function AppContent() {
               {!user ? (
                 <button 
                   onClick={() => setActiveView('login')}
-                  className="flex items-center gap-[4px] text-[13.8px] font-medium text-gray-700 hover:text-foreground transition-colors"
+                  className="flex items-center gap-[4px] text-[13.8px] font-semibold text-[#1e1e20] hover:text-blue-600 transition-colors py-1.5 px-3 rounded-lg hover:bg-zinc-100/50 cursor-pointer"
                 >
                   <User className="h-[13.8px] w-[13.8px]" /> เข้าสู่ระบบ
                 </button>
               ) : (
                 <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-1.5 bg-muted px-3 py-1.5 rounded-full border border-border">
-                    <Wallet className="h-3.5 w-3.5 text-muted-foreground" />
-                    <span className="text-xs font-semibold text-foreground">฿{(userPlan?.balance ?? 0).toFixed(2)}</span>
+                  <div className="flex items-center gap-1.5 bg-[#f2efe9] px-3 py-1.5 rounded-full border border-[#e6e2da]">
+                    <Wallet className="h-3.5 w-3.5 text-blue-500" />
+                    <span className="text-xs font-bold text-[#1e1e20]">฿{(userPlan?.balance ?? 0).toFixed(2)}</span>
                   </div>
                   <button 
                     onClick={() => setActiveView('profile')}
-                    className="flex items-center gap-[4px] text-[13.8px] font-medium text-foreground hover:bg-muted px-2 py-1 rounded transition-colors"
+                    className="flex items-center gap-[4px] text-[13.8px] font-bold text-[#1e1e20] hover:bg-[#f2efe9] px-3 py-1.5 rounded-lg border border-transparent hover:border-[#e6e2da] transition-colors cursor-pointer"
                   >
-                    <User className="h-[13.8px] w-[13.8px]" /> โปรไฟล์
+                    <User className="h-[13.8px] w-[13.8px] text-blue-500" /> โปรไฟล์
                   </button>
                 </div>
               )}
@@ -1941,26 +1964,24 @@ function AppContent() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.2 }}
-                className="absolute top-full left-0 right-0 bg-card z-40 border-b border-border shadow-lg lg:hidden"
+                className="absolute top-full left-0 right-0 bg-white z-40 border-b border-border shadow-lg lg:hidden"
               >
-                <div className="flex flex-col p-4 space-y-3">
-                  <button
-                    onClick={() => { setActiveView('categories'); setIsMobileMenuOpen(false); window.scrollTo(0,0); }}
-                    className="text-left text-sm font-medium transition-colors text-gray-700 hover:text-foreground"
-                  >
-                    เช่าเว็บไซต์
-                  </button>
-                  <button
-                    onClick={() => { setActiveView('categories'); setIsMobileMenuOpen(false); window.scrollTo(0,0); }}
-                    className="text-left text-sm font-medium transition-colors text-gray-700 hover:text-foreground"
-                  >
-                    ร้าน
-                  </button>
+                <div className="flex flex-col p-4 space-y-3 bg-white">
                   <button
                     onClick={() => { setActiveView('home'); setIsMobileMenuOpen(false); window.scrollTo(0,0); }}
-                    className="text-left text-sm font-medium transition-colors text-gray-700 hover:text-foreground"
+                    className={`text-left text-sm font-bold p-2.5 rounded-xl transition-colors ${
+                      activeView === 'home' ? 'text-blue-600 bg-blue-50/50' : 'text-[#1e1e20] hover:text-blue-600'
+                    }`}
                   >
                     หน้าแรก
+                  </button>
+                  <button
+                    onClick={() => { setActiveView('categories'); setIsMobileMenuOpen(false); window.scrollTo(0,0); }}
+                    className={`text-left text-sm font-bold p-2.5 rounded-xl transition-colors ${
+                      activeView === 'categories' || activeView === 'category_products' || activeView === 'product_detail' ? 'text-blue-600 bg-blue-50/50' : 'text-[#1e1e20] hover:text-blue-600'
+                    }`}
+                  >
+                    ซื้อไอดีเกม
                   </button>
                   <button
                     onClick={() => { 
@@ -1968,7 +1989,9 @@ function AppContent() {
                       if (!user) { setActiveView('login'); return; }
                       setActiveView('wallet'); 
                     }}
-                    className="text-left text-sm font-medium transition-colors text-gray-700 hover:text-foreground"
+                    className={`text-left text-sm font-bold p-2.5 rounded-xl transition-colors ${
+                      activeView === 'wallet' ? 'text-blue-600 bg-blue-50/50' : 'text-[#1e1e20] hover:text-blue-600'
+                    }`}
                   >
                     เติมเงิน
                   </button>
@@ -1978,7 +2001,9 @@ function AppContent() {
                       if (!user) { setActiveView('login'); return; }
                       setActiveView('profile'); 
                     }}
-                    className="text-left text-sm font-medium transition-colors text-gray-700 hover:text-foreground"
+                    className={`text-left text-sm font-bold p-2.5 rounded-xl transition-colors ${
+                      activeView === 'profile' ? 'text-blue-600 bg-blue-50/50' : 'text-[#1e1e20] hover:text-blue-600'
+                    }`}
                   >
                     โปรไฟล์
                   </button>
@@ -1988,14 +2013,18 @@ function AppContent() {
                       if (!user) { setActiveView('login'); return; }
                       setActiveView('history'); 
                     }}
-                    className="text-left text-sm font-medium transition-colors text-gray-700 hover:text-foreground"
+                    className={`text-left text-sm font-bold p-2.5 rounded-xl transition-colors ${
+                      activeView === 'history' ? 'text-blue-600 bg-blue-50/50' : 'text-[#1e1e20] hover:text-blue-600'
+                    }`}
                   >
                     ประวัติการสั่งซื้อ
                   </button>
                   {isAdmin && (
                     <button
                       onClick={() => { setActiveView('admin'); setIsMobileMenuOpen(false); window.scrollTo(0,0); }}
-                      className="text-left text-sm font-medium transition-colors text-gray-700 hover:text-foreground"
+                      className={`text-left text-sm font-bold p-2.5 rounded-xl transition-colors ${
+                        activeView === 'admin' ? 'text-blue-600 bg-blue-50/50' : 'text-[#1e1e20] hover:text-blue-500'
+                      }`}
                     >
                       จัดการระบบ (Admin)
                     </button>
@@ -2248,8 +2277,7 @@ function AppContent() {
                 <div>
                   <h3 className="font-bold text-sm text-foreground mb-4">เลือกซื้อและเรียนรู้</h3>
                   <ul className="space-y-2">
-                    <li><button onClick={() => { setActiveView('categories'); window.scrollTo(0,0); }} className="text-sm text-muted-foreground hover:text-foreground transition-colors">ร้าน</button></li>
-                    <li><button onClick={() => { setActiveView('categories'); window.scrollTo(0,0); }} className="text-sm text-muted-foreground hover:text-foreground transition-colors">เช่าเว็บไซต์</button></li>
+                    <li><button onClick={() => { setActiveView('categories'); window.scrollTo(0,0); }} className="text-sm text-muted-foreground hover:text-foreground transition-colors">ซื้อไอดีเกม</button></li>
                   </ul>
                 </div>
                 <div>
@@ -2262,8 +2290,7 @@ function AppContent() {
                 <div>
                   <h3 className="font-bold text-sm text-foreground mb-4">VHOUSE Store</h3>
                   <ul className="space-y-2">
-                    <li><button onClick={() => { setActiveView('categories'); window.scrollTo(0,0); }} className="text-sm text-muted-foreground hover:text-foreground transition-colors">ร้านค้า</button></li>
-                    <li><button onClick={() => { setActiveView('categories'); window.scrollTo(0,0); }} className="text-sm text-muted-foreground hover:text-foreground transition-colors">เช่าเว็บไซต์</button></li>
+                    <li><button onClick={() => { setActiveView('categories'); window.scrollTo(0,0); }} className="text-sm text-muted-foreground hover:text-foreground transition-colors">ซื้อไอดีเกม</button></li>
                     <li><button onClick={() => { setActiveView('wallet'); window.scrollTo(0,0); }} className="text-sm text-muted-foreground hover:text-foreground transition-colors">เติมเงิน</button></li>
                   </ul>
                 </div>
