@@ -8,11 +8,35 @@ interface CategoriesViewProps {
   categories: Category[];
   products: Product[];
   siteSettings?: any;
+  isLoading?: boolean;
   onBack: () => void;
   onSelectCategory: (categoryId: string) => void;
 }
 
-export const CategoriesView: React.FC<CategoriesViewProps> = ({ categories = [], products = [], siteSettings, onBack, onSelectCategory }) => {
+
+const CategoryCardSkeleton = ({ index = 0 }: { index?: number }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 12 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.35, delay: index * 0.05 }}
+    className="relative h-[260px] overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0c0c0e] p-5"
+    aria-hidden="true"
+  >
+    <div className="absolute inset-0 bg-gradient-to-br from-white/[0.06] via-transparent to-blue-500/[0.03]" />
+    <div className="absolute inset-x-0 top-0 h-32 bg-white/[0.04] animate-pulse" />
+    <div className="relative z-10 mt-28 space-y-4">
+      <div className="h-4 w-24 rounded-full bg-white/[0.08] animate-pulse" />
+      <div className="h-7 w-3/4 rounded-lg bg-white/[0.1] animate-pulse" />
+      <div className="h-4 w-1/2 rounded-full bg-white/[0.06] animate-pulse" />
+      <div className="flex items-center justify-between pt-4">
+        <div className="h-9 w-28 rounded-xl bg-white/[0.07] animate-pulse" />
+        <div className="h-9 w-20 rounded-xl bg-blue-500/[0.12] animate-pulse" />
+      </div>
+    </div>
+  </motion.div>
+);
+
+export const CategoriesView: React.FC<CategoriesViewProps> = ({ categories = [], products = [], siteSettings, isLoading = false, onBack, onSelectCategory }) => {
   const getCategoryPriceInfo = (cat: any) => {
     const catProducts = cat === 'all' ? products : products.filter(p => p.category === cat.id || p.category === cat.name || p.category === cat.title);
     if (catProducts.length === 0) return null;
@@ -50,6 +74,10 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({ categories = [],
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {isLoading ? (
+          Array.from({ length: 6 }).map((_, i) => <CategoryCardSkeleton key={i} index={i} />)
+        ) : (
+          <>
         <CategoryCard
           title="ดูสินค้าทั้งหมด"
           label="ทุกหมวดหมู่"
@@ -78,6 +106,8 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({ categories = [],
             gradientFrom="#0a0a0a"
           />
         ))}
+          </>
+        )}
       </div>
     </div>
   );

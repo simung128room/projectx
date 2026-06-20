@@ -10,6 +10,7 @@ import React, {
   useRef,
   useEffect,
   useCallback,
+  useMemo,
   Suspense,
   lazy,
 } from "react";
@@ -558,7 +559,10 @@ function AppContent() {
     | "log_categories"
     | "tools"
     | "vip_logs"
-    | "free_logs";
+    | "free_logs"
+    | "payment_info"
+    | "privacy_policy"
+    | "terms_of_use";
   const [activeView, setRawActiveView] = useState<ViewType>(() => {
     const hostname = window.location.hostname;
     if (hostname.startsWith("account.")) return "login";
@@ -572,6 +576,58 @@ function AppContent() {
     "all",
   );
   const [usersList, setUsersList] = useState<any[]>([]);
+
+  const staticPages = useMemo(() => ({
+    payment_info: {
+      title: "ช่องทางชำระเงิน",
+      slug: "payment",
+      content: `## ช่องทางชำระเงิน
+
+เติมเงินเข้ากระเป๋าในระบบก่อนสั่งซื้อ เพื่อให้การชำระเงินรวดเร็วและตรวจสอบได้ชัดเจน
+
+### ช่องทางที่รองรับ
+
+- **TrueMoney Wallet / ซองของขวัญ**: วางลิงก์ซองอั่งเปาแล้วระบบตรวจสอบยอดให้อัตโนมัติ
+- **โอนผ่านธนาคาร / QR PromptPay**: อัปโหลดสลิปหลังชำระเงินเพื่อให้ทีมงานตรวจสอบ
+- **ประวัติการเติมเงิน**: ตรวจสอบสถานะรายการย้อนหลังได้จากเมนูประวัติ
+
+> หากต้องการเติมเงิน กรุณาเข้าสู่ระบบแล้วไปที่เมนู Wallet / เติมเงิน`,
+    },
+    privacy_policy: {
+      title: "นโยบายความเป็นส่วนตัว",
+      slug: "privacy-policy",
+      content: `## นโยบายความเป็นส่วนตัว
+
+เราเก็บข้อมูลเท่าที่จำเป็นเพื่อให้บริการร้านค้าออนไลน์ เช่น บัญชีผู้ใช้ อีเมลสำหรับติดต่อ ประวัติการสั่งซื้อ ประวัติการเติมเงิน และข้อมูลความปลอดภัยของระบบ
+
+### การใช้ข้อมูล
+
+- ยืนยันตัวตนและดูแลบัญชีผู้ใช้
+- ประมวลผลคำสั่งซื้อ การเติมเงิน และการจัดส่งสินค้า/คีย์
+- ป้องกันการทุจริต สแปม และการใช้งานผิดเงื่อนไข
+- ติดต่อผู้ใช้เมื่อมีปัญหาเกี่ยวกับคำสั่งซื้อหรือบัญชี
+
+### สิทธิของผู้ใช้
+
+ผู้ใช้สามารถติดต่อผู้ดูแลระบบเพื่อขอตรวจสอบ แก้ไข หรือลบข้อมูลบัญชีตามความเหมาะสมและข้อกำหนดทางกฎหมาย`,
+    },
+    terms_of_use: {
+      title: "ข้อกำหนดการใช้งาน",
+      slug: "terms-of-use",
+      content: `## ข้อกำหนดการใช้งาน
+
+การใช้งานเว็บไซต์นี้ถือว่าผู้ใช้ยอมรับข้อกำหนดของร้านค้า โปรดอ่านรายละเอียดก่อนสั่งซื้อหรือเติมเงิน
+
+### เงื่อนไขหลัก
+
+- ตรวจสอบรายละเอียดสินค้า ราคา และจำนวนคงเหลือก่อนยืนยันคำสั่งซื้อ
+- ห้ามใช้เว็บไซต์เพื่อการฉ้อโกง สแปม โจมตีระบบ หรือกระทำผิดกฎหมาย
+- รายการสั่งซื้อและการเติมเงินอาจต้องใช้เวลาในการตรวจสอบตามช่องทางชำระเงิน
+- ร้านค้าขอสงวนสิทธิ์ในการระงับบัญชีหรือคำสั่งซื้อที่มีความเสี่ยงหรือผิดเงื่อนไข
+
+หากพบปัญหาในการใช้งาน กรุณาติดต่อผู้ดูแลระบบผ่านช่องทางติดต่อบนเว็บไซต์`,
+    },
+  }), []);
 
   const setActiveView = useCallback(
     (view: any) => {
@@ -595,9 +651,12 @@ function AppContent() {
       }
 
       // Routing aliases
-      if (path === "register") path = "signup";
+      if (path === "register" || path === "accounts/signin") path = "signup";
       if (path === "topup") path = "wallet";
-      if (path === "store") path = "categories";
+      if (path === "store" || path === "shop") path = "categories";
+      if (path === "payment" || path === "payment-channels") path = "payment_info";
+      if (path === "privacy-policy" || path === "privacy") path = "privacy_policy";
+      if (path === "terms-of-use" || path === "terms") path = "terms_of_use";
 
       const validViews = [
         "landing",
@@ -626,6 +685,9 @@ function AppContent() {
         "redeem",
         "product_detail",
         "custom_page",
+        "payment_info",
+        "privacy_policy",
+        "terms_of_use",
       ];
 
       if (path && validViews.includes(path)) {
@@ -2183,9 +2245,11 @@ function AppContent() {
     );
 
   const isHomeViewReady = (products.length > 0 && categories.length > 0 && siteSettings !== null) || forceReveal;
-  if (!isLoaded || (!isHomeViewReady && !dbErrorDetail)) {
+  if (!isLoaded) {
     return <PortalLoader />;
   }
+
+  const isDataFetching = !isHomeViewReady && !dbErrorDetail;
 
   return (
     <div className="min-h-screen w-full bg-[#030303] text-white font-sans selection:bg-[#050505]/80 flex flex-col relative">
@@ -2864,7 +2928,10 @@ function AppContent() {
                 {activeView === "categories" ? "Main Shop" :
                  activeView === "wallet" ? "Billing" :
                  activeView === "profile" ? "Profile Info" :
-                 activeView === "history" ? "History" : "Activity"}
+                 activeView === "history" ? "History" :
+                 activeView === "payment_info" ? "Payment" :
+                 activeView === "privacy_policy" ? "Privacy" :
+                 activeView === "terms_of_use" ? "Terms" : "Activity"}
               </div>
               <div className="text-[20px] font-black text-white leading-none">
                 {activeView === "categories" ? "สินค้าทั่วไป" :
@@ -2872,6 +2939,9 @@ function AppContent() {
                  activeView === "wallet" ? "เติมเงิน" :
                  activeView === "profile" ? "โปรไฟล์" :
                  activeView === "history" ? "ประวัติ" :
+                 activeView === "payment_info" ? "ช่องทางชำระเงิน" :
+                 activeView === "privacy_policy" ? "นโยบายความเป็นส่วนตัว" :
+                 activeView === "terms_of_use" ? "ข้อกำหนดการใช้งาน" :
                  activeView === "admin" ? "ระบบหลังบ้าน" : ""}
               </div>
             </div>
@@ -2888,7 +2958,7 @@ function AppContent() {
           >
           <AnimatePresence mode="wait">
             <motion.div
-              key={activeView}
+              key={activeView === "login" || activeView === "signup" ? "auth" : activeView}
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -15 }}
@@ -2900,6 +2970,7 @@ function AppContent() {
                 categories={categories}
                 products={products}
                 siteSettings={siteSettings}
+                isLoading={isDataFetching}
                 onBack={() => setActiveView("home")}
                 onSelectCategory={(cat) => {
                   setSelectedCategory(cat);
@@ -2941,6 +3012,7 @@ function AppContent() {
                 user={userPlan || user}
                 siteSettings={siteSettings}
                 purchaseHistory={purchaseHistory}
+                isLoading={isDataFetching}
                 setActiveView={setActiveView}
                 onProductClick={(id) => {
                   setSelectedProductId(id);
@@ -2980,11 +3052,14 @@ function AppContent() {
                 onBack={() => setActiveView("home")}
               />
             )}
-            {activeView === "login" && (
-              <AuthView initialMode="login" setActiveView={setActiveView} />
+            {(activeView === "payment_info" || activeView === "privacy_policy" || activeView === "terms_of_use") && (
+              <PageView
+                page={staticPages[activeView]}
+                onBack={() => setActiveView("home")}
+              />
             )}
-            {activeView === "signup" && (
-              <AuthView initialMode="signup" setActiveView={setActiveView} />
+            {(activeView === "login" || activeView === "signup") && (
+              <AuthView initialMode={activeView === "signup" ? "signup" : "login"} setActiveView={setActiveView} />
             )}
             {activeView === "profile" && (
               <ProfileView
