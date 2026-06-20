@@ -2124,31 +2124,20 @@ function AppContent() {
                     <SupplementaryLoader />
                   ) : (
                     <>
-                      {activeView === "categories" && (
+                      {(activeView === "categories" || activeView === "category_products") && (
                         <CategoriesView
                           categories={categories}
                           products={products}
                           siteSettings={siteSettings}
+                          selectedCategory={selectedCategory || "all"}
+                          setSelectedCategory={setSelectedCategory}
                           onBack={() => setActiveView("home")}
-                          onSelectCategory={(cat) => {
-                            setSelectedCategory(cat);
-                            setActiveView("category_products");
+                          onProductClick={(id) => {
+                            setSelectedProductId(id);
+                            setActiveView("product_detail");
                           }}
                         />
                       )}
-                      {activeView === "category_products" &&
-                        selectedCategory && (
-                          <CategoryProductsView
-                            category={selectedCategory}
-                            categories={categories}
-                            products={products}
-                            onBack={() => setActiveView("categories")}
-                            onProductClick={(id) => {
-                              setSelectedProductId(id);
-                              setActiveView("product_detail");
-                            }}
-                          />
-                        )}
                       {activeView === "home" && (
                         <HomeView
                           products={products}

@@ -1,18 +1,42 @@
-import React from "react";
-import { Gamepad2, ArrowRight, ShoppingCart, ShieldCheck, Server, Activity, Users, CreditCard } from "lucide-react";
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "motion/react";
+import { Gamepad2, ArrowRight, ShoppingCart, ShieldCheck, Server, Activity, Users, CreditCard, Package } from "lucide-react";
 import { ProductCard } from "./ProductCard";
 
 export const HomeView = (props: any) => {
   const {
     products = [], 
+    categories = [],
     stats, 
     user, 
     siteSettings, 
     setActiveView, 
     onProductClick, 
+    onSelectCategory,
   } = props;
 
-  const recentProducts = [...products].sort((a: any,b: any) => b.id.localeCompare(a.id)).slice(0, 4);
+  const [activeCategory, setActiveCategory] = useState('all');
+
+  const categoryInfo = categories.find((c: any) => c.id === activeCategory || c.name === activeCategory || c.title === activeCategory);
+
+  const filteredProducts = activeCategory === 'all'
+    ? products
+    : products.filter((p: any) => 
+        p.category === activeCategory || 
+        p.category === categoryInfo?.id || 
+        p.category === categoryInfo?.name || 
+        p.category === categoryInfo?.title
+      );
+
+  // Sort by latest in-stock first
+  const sortedProducts = [...filteredProducts].sort((a: any, b: any) => {
+    const aStock = Number(a.stock) > 0 ? 1 : 0;
+    const bStock = Number(b.stock) > 0 ? 1 : 0;
+    if (bStock !== aStock) return bStock - aStock;
+    return b.id.localeCompare(a.id);
+  });
+
+  const visibleProducts = sortedProducts.slice(0, 8);
 
   return (
     <div className="w-full text-foreground pb-24 lg:pb-0 overflow-x-hidden bg-[#faf8f5]">
@@ -93,33 +117,86 @@ export const HomeView = (props: any) => {
 
       {/* ===== Recent Products ===== */}
       <section className="max-w-7xl mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
           <div>
             <h2 className="text-xl sm:text-2xl font-bold flex items-center gap-2 text-[#1e1e20]">
-              <Gamepad2 className="w-5 h-5 text-blue-500" /> สินค้าแนะนำ
+              <Gamepad2 className="w-5 h-5 text-blue-500" /> สินค้าและบริการหลัก
             </h2>
-            <p className="text-xs sm:text-sm text-muted-foreground mt-1">เลือกซื้อเว็บไซต์และแพลตฟอร์มที่กำลังมาแรง</p>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-1">แยกหมวดหมู่บริการเพื่อง่ายต่อการเลือกชมและสั่งซื้อง่ายขึ้น</p>
           </div>
           <button 
-            onClick={() => setActiveView('categories')}
-            className="text-xs sm:text-sm font-semibold text-blue-500 hover:text-blue-600 flex items-center gap-1 group transition-colors cursor-pointer"
+            onClick={() => {
+              if (onSelectCategory) {
+                onSelectCategory(activeCategory);
+              } else {
+                setActiveView('categories');
+              }
+            }}
+            className="text-xs sm:text-sm font-semibold text-blue-500 hover:text-blue-600 flex items-center gap-1.5 group transition-colors cursor-pointer self-start md:self-end"
           >
-            ดูทั้งหมด <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            ดูสินค้าทั้งหมดในหมวดหมู่นี้ <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </button>
         </div>
-        
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-          {recentProducts.map((p: any) => (
-             <ProductCard 
-               key={p.id} 
-               product={p} 
-               onProductClick={onProductClick}
-             />
-          ))}
+
+        {/* Categories Tab Selector with Horizontal scroll layout */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-4 mb-6 select-none scrollbar-none" style={{ scrollbarWidth: 'none' }}>
+          <button
+            onClick={() => setActiveCategory('all')}
+            className={`flex items-center gap-1 px-4 py-2.5 rounded-full text-xs font-bold whitespace-nowrap transition-all border cursor-pointer ${
+              activeCategory === 'all'
+                ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-500/10'
+                : 'bg-white text-muted-foreground border-[#e6e2da] hover:text-[#1e1e20]'
+            }`}
+          >
+            <Package className="w-3.5 h-3.5" />
+            <span>ทั้งหมด ({products.length})</span>
+          </button>
+
+          {categories.map((c: any) => {
+            const count = products.filter((p: any) => p.category === c.id || p.category === c.name || p.category === c.title).length;
+            const isActive = activeCategory === c.id || activeCategory === c.name || activeCategory === c.title;
+            return (
+              <button
+                key={c.id || c.name}
+                onClick={() => setActiveCategory(c.id || c.name || c.title)}
+                className={`flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs font-bold whitespace-nowrap transition-all border cursor-pointer ${
+                  isActive
+                    ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-500/10'
+                    : 'bg-white text-zinc-500 border-[#e6e2da] hover:text-[#1e1e20]'
+                }`}
+              >
+                <span>{c.title}</span>
+                <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-bold font-mono ${isActive ? 'bg-blue-500/15 text-white' : 'bg-[#f2efe9] text-muted-foreground'}`}>
+                  {count}
+                </span>
+              </button>
+            );
+          })}
         </div>
-        {recentProducts.length === 0 && (
-          <div className="w-full text-center py-12 text-muted-foreground bg-white border border-[#e6e2da] rounded-2xl">
-            ยังไม่มีสินค้า แอดมินกำลังเพิ่มสินค้าเข้าสู่ระบบ...
+        
+        <AnimatePresence mode="popLayout">
+          <motion.div
+            key={activeCategory}
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -15 }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
+            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6"
+          >
+            {visibleProducts.map((p: any, idx: number) => (
+               <ProductCard 
+                 key={p.id} 
+                 product={p} 
+                 onProductClick={onProductClick}
+                 index={idx}
+               />
+            ))}
+          </motion.div>
+        </AnimatePresence>
+
+        {visibleProducts.length === 0 && (
+          <div className="w-full text-center py-16 text-muted-foreground bg-white border border-[#e6e2da] rounded-2xl">
+            ยังไม่มีสินค้าในหมวดหมู่นี้ในระบบอัพเดท...
           </div>
         )}
       </section>
