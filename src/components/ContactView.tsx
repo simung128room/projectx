@@ -151,6 +151,31 @@ export const ContactView: React.FC<ContactViewProps> = ({
           )}
         </a>
       </div>
+
+      {/* Trust & Registrations info panel */}
+      <div className="mt-8 bg-[#121212] border border-[#374151] p-8">
+        <h3 className="text-lg font-bold text-foreground mb-4 border-b border-[#374151] pb-2 flex items-center gap-2">
+          <span className="w-2.5 h-2.5 bg-blue-500 rounded-full inline-block animate-pulse"></span>
+          ข้อมูลจดทะเบียนและการทำธุรกรรมที่ถูกต้อง (Sunoid.shop Trust Center)
+        </h3>
+        <p className="text-muted-foreground text-xs leading-relaxed mb-6 font-medium">
+          สโตร์ของเราอยู่ภายใต้การบริหารงานของบริษัทร่วมค้าหลักสากล จดทะเบียนอย่างถูกต้องเป็นบริษัทพันธมิตรผู้ให้บริการสินค้าดิจิทัลและรหัสคีย์ความปลอดภัย ข้อมูลธุรกรรมทั้งหมดรองรับมาตรการรักษาความปลอดภัยขั้นสูงสุด และมีการตรวจสอบความปลอดภัย (Audited) ทุกสัปดาห์
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs text-muted-foreground font-medium">
+          <div className="bg-[#0c0c0d] p-4 border border-[#27272a]">
+            <span className="text-foreground font-semibold block mb-1">ผู้ให้บริการ (Owner/Licensee)</span>
+            Sunoid.shop Inc. (สยามยูนิตี้ ซัพพอร์ต ฮับ จำกัด)
+          </div>
+          <div className="bg-[#0c0c0d] p-4 border border-[#27272a]">
+            <span className="text-foreground font-semibold block mb-1">ที่ทำงานและสำนักงานใหญ่</span>
+            123 อาคารเพลินจิตเซ็นเตอร์ ชั้น 14 แขวงลุมพินี เขตปทุมวัน กรุงเทพมหานคร 10330
+          </div>
+          <div className="bg-[#0c0c0d] p-4 border border-[#27272a]">
+            <span className="text-foreground font-semibold block mb-1">สายด่วนช่วยเหลือ (Phone Hotline)</span>
+            02-123-4567 (บริการลูกค้า 09:00 - 22:00 น. ทุกวันไม่มีวันหยุด)
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

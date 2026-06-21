@@ -1870,11 +1870,11 @@ function AppContent() {
               {!isMobileMenuOpen && (
                 <button 
                   onClick={() => setShowSearchPopup(true)}
-                  className="flex items-center gap-1.5 border border-zinc-200 rounded-full px-3 py-1.5 bg-white hover:bg-slate-50 text-zinc-500 hover:text-[#1e1e20] transition-colors cursor-pointer shadow-sm select-none h-8.5"
+                  className="flex items-center justify-center gap-1.5 border border-zinc-200 rounded-full w-8.5 h-8.5 sm:w-auto sm:px-3 py-1.5 bg-white hover:bg-slate-50 text-zinc-500 hover:text-[#1e1e20] transition-all cursor-pointer shadow-sm select-none shrink-0"
                   aria-label="ค้นหาสินค้า"
                 >
-                  <Search className="w-3.5 h-3.5 text-zinc-400" />
-                  <span className="text-xs font-bold tracking-wide">ค้นหาสินค้า</span>
+                  <Search className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-zinc-400" />
+                  <span className="text-xs font-bold tracking-wide hidden sm:inline">ค้นหาสินค้า</span>
                 </button>
               )}
               <button 
@@ -1903,7 +1903,7 @@ function AppContent() {
             </div>
 
             {/* Desktop Links */}
-            <div className="hidden items-center gap-1.5 lg:gap-3 md:flex">
+            <div className="hidden items-center gap-2.5 lg:gap-4 md:flex ml-4">
                 <button 
                   onClick={() => { setActiveView('home'); window.scrollTo(0,0); }}
                   className={`text-[13px] font-bold transition-all py-1.5 px-3.5 rounded-full cursor-pointer flex items-center gap-1.5 ${
