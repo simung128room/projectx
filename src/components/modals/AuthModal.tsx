@@ -6,8 +6,8 @@ import { supabase as auth } from '../../lib/supabase';
 
 import { Turnstile } from '@marsidev/react-turnstile';
 
-const rawEnvKey = (import.meta.env.TURNSTILE_SITE_KEY || '').trim();
-const TURNSTILE_SITE_KEY = rawEnvKey.length > 5 ? rawEnvKey : '0x4AAAAAADDNPyGBIV4MApep';
+const rawEnvKey = (import.meta.env.VITE_TURNSTILE_SITE_KEY || import.meta.env.TURNSTILE_SITE_KEY || '').trim();
+const TURNSTILE_SITE_KEY = rawEnvKey.length > 5 ? rawEnvKey : '';
 
 interface AuthModalProps {
   show: boolean;
@@ -52,11 +52,15 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
   const executeAuth = async (currentToken: string | null = turnstileToken) => {
     setAuthLoading(true);
     try {
-      const generatedEmail = `${authUsername.toLowerCase().replace(/\s+/g, '')}@apex-studio.com`;
+      const normalizedUsername = authUsername.toLowerCase().trim().replace(/\s+/g, '');
+      if (!/^[a-z0-9._-]{3,64}$/.test(normalizedUsername)) {
+        throw new Error('ชื่อผู้ใช้ต้องเป็น a-z, 0-9, จุด, ขีดกลาง หรือขีดล่าง ความยาว 3-64 ตัวอักษร');
+      }
+      const generatedEmail = `${normalizedUsername}@apex-studio.com`;
 
       if (authMode === 'signup') {
         try {
-          const res = await axios.post('/api/signup', { email: generatedEmail, password: authPassword });
+          const res = await axios.post('/api/signup', { email: generatedEmail, password: authPassword, recoveryEmail: authEmail, turnstileToken: currentToken });
           if (res.data.error) {
              throw new Error(res.data.error);
           }
@@ -106,7 +110,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
       if (msg.includes('invalid email format')) msg = 'รูปแบบชื่อผู้ใช้ไม่ถูกต้อง';
       if (msg.includes('Email not confirmed')) msg = 'กรุณาปิดการตั้งค่า "Confirm Email" ในเมนู Authentication -> Providers ของ Supabase Dashboard (เพราะระบบใช้ Username ไม่ใช่อีเมลจริง)';
       if (msg.includes('Load failed') || msg.includes('Failed to fetch')) msg = 'การเชื่อมต่อเครือข่ายล้มเหลว (ตรวจสอบอินเทอร์เน็ต)';
-      if (msg.includes('Password should be at least')) msg = 'รหัสผ่านต้องมีความยาวอย่างน้อย 6 ตัวอักษร';
+      if (msg.includes('Password should be at least')) msg = 'รหัสผ่านต้องมีความยาวอย่างน้อย 8 ตัวอักษร';
       if (msg.includes('rate limit exceeded')) msg = 'คุณสมัครสมาชิกหรือพยายามเข้าสู่ระบบถี่เกินไป โปรดรอสักครู่ หรือตั้งค่า Rate Limit ใหม่ในระบบ Supabase';
       
       Swal.fire({
@@ -181,7 +185,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
                   className="w-full bg-card border border-border border-2 py-3.5 pl-12 pr-4 outline-none focus:border-cyan-500/50 transition-all font-sans text-sm brut-card"
                   placeholder="รหัสผ่าน / Password"
                   required
-                  minLength={6}
+                  minLength={8}
                 />
               </div>
             </div>

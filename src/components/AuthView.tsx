@@ -7,8 +7,8 @@ import { supabase as auth } from '../lib/supabase';
 import { Turnstile } from '@marsidev/react-turnstile';
 import { BRAND_LOGO_ALT, BRAND_LOGO_URL } from '../constants/branding';
 
-const rawEnvKey = (import.meta.env.TURNSTILE_SITE_KEY || '').trim();
-const TURNSTILE_SITE_KEY = rawEnvKey.length > 5 ? rawEnvKey : '0x4AAAAAADDNPyGBIV4MApep';
+const rawEnvKey = (import.meta.env.VITE_TURNSTILE_SITE_KEY || import.meta.env.TURNSTILE_SITE_KEY || '').trim();
+const TURNSTILE_SITE_KEY = rawEnvKey.length > 5 ? rawEnvKey : '';
 
 interface AuthViewProps {
   initialMode: 'login' | 'signup';
@@ -44,6 +44,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
 
   useEffect(() => {
     setAuthMode(initialMode);
+    setTurnstileToken(null);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [initialMode]);
 
@@ -64,11 +65,15 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
 
     setAuthLoading(true);
     try {
-      const generatedEmail = `${authUsername.toLowerCase().replace(/\s+/g, '')}@apex-studio.com`;
+      const normalizedUsername = authUsername.toLowerCase().trim().replace(/\s+/g, '');
+      if (!/^[a-z0-9._-]{3,64}$/.test(normalizedUsername)) {
+        throw new Error('ชื่อผู้ใช้ต้องเป็น a-z, 0-9, จุด, ขีดกลาง หรือขีดล่าง ความยาว 3-64 ตัวอักษร');
+      }
+      const generatedEmail = `${normalizedUsername}@apex-studio.com`;
 
       if (authMode === 'signup') {
         try {
-          const res = await axios.post('/api/signup', { email: generatedEmail, password: authPassword, recoveryEmail: authEmail });
+          const res = await axios.post('/api/signup', { email: generatedEmail, password: authPassword, recoveryEmail: authEmail, turnstileToken: currentToken });
           if (res.data.error) {
              throw new Error(res.data.error);
           }
@@ -81,7 +86,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
         setActiveView('login');
       } else if (authMode === 'forgot') {
         try {
-          const res = await axios.post('/api/reset-password', { username: authUsername, email: authEmail, newPassword: authPassword });
+          const res = await axios.post('/api/reset-password', { username: normalizedUsername, email: authEmail, newPassword: authPassword, turnstileToken: currentToken });
           if (res.data.error) {
             throw new Error(res.data.error);
           }
@@ -109,7 +114,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
       if (msg.includes('invalid email format') || msg.includes('validation failed')) msg = 'รูปแบบอีเมล หรือข้อมูลไม่ถูกต้อง';
       if (msg.includes('Email not confirmed')) msg = 'โปรดยืนยันอีเมลของคุณ';
       if (msg.includes('Load failed') || msg.includes('Failed to fetch')) msg = 'การเชื่อมต่อเครือข่ายล้มเหลว (Network Error)';
-      if (msg.includes('Password should be at least')) msg = 'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร';
+      if (msg.includes('Password should be at least')) msg = 'รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร';
       if (msg.toLowerCase().includes('api key')) msg = 'ตั้งค่า API Key ของระบบไม่ถูกต้อง (API Key Invalid)';
       
       Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: msg, confirmButtonColor: '#ef4444' });
@@ -248,9 +253,9 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
                     value={authPassword}
                     onChange={(e) => setAuthPassword(e.target.value)}
                     className="w-full pl-11 pr-12 py-3.5 bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.04] focus:bg-white/[0.04] focus:border-white/20 rounded-xl outline-none transition-all text-white text-sm placeholder:text-white/20 font-sans"
-                    placeholder="กรอกรหัสผ่านของคุณ (มากกว่า 6 ตัวอักษร)"
+                    placeholder="กรอกรหัสผ่านของคุณ (อย่างน้อย 8 ตัวอักษร)"
                     required
-                    minLength={6}
+                    minLength={8}
                   />
                   <button 
                     type="button"
@@ -297,7 +302,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
                       className="w-full pl-11 pr-12 py-3.5 bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.04] focus:bg-white/[0.04] focus:border-white/20 rounded-xl outline-none transition-all text-white text-sm placeholder:text-white/20 font-sans"
                       placeholder="ป้อนรหัสผ่านเดิมอีกครั้งเพื่อความถูกต้อง"
                       required
-                      minLength={6}
+                      minLength={8}
                     />
                     <button 
                       type="button"

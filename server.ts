@@ -103,6 +103,7 @@ const _dirname = typeof __dirname !== 'undefined' ? __dirname : process.cwd();
 
 const BOT_CONFIG_MAX_BYTES = 200 * 1024;
 const SIMPLE_EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const AUTH_USERNAME_REGEX = /^[a-z0-9._-]{3,64}$/;
 const TH_PHONE_REGEX = /^0[689]\d{8}$/;
 const TELEGRAM_PHONE_REGEX = /^\+?[1-9]\d{6,14}$/;
 const TRUEMONEY_VOUCHER_REGEX = /^https:\/\/gift\.truemoney\.com\/campaign\/?(?:voucher_detail\/)?\?v=[A-Za-z0-9]{10,}(?:&.*)?$/;
@@ -118,6 +119,12 @@ const isValidPassword = (value: unknown): value is string => {
 
 const isValidEmail = (value: unknown): value is string => {
   return typeof value === 'string' && value.length <= 254 && SIMPLE_EMAIL_REGEX.test(value);
+};
+
+const isValidGeneratedAuthEmail = (value: unknown): value is string => {
+  if (!isValidEmail(value)) return false;
+  const [localPart, domain] = value.split('@');
+  return domain === 'apex-studio.com' && AUTH_USERNAME_REGEX.test(localPart);
 };
 
 const isValidThaiPhone = (value: unknown): value is string => {
@@ -136,6 +143,17 @@ const isSafeFirestoreDocId = (value: unknown): value is string => {
   return typeof value === 'string' && FIRESTORE_DOC_ID_REGEX.test(value);
 };
 
+const validateFirestoreParam = (paramName: string) => (req: any, res: any, next: any, value: string) => {
+  if (!isSafeFirestoreDocId(value)) {
+    return res.status(400).json({ error: `Invalid ${paramName}` });
+  }
+  next();
+};
+
+const isAllowedMutationStatus = (value: unknown): value is string => {
+  return typeof value === 'string' && ['active', 'inactive', 'used', 'revoked', 'disabled'].includes(value);
+};
+
 const timingSafeEqualString = (left: unknown, right: string): boolean => {
   if (typeof left !== 'string' || !right) return false;
   const leftBuffer = Buffer.from(left);
@@ -148,6 +166,37 @@ const ensureTwApiReady = () => {
     throw new Error('TrueMoney API is not ready yet');
   }
   return twApi;
+};
+
+const verifyTurnstileToken = async (token: unknown, remoteIp?: string) => {
+  const secretKey = process.env.TURNSTILE_SECRET_KEY || '';
+  const shouldRequireTurnstile = process.env.NODE_ENV === 'production' || !!secretKey;
+
+  if (!shouldRequireTurnstile) return { ok: true };
+  if (!secretKey) return { ok: false, status: 503, error: 'ระบบยืนยันตัวตนยังไม่พร้อมใช้งาน' };
+  if (typeof token !== 'string' || token.length < 20 || token.length > 4096) {
+    return { ok: false, status: 400, error: 'กรุณายืนยันว่าคุณไม่ใช่บอท' };
+  }
+
+  try {
+    const params = new URLSearchParams();
+    params.append('secret', secretKey);
+    params.append('response', token);
+    if (remoteIp) params.append('remoteip', remoteIp);
+
+    const { data } = await axios.post('https://challenges.cloudflare.com/turnstile/v0/siteverify', params, {
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      timeout: 8000,
+    });
+
+    if (!data?.success) {
+      return { ok: false, status: 403, error: 'การยืนยันตัวตนไม่สำเร็จ กรุณาลองใหม่อีกครั้ง' };
+    }
+    return { ok: true };
+  } catch (err) {
+    console.error('Turnstile verification failed:', err);
+    return { ok: false, status: 503, error: 'ไม่สามารถตรวจสอบการยืนยันตัวตนได้ในขณะนี้' };
+  }
 };
 
 const MAX_IMAGE_PIXELS = 25_000_000;
@@ -723,15 +772,23 @@ import healthRoute from './src/routes/health.route.js';
   app.use('/api', healthRoute);
 
   const rawOrigins = [
+      'https://www.sainamyuni.xyz',
+      'https://sainamyuni.xyz',
       'https://projectx-rosy-phi.vercel.app',
       'http://localhost:3000',
       'https://ais-dev-yqcwrqpfmcv3f3k4u45xxa-109803326919.asia-east1.run.app',
-      'https://ais-pre-yqcwrqpfmcv3f3k4u45xxa-109803326919.asia-east1.run.app'
+      'https://ais-pre-yqcwrqpfmcv3f3k4u45xxa-109803326919.asia-east1.run.app',
+      ...(process.env.CORS_ORIGINS ? process.env.CORS_ORIGINS.split(',').map((origin) => origin.trim()).filter(Boolean) : [])
   ];
-  const corsOrigins = process.env.NODE_ENV === 'production' ? rawOrigins.filter(url => !url.includes('localhost')) : rawOrigins;
+  const corsOrigins = new Set(process.env.NODE_ENV === 'production' ? rawOrigins.filter(url => !url.includes('localhost')) : rawOrigins);
 
-  const corsOptions = {
-    origin: corsOrigins,
+  const corsOptions: cors.CorsOptions = {
+    origin(origin, callback) {
+      if (!origin || corsOrigins.has(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error('Not allowed by CORS'));
+    },
     credentials: true,
   };
   app.use(cors(corsOptions));
@@ -755,6 +812,10 @@ import healthRoute from './src/routes/health.route.js';
   });
   
   app.use(injectUser);
+  app.param('id', validateFirestoreParam('id'));
+  app.param('uid', validateFirestoreParam('uid'));
+  app.param('key', validateFirestoreParam('key'));
+  app.param('ip', validateFirestoreParam('ip'));
 
   // Helper to check magic bytes
   const isImageSafe = (buffer: Buffer) => {
@@ -924,9 +985,12 @@ import healthRoute from './src/routes/health.route.js';
     const recoveryEmail = sanitizeShortText(req.body?.email, 254).toLowerCase();
     const { newPassword } = req.body || {};
 
-    if (!/^[a-z0-9._-]{3,64}$/.test(username) || !isValidEmail(recoveryEmail) || !isValidPassword(newPassword)) {
+    if (!AUTH_USERNAME_REGEX.test(username) || !isValidEmail(recoveryEmail) || !isValidPassword(newPassword)) {
       return res.status(400).json({ error: 'ข้อมูลไม่ถูกต้องหรือรหัสผ่านสั้นเกินไป' });
     }
+
+    const turnstile = await verifyTurnstileToken(req.body?.turnstileToken, req.ip);
+    if (!turnstile.ok) return res.status(turnstile.status || 403).json({ error: turnstile.error });
 
     try {
       const generatedEmail = `${username}@apex-studio.com`;
@@ -960,9 +1024,12 @@ import healthRoute from './src/routes/health.route.js';
     const recoveryEmail = req.body?.recoveryEmail ? sanitizeShortText(req.body.recoveryEmail, 254).toLowerCase() : '';
     const { password } = req.body || {};
 
-    if (!isValidEmail(email) || !isValidPassword(password) || (recoveryEmail && !isValidEmail(recoveryEmail))) {
-      return res.status(400).json({ error: 'อีเมลหรือรหัสผ่านไม่ถูกต้อง' });
+    if (!isValidGeneratedAuthEmail(email) || !isValidPassword(password) || (recoveryEmail && !isValidEmail(recoveryEmail))) {
+      return res.status(400).json({ error: 'ชื่อผู้ใช้ อีเมล หรือรหัสผ่านไม่ถูกต้อง' });
     }
+
+    const turnstile = await verifyTurnstileToken(req.body?.turnstileToken, req.ip);
+    if (!turnstile.ok) return res.status(turnstile.status || 403).json({ error: turnstile.error });
 
     try {
       const { data, error } = await supabaseAdmin.auth.admin.createUser({
@@ -3025,7 +3092,7 @@ const MAX_STOCK_ITEM_CHARS = 10_000;
   });
 
   // --- Topups Endpoints ---
-  app.get('/api/topups', async (req: any, res: any) => {
+  app.get('/api/topups', requireAuth, async (req: any, res: any) => {
     try {
       const adminDb = admin.firestore();
       let q: any = adminDb.collection('topups');
@@ -3186,7 +3253,7 @@ const MAX_STOCK_ITEM_CHARS = 10_000;
   // --- Log Categories System Endpoints (Stored as JSON in settings for dynamic schema) ---
   let memoryLogSystemData = { categories: [], items: [] };
 
-  app.get('/api/logs-system', injectUser, async (req: any, res: any) => {
+  app.get('/api/logs-system', requireAuth, async (req: any, res: any) => {
     try {
       let dbData;
       try {
@@ -3311,6 +3378,7 @@ const MAX_STOCK_ITEM_CHARS = 10_000;
   app.patch('/api/license_keys/:id', requireAdmin, async (req, res) => {
     try {
       const { status } = req.body;
+      if (!isAllowedMutationStatus(status)) return res.status(400).json({ error: 'Invalid status' });
       const docRef = admin.firestore().collection('license_keys').doc(req.params.id);
       await docRef.update({ status });
       res.json({ id: req.params.id, status });
@@ -3453,7 +3521,7 @@ const MAX_STOCK_ITEM_CHARS = 10_000;
     }
   });
 
-  app.get('/api/check_ip/:ip', async (req, res) => {
+  app.get('/api/check_ip/:ip', requireAdmin, async (req, res) => {
     try {
       const doc = await admin.firestore().collection('blocked_ips').doc(req.params.ip).get();
       res.json({ blocked: !!doc.exists });
@@ -3513,6 +3581,7 @@ const MAX_STOCK_ITEM_CHARS = 10_000;
   app.patch('/api/api_keys/:key', requireAdmin, async (req: any, res: any) => {
     try {
       const { status } = req.body;
+      if (!isAllowedMutationStatus(status)) return res.status(400).json({ error: 'Invalid status' });
       await admin.firestore().collection('api_keys').doc(req.params.key).update({ status });
       res.json({ success: true, status });
     } catch (err: any) {
@@ -3756,7 +3825,7 @@ const MAX_STOCK_ITEM_CHARS = 10_000;
     try {
       const { uid } = req.params;
       const { password } = req.body;
-      if (!password) return res.status(400).json({ error: 'Missing password' });
+      if (!isValidPassword(password)) return res.status(400).json({ error: 'Password must be 8-128 characters' });
       await supabaseAdmin.auth.admin.updateUserById(uid, { password });
       invalidateUserTokenCache(uid);
       res.json({ success: true });
