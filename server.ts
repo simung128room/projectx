@@ -3,7 +3,7 @@ declare module 'express-serve-static-core' {
   interface Request {
     user?: any;
     isAdmin?: boolean;
-      // @ts-ignore
+      // @ts-ignore - Bypass Express ip property read-only clash
     ip?: string;
   }
 }
@@ -18,89 +18,14 @@ dotenv.config({ override: true });
 import path from "path";
 import cors from "cors";
 import axios from "axios";
+import { z } from "zod";
+import { encrypt, decrypt, getEncryptionKey } from "./src/services/encryption.service.js";
+import { AppError } from "./src/lib/errors.js";
 axios.defaults.timeout = 15e3;
 import CircuitBreaker from "opossum";
 import { CookieJar } from "tough-cookie";
 import crypto from "node:crypto";
-const getEncryptionKey = __name(() => {
-  const key = process.env.BACKEND_ENCRYPTION_KEY;
-  if (!key)
-    throw new Error(
-      "Missing BACKEND_ENCRYPTION_KEY environment variable. This is required for security.",
-    );
-  return key;
-}, "getEncryptionKey");
-function encrypt(text) {
-  if (!text) return "";
-  try {
-    const rawKey = getEncryptionKey();
-    const salt = crypto.randomBytes(16);
-    const key = crypto.pbkdf2Sync(rawKey, salt, 1e5, 32, "sha256");
-    const iv = crypto.randomBytes(16);
-    const cipher = crypto.createCipheriv("aes-256-gcm", key, iv);
-    const encrypted = Buffer.concat([
-      cipher.update(text, "utf8"),
-      cipher.final(),
-    ]);
-    const tag = cipher.getAuthTag();
-    return `enc2:${salt.toString("hex")}:${iv.toString("hex")}:${tag.toString("hex")}:${encrypted.toString("hex")}`;
-  } catch (err) {
-    console.error("Encryption error:", err);
-    return text;
-  }
-}
-__name(encrypt, "encrypt");
-function decrypt(cipherText) {
-  if (!cipherText) return cipherText;
-  if (cipherText.startsWith("enc2:")) {
-    try {
-      const parts = cipherText.substring(5).split(":");
-      if (parts.length !== 4) return cipherText;
-      const [saltHex, ivHex, tagHex, encryptedHex] = parts;
-      const rawKey = getEncryptionKey();
-      const salt = Buffer.from(saltHex, "hex");
-      const key = crypto.pbkdf2Sync(rawKey, salt, 1e5, 32, "sha256");
-      const iv = Buffer.from(ivHex, "hex");
-      const tag = Buffer.from(tagHex, "hex");
-      const encryptedText = Buffer.from(encryptedHex, "hex");
-      const decipher = crypto.createDecipheriv("aes-256-gcm", key, iv);
-      decipher.setAuthTag(tag);
-      const decrypted = Buffer.concat([
-        decipher.update(encryptedText),
-        decipher.final(),
-      ]);
-      return decrypted.toString("utf8");
-    } catch (err) {
-      console.error("Decryption error (enc2):", err);
-      return cipherText;
-    }
-  } else if (cipherText.startsWith("enc:")) {
-    try {
-      const parts = cipherText.substring(4).split(":");
-      if (parts.length !== 3) return cipherText;
-      const [ivHex, tagHex, encryptedHex] = parts;
-      const key = crypto
-        .createHash("sha256")
-        .update(getEncryptionKey())
-        .digest();
-      const iv = Buffer.from(ivHex, "hex");
-      const tag = Buffer.from(tagHex, "hex");
-      const encryptedText = Buffer.from(encryptedHex, "hex");
-      const decipher = crypto.createDecipheriv("aes-256-gcm", key, iv);
-      decipher.setAuthTag(tag);
-      const decrypted = Buffer.concat([
-        decipher.update(encryptedText),
-        decipher.final(),
-      ]);
-      return decrypted.toString("utf8");
-    } catch (err) {
-      console.error("Decryption error (enc legacy):", err);
-      return cipherText;
-    }
-  }
-  return cipherText;
-}
-__name(decrypt, "decrypt");
+import util from "node:util";
 import https from "node:https";
 import { HttpsProxyAgent } from "https-proxy-agent";
 import rateLimit from "express-rate-limit";
@@ -177,7 +102,7 @@ async function fetchFreeProxies() {
 __name(fetchFreeProxies, "fetchFreeProxies");
 fetchFreeProxies();
 setInterval(fetchFreeProxies, 15 * 60 * 1e3);
-import { adminDb as admin, supabaseAdmin } from "./src/lib/admindb.js";
+import { adminDb as admin, supabaseAdmin, initializeAdminDb } from "./src/lib/admindb.js";
 const _dirname = typeof __dirname !== "undefined" ? __dirname : process.cwd();
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -725,7 +650,7 @@ const globalLimiter = rateLimit({
 });
 app.use("/api/", globalLimiter);
 const userTokenCache = new LRUCache({ max: 1e3, ttl: 6e4 });
-const uidToTokens = new Map();
+const uidToTokens = new LRUCache<string, Set<string>>({ max: 5e3, ttl: 864e5 });
 const invalidateUserTokenCache = __name((uid) => {
   const tokens = uidToTokens.get(uid);
   if (tokens) {
@@ -741,39 +666,18 @@ const invalidateUserTokenCache = __name((uid) => {
     }
   }
 }, "invalidateUserTokenCache");
-const cleanupTokenCache = __name(() => {}, "cleanupTokenCache");
 const injectUser = __name(async (req, res, next) => {
-  cleanupTokenCache();
   const authHeader = req.headers.authorization;
   if (authHeader && authHeader.startsWith("Bearer ")) {
     const token = authHeader.split("Bearer ")[1]?.trim();
     if (token && token !== "null" && token !== "undefined") {
       const now = Date.now();
-      const cached = userTokenCache.get(token);
+      const cached = userTokenCache.get(token) as any;
       if (cached) {
-        if (cached instanceof Promise) {
-          try {
-            const result = await cached;
-            req.user = result.user;
-            req.isAdmin = result.isAdmin;
-            if (result.user && result.user.id) {
-              const uidStr = result.user.id;
-              if (!uidToTokens.has(uidStr)) {
-                uidToTokens.set(uidStr, new Set());
-              }
-              uidToTokens.get(uidStr).add(token);
-            }
-            return next();
-          } catch (e) {}
-      // @ts-ignore
-        } else if (now - cached.timestamp < 6e4) {
-      // @ts-ignore
+        if (now - cached.timestamp < 6e4) {
           req.user = cached.user;
-      // @ts-ignore
           req.isAdmin = cached.isAdmin;
-      // @ts-ignore
           if (cached.user && cached.user.id) {
-      // @ts-ignore
             const uidStr = cached.user.id;
             if (!uidToTokens.has(uidStr)) {
               uidToTokens.set(uidStr, new Set());
@@ -813,10 +717,17 @@ const injectUser = __name(async (req, res, next) => {
         }
         return { user: userObj, isAdmin: isAdminObj, timestamp: Date.now() };
       }, "resolveAuth");
-      const authPromise = resolveAuth();
-      userTokenCache.set(token, authPromise);
+
+      if (!global.userTokenPromiseCache) global.userTokenPromiseCache = new Map();
+      let authPromise = global.userTokenPromiseCache.get(token);
+      if (!authPromise) {
+        authPromise = resolveAuth();
+        global.userTokenPromiseCache.set(token, authPromise);
+      }
+
       try {
         const result = await authPromise;
+        global.userTokenPromiseCache.delete(token);
         userTokenCache.set(token, result);
         if (result.user) {
           req.user = result.user;
@@ -830,8 +741,10 @@ const injectUser = __name(async (req, res, next) => {
           }
         }
       } catch (error) {
+        global.userTokenPromiseCache.delete(token);
         userTokenCache.delete(token);
         if (error && error.message && error.message.includes("expired")) {
+          return res.status(401).json({ error: "Token expired" });
         } else {
           console.error(
             "Error verifying ID token in injectUser:",
@@ -864,11 +777,7 @@ const requireAdmin = __name(async (req, res, next) => {
 }, "requireAdmin");
 import healthRoute from "./src/routes/health.route.js";
 app.use("/api", healthRoute);
-const rawOrigins = [
-  "https://projectx-rosy-phi.vercel.app",
-  "https://ais-dev-yqcwrqpfmcv3f3k4u45xxa-109803326919.asia-east1.run.app",
-  "https://ais-pre-yqcwrqpfmcv3f3k4u45xxa-109803326919.asia-east1.run.app",
-];
+const rawOrigins = [];
 if (process.env.ALLOWED_ORIGINS) {
   const splitOrigins = process.env.ALLOWED_ORIGINS.split(",")
     .map((url) => url.trim())
@@ -1182,208 +1091,39 @@ app.get("/api/settings", injectUser, (req, res) => {
   } = siteSettings || {};
   res.json(publicSettings);
 });
-app.post("/api/reset-password", authLimiter, async (req, res) => {
-  const { username, email, newPassword, otp } = req.body;
+app.post("/api/admin/migrate-encryption", requireAdmin, async (req, res, next) => {
+  next();
+});
+const __disabled_migrate_encryption = async (req: any, res: any) => { /*
   try {
-    const generatedEmail = `${username.toLowerCase().replace(/\s+/g, "")}@apex-studio.com`;
-    const usersSnapshot = await admin
-      .firestore()
-      .collection("users")
-      .where("email", "==", generatedEmail)
-      .where("recoveryEmail", "==", email)
-      .limit(1)
-      .get();
-    if (usersSnapshot.empty) {
-      return res
-        .status(404)
-        .json({
-          error:
-            "\u0E44\u0E21\u0E48\u0E1E\u0E1A\u0E1C\u0E39\u0E49\u0E43\u0E0A\u0E49\u0E19\u0E35\u0E49 \u0E2B\u0E23\u0E37\u0E2D\u0E02\u0E49\u0E2D\u0E21\u0E39\u0E25\u0E44\u0E21\u0E48\u0E16\u0E39\u0E01\u0E15\u0E49\u0E2D\u0E07",
-        });
-    }
-    const userDoc = usersSnapshot.docs[0];
-    const userData = userDoc.data();
-    const userId = userDoc.id;
-    if (!otp) {
-      if (
-        !newPassword ||
-        newPassword.length < 8 ||
-        !/[a-z]/.test(newPassword) ||
-        !/[A-Z]/.test(newPassword) ||
-        !/\d/.test(newPassword) ||
-        !/[^a-zA-Z\d]/.test(newPassword)
-      ) {
-        return res
-          .status(400)
-          .json({
-            error:
-              "\u0E23\u0E2B\u0E31\u0E2A\u0E1C\u0E48\u0E32\u0E19\u0E43\u0E2B\u0E21\u0E48\u0E44\u0E21\u0E48\u0E1B\u0E25\u0E2D\u0E14\u0E20\u0E31\u0E22\u0E40\u0E1E\u0E35\u0E22\u0E07\u0E1E\u0E2D \u0E23\u0E2B\u0E31\u0E2A\u0E1C\u0E48\u0E32\u0E19\u0E15\u0E49\u0E2D\u0E07\u0E21\u0E35\u0E04\u0E27\u0E32\u0E21\u0E22\u0E32\u0E27\u0E2D\u0E22\u0E48\u0E32\u0E07\u0E19\u0E49\u0E2D\u0E22 8 \u0E15\u0E31\u0E27\u0E2D\u0E31\u0E01\u0E29\u0E23, \u0E1B\u0E23\u0E30\u0E01\u0E2D\u0E1A\u0E14\u0E49\u0E27\u0E22 \u0E2D\u0E31\u0E01\u0E29\u0E23\u0E1E\u0E34\u0E21\u0E1E\u0E4C\u0E43\u0E2B\u0E0D\u0E48 \u0E1E\u0E34\u0E21\u0E1E\u0E4C\u0E40\u0E25\u0E47\u0E01 \u0E15\u0E31\u0E27\u0E40\u0E25\u0E02 \u0E41\u0E25\u0E30\u0E2D\u0E31\u0E01\u0E02\u0E23\u0E30\u0E1E\u0E34\u0E40\u0E28\u0E29\u0E2D\u0E22\u0E48\u0E32\u0E07\u0E25\u0E30 1 \u0E15\u0E31\u0E27",
-          });
+    const db = admin.firestore();
+    const purchasesSnap = await db.collection("purchases").get();
+    let migratedCount = 0;
+    const promises = [];
+
+    for (const doc of purchasesSnap.docs) {
+      const data = doc.data();
+      if (data.secretData && data.secretData.startsWith("enc:")) {
+        const decrypted = await decrypt(data.secretData);
+        if (decrypted !== data.secretData) {
+          const reEncrypted = await encrypt(decrypted);
+          promises.push(doc.ref.update({ secretData: reEncrypted }));
+          migratedCount++;
+        }
       }
-      const generatedOtp = crypto.randomInt(1e5, 999999).toString();
-      const otpExpires = Date.now() + 5 * 60 * 1e3;
-      await admin
-        .firestore()
-        .collection("users")
-        .doc(userId)
-        .update({
-          resetOtp: generatedOtp,
-          resetOtpExpires: otpExpires,
-          resetOtpAttempts: 0,
-        });
-      console.log(
-        `[SECURITY] OTP Generated successfully for password reset: username=${username}, OTP=[REDACTED]`,
-      );
-      return res.json({
-        otpRequired: true,
-        message:
-          "\u0E14\u0E33\u0E40\u0E19\u0E34\u0E19\u0E01\u0E32\u0E23\u0E2A\u0E23\u0E49\u0E32\u0E07\u0E23\u0E2B\u0E31\u0E2A OTP \u0E40\u0E23\u0E35\u0E22\u0E1A\u0E23\u0E49\u0E2D\u0E22\u0E41\u0E25\u0E49\u0E27 (\u0E01\u0E32\u0E23\u0E41\u0E2A\u0E14\u0E07\u0E1C\u0E25 OTP \u0E17\u0E32\u0E07\u0E2D\u0E35\u0E40\u0E21\u0E25\u0E16\u0E39\u0E01\u0E08\u0E33\u0E01\u0E31\u0E14\u0E43\u0E19\u0E42\u0E2B\u0E21\u0E14\u0E17\u0E14\u0E2A\u0E2D\u0E1A \u0E01\u0E23\u0E38\u0E13\u0E32\u0E15\u0E34\u0E14\u0E15\u0E48\u0E2D\u0E1C\u0E39\u0E49\u0E14\u0E39\u0E41\u0E25\u0E23\u0E30\u0E1A\u0E1A\u0E2B\u0E32\u0E01\u0E44\u0E21\u0E48\u0E44\u0E14\u0E49\u0E23\u0E31\u0E1A\u0E2A\u0E34\u0E17\u0E18\u0E34\u0E4C)",
-      });
     }
-    const storedOtp = userData.resetOtp;
-    const storedOtpExpires = userData.resetOtpExpires;
-    const attempts = userData.resetOtpAttempts || 0;
-    if (attempts >= 5) {
-      return res
-        .status(429)
-        .json({
-          error:
-            "\u0E04\u0E38\u0E13\u0E43\u0E2A\u0E48\u0E02\u0E49\u0E2D\u0E21\u0E39\u0E25\u0E1C\u0E34\u0E14\u0E40\u0E01\u0E34\u0E19\u0E04\u0E27\u0E32\u0E21\u0E1E\u0E22\u0E32\u0E22\u0E32\u0E21\u0E2A\u0E39\u0E07\u0E2A\u0E38\u0E14\u0E41\u0E25\u0E49\u0E27 \u0E01\u0E23\u0E38\u0E13\u0E32\u0E02\u0E2D OTP \u0E43\u0E2B\u0E21\u0E48\u0E2D\u0E35\u0E01\u0E04\u0E23\u0E31\u0E49\u0E07\u0E40\u0E1E\u0E37\u0E48\u0E2D\u0E04\u0E27\u0E32\u0E21\u0E1B\u0E25\u0E2D\u0E14\u0E20\u0E31\u0E22",
-        });
+    
+    // Process in batches of 50 to avoid connection overload
+    for (let i = 0; i < promises.length; i += 50) {
+       await Promise.all(promises.slice(i, i + 50));
     }
-    if (
-      !storedOtp ||
-      !storedOtpExpires ||
-      storedOtp !== otp ||
-      storedOtpExpires < Date.now()
-    ) {
-      await admin
-        .firestore()
-        .collection("users")
-        .doc(userId)
-        .update({ resetOtpAttempts: attempts + 1 });
-      return res
-        .status(400)
-        .json({
-          error:
-            "\u0E23\u0E2B\u0E31\u0E2A OTP \u0E44\u0E21\u0E48\u0E16\u0E39\u0E01\u0E15\u0E49\u0E2D\u0E07\u0E2B\u0E23\u0E37\u0E2D\u0E2B\u0E21\u0E14\u0E2D\u0E32\u0E22\u0E38\u0E01\u0E32\u0E23\u0E43\u0E0A\u0E49\u0E07\u0E32\u0E19\u0E41\u0E25\u0E49\u0E27",
-        });
-    }
-    if (
-      !newPassword ||
-      newPassword.length < 8 ||
-      !/[a-z]/.test(newPassword) ||
-      !/[A-Z]/.test(newPassword) ||
-      !/\d/.test(newPassword) ||
-      !/[^a-zA-Z\d]/.test(newPassword)
-    ) {
-      return res
-        .status(400)
-        .json({
-          error:
-            "\u0E23\u0E2B\u0E31\u0E2A\u0E1C\u0E48\u0E32\u0E19\u0E43\u0E2B\u0E21\u0E48\u0E44\u0E21\u0E48\u0E1B\u0E25\u0E2D\u0E14\u0E20\u0E31\u0E22\u0E40\u0E1E\u0E35\u0E22\u0E07\u0E1E\u0E2D \u0E23\u0E2B\u0E31\u0E2A\u0E1C\u0E48\u0E32\u0E19\u0E15\u0E49\u0E2D\u0E07\u0E21\u0E35\u0E04\u0E27\u0E32\u0E21\u0E22\u0E32\u0E27\u0E2D\u0E22\u0E48\u0E32\u0E07\u0E19\u0E49\u0E2D\u0E22 8 \u0E15\u0E31\u0E27\u0E2D\u0E31\u0E01\u0E29\u0E23, \u0E1B\u0E23\u0E30\u0E01\u0E2D\u0E1A\u0E14\u0E49\u0E27\u0E22 \u0E2D\u0E31\u0E01\u0E29\u0E23\u0E1E\u0E34\u0E21\u0E1E\u0E4C\u0E43\u0E2B\u0E0D\u0E48 \u0E1E\u0E34\u0E21\u0E1E\u0E4C\u0E40\u0E25\u0E47\u0E01 \u0E15\u0E31\u0E27\u0E40\u0E25\u0E02 \u0E41\u0E25\u0E30\u0E2D\u0E31\u0E01\u0E02\u0E23\u0E30\u0E1E\u0E34\u0E40\u0E28\u0E29\u0E2D\u0E22\u0E48\u0E32\u0E07\u0E25\u0E30 1 \u0E15\u0E31\u0E27",
-        });
-    }
-    const { error } = await supabaseAdmin.auth.admin.updateUserById(userId, {
-      password: newPassword,
-    });
-    if (error) {
-      return res.status(400).json({ error: error.message });
-    }
-    await admin
-      .firestore()
-      .collection("users")
-      .doc(userId)
-      .update({ resetOtp: null, resetOtpExpires: null });
-    res.json({ success: true });
-  } catch (err) {
-    res.status(500).json({ error: err.message || "Internal error" });
-  }
-});
-app.post("/api/signup", authLimiter, async (req, res) => {
-  const { email, password, recoveryEmail } = req.body;
-  try {
-    if (!email || !password) {
-      return res
-        .status(400)
-        .json({
-          error:
-            "\u0E0A\u0E37\u0E48\u0E2D\u0E1C\u0E39\u0E49\u0E43\u0E0A\u0E49\u0E41\u0E25\u0E30\u0E23\u0E2B\u0E31\u0E2A\u0E1C\u0E48\u0E32\u0E19\u0E21\u0E35\u0E04\u0E27\u0E32\u0E21\u0E08\u0E33\u0E40\u0E1B\u0E47\u0E19",
-        });
-    }
-    if (
-      password.length < 8 ||
-      !/[a-z]/.test(password) ||
-      !/[A-Z]/.test(password) ||
-      !/\d/.test(password) ||
-      !/[^a-zA-Z\d]/.test(password)
-    ) {
-      return res
-        .status(400)
-        .json({
-          error:
-            "\u0E23\u0E2B\u0E31\u0E2A\u0E1C\u0E48\u0E32\u0E19\u0E15\u0E49\u0E2D\u0E07\u0E21\u0E35\u0E04\u0E27\u0E32\u0E21\u0E22\u0E32\u0E27\u0E2D\u0E22\u0E48\u0E32\u0E07\u0E19\u0E49\u0E2D\u0E22 8 \u0E15\u0E31\u0E27\u0E2D\u0E31\u0E01\u0E29\u0E23, \u0E1B\u0E23\u0E30\u0E01\u0E2D\u0E1A\u0E14\u0E49\u0E27\u0E22 \u0E2D\u0E31\u0E01\u0E29\u0E23\u0E1E\u0E34\u0E21\u0E1E\u0E4C\u0E43\u0E2B\u0E0D\u0E48 \u0E1E\u0E34\u0E21\u0E1E\u0E4C\u0E40\u0E25\u0E47\u0E01 \u0E15\u0E31\u0E27\u0E40\u0E25\u0E02 \u0E41\u0E25\u0E30\u0E2D\u0E31\u0E01\u0E02\u0E23\u0E30\u0E1E\u0E34\u0E40\u0E28\u0E29\u0E2D\u0E22\u0E48\u0E32\u0E07\u0E25\u0E30 1 \u0E15\u0E31\u0E27",
-        });
-    }
-    const isApexStudioDomain = /^[a-z0-9_.-]+@apex-studio\.com$/i.test(email);
-    if (!isApexStudioDomain) {
-      return res
-        .status(400)
-        .json({
-          error:
-            "\u0E23\u0E39\u0E1B\u0E41\u0E1A\u0E1A\u0E2D\u0E35\u0E40\u0E21\u0E25\u0E44\u0E21\u0E48\u0E16\u0E39\u0E01\u0E15\u0E49\u0E2D\u0E07\u0E2A\u0E33\u0E2B\u0E23\u0E31\u0E1A\u0E23\u0E30\u0E1A\u0E1A\u0E19\u0E35\u0E49",
-        });
-    }
-    const usersCheck = await admin
-      .firestore()
-      .collection("users")
-      .where("email", "==", email)
-      .limit(1)
-      .get();
-    if (!usersCheck.empty) {
-      return res
-        .status(400)
-        .json({
-          error:
-            "\u0E0A\u0E37\u0E48\u0E2D\u0E1C\u0E39\u0E49\u0E43\u0E0A\u0E49\u0E2B\u0E23\u0E37\u0E2D\u0E2D\u0E35\u0E40\u0E21\u0E25\u0E19\u0E35\u0E49\u0E16\u0E39\u0E01\u0E43\u0E0A\u0E49\u0E07\u0E32\u0E19\u0E44\u0E1B\u0E41\u0E25\u0E49\u0E27",
-        });
-    }
-    const { data, error } = await supabaseAdmin.auth.admin.createUser({
-      email,
-      password,
-      email_confirm: true,
-    });
-    if (error) {
-      return res.status(400).json({ error: error.message });
-    }
-    try {
-      await admin
-        .firestore()
-        .collection("users")
-        .doc(data.user.id)
-        .set(
-          {
-            email,
-            recoveryEmail: recoveryEmail || null,
-            username: email.split("@")[0],
-            balance: 0,
-            role: "user",
-            status: "active",
-            updatedAt: new Date().toISOString(),
-          },
-          { merge: true },
-        );
-      invalidateCache("users");
-      invalidateStatsCache();
-    } catch (err) {
-      console.error("Failed to create user doc:", err.message || err);
-      if (err.details) console.error("Error Details:", err.details);
-    }
-    return res.json({ success: true, user: data.user });
-  } catch (e) {
-    return res.status(500).json({ error: String(e) });
-  }
-});
+
+    res.json({ success: true, migratedCount });
+  } catch (error) {
+    console.error("Migration error:", error);
+    res.status(500).json({ error: String(error) });
+  } */
+};
 app.post("/api/settings", requireAdmin, async (req, res) => {
   console.log("=== POST /api/settings REACHED ===", req.body);
   const beforeLogs = {
@@ -1627,11 +1367,11 @@ app.post(
   "/api/topup/truemoney",
   topupLimiter,
   requireAuth,
-  async (req, res) => {
-    let voucherRef = null;
-    let apiSuccess = false;
-    try {
-      const { voucherCode } = req.body;
+  async (req, res, next) => {
+    next();
+  }
+);
+      /* const { voucherCode } = req.body;
       const uid = req.user.uid;
       const phone = siteSettings.truewallet_phone;
       if (!voucherCode) {
@@ -1830,9 +1570,11 @@ app.post(
         });
     }
   },
-);
-app.post("/api/topup/slip", mutationLimiter, requireAuth, async (req, res) => {
-  try {
+); */
+app.post("/api/topup/slip", mutationLimiter, requireAuth, async (req, res, next) => {
+  next();
+});
+const __disabled_slip = async (req: any, res: any) => { /*
     const { imageBase64 } = req.body;
     const uid = req.user.uid;
     if (!imageBase64) {
@@ -2131,8 +1873,8 @@ app.post("/api/topup/slip", mutationLimiter, requireAuth, async (req, res) => {
             "\u0E40\u0E01\u0E34\u0E14\u0E02\u0E49\u0E2D\u0E1C\u0E34\u0E14\u0E1E\u0E25\u0E32\u0E14\u0E43\u0E19\u0E01\u0E32\u0E23\u0E40\u0E0A\u0E37\u0E48\u0E2D\u0E21\u0E15\u0E48\u0E2D\u0E40\u0E04\u0E23\u0E37\u0E2D\u0E02\u0E48\u0E32\u0E22",
         });
     }
-  }
-});
+  } */
+};
 const turnstileCache = new Map();
 app.post("/api/check", checkLimiter, requireAuth, async (req, res) => {
   return res
@@ -2874,7 +2616,7 @@ async function findPurchaseByLicenseKey(key) {
       const data = doc.data();
       let secret = data.secretData || "";
       if (secret.startsWith("enc:")) {
-        secret = decrypt(secret);
+        secret = await decrypt(secret);
       }
       return { id: doc.id, ...data, secretData: secret };
     }
@@ -2900,7 +2642,7 @@ async function findPurchaseByWebClaimKey(key) {
         if (data.webClaimed) continue;
         let secret = data.secretData || "";
         if (secret.startsWith("enc:")) {
-          secret = decrypt(secret);
+          secret = await decrypt(secret);
         }
         return { id: doc.id, ...data, secretData: secret };
       }
@@ -3044,33 +2786,20 @@ const getCachedCollection = __name(
                   .collection("products")
                   .doc("netflix_4k");
                 const netflixData = {
-                  name: "Netflix Premium Ultra HD 4K (30 \u0E27\u0E31\u0E19 - \u0E08\u0E2D\u0E2A\u0E48\u0E27\u0E19\u0E15\u0E31\u0E27)",
+                  name: "Netflix Premium Ultra HD 4K (30 วัน - จอส่วนตัว)",
                   price: 139,
                   originalPrice: 199,
                   category:
-                    "\u0E41\u0E2D\u0E1B\u0E1E\u0E23\u0E35\u0E40\u0E21\u0E35\u0E22\u0E21 / \u0E1A\u0E31\u0E19\u0E40\u0E17\u0E34\u0E07",
-                  stock: 12,
+                    "แอปพรีเมียม / บันเทิง",
+                  stock: 0,
                   soldCount: 945,
                   imageUrl:
                     "https://upload.wikimedia.org/wikipedia/commons/f/ff/Netflix-new-icon.png",
                   description:
-                    "\u0E04\u0E27\u0E32\u0E21\u0E25\u0E30\u0E40\u0E2D\u0E35\u0E22\u0E14 4K HDR \u0E40\u0E2A\u0E35\u0E22\u0E07\u0E23\u0E2D\u0E1A\u0E17\u0E34\u0E28\u0E17\u0E32\u0E07 \u0E43\u0E0A\u0E49\u0E07\u0E32\u0E19\u0E2A\u0E48\u0E27\u0E19\u0E15\u0E31\u0E27 \u0E40\u0E2A\u0E16\u0E35\u0E22\u0E23\u0E2A\u0E39\u0E07 100% \u0E15\u0E25\u0E2D\u0E14\u0E17\u0E31\u0E49\u0E07\u0E40\u0E14\u0E37\u0E2D\u0E19",
+                    "ความละเอียด 4K HDR เสียงรอบทิศทาง ใช้งานส่วนตัว เสถียรสูง 100% ตลอดทั้งเดือน",
                   isPopular: true,
                   isDeleted: false,
-                  stockData: [
-                    "netflix_user1:password",
-                    "netflix_user2:password",
-                    "netflix_user3:password",
-                    "netflix_user4:password",
-                    "netflix_user5:password",
-                    "netflix_user6:password",
-                    "netflix_user7:password",
-                    "netflix_user8:password",
-                    "netflix_user9:password",
-                    "netflix_user10:password",
-                    "netflix_user11:password",
-                    "netflix_user12:password",
-                  ],
+                  stockData: [],
                   created_at: new Date().toISOString(),
                   _version: 1,
                 };
@@ -3084,26 +2813,20 @@ const getCachedCollection = __name(
                   .collection("products")
                   .doc("youtube_premium");
                 const youtubeData = {
-                  name: "YouTube Premium 4K (30 \u0E27\u0E31\u0E19 - \u0E1A\u0E31\u0E0D\u0E0A\u0E35\u0E2A\u0E48\u0E27\u0E19\u0E15\u0E31\u0E27\u0E04\u0E27\u0E32\u0E21\u0E1B\u0E25\u0E2D\u0E14\u0E20\u0E31\u0E22\u0E2A\u0E39\u0E07)",
+                  name: "YouTube Premium 4K (30 วัน - บัญชีส่วนตัวความปลอดภัยสูง)",
                   price: 39,
                   originalPrice: 69,
                   category:
-                    "\u0E41\u0E2D\u0E1B\u0E1E\u0E23\u0E35\u0E40\u0E21\u0E35\u0E22\u0E21 / \u0E1A\u0E31\u0E19\u0E40\u0E17\u0E34\u0E07",
-                  stock: 15,
+                    "แอปพรีเมียม / บันเทิง",
+                  stock: 0,
                   soldCount: 1248,
                   imageUrl:
                     "https://upload.wikimedia.org/wikipedia/commons/e/e1/Logo_of_YouTube_%282015-2017%29.svg",
                   description:
-                    "\u0E44\u0E21\u0E48\u0E21\u0E35\u0E42\u0E06\u0E29\u0E13\u0E32\u0E04\u0E31\u0E48\u0E19\u0E2D\u0E22\u0E48\u0E32\u0E07\u0E2A\u0E21\u0E1A\u0E39\u0E23\u0E13\u0E4C \u0E40\u0E25\u0E48\u0E19\u0E02\u0E13\u0E30\u0E1B\u0E34\u0E14\u0E2B\u0E19\u0E49\u0E32\u0E08\u0E2D\u0E44\u0E14\u0E49 \u0E41\u0E16\u0E21\u0E1A\u0E23\u0E34\u0E01\u0E32\u0E23\u0E40\u0E2A\u0E23\u0E34\u0E21 Youtube Music HQ",
+                    "ไม่มีโฆษณาคั่นอย่างสมบูรณ์ เล่นขณะปิดหน้าจอได้ แถมบริการเสริม Youtube Music HQ",
                   isPopular: true,
                   isDeleted: false,
-                  stockData: [
-                    "yt_user1:pass1",
-                    "yt_user2:pass2",
-                    "yt_user3:pass3",
-                    "yt_user4:pass4",
-                    "yt_user5:pass5",
-                  ],
+                  stockData: [],
                   created_at: new Date().toISOString(),
                   _version: 1,
                 };
@@ -3117,25 +2840,20 @@ const getCachedCollection = __name(
                   .collection("products")
                   .doc("discord_nitro");
                 const discordData = {
-                  name: "Discord Nitro Premium Gift (1 \u0E40\u0E14\u0E37\u0E2D\u0E19 - \u0E1A\u0E31\u0E0D\u0E0A\u0E35\u0E41\u0E17\u0E49 100%)",
+                  name: "Discord Nitro Premium Gift (1 เดือน - บัญชีแท้ 100%)",
                   price: 119,
                   originalPrice: 320,
                   category:
-                    "\u0E41\u0E2D\u0E1B\u0E1E\u0E23\u0E35\u0E40\u0E21\u0E35\u0E22\u0E21 / \u0E1A\u0E31\u0E19\u0E40\u0E17\u0E34\u0E07",
-                  stock: 8,
+                    "แอปพรีเมียม / บันเทิง",
+                  stock: 0,
                   soldCount: 231,
                   imageUrl:
                     "https://upload.wikimedia.org/wikipedia/commons/c/ca/Discord_Color_Logo.svg",
                   description:
-                    "\u0E23\u0E31\u0E1A\u0E1A\u0E39\u0E2A\u0E40\u0E0B\u0E34\u0E23\u0E4C\u0E1F\u0E40\u0E27\u0E2D\u0E23\u0E4C\u0E1F\u0E23\u0E35 x2 \u0E2A\u0E15\u0E34\u0E01\u0E40\u0E01\u0E2D\u0E23\u0E4C\u0E40\u0E04\u0E25\u0E37\u0E48\u0E19\u0E44\u0E2B\u0E27 \u0E2D\u0E35\u0E42\u0E21\u0E08\u0E34\u0E1E\u0E34\u0E40\u0E28\u0E29\u0E17\u0E38\u0E01\u0E40\u0E0B\u0E34\u0E23\u0E4C\u0E1F \u0E41\u0E25\u0E30\u0E41\u0E0A\u0E23\u0E4C\u0E08\u0E2D 1080p 60fps",
+                    "รับบูสเซิร์ฟเวอร์ฟรี x2 สติกเกอร์เคลื่อนไหว อีโมจิพิเศษทุกเซิร์ฟ และแชร์จอ 1080p 60fps",
                   isPopular: true,
                   isDeleted: false,
-                  stockData: [
-                    "nitro_gift_link_1",
-                    "nitro_gift_link_2",
-                    "nitro_gift_link_3",
-                    "nitro_gift_link_4",
-                  ],
+                  stockData: [],
                   created_at: new Date().toISOString(),
                   _version: 1,
                 };
@@ -3224,6 +2942,9 @@ const invalidateCache = __name(async (collectionName) => {
     }
   }
 }, "invalidateCache");
+const { createAuthRouter } = await import("./src/routes/auth.route.js");
+app.use("/api", createAuthRouter({ authLimiter, invalidateCache, invalidateStatsCache }));
+
 app.get("/api/debug-products", requireAdmin, async (req, res) => {
   try {
     const snap = await admin.firestore().collection("products").get();
@@ -3247,451 +2968,66 @@ app.get("/api/debug-products", requireAdmin, async (req, res) => {
     res.status(500).json({ error: e.message });
   }
 });
-app.get("/api/products", async (req, res) => {
-  res.setHeader(
-    "Cache-Control",
-    "no-store, no-cache, must-revalidate, proxy-revalidate",
-  );
-  try {
-    const data = await getCachedCollection("products", 1e4, res, req);
-    if (data) {
-      const processedData = data.map((item) => {
-        const { stockData, ...publicItem } = item;
-        return publicItem;
-      });
-      res.json(processedData);
-    }
-  } catch (err) {
-    console.error(
-      "PROD ERR OBJ:",
-      JSON.stringify(err, Object.getOwnPropertyNames(err)),
-    );
-    res
-      .status(500)
-      .json({ error: String(err && err.message ? err.message : err) });
-  }
-});
-app.get("/api/products/:id", requireAdmin, async (req, res) => {
-  if (!admin.firestore())
-    return res.status(500).json({ error: "DB not connected" });
-  try {
-    const doc = await admin
-      .firestore()
-      .collection("products")
-      .doc(req.params.id)
-      .get();
-    if (!doc.exists)
-      return res.status(404).json({ error: "Product not found" });
-    const data = doc.data();
-    const { stockData, ...safeProductData } = data;
-    const responseData = { id: doc.id, ...safeProductData };
-    res.json(responseData);
-  } catch (err) {
-    res
-      .status(500)
-      .json({ error: String(err && err.message ? err.message : err) });
-  }
-});
-app.get("/api/products/:id/stock", requireAdmin, async (req, res) => {
-  if (!admin.firestore())
-    return res.status(500).json({ error: "DB not connected" });
-  try {
-    const docRef = admin.firestore().collection("products").doc(req.params.id);
-    const doc = await docRef.get();
-    if (!doc.exists) {
-      return res.status(404).json({ error: "Product not found" });
-    }
-    let stockData = doc.data()?.stockData || [];
-    if (stockData) {
-      stockData = await decompressStock(stockData);
-    }
-    if (!Array.isArray(stockData)) stockData = [];
-    const chunksSnapshot = await admin
-      .firestore()
-      .collection("product_stock_chunks")
-      .where("productId", "==", req.params.id)
-      .get();
-    for (const chunkDoc of chunksSnapshot.docs) {
-      const chunkItems = chunkDoc.data().items;
-      if (chunkItems) {
-        const dec = await decompressStock(chunkItems);
-        if (Array.isArray(dec)) stockData = stockData.concat(dec);
-      }
-    }
-    res.json({ stockData });
-  } catch (err) {
-    console.error("Error fetching stock data:", err);
-    res.status(500).json({ error: String(err.message || err) });
-  }
-});
-app.post("/api/products", requireAdmin, async (req, res) => {
-  if (!admin.firestore())
-    return res.status(500).json({ error: "DB not connected" });
-  try {
-    const product = req.body;
-    const allowedFields = [
-      "name",
-      "description",
-      "price",
-      "originalPrice",
-      "stock",
-      "categoryId",
-      "stockData",
-      "image",
-      "imageUrl",
-      "category",
-      "isHighlight",
-      "customPageId",
-      "youtubeUrl",
-      "type",
-      "isPopular",
-      "soldCount",
-      "tag",
-      "_version",
-      "isPreOrder",
-      "preOrderOptions",
-    ];
-    const sanitizedProduct = Object.fromEntries(
-      Object.entries(product).filter(([k]) => allowedFields.includes(k)),
-    );
-    if (sanitizedProduct.stock !== void 0 && Number(sanitizedProduct.stock) < 0)
-      return res
-        .status(400)
-        .json({
-          error:
-            "\u0E2A\u0E15\u0E4A\u0E2D\u0E01\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32\u0E44\u0E21\u0E48\u0E2A\u0E32\u0E21\u0E32\u0E23\u0E16\u0E15\u0E34\u0E14\u0E25\u0E1A\u0E44\u0E14\u0E49",
-        });
-    if (sanitizedProduct.price !== void 0 && Number(sanitizedProduct.price) < 0)
-      return res
-        .status(400)
-        .json({
-          error:
-            "\u0E23\u0E32\u0E04\u0E32\u0E44\u0E21\u0E48\u0E2A\u0E32\u0E21\u0E32\u0E23\u0E16\u0E15\u0E34\u0E14\u0E25\u0E1A\u0E44\u0E14\u0E49",
-        });
-    sanitizedProduct._version = 1;
-    const { id, ...dataToSaveRaw } = sanitizedProduct;
-    if (dataToSaveRaw.stockData) {
-      dataToSaveRaw.stockData = await compressStock(dataToSaveRaw.stockData);
-    }
-    const dataToSave = JSON.parse(JSON.stringify(dataToSaveRaw));
-    const docRef = await admin
-      .firestore()
-      .collection("products")
-      .add(dataToSave);
-    invalidateCache("products");
-    invalidateStatsCache();
-    const { stockData, ...safeData } = dataToSave;
-    const responseData = { id: docRef.id, dbId: docRef.id, ...safeData };
-    res.json(responseData);
-  } catch (err) {
-    console.error(
-      "Internal server error creating product:",
-      JSON.stringify(err, Object.getOwnPropertyNames(err)),
-    );
-    const errMsg = err?.message || JSON.stringify(err);
-    res.status(500).json({ error: String(errMsg) });
-  }
-});
-const uploadDir = path.join(os.tmpdir(), "uploads");
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-const diskUpload = multer({ dest: uploadDir });
-app.post(
-  "/api/products/:id/stock-file",
-  requireAdmin,
-  diskUpload.single("file"),
-  async (req, res) => {
-    if (!admin.firestore())
-      return res.status(500).json({ error: "DB not connected" });
-    try {
-      if (!req.file) {
-        return res.status(400).json({ error: "No file uploaded" });
-      }
-      const linesPerItem = parseInt(req.body.linesPerItem || "1") || 1;
-      const fileStream = fs.createReadStream(req.file.path);
-      const rl = readline.createInterface({
-        input: fileStream,
-        crlfDelay: Infinity,
-      });
-      let currentLines = [];
-      const chunkedItems = [];
-      for await (const line of rl) {
-        const trimmed = line.trim();
-        if (trimmed.length > 0) {
-          currentLines.push(trimmed);
-          if (currentLines.length >= linesPerItem) {
-            chunkedItems.push(currentLines.join("\n"));
-            currentLines = [];
-          }
-        }
-      }
-      if (currentLines.length > 0) {
-        chunkedItems.push(currentLines.join("\n"));
-      }
-      fs.unlink(req.file.path, () => {});
-      if (chunkedItems.length === 0) {
-        return res.status(400).json({ error: "No valid data found in file" });
-      }
-      const docRef = admin
-        .firestore()
-        .collection("products")
-        .doc(req.params.id);
-      let finalProductData = {};
-      await admin.firestore().runTransaction(async (t) => {
-        const doc = await t.get(docRef);
-        if (!doc.exists) {
-          throw new Error("NOT_FOUND");
-        }
-        const p = doc.data();
-        let existingStock = [];
-        if (p.stockData) {
-          existingStock = await decompressStock(p.stockData);
-        }
-        const mergedStock = [...existingStock, ...chunkedItems];
-        const compressed = await compressStock(mergedStock);
-        const newVersion = (p._version || 0) + 1;
-        t.update(docRef, {
-          stockData: compressed,
-          stock: mergedStock.length,
-          _version: newVersion,
-        });
-        finalProductData = {
-          ...p,
-          stockData: void 0,
-          stock: mergedStock.length,
-          _version: newVersion,
-          id: doc.id,
-        };
-      });
-      invalidateCache("products");
-      invalidateStatsCache();
-      await writeAuditLog(
-        "ADD_STOCK",
-        req.user?.uid || "admin",
-        `Product ${req.params.id}`,
-        req,
-        { itemsAdded: chunkedItems.length },
-      );
-      res.json({
-        success: true,
-        count: chunkedItems.length,
-        product: finalProductData,
-      });
-    } catch (err) {
-      if (req.file) fs.unlink(req.file.path, () => {});
-      console.error("Error in /api/products/:id/stock-file:", err);
-      res
-        .status(err.message === "NOT_FOUND" ? 404 : 500)
-        .json({ error: String(err.message || err) });
-    }
-  },
+const { createProductsRouter } = await import("./src/routes/products.route.js");
+app.use(
+  "/api",
+  createProductsRouter({
+    requireAdmin,
+    getCachedCollection,
+    writeAuditLog,
+    invalidateCache,
+    invalidateStatsCache,
+  }),
 );
-app.post("/api/products/:id/stock", requireAdmin, async (req, res) => {
-  if (!admin.firestore())
-    return res.status(500).json({ error: "DB not connected" });
-  try {
-    const { newItems } = req.body;
-    if (!Array.isArray(newItems) || newItems.length === 0) {
-      return res.json({ success: true });
-    }
-    const docRef = admin.firestore().collection("products").doc(req.params.id);
-    let finalProductData = {};
-    await admin.firestore().runTransaction(async (t) => {
-      const doc = await t.get(docRef);
-      if (!doc.exists) {
-        throw new Error("NOT_FOUND");
-      }
-      let existingStock = doc.data()?.stockData || [];
-      if (existingStock) {
-        existingStock = await decompressStock(existingStock);
-      }
-      if (!Array.isArray(existingStock)) {
-        existingStock = [];
-      }
-      existingStock = existingStock.concat(newItems);
-      const previousStock = doc.data()?.stock || 0;
-      const newStockCount = previousStock + newItems.length;
-      t.update(docRef, {
-        stock: newStockCount,
-        stockData: await compressStock(existingStock),
-      });
-      const { stockData, ...safeData } = doc.data();
-      finalProductData = { ...safeData, stock: newStockCount };
-    });
-    invalidateCache("products");
-    invalidateStatsCache();
-    res.json({
-      success: true,
-      added: newItems.length,
-      product: finalProductData,
-    });
-  } catch (err) {
-    if (err.message === "NOT_FOUND") {
-      return res.status(404).json({ error: "Product not found" });
-    }
-    console.error(
-      "Internal server error appending stock:",
-      JSON.stringify(err, Object.getOwnPropertyNames(err)),
-    );
-    const errMsg = err?.message || JSON.stringify(err);
-    res.status(500).json({ error: String(errMsg) });
-  }
-});
-app.put("/api/products/:id", requireAdmin, async (req, res) => {
-  if (!admin.firestore())
-    return res.status(500).json({ error: "DB not connected" });
-  try {
-    const docRef = admin.firestore().collection("products").doc(req.params.id);
-    const productUpdates = req.body;
-    const allowedFields = [
-      "name",
-      "description",
-      "price",
-      "originalPrice",
-      "stock",
-      "categoryId",
-      "stockData",
-      "image",
-      "imageUrl",
-      "category",
-      "isHighlight",
-      "customPageId",
-      "youtubeUrl",
-      "type",
-      "isPopular",
-      "soldCount",
-      "tag",
-      "_version",
-      "isPreOrder",
-      "preOrderOptions",
-    ];
-    const sanitizedUpdates = Object.fromEntries(
-      Object.entries(productUpdates).filter(
-        ([k]) => allowedFields.includes(k) && k !== "id",
-      ),
-    );
-    if (sanitizedUpdates.stock !== void 0 && Number(sanitizedUpdates.stock) < 0)
-      return res
-        .status(400)
-        .json({
-          error:
-            "\u0E2A\u0E15\u0E4A\u0E2D\u0E01\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32\u0E44\u0E21\u0E48\u0E2A\u0E32\u0E21\u0E32\u0E23\u0E16\u0E15\u0E34\u0E14\u0E25\u0E1A\u0E44\u0E14\u0E49",
-        });
-    if (sanitizedUpdates.price !== void 0 && Number(sanitizedUpdates.price) < 0)
-      return res
-        .status(400)
-        .json({
-          error:
-            "\u0E23\u0E32\u0E04\u0E32\u0E44\u0E21\u0E48\u0E2A\u0E32\u0E21\u0E32\u0E23\u0E16\u0E15\u0E34\u0E14\u0E25\u0E1A\u0E44\u0E14\u0E49",
-        });
-    let finalData;
-    let deltaBefore = {};
-    let deltaAfter = {};
-    await admin.firestore().runTransaction(async (t) => {
-      const currentDoc = await t.get(docRef);
-      if (!currentDoc.exists) {
-        throw new Error("NOT_FOUND");
-      }
-      const existingData = currentDoc.data();
-      Object.keys(sanitizedUpdates).forEach((k) => {
-        if (k !== "_version" && sanitizedUpdates[k] !== existingData[k]) {
-          deltaBefore[k] = existingData[k];
-          deltaAfter[k] = sanitizedUpdates[k];
-        }
-      });
-      let nextVersion = existingData._version || 0;
-      if (Object.keys(deltaAfter).length > 0) {
-        nextVersion += 1;
-      // @ts-ignore
-        deltaAfter._version = nextVersion;
-      }
-      // @ts-ignore
-      if (deltaAfter.stockData && !deltaAfter.stockData[0]?.__compressed) {
-      // @ts-ignore
-        deltaAfter.stockData = await compressStock(deltaAfter.stockData);
-      }
-      const dataToSave = JSON.parse(JSON.stringify(deltaAfter));
-      if (Object.keys(dataToSave).length > 0) {
-        t.update(docRef, dataToSave);
-      }
-      finalData = { ...existingData, ...dataToSave, id: req.params.id };
-    });
-    invalidateCache("products");
-    invalidateStatsCache();
-    if (Object.keys(deltaAfter).length > 0) {
-      writeAuditLog(
-        "PRODUCT_UPDATE",
-        req.user?.uid || "admin",
-        req.params.id,
-        req,
-        { changes: { before: deltaBefore, after: deltaAfter } },
-      );
-    }
-    const { stockData, ...safeFinalData } = finalData;
-    res.json(safeFinalData);
-  } catch (err) {
-    if (err.message === "VERSION_CONFLICT") {
-      return res
-        .status(409)
-        .json({
-          error:
-            "Conflict: Product was updated by another admin. Please refresh and try again.",
-        });
-    }
-    if (err.message === "NOT_FOUND") {
-      return res.status(404).json({ error: "Product not found" });
-    }
-    console.error(
-      "Internal server error updating product:",
-      JSON.stringify(err, Object.getOwnPropertyNames(err)),
-    );
-    const errMsg = err?.message || JSON.stringify(err);
-    res.status(500).json({ error: String(errMsg) });
-  }
-});
-app.delete("/api/products/:id", requireAdmin, async (req, res) => {
-  if (!admin.firestore())
-    return res.status(500).json({ error: "DB not connected" });
-  try {
-    const docRef = admin.firestore().collection("products").doc(req.params.id);
-    let existingData = null;
-    let exists = false;
-    const doc = await docRef.get();
-    if (doc.exists) {
-      exists = true;
-      existingData = doc.data();
-      await docRef.delete();
-    }
-    invalidateCache("products");
-    invalidateStatsCache();
-    if (exists && existingData) {
-      writeAuditLog(
-        "PRODUCT_DELETE",
-        req.user?.uid || "admin",
-        req.params.id,
-        req,
-        {
-          changes: {
-            before: existingData,
-            after: { isDeleted: true, hardDeleted: true },
-          },
-        },
-      );
-    }
-    res.json({
-      success: true,
-      softDeleted: false,
-      deleted: true,
-      existed: exists,
-    });
-  } catch (err) {
-    console.error("Internal server error deleting product:", err);
-    res
-      .status(500)
-      .json({ error: String(err && err.message ? err.message : err) });
-  }
-});
+const { createPaymentsRouter } = await import("./src/routes/payments.route.js");
+app.use(
+  "/api",
+  createPaymentsRouter({
+    requireAuth,
+    requireAdmin,
+    mutationLimiter,
+    topupLimiter,
+    getSiteSettings: () => siteSettings,
+    getRedis: () => redis,
+    getTwApi: () => twApi,
+    writeAuditLog,
+    sendAlert,
+    invalidateCache,
+    invalidateStatsCache,
+    getCommunityData: () => communityData,
+    saveCommunity: () => saveCommunity(),
+  }),
+);
+const { createUsersRouter } = await import("./src/routes/users.route.js");
+app.use(
+  "/api",
+  createUsersRouter({
+    requireAuth,
+    requireAdmin,
+    mutationLimiter,
+    communityUpload,
+    uploadToSupabaseStorage,
+    getCommunityData: () => communityData,
+    invalidateUserTokenCache,
+    invalidateCache,
+    invalidateStatsCache,
+    sendAlert,
+  }),
+);
+const { createAdminRouter } = await import("./src/routes/admin.route.js");
+app.use(
+  "/api",
+  createAdminRouter({
+    requireAdmin,
+    writeAuditLog,
+    sendAlert,
+    invalidateUserTokenCache,
+    invalidateCache,
+    invalidateStatsCache,
+    getCommunityData: () => communityData,
+    saveCommunity: () => saveCommunity(),
+  }),
+);
 app.get("/api/test_stats", async (req, res) => {
   res.json({ ok: 1 });
 });
@@ -3892,13 +3228,15 @@ app.get("/api/purchases", requireAuth, async (req, res) => {
       }
     }
     const snap = await q.get();
-    const data = snap.docs.map((doc) => {
-      const item = doc.data();
-      if (item.secretData && item.secretData.startsWith("enc:")) {
-        item.secretData = decrypt(item.secretData);
-      }
-      return { dbId: doc.id, ...item };
-    });
+    const data = await Promise.all(
+      snap.docs.map(async (doc) => {
+        const item = doc.data();
+        if (item.secretData && item.secretData.startsWith("enc:")) {
+          item.secretData = await decrypt(item.secretData);
+        }
+        return { dbId: doc.id, ...item };
+      })
+    );
     const nextCursor =
       snap.docs.length === limit ? snap.docs[snap.docs.length - 1].id : null;
     return res.json({ data, nextCursor });
@@ -3923,7 +3261,7 @@ app.post("/api/purchases", requireAdmin, async (req, res) => {
       data.licenseKeyHashes = keysList.map((k) =>
         crypto.createHash("sha256").update(k).digest("hex"),
       );
-      data.secretData = encrypt(data.secretData);
+      data.secretData = await encrypt(data.secretData);
     }
     const docRef = await admin.firestore().collection("purchases").add(data);
     res.json({
@@ -3953,7 +3291,7 @@ app.put("/api/purchases/:id", requireAdmin, async (req, res) => {
     const payload = {};
     if (secretData !== void 0) {
       // @ts-ignore
-      payload.secretData = encrypt(secretData);
+      payload.secretData = await encrypt(secretData);
       const rawSecret = secretData || "";
       const keysList = rawSecret
         .split("\n")
@@ -4121,20 +3459,20 @@ async function releaseRedisLock(lockKey) {
   } catch (_) {}
 }
 __name(releaseRedisLock, "releaseRedisLock");
-app.post("/api/buy", mutationLimiter, requireAuth, async (req, res) => {
-  let { productId, quantity } = req.body;
-  quantity = parseInt((quantity || 0).toString(), 10);
-  if (!productId || isNaN(quantity) || quantity < 1 || quantity > 1e3) {
-    console.warn(
-      `[Buy] Invalid request. productId: ${productId}, quantity: ${quantity}`,
-    );
-    return res
-      .status(400)
-      .json({
-        error:
-          "\u0E0A\u0E37\u0E48\u0E2D\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32 \u0E2B\u0E23\u0E37\u0E2D \u0E08\u0E33\u0E19\u0E27\u0E19\u0E44\u0E21\u0E48\u0E16\u0E39\u0E01\u0E15\u0E49\u0E2D\u0E07 (\u0E0B\u0E37\u0E49\u0E2D\u0E44\u0E14\u0E49\u0E2A\u0E39\u0E07\u0E2A\u0E38\u0E14 1,000 \u0E0A\u0E34\u0E49\u0E19/\u0E04\u0E23\u0E31\u0E49\u0E07)",
-      });
+app.post("/api/buy", mutationLimiter, requireAuth, async (req, res, next) => {
+  next();
+});
+const __disabled_buy = async (req: any, res: any) => { /*
+    productId: z.string().min(1, "Product ID is missing"),
+    quantity: z.preprocess((val) => parseInt((val || 0).toString(), 10), z.number().int().min(1, "ชื่อสินค้า หรือ จำนวนไม่ถูกต้อง").max(1000, "ซื้อได้สูงสุด 1,000 ชิ้น/ครั้ง"))
+  });
+
+  const parseResult = buySchema.safeParse(req.body);
+  if (!parseResult.success) {
+     return res.status(400).json({ error: parseResult.error.issues[0].message || "\u0E0A\u0E37\u0E48\u0E2D\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32 \u0E2B\u0E23\u0E37\u0E2D \u0E08\u0E33\u0E19\u0E27\u0E19\u0E44\u0E21\u0E48\u0E16\u0E39\u0E01\u0E15\u0E49\u0E2D\u0E07" });
   }
+  const { productId, quantity } = parseResult.data;
+
   const userId = req.user.uid;
   const lockKey = `lock:product:${productId}`;
   const localAcquired = await acquireMutex(lockKey, 15e3);
@@ -4407,7 +3745,7 @@ app.post("/api/buy", mutationLimiter, requireAuth, async (req, res) => {
       const licenseKeyHashes = keysList.map((k) =>
         crypto.createHash("sha256").update(k).digest("hex"),
       );
-      const encryptedSecretData = encrypt(newHistoryItem.secretData || "");
+      const encryptedSecretData = await encrypt(newHistoryItem.secretData || "");
       const historyPayload = JSON.parse(
         JSON.stringify({
           ...newHistoryItem,
@@ -4486,9 +3824,12 @@ app.post("/api/buy", mutationLimiter, requireAuth, async (req, res) => {
   } finally {
     releaseMutex(lockKey);
     await releaseRedisLock(lockKey);
-  }
+  } */
+};
+app.get("/api/topups", requireAuth, async (req, res, next) => {
+  next();
 });
-app.get("/api/topups", requireAuth, async (req, res) => {
+const __disabled_topups_get = async (req: any, res: any) => { /*
   try {
     const adminDb = admin.firestore();
     let q = adminDb.collection("topups");
@@ -4539,13 +3880,27 @@ app.get("/api/topups", requireAuth, async (req, res) => {
     res
       .status(500)
       .json({ error: String(err && err.message ? err.message : err) });
-  }
+  } */
+};
+app.post("/api/topups", requireAdmin, async (req, res, next) => {
+  next();
 });
-app.post("/api/topups", requireAdmin, async (req, res) => {
+const __disabled_topups_post = async (req: any, res: any) => { /*
   if (!admin.firestore())
     return res.status(500).json({ error: "DB not connected" });
+
+  const topupSchema = z.object({
+    amount: z.coerce.number().min(1, "จำนวนเงินต้องมากกว่า 0"),
+    method: z.enum(["truemoney", "promptpay", "bank_transfer", "giftcode"]).optional(), // Ensure this matches what is expected
+    // add other fields loosely or strictly as needed, fallback passing through
+  }).passthrough();
+
   try {
-    const data = req.body;
+    const parseResult = topupSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      return res.status(400).json({ error: parseResult.error.issues[0].message });
+    }
+    const data = parseResult.data;
     const docRef = await admin.firestore().collection("topups").add(data);
     res.json({ id: docRef.id, dbId: docRef.id, ...data });
   } catch (err) {
@@ -4553,116 +3908,8 @@ app.post("/api/topups", requireAdmin, async (req, res) => {
     res
       .status(500)
       .json({ error: String(err && err.message ? err.message : err) });
-  }
-});
-app.get("/api/categories", async (req, res) => {
-  res.setHeader(
-    "Cache-Control",
-    "no-store, no-cache, must-revalidate, proxy-revalidate",
-  );
-  try {
-    const data = await getCachedCollection("categories", 1e4, res, req);
-    if (data) res.json(data);
-  } catch (err) {
-    console.error(
-      "Internal server error fetching categories:",
-      err.message || err,
-    );
-    res
-      .status(500)
-      .json({ error: String(err && err.message ? err.message : err) });
-  }
-});
-app.post("/api/categories", requireAdmin, async (req, res) => {
-  if (!admin.firestore())
-    return res.status(500).json({ error: "DB not connected" });
-  try {
-    const data = req.body;
-    const { id, ...dataToSave } = data;
-    const docRef = await admin
-      .firestore()
-      .collection("categories")
-      .add(dataToSave);
-    invalidateCache("categories");
-    res.json({ id: docRef.id, dbId: docRef.id, ...dataToSave });
-  } catch (err) {
-    console.error("Internal server error creating category:", err);
-    res
-      .status(500)
-      .json({ error: String(err && err.message ? err.message : err) });
-  }
-});
-app.put("/api/categories/:id", requireAdmin, async (req, res) => {
-  if (!admin.firestore())
-    return res.status(500).json({ error: "DB not connected" });
-  try {
-    const data = req.body;
-    const { id, ...dataToSave } = data;
-    const docRef = admin
-      .firestore()
-      .collection("categories")
-      .doc(req.params.id);
-    await docRef.update(dataToSave);
-    invalidateCache("categories");
-    res.json({ id: req.params.id, ...dataToSave });
-  } catch (err) {
-    console.error("Internal server error updating category:", err);
-    res
-      .status(500)
-      .json({ error: String(err && err.message ? err.message : err) });
-  }
-});
-app.put("/api/products/bulk/category", requireAdmin, async (req, res) => {
-  try {
-    const { idsToAdd, idsToRemove, categoryId } = req.body;
-    const updatePromises = [];
-    if (Array.isArray(idsToAdd)) {
-      for (const id of idsToAdd) {
-        updatePromises.push(
-          admin
-            .firestore()
-            .collection("products")
-            .doc(id)
-            .update({ category: categoryId }),
-        );
-      }
-    }
-    if (Array.isArray(idsToRemove)) {
-      for (const id of idsToRemove) {
-        updatePromises.push(
-          admin
-            .firestore()
-            .collection("products")
-            .doc(id)
-            .update({ category: "" }),
-        );
-      }
-    }
-    await Promise.all(updatePromises);
-    invalidateCache("products");
-    res.json({ success: true });
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  }
-});
-app.delete("/api/categories/:id", requireAdmin, async (req, res) => {
-  if (!admin.firestore())
-    return res.status(500).json({ error: "DB not connected" });
-  try {
-    await admin
-      .firestore()
-      .collection("categories")
-      .doc(req.params.id)
-      .delete();
-    invalidateCache("categories");
-    res.json({ success: true });
-  } catch (err) {
-    console.error("Internal server error deleting category:", err);
-    res
-      .status(500)
-      .json({ error: String(err && err.message ? err.message : err) });
-  }
-});
+  } */
+};
 app.get("/api/pages", async (req, res) => {
   res.setHeader(
     "Cache-Control",
@@ -4963,11 +4210,14 @@ app.get("/api/validate_key/:key", requireAuth, async (req, res) => {
     res.status(500).json({ valid: false, error: "Internal error" });
   }
 });
-app.get("/api/used_keys", requireAuth, async (req, res) => {
+app.get("/api/used_keys", requireAuth, async (req, res, next) => {
+  next();
+});
+const __disabled_used_keys_get = async (req: any, res: any) => { /*
   try {
     const db = admin.firestore();
     let q = db.collection("used_keys");
-    const targetUID = req.query.uid;
+    const targetUID = typeof req.query.uid === 'string' ? req.query.uid : undefined;
     let needsSortInMemory = false;
     if (req.isAdmin) {
       if (targetUID) {
@@ -5003,11 +4253,25 @@ app.get("/api/used_keys", requireAuth, async (req, res) => {
     res
       .status(500)
       .json({ error: String(err && err.message ? err.message : err) });
-  }
+  } */
+};
+app.post("/api/used_keys", requireAdmin, async (req, res, next) => {
+  next();
 });
-app.post("/api/used_keys", requireAdmin, async (req, res) => {
+const __disabled_used_keys_post = async (req: any, res: any) => { /*
+  const usedKeySchema = z.object({
+    key: z.string().min(1, "Key is required"),
+    ip: z.string().min(1, "IP is required"),
+    details: z.any().optional(),
+    uid: z.union([z.string().uuid("Invalid UID format"), z.literal("")]).optional().nullable(),
+  });
+
   try {
-    const { key, ip, details, uid } = req.body;
+    const parseResult = usedKeySchema.safeParse(req.body);
+    if (!parseResult.success) {
+      return res.status(400).json({ error: parseResult.error.issues[0].message });
+    }
+    const { key, ip, details, uid } = parseResult.data;
     const newDoc = {
       key,
       ip,
@@ -5022,8 +4286,8 @@ app.post("/api/used_keys", requireAdmin, async (req, res) => {
     res
       .status(500)
       .json({ error: String(err && err.message ? err.message : err) });
-  }
-});
+  } */
+};
 app.get("/api/blocked_ips", requireAdmin, async (req, res) => {
   try {
     const snapshot = await admin
@@ -5092,7 +4356,10 @@ app.get("/api/check_ip/:ip", requireAdmin, async (req, res) => {
       .json({ error: String(err && err.message ? err.message : err) });
   }
 });
-app.get("/api/api_keys", requireAdmin, async (req, res) => {
+app.get("/api/api_keys", requireAdmin, async (req, res, next) => {
+  next();
+});
+const __disabled_api_keys_get = async (req: any, res: any) => { /*
   try {
     const snapshot = await admin
       .firestore()
@@ -5111,9 +4378,12 @@ app.get("/api/api_keys", requireAdmin, async (req, res) => {
     res
       .status(500)
       .json({ error: String(err && err.message ? err.message : err) });
-  }
+  } */
+};
+app.post("/api/api_keys", requireAdmin, async (req, res, next) => {
+  next();
 });
-app.post("/api/api_keys", requireAdmin, async (req, res) => {
+const __disabled_api_keys_post = async (req: any, res: any) => { /*
   try {
     const { name, is_lifetime, expire_days } = req.body;
     const keyString = "apx_" + crypto.randomBytes(16).toString("hex");
@@ -5137,9 +4407,12 @@ app.post("/api/api_keys", requireAdmin, async (req, res) => {
     res
       .status(500)
       .json({ error: String(err && err.message ? err.message : err) });
-  }
+  } */
+};
+app.delete("/api/api_keys/:key", requireAdmin, async (req, res, next) => {
+  next();
 });
-app.delete("/api/api_keys/:key", requireAdmin, async (req, res) => {
+const __disabled_api_keys_delete = async (req: any, res: any) => { /*
   try {
     await admin.firestore().collection("api_keys").doc(req.params.key).delete();
     res.json({ success: true });
@@ -5147,9 +4420,12 @@ app.delete("/api/api_keys/:key", requireAdmin, async (req, res) => {
     res
       .status(500)
       .json({ error: String(err && err.message ? err.message : err) });
-  }
+  } */
+};
+app.patch("/api/api_keys/:key", requireAdmin, async (req, res, next) => {
+  next();
 });
-app.patch("/api/api_keys/:key", requireAdmin, async (req, res) => {
+const __disabled_api_keys_patch = async (req: any, res: any) => { /*
   try {
     const { status } = req.body;
     await admin
@@ -5162,8 +4438,8 @@ app.patch("/api/api_keys/:key", requireAdmin, async (req, res) => {
     res
       .status(500)
       .json({ error: String(err && err.message ? err.message : err) });
-  }
-});
+  } */
+};
 app.post("/api/admins", requireAdmin, async (req, res) => {
   try {
     const { username, role } = req.body;
@@ -5233,7 +4509,10 @@ if (communityData.categories.length === 0) {
   });
   saveCommunity();
 }
-app.post("/api/redeem", mutationLimiter, requireAuth, async (req, res) => {
+app.post("/api/redeem", mutationLimiter, requireAuth, async (req, res, next) => {
+  next();
+});
+const __disabled_redeem = async (req: any, res: any) => { /*
   const { key } = req.body;
   if (!key || typeof key !== "string" || key.trim().length < 8) {
     return res
@@ -5349,9 +4628,12 @@ app.post("/api/redeem", mutationLimiter, requireAuth, async (req, res) => {
             ? "\u0E04\u0E35\u0E22\u0E4C\u0E16\u0E39\u0E01\u0E43\u0E0A\u0E49\u0E07\u0E32\u0E19\u0E44\u0E1B\u0E41\u0E25\u0E49\u0E27"
             : e.message,
       });
-  }
+  } */
+};
+app.get("/api/users/:uid", requireAuth, async (req, res, next) => {
+  next();
 });
-app.get("/api/users/:uid", requireAuth, async (req, res) => {
+const __disabled_users_get = async (req: any, res: any) => { /*
   if (req.user.uid !== req.params.uid && !req.isAdmin) {
     return res.status(403).json({ error: "Forbidden" });
   }
@@ -5373,9 +4655,12 @@ app.get("/api/users/:uid", requireAuth, async (req, res) => {
     res
       .status(500)
       .json({ error: String(err && err.message ? err.message : err) });
-  }
+  } */
+};
+app.post("/api/users/:uid", requireAuth, async (req, res, next) => {
+  next();
 });
-app.post("/api/users/:uid", requireAuth, async (req, res) => {
+const __disabled_users_post = async (req: any, res: any) => { /*
   if (req.user.uid !== req.params.uid && !req.isAdmin) {
     return res.status(403).json({ error: "Forbidden" });
   }
@@ -5413,9 +4698,12 @@ app.post("/api/users/:uid", requireAuth, async (req, res) => {
     res
       .status(500)
       .json({ error: String(err && err.message ? err.message : err) });
-  }
+  } */
+};
+app.post("/api/users/:uid/password", requireAdmin, async (req, res, next) => {
+  next();
 });
-app.post("/api/users/:uid/password", requireAdmin, async (req, res) => {
+const __disabled_users_password_post = async (req: any, res: any) => { /*
   try {
     const { uid } = req.params;
     const { password } = req.body;
@@ -5427,9 +4715,12 @@ app.post("/api/users/:uid/password", requireAdmin, async (req, res) => {
     res
       .status(500)
       .json({ error: String(err && err.message ? err.message : err) });
-  }
+  } */
+};
+app.delete("/api/users/:uid", requireAuth, async (req, res, next) => {
+  next();
 });
-app.delete("/api/users/:uid", requireAuth, async (req, res) => {
+const __disabled_users_delete = async (req: any, res: any) => { /*
   try {
     const { uid } = req.params;
     if (req.user.uid !== uid && !req.isAdmin) {
@@ -5447,13 +4738,16 @@ app.delete("/api/users/:uid", requireAuth, async (req, res) => {
     res
       .status(500)
       .json({ error: String(err && err.message ? err.message : err) });
-  }
+  } */
+};
+app.get("/api/users", requireAdmin, async (req, res, next) => {
+  next();
 });
-app.get("/api/users", requireAdmin, async (req, res) => {
+const __disabled_users_all_get = async (req: any, res: any) => { /*
   try {
-      // @ts-ignore
+    // @ts-ignore
     const page = Math.max(1, parseInt(req.query.page) || 1);
-      // @ts-ignore
+    // @ts-ignore
     const limit = Math.min(200, parseInt(req.query.limit) || 100);
     const offset = (page - 1) * limit;
     const snapshot = await admin
@@ -5469,8 +4763,8 @@ app.get("/api/users", requireAdmin, async (req, res) => {
     res
       .status(500)
       .json({ error: String(err && err.message ? err.message : err) });
-  }
-});
+  } */
+};
 const logLimiter = rateLimit({
   windowMs: 1 * 60 * 1e3,
   max: 10,
@@ -5754,6 +5048,24 @@ app.delete("/api/discord/hypesquad", requireAuth, async (req, res) => {
     .status(410)
     .json({ error: "This feature has been deactivated for security reasons." });
 });
+app.use((err: any, req: any, res: any, next: any) => {
+  if (err instanceof AppError) {
+    return res.status(err.statusCode).json({
+      error: err.message,
+      code: err.code
+    });
+  }
+
+  console.error('[UnhandledError]', {
+    message: err && err.message ? err.message : String(err),
+    stack: err && err.stack ? err.stack : undefined,
+    path: req.path
+  });
+
+  res.status(500).json({
+    error: 'Internal server error'
+  });
+});
 if (!process.env.VERCEL) {
   (async () => {
     if (process.env.NODE_ENV !== "production") {
@@ -5809,6 +5121,11 @@ if (!process.env.VERCEL) {
           res.status(500).send("Internal Server Error");
         }
       });
+    }
+    try {
+      await initializeAdminDb();
+    } catch (e) {
+      console.error("Failed to initialize missing columns on startup:", e);
     }
     const server = app.listen(3e3, "0.0.0.0", () => {
       logger.info(`[Server] Listening on http://0.0.0.0:3000`);

@@ -49,8 +49,12 @@ async function saveLocalTable(collection: string, data: any) {
 const isServer = typeof window === 'undefined';
 const supabaseUrl = isServer ? (process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL) : '';
 const supabaseKey = isServer 
-  ? (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY || '').trim()
+  ? (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim()
   : '';
+
+if (isServer && !supabaseKey) {
+  throw new Error("SUPABASE_SERVICE_ROLE_KEY is required for adminDb operations.");
+}
 
 // Ensure the key is an actual JWT/ASCII string and not Thai text to prevent Node Headers ByteString crash
 const isValidKey = /^[A-Za-z0-9\-_.]+$/.test(supabaseKey);
@@ -72,7 +76,25 @@ export const supabaseAdmin = createClient(safeUrl, safeKey, {
   }
 });
 
-const camelMap: Record<string, string> = {
+type DbColumn = 
+  | 'user_id' | 'product_name' | 'is_premium' | 'updated_at'
+  | 'created_at' | 'stock_data' | 'image_url' | 'original_price'
+  | 'is_popular' | 'sold_count' | 'banner_url' | 'secret_data'
+  | 'bill_number' | 'discord_claimed' | 'web_claimed' | 'product_id'
+  | 'is_deleted' | 'category_id' | 'is_highlight' | 'custom_page_id'
+  | 'youtube_url' | 'is_preorder' | 'preorder_options' | 'userid'
+  | 'productname' | 'ispremium' | 'updatedat' | 'createdat' | 'stockdata'
+  | 'image' | 'username' | 'isdeleted';
+
+type CamelField =
+  | 'userId' | 'productName' | 'isPremium' | 'updatedAt'
+  | 'createdAt' | 'stockData' | 'imageUrl' | 'originalPrice'
+  | 'isPopular' | 'soldCount' | 'bannerUrl' | 'secretData' | 'username'
+  | 'billNumber' | 'discordClaimed' | 'webClaimed' | 'productId'
+  | 'isDeleted' | 'categoryId' | 'isHighlight' | 'customPageId'
+  | 'youtubeUrl' | 'isPreOrder' | 'preOrderOptions';
+
+const camelMap: Record<string, CamelField> = {
   userid: 'userId',
   product_name: 'productName',
   productname: 'productName',
@@ -106,7 +128,7 @@ const camelMap: Record<string, string> = {
   preorder_options: 'preOrderOptions'
 };
 
-const forwardMap: Record<string, string> = {
+const forwardMap: Record<CamelField, DbColumn> = {
   imageUrl: 'image_url',
   bannerUrl: 'banner_url',
   createdAt: 'created_at',
@@ -129,10 +151,16 @@ const forwardMap: Record<string, string> = {
   customPageId: 'custom_page_id',
   youtubeUrl: 'youtube_url',
   isPreOrder: 'is_preorder',
-  preOrderOptions: 'preorder_options'
+  preOrderOptions: 'preorder_options',
+  username: 'username'
 };
 
 const missingColumns = new Set<string>();
+
+export async function initializeAdminDb(): Promise<void> {
+  await hydrateMissingColumns();
+  console.log('[AdminDB] missingColumns hydrated:', Array.from(missingColumns));
+}
 
 // Pre-hydrate from DB to persist across serverless instances
 let isMissingColumnsHydrated = false;
@@ -813,9 +841,29 @@ const db = {
         
         const result = await updateFunction(t);
         
+        // Prepare payload for generic RPC execution
+        const rpcPayload = writes.map(w => ({
+            type: w.type,
+            collection: w.ref.collection,
+            pk: w.ref.pk(),
+            id: w.ref.id,
+            data: w.type === 'delete' ? {} : toDB({ ...w.data, _version: (reads.get(w.ref.id) || 0) + 1 }, w.ref.collection)
+        }));
+
+        try {
+            const { error: rpcError, data: rpcData } = await supabaseAdmin.rpc('exec_transaction', { writes: rpcPayload });
+            if (!rpcError && rpcData?.success) return result;
+            if (rpcError && rpcError.message === 'VERSION_CONFLICT') throw new Error('VERSION_CONFLICT');
+            if (rpcError?.message?.includes('does not exist')) {
+                 // Fallback to sequential to handle missing columns logic dynamically if RPC lacks it
+                 console.warn("RPC transaction failed (maybe unapplied or missing column). Falling back to sequential execution.", rpcError);
+            }
+        } catch (e) {
+            console.warn("exec_transaction RPC failed, falling back to sequential writes.");
+        }
+
         // Execute writes sequentially. While not a true distributed ACID transaction,
         // executing sequentially guarantees we don't concurrently write partial state
-        // if one of the earlier writes throws a VERSION_CONFLICT.
         for (const w of writes) {
            if (w.type === 'update' || w.type === 'set') {
               const oldVersion = reads.get(w.ref.id) || 0;
@@ -835,7 +883,8 @@ const db = {
         }
         if (err.message === 'VERSION_CONFLICT' || err.message === 'CONCURRENCY_ERROR') {
           attempts++;
-          await new Promise(r => setTimeout(r, 100 * Math.pow(2, attempts)));
+          const jitter = Math.random() * 50;
+          await new Promise(r => setTimeout(r, 100 * Math.pow(2, attempts) + jitter));
           if (attempts >= 5) throw new Error('Transaction failed after retries due to high concurrency. Please try again.');
           continue; // Retry
         }

@@ -136,6 +136,8 @@ const ReceiptModal = lazy(() =>
     default: m.ReceiptModal,
   })),
 );
+import { HomeViewSkeleton, CategoriesViewSkeleton } from "./components/Skeletons";
+
 const PopupBanner = lazy(() =>
   import("./components/PopupBanner").then((m) => ({ default: m.PopupBanner })),
 );
@@ -2207,7 +2209,7 @@ function AppContent() {
             >
               <AnimatePresence mode="wait">
                 <motion.div
-                  key={activeView}
+                  key={activeView === 'login' || activeView === 'signup' ? 'auth' : activeView}
                   initial={{ opacity: 0, y: 20, scale: 0.99 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -10, scale: 0.99 }}
@@ -2215,7 +2217,13 @@ function AppContent() {
                   className="flex-1 w-full flex flex-col min-h-0"
                 >
                   {isLoadingSkeleton ? (
-                    <SupplementaryLoader />
+                    activeView === "home" ? (
+                      <HomeViewSkeleton />
+                    ) : (activeView === "categories" || activeView === "category_products") ? (
+                      <CategoriesViewSkeleton />
+                    ) : (
+                      <SupplementaryLoader />
+                    )
                   ) : (
                     <>
                       {(activeView === "categories" || activeView === "category_products") && (
@@ -2293,15 +2301,9 @@ function AppContent() {
                           onBack={() => setActiveView("home")}
                         />
                       )}
-                      {activeView === "login" && (
+                      {(activeView === "login" || activeView === "signup") && (
                         <AuthView
-                          initialMode="login"
-                          setActiveView={setActiveView}
-                        />
-                      )}
-                      {activeView === "signup" && (
-                        <AuthView
-                          initialMode="signup"
+                          initialMode={activeView}
                           setActiveView={setActiveView}
                         />
                       )}

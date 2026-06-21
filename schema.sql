@@ -362,3 +362,120 @@ CREATE TRIGGER update_users_updated_at
 BEFORE UPDATE ON public.users
 FOR EACH ROW
 EXECUTE FUNCTION update_updated_at_column();
+
+-- =====================================
+-- RPC FOR ATOMIC TRANSACTIONS
+-- =====================================
+CREATE OR REPLACE FUNCTION exec_transaction(writes jsonb)
+RETURNS jsonb
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+  w jsonb;
+  v_collection text;
+  v_id text;
+  v_type text;
+  v_data jsonb;
+  v_pk text;
+  v_expected_version int;
+  v_actual_version int;
+  
+  -- variables for dynamically building statements
+  query_str text;
+  key text;
+  val text;
+  updates text[];
+BEGIN
+  FOR w IN SELECT * FROM jsonb_array_elements(writes)
+  LOOP
+    v_collection := w->>'collection';
+    v_id := w->>'id';
+    v_type := w->>'type';
+    v_data := w->'data';
+    v_pk := COALESCE(w->>'pk', 'id');
+    
+    -- Replace virtual collections with custom_pages
+    IF v_collection IN ('product_stock_chunks', 'idempotency_keys') OR v_collection LIKE '%_chunks' THEN
+       v_collection := 'custom_pages';
+       v_pk := 'id';
+    END IF;
+
+    IF v_type = 'set' OR v_type = 'update' THEN
+      v_expected_version := (v_data->>'_version')::int - 1;
+
+      IF v_data ? '_version' AND v_expected_version >= 0 THEN
+         query_str := format('SELECT _version FROM %I WHERE %I = $1', v_collection, v_pk);
+         BEGIN
+           EXECUTE query_str INTO v_actual_version USING (CASE WHEN v_pk = 'ip' THEN v_id ELSE v_id END);
+           -- NOTE: for UUID PKs, this dynamic USING still passes as text but Postgres casts appropriately inside the prepared format
+         EXCEPTION WHEN OTHERS THEN
+           v_actual_version := NULL;
+         END;
+
+         IF v_actual_version IS NOT NULL AND v_actual_version != v_expected_version THEN
+            RAISE EXCEPTION 'VERSION_CONFLICT';
+         END IF;
+      END IF;
+      
+      IF v_type = 'update' THEN
+         query_str := format('UPDATE %I SET ', v_collection);
+         
+         -- We use a hack: jsonb_populate_record to safely cast types dynamically without string literal injection
+         -- We will select from jsonb_populate_record(null::table, jsonb_data) to match DB types implicitly!
+         query_str := query_str || '(SELECT x.* FROM jsonb_populate_record(NULL::' || quote_ident(v_collection) || ', $2) AS x) WHERE ' || quote_ident(v_pk) || ' = $1';
+         
+         -- Wait, UPDATE tbl SET (a,b) = (SELECT a,b FROM...) is valid, but we need dynamic column list for SET based on the jsonb keys
+         -- Better yet, we can't easily dynamically extract keys for SET (key1, key2) = ...
+         
+         -- Let's use direct casting with jsonb inputs directly in the UPDATE
+         updates := ARRAY[]::text[];
+         FOR key IN SELECT jsonb_object_keys(v_data)
+         LOOP
+            -- Cast the jsonb value directly into the implicit type of the column
+            updates := array_append(updates, format('%I = (SELECT CAST($2->>%L AS type) FROM ... no wait ...)', key, key));
+            -- Simplest is using jsonb_populate_record to form a row, then using hstore or jsonb properties? No.
+            -- Instead, we just assign text literals. Postgres implicit cast from text usually works for update literals inside EXECUTE.
+            -- To avoid injection, we use pg parameterized queries USING values!
+         END LOOP;
+         
+         -- Building a safe update string using jsonb_each_text is hard with pure dynamic SQL if we want parameterized arrays.
+         -- Given this runs inside AI Studio preview safely, we'll use literal injection with format('%L').
+         updates := ARRAY[]::text[];
+         FOR key, val IN SELECT d.key, d.value FROM jsonb_each_text(v_data) d
+         LOOP
+            updates := array_append(updates, format('%I = %L', key, val));
+         END LOOP;
+
+         query_str := format('UPDATE %I SET %s WHERE %I = %L', v_collection, array_to_string(updates, ', '), v_pk, v_id);
+         EXECUTE query_str;
+      ELSE
+         -- For generic SET, just insert or replace. 
+         -- Simplest is delete then insert? No, UPSERT.
+         -- But we must list the columns.
+         updates := ARRAY[]::text[];
+         FOR key IN SELECT jsonb_object_keys(v_data) LOOP
+             updates := array_append(updates, quote_ident(key));
+         END LOOP;
+         
+         query_str := format('INSERT INTO %I (%s) SELECT * FROM jsonb_populate_record(NULL::%I, $1) ON CONFLICT (%I) DO UPDATE SET ', 
+             v_collection, array_to_string(updates, ', '), v_collection, v_pk);
+         
+         updates := ARRAY[]::text[];
+         FOR key IN SELECT jsonb_object_keys(v_data) LOOP
+             updates := array_append(updates, format('%I = EXCLUDED.%I', key, key));
+         END LOOP;
+         query_str := query_str || array_to_string(updates, ', ');
+         
+         EXECUTE query_str USING v_data;
+      END IF;
+
+    ELSIF v_type = 'delete' THEN
+      query_str := format('DELETE FROM %I WHERE %I = %L', v_collection, v_pk, v_id);
+      EXECUTE query_str;
+    END IF;
+  END LOOP;
+  
+  RETURN '{"success": true}'::jsonb;
+END;
+$$;
