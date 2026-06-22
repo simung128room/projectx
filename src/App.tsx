@@ -2070,86 +2070,42 @@ function AppContent() {
                 
                 {/* Navigation Menu */}
                 <div className="flex flex-col space-y-2.5">
-                  <button
-                    onClick={() => { setActiveView('home'); setIsMobileMenuOpen(false); window.scrollTo(0,0); }}
-                    className={`flex items-center gap-4 text-left text-[15.5px] font-bold p-4 rounded-2xl transition-all cursor-pointer border ${
-                      activeView === 'home' 
-                        ? 'text-blue-600 bg-blue-50/70 border-blue-150/30 shadow-sm' 
-                        : 'text-[#1e1e20] hover:text-blue-600 hover:bg-zinc-100/50 border-transparent'
-                    }`}
-                  >
-                    <Home className="w-5.5 h-5.5 shrink-0" />
-                    <span>หน้าแรก</span>
-                  </button>
-                  <button
-                    onClick={() => { setActiveView('categories'); setIsMobileMenuOpen(false); window.scrollTo(0,0); }}
-                    className={`flex items-center gap-4 text-left text-[15.5px] font-bold p-4 rounded-2xl transition-all cursor-pointer border ${
-                      activeView === 'categories' || activeView === 'category_products' || activeView === 'product_detail'
-                        ? 'text-blue-600 bg-blue-50/70 border-blue-150/30 shadow-sm' 
-                        : 'text-[#1e1e20] hover:text-blue-600 hover:bg-zinc-100/50 border-transparent'
-                    }`}
-                  >
-                    <Gamepad2 className="w-5.5 h-5.5 shrink-0" />
-                    <span>ซื้อไอดีเกม</span>
-                  </button>
-                  <button
-                    onClick={() => { 
-                      setIsMobileMenuOpen(false);
-                      if (!user) { setActiveView('login'); return; }
-                      setActiveView('wallet'); 
-                    }}
-                    className={`flex items-center gap-4 text-left text-[15.5px] font-bold p-4 rounded-2xl transition-all cursor-pointer border ${
-                      activeView === 'wallet' 
-                        ? 'text-blue-600 bg-blue-50/70 border-blue-150/30' 
-                        : 'text-[#1e1e20] hover:text-blue-600 hover:bg-zinc-100/50 border-transparent'
-                    }`}
-                  >
-                    <Wallet className="w-5.5 h-5.5 shrink-0" />
-                    <span>ช่องทางชำระเงิน</span>
-                  </button>
-                  <button
-                    onClick={() => { 
-                      setIsMobileMenuOpen(false);
-                      if (!user) { setActiveView('login'); return; }
-                      setActiveView('history'); 
-                    }}
-                    className={`flex items-center gap-4 text-left text-[15.5px] font-bold p-4 rounded-2xl transition-all cursor-pointer border ${
-                      activeView === 'history' 
-                        ? 'text-blue-600 bg-blue-50/70 border-blue-150/30 shadow-sm' 
-                        : 'text-[#1e1e20] hover:text-blue-600 hover:bg-zinc-100/50 border-transparent'
-                    }`}
-                  >
-                    <History className="w-5.5 h-5.5 shrink-0" />
-                    <span>ประวัติการสั่งซื้อ</span>
-                  </button>
-                  <button
-                    onClick={() => { 
-                      setIsMobileMenuOpen(false);
-                      if (!user) { setActiveView('login'); return; }
-                      setActiveView('profile'); 
-                    }}
-                    className={`flex items-center gap-4 text-left text-[15.5px] font-bold p-4 rounded-2xl transition-all cursor-pointer border ${
-                      activeView === 'profile' 
-                        ? 'text-blue-600 bg-blue-50/70 border-blue-150/30 shadow-sm' 
-                        : 'text-[#1e1e20] hover:text-blue-600 hover:bg-zinc-100/50 border-transparent'
-                    }`}
-                  >
-                    <User className="w-5.5 h-5.5 shrink-0" />
-                    <span>โปรไฟล์</span>
-                  </button>
-                  {isAdmin && (
-                    <button
-                      onClick={() => { setActiveView('admin'); setIsMobileMenuOpen(false); window.scrollTo(0,0); }}
-                      className={`flex items-center gap-4 text-left text-[15.5px] font-bold p-4 rounded-2xl transition-all cursor-pointer border ${
-                        activeView === 'admin' 
-                          ? 'text-blue-600 bg-blue-50/70 border-blue-150/30 shadow-sm' 
-                          : 'text-[#1e1e20] hover:text-blue-500 hover:bg-zinc-100/50 border-transparent'
-                      }`}
-                    >
-                      <ShieldAlert className="w-5.5 h-5.5 shrink-0" />
-                      <span>จัดการระบบ (Admin)</span>
-                    </button>
-                  )}
+                  {[
+                    { id: 'home', label: 'หน้าแรก', icon: Home, action: () => { setActiveView('home'); window.scrollTo(0, 0); } },
+                    { id: 'categories', label: 'ซื้อไอดีเกม', icon: Gamepad2, action: () => { setActiveView('categories'); window.scrollTo(0, 0); }, isActive: activeView === 'categories' || activeView === 'category_products' || activeView === 'product_detail' },
+                    { id: 'wallet', label: 'ช่องทางชำระเงิน', icon: Wallet, action: () => { if (!user) { setActiveView('login'); } else { setActiveView('wallet'); } } },
+                    { id: 'history', label: 'ประวัติการสั่งซื้อ', icon: History, action: () => { if (!user) { setActiveView('login'); } else { setActiveView('history'); } } },
+                    { id: 'profile', label: 'โปรไฟล์', icon: User, action: () => { if (!user) { setActiveView('login'); } else { setActiveView('profile'); } } },
+                    ...(isAdmin ? [{ id: 'admin', label: 'จัดการระบบ (Admin)', icon: ShieldAlert, action: () => { setActiveView('admin'); window.scrollTo(0, 0); } }] : [])
+                  ].map((item, idx) => {
+                    const isActive = item.isActive !== undefined ? item.isActive : activeView === item.id;
+                    const IconComponent = item.icon;
+                    return (
+                      <motion.button
+                        key={item.id}
+                        initial={{ opacity: 0, x: 15 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{
+                          type: "spring",
+                          stiffness: 250,
+                          damping: 24,
+                          delay: idx * 0.05 + 0.1
+                        }}
+                        onClick={() => {
+                          setIsMobileMenuOpen(false);
+                          item.action();
+                        }}
+                        className={`flex items-center gap-4 text-left text-[15.5px] font-bold p-4 rounded-2xl transition-all cursor-pointer border ${
+                          isActive 
+                            ? 'text-blue-600 bg-blue-50/70 border-blue-150/30 shadow-sm font-black' 
+                            : 'text-[#1e1e20] hover:text-blue-600 hover:bg-zinc-100/50 border-transparent'
+                        }`}
+                      >
+                        <IconComponent className="w-5.5 h-5.5 shrink-0" />
+                        <span>{item.label}</span>
+                      </motion.button>
+                    );
+                  })}
                 </div>
 
                 {/* Divider */}
