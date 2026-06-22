@@ -2036,11 +2036,11 @@ function AppContent() {
               {/* Sidebar Drawer Panel */}
               <motion.div
                 key="sidebar-drawer"
-                initial={{ x: "110%", opacity: 0 }}
+                initial={{ x: "100%", opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
-                exit={{ x: "110%", opacity: 0 }}
+                exit={{ x: "100%", opacity: 0 }}
                 transition={{ type: "spring", damping: 30, stiffness: 250 }}
-                className="fixed right-3.5 top-3.5 bottom-3.5 w-[320px] max-w-[88vw] bg-white border border-neutral-100/80 shadow-2xl shadow-zinc-950/15 z-[1000] flex flex-col p-6 font-sans text-neutral-800 md:hidden rounded-3xl"
+                className="fixed right-0 top-0 bottom-0 h-full w-[320px] max-w-[88vw] bg-white border-l border-neutral-200 shadow-2xl z-[1000] flex flex-col p-6 font-sans text-neutral-800 md:hidden rounded-none"
               >
                 {/* Header */}
                 <div className="flex items-center justify-between mb-6 shrink-0 mt-2">
