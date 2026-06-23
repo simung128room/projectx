@@ -1831,9 +1831,9 @@ function AppContent() {
               transition={{ type: "spring", damping: 28, stiffness: 220 }}
               className="fixed left-0 top-0 bottom-0 h-full w-[260px] max-w-[85vw] bg-[#1a1c23] border-r border-[#1f293d] shadow-[0_0_40px_rgba(0,0,0,0.8)] z-[1000] flex flex-col font-sans overflow-x-hidden overflow-y-auto"
             >
-              <div className="flex flex-col h-full py-6 px-6 space-y-6 select-none bg-[#1a1c23] text-white w-full" style={{ scrollbarWidth: 'none' }}>
+              <div className="flex flex-col h-full py-6 px-6 select-none bg-[#1a1c23] text-white w-full" style={{ scrollbarWidth: 'none' }}>
                 {/* Header: Logo and Close Button */}
-                <div className="flex justify-between items-center w-full">
+                <div className="flex justify-between items-center w-full mb-6">
                   <img src="https://i.postimg.cc/3wDpxHPp/D7D8FA4A-524D-480E-9BF3-8451C296F760.png" alt="Logo" className="h-[28px] w-auto object-contain" />
                   <button 
                     onClick={() => setIsMobileMenuOpen(false)}
@@ -1844,7 +1844,7 @@ function AppContent() {
                   </button>
                 </div>
 
-                <div className="h-[1px] w-full bg-[#2d3240]" />
+                <div className="h-[1px] w-full bg-[#2d3240] mb-4" />
 
                 {/* Quick Links Section */}
                 <div className="flex flex-col space-y-2">
