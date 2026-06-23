@@ -1887,6 +1887,23 @@ function AppContent() {
                     </button>
                   ) : (
                     <div className="relative">
+                      <div className="flex justify-between items-center mb-3">
+                        <button onClick={() => { /* bell action */ }} className="flex-1 max-w-[48px] h-[48px] rounded-[16px] bg-[#1e2029] border border-[#2d3240] flex items-center justify-center text-zinc-400 hover:text-white hover:bg-[#252833] transition-colors outline-none cursor-pointer">
+                          <Bell className="w-5 h-5" />
+                        </button>
+                        <div className="w-2" />
+                        <button onClick={() => { setIsMobileMenuOpen(false); setActiveView('settings'); }} className="flex-1 max-w-[48px] h-[48px] rounded-[16px] bg-[#1e2029] border border-[#2d3240] flex items-center justify-center text-zinc-400 hover:text-white hover:bg-[#252833] transition-colors outline-none cursor-pointer">
+                          <Settings className="w-5 h-5" />
+                        </button>
+                        <div className="w-2" />
+                        <button onClick={() => { setIsMobileMenuOpen(false); setShowSearchPopup(true); }} className="flex-1 max-w-[48px] h-[48px] rounded-[16px] bg-[#1e2029] border border-[#2d3240] flex items-center justify-center text-zinc-400 hover:text-white hover:bg-[#252833] transition-colors outline-none cursor-pointer">
+                          <Search className="w-5 h-5" />
+                        </button>
+                        <div className="w-2" />
+                        <button onClick={() => { setIsMobileMenuOpen(false); if (isAdmin) setActiveView('admin'); }} className="flex-1 max-w-[48px] h-[48px] rounded-[16px] bg-[#1e2029] border border-[#2d3240] flex items-center justify-center text-zinc-400 hover:text-white hover:bg-[#252833] transition-colors outline-none cursor-pointer">
+                          <Key className="w-5 h-5" />
+                        </button>
+                      </div>
                       <AnimatePresence>
                         {isMobileProfilePopupOpen && (
                           <motion.div
