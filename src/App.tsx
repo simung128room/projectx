@@ -1851,18 +1851,18 @@ function AppContent() {
         
         {/* VHOUSE Specific Navbar */}
         <nav className="relative top-0 z-50 w-full border-b border-border bg-card/95 backdrop-blur-sm sticky">
-          <div className="container mx-auto flex h-[80px] items-center justify-between px-4">
+          <div className="container mx-auto flex h-[62px] items-center justify-between px-4">
             
             <div 
               className="flex items-center cursor-pointer select-none" 
               onClick={() => { setActiveView('home'); window.scrollTo(0,0); }}
             >
-              <span className="text-[26px] font-sans font-extrabold text-[#1a1a1a] tracking-tight">
-                Sunoid<span className="inline-block w-[7px] h-[7px] bg-blue-600 mx-[3px] rounded-[1.5px] align-baseline"></span>shop
+              <span className="text-[21px] font-sans font-extrabold text-white tracking-tight">
+                Sunoid<span className="inline-block w-[5px] h-[5px] bg-blue-600 mx-[3px] rounded-[1.2px] align-middle"></span>shop
               </span>
             </div>
 
-            <div className="flex items-center gap-3 md:hidden z-[1001]">
+            <div className="flex items-center gap-2 md:hidden z-[1001]">
               <AnimatePresence mode="popLayout">
                 {!isMobileMenuOpen && (
                   <motion.button 
@@ -1872,16 +1872,15 @@ function AppContent() {
                     exit={{ opacity: 0, scale: 0.9, x: 10 }}
                     transition={{ type: "spring", stiffness: 300, damping: 25 }}
                     onClick={() => setShowSearchPopup(true)}
-                    className="flex items-center gap-2 border border-zinc-200 rounded-full px-4.5 py-2.5 bg-zinc-50/75 hover:bg-slate-100 text-zinc-500 transition-all cursor-pointer shadow-sm select-none shrink-0 h-12 w-[150px] xs:w-[190px]"
+                    className="flex items-center justify-center border border-zinc-200 rounded-full bg-zinc-50/75 hover:bg-slate-100 text-zinc-500 transition-all cursor-pointer shadow-xs select-none shrink-0 h-10 w-10 animate-none"
                     aria-label="ค้นหาสินค้า"
                   >
-                    <Search className="w-[20px] h-[20px] text-zinc-400 shrink-0" />
-                    <span className="text-[15.5px] font-bold text-zinc-400 truncate">ค้นหาสินค้า</span>
+                    <Search className="w-[18px] h-[18px] text-zinc-400 shrink-0" />
                   </motion.button>
                 )}
               </AnimatePresence>
               <button 
-                className="p-2.5 text-zinc-650 hover:text-black transition-all duration-300 px-0 outline-none select-none relative h-12 w-12 flex items-center justify-center cursor-pointer mr-0.5" 
+                className="text-zinc-650 hover:text-black transition-all duration-300 outline-none select-none relative h-10 w-10 flex items-center justify-center cursor-pointer mr-0.5" 
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 aria-label="เมนู"
               >
@@ -1906,27 +1905,27 @@ function AppContent() {
             </div>
 
             {/* Desktop Links */}
-            <div className="hidden items-center gap-3 lg:gap-4 md:flex ml-4">
+            <div className="hidden items-center gap-1.5 lg:gap-2.5 md:flex ml-4">
                 <button 
                   onClick={() => { setActiveView('home'); window.scrollTo(0,0); }}
-                  className={`text-[15.5px] font-bold transition-all py-2.5 px-5 rounded-full cursor-pointer flex items-center gap-2 ${
+                  className={`text-[14px] font-bold transition-all py-1.5 px-4 rounded-full cursor-pointer flex items-center gap-1.5 ${
                     activeView === 'home' 
-                      ? 'text-blue-600 bg-blue-50 border border-blue-100/30' 
-                      : 'text-zinc-650 hover:text-blue-600 hover:bg-zinc-100/50'
+                      ? 'text-blue-600 bg-blue-50/70 border border-blue-100/20' 
+                      : 'text-zinc-650 hover:text-blue-600 hover:bg-zinc-100/40'
                   }`}
                 >
-                  <Home className="w-5 h-5" />
+                  <Home className="w-4.5 h-4.5" />
                   <span>หน้าแรก</span>
                 </button>
                 <button 
                   onClick={() => { setActiveView('categories'); window.scrollTo(0,0); }}
-                  className={`text-[15.5px] font-bold transition-all py-2.5 px-5 rounded-full cursor-pointer flex items-center gap-2 ${
+                  className={`text-[14px] font-bold transition-all py-1.5 px-4 rounded-full cursor-pointer flex items-center gap-1.5 ${
                     activeView === 'categories' || activeView === 'category_products' || activeView === 'product_detail'
-                      ? 'text-blue-600 bg-blue-50 border border-blue-100/30 shadow-sm' 
-                      : 'text-zinc-650 hover:text-blue-600 hover:bg-zinc-100/50'
+                      ? 'text-blue-600 bg-blue-50/70 border border-blue-100/20 shadow-xs' 
+                      : 'text-zinc-650 hover:text-blue-600 hover:bg-zinc-100/40'
                   }`}
                 >
-                  <Gamepad2 className="w-5 h-5" />
+                  <Gamepad2 className="w-4.5 h-4.5" />
                   <span>ซื้อไอดีเกม</span>
                 </button>
                 <button 
@@ -1934,13 +1933,13 @@ function AppContent() {
                     if (!user) { setActiveView('login'); return; }
                     setActiveView('wallet'); 
                   }}
-                  className={`text-[15.5px] font-bold transition-all py-2.5 px-5 rounded-full cursor-pointer flex items-center gap-2 ${
+                  className={`text-[14px] font-bold transition-all py-1.5 px-4 rounded-full cursor-pointer flex items-center gap-1.5 ${
                     activeView === 'wallet' 
-                      ? 'text-blue-600 bg-blue-50 border border-blue-100/30 shadow-sm' 
-                      : 'text-zinc-650 hover:text-blue-600 hover:bg-zinc-100/50'
+                      ? 'text-blue-600 bg-blue-50/70 border border-blue-100/20 shadow-xs' 
+                      : 'text-zinc-650 hover:text-blue-600 hover:bg-zinc-100/40'
                   }`}
                 >
-                  <Wallet className="w-5 h-5" />
+                  <Wallet className="w-4.5 h-4.5" />
                   <span>ช่องทางชำระเงิน</span>
                 </button>
                 <button 
@@ -1948,13 +1947,13 @@ function AppContent() {
                     if (!user) { setActiveView('login'); return; }
                     setActiveView('history'); 
                   }}
-                  className={`text-[15.5px] font-bold transition-all py-2.5 px-5 rounded-full cursor-pointer flex items-center gap-2 ${
+                  className={`text-[14px] font-bold transition-all py-1.5 px-4 rounded-full cursor-pointer flex items-center gap-1.5 ${
                     activeView === 'history' 
-                      ? 'text-blue-600 bg-blue-50 border border-blue-100/30 shadow-sm' 
-                      : 'text-zinc-650 hover:text-blue-600 hover:bg-zinc-100/50'
+                      ? 'text-blue-600 bg-blue-50/70 border border-blue-100/20 shadow-xs' 
+                      : 'text-zinc-650 hover:text-blue-600 hover:bg-zinc-100/40'
                   }`}
                 >
-                  <History className="w-5 h-5" />
+                  <History className="w-4.5 h-4.5" />
                   <span>ประวัติการสั่งซื้อ</span>
                 </button>
                 <button 
@@ -1962,58 +1961,57 @@ function AppContent() {
                     if (!user) { setActiveView('login'); return; }
                     setActiveView('profile'); 
                   }}
-                  className={`text-[15.5px] font-bold transition-all py-2.5 px-5 rounded-full cursor-pointer flex items-center gap-2 ${
+                  className={`text-[14px] font-bold transition-all py-1.5 px-4 rounded-full cursor-pointer flex items-center gap-1.5 ${
                     activeView === 'profile' 
-                      ? 'text-blue-600 bg-blue-50 border border-blue-100/30 shadow-sm' 
-                      : 'text-zinc-650 hover:text-blue-600 hover:bg-zinc-100/50'
+                      ? 'text-blue-600 bg-blue-50/70 border border-blue-100/20 shadow-xs' 
+                      : 'text-zinc-650 hover:text-blue-600 hover:bg-zinc-100/40'
                   }`}
                 >
-                  <User className="w-5 h-5" />
+                  <User className="w-4.5 h-4.5" />
                   <span>โปรไฟล์</span>
                 </button>
                 {isAdmin && (
                   <button 
                     onClick={() => { setActiveView('admin'); window.scrollTo(0,0); }}
-                    className={`text-[15.5px] font-bold transition-all py-2.5 px-5 rounded-full cursor-pointer flex items-center gap-2 ${
+                    className={`text-[14px] font-bold transition-all py-1.5 px-4 rounded-full cursor-pointer flex items-center gap-1.5 ${
                       activeView === 'admin' 
-                        ? 'text-blue-600 bg-blue-50 border border-blue-100/30 shadow-sm' 
-                        : 'text-zinc-650 hover:text-blue-600 hover:bg-zinc-100/50'
+                        ? 'text-blue-600 bg-blue-50/70 border border-blue-100/20 shadow-xs' 
+                        : 'text-zinc-650 hover:text-blue-600 hover:bg-zinc-100/40'
                     }`}
                   >
-                    <ShieldAlert className="w-5 h-5" />
+                    <ShieldAlert className="w-4.5 h-4.5" />
                     <span>จัดการระบบ (Admin)</span>
                   </button>
                 )}
             </div>
 
-            <div className="hidden items-center md:flex gap-4">
+            <div className="hidden items-center md:flex gap-3">
               <button 
                 onClick={() => setShowSearchPopup(true)}
-                className="flex items-center gap-2 scale-none border border-zinc-200 rounded-full px-5 py-2.5 bg-white hover:bg-slate-50 text-zinc-500 hover:text-zinc-800 transition-colors h-12 cursor-pointer shadow-sm animate-none"
+                className="flex items-center justify-center border border-zinc-200 rounded-full h-10 w-10 bg-white hover:bg-slate-50 text-zinc-400 hover:text-zinc-800 transition-colors cursor-pointer shadow-xs animate-none shrink-0"
                 aria-label="ค้นหาสินค้า"
               >
-                <Search className="w-5 h-5 text-zinc-400" />
-                <span className="text-[14px] font-bold tracking-wide">ค้นหาสินค้า</span>
+                <Search className="w-[18px] h-[18px]" />
               </button>
 
               {!user ? (
                 <button 
                   onClick={() => setActiveView('login')}
-                  className="flex items-center gap-[8px] text-[15.5px] font-bold text-[#1e1e20] hover:text-blue-600 transition-colors py-2.5 px-5 rounded-xl hover:bg-zinc-100/50 cursor-pointer h-12"
+                  className="flex items-center gap-1.5 text-[14px] font-bold text-zinc-100 hover:text-blue-600 transition-colors py-1.5 px-4 rounded-full hover:bg-zinc-100/40 cursor-pointer h-10 shrink-0"
                 >
-                  <User className="h-5 w-5 text-blue-500" /> เข้าสู่ระบบ
+                  <User className="h-4.5 w-4.5 text-blue-500" /> เข้าสู่ระบบ
                 </button>
               ) : (
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-2 bg-slate-50 px-5 py-2.5 rounded-full border border-[#e2e8f0] h-12">
-                    <Wallet className="h-5 w-5 text-blue-500" />
-                    <span className="text-[15px] font-bold text-[#1e1e20]">฿{(userPlan?.balance ?? 0).toFixed(2)}</span>
+                <div className="flex items-center gap-3 shrink-0">
+                  <div className="flex items-center gap-1.5 bg-slate-50 px-4 py-1.5 rounded-full border border-[#e2e8f0] h-10">
+                    <Wallet className="h-4.5 w-4.5 text-blue-500" />
+                    <span className="text-[14px] font-bold text-zinc-100">฿{(userPlan?.balance ?? 0).toFixed(2)}</span>
                   </div>
                   <button 
                      onClick={() => setActiveView('profile')}
-                     className="flex items-center gap-[8px] text-[15.5px] font-bold text-[#1e1e20] hover:bg-slate-50 px-5 py-2.5 rounded-xl border border-transparent hover:border-[#e2e8f0] transition-colors cursor-pointer h-12"
+                     className="flex items-center gap-1.5 text-[14px] font-bold text-zinc-100 hover:bg-slate-50 px-4 py-1.5 rounded-full border border-transparent hover:border-[#e2e8f0] transition-colors cursor-pointer h-10"
                   >
-                    <User className="h-5 w-5 text-blue-500" /> โปรไฟล์
+                    <User className="h-4.5 w-4.5 text-blue-500" /> โปรไฟล์
                   </button>
                 </div>
               )}
@@ -2048,13 +2046,13 @@ function AppContent() {
               {/* Header */}
               <div className="flex items-center justify-between mb-6 shrink-0 mt-2">
                 <div className="flex items-center select-none cursor-pointer" onClick={() => { setActiveView('home'); setIsMobileMenuOpen(false); window.scrollTo(0,0); }}>
-                  <span className="text-[24px] font-sans font-extrabold text-[#1a1a1a] tracking-tight">
+                  <span className="text-[24px] font-sans font-extrabold text-white tracking-tight">
                     Sunoid<span className="inline-block w-[6.5px] h-[6.5px] bg-blue-600 mx-[2.5px] rounded-[1.5px] align-baseline"></span>shop
                   </span>
                 </div>
                 <button 
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="p-1 text-zinc-400 hover:text-black transition-colors cursor-pointer animate-none"
+                  className="p-1 text-zinc-400 hover:text-white transition-colors cursor-pointer animate-none"
                   aria-label="ปิดเมนู"
                 >
                   <X className="w-6 h-6 stroke-[1.8]" />
@@ -2094,7 +2092,7 @@ function AppContent() {
                         className={`flex items-center gap-4 text-left text-[15.5px] font-bold p-4 rounded-2xl transition-all cursor-pointer border ${
                           isActive 
                             ? 'text-blue-600 bg-blue-50/70 border-blue-150/30 shadow-sm font-black' 
-                            : 'text-[#1e1e20] hover:text-blue-600 hover:bg-zinc-100/50 border-transparent'
+                            : 'text-zinc-100 hover:text-blue-600 hover:bg-zinc-100/50 border-transparent'
                         }`}
                       >
                         <IconComponent className="w-5.5 h-5.5 shrink-0" />
@@ -2373,7 +2371,7 @@ function AppContent() {
             <div className="container mx-auto px-8 py-12">
               <div className="mb-8">
                 <div className="flex items-center gap-1.5 text-sm text-muted-foreground select-none">
-                  <span className="text-[17px] font-sans font-extrabold text-[#1a1a1a] tracking-tight">
+                  <span className="text-[17px] font-sans font-extrabold text-white tracking-tight">
                     Sunoid<span className="inline-block w-[3.5px] h-[3.5px] bg-blue-600 mx-[1.2px] rounded-[0.8px] align-baseline"></span>shop
                   </span>
                   <span>&gt;</span>
