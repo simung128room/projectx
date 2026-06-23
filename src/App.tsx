@@ -754,6 +754,7 @@ function AppContent() {
   };
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMobileProfilePopupOpen, setIsMobileProfilePopupOpen] = useState(false);
   const [isDesktopSidebarOpen, setIsDesktopSidebarOpen] = useState(true);
   const [isDesktopToolsOpen, setIsDesktopToolsOpen] = useState(false);
   const [isMobileToolsOpen, setIsMobileToolsOpen] = useState(false);
@@ -1878,28 +1879,45 @@ function AppContent() {
                       <div className="absolute bottom-0 left-0 w-full h-[2px] bg-gradient-to-r from-[#98d839] via-[#fbd135] to-[#f44760]" />
                     </button>
                   ) : (
-                    <>
+                    <div className="relative">
+                      <AnimatePresence>
+                        {isMobileProfilePopupOpen && (
+                          <motion.div
+                            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                            transition={{ duration: 0.15 }}
+                            className="absolute bottom-[110%] left-0 w-full bg-[#1e2029] border border-[#2d3240] rounded-2xl shadow-2xl overflow-hidden z-[1001] flex flex-col p-2"
+                          >
+                            <button className="text-left px-4 py-3.5 text-[15px] font-medium text-zinc-200 hover:bg-[#252833] hover:text-white rounded-xl transition-colors mb-1 border-none bg-transparent outline-none cursor-pointer" onClick={() => { setIsMobileProfilePopupOpen(false); setIsMobileMenuOpen(false); setActiveView('profile'); }}>โปรไฟล์</button>
+                            <button className="text-left px-4 py-3.5 text-[15px] font-medium text-zinc-200 hover:bg-[#252833] hover:text-white rounded-xl transition-colors mb-1 border-none bg-transparent outline-none cursor-pointer" onClick={() => { setIsMobileProfilePopupOpen(false); setIsMobileMenuOpen(false); setActiveView('settings'); }}>การตั้งค่า</button>
+                            <button className="text-left px-4 py-3.5 text-[15px] font-medium text-zinc-200 hover:bg-[#252833] hover:text-white rounded-xl transition-colors mb-1 border-none bg-transparent outline-none cursor-pointer" onClick={() => { setIsMobileProfilePopupOpen(false); setIsMobileMenuOpen(false); setActiveView('history'); }}>ประวัติการสั่งซื้อ</button>
+                            <button className="text-left px-4 py-3.5 text-[15px] font-medium text-zinc-200 hover:bg-[#252833] hover:text-white rounded-xl transition-colors mb-1 border-none bg-transparent outline-none cursor-pointer" onClick={() => { setIsMobileProfilePopupOpen(false); setIsMobileMenuOpen(false); setActiveView('wallet'); }}>ประวัติการเติมเงิน</button>
+                            <button className="text-left px-4 py-3.5 text-[15px] font-medium text-zinc-200 hover:bg-[#252833] hover:text-white rounded-xl transition-colors mb-1 border-none bg-transparent outline-none cursor-pointer" onClick={() => { setIsMobileProfilePopupOpen(false); setIsMobileMenuOpen(false); setActiveView('history'); }}>ออเดอร์ของฉัน</button>
+                            <button className="text-left px-4 py-3.5 text-[15px] font-medium text-zinc-200 hover:bg-[#252833] hover:text-white rounded-xl transition-colors mb-1 border-none bg-transparent outline-none cursor-pointer" onClick={() => { setIsMobileProfilePopupOpen(false); setIsMobileMenuOpen(false); setActiveView('topup'); }}>กรอกโค๊ด</button>
+                            <div className="h-[1px] bg-[#2d3240] my-1 mx-2" />
+                            <button className="text-left px-4 py-3.5 text-[15px] font-bold text-red-500 hover:bg-red-500/10 rounded-xl transition-colors border-none bg-transparent outline-none cursor-pointer" onClick={() => { setIsMobileProfilePopupOpen(false); setIsMobileMenuOpen(false); handleLogout(); }}>ออกจากระบบ</button>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+
                       <button 
-                        onClick={() => { setIsMobileMenuOpen(false); setActiveView('profile'); }}
-                        className="w-full py-4 bg-[#252833] hover:bg-[#2d3240] text-white font-medium text-[16px] rounded-2xl border border-[#2d3240] transition-colors cursor-pointer outline-none"
+                        onClick={() => setIsMobileProfilePopupOpen(!isMobileProfilePopupOpen)}
+                        className="w-full flex items-center p-3 sm:p-4 bg-[#1e2029] hover:bg-[#252833] border border-[#2d3240] rounded-[24px] transition-colors cursor-pointer outline-none mb-2"
                       >
-                        โปรไฟล์
+                        <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-zinc-800 shrink-0 overflow-hidden flex items-center justify-center border border-[#2d3240]">
+                          {user.photoURL ? <img src={user.photoURL} alt="Avatar" className="w-full h-full object-cover" /> : <User className="w-5 h-5 sm:w-6 sm:h-6 text-zinc-400" />}
+                        </div>
+                        <div className="flex flex-col text-left ml-3 sm:ml-4 overflow-hidden justify-center flex-1">
+                          <span className="text-[15px] sm:text-[16px] text-zinc-300 font-medium truncate block">
+                            {user.email || 'user@example.com'}
+                          </span>
+                          <span className="text-[13px] sm:text-[14px] text-zinc-400 font-medium truncate block mt-0.5">
+                            ยอดเงิน: <span className="text-white">฿{(userPlan?.balance || 0).toFixed(2)}</span>
+                          </span>
+                        </div>
                       </button>
-                      {isAdmin && (
-                        <button 
-                          onClick={() => { setIsMobileMenuOpen(false); setActiveView('admin'); window.scrollTo(0, 0); }}
-                          className="w-full py-4 bg-[#252833] hover:bg-[#2d3240] text-white font-medium text-[16px] rounded-2xl border border-[#2d3240] transition-colors cursor-pointer outline-none"
-                        >
-                          จัดการร้านค้าของฉัน
-                        </button>
-                      )}
-                      <button 
-                        onClick={() => { setIsMobileMenuOpen(false); handleLogout(); }}
-                        className="w-full py-4 bg-red-500/10 hover:bg-red-500/20 text-red-500 font-medium text-[16px] rounded-2xl border border-red-500/20 transition-colors cursor-pointer outline-none"
-                      >
-                        ออกจากระบบ
-                      </button>
-                    </>
+                    </div>
                   )}
                 </div>
               </div>
