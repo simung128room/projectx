@@ -1829,6 +1829,17 @@ function AppContent() {
               className="fixed right-0 top-0 bottom-0 h-full w-[300px] max-w-[85vw] bg-[#1a1c23] border-l border-[#1f293d] shadow-[0_0_40px_rgba(0,0,0,0.8)] z-[1000] flex flex-col font-sans overflow-x-hidden overflow-y-auto"
             >
               <div className="flex flex-col h-full py-8 px-6 space-y-6 select-none bg-[#1a1c23] text-white w-full" style={{ scrollbarWidth: 'none' }}>
+                {/* Close Button Header */}
+                <div className="flex justify-end w-full -mt-2 -mr-2">
+                  <button 
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="w-10 h-10 flex items-center justify-center text-zinc-400 hover:text-white transition-colors cursor-pointer rounded-full border-none bg-transparent outline-none"
+                    aria-label="ปิดเมนู"
+                  >
+                    <X className="w-7 h-7" />
+                  </button>
+                </div>
+
                 {/* Section 1 */}
                 <div className="flex flex-col space-y-6">
                   <button onClick={() => { setIsMobileMenuOpen(false); /* action */ }} className="text-left font-medium text-[17px] text-zinc-200 hover:text-white transition-colors cursor-pointer border-none bg-transparent outline-none">
