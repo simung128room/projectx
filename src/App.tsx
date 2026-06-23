@@ -71,6 +71,7 @@ import {
   ShieldCheck,
   ShoppingBag,
   Bell,
+  ClipboardList,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import Swal from "sweetalert2";
@@ -1769,7 +1770,7 @@ function AppContent() {
               onClick={() => { setActiveView('home'); window.scrollTo(0,0); }}
             >
               <img src="https://i.postimg.cc/3wDpxHPp/D7D8FA4A-524D-480E-9BF3-8451C296F760.png" alt="XENOBUX STORE Logo" className="h-[24px] w-auto object-contain transition-transform group-hover:scale-105" />
-              <span className="text-[15px] font-sans font-bold text-white tracking-widest uppercase">
+              <span className="text-[17px] font-logo font-black text-white uppercase tracking-wider">
                 XENOBUX STORE
               </span>
             </div>
@@ -1825,22 +1826,16 @@ function AppContent() {
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: "100%", opacity: 0.5 }}
               transition={{ type: "spring", damping: 28, stiffness: 220 }}
-              className="fixed right-0 top-0 bottom-0 h-full w-[300px] max-w-[85vw] bg-[#080a0e] border-l border-[#1f293d] shadow-[0_0_40px_rgba(0,0,0,0.8)] z-[1000] flex flex-col pt-6 pb-8 px-5 font-sans text-white rounded-l-3xl overflow-hidden"
+              className="fixed right-0 top-0 bottom-0 h-full w-[300px] max-w-[85vw] bg-[#1a1c23] border-l border-[#1f293d] shadow-[0_0_40px_rgba(0,0,0,0.8)] z-[1000] flex flex-col font-sans text-white rounded-none overflow-hidden"
             >
-              {/* Decorative top blur */}
-              <div className="absolute top-0 right-0 w-full h-32 bg-gradient-to-b from-blue-600/10 to-transparent pointer-events-none" />
-
               {/* Header */}
-              <div className="flex items-center justify-between mb-8 relative z-10">
-                <div className="flex items-center gap-3 select-none cursor-pointer group" onClick={() => { setActiveView('home'); setIsMobileMenuOpen(false); window.scrollTo(0,0); }}>
-                  <img src="https://i.postimg.cc/3wDpxHPp/D7D8FA4A-524D-480E-9BF3-8451C296F760.png" alt="XENOBUX" className="h-[22px] w-auto object-contain group-hover:scale-110 transition-transform duration-300" />
-                  <span className="text-[15px] font-sans font-bold text-white tracking-widest uppercase">
-                    XENOBUX
-                  </span>
-                </div>
+              <div className="flex items-center justify-between px-6 py-5 border-b border-[#2d3240] relative z-10 shrink-0">
+                <span className="text-[18px] font-sans font-bold text-white uppercase tracking-wider">
+                  เมนูหลัก
+                </span>
                 <button 
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="w-8 h-8 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/5 transition-colors cursor-pointer rounded-full"
+                  className="w-9 h-9 flex items-center justify-center text-zinc-400 hover:text-white bg-[#252833] hover:bg-[#2d3240] transition-colors cursor-pointer rounded-full"
                   aria-label="ปิดเมนู"
                 >
                   <X className="w-5 h-5" />
@@ -1849,8 +1844,8 @@ function AppContent() {
 
               {/* Profile Overview (If logged in) */}
               {user && (
-                <div className="mb-6 relative z-10">
-                  <div className="bg-[#11131a] border border-[#1f293d] p-4 rounded-2xl shadow-sm flex items-center gap-4">
+                <div className="px-6 py-4 relative z-10 shrink-0 border-b border-[#2d3240]">
+                  <div className="bg-[#252833] border border-[#2d3240] p-4 rounded-xl shadow-sm flex items-center gap-4">
                     <div className="w-12 h-12 bg-blue-600/20 border border-blue-500/30 rounded-full flex items-center justify-center shrink-0">
                       <User className="w-6 h-6 text-blue-500" />
                     </div>
@@ -1863,55 +1858,76 @@ function AppContent() {
               )}
 
               {/* Nav Links scrollable container */}
-              <div className="flex flex-col flex-1 overflow-y-auto space-y-1.5 select-none relative z-10" style={{ scrollbarWidth: 'none' }}>
+              <div className="flex flex-col flex-1 overflow-y-auto pt-6 px-6 pb-6 select-none relative z-10 space-y-6" style={{ scrollbarWidth: 'none' }}>
                 
-                {[
-                  { id: 'home', label: 'หน้าแรก', icon: Home, action: () => { setActiveView('home'); window.scrollTo(0, 0); } },
-                  { id: 'categories', label: 'เลือกซื้อสินค้า', icon: Gamepad2, action: () => { setActiveView('categories'); window.scrollTo(0, 0); }, isActive: activeView === 'categories' || activeView === 'category_products' || activeView === 'product_detail' },
-                  { id: 'wallet', label: 'เติมเงิน', icon: Wallet, action: () => { if (!user) { setActiveView('login'); } else { setActiveView('wallet'); } } },
-                  { id: 'history', label: 'ประวัติ', icon: History, action: () => { if (!user) { setActiveView('login'); } else { setActiveView('history'); } } },
-                  { id: 'profile', label: 'โปรไฟล์', icon: User, action: () => { if (!user) { setActiveView('login'); } else { setActiveView('profile'); } } },
-                  ...(isAdmin ? [{ id: 'admin', label: 'Admin', icon: ShieldAlert, action: () => { setActiveView('admin'); window.scrollTo(0, 0); } }] : [])
-                ].map((item, idx) => {
-                  const isActive = item.isActive !== undefined ? item.isActive : activeView === item.id;
-                  const Icon = item.icon;
-                  return (
-                    <motion.button
-                      key={item.id}
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ type: "spring", stiffness: 250, damping: 25, delay: idx * 0.05 + 0.1 }}
-                      onClick={() => { setIsMobileMenuOpen(false); item.action(); }}
-                      className={`flex items-center gap-3.5 px-4 py-3.5 rounded-xl transition-all cursor-pointer w-full text-left font-bold ${
-                        isActive 
-                          ? 'bg-blue-600/10 text-blue-400' 
-                          : 'text-zinc-400 hover:text-white hover:bg-white/5'
-                      }`}
-                    >
-                      <Icon className={`w-5 h-5 ${isActive ? 'text-blue-500' : 'text-zinc-500'}`} />
-                      <span className="text-[14px] leading-none">{item.label}</span>
-                    </motion.button>
-                  );
-                })}
+                <span className="text-[12px] font-black text-zinc-500 tracking-[0.2em] font-sans">NAVIGATION</span>
+
+                <div className="flex flex-col space-y-1">
+                  {[
+                    { id: 'home', label: 'หน้าหลัก', icon: Home, action: () => { setActiveView('home'); window.scrollTo(0, 0); } },
+                    { id: 'categories', label: 'ร้านค้า', icon: ShoppingCart, action: () => { setActiveView('categories'); window.scrollTo(0, 0); }, isActive: activeView === 'categories' || activeView === 'category_products' || activeView === 'product_detail' },
+                    { id: 'wallet', label: 'เติมเงิน', icon: Wallet, action: () => { if (!user) { setActiveView('login'); } else { setActiveView('wallet'); } } },
+                    { id: 'minigame', label: 'มินิเกม', icon: Gamepad2, action: () => {} },
+                    { id: 'topup', label: 'เติมเกม', icon: Gamepad2, action: () => {} },
+                    { id: 'history', label: 'ออเดอร์', icon: ClipboardList, action: () => { if (!user) { setActiveView('login'); } else { setActiveView('history'); } } },
+                    { id: 'search', label: 'ค้นหาชื่อสินค้า', icon: Search, action: () => { setShowSearchPopup(true); } },
+                    ...(isAdmin ? [{ id: 'admin', label: 'Admin', icon: ShieldAlert, action: () => { setActiveView('admin'); window.scrollTo(0, 0); } }] : [])
+                  ].map((item, idx) => {
+                    const isActive = item.isActive !== undefined ? item.isActive : activeView === item.id;
+                    const Icon = item.icon;
+                    return (
+                      <motion.button
+                        key={item.id}
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ type: "spring", stiffness: 250, damping: 25, delay: idx * 0.05 + 0.1 }}
+                        onClick={() => { setIsMobileMenuOpen(false); item.action(); }}
+                        className={`flex items-center gap-4 py-3.5 transition-all cursor-pointer w-full text-left font-bold group bg-transparent border-none ${
+                          isActive 
+                            ? 'text-white' 
+                            : 'text-zinc-300 hover:text-white'
+                        }`}
+                      >
+                        <Icon className={`w-5 h-5 shrink-0 transition-colors ${isActive ? 'text-white' : 'text-zinc-400 group-hover:text-white'}`} />
+                        <span className="text-[16px] leading-none">{item.label}</span>
+                      </motion.button>
+                    );
+                  })}
+                </div>
               </div>
 
               {/* Bottom Auth Section */}
-              <div className="pt-6 mt-auto border-t border-[#1f293d]/50 relative z-10 w-full shrink-0">
+              <div className="p-6 mt-auto border-t border-[#2d3240] relative z-10 w-full shrink-0">
                 {!user ? (
-                  <button
-                    onClick={() => { setIsMobileMenuOpen(false); setActiveView('login'); }}
-                    className="w-full py-3.5 rounded-xl text-[14px] font-bold text-white bg-blue-600 hover:bg-blue-700 transition-colors shadow-[0_0_15px_rgba(59,130,246,0.2)] cursor-pointer"
-                  >
-                    เข้าสู่ระบบ / สมัครสมาชิก
-                  </button>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      onClick={() => { setIsMobileMenuOpen(false); setActiveView('login'); }}
+                      className="py-3 rounded-xl border border-[#2d3240] hover:bg-[#252833] text-[15px] font-bold text-blue-400 transition-colors cursor-pointer"
+                    >
+                      เข้าสู่ระบบ
+                    </button>
+                    <button
+                      onClick={() => { setIsMobileMenuOpen(false); setActiveView('login'); }}
+                      className="py-3 rounded-xl bg-[#00a8ff] hover:bg-[#0097e6] text-[15px] font-bold text-white transition-colors cursor-pointer"
+                    >
+                      สมัครสมาชิก
+                    </button>
+                  </div>
                 ) : (
-                  <button
-                    onClick={() => { setIsMobileMenuOpen(false); handleLogout(); }}
-                    className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl text-[14px] font-bold text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors cursor-pointer"
-                  >
-                    <X className="w-4 h-4" />
-                    ออกจากระบบ
-                  </button>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      onClick={() => { setIsMobileMenuOpen(false); setActiveView('profile'); }}
+                      className="py-3 rounded-xl border border-[#2d3240] hover:bg-[#252833] text-[15px] font-bold text-white transition-colors cursor-pointer"
+                    >
+                      โปรไฟล์
+                    </button>
+                    <button
+                      onClick={() => { setIsMobileMenuOpen(false); handleLogout(); }}
+                      className="py-3 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-[15px] font-bold text-red-500 transition-colors cursor-pointer"
+                    >
+                      ออกจากระบบ
+                    </button>
+                  </div>
                 )}
               </div>
 

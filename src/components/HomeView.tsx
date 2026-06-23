@@ -50,11 +50,11 @@ export const HomeView = (props: any) => {
         <div className="relative z-10 max-w-3xl flex flex-col items-center animate-in fade-in slide-in-from-bottom-8 duration-700">
           <div className="bg-[#3b82f6]/10 text-[#3b82f6] border border-[#3b82f6]/20 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-8 flex items-center gap-2 shadow-[0_0_15px_rgba(59,130,246,0.15)]">
             <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-            ต้อนรับสู่ XENOBUX STORE
+            <span className="font-logo text-sm font-bold tracking-wider">ต้อนรับสู่ XENOBUX STORE</span>
           </div>
-          <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-4 text-white leading-tight">
+          <h1 className="text-4xl md:text-6xl font-black tracking-tight mb-4 text-white leading-tight font-logo uppercase">
             XENOBUX STORE <br/>
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-[#00d2ff]">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-[#00d2ff] font-sans font-bold normal-case tracking-normal text-3xl md:text-5xl mt-2 block">
               บริการ เติมเกม สะดวก ปลอดภัย
             </span>
           </h1>
