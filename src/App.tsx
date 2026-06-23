@@ -244,10 +244,6 @@ const LogCategoriesView = lazy(() =>
   })),
 );
 
-var TextPaint = `▒▄▀▄▒█▀▄▒██▀░▀▄▀
-2
-░█▀█░█▀▒░█▄▄░█▒█`;
-
 enum OperationType {
   CREATE = "create",
   UPDATE = "update",

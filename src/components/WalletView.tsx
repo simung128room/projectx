@@ -73,10 +73,10 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
       title: 'คัดลอกเลขบัญชีสำเร็จ!',
       showConfirmButton: false,
       timer: 1500,
-      background: '#121212',
-      color: '#ffffff',
+      background: '#ffffff',
+      color: '#1f2937',
       customClass: {
-        popup: 'border border-border'
+        popup: 'rounded-2xl border border-zinc-150 shadow-[0_15px_40px_rgba(0,0,0,0.05)]'
       }
     });
 
@@ -104,11 +104,11 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
         title: 'ข้อมูลไม่ถูกต้อง',
         text: 'รูปแบบลิงก์ซองอั่งเปาไม่ถูกต้อง กรุณาตรวจสอบรหัสซองอั่งเปาของคุณอีกครั้ง',
         icon: 'error',
-        background: '#121212',
-        color: '#ffffff',
+        background: '#ffffff',
+        color: '#1f2937',
         confirmButtonColor: '#ff2c2c',
         customClass: {
-          popup: 'border border-border'
+          popup: 'rounded-2xl border border-zinc-150 shadow-[0_15px_40px_rgba(0,0,0,0.05)]'
         }
       });
       return;
@@ -119,15 +119,15 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
       title: 'กำลังตรวจสอบซองอั่งเปา',
       text: 'ระบบกำลังดึงยอดเงินและตรวจสอบความถูกต้องแบบอัตโนมัติ...',
       icon: 'info',
-      background: '#121212',
-      color: '#ffffff',
+      background: '#ffffff',
+      color: '#1f2937',
       showConfirmButton: false,
       allowOutsideClick: false,
       didOpen: () => {
         Swal.showLoading();
       },
       customClass: {
-        popup: 'border border-border'
+        popup: 'rounded-2xl border border-zinc-150 shadow-[0_15px_40px_rgba(0,0,0,0.05)]'
       }
     });
 
@@ -171,18 +171,28 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
         } catch(e: any) {
     console.error("Caught error:", e);
     const msg = e?.response?.data?.error || e?.message || "เกิดข้อผิดพลาด กรุณาลองใหม่";
-    Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: msg, confirmButtonColor: '#ef4444', background: '#121212', color: '#fff' });
+    Swal.fire({ 
+      icon: 'error', 
+      title: 'เกิดข้อผิดพลาด', 
+      text: msg, 
+      confirmButtonColor: '#ef4444', 
+      background: '#ffffff', 
+      color: '#1f2937',
+      customClass: {
+        popup: 'rounded-2xl border border-zinc-150 shadow-[0_15px_40px_rgba(0,0,0,0.05)]'
+      }
+    });
   }
 
         Swal.fire({
           title: 'เติมเงินสำเร็จ!',
           text: `คุณได้รับเครดิตจำนวน ฿${amount.toLocaleString()} เติมเข้ากระเป๋าเงินของคุณเรียบร้อยแล้ว`,
           icon: 'success',
-          background: '#121212',
-          color: '#ffffff',
+          background: '#ffffff',
+          color: '#1f2937',
           confirmButtonColor: '#3b82f6',
           customClass: {
-            popup: 'border border-border'
+            popup: 'rounded-2xl border border-zinc-150 shadow-[0_15px_40px_rgba(0,0,0,0.05)]'
           }
         });
         setTruemoneyLink('');
@@ -192,11 +202,11 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
           title: 'ตรวจสอบล้มเหลว',
           text: response.data.error || 'ซองอั่งเปาหมดอายุ ถูกใช้ไปแล้ว หรือไม่ถูกต้อง',
           icon: 'error',
-          background: '#121212',
-          color: '#ffffff',
+          background: '#ffffff',
+          color: '#1f2937',
           confirmButtonColor: '#ff2c2c',
           customClass: {
-            popup: 'border border-border'
+            popup: 'rounded-2xl border border-zinc-150 shadow-[0_15px_40px_rgba(0,0,0,0.05)]'
           }
         });
       }
@@ -205,11 +215,11 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
         title: 'เกิดข้อผิดพลาดในการตรวจสอบ',
         text: err.response?.data?.error || err.message || 'การเชื่อมต่อระบบขัดข้อง กรุณาลองใหม่อีกครั้ง',
         icon: 'error',
-        background: '#121212',
-        color: '#ffffff',
+        background: '#ffffff',
+        color: '#1f2937',
         confirmButtonColor: '#ff2c2c',
         customClass: {
-          popup: 'border border-border'
+          popup: 'rounded-2xl border border-zinc-150 shadow-[0_15px_40px_rgba(0,0,0,0.05)]'
         }
       });
     } finally {
@@ -223,15 +233,15 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
       title: 'กำลังตรวจสอบสลิปโอนเงิน',
       text: 'ระบบกำลังดึงสถิติวิเคราะห์ QR Code ยอดการทำธุรกรรมโมบายแบงกิ้ง...',
       icon: 'info',
-      background: '#121212',
-      color: '#ffffff',
+      background: '#ffffff',
+      color: '#1f2937',
       showConfirmButton: false,
       allowOutsideClick: false,
       didOpen: () => {
         Swal.showLoading();
       },
       customClass: {
-        popup: 'border border-border'
+        popup: 'rounded-2xl border border-zinc-150 shadow-[0_15px_40px_rgba(0,0,0,0.05)]'
       }
     });
 
@@ -276,18 +286,28 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
           } catch(e: any) {
     console.error("Caught error:", e);
     const msg = e?.response?.data?.error || e?.message || "เกิดข้อผิดพลาด กรุณาลองใหม่";
-    Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: msg, confirmButtonColor: '#ef4444', background: '#121212', color: '#fff' });
+    Swal.fire({
+      icon: 'error',
+      title: 'เกิดข้อผิดพลาด',
+      text: msg,
+      confirmButtonColor: '#ef4444',
+      background: '#ffffff',
+      color: '#1f2937',
+      customClass: {
+        popup: 'rounded-2xl border border-zinc-150 shadow-[0_15px_40px_rgba(0,0,0,0.05)]'
+      }
+    });
   }
           
           Swal.fire({
             title: 'ตรวจสอบสำเร็จ!',
             text: `ระบบทำการตรวจสอบสลิปโอนเงินเรียบร้อย ได้รับเครดิต ฿${amount.toLocaleString()} บาท`,
             icon: 'success',
-            background: '#121212',
-            color: '#ffffff',
+            background: '#ffffff',
+            color: '#1f2937',
             confirmButtonColor: '#3b82f6',
             customClass: {
-              popup: 'border border-border'
+              popup: 'rounded-2xl border border-zinc-150 shadow-[0_15px_40px_rgba(0,0,0,0.05)]'
             }
           });
           setSelectedFile(null);
@@ -298,11 +318,11 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
             title: 'ตรวจสอบไม่สำเร็จ',
             text: response.data.error || 'ข้อมูลสลิปนี้ไม่ถูกต้อง หรือสลิปเคยถูกใช้งานรับเครดิตไปแล้ว',
             icon: 'error',
-            background: '#121212',
-            color: '#ffffff',
+            background: '#ffffff',
+            color: '#1f2937',
             confirmButtonColor: '#ff2c2c',
             customClass: {
-              popup: 'border border-border'
+              popup: 'rounded-2xl border border-zinc-150 shadow-[0_15px_40px_rgba(0,0,0,0.05)]'
             }
           });
         }
@@ -311,11 +331,11 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
           title: 'การส่งสลิปล้มเหลว',
           text: err.response?.data?.error || err.message || 'ระบบวิเคราะห์สลิปขัดข้องชั่วคราว กรุณาลองใหม่อีกครั้งในภายหลัง',
           icon: 'error',
-          background: '#121212',
-          color: '#ffffff',
+          background: '#ffffff',
+          color: '#1f2937',
           confirmButtonColor: '#ff2c2c',
           customClass: {
-            popup: 'border border-border'
+            popup: 'rounded-2xl border border-zinc-150 shadow-[0_15px_40px_rgba(0,0,0,0.05)]'
           }
         });
       } finally {
@@ -363,11 +383,11 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
         title: 'ไฟล์ประเภทรูปภาพเท่านั้น',
         text: 'กรุณาเลือกหรือวางเฉพาะไฟล์รูปภาพสลิป PNG, JPG หรือ JPEG',
         icon: 'warning',
-        background: '#121212',
-        color: '#ffffff',
+        background: '#ffffff',
+        color: '#1f2937',
         confirmButtonColor: '#ff2c2c',
         customClass: {
-          popup: 'border border-border'
+          popup: 'rounded-2xl border border-zinc-150 shadow-[0_15px_40px_rgba(0,0,0,0.05)]'
         }
       });
     }
@@ -381,11 +401,11 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
         title: 'ไม่พบไฟล์รูปภาพ',
         text: 'กรุณาอัปโหลดหรือเลือกไฟล์รูปภาพหลักสลิปธนาคารก่อนกดยืนยัน',
         icon: 'warning',
-        background: '#121212',
-        color: '#ffffff',
+        background: '#ffffff',
+        color: '#1f2937',
         confirmButtonColor: '#ff2c2c',
         customClass: {
-          popup: 'border border-border'
+          popup: 'rounded-2xl border border-zinc-150 shadow-[0_15px_40px_rgba(0,0,0,0.05)]'
         }
       });
     }
