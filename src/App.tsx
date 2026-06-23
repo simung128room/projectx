@@ -1774,43 +1774,27 @@ function AppContent() {
               </span>
             </div>
 
-            <div className="flex items-center gap-2 z-[1001]">
-              <AnimatePresence mode="popLayout">
-                {!isMobileMenuOpen && (
-                  <motion.button 
-                    key="mobile-search-btn"
-                    initial={{ opacity: 0, scale: 0.9, x: 10 }}
-                    animate={{ opacity: 1, scale: 1, x: 0 }}
-                    exit={{ opacity: 0, scale: 0.9, x: 10 }}
-                    transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                    onClick={() => setShowSearchPopup(true)}
-                    className="flex items-center justify-center rounded-full bg-transparent hover:bg-[#111111] text-zinc-400 hover:text-white transition-all cursor-pointer select-none shrink-0 h-9 w-9"
-                    aria-label="ค้นหาสินค้า"
-                  >
-                    <Search className="w-[18px] h-[18px] shrink-0" />
-                  </motion.button>
-                )}
-              </AnimatePresence>
+            <div className="flex items-center z-[1001]">
               <button 
-                className="text-white hover:text-zinc-300 transition-colors duration-300 outline-none select-none relative h-9 w-9 flex items-center justify-center cursor-pointer bg-transparent rounded-full" 
+                className="text-white hover:text-zinc-300 transition-colors duration-300 outline-none select-none relative h-8 w-8 flex items-center justify-center cursor-pointer bg-transparent rounded-full" 
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 aria-label="เมนู"
               >
-                <div className="w-[24px] h-[16px] relative select-none">
+                <div className="w-[18px] h-[12px] relative select-none">
                   <motion.span
-                    animate={isMobileMenuOpen ? { rotate: 45, y: 7 } : { rotate: 0, y: 0 }}
+                    animate={isMobileMenuOpen ? { rotate: 45, y: 5 } : { rotate: 0, y: 0 }}
                     transition={{ type: "spring", stiffness: 260, damping: 20 }}
-                    className="w-full h-[2px] bg-current absolute top-0 left-0 origin-center"
+                    className="w-full h-[1.5px] bg-current absolute top-0 left-0 origin-center rounded-full"
                   />
                   <motion.span
                     animate={isMobileMenuOpen ? { opacity: 0, scale: 0.5 } : { opacity: 1, scale: 1 }}
                     transition={{ type: "spring", stiffness: 260, damping: 20 }}
-                    className="w-full h-[2px] bg-current absolute top-[7px] left-0 origin-center"
+                    className="w-full h-[1.5px] bg-current absolute top-[5px] left-0 origin-center rounded-full"
                   />
                   <motion.span
-                    animate={isMobileMenuOpen ? { rotate: -45, y: -7 } : { rotate: 0, y: 0 }}
+                    animate={isMobileMenuOpen ? { rotate: -45, y: -5 } : { rotate: 0, y: 0 }}
                     transition={{ type: "spring", stiffness: 260, damping: 20 }}
-                    className="w-full h-[2px] bg-current absolute bottom-0 left-0 origin-center"
+                    className="w-full h-[1.5px] bg-current absolute bottom-0 left-0 origin-center rounded-full"
                   />
                 </div>
               </button>
@@ -1830,7 +1814,7 @@ function AppContent() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
               onClick={() => setIsMobileMenuOpen(false)}
-              className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[999]"
+              className="fixed inset-0 bg-black/60 backdrop-blur-md z-[999]"
             />
           )}
 
@@ -1840,108 +1824,97 @@ function AppContent() {
               initial={{ x: "100%", opacity: 0.5 }}
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: "100%", opacity: 0.5 }}
-              transition={{ type: "spring", damping: 26, stiffness: 210 }}
-              className="fixed right-0 top-0 bottom-0 h-full w-[340px] max-w-[88vw] bg-[#0c0e14] border-l border-[#1f293d] shadow-2xl z-[1000] flex flex-col p-6 font-sans text-white rounded-none"
+              transition={{ type: "spring", damping: 28, stiffness: 220 }}
+              className="fixed right-0 top-0 bottom-0 h-full w-[300px] max-w-[85vw] bg-[#080a0e] border-l border-[#1f293d] shadow-[0_0_40px_rgba(0,0,0,0.8)] z-[1000] flex flex-col pt-6 pb-8 px-5 font-sans text-white rounded-l-3xl overflow-hidden"
             >
+              {/* Decorative top blur */}
+              <div className="absolute top-0 right-0 w-full h-32 bg-gradient-to-b from-blue-600/10 to-transparent pointer-events-none" />
+
               {/* Header */}
-              <div className="flex items-center justify-between mb-8 shrink-0 mt-2">
-                <div className="flex items-center gap-3 select-none cursor-pointer" onClick={() => { setActiveView('home'); setIsMobileMenuOpen(false); window.scrollTo(0,0); }}>
-                  <img src="https://i.postimg.cc/3wDpxHPp/D7D8FA4A-524D-480E-9BF3-8451C296F760.png" alt="XENOBUX" className="h-[24px] w-auto object-contain" />
-                  <span className="text-[16px] font-sans font-medium text-white tracking-widest uppercase">
+              <div className="flex items-center justify-between mb-8 relative z-10">
+                <div className="flex items-center gap-3 select-none cursor-pointer group" onClick={() => { setActiveView('home'); setIsMobileMenuOpen(false); window.scrollTo(0,0); }}>
+                  <img src="https://i.postimg.cc/3wDpxHPp/D7D8FA4A-524D-480E-9BF3-8451C296F760.png" alt="XENOBUX" className="h-[22px] w-auto object-contain group-hover:scale-110 transition-transform duration-300" />
+                  <span className="text-[15px] font-sans font-bold text-white tracking-widest uppercase">
                     XENOBUX
                   </span>
                 </div>
                 <button 
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="p-1 text-zinc-400 hover:text-white transition-colors cursor-pointer animate-none bg-[#161a26] border border-[#1f293d] rounded-full"
+                  className="w-8 h-8 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/5 transition-colors cursor-pointer rounded-full"
                   aria-label="ปิดเมนู"
                 >
-                  <X className="w-5 h-5 stroke-[1.8]" />
+                  <X className="w-5 h-5" />
                 </button>
               </div>
 
+              {/* Profile Overview (If logged in) */}
+              {user && (
+                <div className="mb-6 relative z-10">
+                  <div className="bg-[#11131a] border border-[#1f293d] p-4 rounded-2xl shadow-sm flex items-center gap-4">
+                    <div className="w-12 h-12 bg-blue-600/20 border border-blue-500/30 rounded-full flex items-center justify-center shrink-0">
+                      <User className="w-6 h-6 text-blue-500" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-black text-white truncate">{userPlan?.username || user?.email?.split('@')[0]}</p>
+                      <p className="text-xs text-blue-400 font-mono font-bold mt-0.5">฿{(userPlan?.balance || 0).toFixed(2)}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Nav Links scrollable container */}
-              <div className="flex flex-col flex-1 overflow-y-auto pr-1 py-4 space-y-6 select-none shadow-inner" style={{ scrollbarWidth: 'none' }}>
+              <div className="flex flex-col flex-1 overflow-y-auto space-y-1.5 select-none relative z-10" style={{ scrollbarWidth: 'none' }}>
                 
-                {/* Navigation Menu */}
-                <div className="flex flex-col space-y-2.5">
-                  {[
-                    { id: 'home', label: 'หน้าแรก', icon: Home, action: () => { setActiveView('home'); window.scrollTo(0, 0); } },
-                    { id: 'categories', label: 'ซื้อไอดีเกม', icon: Gamepad2, action: () => { setActiveView('categories'); window.scrollTo(0, 0); }, isActive: activeView === 'categories' || activeView === 'category_products' || activeView === 'product_detail' },
-                    { id: 'wallet', label: 'ช่องทางชำระเงิน', icon: Wallet, action: () => { if (!user) { setActiveView('login'); } else { setActiveView('wallet'); } } },
-                    { id: 'history', label: 'ประวัติสั่งซื้อ', icon: History, action: () => { if (!user) { setActiveView('login'); } else { setActiveView('history'); } } },
-                    { id: 'profile', label: 'โปรไฟล์', icon: User, action: () => { if (!user) { setActiveView('login'); } else { setActiveView('profile'); } } },
-                    ...(isAdmin ? [{ id: 'admin', label: 'จัดการระบบ (Admin)', icon: ShieldAlert, action: () => { setActiveView('admin'); window.scrollTo(0, 0); } }] : [])
-                  ].map((item, idx) => {
-                    const isActive = item.isActive !== undefined ? item.isActive : activeView === item.id;
-                    const IconComponent = item.icon;
-                    return (
-                      <motion.button
-                        key={item.id}
-                        initial={{ opacity: 0, x: 15 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{
-                          type: "spring",
-                          stiffness: 250,
-                          damping: 24,
-                          delay: idx * 0.05 + 0.1
-                        }}
-                        onClick={() => {
-                          setIsMobileMenuOpen(false);
-                          item.action();
-                        }}
-                        className={`flex items-center gap-4 text-left text-[15.5px] font-bold p-4 rounded-xl transition-all cursor-pointer border ${
-                          isActive 
-                            ? 'text-white bg-blue-600 border-blue-500 shadow-sm font-black' 
-                            : 'text-zinc-400 hover:text-white bg-[#12141c] hover:bg-[#161a26] border-[#1f293d]'
-                        }`}
-                      >
-                        <IconComponent className="w-5 h-5 shrink-0" />
-                        <span>{item.label}</span>
-                      </motion.button>
-                    );
-                  })}
-                </div>
-
-                {/* Divider */}
-                <hr className="border-t border-[#1f293d]" />
-
-                {/* Account Section */}
-                <div className="flex flex-col pb-6">
-                  <span className="text-[11px] font-black text-zinc-500 uppercase tracking-widest pl-1 mb-4">บัญชีผู้ใช้</span>
-                  
-                  {!user ? (
-                    <div className="relative overflow-hidden rounded-xl border border-[#1f293d] bg-[#161a26] transition-all duration-300 shadow-sm hover:border-blue-500/50 cursor-pointer mt-1">
-                      <button
-                        onClick={() => { setIsMobileMenuOpen(false); setActiveView('login'); }}
-                        className="w-full text-center py-4 text-[15px] font-black text-white bg-transparent cursor-pointer hover:bg-blue-600 transition-colors"
-                      >
-                        เข้าสู่ระบบ
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="flex flex-col gap-3">
-                      <div className="bg-[#161a26] border border-[#1f293d] p-4 rounded-xl">
-                        <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">บัญชีผู้ใช้งาน</p>
-                        <p className="text-sm font-black text-white mt-0.5 truncate">{userPlan?.username || user?.email?.split('@')[0]}</p>
-                        <p className="text-[11px] text-zinc-400 mt-1">ยอดเงินคงเหลือ: <span className="font-black text-blue-500 font-mono text-sm tracking-wide">฿{(userPlan?.balance || 0).toFixed(2)}</span></p>
-                      </div>
-                      <div className="relative overflow-hidden rounded-xl border border-red-500/30 bg-[#161a26] transition-all duration-300 hover:border-red-500 cursor-pointer">
-                        <button
-                          onClick={() => {
-                            setIsMobileMenuOpen(false);
-                            handleLogout();
-                          }}
-                          className="w-full text-center py-3.5 text-xs font-black text-red-400 hover:text-white bg-transparent cursor-pointer hover:bg-red-600 transition-colors"
-                        >
-                          ออกจากระบบ
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
+                {[
+                  { id: 'home', label: 'หน้าแรก', icon: Home, action: () => { setActiveView('home'); window.scrollTo(0, 0); } },
+                  { id: 'categories', label: 'เลือกซื้อสินค้า', icon: Gamepad2, action: () => { setActiveView('categories'); window.scrollTo(0, 0); }, isActive: activeView === 'categories' || activeView === 'category_products' || activeView === 'product_detail' },
+                  { id: 'wallet', label: 'เติมเงิน', icon: Wallet, action: () => { if (!user) { setActiveView('login'); } else { setActiveView('wallet'); } } },
+                  { id: 'history', label: 'ประวัติ', icon: History, action: () => { if (!user) { setActiveView('login'); } else { setActiveView('history'); } } },
+                  { id: 'profile', label: 'โปรไฟล์', icon: User, action: () => { if (!user) { setActiveView('login'); } else { setActiveView('profile'); } } },
+                  ...(isAdmin ? [{ id: 'admin', label: 'Admin', icon: ShieldAlert, action: () => { setActiveView('admin'); window.scrollTo(0, 0); } }] : [])
+                ].map((item, idx) => {
+                  const isActive = item.isActive !== undefined ? item.isActive : activeView === item.id;
+                  const Icon = item.icon;
+                  return (
+                    <motion.button
+                      key={item.id}
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ type: "spring", stiffness: 250, damping: 25, delay: idx * 0.05 + 0.1 }}
+                      onClick={() => { setIsMobileMenuOpen(false); item.action(); }}
+                      className={`flex items-center gap-3.5 px-4 py-3.5 rounded-xl transition-all cursor-pointer w-full text-left font-bold ${
+                        isActive 
+                          ? 'bg-blue-600/10 text-blue-400' 
+                          : 'text-zinc-400 hover:text-white hover:bg-white/5'
+                      }`}
+                    >
+                      <Icon className={`w-5 h-5 ${isActive ? 'text-blue-500' : 'text-zinc-500'}`} />
+                      <span className="text-[14px] leading-none">{item.label}</span>
+                    </motion.button>
+                  );
+                })}
               </div>
+
+              {/* Bottom Auth Section */}
+              <div className="pt-6 mt-auto border-t border-[#1f293d]/50 relative z-10 w-full shrink-0">
+                {!user ? (
+                  <button
+                    onClick={() => { setIsMobileMenuOpen(false); setActiveView('login'); }}
+                    className="w-full py-3.5 rounded-xl text-[14px] font-bold text-white bg-blue-600 hover:bg-blue-700 transition-colors shadow-[0_0_15px_rgba(59,130,246,0.2)] cursor-pointer"
+                  >
+                    เข้าสู่ระบบ / สมัครสมาชิก
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => { setIsMobileMenuOpen(false); handleLogout(); }}
+                    className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl text-[14px] font-bold text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors cursor-pointer"
+                  >
+                    <X className="w-4 h-4" />
+                    ออกจากระบบ
+                  </button>
+                )}
+              </div>
+
             </motion.div>
           )}
         </AnimatePresence>
