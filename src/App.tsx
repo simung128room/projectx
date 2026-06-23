@@ -1732,19 +1732,13 @@ function AppContent() {
           },
         });
         try {
-          const ids = keysToDelete.map((k) => k.id);
-          const res = await axios.post("/api/license_keys/bulk_delete", {
-            ids,
-          });
-          const deletedCount = res.data.deletedCount;
-          setLicenseKeys((prev) => prev.filter((k) => !ids.includes(k.id)));
-          Swal.fire(
-            "ลบแล้ว",
-            `ลบคีย์สำเร็จจำนวน ${deletedCount} รายการ`,
-            "success",
-          );
-        } catch (err: any) {
-          Swal.fire("ข้อผิดพลาด", "ลบไม่สำเร็จ: " + err.message, "error");
+          const idsToDelete = keysToDelete.map((k) => k.id);
+          await axios.delete("/api/license_keys/bulk", { data: { ids: idsToDelete } });
+          setLicenseKeys((prev) => prev.filter((k) => !idsToDelete.includes(k.id)));
+          Swal.fire("เรียบร้อย", `ลบคีย์จำนวน ${keysToDelete.length} รายการแล้ว`, "success");
+        } catch (err) {
+          handleDbError(err, OperationType.DELETE, "license_keys/bulk");
+          Swal.fire("ข้อผิดพลาด", "ลบไม่สำเร็จ: " + (err as Error).message, "error");
         }
       }
     }
@@ -1752,117 +1746,35 @@ function AppContent() {
 
   const unblockIP = async (ip: string) => {
     try {
-      await axios.delete(`/api/blocked_ips/${ip}`);
-      Swal.fire("สำเร็จ", "ปลดบล็อค IP เรียบร้อย", "success");
-      setBlockedIPs((prev) => prev.filter((i) => i.ip !== ip));
+      await axios.delete(`/api/blocked_ips/${encodeURIComponent(ip)}`);
+      Swal.fire("เรียบร้อย", `ปลดบล็อค IP: ${ip} แล้ว`, "success");
+      setBlockedIPs((prev) => prev.filter((b) => b.ip !== ip));
     } catch (err) {
-      handleDbError(err, OperationType.DELETE, "blocked_ips/" + ip);
-      Swal.fire("ข้อผิดพลาด", "ไม่สำเร็จ: " + (err as Error).message, "error");
+      handleDbError(err, OperationType.DELETE, `blocked_ips/${ip}`);
     }
   };
 
-  if (isIPBlocked)
-    return (
-      <div className="min-h-screen bg-card flex items-center justify-center p-4">
-        <div className="w-full max-w-lg bg-primary text-primary-foreground border border-#3b82f6/20 p-12 text-center relative overflow-hidden">
-          <ShieldAlert className="w-20 h-20 text-[#3b82f6] mx-auto mb-6 " />
-          <h1 className="text-3xl font-medium text-[#3b82f6] mb-4 uppercase tracking-tighter">
-            Access Revoked
-          </h1>
-          <p className="text-muted-foreground text-sm leading-relaxed mb-8">
-            ที่อยู่ IP ของคุณ ({clientIp})
-            ถูกระงับการเข้าถึงระบบเนื่องจากละเมิดข้อตกลงการใช้งานหรือพบพฤติกรรมที่น่าสงสัย
-            หากคุณคิดว่าเป็นความผิดพลาด กรุณาติดต่อผู้ดูแลระบบ APEXSTORE
-          </p>
-          <div className="bg-card p-4 text-[10px] text-muted-foreground font-mono mb-8">
-            Error Code: APEXSTORE_SECURITY_BLOCK_L4
-          </div>
-          <button
-            onClick={() => window.location.reload()}
-            className="bg-primary text-primary-foreground hover:bg-[#3b82f6] text-white px-8 py-3 text-xs font-medium transition-all"
-          >
-            TRY RECONNECTING
-          </button>
-        </div>
-      </div>
-    );
-
-  const getViewTitle = () => {
-    switch (activeView) {
-      case "home":
-        return "หน้าหลัก";
-      case "categories":
-        return "สินค้าทั้งหมด";
-      case "category_products":
-        return "หมวดหมู่สินค้า";
-      case "product_detail":
-        return "รายละเอียดสินค้า";
-      case "wallet":
-        return "เติมเงิน";
-      case "my_orders":
-        return "คำสั่งซื้อของฉัน";
-      case "settings":
-        return "การตั้งค่าผู้ใช้";
-      case "wallet_history":
-        return "ประวัติเติมเงิน";
-      case "random_history":
-        return "ประวัติการสุ่มสินค้า";
-      case "privacy":
-        return "นโยบายความเป็นส่วนตัว";
-      case "terms":
-        return "ข้อกำหนดการใช้งาน";
-      case "admin":
-        return "จัดการหลังบ้าน";
-      default:
-        return "Sunoid.shop";
-    }
-  };
-
-  const isHomeViewReady =
-    (Array.isArray(products) &&
-      Array.isArray(categories) &&
-      siteSettings !== null) ||
-    forceReveal;
-  const isLoadingSkeleton = !isHomeViewReady && !dbErrorDetail;
+  const isLoadingSkeleton = !isDBReady;
 
   return (
-    <div className="relative min-h-screen w-full bg-background text-foreground font-[family-name:var(--font-sans)] selection:bg-blue-500/20 antialiased overflow-x-hidden">
-      <AnimatePresence mode="wait">
-        {!isLoaded && <PortalLoader key="portal" />}
-      </AnimatePresence>
+    <div className="w-full relative min-h-screen font-sans text-foreground overflow-x-hidden bg-[#0a0a0a]">
+        <ScrollToTop activeView={activeView} />
 
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: isLoaded ? 1 : 0 }}
-        transition={{ type: "spring", stiffness: 400, damping: 30, duration: 0.8 }}
-        className="min-h-screen w-full flex flex-col lg:flex-row-reverse relative"
-      >
-        <Suspense fallback={null}>
-          <PopupBanner
-            enabled={siteSettings?.popup_enabled ?? false}
-            imgUrl={siteSettings?.popup_img_url ?? ""}
-            linkUrl={siteSettings?.popup_link ?? ""}
-          />
-        </Suspense>
-
-        {/* Main Content Area */}
-        <div className="flex-1 flex flex-col min-h-screen min-w-0 relative transition-all duration-300">
-          
-        
-        {/* VHOUSE Specific Navbar -> APEX Modern Navbar */}
-        <nav className="relative top-0 z-50 w-full border-b border-[#1f293d] bg-[#0c0e14]/95 backdrop-blur-md sticky">
-          <div className="container mx-auto flex h-[72px] items-center justify-between px-6">
+        {/* XENOBUX STORE Navbar */}
+        <nav className="relative top-0 z-50 w-full bg-[#000000] border-b border-[#111111] sticky">
+          <div className="container mx-auto flex h-[52px] items-center justify-between px-4 lg:px-8">
             
             <div 
-              className="flex items-center cursor-pointer select-none" 
+              className="flex items-center gap-2.5 cursor-pointer select-none group" 
               onClick={() => { setActiveView('home'); window.scrollTo(0,0); }}
             >
-              <span className="text-[24px] font-sans font-black text-white tracking-tighter">
-                APEX<span className="text-blue-500">STORE</span>
+              <img src="https://i.postimg.cc/3wDpxHPp/D7D8FA4A-524D-480E-9BF3-8451C296F760.png" alt="XENOBUX STORE Logo" className="h-[24px] w-auto object-contain transition-transform group-hover:scale-105" />
+              <span className="text-[15px] font-sans font-bold text-white tracking-widest uppercase">
+                XENOBUX STORE
               </span>
             </div>
 
-            <div className="flex items-center gap-2 md:hidden z-[1001]">
+            <div className="flex items-center gap-2 z-[1001]">
               <AnimatePresence mode="popLayout">
                 {!isMobileMenuOpen && (
                   <motion.button 
@@ -1872,7 +1784,7 @@ function AppContent() {
                     exit={{ opacity: 0, scale: 0.9, x: 10 }}
                     transition={{ type: "spring", stiffness: 300, damping: 25 }}
                     onClick={() => setShowSearchPopup(true)}
-                    className="flex items-center justify-center rounded-full bg-[#161a26] border border-[#1f293d] hover:border-blue-500/50 text-zinc-400 hover:text-white transition-all cursor-pointer shadow-sm select-none shrink-0 h-10 w-10"
+                    className="flex items-center justify-center rounded-full bg-transparent hover:bg-[#111111] text-zinc-400 hover:text-white transition-all cursor-pointer select-none shrink-0 h-9 w-9"
                     aria-label="ค้นหาสินค้า"
                   >
                     <Search className="w-[18px] h-[18px] shrink-0" />
@@ -1880,135 +1792,35 @@ function AppContent() {
                 )}
               </AnimatePresence>
               <button 
-                className="text-zinc-400 hover:text-white transition-colors duration-300 outline-none select-none relative h-10 w-10 flex items-center justify-center cursor-pointer bg-[#161a26] border border-[#1f293d] rounded-full" 
+                className="text-white hover:text-zinc-300 transition-colors duration-300 outline-none select-none relative h-9 w-9 flex items-center justify-center cursor-pointer bg-transparent rounded-full" 
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 aria-label="เมนู"
               >
-                <div className="w-[18px] h-[14px] relative select-none">
+                <div className="w-[24px] h-[16px] relative select-none">
                   <motion.span
-                    animate={isMobileMenuOpen ? { rotate: 45, y: 6.5 } : { rotate: 0, y: 0 }}
+                    animate={isMobileMenuOpen ? { rotate: 45, y: 7 } : { rotate: 0, y: 0 }}
                     transition={{ type: "spring", stiffness: 260, damping: 20 }}
-                    className="w-[18px] h-[2px] bg-current rounded-full absolute top-0 left-0 origin-center"
+                    className="w-full h-[2px] bg-current absolute top-0 left-0 origin-center"
                   />
                   <motion.span
                     animate={isMobileMenuOpen ? { opacity: 0, scale: 0.5 } : { opacity: 1, scale: 1 }}
                     transition={{ type: "spring", stiffness: 260, damping: 20 }}
-                    className="w-[18px] h-[2px] bg-current rounded-full absolute top-[6px] left-0 origin-center"
+                    className="w-full h-[2px] bg-current absolute top-[7px] left-0 origin-center"
                   />
                   <motion.span
-                    animate={isMobileMenuOpen ? { rotate: -45, y: -6.5 } : { rotate: 0, y: 0 }}
+                    animate={isMobileMenuOpen ? { rotate: -45, y: -7 } : { rotate: 0, y: 0 }}
                     transition={{ type: "spring", stiffness: 260, damping: 20 }}
-                    className="w-[18px] h-[2px] bg-current rounded-full absolute bottom-0 left-0 origin-center"
+                    className="w-full h-[2px] bg-current absolute bottom-0 left-0 origin-center"
                   />
                 </div>
               </button>
-            </div>
-
-            <div className="hidden md:flex flex-1 mx-12">
-               <div className="flex bg-[#161a26] border border-[#1f293d] rounded-full p-1 shadow-sm w-fit mx-auto">
-                <button 
-                  onClick={() => { setActiveView('home'); window.scrollTo(0,0); }}
-                  className={`text-[14px] font-bold transition-all py-2 px-5 rounded-full cursor-pointer flex items-center gap-1.5 ${
-                    activeView === 'home' 
-                      ? 'text-white bg-blue-600 shadow-sm' 
-                      : 'text-zinc-400 hover:text-white hover:bg-[#1a1f2e]'
-                  }`}
-                >
-                  <Home className="w-4 h-4" />
-                  <span>หน้าแรก</span>
-                </button>
-                <button 
-                  onClick={() => { setActiveView('categories'); window.scrollTo(0,0); }}
-                  className={`text-[14px] font-bold transition-all py-2 px-5 rounded-full cursor-pointer flex items-center gap-1.5 ${
-                    activeView === 'categories' || activeView === 'category_products' || activeView === 'product_detail'
-                      ? 'text-white bg-blue-600 shadow-sm' 
-                      : 'text-zinc-400 hover:text-white hover:bg-[#1a1f2e]'
-                  }`}
-                >
-                  <Gamepad2 className="w-4 h-4" />
-                  <span>สินค้าทั้งหมด</span>
-                </button>
-                <button 
-                  onClick={() => { 
-                    if (!user) { setActiveView('login'); return; }
-                    setActiveView('wallet'); 
-                  }}
-                  className={`text-[14px] font-bold transition-all py-2 px-5 rounded-full cursor-pointer flex items-center gap-1.5 ${
-                    activeView === 'wallet' 
-                      ? 'text-white bg-blue-600 shadow-sm' 
-                      : 'text-zinc-400 hover:text-white hover:bg-[#1a1f2e]'
-                  }`}
-                >
-                  <Wallet className="w-4 h-4" />
-                  <span>ช่องทางเงิน</span>
-                </button>
-                <button 
-                  onClick={() => { 
-                    if (!user) { setActiveView('login'); return; }
-                    setActiveView('history'); 
-                  }}
-                  className={`text-[14px] font-bold transition-all py-2 px-5 rounded-full cursor-pointer flex items-center gap-1.5 ${
-                    activeView === 'history' 
-                      ? 'text-white bg-blue-600 shadow-sm' 
-                      : 'text-zinc-400 hover:text-white hover:bg-[#1a1f2e]'
-                  }`}
-                >
-                  <History className="w-4 h-4" />
-                  <span>ประวัติ</span>
-                </button>
-                {isAdmin && (
-                  <button 
-                    onClick={() => { setActiveView('admin'); window.scrollTo(0,0); }}
-                    className={`text-[14px] font-bold transition-all py-2 px-5 rounded-full cursor-pointer flex items-center gap-1.5 ${
-                      activeView === 'admin' 
-                        ? 'text-white bg-blue-600 shadow-sm' 
-                        : 'text-zinc-400 hover:text-white hover:bg-[#1a1f2e]'
-                    }`}
-                  >
-                    <ShieldAlert className="w-4 h-4" />
-                    <span>Admin</span>
-                  </button>
-                )}
-               </div>
-            </div>
-
-            <div className="hidden items-center md:flex gap-3 shrink-0">
-              <button 
-                onClick={() => setShowSearchPopup(true)}
-                className="flex items-center justify-center border border-[#1f293d] rounded-full h-10 w-10 bg-[#161a26] hover:bg-[#1a1f2e] text-zinc-400 hover:text-white transition-colors cursor-pointer shadow-sm shrink-0"
-                aria-label="ค้นหาสินค้า"
-              >
-                <Search className="w-[18px] h-[18px]" />
-              </button>
-
-              {!user ? (
-                <button 
-                  onClick={() => setActiveView('login')}
-                  className="flex items-center gap-1.5 text-[14px] font-bold text-white bg-blue-600 hover:bg-blue-700 transition-colors py-2 px-5 rounded-full cursor-pointer shadow-sm h-10 shrink-0"
-                >
-                  <User className="h-4 w-4" /> เข้าสู่ระบบ
-                </button>
-              ) : (
-                <div className="flex items-center gap-3 shrink-0">
-                  <div className="flex items-center gap-2 bg-[#161a26] px-4 py-2 rounded-full border border-[#1f293d] shadow-sm h-10">
-                    <Wallet className="h-4.5 w-4.5 text-blue-500" />
-                    <span className="text-[14px] font-black text-white tracking-wide">฿{(userPlan?.balance || 0).toFixed(2)}</span>
-                  </div>
-                  <button 
-                     onClick={() => setActiveView('profile')}
-                     className="flex items-center justify-center bg-[#161a26] hover:bg-blue-600 text-zinc-400 hover:text-white w-10 h-10 rounded-full border border-[#1f293d] transition-colors cursor-pointer shadow-sm"
-                     title="โปรไฟล์"
-                  >
-                    <User className="h-4.5 w-4.5" />
-                  </button>
-                </div>
-              )}
             </div>
             
           </div>
         </nav>
 
-        {/* Mobile Menu Sidebar Drawer */}
+
+        {/* Universal Sidebar Drawer */}
         <AnimatePresence>
           {isMobileMenuOpen && (
             <motion.div
@@ -2018,7 +1830,7 @@ function AppContent() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
               onClick={() => setIsMobileMenuOpen(false)}
-              className="fixed inset-0 bg-black/30 backdrop-blur-[2px] z-[999] md:hidden"
+              className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[999]"
             />
           )}
 
@@ -2029,13 +1841,14 @@ function AppContent() {
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: "100%", opacity: 0.5 }}
               transition={{ type: "spring", damping: 26, stiffness: 210 }}
-              className="fixed right-0 top-0 bottom-0 h-full w-[320px] max-w-[88vw] bg-[#0c0e14] border-l border-[#1f293d] shadow-2xl z-[1000] flex flex-col p-6 font-sans text-white md:hidden rounded-none"
+              className="fixed right-0 top-0 bottom-0 h-full w-[340px] max-w-[88vw] bg-[#0c0e14] border-l border-[#1f293d] shadow-2xl z-[1000] flex flex-col p-6 font-sans text-white rounded-none"
             >
               {/* Header */}
-              <div className="flex items-center justify-between mb-6 shrink-0 mt-2">
-                <div className="flex items-center select-none cursor-pointer" onClick={() => { setActiveView('home'); setIsMobileMenuOpen(false); window.scrollTo(0,0); }}>
-                  <span className="text-[24px] font-sans font-black text-white tracking-tighter">
-                    APEX<span className="text-blue-500">STORE</span>
+              <div className="flex items-center justify-between mb-8 shrink-0 mt-2">
+                <div className="flex items-center gap-3 select-none cursor-pointer" onClick={() => { setActiveView('home'); setIsMobileMenuOpen(false); window.scrollTo(0,0); }}>
+                  <img src="https://i.postimg.cc/3wDpxHPp/D7D8FA4A-524D-480E-9BF3-8451C296F760.png" alt="XENOBUX" className="h-[24px] w-auto object-contain" />
+                  <span className="text-[16px] font-sans font-medium text-white tracking-widest uppercase">
+                    XENOBUX
                   </span>
                 </div>
                 <button 
@@ -2446,9 +2259,6 @@ function AppContent() {
               />
             )}
           </Suspense>
-        </div>
-
-      </motion.div>
     </div>
   );
 }
@@ -2481,6 +2291,13 @@ const PortalLoader: React.FC = () => {
     </motion.div>
   );
 };
+
+function ScrollToTop({ activeView }: { activeView: string }) {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [activeView]);
+  return null;
+}
 
 export default function App() {
   return (

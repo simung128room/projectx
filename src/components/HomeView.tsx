@@ -39,32 +39,32 @@ export const HomeView = (props: any) => {
   const visibleProducts = sortedProducts.slice(0, 8);
 
   return (
-    <div className="w-full text-foreground pb-24 lg:pb-0 overflow-x-hidden bg-white">
+    <div className="w-full text-foreground pb-24 lg:pb-0 overflow-x-hidden bg-background">
       
       {/* ===== Hero Gradient Banner ===== */}
-      <section className="relative w-full overflow-hidden min-h-[40vh] sm:min-h-[50vh] flex flex-col items-center justify-center p-6 text-center border-b border-[#e2e8f0] bg-gradient-to-b from-white via-white to-transparent">
-        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-blue-500/5 to-transparent opacity-60 pointer-events-none" />
+      <section className="relative w-full overflow-hidden min-h-[40vh] sm:min-h-[50vh] flex flex-col items-center justify-center p-6 text-center border-b border-[#1f293d] bg-gradient-to-b from-background via-background/90 to-transparent">
+        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-blue-500/10 to-transparent opacity-60 pointer-events-none" />
         <div className="absolute -top-24 -right-24 w-96 h-96 bg-blue-500/10 rounded-full blur-[100px] pointer-events-none" />
         <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-blue-500/5 rounded-full blur-[100px] pointer-events-none" />
 
         <div className="relative z-10 max-w-3xl flex flex-col items-center animate-in fade-in slide-in-from-bottom-8 duration-700">
-          <div className="bg-[#3b82f6]/10 text-[#3b82f6] border border-[#3b82f6]/20 px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-6 flex items-center gap-2">
+          <div className="bg-[#3b82f6]/10 text-[#3b82f6] border border-[#3b82f6]/20 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-8 flex items-center gap-2 shadow-[0_0_15px_rgba(59,130,246,0.15)]">
             <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-            ต้อนรับสู่ Sunoid.shop
+            ต้อนรับสู่ XENOBUX STORE
           </div>
-          <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-4 text-[#1e1e20] leading-tight">
-            ไอดีเกมราคาถูก คุณภาพสูง <br/>
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-teal-600">
-              ปลอดภัย และ จัดส่งทันที
+          <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-4 text-white leading-tight">
+            XENOBUX STORE <br/>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-[#00d2ff]">
+              บริการ เติมเกม สะดวก ปลอดภัย
             </span>
           </h1>
-          <p className="text-sm sm:text-base text-muted-foreground mb-8 max-w-xl">
-            Sunoid.shop ให้บริการจัดจำหน่ายไอดีเกมชั้นนำราคาประหยัด มีสินค้าให้เลือกหลากหลาย ปลอดภัย มั่นใจได้ 100% พร้อมบริการดูแลตลอด 24 ชั่วโมง
+          <p className="text-sm sm:text-lg text-zinc-400 mb-10 max-w-xl font-medium">
+            ให้บริการจัดจำหน่ายไอดีเกมชั้นนำราคาประหยัด มีสินค้าให้เลือกหลากหลาย ปลอดภัย มั่นใจได้ 100% พร้อมบริการดูแลตลอด 24 ชั่วโมง
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
             <button 
               onClick={() => setActiveView('categories')}
-              className="bg-[#3b82f6] hover:bg-blue-600 text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2 transition-all shadow-md shadow-blue-500/10 active:scale-95 cursor-pointer"
+              className="bg-[#3b82f6] hover:bg-blue-600 text-white px-8 py-3.5 rounded-xl font-bold flex items-center gap-2 transition-all shadow-[0_0_20px_rgba(59,130,246,0.4)] active:scale-95 cursor-pointer"
             >
               เลือกซื้อสินค้า <ShoppingCart className="w-4 h-4" />
             </button>
@@ -73,7 +73,7 @@ export const HomeView = (props: any) => {
                 if(!user) { setActiveView('login'); return; }
                 setActiveView('wallet');
               }}
-              className="bg-white hover:bg-slate-50 border border-[#e2e8f0] text-[#1e1e20] px-8 py-3 rounded-xl font-bold flex items-center gap-2 transition-all active:scale-95 cursor-pointer"
+              className="bg-[#161a26] hover:bg-[#1a1f2e] border border-[#1f293d] text-white px-8 py-3.5 rounded-xl font-bold flex items-center gap-2 transition-all active:scale-95 cursor-pointer shadow-sm"
             >
               เติมเงินเข้าระบบ <CreditCard className="w-4 h-4 text-blue-500" />
             </button>
@@ -85,51 +85,51 @@ export const HomeView = (props: any) => {
       <section className="px-4 py-8 max-w-7xl mx-auto -mt-12 relative z-20">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <motion.div 
-            whileHover={{ y: -6, ...({} as any) }}
+            whileHover={{ y: -6 }}
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            className="bg-white border border-zinc-150 p-5 rounded-2xl flex flex-col gap-2 shadow-[0_4px_16px_-4px_rgba(0,0,0,0.04)] hover:shadow-[0_16px_32px_-12px_rgba(59,130,246,0.12)] transition-all duration-300"
+            className="bg-[#11131a] border border-[#1f293d] p-5 rounded-2xl flex flex-col gap-2 shadow-[0_4px_16px_-4px_rgba(0,0,0,0.4)] hover:shadow-[0_16px_32px_-12px_rgba(59,130,246,0.3)] transition-all duration-300"
           >
-            <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500 mb-2">
+            <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500 mb-2 border border-blue-500/20">
               <Users className="w-4 h-4" />
             </div>
-            <span className="text-zinc-400 text-xs font-black uppercase tracking-widest">สมาชิกทั้งหมด</span>
-            <span className="text-2xl font-black text-[#1a1a1c] tracking-tight">{stats?.totalUsers?.toLocaleString() || '1,000+'}</span>
+            <span className="text-zinc-500 text-[11px] font-black uppercase tracking-widest">สมาชิกทั้งหมด</span>
+            <span className="text-2xl font-black text-white tracking-tight">{stats?.totalUsers?.toLocaleString() || '1,000+'}</span>
           </motion.div>
 
           <motion.div 
-            whileHover={{ y: -6, ...({} as any) }}
+            whileHover={{ y: -6 }}
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            className="bg-white border border-zinc-150 p-5 rounded-2xl flex flex-col gap-2 shadow-[0_4px_16px_-4px_rgba(0,0,0,0.04)] hover:shadow-[0_16px_32px_-12px_rgba(16,185,129,0.12)] transition-all duration-300"
+            className="bg-[#11131a] border border-[#1f293d] p-5 rounded-2xl flex flex-col gap-2 shadow-[0_4px_16px_-4px_rgba(0,0,0,0.4)] hover:shadow-[0_16px_32px_-12px_rgba(16,185,129,0.3)] transition-all duration-300"
           >
-            <div className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500 mb-2">
+            <div className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500 mb-2 border border-emerald-500/20">
               <ShoppingCart className="w-4 h-4" />
             </div>
-            <span className="text-zinc-400 text-xs font-black uppercase tracking-widest">สินค้าที่ขายแล้ว</span>
-            <span className="text-2xl font-black text-[#1a1a1c] tracking-tight">{stats?.totalOrders?.toLocaleString() || '2,500+'}</span>
+            <span className="text-zinc-500 text-[11px] font-black uppercase tracking-widest">สินค้าที่ขายแล้ว</span>
+            <span className="text-2xl font-black text-white tracking-tight">{stats?.totalOrders?.toLocaleString() || '2,500+'}</span>
           </motion.div>
 
           <motion.div 
-            whileHover={{ y: -6, ...({} as any) }}
+            whileHover={{ y: -6 }}
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            className="bg-white border border-zinc-150 p-5 rounded-2xl flex flex-col gap-2 shadow-[0_4px_16px_-4px_rgba(0,0,0,0.04)] hover:shadow-[0_16px_32px_-12px_rgba(139,92,246,0.12)] transition-all duration-300"
+            className="bg-[#11131a] border border-[#1f293d] p-5 rounded-2xl flex flex-col gap-2 shadow-[0_4px_16px_-4px_rgba(0,0,0,0.4)] hover:shadow-[0_16px_32px_-12px_rgba(139,92,246,0.3)] transition-all duration-300"
           >
-            <div className="w-10 h-10 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-500 mb-2">
+            <div className="w-10 h-10 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-500 mb-2 border border-purple-500/20">
               <Server className="w-4 h-4" />
             </div>
-            <span className="text-zinc-400 text-xs font-black uppercase tracking-widest">จำนวนสินค้า</span>
-            <span className="text-2xl font-black text-[#1a1a1c] tracking-tight">{products?.length || '50+'}</span>
+            <span className="text-zinc-500 text-[11px] font-black uppercase tracking-widest">จำนวนสินค้า</span>
+            <span className="text-2xl font-black text-white tracking-tight">{products?.length || '50+'}</span>
           </motion.div>
 
           <motion.div 
-            whileHover={{ y: -6, ...({} as any) }}
+            whileHover={{ y: -6 }}
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            className="bg-white border border-zinc-150 p-5 rounded-2xl flex flex-col gap-2 shadow-[0_4px_16px_-4px_rgba(0,0,0,0.04)] hover:shadow-[0_16px_32px_-12px_rgba(245,158,11,0.12)] transition-all duration-300"
+            className="bg-[#11131a] border border-[#1f293d] p-5 rounded-2xl flex flex-col gap-2 shadow-[0_4px_16px_-4px_rgba(0,0,0,0.4)] hover:shadow-[0_16px_32px_-12px_rgba(245,158,11,0.3)] transition-all duration-300"
           >
-            <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-500 mb-2">
+            <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-500 mb-2 border border-amber-500/20">
               <Activity className="w-4 h-4" />
             </div>
-            <span className="text-zinc-400 text-xs font-black uppercase tracking-widest">อัพไทม์ระบบ</span>
-            <span className="text-2xl font-black text-[#1a1a1c] tracking-tight">99.9%</span>
+            <span className="text-zinc-500 text-[11px] font-black uppercase tracking-widest">อัพไทม์ระบบ</span>
+            <span className="text-2xl font-black text-white tracking-tight">99.9%</span>
           </motion.div>
         </div>
       </section>
@@ -138,10 +138,10 @@ export const HomeView = (props: any) => {
       <section className="max-w-7xl mx-auto px-4 py-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
           <div>
-            <h2 className="text-xl sm:text-2xl font-extrabold flex items-center gap-2 text-[#1a1a1c] tracking-tight">
-              <Gamepad2 className="w-6 h-6 text-blue-600" /> สินค้าและบริการหลัก
+            <h2 className="text-xl sm:text-2xl font-extrabold flex items-center gap-2 text-white tracking-tight">
+              <Gamepad2 className="w-6 h-6 text-blue-500" /> สินค้าและบริการหลัก
             </h2>
-            <p className="text-xs sm:text-sm text-zinc-400 font-bold mt-1">แยกหมวดหมู่บริการเพื่อง่ายต่อการเลือกชมและสั่งซื้อง่ายขึ้น</p>
+            <p className="text-xs sm:text-sm text-zinc-500 font-bold mt-1">แยกหมวดหมู่บริการเพื่อง่ายต่อการเลือกชมและสั่งซื้อง่ายขึ้น</p>
           </div>
           <button 
             onClick={() => {
@@ -151,7 +151,7 @@ export const HomeView = (props: any) => {
                 setActiveView('categories');
               }
             }}
-            className="text-xs sm:text-sm font-extrabold text-blue-600 hover:text-blue-750 flex items-center gap-1.5 group transition-colors cursor-pointer self-start md:self-end leading-none"
+            className="text-xs sm:text-sm font-extrabold text-blue-500 hover:text-blue-400 flex items-center gap-1.5 group transition-colors cursor-pointer self-start md:self-end leading-none"
           >
             ดูสินค้าทั้งหมดในหมวดหมู่นี้ <ArrowRight className="w-4 h-4 group-hover:translate-x-1.5 transition-transform duration-300" />
           </button>
@@ -161,10 +161,10 @@ export const HomeView = (props: any) => {
         <div className="flex items-center gap-2.5 overflow-x-auto pb-4 mb-8 select-none scrollbar-none" style={{ scrollbarWidth: 'none' }}>
           <button
             onClick={() => setActiveCategory('all')}
-            className={`flex items-center gap-2 px-5 py-3 rounded-full text-xs font-bold whitespace-nowrap transition-all border cursor-pointer ${
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold whitespace-nowrap transition-all border cursor-pointer ${
               activeCategory === 'all'
-                ? 'bg-blue-600 text-white border-blue-600 shadow-[0_4px_14px_rgba(59,130,246,0.25)] hover:bg-blue-750'
-                : 'bg-white text-zinc-500 border-zinc-200 hover:border-zinc-300 hover:text-zinc-800'
+                ? 'bg-blue-600 text-white border-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.3)] hover:bg-blue-500'
+                : 'bg-[#11131a] text-zinc-400 border-[#1f293d] hover:border-[#2d3748] hover:text-white'
             }`}
           >
             <Package className="w-4 h-4 shrink-0" />
@@ -178,14 +178,14 @@ export const HomeView = (props: any) => {
               <button
                 key={c.id || c.name}
                 onClick={() => setActiveCategory(c.id || c.name || c.title)}
-                className={`flex items-center gap-2 px-5 py-3 rounded-full text-xs font-bold whitespace-nowrap transition-all border cursor-pointer ${
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold whitespace-nowrap transition-all border cursor-pointer ${
                   isActive
-                    ? 'bg-blue-600 text-white border-blue-600 shadow-[0_4px_14px_rgba(59,130,246,0.25)] hover:bg-blue-750'
-                    : 'bg-white text-zinc-500 border-zinc-200 hover:border-zinc-300 hover:text-zinc-800'
+                    ? 'bg-blue-600 text-white border-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.3)] hover:bg-blue-500'
+                    : 'bg-[#11131a] text-zinc-400 border-[#1f293d] hover:border-[#2d3748] hover:text-white'
                 }`}
               >
                 <span>{c.title}</span>
-                <span className={`text-[9.5px] px-2 py-0.5 rounded-full font-black font-mono transition-colors ${isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-zinc-400'}`}>
+                <span className={`text-[9.5px] px-2 py-0.5 rounded-full font-black font-mono transition-colors ${isActive ? 'bg-white/20 text-white' : 'bg-[#1f293d] text-zinc-500'}`}>
                   {count}
                 </span>
               </button>
