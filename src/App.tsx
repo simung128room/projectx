@@ -1764,21 +1764,11 @@ function AppContent() {
 
         {/* XENOBUX STORE Navbar */}
         <nav className="relative top-0 z-50 w-full bg-[#000000] border-b border-[#111111] sticky">
-          <div className="container mx-auto flex h-[52px] items-center justify-between px-4 lg:px-8">
+          <div className="container mx-auto flex h-[52px] items-center px-4 lg:px-8 relative justify-between">
             
-            <div 
-              className="flex items-center gap-2.5 cursor-pointer select-none group" 
-              onClick={() => { setActiveView('home'); window.scrollTo(0,0); }}
-            >
-              <img src="https://i.postimg.cc/3wDpxHPp/D7D8FA4A-524D-480E-9BF3-8451C296F760.png" alt="XENOBUX STORE Logo" className="h-[24px] w-auto object-contain transition-transform group-hover:scale-105" />
-              <span className="text-[17px] font-logo font-black text-white uppercase tracking-wider">
-                XENOBUX STORE
-              </span>
-            </div>
-
             <div className="flex items-center z-[1001]">
               <button 
-                className="text-white hover:text-zinc-300 transition-colors duration-300 outline-none select-none relative h-8 w-8 flex items-center justify-center cursor-pointer bg-transparent rounded-full" 
+                className="text-white hover:text-zinc-300 transition-colors duration-300 outline-none select-none relative h-8 w-8 flex items-center justify-center cursor-pointer bg-transparent rounded-full -ml-2" 
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 aria-label="เมนู"
               >
@@ -1801,6 +1791,18 @@ function AppContent() {
                 </div>
               </button>
             </div>
+
+            <div 
+              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-2.5 cursor-pointer select-none group" 
+              onClick={() => { setActiveView('home'); window.scrollTo(0,0); }}
+            >
+              <img src="https://i.postimg.cc/3wDpxHPp/D7D8FA4A-524D-480E-9BF3-8451C296F760.png" alt="XENOBUX STORE Logo" className="h-[24px] w-auto object-contain transition-transform group-hover:scale-105" />
+              <span className="text-[17px] font-logo font-black text-white uppercase tracking-wider whitespace-nowrap">
+                XENOBUX STORE
+              </span>
+            </div>
+
+            <div className="w-8 h-8 pointer-events-none"></div>
             
           </div>
         </nav>
@@ -1823,11 +1825,11 @@ function AppContent() {
           {isMobileMenuOpen && (
             <motion.div
               key="sidebar-drawer"
-              initial={{ x: "100%", opacity: 0.5 }}
+              initial={{ x: "-100%", opacity: 0.5 }}
               animate={{ x: 0, opacity: 1 }}
-              exit={{ x: "100%", opacity: 0.5 }}
+              exit={{ x: "-100%", opacity: 0.5 }}
               transition={{ type: "spring", damping: 28, stiffness: 220 }}
-              className="fixed right-0 top-0 bottom-0 h-full w-[300px] max-w-[85vw] bg-[#1a1c23] border-l border-[#1f293d] shadow-[0_0_40px_rgba(0,0,0,0.8)] z-[1000] flex flex-col font-sans overflow-x-hidden overflow-y-auto"
+              className="fixed left-0 top-0 bottom-0 h-full w-[260px] max-w-[85vw] bg-[#1a1c23] border-r border-[#1f293d] shadow-[0_0_40px_rgba(0,0,0,0.8)] z-[1000] flex flex-col font-sans overflow-x-hidden overflow-y-auto"
             >
               <div className="flex flex-col h-full py-6 px-6 space-y-6 select-none bg-[#1a1c23] text-white w-full" style={{ scrollbarWidth: 'none' }}>
                 {/* Header: Logo and Close Button */}
@@ -1835,31 +1837,36 @@ function AppContent() {
                   <img src="https://i.postimg.cc/3wDpxHPp/D7D8FA4A-524D-480E-9BF3-8451C296F760.png" alt="Logo" className="h-[28px] w-auto object-contain" />
                   <button 
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="w-10 h-10 flex items-center justify-center text-zinc-400 hover:text-white transition-colors cursor-pointer rounded-full border-none bg-transparent outline-none -mr-2"
+                    className="w-10 h-10 flex items-center justify-center text-zinc-400 hover:text-white transition-colors cursor-pointer rounded-full border-none bg-transparent outline-none -mr-4"
                     aria-label="ปิดเมนู"
                   >
-                    <X className="w-7 h-7" />
+                    <X className="w-6 h-6" />
                   </button>
                 </div>
 
                 <div className="h-[1px] w-full bg-[#2d3240]" />
 
                 {/* Quick Links Section */}
-                <div className="flex flex-col space-y-6">
-                  <span className="text-[13px] text-zinc-500 font-medium tracking-wide">ลิงก์ด่วน</span>
-                  <button onClick={() => { setIsMobileMenuOpen(false); setActiveView('home'); window.scrollTo(0, 0); }} className="text-left font-medium text-[17px] text-zinc-200 hover:text-white transition-colors cursor-pointer border-none bg-transparent outline-none">
+                <div className="flex flex-col space-y-2">
+                  <span className="text-[13px] text-zinc-500 font-medium tracking-wide mb-2">ลิงก์ด่วน</span>
+                  <button onClick={() => { setIsMobileMenuOpen(false); setActiveView('home'); window.scrollTo(0, 0); }} className="flex items-center gap-3 text-left font-medium text-[16px] text-zinc-300 hover:text-white bg-transparent hover:bg-[#252833] py-2 px-3 -mx-3 rounded-lg transition-colors cursor-pointer border-none outline-none">
+                    <Home className="w-5 h-5 text-zinc-400" />
                     หน้าแรก
                   </button>
-                  <button onClick={() => { setIsMobileMenuOpen(false); setActiveView('categories'); window.scrollTo(0, 0); }} className="text-left font-medium text-[17px] text-zinc-200 hover:text-white transition-colors cursor-pointer border-none bg-transparent outline-none">
+                  <button onClick={() => { setIsMobileMenuOpen(false); setActiveView('categories'); window.scrollTo(0, 0); }} className="flex items-center gap-3 text-left font-medium text-[16px] text-zinc-300 hover:text-white bg-transparent hover:bg-[#252833] py-2 px-3 -mx-3 rounded-lg transition-colors cursor-pointer border-none outline-none">
+                    <Package className="w-5 h-5 text-zinc-400" />
                     สินค้าทั้งหมด
                   </button>
-                  <button onClick={() => { setIsMobileMenuOpen(false); if (!user) { setActiveView('login'); } else { setActiveView('wallet'); } }} className="text-left font-medium text-[17px] text-zinc-200 hover:text-white transition-colors cursor-pointer border-none bg-transparent outline-none">
+                  <button onClick={() => { setIsMobileMenuOpen(false); if (!user) { setActiveView('login'); } else { setActiveView('wallet'); } }} className="flex items-center gap-3 text-left font-medium text-[16px] text-zinc-300 hover:text-white bg-transparent hover:bg-[#252833] py-2 px-3 -mx-3 rounded-lg transition-colors cursor-pointer border-none outline-none">
+                    <Wallet className="w-5 h-5 text-zinc-400" />
                     เติมเงิน
                   </button>
-                  <button onClick={() => { setIsMobileMenuOpen(false); if (!user) { setActiveView('login'); } else { setActiveView('history'); } }} className="text-left font-medium text-[17px] text-zinc-200 hover:text-white transition-colors cursor-pointer border-none bg-transparent outline-none">
+                  <button onClick={() => { setIsMobileMenuOpen(false); if (!user) { setActiveView('login'); } else { setActiveView('history'); } }} className="flex items-center gap-3 text-left font-medium text-[16px] text-zinc-300 hover:text-white bg-transparent hover:bg-[#252833] py-2 px-3 -mx-3 rounded-lg transition-colors cursor-pointer border-none outline-none">
+                    <History className="w-5 h-5 text-zinc-400" />
                     ประวัติการสั่งซื้อ
                   </button>
-                  <button onClick={() => { setIsMobileMenuOpen(false); /* Optional: add contact view/popup */ }} className="text-left font-medium text-[17px] text-zinc-200 hover:text-white transition-colors cursor-pointer border-none bg-transparent outline-none">
+                  <button onClick={() => { setIsMobileMenuOpen(false); /* Optional: add contact view/popup */ }} className="flex items-center gap-3 text-left font-medium text-[16px] text-zinc-300 hover:text-white bg-transparent hover:bg-[#252833] py-2 px-3 -mx-3 rounded-lg transition-colors cursor-pointer border-none outline-none">
+                    <MessageSquare className="w-5 h-5 text-zinc-400" />
                     ติดต่อเรา
                   </button>
                 </div>
