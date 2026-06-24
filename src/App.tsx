@@ -72,6 +72,9 @@ import {
   ShoppingBag,
   Bell,
   ClipboardList,
+  Ticket,
+  Megaphone,
+  Bot
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import Swal from "sweetalert2";
@@ -1846,9 +1849,9 @@ function AppContent() {
 
                 <div className="h-[1px] w-full bg-[#2d3240] mb-4" />
 
-                {/* Quick Links Section */}
+                {/* Overview Section */}
                 <div className="flex flex-col space-y-2">
-                  <span className="text-[13px] text-zinc-500 font-medium tracking-wide mb-2">ลิงก์ด่วน</span>
+                  <span className="text-[13px] text-zinc-500 font-medium tracking-wide mb-2">ภาพรวม</span>
                   <button onClick={() => { setIsMobileMenuOpen(false); setActiveView('home'); window.scrollTo(0, 0); }} className="flex items-center gap-3 text-left font-medium text-[16px] text-zinc-300 hover:text-white bg-transparent hover:bg-[#252833] py-2 px-3 -mx-3 rounded-lg transition-colors cursor-pointer border-none outline-none">
                     <Home className="w-5 h-5 text-zinc-400" />
                     หน้าแรก
@@ -1857,22 +1860,54 @@ function AppContent() {
                     <Package className="w-5 h-5 text-zinc-400" />
                     สินค้าทั้งหมด
                   </button>
-                  <button onClick={() => { setIsMobileMenuOpen(false); if (!user) { setActiveView('login'); } else { setActiveView('wallet'); } }} className="flex items-center gap-3 text-left font-medium text-[16px] text-zinc-300 hover:text-white bg-transparent hover:bg-[#252833] py-2 px-3 -mx-3 rounded-lg transition-colors cursor-pointer border-none outline-none">
-                    <Wallet className="w-5 h-5 text-zinc-400" />
-                    เติมเงิน
-                  </button>
-                  <button onClick={() => { setIsMobileMenuOpen(false); if (!user) { setActiveView('login'); } else { setActiveView('history'); } }} className="flex items-center gap-3 text-left font-medium text-[16px] text-zinc-300 hover:text-white bg-transparent hover:bg-[#252833] py-2 px-3 -mx-3 rounded-lg transition-colors cursor-pointer border-none outline-none">
-                    <History className="w-5 h-5 text-zinc-400" />
-                    ประวัติการสั่งซื้อ
-                  </button>
                   <button onClick={() => { setIsMobileMenuOpen(false); /* Optional: add contact view/popup */ }} className="flex items-center gap-3 text-left font-medium text-[16px] text-zinc-300 hover:text-white bg-transparent hover:bg-[#252833] py-2 px-3 -mx-3 rounded-lg transition-colors cursor-pointer border-none outline-none">
                     <MessageSquare className="w-5 h-5 text-zinc-400" />
                     ติดต่อเรา
                   </button>
                 </div>
 
-                <div className="mt-auto flex flex-col w-full">
-                  <div className="h-[1px] w-full bg-[#2d3240] mb-6" />
+                <div className="h-[1px] w-full bg-[#2d3240] my-4" />
+
+                {/* Finance Section */}
+                <div className="flex flex-col space-y-2">
+                  <span className="text-[13px] text-zinc-500 font-medium tracking-wide mb-2">การเงิน</span>
+                  <button onClick={() => { setIsMobileMenuOpen(false); if (!user) { setActiveView('login'); } else { setActiveView('wallet'); } }} className="flex items-center gap-3 text-left font-medium text-[16px] text-zinc-300 hover:text-white bg-transparent hover:bg-[#252833] py-2 px-3 -mx-3 rounded-lg transition-colors cursor-pointer border-none outline-none">
+                    <Wallet className="w-5 h-5 text-zinc-400" />
+                    เติมเครดิต
+                  </button>
+                  <button onClick={() => { setIsMobileMenuOpen(false); if (!user) { setActiveView('login'); } else { setActiveView('topup'); } }} className="flex items-center gap-3 text-left font-medium text-[16px] text-zinc-300 hover:text-white bg-transparent hover:bg-[#252833] py-2 px-3 -mx-3 rounded-lg transition-colors cursor-pointer border-none outline-none">
+                    <Ticket className="w-5 h-5 text-zinc-400" />
+                    กรอกโค๊ด
+                  </button>
+                  <button onClick={() => { setIsMobileMenuOpen(false); if (!user) { setActiveView('login'); } else { setActiveView('history'); } }} className="flex items-center gap-3 text-left font-medium text-[16px] text-zinc-300 hover:text-white bg-transparent hover:bg-[#252833] py-2 px-3 -mx-3 rounded-lg transition-colors cursor-pointer border-none outline-none">
+                    <History className="w-5 h-5 text-zinc-400" />
+                    ประวัติธุรกรรม
+                  </button>
+                </div>
+
+                <div className="h-[1px] w-full bg-[#2d3240] my-4" />
+
+                {/* Others Section */}
+                <div className="flex flex-col space-y-2">
+                  <span className="text-[13px] text-zinc-500 font-medium tracking-wide mb-2">อื่นๆ</span>
+                  <button onClick={() => { setIsMobileMenuOpen(false); /* notifications */ }} className="flex items-center gap-3 text-left font-medium text-[16px] text-zinc-300 hover:text-white bg-transparent hover:bg-[#252833] py-2 px-3 -mx-3 rounded-lg transition-colors cursor-pointer border-none outline-none">
+                    <Bell className="w-5 h-5 text-zinc-400" />
+                    การแจ้งเตือน
+                  </button>
+                  <button onClick={() => { setIsMobileMenuOpen(false); /* announcements */ }} className="flex items-center gap-3 text-left font-medium text-[16px] text-zinc-300 hover:text-white bg-transparent hover:bg-[#252833] py-2 px-3 -mx-3 rounded-lg transition-colors cursor-pointer border-none outline-none">
+                    <Megaphone className="w-5 h-5 text-zinc-400" />
+                    ประกาศ
+                  </button>
+                  <button onClick={() => { setIsMobileMenuOpen(false); /* help bot */ }} className="flex items-center gap-3 text-left font-medium text-[16px] text-zinc-300 hover:text-white bg-transparent hover:bg-[#252833] py-2 px-3 -mx-3 rounded-lg transition-colors cursor-pointer border-none outline-none">
+                    <Bot className="w-5 h-5 text-zinc-400" />
+                    บอทช่วยเหลือ
+                  </button>
+                </div>
+
+                <div className="mt-auto flex flex-col w-full pt-4">
+                  <div className="flex flex-col space-y-2 mb-2">
+                     <span className="text-[13px] text-zinc-500 font-medium tracking-wide">โปรไฟล์</span>
+                  </div>
 
                   {/* Account Section */}
                   <div className="flex flex-col pb-2">
