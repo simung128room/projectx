@@ -155,23 +155,23 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24 font-sans text-[#1e1e20] bg-white">
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 font-sans text-white bg-transparent">
       
       {/* ===== Header Bar ===== */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div className="flex items-center gap-4">
           <button 
             onClick={onBack}
-            className="p-3 bg-white hover:bg-slate-100 border border-[#e2e8f0] rounded-xl transition-colors group cursor-pointer"
+            className="p-3 bg-[#11131a] hover:bg-[#161a26] border border-[#1f293d] rounded-xl transition-colors group cursor-pointer outline-none"
             aria-label="กลับหน้าหลัก"
           >
-            <ArrowLeft className="w-5 h-5 text-muted-foreground group-hover:text-[#1e1e20]" />
+            <ArrowLeft className="w-5 h-5 text-zinc-400 group-hover:text-white" />
           </button>
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-[#1e1e20] tracking-tight flex items-center gap-2">
+            <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight flex items-center gap-2">
               <Sparkles className="w-7 h-7 text-blue-500 animate-pulse" /> ซื้อไอดีเกม & บริการ
             </h1>
-            <p className="text-xs sm:text-sm font-semibold text-muted-foreground mt-1">ปลอดภัย ไร้กังวล จัดส่งข้อมูลทันทีหลังทำรายการ</p>
+            <p className="text-xs sm:text-sm font-semibold text-zinc-400 mt-1">ปลอดภัย ไร้กังวล จัดส่งข้อมูลทันทีหลังทำรายการ</p>
           </div>
         </div>
       </div>
@@ -181,9 +181,9 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
         {/* ======================================================== */}
         {/* 1. Category Navigation (DESKTOP SIDEBAR)               */}
         {/* ======================================================== */}
-        <div className="hidden lg:flex flex-col w-[280px] bg-white border border-zinc-150 rounded-2xl p-5 shrink-0 shadow-[0_4px_20px_-8px_rgba(0,0,0,0.03)] sticky top-24">
+        <div className="hidden lg:flex flex-col w-[280px] bg-[#11131a] border border-[#1f293d] rounded-2xl p-5 shrink-0 shadow-[0_4px_20px_-8px_rgba(0,0,0,0.5)] sticky top-24">
           <h2 className="text-xs font-black text-zinc-400 uppercase tracking-widest mb-4 px-2 flex items-center gap-2">
-            <SlidersHorizontal className="w-3.5 h-3.5 text-blue-650" /> เลือกหมวดหมู่
+            <SlidersHorizontal className="w-3.5 h-3.5 text-blue-500" /> เลือกหมวดหมู่
           </h2>
           
           <div className="space-y-1">
@@ -192,17 +192,17 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
               onClick={() => handleSelectCategory('all')}
               className={`w-full text-left flex items-center justify-between p-3.5 rounded-xl text-xs font-bold transition-all group cursor-pointer border ${
                 activeCategory === 'all' 
-                  ? 'bg-blue-50/75 text-blue-600 border-blue-100 shadow-[inset_0_0_0_1px_rgba(59,130,246,0.1)]' 
-                  : 'text-zinc-500 hover:text-[#1a1a1c] hover:bg-slate-50 border-transparent hover:border-zinc-100/60'
+                  ? 'bg-blue-600/10 text-blue-400 border-blue-500/30' 
+                  : 'text-zinc-400 hover:text-white hover:bg-[#161a26] border-transparent hover:border-[#2d3748]'
               }`}
             >
               <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-lg transition-colors duration-300 ${activeCategory === 'all' ? 'bg-blue-100 text-blue-600' : 'bg-slate-50 text-zinc-400 group-hover:bg-white'}`}>
+                <div className={`p-2 rounded-lg transition-colors duration-300 ${activeCategory === 'all' ? 'bg-blue-500/20 text-blue-400' : 'bg-[#1a1c23] text-zinc-500 group-hover:bg-[#1f293d] group-hover:text-zinc-300'}`}>
                   <Package className="w-4 h-4" />
                 </div>
                 <span>สินค้าทั้งหมด</span>
               </div>
-              <span className={`text-[10px] px-2 py-0.5 font-bold rounded-full font-mono transition-colors duration-300 ${activeCategory === 'all' ? 'bg-blue-100/50 text-blue-610' : 'bg-zinc-100 text-zinc-400'}`}>
+              <span className={`text-[10px] px-2 py-0.5 font-bold rounded-full font-mono transition-colors duration-300 ${activeCategory === 'all' ? 'bg-blue-500/20 text-blue-400' : 'bg-[#1a1c23] text-zinc-500'}`}>
                 {getProductCountText('all')}
               </span>
             </button>
@@ -217,17 +217,17 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
                   onClick={() => handleSelectCategory(c.id || c.name || c.title)}
                   className={`w-full text-left flex items-center justify-between p-3.5 rounded-xl text-xs font-bold transition-all group cursor-pointer border ${
                     isActive 
-                      ? 'bg-blue-50/75 text-blue-600 border-blue-100 shadow-[inset_0_0_0_1px_rgba(59,130,246,0.1)]' 
-                      : 'text-zinc-500 hover:text-[#1a1a1c] hover:bg-slate-50 border-transparent hover:border-zinc-100/60'
+                      ? 'bg-blue-600/10 text-blue-400 border-blue-500/30' 
+                      : 'text-zinc-400 hover:text-white hover:bg-[#161a26] border-transparent hover:border-[#2d3748]'
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <div className={`p-2 rounded-lg transition-colors duration-300 ${isActive ? 'bg-blue-100 text-blue-600' : 'bg-slate-50 text-zinc-400 group-hover:bg-white'}`}>
+                    <div className={`p-2 rounded-lg transition-colors duration-300 ${isActive ? 'bg-blue-500/20 text-blue-400' : 'bg-[#1a1c23] text-zinc-500 group-hover:bg-[#1f293d] group-hover:text-zinc-300'}`}>
                       {getCategoryIcon(c.title || c.name)}
                     </div>
                     <span className="truncate max-w-[130px]">{c.title}</span>
                   </div>
-                  <span className={`text-[10px] px-2 py-0.5 font-bold rounded-full font-mono transition-colors duration-300 ${isActive ? 'bg-blue-100/50 text-blue-610' : 'bg-zinc-100 text-zinc-400'}`}>
+                  <span className={`text-[10px] px-2 py-0.5 font-bold rounded-full font-mono transition-colors duration-300 ${isActive ? 'bg-blue-500/20 text-blue-400' : 'bg-[#1a1c23] text-zinc-500'}`}>
                     {count}
                   </span>
                 </button>
@@ -236,11 +236,11 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
           </div>
 
           {/* Quick Notice Banner inside Sidebar */}
-          <div className="mt-8 bg-slate-50/60 border border-zinc-150 p-4 rounded-xl text-left">
-            <h4 className="text-[11px] font-black text-[#1a1a1c] flex items-center gap-1.5 mb-1.5 uppercase tracking-wide">
-              <Info className="w-3.5 h-3.5 text-blue-600" /> บริการแบบออโต้
+          <div className="mt-8 bg-[#161a26] border border-[#1f293d] p-4 rounded-xl text-left">
+            <h4 className="text-[11px] font-black text-white flex items-center gap-1.5 mb-1.5 uppercase tracking-wide">
+              <Info className="w-3.5 h-3.5 text-blue-500" /> บริการแบบออโต้
             </h4>
-            <p className="text-[10px] leading-relaxed text-zinc-450 font-semibold">
+            <p className="text-[10px] leading-relaxed text-zinc-400 font-semibold">
               เว็บไซต์ของเราจัดจำหน่ายผ่านระบบอัตโนมัติ 100% ชำระเงินแล้วสามารถรอการแสดงผลและจัดส่งข้อมูลรหัสลับได้ทันทีทางเมนูประวัติการสั่งซื้อ
             </p>
           </div>
@@ -255,8 +255,8 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
             onClick={() => handleSelectCategory('all')}
             className={`flex items-center gap-2 px-5 py-3 rounded-full text-xs font-bold whitespace-nowrap transition-all border cursor-pointer ${
               activeCategory === 'all'
-                ? 'bg-blue-600 text-white border-blue-600 shadow-[0_4px_14px_rgba(59,130,246,0.25)] hover:bg-blue-750'
-                : 'bg-white text-[#1a1a1c] border-zinc-200 hover:border-zinc-300'
+                ? 'bg-[#161a26] text-blue-500 border-[#2d3748] shadow-[0_4px_14px_rgba(59,130,246,0.15)] hover:bg-[#1f293d]'
+                : 'bg-[#11131a] text-zinc-400 border-[#1f293d] hover:border-[#2d3748]'
             }`}
           >
             <Package className="w-3.5 h-3.5" />
@@ -273,8 +273,8 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
                 onClick={() => handleSelectCategory(c.id || c.name || c.title)}
                 className={`flex items-center gap-2 px-5 py-3 rounded-full text-xs font-bold whitespace-nowrap transition-all border cursor-pointer ${
                   isActive
-                    ? 'bg-blue-600 text-white border-blue-600 shadow-[0_4px_14px_rgba(59,130,246,0.25)] hover:bg-blue-750'
-                    : 'bg-white text-zinc-600 border-zinc-200 hover:border-zinc-300'
+                    ? 'bg-[#161a26] text-blue-500 border-[#2d3748] shadow-[0_4px_14px_rgba(59,130,246,0.15)] hover:bg-[#1f293d]'
+                    : 'bg-[#11131a] text-zinc-400 border-[#1f293d] hover:border-[#2d3748]'
                 }`}
               >
                 {getCategoryIcon(c.title || c.name)}
@@ -291,22 +291,22 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
         <div className="flex-1 w-full flex flex-col">
           
           {/* Filters, Search Inputs, Layout */}
-          <div className="bg-white border border-zinc-150 rounded-2xl p-4 sm:p-5 mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-[0_4px_20px_-8px_rgba(0,0,0,0.02)] w-full">
+          <div className="bg-[#11131a] border border-[#1f293d] rounded-2xl p-4 sm:p-5 mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-[0_4px_20px_-8px_rgba(0,0,0,0.5)] w-full">
             
             {/* Left: Input Text Search */}
             <div className="relative w-full md:max-w-md group">
-              <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400 group-focus-within:text-blue-500 transition-colors" />
+              <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 group-focus-within:text-blue-500 transition-colors" />
               <input
                 type="text"
                 placeholder="ค้นหาสินค้า..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-white border border-zinc-200 text-xs font-bold py-3 pl-12 pr-10 rounded-full placeholder:text-zinc-400 outline-none focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/5 transition-all text-[#1a1a1c] h-10 shadow-[0_2px_8px_-4px_rgba(0,0,0,0.02)]"
+                className="w-full bg-[#161a26] border border-[#1f293d] text-xs font-bold py-3 pl-12 pr-10 rounded-full placeholder:text-zinc-500 outline-none focus:border-[#2d3748] transition-all text-white h-10 shadow-[0_2px_8px_-4px_rgba(0,0,0,0.4)]"
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-4.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-800 cursor-pointer transition-colors"
+                  className="absolute right-4.5 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white cursor-pointer transition-colors outline-none"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -319,16 +319,16 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
               {/* Only in Stock Checkbox */}
               <button
                 onClick={() => setShowOnlyInStock(!showOnlyInStock)}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer outline-none ${
                   showOnlyInStock 
-                    ? 'bg-blue-50/75 border-blue-200/60 text-blue-600 shadow-[inset_0_0_0_1px_rgba(59,130,246,0.05)]' 
-                    : 'bg-white border-zinc-200 text-zinc-500 hover:border-zinc-300 hover:text-[#1a1a1c]'
+                    ? 'bg-[#161a26] border-[#2d3748] text-blue-500 shadow-sm' 
+                    : 'bg-[#161a26] border-[#1f293d] text-zinc-500 hover:border-[#2d3748] hover:text-white'
                 }`}
               >
                 {showOnlyInStock ? (
-                  <CheckCircle className="w-4 h-4 text-blue-500 shrink-0 fill-blue-500/15" />
+                  <CheckCircle className="w-4 h-4 text-blue-500 shrink-0" />
                 ) : (
-                  <div className="w-4 h-4 border-2 border-zinc-300 rounded-md shrink-0" />
+                  <div className="w-4 h-4 border-2 border-zinc-500 rounded-md shrink-0" />
                 )}
                 <span>เฉพาะพร้อมส่ง</span>
               </button>
@@ -338,14 +338,14 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
-                  className="bg-white border border-zinc-200 text-xs font-bold px-4 py-2.5 pr-9 rounded-xl outline-none focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/5 transition-all text-[#1a1a1c] cursor-pointer appearance-none"
+                  className="bg-[#161a26] border border-[#1f293d] text-xs font-bold px-4 py-2.5 pr-9 rounded-xl outline-none focus:border-[#2d3748] transition-all text-white cursor-pointer appearance-none"
                 >
                   <option value="recommend">แนะนำล่าสุด</option>
                   <option value="price_asc">ราคา: ประหยัดสุด</option>
                   <option value="price_desc">ราคา: ราคาสูงไปต่ำ</option>
                   <option value="name">ชื่อสินค้า (A - Z)</option>
                 </select>
-                <div className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 pointer-events-none">
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none">
                   <ChevronRight className="w-3.5 h-3.5 transform rotate-90" />
                 </div>
               </div>

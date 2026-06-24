@@ -339,7 +339,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
           </AnimatePresence>
 
           {/* Turnstile Integration */}
-          {formError && <div className="mt-4 text-rose-500 bg-rose-50 border border-rose-100 rounded-xl p-3 text-sm text-center font-medium">{formError}</div>}
+          {formError && <div className="mt-4 text-rose-500 bg-rose-500/10 border border-rose-500/20 rounded-xl p-3 text-sm text-center font-medium">{formError}</div>}
           {TURNSTILE_SITE_KEY && (
             <div className="flex justify-center relative z-20 py-2 mt-2 w-full max-w-[300px] mx-auto overflow-hidden">
               <Turnstile

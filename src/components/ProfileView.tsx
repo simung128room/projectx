@@ -128,7 +128,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
       whileHover={{ y: -3, scale: 1.01 }}
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
-      className="relative overflow-hidden text-left bg-white border border-zinc-200/80 hover:border-blue-500/30 rounded-2xl p-5.5 flex items-center gap-4 transition-all duration-300 w-full group cursor-pointer shadow-[0_3px_12px_rgba(0,0,0,0.015)]"
+      className="relative overflow-hidden text-left bg-[#161a26] border border-[#1f293d] hover:border-blue-500/30 rounded-2xl p-5.5 flex items-center gap-4 transition-all duration-300 w-full group cursor-pointer shadow-sm outline-none"
     >
       {/* Background radial highlight */}
       <div 
@@ -136,12 +136,12 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
         style={{ bg: glowColor } as any}
       />
       {/* Icon enclosure */}
-      <div className={`p-4 rounded-xl bg-slate-50 border border-zinc-100 group-hover:bg-blue-50 group-hover:border-blue-100 group-hover:scale-105 duration-300 transition-all shrink-0 ${colorClass}`}>
-        <Icon className="w-5 h-5 font-medium" />
+      <div className={`p-4 rounded-xl bg-[#11131a] border border-[#2d3748] group-hover:bg-[#1f293d] group-hover:border-blue-500/30 group-hover:scale-105 duration-300 transition-all shrink-0 ${colorClass}`}>
+        <Icon className="w-5 h-5 font-medium text-zinc-400 group-hover:text-blue-500" />
       </div>
       <div className="flex flex-col min-w-0">
-        <span className="text-xs sm:text-sm font-extrabold text-zinc-800 tracking-wide uppercase">{label}</span>
-        <span className="text-[11px] text-zinc-400 group-hover:text-blue-600 font-bold tracking-normal truncate mt-1 transition-colors duration-200">
+        <span className="text-xs sm:text-sm font-extrabold text-white tracking-wide uppercase">{label}</span>
+        <span className="text-[11px] text-zinc-500 group-hover:text-blue-400 font-bold tracking-normal truncate mt-1 transition-colors duration-200">
           {subLabel}
         </span>
       </div>
@@ -156,11 +156,11 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
       <div className="max-w-6xl mx-auto px-4 py-8 font-sans space-y-8 select-none">
         
         {/* TOP INTEGRATED PROFILE HERO */}
-        <div className="relative overflow-hidden bg-white border border-zinc-200/80 rounded-[24px] p-6 sm:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.015)] flex flex-col sm:flex-row items-center gap-6">
+        <div className="relative overflow-hidden bg-[#11131a] border border-[#1f293d] rounded-[24px] p-6 sm:p-8 shadow-[0_4px_20px_-8px_rgba(0,0,0,0.5)] flex flex-col sm:flex-row items-center gap-6">
           <div className="absolute top-0 left-0 w-full h-[4px] bg-gradient-to-r from-blue-500 to-indigo-500" />
           
           <div className="relative shrink-0">
-            <div className="w-20 h-20 bg-slate-50 border border-zinc-200 p-1 rounded-full overflow-hidden shadow-xs">
+            <div className="w-20 h-20 bg-[#161a26] border border-[#2d3748] p-1 rounded-full overflow-hidden shadow-xs">
               <img 
                 loading="lazy" 
                 src={getAvatarUrl(user?.id || username)} 
@@ -169,27 +169,27 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 referrerPolicy="no-referrer"
               />
             </div>
-            <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full border border-white flex items-center justify-center text-[10px] shadow bg-blue-500 text-white font-bold" title={role}>
+            <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full border border-[#11131a] flex items-center justify-center text-[10px] shadow bg-blue-500 text-white font-bold" title={role}>
               👑
             </div>
           </div>
 
           <div className="flex-1 text-center sm:text-left space-y-2 min-w-0">
             <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2.5">
-              <h1 className="text-xl font-black text-zinc-900 tracking-tight truncate max-w-[240px] sm:max-w-md">
+              <h1 className="text-xl font-black text-white tracking-tight truncate max-w-[240px] sm:max-w-md">
                 {username}
               </h1>
-              <span className="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 bg-blue-55 ml-0.5 text-blue-600 bg-blue-50 border border-blue-100 rounded-lg shrink-0">
+              <span className="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 ml-0.5 text-blue-400 bg-blue-900/40 border border-blue-500/30 rounded-lg shrink-0">
                 {role}
               </span>
             </div>
-            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-5 gap-y-1.5 text-zinc-400 mt-1.5">
+            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-5 gap-y-1.5 text-zinc-500 mt-1.5">
               <p className="text-xs font-bold flex items-center gap-1.5 break-all">
-                <Mail className="w-4 h-4 text-zinc-400 shrink-0" />
+                <Mail className="w-4 h-4 text-zinc-500 shrink-0" />
                 {email}
               </p>
               <p className="text-xs font-bold flex items-center gap-1.5">
-                <Calendar className="w-4 h-4 text-zinc-400 shrink-0" />
+                <Calendar className="w-4 h-4 text-zinc-500 shrink-0" />
                 สมาชิกตั้งแต่ {registeredAt}
               </p>
             </div>
@@ -269,15 +269,15 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
         </div>
 
         {/* PROFILE METADATA DETAILS EDIT FORM */}
-        <div className="bg-white border border-zinc-200/80 rounded-[24px] p-6 sm:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.015)] relative overflow-hidden">
-          <div className="flex items-center gap-2 border-b border-zinc-100 pb-4 mb-6">
+        <div className="bg-[#11131a] border border-[#1f293d] rounded-[24px] p-6 sm:p-8 shadow-[0_4px_20px_-8px_rgba(0,0,0,0.5)] relative overflow-hidden">
+          <div className="flex items-center gap-2 border-b border-[#1f293d] pb-4 mb-6">
             <UserCheck className="w-5 h-5 text-blue-500 shrink-0" />
-            <h2 className="text-sm font-black text-zinc-800 uppercase tracking-wider">แก้ไขข้อมูลสมาชิกและโปรไฟล์</h2>
+            <h2 className="text-sm font-black text-white uppercase tracking-wider">แก้ไขข้อมูลสมาชิกและโปรไฟล์</h2>
           </div>
 
           <form onSubmit={handleUpdateProfile} className="space-y-5 max-w-xl">
             <div>
-              <label className="text-[10px] text-zinc-400 font-extrabold uppercase tracking-widest mb-2 block ml-0.5">
+              <label className="text-[10px] text-zinc-500 font-extrabold uppercase tracking-widest mb-2 block ml-0.5">
                 ชื่อ-นามสกุลผู้ใช้งาน (จริง)
               </label>
               <input 
@@ -285,7 +285,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 placeholder="ระบุชื่อจริงสำหรับการเชื่อมเคาน์เตอร์ธุรกรรม"
-                className="w-full bg-slate-50/50 hover:bg-slate-50 focus:bg-white border border-zinc-200 hover:border-zinc-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 rounded-2xl py-3.5 px-4.5 text-xs text-zinc-800 outline-none transition-all placeholder:text-zinc-400 font-bold" 
+                className="w-full bg-[#161a26] hover:bg-[#1f293d] focus:bg-[#161a26] border border-[#2d3748] focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 rounded-2xl py-3.5 px-4.5 text-xs text-white outline-none transition-all placeholder:text-zinc-500 font-bold" 
               />
             </div>
 
