@@ -1813,6 +1813,27 @@ function AppContent() {
               >
                 <Search className="w-[18px] h-[18px]" />
               </button>
+              
+              {user && (
+                <>
+                  <button 
+                    onClick={() => setActiveView('contact')}
+                    className="text-white hover:text-zinc-300 transition-colors duration-300 outline-none select-none relative h-8 w-8 hidden sm:flex items-center justify-center cursor-pointer bg-transparent rounded-full"
+                    aria-label="ข้อความ"
+                  >
+                    <MessageSquare className="w-[18px] h-[18px]" />
+                  </button>
+                  <button 
+                    onClick={() => { /* TODO: Toggle Notifications */ }}
+                    className="text-white hover:text-zinc-300 transition-colors duration-300 outline-none select-none relative h-8 w-8 flex items-center justify-center cursor-pointer bg-transparent rounded-full"
+                    aria-label="แจ้งเตือน"
+                  >
+                    <Bell className="w-[18px] h-[18px]" />
+                    <span className="absolute top-[6px] right-[6px] w-[8px] h-[8px] bg-red-500 rounded-full border border-black"></span>
+                  </button>
+                </>
+              )}
+
               <div className="relative">
                 <button 
                   onClick={() => {
