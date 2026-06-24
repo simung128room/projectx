@@ -1767,11 +1767,11 @@ function AppContent() {
 
         {/* XENOBUX STORE Navbar */}
         <nav className="relative top-0 z-50 w-full bg-[#000000] border-b border-[#111111] sticky">
-          <div className="container mx-auto flex h-[52px] items-center px-4 lg:px-8 relative justify-between">
+          <div className="container mx-auto flex h-[52px] items-center px-5 lg:px-8 relative justify-between">
             
             <div className="flex items-center z-[1001]">
               <button 
-                className="text-white hover:text-zinc-300 transition-colors duration-300 outline-none select-none relative h-8 w-8 flex items-center justify-center cursor-pointer bg-transparent rounded-full -ml-2" 
+                className="text-white hover:text-zinc-300 transition-colors duration-300 outline-none select-none relative h-8 w-8 flex items-center justify-center cursor-pointer bg-transparent rounded-full" 
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 aria-label="เมนู"
               >
@@ -1796,7 +1796,7 @@ function AppContent() {
             </div>
 
             <div 
-              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-2.5 cursor-pointer select-none group" 
+              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-2.5 cursor-pointer select-none group z-[1000]" 
               onClick={() => { setActiveView('home'); window.scrollTo(0,0); }}
             >
               <img src="https://i.postimg.cc/3wDpxHPp/D7D8FA4A-524D-480E-9BF3-8451C296F760.png" alt="XENOBUX STORE Logo" className="h-[24px] w-auto object-contain transition-transform group-hover:scale-105" />
@@ -1805,7 +1805,28 @@ function AppContent() {
               </span>
             </div>
 
-            <div className="w-8 h-8 pointer-events-none"></div>
+            <div className="flex items-center gap-1 sm:gap-2 z-[1001]">
+              <button 
+                onClick={() => setShowSearchPopup(true)}
+                className="text-white hover:text-zinc-300 transition-colors duration-300 outline-none select-none relative h-8 w-8 flex items-center justify-center cursor-pointer bg-transparent rounded-full"
+                aria-label="ค้นหา"
+              >
+                <Search className="w-[18px] h-[18px]" />
+              </button>
+              <button 
+                onClick={() => {
+                  if (user) {
+                    setActiveView('profile');
+                  } else {
+                    setActiveView('login');
+                  }
+                }}
+                className="text-white hover:text-zinc-300 transition-colors duration-300 outline-none select-none relative h-8 w-8 flex items-center justify-center cursor-pointer bg-transparent rounded-full"
+                aria-label="บัญชีผู้ใช้"
+              >
+                <User className="w-[18px] h-[18px]" />
+              </button>
+            </div>
             
           </div>
         </nav>
