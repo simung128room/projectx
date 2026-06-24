@@ -1906,7 +1906,7 @@ function AppContent() {
 
                 <div className="mt-auto flex flex-col w-full pt-4">
                   <div className="flex flex-col space-y-2 mb-2">
-                     <span className="text-[13px] text-zinc-500 font-medium tracking-wide">โปรไฟล์</span>
+                     <span className="text-[13px] text-zinc-500 font-medium tracking-wide">บัญชี</span>
                   </div>
 
                   {/* Account Section */}
