@@ -755,7 +755,6 @@ function AppContent() {
       duration: 3000,
     });
   };
-  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobileProfilePopupOpen, setIsMobileProfilePopupOpen] = useState(false);
   const [isDesktopSidebarOpen, setIsDesktopSidebarOpen] = useState(true);
@@ -1759,6 +1758,24 @@ function AppContent() {
     }
   };
 
+  const getNavTitle = () => {
+    switch (activeView) {
+      case 'home': return 'Dashboard';
+      case 'categories': return 'หมวดหมู่สินค้า';
+      case 'product_detail': return 'รายละเอียดสินค้า';
+      case 'category_products': return 'สินค้า';
+      case 'login': return 'เข้าสู่ระบบ';
+      case 'profile': return 'โปรไฟล์';
+      case 'settings': return 'การตั้งค่า';
+      case 'wallet': return 'เติมเงิน';
+      case 'history': return 'ประวัติการสั่งซื้อ';
+      case 'topup': return 'กรอกโค๊ด';
+      case 'contact': return 'ติดต่อเรา';
+      case 'admin': return 'Dashboard Admin';
+      default: return 'Dashboard';
+    }
+  };
+
   const isLoadingSkeleton = !isDBReady;
 
   return (
@@ -1766,12 +1783,13 @@ function AppContent() {
         <ScrollToTop activeView={activeView} />
 
         {/* XENOBUX STORE Navbar */}
-        <nav className="relative top-0 z-50 w-full bg-[#000000] border-b border-[#111111] sticky">
-          <div className="container mx-auto flex h-[52px] items-center px-5 lg:px-8 relative justify-between">
+        <nav className="relative top-0 z-50 w-full bg-[#040404] border-b border-[#1f293d] sticky">
+          <div className="container mx-auto flex h-[64px] items-center px-4 relative justify-between">
             
-            <div className="flex items-center z-[1001]">
+            {/* Left side */}
+            <div className="flex items-center gap-3 sm:gap-4 z-[1001]">
               <button 
-                className="text-white hover:text-zinc-300 transition-colors duration-300 outline-none select-none relative h-8 w-8 flex items-center justify-center cursor-pointer bg-transparent rounded-full" 
+                className="text-zinc-400 hover:text-white transition-colors duration-300 outline-none select-none relative w-10 h-10 flex items-center justify-center cursor-pointer bg-transparent border border-zinc-800 rounded-xl" 
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 aria-label="เมนู"
               >
@@ -1793,88 +1811,49 @@ function AppContent() {
                   />
                 </div>
               </button>
+
+              <div 
+                className="flex items-center gap-3 cursor-pointer select-none group" 
+                onClick={() => { setActiveView('home'); window.scrollTo(0,0); }}
+              >
+                <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center overflow-hidden shrink-0">
+                  <img src="https://i.postimg.cc/3wDpxHPp/D7D8FA4A-524D-480E-9BF3-8451C296F760.png" alt="XENOBUX STORE Logo" className="h-[28px] w-auto object-contain transition-transform group-hover:scale-105" />
+                </div>
+                <span className="text-[18px] font-semibold text-white tracking-wide whitespace-nowrap">
+                  {getNavTitle()}
+                </span>
+              </div>
             </div>
 
-            <div 
-              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-2.5 cursor-pointer select-none group z-[1000]" 
-              onClick={() => { setActiveView('home'); window.scrollTo(0,0); }}
-            >
-              <img src="https://i.postimg.cc/3wDpxHPp/D7D8FA4A-524D-480E-9BF3-8451C296F760.png" alt="XENOBUX STORE Logo" className="h-[24px] w-auto object-contain transition-transform group-hover:scale-105" />
-              <span className="text-[17px] font-logo font-black text-white uppercase tracking-wider whitespace-nowrap">
-                XENOBUX STORE
-              </span>
-            </div>
-
-            <div className="flex items-center gap-1 sm:gap-2 z-[1001]">
+            {/* Right side */}
+            <div className="flex items-center gap-2 sm:gap-3 z-[1001]">
               <button 
                 onClick={() => setShowSearchPopup(true)}
-                className="text-white hover:text-zinc-300 transition-colors duration-300 outline-none select-none relative h-8 w-8 flex items-center justify-center cursor-pointer bg-transparent rounded-full"
+                className="text-zinc-400 hover:text-white transition-colors duration-300 outline-none select-none relative w-10 h-10 flex items-center justify-center cursor-pointer bg-transparent border border-zinc-800 rounded-xl"
                 aria-label="ค้นหา"
               >
-                <Search className="w-[18px] h-[18px]" />
+                <Search className="w-[20px] h-[20px]" />
               </button>
               
               {user && (
                 <>
                   <button 
                     onClick={() => setActiveView('contact')}
-                    className="text-white hover:text-zinc-300 transition-colors duration-300 outline-none select-none relative h-8 w-8 hidden sm:flex items-center justify-center cursor-pointer bg-transparent rounded-full"
+                    className="text-zinc-400 hover:text-white transition-colors duration-300 outline-none select-none relative w-10 h-10 hidden sm:flex items-center justify-center cursor-pointer bg-transparent border border-zinc-800 rounded-xl"
                     aria-label="ข้อความ"
                   >
-                    <MessageSquare className="w-[18px] h-[18px]" />
+                    <MessageSquare className="w-[20px] h-[20px]" />
                   </button>
                   <button 
                     onClick={() => { /* TODO: Toggle Notifications */ }}
-                    className="text-white hover:text-zinc-300 transition-colors duration-300 outline-none select-none relative h-8 w-8 flex items-center justify-center cursor-pointer bg-transparent rounded-full"
+                    className="text-zinc-400 hover:text-white transition-colors duration-300 outline-none select-none relative w-10 h-10 flex items-center justify-center cursor-pointer bg-transparent border border-zinc-800 rounded-xl"
                     aria-label="แจ้งเตือน"
                   >
-                    <Bell className="w-[18px] h-[18px]" />
-                    <span className="absolute top-[6px] right-[6px] w-[8px] h-[8px] bg-red-500 rounded-full border border-black"></span>
+                    <Bell className="w-[20px] h-[20px]" />
+                    <span className="absolute -top-[2px] -right-[2px] w-[12px] h-[12px] bg-[#3b82f6] rounded-full border-[2px] border-[#040404]"></span>
                   </button>
                 </>
               )}
-
-              <div className="relative">
-                <button 
-                  onClick={() => {
-                    if (user) {
-                      setIsUserMenuOpen(!isUserMenuOpen);
-                    } else {
-                      setActiveView('login');
-                    }
-                  }}
-                  className="text-white hover:text-zinc-300 transition-colors duration-300 outline-none select-none relative h-8 w-8 flex items-center justify-center cursor-pointer bg-transparent rounded-full"
-                  aria-label="บัญชีผู้ใช้"
-                >
-                  {user ? (
-                    <div className="w-[22px] h-[22px] rounded-full overflow-hidden border border-[#2d3748]">
-                      <img src={user.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.uid}`} alt="User Avatar" className="w-full h-full object-cover" />
-                    </div>
-                  ) : (
-                    <User className="w-[18px] h-[18px]" />
-                  )}
-                </button>
-
-                <AnimatePresence>
-                  {isUserMenuOpen && user && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                      transition={{ duration: 0.15 }}
-                      className="absolute right-0 top-full mt-2 w-48 bg-[#1a1c23] border border-[#2d3240] rounded-2xl shadow-2xl overflow-hidden z-[1001] flex flex-col p-2"
-                    >
-                      <button className="text-left px-4 py-2.5 text-[14px] font-medium text-zinc-200 hover:bg-[#252833] hover:text-white rounded-xl transition-colors mb-1 border-none bg-transparent outline-none cursor-pointer" onClick={() => { setIsUserMenuOpen(false); setActiveView('profile'); }}>โปรไฟล์</button>
-                      <button className="text-left px-4 py-2.5 text-[14px] font-medium text-zinc-200 hover:bg-[#252833] hover:text-white rounded-xl transition-colors mb-1 border-none bg-transparent outline-none cursor-pointer" onClick={() => { setIsUserMenuOpen(false); setActiveView('settings'); }}>การตั้งค่า</button>
-                      <button className="text-left px-4 py-2.5 text-[14px] font-medium text-zinc-200 hover:bg-[#252833] hover:text-white rounded-xl transition-colors mb-1 border-none bg-transparent outline-none cursor-pointer" onClick={() => { setIsUserMenuOpen(false); setActiveView('history'); }}>ประวัติการสั่งซื้อ</button>
-                      <button className="text-left px-4 py-2.5 text-[14px] font-medium text-zinc-200 hover:bg-[#252833] hover:text-white rounded-xl transition-colors mb-1 border-none bg-transparent outline-none cursor-pointer" onClick={() => { setIsUserMenuOpen(false); setActiveView('wallet'); }}>ประวัติการเติมเงิน</button>
-                      <button className="text-left px-4 py-2.5 text-[14px] font-medium text-zinc-200 hover:bg-[#252833] hover:text-white rounded-xl transition-colors mb-1 border-none bg-transparent outline-none cursor-pointer" onClick={() => { setIsUserMenuOpen(false); setActiveView('topup'); }}>กรอกโค๊ด</button>
-                      <div className="h-[1px] bg-[#2d3240] my-1 mx-2" />
-                      <button className="text-left px-4 py-2.5 text-[14px] font-bold text-red-500 hover:bg-red-500/10 rounded-xl transition-colors border-none bg-transparent outline-none cursor-pointer" onClick={() => { setIsUserMenuOpen(false); handleLogout(); }}>ออกจากระบบ</button>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
             </div>
             
           </div>
