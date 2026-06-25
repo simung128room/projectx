@@ -1845,12 +1845,21 @@ function AppContent() {
                     <MessageSquare className="w-[20px] h-[20px]" />
                   </button>
                   <button 
-                    onClick={() => { /* TODO: Toggle Notifications */ }}
+                    onClick={() => {
+                      Swal.fire({
+                        title: 'การแจ้งเตือน',
+                        text: 'ไม่มีการแจ้งเตือนใหม่ในขณะนี้',
+                        icon: 'info',
+                        confirmButtonText: 'ตกลง',
+                        background: '#1a1c23',
+                        color: '#fff',
+                        confirmButtonColor: '#3b82f6'
+                      });
+                    }}
                     className="text-zinc-400 hover:text-white transition-colors duration-300 outline-none select-none relative w-10 h-10 flex items-center justify-center cursor-pointer bg-transparent border border-zinc-800 rounded-xl"
                     aria-label="แจ้งเตือน"
                   >
                     <Bell className="w-[20px] h-[20px]" />
-                    <span className="absolute -top-[2px] -right-[2px] w-[12px] h-[12px] bg-[#3b82f6] rounded-full border-[2px] border-[#040404]"></span>
                   </button>
                 </>
               )}

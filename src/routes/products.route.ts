@@ -389,6 +389,38 @@ export function createProductsRouter({
     }
   });
 
+
+  // 12. PUT /api/products/bulk/category (requireAdmin)
+  router.put("/products/bulk/category", requireAdmin, async (req: any, res: any) => {
+    try {
+      const { idsToAdd, idsToRemove, categoryId } = req.body;
+      const updatePromises = [];
+      if (Array.isArray(idsToAdd)) {
+        for (const id of idsToAdd) {
+          updatePromises.push(
+            admin
+              .firestore()
+              .collection("products")
+              .doc(id)
+              .update({ category: categoryId }),
+          );
+        }
+      }
+      if (Array.isArray(idsToRemove)) {
+        for (const id of idsToRemove) {
+          updatePromises.push(
+            admin
+              .firestore()
+              .collection("products")
+              .doc(id)
+              .update({ category: "" }),
+          );
+        }
+      }
+      await Promise.all(updatePromises);
+      invalidateCache("products");
+      res.json({ success: true });
+
   // 7. PUT /api/products/:id (requireAdmin + Zod)
   router.put("/products/:id", requireAdmin, async (req: any, res: any) => {
     if (!admin.firestore())
@@ -603,37 +635,6 @@ export function createProductsRouter({
         .json({ error: String(err && err.message ? err.message : err) });
     }
   });
-
-  // 12. PUT /api/products/bulk/category (requireAdmin)
-  router.put("/products/bulk/category", requireAdmin, async (req: any, res: any) => {
-    try {
-      const { idsToAdd, idsToRemove, categoryId } = req.body;
-      const updatePromises = [];
-      if (Array.isArray(idsToAdd)) {
-        for (const id of idsToAdd) {
-          updatePromises.push(
-            admin
-              .firestore()
-              .collection("products")
-              .doc(id)
-              .update({ category: categoryId }),
-          );
-        }
-      }
-      if (Array.isArray(idsToRemove)) {
-        for (const id of idsToRemove) {
-          updatePromises.push(
-            admin
-              .firestore()
-              .collection("products")
-              .doc(id)
-              .update({ category: "" }),
-          );
-        }
-      }
-      await Promise.all(updatePromises);
-      invalidateCache("products");
-      res.json({ success: true });
     } catch (e: any) {
       res.status(500).json({ error: e.message });
     }

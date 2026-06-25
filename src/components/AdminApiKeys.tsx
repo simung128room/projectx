@@ -14,7 +14,7 @@ export const AdminApiKeys: React.FC = () => {
   const fetchKeys = async () => {
     setIsLoading(true);
     try {
-      const res = await axios.get('/api/api_keys');
+      const res = await axios.get('/api/admin/api-keys');
       setApiKeys(res.data);
     } catch (err: any) {
       console.error(err);
@@ -38,7 +38,7 @@ export const AdminApiKeys: React.FC = () => {
   const handleAddKey = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await axios.post('/api/api_keys', {
+      await axios.post('/api/admin/api-keys', {
         name: newKeyName,
         is_lifetime: isLifetime,
         expire_days: expireDays
@@ -69,7 +69,7 @@ export const AdminApiKeys: React.FC = () => {
 
   const handleToggleStatus = async (key: string, currentStatus: string) => {
     try {
-      await axios.patch(`/api/api_keys/${key}`, {
+      await axios.patch(`/api/admin/api-keys/${key}`, {
         status: currentStatus === 'active' ? 'disabled' : 'active'
       });
       fetchKeys();
@@ -101,7 +101,7 @@ export const AdminApiKeys: React.FC = () => {
 
     if (confirm.isConfirmed) {
       try {
-        await axios.delete(`/api/api_keys/${key}`);
+        await axios.delete(`/api/admin/api-keys/${key}`);
         Swal.fire({
           title: 'ลบเสร็จสิ้น',
           icon: 'success',

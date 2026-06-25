@@ -140,6 +140,23 @@ export function createUsersRouter({
       
       let dataToUpdate: Record<string, any> = parsedBody;
       
+      // Check for uniqueness of email and username
+      if (parsedBody.email || parsedBody.username) {
+        const usersRef = admin.firestore().collection("users");
+        if (parsedBody.email) {
+          const emailSnap = await usersRef.where("email", "==", parsedBody.email).get();
+          if (!emailSnap.empty && emailSnap.docs.some(doc => doc.id !== uid)) {
+            return res.status(400).json({ error: "อีเมลนี้ถูกใช้งานแล้ว" });
+          }
+        }
+        if (parsedBody.username) {
+          const usernameSnap = await usersRef.where("username", "==", parsedBody.username).get();
+          if (!usernameSnap.empty && usernameSnap.docs.some(doc => doc.id !== uid)) {
+            return res.status(400).json({ error: "ชื่อผู้ใช้นี้ถูกใช้งานแล้ว" });
+          }
+        }
+      }
+      
       // Non-admin can only update generic profile metadata
       if (!req.isAdmin) {
         const allowedFields = [
@@ -184,8 +201,8 @@ export function createUsersRouter({
     try {
       const { uid } = req.params;
       const { password } = req.body;
-      if (!password) {
-        return res.status(400).json({ error: "Missing password" });
+      if (!password || password.length < 6) {
+        return res.status(400).json({ error: "Password must be at least 6 characters" });
       }
       await supabaseAdmin.auth.admin.updateUserById(uid, { password });
       invalidateUserTokenCache(uid);

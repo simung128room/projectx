@@ -4,9 +4,17 @@ import path from 'path';
 
 import os from 'os';
 import crypto from 'crypto';
-const localDBPath = os.tmpdir() + `/.data`;
-if (!fs.existsSync(localDBPath)) {
-  fs.mkdirSync(localDBPath, { recursive: true });
+let localDBPath = path.join(process.cwd(), '.data');
+try {
+  if (!fs.existsSync(localDBPath)) {
+    fs.mkdirSync(localDBPath, { recursive: true });
+  }
+} catch (e) {
+  // Fallback to /tmp if process.cwd() is read-only (like in some production environments)
+  localDBPath = path.join(os.tmpdir(), '.data');
+  if (!fs.existsSync(localDBPath)) {
+    fs.mkdirSync(localDBPath, { recursive: true });
+  }
 }
 
 const localTableCache: Record<string, any[]> = {};

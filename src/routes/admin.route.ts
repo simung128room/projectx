@@ -47,17 +47,26 @@ export function createAdminRouter({
       const offset = (page - 1) * limit;
 
       const db = admin.firestore();
-      const snapshot = await db.collection("users").get();
       
-      let users = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        uid: doc.id,
-        ...doc.data(),
-      }));
+      let users = [];
+      if (!search) {
+        const snapshot = await db.collection("users").limit(limit).offset(offset).get();
+        users = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          uid: doc.id,
+          ...doc.data(),
+        }));
+      } else {
+        // Firestore limit memory load for search
+        const snapshot = await db.collection("users").get();
+        
+        const allUsers = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          uid: doc.id,
+          ...doc.data(),
+        }));
 
-      // Search filtering
-      if (search) {
-        users = users.filter((u: any) => {
+        users = allUsers.filter((u: any) => {
           const username = (u.username || "").toLowerCase();
           const email = (u.email || "").toLowerCase();
           const fullName = (u.fullName || "").toLowerCase();
@@ -71,11 +80,10 @@ export function createAdminRouter({
             uid.includes(search)
           );
         });
+        users = users.slice(offset, offset + limit);
       }
 
-      // Pagination
-      const paginatedUsers = users.slice(offset, offset + limit);
-      res.json(paginatedUsers);
+      res.json(users);
     } catch (err: any) {
       console.error("Admin: Error fetching users:", err);
       res.status(500).json({ error: err.message || String(err) });
@@ -243,7 +251,7 @@ export function createAdminRouter({
 
       for (const doc of purchasesSnap.docs) {
         const data = doc.data();
-        if (data.secretData && data.secretData.startsWith("enc:")) {
+        if (data.secretData && (data.secretData.startsWith("enc:") || data.secretData.startsWith("enc2:"))) {
           const decrypted = await decrypt(data.secretData);
           if (decrypted !== data.secretData) {
             const reEncrypted = await encrypt(decrypted);
@@ -341,6 +349,34 @@ export function createAdminRouter({
         key,
         req,
         { key }
+      ).catch(() => {});
+
+      res.json({ success: true });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message || String(err) });
+    }
+  });
+
+  // PATCH /api/admin/api-keys/:key (update status)
+  router.patch("/admin/api-keys/:key", requireAdmin, async (req: any, res: any) => {
+    try {
+      const { key } = req.params;
+      const { status } = req.body;
+      
+      const keyRef = admin.firestore().collection("api_keys").doc(key);
+      const keyDoc = await keyRef.get();
+      if (!keyDoc.exists) {
+        return res.status(404).json({ error: "Key not found" });
+      }
+      
+      await keyRef.update({ status, updated_at: new Date() });
+      
+      await writeAuditLog(
+        "API_KEY_STATUS",
+        req.user?.uid || "admin",
+        key,
+        req,
+        { status }
       ).catch(() => {});
 
       res.json({ success: true });
