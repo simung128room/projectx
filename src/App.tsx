@@ -1816,7 +1816,7 @@ function AppContent() {
                 className="flex items-center gap-3 cursor-pointer select-none group" 
                 onClick={() => { setActiveView('home'); window.scrollTo(0,0); }}
               >
-                <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center overflow-hidden shrink-0">
+                <div className="w-9 h-9 flex items-center justify-center shrink-0">
                   <img src="https://i.postimg.cc/3wDpxHPp/D7D8FA4A-524D-480E-9BF3-8451C296F760.png" alt="XENOBUX STORE Logo" className="h-[28px] w-auto object-contain transition-transform group-hover:scale-105" />
                 </div>
                 <span className="text-[18px] font-semibold text-white tracking-wide whitespace-nowrap">
