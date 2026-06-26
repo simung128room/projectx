@@ -1785,86 +1785,59 @@ function AppContent() {
         <ScrollToTop activeView={activeView} />
 
         {/* XENOBUX STORE Navbar */}
-        <nav className="relative top-0 z-50 w-full bg-[#040404] border-b border-[#1f293d] sticky">
-          <div className="container mx-auto flex h-[64px] items-center px-4 relative justify-between">
+        <nav className="relative top-0 z-50 w-full bg-[#040404] border-b border-[#1f293d] sticky border-t-[3px] border-[#ff3b3b]">
+          <div className="container mx-auto flex h-[68px] items-center px-4 relative justify-between">
             
-            {/* Left side */}
-            <div className="flex items-center gap-3 sm:gap-4 z-[1001]">
+            {/* Left side empty spacer to ensure absolute centering is stable and uncluttered */}
+            <div className="flex-1 hidden md:block"></div>
+
+            {/* Centered Logo with glowing red ring border */}
+            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[1001]">
+              <div 
+                className="flex items-center cursor-pointer select-none group" 
+                onClick={() => { setActiveView('home'); window.scrollTo(0,0); }}
+              >
+                <img 
+                  src="https://img2.pic.in.th/IMG_7319.png" 
+                  alt="Sunoid.shop Logo" 
+                  className="h-[44px] w-[44px] md:h-[48px] md:w-[48px] rounded-full object-cover border-[3px] border-[#ff3b3b] shadow-[0_0_12px_rgba(255,59,59,0.3)] transition-transform group-hover:scale-105" 
+                />
+              </div>
+            </div>
+
+            {/* Right side controls matching screenshot exactly in a dark theme style */}
+            <div className="flex items-center gap-3 ml-auto z-[1001]">
               <button 
-                className="text-zinc-400 hover:text-white transition-colors duration-300 outline-none select-none relative w-10 h-10 flex items-center justify-center cursor-pointer bg-transparent border border-zinc-800 rounded-xl" 
+                onClick={() => setShowSearchPopup(true)}
+                className="text-zinc-400 hover:text-white transition-all duration-300 outline-none select-none relative w-11 h-11 flex items-center justify-center cursor-pointer bg-[#11131a] border border-[#1f293d] rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.4)] hover:border-zinc-700 hover:shadow-xs"
+                aria-label="ค้นหา"
+              >
+                <Search className="w-[18px] h-[18px] stroke-[2.5]" />
+              </button>
+              
+              <button 
+                className="text-zinc-400 hover:text-white transition-colors duration-300 outline-none select-none relative w-11 h-11 flex items-center justify-center cursor-pointer bg-transparent border-none" 
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 aria-label="เมนู"
               >
-                <div className="w-[18px] h-[12px] relative select-none">
+                <div className="w-[22px] h-[12px] relative select-none">
                   <motion.span
                     animate={isMobileMenuOpen ? { rotate: 45, y: 5 } : { rotate: 0, y: 0 }}
                     transition={{ type: "spring", stiffness: 260, damping: 20 }}
-                    className="w-full h-[1.5px] bg-current absolute top-0 left-0 origin-center rounded-full"
+                    className="w-full h-[3px] bg-zinc-300 absolute top-0 left-0 origin-center rounded-full"
                   />
                   <motion.span
                     animate={isMobileMenuOpen ? { opacity: 0, scale: 0.5 } : { opacity: 1, scale: 1 }}
                     transition={{ type: "spring", stiffness: 260, damping: 20 }}
-                    className="w-full h-[1.5px] bg-current absolute top-[5px] left-0 origin-center rounded-full"
+                    className="w-full h-[3px] bg-zinc-300 absolute top-[4.5px] left-0 origin-center rounded-full"
                   />
                   <motion.span
                     animate={isMobileMenuOpen ? { rotate: -45, y: -5 } : { rotate: 0, y: 0 }}
                     transition={{ type: "spring", stiffness: 260, damping: 20 }}
-                    className="w-full h-[1.5px] bg-current absolute bottom-0 left-0 origin-center rounded-full"
+                    className="w-full h-[3px] bg-zinc-300 absolute bottom-0 left-0 origin-center rounded-full"
                   />
                 </div>
               </button>
-
-              <div 
-                className="flex items-center gap-3 cursor-pointer select-none group" 
-                onClick={() => { setActiveView('home'); window.scrollTo(0,0); }}
-              >
-                <div className="w-9 h-9 flex items-center justify-center shrink-0">
-                  <img src="https://i.postimg.cc/3wDpxHPp/D7D8FA4A-524D-480E-9BF3-8451C296F760.png" alt="XENOBUX STORE Logo" className="h-[28px] w-auto object-contain transition-transform group-hover:scale-105" />
-                </div>
-                <span className="text-[18px] font-semibold text-white tracking-wide whitespace-nowrap">
-                  {getNavTitle()}
-                </span>
-              </div>
-            </div>
-
-            {/* Right side */}
-            <div className="flex items-center gap-2 sm:gap-3 z-[1001]">
-              <button 
-                onClick={() => setShowSearchPopup(true)}
-                className="text-zinc-400 hover:text-white transition-colors duration-300 outline-none select-none relative w-10 h-10 flex items-center justify-center cursor-pointer bg-transparent border border-zinc-800 rounded-xl"
-                aria-label="ค้นหา"
-              >
-                <Search className="w-[20px] h-[20px]" />
-              </button>
-              
-              {user && (
-                <>
-                  <button 
-                    onClick={() => setActiveView('contact')}
-                    className="text-zinc-400 hover:text-white transition-colors duration-300 outline-none select-none relative w-10 h-10 hidden sm:flex items-center justify-center cursor-pointer bg-transparent border border-zinc-800 rounded-xl"
-                    aria-label="ข้อความ"
-                  >
-                    <MessageSquare className="w-[20px] h-[20px]" />
-                  </button>
-                  <button 
-                    onClick={() => {
-                      Swal.fire({
-                        title: 'การแจ้งเตือน',
-                        text: 'ไม่มีการแจ้งเตือนใหม่ในขณะนี้',
-                        icon: 'info',
-                        confirmButtonText: 'ตกลง',
-                        background: '#1a1c23',
-                        color: '#fff',
-                        confirmButtonColor: '#3b82f6'
-                      });
-                    }}
-                    className="text-zinc-400 hover:text-white transition-colors duration-300 outline-none select-none relative w-10 h-10 flex items-center justify-center cursor-pointer bg-transparent border border-zinc-800 rounded-xl"
-                    aria-label="แจ้งเตือน"
-                  >
-                    <Bell className="w-[20px] h-[20px]" />
-                  </button>
-                </>
-              )}
             </div>
             
           </div>
