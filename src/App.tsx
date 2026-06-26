@@ -1785,7 +1785,7 @@ function AppContent() {
         <ScrollToTop activeView={activeView} />
 
         {/* XENOBUX STORE Navbar */}
-        <nav className="relative top-0 z-50 w-full bg-[#040404] border-b border-[#1f293d] sticky border-t-[3px] border-[#ff3b3b]">
+        <nav className="relative top-0 z-50 w-full bg-[#040404] border-b border-[#1f293d] sticky">
           <div className="container mx-auto flex h-[68px] items-center px-4 relative justify-between">
             
             {/* Left side empty spacer to ensure absolute centering is stable and uncluttered */}
@@ -1806,7 +1806,15 @@ function AppContent() {
             </div>
 
             {/* Right side controls matching screenshot exactly in a dark theme style */}
-            <div className="flex items-center gap-3 ml-auto z-[1001]">
+            <div className="flex items-center gap-3 ml-auto z-[1001] relative">
+              {/* Globe + TH shown only when menu is open on desktop/computer */}
+              {isMobileMenuOpen && (
+                <div className="hidden md:flex items-center gap-1.5 text-white font-medium mr-1 select-none animate-fade-in">
+                  <Globe className="w-[18px] h-[18px] text-zinc-300" />
+                  <span className="text-[14px] text-zinc-300 font-semibold uppercase tracking-wider">TH</span>
+                </div>
+              )}
+
               <button 
                 onClick={() => setShowSearchPopup(true)}
                 className="text-zinc-400 hover:text-white transition-all duration-300 outline-none select-none relative w-11 h-11 flex items-center justify-center cursor-pointer bg-[#11131a] border border-[#1f293d] rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.4)] hover:border-zinc-700 hover:shadow-xs"
@@ -1838,6 +1846,116 @@ function AppContent() {
                   />
                 </div>
               </button>
+
+              {/* Invisible Backdrop overlay to dismiss dropdown on outer click on desktop */}
+              {isMobileMenuOpen && (
+                <div 
+                  className="hidden md:block fixed inset-0 z-[1001] bg-transparent cursor-default" 
+                  onClick={() => setIsMobileMenuOpen(false)}
+                />
+              )}
+
+              {/* Floating Dropdown for desktop (md and larger) styled exactly like the screenshot with the actual app options */}
+              <AnimatePresence>
+                {isMobileMenuOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 15, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 15, scale: 0.95 }}
+                    transition={{ duration: 0.15, ease: "easeOut" }}
+                    className="hidden md:flex absolute top-[120%] right-0 w-[260px] bg-[#0b0d12] border border-[#1f293d] rounded-[24px] shadow-[0_15px_45px_rgba(0,0,0,0.6)] z-[1002] flex-col p-2 select-none overflow-hidden"
+                  >
+                    {/* Top gradient glow overlay exactly matching screenshot's purple highlight */}
+                    <div className="absolute top-0 left-0 w-32 h-32 bg-[radial-gradient(circle_at_top_left,rgba(139,92,246,0.18),transparent_70%)] pointer-events-none" />
+
+                    {/* Dropdown items */}
+                    <div className="relative z-10 flex flex-col w-full font-sans">
+                      {isAdmin && (
+                        <button 
+                          onClick={() => { setIsMobileMenuOpen(false); setActiveView('admin'); }}
+                          className="w-full text-left px-5 py-3 text-[14px] font-semibold text-zinc-200 hover:text-white rounded-[16px] transition-all bg-transparent hover:bg-white/[0.04] border-none outline-none cursor-pointer flex items-center gap-3 group/item"
+                        >
+                          <span className="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)] group-hover/item:scale-110 transition-transform animate-pulse" />
+                          จัดการระบบ (แอดมิน)
+                        </button>
+                      )}
+
+                      <button 
+                        onClick={() => { setIsMobileMenuOpen(false); setActiveView('home'); window.scrollTo(0, 0); }}
+                        className="w-full text-left px-5 py-3 text-[14px] font-semibold text-zinc-200 hover:text-white rounded-[16px] transition-all bg-transparent hover:bg-white/[0.04] border-none outline-none cursor-pointer flex items-center gap-3 group/item"
+                      >
+                        <Home className="w-[15px] h-[15px] text-zinc-400 group-hover/item:text-zinc-200 transition-colors" />
+                        หน้าแรก
+                      </button>
+
+                      <button 
+                        onClick={() => { setIsMobileMenuOpen(false); setActiveView('categories'); window.scrollTo(0, 0); }}
+                        className="w-full text-left px-5 py-3 text-[14px] font-semibold text-zinc-200 hover:text-white rounded-[16px] transition-all bg-transparent hover:bg-white/[0.04] border-none outline-none cursor-pointer flex items-center gap-3 group/item"
+                      >
+                        <Package className="w-[15px] h-[15px] text-zinc-400 group-hover/item:text-zinc-200 transition-colors" />
+                        สินค้าทั้งหมด
+                      </button>
+
+                      <button 
+                        onClick={() => { setIsMobileMenuOpen(false); if (!user) { setActiveView('login'); } else { setActiveView('wallet'); } }}
+                        className="w-full text-left px-5 py-3 text-[14px] font-semibold text-zinc-200 hover:text-white rounded-[16px] transition-all bg-transparent hover:bg-white/[0.04] border-none outline-none cursor-pointer flex items-center gap-3 group/item"
+                      >
+                        <Wallet className="w-[15px] h-[15px] text-zinc-400 group-hover/item:text-zinc-200 transition-colors" />
+                        กระเป๋าเงิน (เติมเงิน)
+                      </button>
+
+                      <button 
+                        onClick={() => { setIsMobileMenuOpen(false); if (!user) { setActiveView('login'); } else { setActiveView('redeem'); } }}
+                        className="w-full text-left px-5 py-3 text-[14px] font-semibold text-zinc-200 hover:text-white rounded-[16px] transition-all bg-transparent hover:bg-white/[0.04] border-none outline-none cursor-pointer flex items-center gap-3 group/item"
+                      >
+                        <Gift className="w-[15px] h-[15px] text-amber-500 group-hover/item:scale-105 transition-transform" />
+                        <span className="text-amber-500 font-bold">รับโบนัสฟรี (Daily Reward)</span>
+                      </button>
+
+                      <button 
+                        onClick={() => { setIsMobileMenuOpen(false); if (!user) { setActiveView('login'); } else { setActiveView('history'); } }}
+                        className="w-full text-left px-5 py-3 text-[14px] font-semibold text-zinc-200 hover:text-white rounded-[16px] transition-all bg-transparent hover:bg-white/[0.04] border-none outline-none cursor-pointer flex items-center gap-3 group/item"
+                      >
+                        <History className="w-[15px] h-[15px] text-zinc-400 group-hover/item:text-zinc-200 transition-colors" />
+                        คำสั่งซื้อของฉัน
+                      </button>
+
+                      <button 
+                        onClick={() => { setIsMobileMenuOpen(false); if (!user) { setActiveView('login'); } else { setActiveView('profile'); } }}
+                        className="w-full text-left px-5 py-3 text-[14px] font-semibold text-zinc-200 hover:text-white rounded-[16px] transition-all bg-transparent hover:bg-white/[0.04] border-none outline-none cursor-pointer flex items-center gap-3 group/item"
+                      >
+                        <User className="w-[15px] h-[15px] text-zinc-400 group-hover/item:text-zinc-200 transition-colors" />
+                        โปรไฟล์ / บัญชีของฉัน
+                      </button>
+
+                      {!user && (
+                        <button 
+                          onClick={() => { setIsMobileMenuOpen(false); setActiveView('login'); }}
+                          className="w-full text-left px-5 py-3 text-[14px] font-semibold text-amber-400 hover:text-amber-300 rounded-[16px] transition-all bg-transparent hover:bg-white/[0.04] border-none outline-none cursor-pointer flex items-center gap-3"
+                        >
+                          <LogIn className="w-[15px] h-[15px]" />
+                          เข้าสู่ระบบ / สมัครสมาชิก
+                        </button>
+                      )}
+
+                      {user && (
+                        <>
+                          {/* Divider line exactly like screenshot */}
+                          <div className="h-[1px] w-full bg-[#1f293d] my-1.5" />
+
+                          <button 
+                            onClick={() => { setIsMobileMenuOpen(false); handleLogout(); }}
+                            className="w-full text-left px-5 py-3 text-[14px] font-bold text-red-500 hover:text-red-400 hover:bg-red-500/10 rounded-[16px] transition-all border-none bg-transparent outline-none cursor-pointer flex items-center gap-3"
+                          >
+                            <LogOut className="w-[15px] h-[15px] text-red-500" />
+                            ออกจากระบบ
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
             
           </div>
@@ -1854,7 +1972,7 @@ function AppContent() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
               onClick={() => setIsMobileMenuOpen(false)}
-              className="fixed inset-0 bg-black/60 backdrop-blur-md z-[999]"
+              className="md:hidden fixed inset-0 bg-black/60 backdrop-blur-md z-[999]"
             />
           )}
 
@@ -1865,7 +1983,7 @@ function AppContent() {
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: "-100%", opacity: 0.5 }}
               transition={{ type: "spring", damping: 28, stiffness: 220 }}
-              className="fixed left-0 top-0 bottom-0 h-full w-[260px] max-w-[85vw] bg-[#1a1c23] border-r border-[#1f293d] shadow-[0_0_40px_rgba(0,0,0,0.8)] z-[1000] flex flex-col font-sans overflow-x-hidden overflow-y-auto"
+              className="md:hidden fixed left-0 top-0 bottom-0 h-full w-[260px] max-w-[85vw] bg-[#1a1c23] border-r border-[#1f293d] shadow-[0_0_40px_rgba(0,0,0,0.8)] z-[1000] flex flex-col font-sans overflow-x-hidden overflow-y-auto"
             >
               <div className="flex flex-col h-full py-6 px-6 select-none bg-[#1a1c23] text-white w-full" style={{ scrollbarWidth: 'none' }}>
                 {/* Header: Logo and Close Button */}
