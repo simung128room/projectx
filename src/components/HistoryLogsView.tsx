@@ -151,7 +151,7 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({
               รายละเอียดธุรกรรมเสร็จสิ้น
             </h3>
             <p className="text-zinc-400 text-[10px] font-mono">
-              รหัสอ้างอิง: <span className="text-zinc-650 uppercase">#{item.id?.substring(0, 12) || 'N/A'}</span>
+              รหัสอ้างอิง: <span className="text-zinc-500 uppercase">#{item.id?.substring(0, 12) || 'N/A'}</span>
             </p>
           </div>
 
@@ -309,7 +309,7 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({
         className="bg-white border border-zinc-200/80 hover:border-zinc-350 rounded-2xl p-5 hover:shadow-xs transition-all flex flex-col md:flex-row md:items-center justify-between gap-5 group relative overflow-hidden text-zinc-800"
       >
         <div className="flex flex-row items-center gap-4 flex-1 min-w-0">
-          <div className="w-11 h-11 bg-zinc-50 border border-zinc-150 rounded-xl flex items-center justify-center shrink-0 group-hover:bg-zinc-100/50 transition-colors">
+          <div className="w-11 h-11 bg-zinc-50 border border-zinc-200 rounded-xl flex items-center justify-center shrink-0 group-hover:bg-zinc-100/50 transition-colors">
             {iconNode}
           </div>
           <div className="flex flex-col gap-1 flex-1 min-w-0">
@@ -414,8 +414,8 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({
 
         <div className="bg-white border border-zinc-200 rounded-2xl p-5 relative overflow-hidden flex flex-col justify-between shadow-xs">
           <div className="flex items-center justify-between mb-3.5">
-            <span className="text-[10px] tracking-wider font-extrabold text-zinc-450 uppercase">ยอดเติมเครดิตสะสม</span>
-            <div className="p-2 bg-zinc-100 text-zinc-650 rounded-lg border border-zinc-250/20">
+            <span className="text-[10px] tracking-wider font-extrabold text-zinc-500 uppercase">ยอดเติมเครดิตสะสม</span>
+            <div className="p-2 bg-zinc-100 text-zinc-600 rounded-lg border border-zinc-200/20">
               <TrendingUp className="w-4 h-4" />
             </div>
           </div>
@@ -429,8 +429,8 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({
 
         <div className="bg-white border border-zinc-200 rounded-2xl p-5 relative overflow-hidden flex flex-col justify-between shadow-xs">
           <div className="flex items-center justify-between mb-3.5">
-            <span className="text-[10px] tracking-wider font-extrabold text-zinc-450 uppercase">แลกสิทธิ์ใช้งานคีย์</span>
-            <div className="p-2 bg-zinc-100 text-zinc-650 rounded-lg border border-zinc-250/20">
+            <span className="text-[10px] tracking-wider font-extrabold text-zinc-500 uppercase">แลกสิทธิ์ใช้งานคีย์</span>
+            <div className="p-2 bg-zinc-100 text-zinc-600 rounded-lg border border-zinc-200/20">
               <Award className="w-4 h-4" />
             </div>
           </div>

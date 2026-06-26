@@ -245,7 +245,7 @@ export const AdminApiKeys: React.FC = () => {
                       {k.expires_at ? new Date(k.expires_at).toLocaleString('th-TH') : <span className="font-medium text-zinc-400"> Lifetime ถาวร</span>}
                     </td>
                     <td className="px-5 py-3.5 text-xs text-zinc-500 whitespace-nowrap">
-                      {k.last_used ? new Date(k.last_used).toLocaleString('th-TH') : <span className="italic text-zinc-650">ยังไม่มี</span>}
+                      {k.last_used ? new Date(k.last_used).toLocaleString('th-TH') : <span className="italic text-zinc-500">ยังไม่มี</span>}
                     </td>
                     <td className="px-5 py-3.5 text-right whitespace-nowrap">
                       <div className="flex items-center justify-end gap-1.5">

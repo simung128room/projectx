@@ -172,7 +172,7 @@ export const AdminPagesManagement: React.FC<AdminPagesManagementProps> = ({ cust
           <div className="p-12 text-center text-zinc-500 flex flex-col items-center justify-center">
             <FileText className="w-10 h-10 mb-2 opacity-30" />
             <p className="font-medium">ยังไม่มีข้อมูลหน้าเพจย่อยในระบบ</p>
-            <p className="text-xs text-zinc-650 mt-1">คลิกปุ่ม "สร้างหน้าเพจใหม่" ด้านบนเพื่อเริ่มต้นเพิ่มข้อกำหนดแรกให้กับผู้ซื้อ</p>
+            <p className="text-xs text-zinc-500 mt-1">คลิกปุ่ม "สร้างหน้าเพจใหม่" ด้านบนเพื่อเริ่มต้นเพิ่มข้อกำหนดแรกให้กับผู้ซื้อ</p>
           </div>
         ) : (
           <div className="divide-y divide-zinc-850/60 text-sm text-zinc-400">

@@ -58,9 +58,17 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   const balance = userPlan?.balance || 0;
   const username = userPlan?.username || user?.email?.split('@')[0] || 'Member';
   const email = user?.email || 'เข้าสู่ระบบแล้ว';
-  const registeredAt = userPlan?.registeredAt 
-    ? new Date(userPlan.registeredAt).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }) 
-    : new Date().toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' });
+
+  const formatDateToCE = (dateVal: string | Date | undefined | null) => {
+    if (!dateVal) return '';
+    const d = new Date(dateVal);
+    if (isNaN(d.getTime())) return '';
+    const day = d.getDate();
+    const month = d.toLocaleDateString('th-TH', { month: 'long' });
+    const year = d.getFullYear();
+    return `${day} ${month} ${year}`;
+  };
+  const registeredAt = formatDateToCE(userPlan?.registeredAt) || formatDateToCE(new Date());
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -88,7 +96,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
         background: '#ffffff', 
         color: '#1f2937',
         customClass: {
-          popup: 'rounded-2xl border border-zinc-150 shadow-[0_15px_40px_rgba(0,0,0,0.05)]'
+          popup: 'rounded-2xl border border-zinc-200 shadow-[0_15px_40px_rgba(0,0,0,0.05)]'
         }
       });
     } catch (err: any) {
@@ -100,7 +108,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
         background: '#ffffff',
         color: '#1f2937',
         customClass: {
-          popup: 'rounded-2xl border border-zinc-150 shadow-[0_15px_40px_rgba(0,0,0,0.05)]'
+          popup: 'rounded-2xl border border-zinc-200 shadow-[0_15px_40px_rgba(0,0,0,0.05)]'
         }
       });
     } finally {
@@ -128,16 +136,16 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
       whileHover={{ y: -3, scale: 1.01 }}
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
-      className="relative overflow-hidden text-left bg-[#161a26] border border-[#1f293d] hover:border-blue-500/30 rounded-2xl p-5.5 flex items-center gap-4 transition-all duration-300 w-full group cursor-pointer shadow-sm outline-none"
+      className="relative overflow-hidden text-left bg-[#161a26] border border-[#1f293d] hover:border-blue-500/30 rounded-2xl p-5 flex items-center gap-4 transition-all duration-300 w-full group cursor-pointer shadow-sm outline-none"
     >
       {/* Background radial highlight */}
       <div 
         className="absolute -top-12 -right-12 w-24 h-24 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-        style={{ bg: glowColor } as any}
+        style={{ background: glowColor }}
       />
       {/* Icon enclosure */}
-      <div className={`p-4 rounded-xl bg-[#11131a] border border-[#2d3748] group-hover:bg-[#1f293d] group-hover:border-blue-500/30 group-hover:scale-105 duration-300 transition-all shrink-0 ${colorClass}`}>
-        <Icon className="w-5 h-5 font-medium text-zinc-400 group-hover:text-blue-500" />
+      <div className="p-4 rounded-xl bg-[#11131a] border border-[#2d3748] group-hover:bg-[#1f293d] group-hover:border-blue-500/30 group-hover:scale-105 duration-300 transition-all shrink-0">
+        <Icon className={`w-5 h-5 font-medium transition-colors ${colorClass}`} />
       </div>
       <div className="flex flex-col min-w-0">
         <span className="text-xs sm:text-sm font-extrabold text-white tracking-wide uppercase">{label}</span>
@@ -165,7 +173,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 loading="lazy" 
                 src={getAvatarUrl(user?.id || username)} 
                 alt="Avatar" 
-                className="w-full h-full object-cover rounded-full animate-in fade-in duration-305"
+                className="w-full h-full object-cover rounded-full animate-in fade-in duration-300"
                 referrerPolicy="no-referrer"
               />
             </div>
@@ -253,9 +261,9 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                   background: '#ffffff',
                   color: '#1f2937',
                   customClass: {
-                    popup: 'rounded-2xl border border-zinc-150 shadow-[0_15px_40px_rgba(0,0,0,0.05)]',
+                    popup: 'rounded-2xl border border-zinc-200 shadow-[0_15px_40px_rgba(0,0,0,0.05)]',
                     confirmButton: 'rounded-xl px-5 py-2.5 font-bold text-xs',
-                    cancelButton: 'rounded-xl px-5 py-2.5 font-bold text-xs text-zinc-650 bg-zinc-100 hover:bg-zinc-200'
+                    cancelButton: 'rounded-xl px-5 py-2.5 font-bold text-xs text-zinc-600 bg-zinc-100 hover:bg-zinc-200'
                   }
                 }).then((result) => {
                   if (result.isConfirmed) {
@@ -285,7 +293,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 placeholder="ระบุชื่อจริงสำหรับการเชื่อมเคาน์เตอร์ธุรกรรม"
-                className="w-full bg-[#161a26] hover:bg-[#1f293d] focus:bg-[#161a26] border border-[#2d3748] focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 rounded-2xl py-3.5 px-4.5 text-xs text-white outline-none transition-all placeholder:text-zinc-500 font-bold" 
+                className="w-full bg-[#161a26] hover:bg-[#1f293d] focus:bg-[#161a26] border border-[#2d3748] focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 rounded-2xl py-3.5 px-4 text-xs text-white outline-none transition-all placeholder:text-zinc-500 font-bold" 
               />
             </div>
 

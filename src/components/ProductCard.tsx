@@ -1,7 +1,8 @@
 import React from "react";
 import { motion } from "motion/react";
-import { Package, ShoppingCart } from "lucide-react";
+import { Package, ShoppingCart, Bell } from "lucide-react";
 import { Product } from "../types";
+import Swal from "sweetalert2";
 
 // Helper utilities from CategoryProductsView
 const generateGradient = (seed: string | number) => {
@@ -25,13 +26,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onProductClic
   const discount = product.originalPrice && product.price < product.originalPrice
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : null;
-  const isHot = product.price > 100 || (discount !== null && discount >= 20) || product.stock > 0;
+  const isHot = !!(product.isPopular || product.tag?.toLowerCase() === 'hot');
   
   return (
     <motion.div
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
-      whileHover={{ y: -6, ...({} as any) }}
+      whileHover={{ y: -6 }}
       transition={{ 
         type: "spring", 
         stiffness: 280, 
@@ -66,7 +67,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onProductClic
           <span className="text-4xl font-extrabold text-[#1a1a1c]/40 uppercase tracking-tighter group-hover:scale-110 transition-transform duration-500">
             {(formatProductName(product.name) || "P")[0].toUpperCase()}
           </span>
-          <span className="text-[11px] font-logo font-black text-[#1a1a1c]/60 uppercase tracking-widest mt-1">XENOBUX</span>
+          <span className="text-[11px] font-logo font-black text-[#1a1a1c]/60 uppercase tracking-widest mt-1">SUNOID</span>
         </div>
 
         {/* Diagonal "Best Seller" ribbon in image corner */}
@@ -121,8 +122,21 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onProductClic
 
         {/* Buy Button */}
         {product.stock <= 0 ? (
-          <button className="w-full bg-[#1f293d] text-zinc-400 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 cursor-default mt-auto transition-all duration-300 border border-[#2d3748]">
-            <Package className="w-3.5 h-3.5" /> สินค้าหมด
+          <button
+            onClick={() => {
+              Swal.fire({
+                title: 'แจ้งเตือนเมื่อมีสินค้า',
+                text: `เราจะส่งข้อความแจ้งเตือนเมื่อ ${product.name} กลับมามีสต็อกอีกครั้ง`,
+                icon: 'success',
+                confirmButtonText: 'ตกลง',
+                background: '#1a1c23',
+                color: '#fff',
+                confirmButtonColor: '#3b82f6'
+              });
+            }}
+            className="w-full bg-[#1f293d] hover:bg-[#2d3748] text-zinc-300 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer mt-auto transition-all duration-300 border border-[#2d3748] shadow-sm hover:shadow-[0_4px_15px_rgba(255,255,255,0.05)]"
+          >
+            <Bell className="w-3.5 h-3.5 text-zinc-400" /> แจ้งเตือนเมื่อมาใหม่
           </button>
         ) : (
           <button

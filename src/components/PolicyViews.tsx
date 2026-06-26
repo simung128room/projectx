@@ -16,7 +16,7 @@ export const PrivacyView: React.FC<PolicyViewProps> = ({ onBack }) => {
     >
       <button
         onClick={onBack}
-        className="flex items-center gap-2 text-zinc-650 hover:text-zinc-900 text-sm font-medium transition-colors mb-8 cursor-pointer bg-white border border-zinc-200 px-4 py-2 rounded-full shadow-sm hover:shadow-md transition-all"
+        className="flex items-center gap-2 text-zinc-600 hover:text-zinc-900 text-sm font-medium transition-colors mb-8 cursor-pointer bg-white border border-zinc-200 px-4 py-2 rounded-full shadow-sm hover:shadow-md transition-all"
       >
         <ArrowLeft className="w-4 h-4" /> ย้อนกลับ
       </button>
@@ -88,7 +88,7 @@ export const TermsView: React.FC<PolicyViewProps> = ({ onBack }) => {
     >
       <button
         onClick={onBack}
-        className="flex items-center gap-2 text-zinc-650 hover:text-zinc-900 text-sm font-medium transition-colors mb-8 cursor-pointer bg-white border border-zinc-200 px-4 py-2 rounded-full shadow-sm hover:shadow-md transition-all"
+        className="flex items-center gap-2 text-zinc-600 hover:text-zinc-900 text-sm font-medium transition-colors mb-8 cursor-pointer bg-white border border-zinc-200 px-4 py-2 rounded-full shadow-sm hover:shadow-md transition-all"
       >
         <ArrowLeft className="w-4 h-4" /> ย้อนกลับ
       </button>

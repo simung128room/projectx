@@ -360,7 +360,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="relative w-full rounded-2xl overflow-hidden border border-zinc-150 bg-white mb-6 group shadow-[0_8px_24px_rgba(0,0,0,0.02)] shrink-0"
+                className="relative w-full rounded-2xl overflow-hidden border border-zinc-200 bg-white mb-6 group shadow-[0_8px_24px_rgba(0,0,0,0.02)] shrink-0"
                 style={{ aspectRatio: '1640 / 500' }}
               >
                 <img

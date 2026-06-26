@@ -32,7 +32,7 @@ export const RedeemKeyView: React.FC<RedeemKeyViewProps> = ({ redeemKey, userEma
         <div className="flex justify-between items-center mb-8">
           <button 
             onClick={onBack}
-            className="flex items-center gap-2 text-zinc-650 hover:text-zinc-900 hover:shadow-sm transition-all group font-medium px-5 py-2.5 bg-white border border-zinc-200 rounded-full shadow-sm cursor-pointer"
+            className="flex items-center gap-2 text-zinc-600 hover:text-zinc-900 hover:shadow-sm transition-all group font-medium px-5 py-2.5 bg-white border border-zinc-200 rounded-full shadow-sm cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
             <span className="hidden sm:inline">กลับหน้าหลัก</span>

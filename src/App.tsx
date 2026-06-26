@@ -152,6 +152,7 @@ import {
   ContactUsModal,
 } from "./components/modals/PolicyModals";
 import { PrivacyView, TermsView } from "./components/PolicyViews";
+import { RedeemKeyView } from "./components/RedeemKeyView";
 import { getAvatarUrl } from "./lib/avatar";
 import { getUserRank } from "./lib/rank";
 import {
@@ -542,8 +543,8 @@ function AppContent() {
 
     // Fallback views mapping handled in useEffect mostly, but initial load logic here:
     if (targetPath === "register") return "signup";
-    if (targetPath === "topup") return "wallet";
-    if (targetPath === "store") return "categories";
+    if (targetPath === "topup") return "redeem";
+    if (targetPath === "store" || targetPath === "products") return "categories";
 
     const validViews = [
       "landing",
@@ -571,6 +572,8 @@ function AppContent() {
       "vip_logs",
       "free_logs",
       "my_orders",
+      "privacy",
+      "terms",
     ];
     if (validViews.includes(targetPath)) return targetPath as ViewType;
 
@@ -627,8 +630,8 @@ function AppContent() {
 
       // Routing aliases
       if (targetPath === "register") targetPath = "signup";
-      if (targetPath === "topup") targetPath = "wallet";
-      if (targetPath === "store") targetPath = "categories";
+      if (targetPath === "topup") targetPath = "redeem";
+      if (targetPath === "store" || targetPath === "products") targetPath = "categories";
 
       const validViews = [
         "landing",
@@ -662,6 +665,8 @@ function AppContent() {
         "random_history",
         "wallet_history",
         "my_orders",
+        "privacy",
+        "terms",
       ];
 
       if (targetPath && validViews.includes(targetPath)) {
@@ -923,27 +928,23 @@ function AppContent() {
       }
 
       // Show success and redirect
-      Swal.fire({
-        icon: "success",
+      addToast({
+        type: "success",
         title: "สั่งซื้อสำเร็จ!",
-        text:
-          quantity === 1
+        message: quantity === 1
             ? `คุณได้สั่งซื้อ ${product.name} สำเร็จแล้ว`
             : "ระบบได้ดาวน์โหลดไฟล์คีย์/ข้อมูลสินค้าให้ท่านอัตโนมัติ (และสามารถตรวจสอบย้อนหลังได้ที่ประวัติการสั่งซื้อ)",
-        confirmButtonColor: "#16a34a",
-        confirmButtonText: "ตกลง",
-      }).then(() => {
-        setActiveView("history");
-        if (quantity === 1) {
-          setPurchasedItemReceipt({
-            ...newHistoryItem,
-            title: "สั่งซื้อสำเร็จ",
-            icon: ShoppingCart,
-            bg: "bg-[#3b82f6]",
-            color: "text-white",
-          });
-        }
       });
+      setActiveView("history");
+      if (quantity === 1) {
+        setPurchasedItemReceipt({
+          ...newHistoryItem,
+          title: "สั่งซื้อสำเร็จ",
+          icon: ShoppingCart,
+          bg: "bg-[#3b82f6]",
+          color: "text-white",
+        });
+      }
     } catch (err: any) {
       console.error("Purchase error:", err);
       const errorMessage = err.response?.data?.error;
@@ -1765,11 +1766,12 @@ function AppContent() {
       case 'product_detail': return 'รายละเอียดสินค้า';
       case 'category_products': return 'สินค้า';
       case 'login': return 'เข้าสู่ระบบ';
+      case 'signup': return 'สมัครสมาชิก';
       case 'profile': return 'โปรไฟล์';
       case 'settings': return 'การตั้งค่า';
       case 'wallet': return 'เติมเงิน';
       case 'history': return 'ประวัติการสั่งซื้อ';
-      case 'topup': return 'กรอกโค๊ด';
+      case 'redeem': return 'รับโบนัสฟรี';
       case 'contact': return 'ติดต่อเรา';
       case 'admin': return 'Dashboard Admin';
       default: return 'Dashboard';
@@ -1928,37 +1930,22 @@ function AppContent() {
 
                 {/* Finance Section */}
                 <div className="flex flex-col space-y-2">
-                  <span className="text-[13px] text-zinc-500 font-medium tracking-wide mb-2">การเงิน</span>
+                  <span className="text-[13px] text-zinc-500 font-medium tracking-wide mb-2">บัญชีผู้ใช้</span>
                   <button onClick={() => { setIsMobileMenuOpen(false); if (!user) { setActiveView('login'); } else { setActiveView('wallet'); } }} className="flex items-center gap-3 text-left font-medium text-[16px] text-zinc-300 hover:text-white bg-transparent hover:bg-[#252833] py-2 px-3 -mx-3 rounded-lg transition-colors cursor-pointer border-none outline-none">
                     <Wallet className="w-5 h-5 text-zinc-400" />
-                    เติมเครดิต
+                    กระเป๋าเงิน
                   </button>
-                  <button onClick={() => { setIsMobileMenuOpen(false); if (!user) { setActiveView('login'); } else { setActiveView('topup'); } }} className="flex items-center gap-3 text-left font-medium text-[16px] text-zinc-300 hover:text-white bg-transparent hover:bg-[#252833] py-2 px-3 -mx-3 rounded-lg transition-colors cursor-pointer border-none outline-none">
-                    <Ticket className="w-5 h-5 text-zinc-400" />
-                    กรอกโค๊ด
+                  <button onClick={() => { setIsMobileMenuOpen(false); if (!user) { setActiveView('login'); } else { setActiveView('redeem'); } }} className="flex items-center gap-3 text-left font-medium text-[16px] text-zinc-300 hover:text-white bg-transparent hover:bg-[#252833] py-2 px-3 -mx-3 rounded-lg transition-colors cursor-pointer border-none outline-none">
+                    <Gift className="w-5 h-5 text-amber-500" />
+                    <span className="text-amber-500 font-bold">รับโบนัสฟรี (Daily Reward)</span>
                   </button>
                   <button onClick={() => { setIsMobileMenuOpen(false); if (!user) { setActiveView('login'); } else { setActiveView('history'); } }} className="flex items-center gap-3 text-left font-medium text-[16px] text-zinc-300 hover:text-white bg-transparent hover:bg-[#252833] py-2 px-3 -mx-3 rounded-lg transition-colors cursor-pointer border-none outline-none">
                     <History className="w-5 h-5 text-zinc-400" />
                     ประวัติธุรกรรม
                   </button>
-                </div>
-
-                <div className="h-[1px] w-full bg-[#2d3240] my-4" />
-
-                {/* Others Section */}
-                <div className="flex flex-col space-y-2">
-                  <span className="text-[13px] text-zinc-500 font-medium tracking-wide mb-2">อื่นๆ</span>
-                  <button onClick={() => { setIsMobileMenuOpen(false); /* notifications */ }} className="flex items-center gap-3 text-left font-medium text-[16px] text-zinc-300 hover:text-white bg-transparent hover:bg-[#252833] py-2 px-3 -mx-3 rounded-lg transition-colors cursor-pointer border-none outline-none">
-                    <Bell className="w-5 h-5 text-zinc-400" />
-                    การแจ้งเตือน
-                  </button>
-                  <button onClick={() => { setIsMobileMenuOpen(false); /* announcements */ }} className="flex items-center gap-3 text-left font-medium text-[16px] text-zinc-300 hover:text-white bg-transparent hover:bg-[#252833] py-2 px-3 -mx-3 rounded-lg transition-colors cursor-pointer border-none outline-none">
-                    <Megaphone className="w-5 h-5 text-zinc-400" />
-                    ประกาศ
-                  </button>
-                  <button onClick={() => { setIsMobileMenuOpen(false); /* help bot */ }} className="flex items-center gap-3 text-left font-medium text-[16px] text-zinc-300 hover:text-white bg-transparent hover:bg-[#252833] py-2 px-3 -mx-3 rounded-lg transition-colors cursor-pointer border-none outline-none">
-                    <Bot className="w-5 h-5 text-zinc-400" />
-                    บอทช่วยเหลือ
+                  <button onClick={() => { setIsMobileMenuOpen(false); if (!user) { setActiveView('login'); } else { setActiveView('profile'); } }} className="flex items-center gap-3 text-left font-medium text-[16px] text-zinc-300 hover:text-white bg-transparent hover:bg-[#252833] py-2 px-3 -mx-3 rounded-lg transition-colors cursor-pointer border-none outline-none">
+                    <User className="w-5 h-5 text-zinc-400" />
+                    บัญชีของฉัน
                   </button>
                 </div>
 
@@ -2173,6 +2160,17 @@ function AppContent() {
                           )}
                         />
                       )}
+                      
+                      {activeView === "redeem" && (
+                        <RedeemKeyView
+                          redeemKey={redeemKey}
+                          userEmail={user?.email || undefined}
+                          isLoggedIn={!!user}
+                          onBack={() => setActiveView("home")}
+                          onGoToStore={() => setActiveView("categories")}
+                          onLoginClick={() => setActiveView("login")}
+                        />
+                      )}
 
                       {activeView === "wallet" && (
                         <WalletView
@@ -2190,6 +2188,11 @@ function AppContent() {
                                   Number(entry.amount),
                               });
                             }
+                            addToast({
+                              type: "payment",
+                              title: "เติมเงินสำเร็จ",
+                              message: `เครดิตเข้าบัญชี ฿${entry.amount}`,
+                            });
                           }}
                         />
                       )}
@@ -2268,53 +2271,36 @@ function AppContent() {
                   <span className="text-[17px] font-sans font-extrabold text-white tracking-tight">
                     Sunoid<span className="inline-block w-[3.5px] h-[3.5px] bg-blue-600 mx-[1.2px] rounded-[0.8px] align-baseline"></span>shop
                   </span>
-                  <span>&gt;</span>
-                  <span>Sunoid.shop Store Online</span>
                 </div>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
                 <div>
-                  <h3 className="font-bold text-sm text-foreground mb-4">เลือกซื้อและเรียนรู้</h3>
+                  <h3 className="font-bold text-sm text-foreground mb-4">หมวดหมู่สินค้า</h3>
                   <ul className="space-y-2">
-                    <li><button onClick={() => { setActiveView('categories'); window.scrollTo(0,0); }} className="text-sm text-muted-foreground hover:text-foreground transition-colors">ซื้อไอดีเกม</button></li>
+                    <li><button onClick={() => { setActiveView('categories'); window.scrollTo(0,0); }} className="text-sm text-muted-foreground hover:text-foreground transition-colors">สินค้าทั้งหมด</button></li>
                   </ul>
                 </div>
                 <div>
-                  <h3 className="font-bold text-sm text-foreground mb-4">บัญชี</h3>
+                  <h3 className="font-bold text-sm text-foreground mb-4">บัญชีผู้ใช้</h3>
                   <ul className="space-y-2">
                     <li><button onClick={() => { setActiveView('profile'); window.scrollTo(0,0); }} className="text-sm text-muted-foreground hover:text-foreground transition-colors">จัดการบัญชีของคุณ</button></li>
-                    <li><button onClick={() => { setActiveView('profile'); window.scrollTo(0,0); }} className="text-sm text-muted-foreground hover:text-foreground transition-colors">โปรไฟล์</button></li>
-                  </ul>
-                </div>
-                <div>
-                  <h3 className="font-bold text-sm text-foreground mb-4">Sunoid.shop Store</h3>
-                  <ul className="space-y-2">
-                    <li><button onClick={() => { setActiveView('categories'); window.scrollTo(0,0); }} className="text-sm text-muted-foreground hover:text-foreground transition-colors">ซื้อไอดีเกม</button></li>
                     <li><button onClick={() => { setActiveView('wallet'); window.scrollTo(0,0); }} className="text-sm text-muted-foreground hover:text-foreground transition-colors">ช่องทางชำระเงิน</button></li>
+                    <li><button onClick={() => { setActiveView('history'); window.scrollTo(0,0); }} className="text-sm text-muted-foreground hover:text-foreground transition-colors">ประวัติธุรกรรม</button></li>
                   </ul>
                 </div>
                 <div>
-                  <h3 className="font-bold text-sm text-foreground mb-4">เกี่ยวกับ Sunoid.shop</h3>
+                  <h3 className="font-bold text-sm text-foreground mb-4">ช่วยเหลือ</h3>
                   <ul className="space-y-2">
-                    <li><button onClick={() => { setActiveView('home'); window.scrollTo(0,0); }} className="text-sm text-muted-foreground hover:text-foreground transition-colors">หน้าแรก</button></li>
-                    <li><a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">เข้าร่วม Discord</a></li>
+                    <li><button onClick={() => { setShowContactUs(true); }} className="text-sm text-muted-foreground hover:text-foreground transition-colors">ติดต่อเรา</button></li>
                   </ul>
                 </div>
               </div>
-              <div className="mb-8 pb-8 border-b border-border">
-                <p className="text-sm text-muted-foreground">
-                  อีกหลากหลายวิธีในการเลือกซื้อ:{' '}
-                  <button onClick={() => { setActiveView('categories'); window.scrollTo(0,0); }} className="text-blue-600 hover:underline">
-                    ค้นหา Sunoid.shop
-                  </button> หรือ <button onClick={() => { setActiveView('categories'); window.scrollTo(0,0); }} className="text-blue-600 hover:underline">ร้านค้าอื่นๆ</button> ใกล้คุณ
-                </p>
-              </div>
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 text-xs text-muted-foreground">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 text-xs text-muted-foreground pt-8 border-t border-border">
                 <p>Copyright © 2026 Sunoid.shop Inc. สงวนสิทธิ์ทุกประการ</p>
                 <div className="flex flex-wrap items-center gap-3">
-                  <button className="hover:text-foreground transition-colors">ข้อกำหนดการใช้งาน</button>
+                  <button onClick={() => { setActiveView('terms'); window.scrollTo(0,0); }} className="hover:text-foreground transition-colors">ข้อกำหนดการใช้งาน</button>
                   <span>|</span>
-                  <button className="hover:text-foreground transition-colors">นโยบายความเป็นส่วนตัว</button>
+                  <button onClick={() => { setActiveView('privacy'); window.scrollTo(0,0); }} className="hover:text-foreground transition-colors">นโยบายความเป็นส่วนตัว</button>
                 </div>
               </div>
             </div>

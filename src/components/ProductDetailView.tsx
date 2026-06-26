@@ -16,7 +16,7 @@ interface ProductDetailViewProps {
 
 export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, user, onBack, handlePurchase, setActiveView }) => {
   const [purchaseQuantity, setPurchaseQuantity] = useState(1);
-  const [showConfirmPurchase, setShowConfirmPurchase] = useState(false);
+  const [showConfirmPurchase, setShowConfirmPurchase] = useState<boolean | 'loading'>(false);
   const { addToast } = useToastStore();
 
   const calculateDiscount = (originalPrice?: number, price?: number) => {
@@ -56,7 +56,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
         {/* Left Side: Product Image (5 Columns) */}
         <div className="md:col-span-5 p-6 md:p-8 flex flex-col justify-start border-b md:border-b-0 md:border-r border-[#1f293d] relative z-10 bg-[#0d0f15]">
           <motion.div
-            whileHover={{ scale: 1.015, ...({} as any) }}
+            whileHover={{ scale: 1.015 }}
             transition={{ type: "spring", stiffness: 300, damping: 25 }}
             className="w-full aspect-square relative overflow-hidden rounded-2xl bg-[#161a26] border border-[#2d3748] flex items-center justify-center group shadow-[0_4px_16px_-4px_rgba(0,0,0,0.4)] p-4 cursor-zoom-in"
           >
@@ -66,7 +66,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
               loading="lazy" 
               src={product.imageUrl || undefined} 
               alt={formatProductName(product.name)}
-              className="w-full h-full object-contain z-10 transition-transform duration-[600px] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-105"
+              className="w-full h-full object-contain z-10 transition-transform duration-[600ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-105"
               referrerPolicy="no-referrer"
               onError={(e) => {
                 e.currentTarget.src = "https://img2.pic.in.th/983B3DCE-90A3-4822-8940-D6B81CCA63A3.png";
@@ -271,18 +271,33 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
                       });
                       return;
                     }
-                    if (!product.isPreOrder && product.stock <= 0) return;
+                    if (!product.isPreOrder && product.stock <= 0) {
+                      Swal.fire({
+                        title: 'แจ้งเตือนเมื่อมีสินค้า',
+                        text: `เราจะส่งข้อความแจ้งเตือนเมื่อ ${product.name} กลับมามีสต็อกอีกครั้ง`,
+                        icon: 'success',
+                        confirmButtonText: 'ตกลง',
+                        background: '#1a1c23',
+                        color: '#fff',
+                        confirmButtonColor: '#3b82f6'
+                      });
+                      return;
+                    }
                     setShowConfirmPurchase(true);
                   }}
-                  disabled={!product.isPreOrder && product.stock <= 0}
                   className={`w-full py-4 text-xs font-black tracking-widest uppercase transition-all duration-300 flex items-center justify-center gap-2 rounded-xl shadow-[0_4px_16px_-4px_rgba(0,0,0,0.4)] border outline-none ${
                     product.isPreOrder || product.stock > 0 
                       ? 'bg-blue-600 hover:bg-blue-500 text-white border-transparent cursor-pointer active:scale-[0.98]' 
-                      : 'bg-[#161a26] text-zinc-500 border-[#1f293d] cursor-not-allowed'
+                      : 'bg-[#161a26] hover:bg-[#1f293d] text-zinc-300 border-[#1f293d] cursor-pointer'
                   }`}
                 >
-                  <ShoppingCart className={`w-4 h-4 ${product.isPreOrder || product.stock > 0 ? "text-white" : "text-zinc-500"}`} />
-                  {product.isPreOrder ? 'สั่งซื้อ PRE-ORDER' : product.stock > 0 ? 'ยืนยันสั่งชื้อสินค้า' : 'สินค้าหมดชั่วคราว'}
+                  {product.isPreOrder ? (
+                    <><ShoppingCart className="w-4 h-4 text-white" /> สั่งซื้อ PRE-ORDER</>
+                  ) : product.stock > 0 ? (
+                    <><ShoppingCart className="w-4 h-4 text-white" /> ยืนยันสั่งซื้อสินค้า</>
+                  ) : (
+                    <><AlertCircle className="w-4 h-4 text-zinc-400" /> แจ้งเตือนเมื่อมาใหม่</>
+                  )}
                 </button>
               </div>
             ) : (
@@ -312,9 +327,9 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
                     ยกเลิกขั้นตอนชำระเงิน
                   </button>
                   <button 
-                    disabled={showConfirmPurchase === 'loading' as any}
+                    disabled={showConfirmPurchase === 'loading'}
                     onClick={async () => {
-                      setShowConfirmPurchase('loading' as any);
+                      setShowConfirmPurchase('loading');
                       try {
                         await handlePurchase(product, purchaseQuantity);
                       } finally {
@@ -323,7 +338,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
                     }}
                     className="flex-1 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold transition-all rounded-xl text-xs disabled:opacity-50 flex items-center justify-center gap-2 active:scale-95 border-none shadow-[0_4px_16px_-4px_rgba(0,0,0,0.4)] cursor-pointer text-center outline-none"
                   >
-                    {showConfirmPurchase === 'loading' as any ? (
+                    {showConfirmPurchase === 'loading' ? (
                       <><div className="w-3.5 h-3.5 border-2 border-white/50 border-t-white rounded-full animate-spin"></div> <span>กำลังทำรายการคอยสักครู่...</span></>
                     ) : 'ชำระเงินทันที'}
                   </button>

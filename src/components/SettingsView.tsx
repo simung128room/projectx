@@ -18,21 +18,20 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user 
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
+  // Real loading state used only for active network tasks
   useEffect(() => {
-    setIsLoading(true);
-    const timer = setTimeout(() => setIsLoading(false), 150);
-    return () => clearTimeout(timer);
+    setIsLoading(false);
   }, [currentTab]);
 
   const handleChangePassword = async () => {
     if (!oldPassword) {
-      return Swal.fire({ icon: 'error', title: 'ข้อผิดพลาด', text: 'กรุณากรอกรหัสผ่านเดิม', background: '#121212', color: '#fff' });
+      return Swal.fire({ icon: 'error', title: 'ข้อผิดพลาด', text: 'กรุณากรอกรหัสผ่านเดิม', background: '#11131a', color: '#ffffff' });
     }
     if (!newPassword || !confirmPassword) {
-      return Swal.fire({ icon: 'error', title: 'ข้อผิดพลาด', text: 'กรุณากรอกข้อมูลให้ครบถ้วน', background: '#121212', color: '#fff' });
+      return Swal.fire({ icon: 'error', title: 'ข้อผิดพลาด', text: 'กรุณากรอกข้อมูลให้ครบถ้วน', background: '#11131a', color: '#ffffff' });
     }
     if (newPassword !== confirmPassword) {
-      return Swal.fire({ icon: 'error', title: 'ข้อผิดพลาด', text: 'รหัสผ่านใหม่และยืนยันรหัสผ่านไม่ตรงกัน', background: '#121212', color: '#fff' });
+      return Swal.fire({ icon: 'error', title: 'ข้อผิดพลาด', text: 'รหัสผ่านใหม่และยืนยันรหัสผ่านไม่ตรงกัน', background: '#11131a', color: '#ffffff' });
     }
 
     try {
@@ -58,8 +57,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user 
         title: 'เปลี่ยนรหัสผ่านสำเร็จ',
         text: 'รหัสผ่านของคุณถูกอัปเดตเรียบร้อยแล้ว',
         icon: 'success',
-        background: '#121212',
-        color: '#fff'
+        background: '#11131a',
+        color: '#ffffff'
       });
       setOldPassword('');
       setNewPassword('');
@@ -69,8 +68,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user 
          title: 'เกิดข้อผิดพลาด',
          text: error.message || 'ไม่สามารถเปลี่ยนรหัสผ่านได้',
          icon: 'error',
-         background: '#121212',
-         color: '#fff'
+         background: '#11131a',
+         color: '#ffffff'
       });
     } finally {
       setIsLoading(false);
@@ -89,8 +88,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user 
       cancelButtonColor: '#18181b',
       confirmButtonText: 'ลบบัญชีถาวร',
       cancelButtonText: 'ยกเลิก',
-      background: '#121212',
-      color: '#fff',
+      background: '#11131a',
+      color: '#ffffff',
       customClass: {
         input: 'bg-[#050505] border-[#374151] text-white rounded-md'
       }
@@ -123,8 +122,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user 
           title: 'ลบบัญชีสำเร็จ',
           text: 'บัญชีของคุณถูกลบออกจากระบบแล้ว',
           icon: 'success',
-          background: '#121212',
-          color: '#fff'
+          background: '#11131a',
+          color: '#ffffff'
         }).then(() => {
           window.location.reload();
         });
@@ -133,8 +132,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user 
           title: 'เกิดข้อผิดพลาด',
           text: error.message || 'ไม่สามารถลบบัญชีได้',
           icon: 'error',
-          background: '#121212',
-          color: '#fff'
+          background: '#11131a',
+          color: '#ffffff'
         });
       } finally {
         setIsLoading(false);

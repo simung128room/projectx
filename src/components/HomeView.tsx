@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Gamepad2, ArrowRight, ShoppingCart, ShieldCheck, Server, Activity, Users, CreditCard, Package } from "lucide-react";
+import { Gamepad2, ArrowRight, ShoppingCart, ShieldCheck, Server, Activity, Users, CreditCard, Package, Gift } from "lucide-react";
 import { ProductCard } from "./ProductCard";
 
 export const HomeView = (props: any) => {
@@ -50,10 +50,10 @@ export const HomeView = (props: any) => {
         <div className="relative z-10 max-w-3xl flex flex-col items-center animate-in fade-in slide-in-from-bottom-8 duration-700">
           <div className="bg-[#3b82f6]/10 text-[#3b82f6] border border-[#3b82f6]/20 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-8 flex items-center gap-2 shadow-[0_0_15px_rgba(59,130,246,0.15)]">
             <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-            <span className="font-logo text-sm font-bold tracking-wider">ต้อนรับสู่ XENOBUX STORE</span>
+            <span className="font-logo text-sm font-bold tracking-wider">ต้อนรับสู่ Sunoid.shop</span>
           </div>
           <h1 className="text-4xl md:text-6xl font-black tracking-tight mb-4 text-white leading-tight font-logo uppercase">
-            XENOBUX STORE <br/>
+            Sunoid.shop <br/>
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-[#00d2ff] font-sans font-bold normal-case tracking-normal text-3xl md:text-5xl mt-2 block">
               บริการ เติมเกม สะดวก ปลอดภัย
             </span>
@@ -75,7 +75,16 @@ export const HomeView = (props: any) => {
               }}
               className="bg-[#161a26] hover:bg-[#1a1f2e] border border-[#1f293d] text-white px-8 py-3.5 rounded-xl font-bold flex items-center gap-2 transition-all active:scale-95 cursor-pointer shadow-sm"
             >
-              เติมเงินเข้าระบบ <CreditCard className="w-4 h-4 text-blue-500" />
+              เติมเงิน <CreditCard className="w-4 h-4 text-blue-500" />
+            </button>
+            <button 
+              onClick={() => {
+                if(!user) { setActiveView('login'); return; }
+                setActiveView('redeem');
+              }}
+              className="bg-[#161a26] hover:bg-amber-900/20 border border-amber-500/30 text-amber-500 px-8 py-3.5 rounded-xl font-bold flex items-center gap-2 transition-all active:scale-95 cursor-pointer shadow-sm"
+            >
+              รับโบนัสฟรี <Gift className="w-4 h-4 text-amber-500" />
             </button>
           </div>
         </div>
@@ -145,7 +154,7 @@ export const HomeView = (props: any) => {
           </div>
           <button 
             onClick={() => {
-              if (onSelectCategory) {
+              if (onSelectCategory && activeCategory !== 'all') {
                 onSelectCategory(activeCategory);
               } else {
                 setActiveView('categories');
@@ -214,7 +223,7 @@ export const HomeView = (props: any) => {
         </AnimatePresence>
 
         {visibleProducts.length === 0 && (
-          <div className="w-full text-center py-20 text-zinc-405 bg-white border border-dashed border-zinc-200 rounded-3xl font-bold text-sm">
+          <div className="w-full text-center py-20 text-zinc-400 bg-white border border-dashed border-zinc-200 rounded-3xl font-bold text-sm">
             ยังไม่มีสินค้าในหมวดหมู่นี้ในระบบอัพเดท...
           </div>
         )}
@@ -223,9 +232,9 @@ export const HomeView = (props: any) => {
       {/* ===== Features Banner ===== */}
       <section className="max-w-7xl mx-auto px-4 py-12 mb-12">
         <motion.div 
-          whileHover={{ y: -4, ...({} as any) }}
+          whileHover={{ y: -4 }}
           transition={{ type: "spring", stiffness: 260, damping: 20 }}
-          className="bg-white border border-zinc-150 rounded-3xl p-8 md:p-12 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8 shadow-[0_8px_24px_rgba(0,0,0,0.02)] hover:shadow-[0_20px_48px_rgba(59,130,246,0.08)] transition-all duration-300"
+          className="bg-white border border-zinc-200 rounded-3xl p-8 md:p-12 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8 shadow-[0_8px_24px_rgba(0,0,0,0.02)] hover:shadow-[0_20px_48px_rgba(59,130,246,0.08)] transition-all duration-300"
         >
            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-bl from-blue-500/5 via-teal-500/0 to-transparent rounded-full blur-[80px] pointer-events-none" />
            <div className="relative z-10 max-w-xl text-left">

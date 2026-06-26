@@ -76,7 +76,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
       background: '#ffffff',
       color: '#1f2937',
       customClass: {
-        popup: 'rounded-2xl border border-zinc-150 shadow-[0_15px_40px_rgba(0,0,0,0.05)]'
+        popup: 'rounded-2xl border border-zinc-200 shadow-[0_15px_40px_rgba(0,0,0,0.05)]'
       }
     });
 
@@ -108,7 +108,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
         color: '#1f2937',
         confirmButtonColor: '#ff2c2c',
         customClass: {
-          popup: 'rounded-2xl border border-zinc-150 shadow-[0_15px_40px_rgba(0,0,0,0.05)]'
+          popup: 'rounded-2xl border border-zinc-200 shadow-[0_15px_40px_rgba(0,0,0,0.05)]'
         }
       });
       return;
@@ -127,7 +127,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
         Swal.showLoading();
       },
       customClass: {
-        popup: 'rounded-2xl border border-zinc-150 shadow-[0_15px_40px_rgba(0,0,0,0.05)]'
+        popup: 'rounded-2xl border border-zinc-200 shadow-[0_15px_40px_rgba(0,0,0,0.05)]'
       }
     });
 
@@ -179,7 +179,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
       background: '#ffffff', 
       color: '#1f2937',
       customClass: {
-        popup: 'rounded-2xl border border-zinc-150 shadow-[0_15px_40px_rgba(0,0,0,0.05)]'
+        popup: 'rounded-2xl border border-zinc-200 shadow-[0_15px_40px_rgba(0,0,0,0.05)]'
       }
     });
   }
@@ -192,7 +192,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
           color: '#1f2937',
           confirmButtonColor: '#3b82f6',
           customClass: {
-            popup: 'rounded-2xl border border-zinc-150 shadow-[0_15px_40px_rgba(0,0,0,0.05)]'
+            popup: 'rounded-2xl border border-zinc-200 shadow-[0_15px_40px_rgba(0,0,0,0.05)]'
           }
         });
         setTruemoneyLink('');
@@ -206,7 +206,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
           color: '#1f2937',
           confirmButtonColor: '#ff2c2c',
           customClass: {
-            popup: 'rounded-2xl border border-zinc-150 shadow-[0_15px_40px_rgba(0,0,0,0.05)]'
+            popup: 'rounded-2xl border border-zinc-200 shadow-[0_15px_40px_rgba(0,0,0,0.05)]'
           }
         });
       }
@@ -219,7 +219,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
         color: '#1f2937',
         confirmButtonColor: '#ff2c2c',
         customClass: {
-          popup: 'rounded-2xl border border-zinc-150 shadow-[0_15px_40px_rgba(0,0,0,0.05)]'
+          popup: 'rounded-2xl border border-zinc-200 shadow-[0_15px_40px_rgba(0,0,0,0.05)]'
         }
       });
     } finally {
@@ -241,7 +241,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
         Swal.showLoading();
       },
       customClass: {
-        popup: 'rounded-2xl border border-zinc-150 shadow-[0_15px_40px_rgba(0,0,0,0.05)]'
+        popup: 'rounded-2xl border border-zinc-200 shadow-[0_15px_40px_rgba(0,0,0,0.05)]'
       }
     });
 
@@ -294,7 +294,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
       background: '#ffffff',
       color: '#1f2937',
       customClass: {
-        popup: 'rounded-2xl border border-zinc-150 shadow-[0_15px_40px_rgba(0,0,0,0.05)]'
+        popup: 'rounded-2xl border border-zinc-200 shadow-[0_15px_40px_rgba(0,0,0,0.05)]'
       }
     });
   }
@@ -307,7 +307,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
             color: '#1f2937',
             confirmButtonColor: '#3b82f6',
             customClass: {
-              popup: 'rounded-2xl border border-zinc-150 shadow-[0_15px_40px_rgba(0,0,0,0.05)]'
+              popup: 'rounded-2xl border border-zinc-200 shadow-[0_15px_40px_rgba(0,0,0,0.05)]'
             }
           });
           setSelectedFile(null);
@@ -322,7 +322,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
             color: '#1f2937',
             confirmButtonColor: '#ff2c2c',
             customClass: {
-              popup: 'rounded-2xl border border-zinc-150 shadow-[0_15px_40px_rgba(0,0,0,0.05)]'
+              popup: 'rounded-2xl border border-zinc-200 shadow-[0_15px_40px_rgba(0,0,0,0.05)]'
             }
           });
         }
@@ -335,7 +335,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
           color: '#1f2937',
           confirmButtonColor: '#ff2c2c',
           customClass: {
-            popup: 'rounded-2xl border border-zinc-150 shadow-[0_15px_40px_rgba(0,0,0,0.05)]'
+            popup: 'rounded-2xl border border-zinc-200 shadow-[0_15px_40px_rgba(0,0,0,0.05)]'
           }
         });
       } finally {
@@ -387,7 +387,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
         color: '#1f2937',
         confirmButtonColor: '#ff2c2c',
         customClass: {
-          popup: 'rounded-2xl border border-zinc-150 shadow-[0_15px_40px_rgba(0,0,0,0.05)]'
+          popup: 'rounded-2xl border border-zinc-200 shadow-[0_15px_40px_rgba(0,0,0,0.05)]'
         }
       });
     }
@@ -405,7 +405,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ userPlan, setUserPlan, o
         color: '#1f2937',
         confirmButtonColor: '#ff2c2c',
         customClass: {
-          popup: 'rounded-2xl border border-zinc-150 shadow-[0_15px_40px_rgba(0,0,0,0.05)]'
+          popup: 'rounded-2xl border border-zinc-200 shadow-[0_15px_40px_rgba(0,0,0,0.05)]'
         }
       });
     }
