@@ -274,6 +274,9 @@ class SupabaseDoc {
   }
 
   async get() {
+    if (!isSupabaseAdminConfigured) {
+        return { exists: false, data: () => null };
+    }
     if (isVirtual(this.collection)) {
         const slug = getVirtualSlug(this.collection, this.id);
         const legacySlug = `v:${this.collection}:${this.id}`;
@@ -419,6 +422,7 @@ class SupabaseDoc {
     }
   }
   async delete() {
+    if (!isSupabaseAdminConfigured) return;
     if (isVirtual(this.collection)) {
         const slug = getVirtualSlug(this.collection, this.id);
         const legacySlug = `v:${this.collection}:${this.id}`;
@@ -433,6 +437,7 @@ class SupabaseDoc {
     if (error) throw error;
   }
   async set(data: any, options: any = {}) {
+    if (!isSupabaseAdminConfigured) return;
     if (isVirtual(this.collection)) {
         const slug = getVirtualSlug(this.collection, this.id);
         const legacySlug = `v:${this.collection}:${this.id}`;

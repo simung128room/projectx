@@ -545,7 +545,7 @@ app.get("/ready", async (req, res) => {
   }
 });
 const userRateLimitKeyGenerator = __name((req, res) => {
-  return req.ip || "127.0.0.1";
+  return req.headers["x-forwarded-for"] ? (req.headers["x-forwarded-for"] as string).split(',')[0] : req.socket.remoteAddress || "127.0.0.1";
 }, "userRateLimitKeyGenerator");
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1e3,
