@@ -54,22 +54,22 @@ export const SearchView: React.FC<SearchViewProps> = ({ products, onClose, onPro
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -20 }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="w-full max-w-3xl bg-white border border-zinc-200 shadow-2xl rounded-3xl overflow-hidden relative z-10 flex flex-col max-h-[80vh]"
+            className="w-full max-w-3xl bg-foreground border border-zinc-200 shadow-2xl rounded-3xl overflow-hidden relative z-10 flex flex-col max-h-[80vh]"
           >
             {/* Header / Search Input */}
-            <div className="p-4 border-b border-zinc-100 flex items-center gap-3.5 bg-white select-none">
-              <Search className="w-5 h-5 text-zinc-400 flex-shrink-0 ml-1" />
+            <div className="p-4 border-b border-zinc-100 flex items-center gap-3.5 bg-foreground select-none">
+              <Search className="w-5 h-5 text-muted-foreground flex-shrink-0 ml-1" />
               <input 
                 ref={inputRef}
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="ค้นหาสินค้า..."
-                className="flex-1 bg-transparent border-none outline-none text-base font-bold text-zinc-800 placeholder:text-zinc-400"
+                className="flex-1 bg-transparent border-none outline-none text-base font-bold text-zinc-800 placeholder:text-muted-foreground"
               />
               <button 
                 onClick={onClose}
-                className="w-9 h-9 rounded-full bg-slate-100/80 hover:bg-slate-200 flex items-center justify-center text-zinc-500 hover:text-zinc-800 transition-colors cursor-pointer"
+                className="w-9 h-9 rounded-full bg-slate-100/80 hover:bg-slate-200 flex items-center justify-center text-muted-foreground/80 hover:text-zinc-800 transition-colors cursor-pointer"
               >
                 <X className="w-4.5 h-4.5" />
               </button>
@@ -81,12 +81,12 @@ export const SearchView: React.FC<SearchViewProps> = ({ products, onClose, onPro
                 <div className="text-center py-16 select-none">
                   <Search className="w-12 h-12 text-zinc-300 mx-auto mb-4" />
                   <h3 className="text-base font-bold text-zinc-700 mb-1">ไม่พบสินค้าที่คุณต้องการ</h3>
-                  <p className="text-zinc-400 text-xs">ลองพิมพ์ชื่อสินค้าอื่นๆ หรือเว้นวรรคดูอีกครั้ง</p>
+                  <p className="text-muted-foreground text-xs">ลองพิมพ์ชื่อสินค้าอื่นๆ หรือเว้นวรรคดูอีกครั้ง</p>
                 </div>
               ) : !searchQuery ? (
                 <div className="text-center py-16 select-none">
                   <Search className="w-12 h-12 text-zinc-200 mx-auto mb-4" />
-                  <p className="text-zinc-400 text-xs font-bold tracking-wide">พิมพ์ชื่อสินค้า หรือข้อมูลที่คุณต้องการค้นหาที่นี่</p>
+                  <p className="text-muted-foreground text-xs font-bold tracking-wide">พิมพ์ชื่อสินค้า หรือข้อมูลที่คุณต้องการค้นหาที่นี่</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -97,7 +97,7 @@ export const SearchView: React.FC<SearchViewProps> = ({ products, onClose, onPro
                         onProductClick(product.id);
                         onClose();
                       }}
-                      className="bg-white border border-[#e2e8f0] rounded-2xl p-4 cursor-pointer hover:border-[#3b82f6]/40 hover:shadow-md transition-all flex gap-3.5 items-center group shadow-sm"
+                      className="bg-foreground border border-[#e2e8f0] rounded-2xl p-4 cursor-pointer hover:border-[#3b82f6]/40 hover:shadow-md transition-all flex gap-3.5 items-center group shadow-sm"
                     >
                       {/* Image Thumbnail */}
                       <div className="w-16 h-16 rounded-xl overflow-hidden relative shrink-0 bg-slate-50 border border-[#e2e8f0]">
@@ -119,7 +119,7 @@ export const SearchView: React.FC<SearchViewProps> = ({ products, onClose, onPro
                             background: generateGradient(product.name || product.id)
                           }}
                         >
-                          <span className="text-xl font-extrabold text-white mix-blend-overlay opacity-60">
+                          <span className="text-xl font-extrabold text-foreground mix-blend-overlay opacity-60">
                             {(product.name || "P")[0].toUpperCase()}
                           </span>
                         </div>
@@ -133,8 +133,8 @@ export const SearchView: React.FC<SearchViewProps> = ({ products, onClose, onPro
                             ฿{product.price > 0 ? product.price.toLocaleString() : "ฟรี"}
                           </span>
                           {product.stock > 0 ? (
-                            <span className="text-zinc-500 bg-slate-100 px-2 py-0.5 rounded-full font-bold text-[10px] flex items-center gap-1">
-                              <div className="w-1 h-1 rounded-full bg-emerald-500"></div>
+                            <span className="text-muted-foreground/80 bg-slate-100 px-2 py-0.5 rounded-full font-bold text-[10px] flex items-center gap-1">
+                              <div className="w-1 h-1 rounded-full bg-cardmerald-500"></div>
                               มีของ {product.stock} ชิ้น
                             </span>
                           ) : (

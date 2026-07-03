@@ -1,13 +1,13 @@
 import React from 'react';
 import { Terminal, Database, ShieldAlert, Cpu } from 'lucide-react';
 export const DatabaseSetupGuide = ({ dbErrorDetail }: { dbErrorDetail?: string | null }) => (
-  <div className="bg-[#121212] border border-amber-500/20 p-8 max-w-2xl mx-auto mt-12 animate-in fade-in slide-in-from-bottom-4 duration-500 ">
+  <div className="bg-card border border-amber-500/20 p-8 max-w-2xl mx-auto mt-12 animate-in fade-in slide-in-from-bottom-4 duration-500 ">
     <div className="flex items-center gap-4 mb-8">
       <div className="p-4 bg-amber-500/20">
         <Database className="w-8 h-8 text-amber-500" />
       </div>
       <div>
-        <h2 className="text-2xl font-medium text-white tracking-tight">System Offline / Database Connectivity Issue</h2>
+        <h2 className="text-2xl font-medium text-foreground tracking-tight">System Offline / Database Connectivity Issue</h2>
         <p className="text-muted-foreground text-sm mt-1">The application backend or database is currently unreachable.</p>
       </div>
     </div>
@@ -24,7 +24,7 @@ export const DatabaseSetupGuide = ({ dbErrorDetail }: { dbErrorDetail?: string |
     
     <div className="space-y-4">
       <div className="bg-black/40 backdrop-blur-sm border border-[#374151] border p-6">
-        <h3 className="text-white font-medium mb-2">Troubleshooting Steps</h3>
+        <h3 className="text-foreground font-medium mb-2">Troubleshooting Steps</h3>
         <ul className="list-disc list-inside text-sm text-muted-foreground space-y-2">
           <li>Ensure the backend server is running correctly.</li>
           <li>If hosted on Vercel, check the Serverless Function logs for errors.</li>
@@ -32,7 +32,7 @@ export const DatabaseSetupGuide = ({ dbErrorDetail }: { dbErrorDetail?: string |
         <div className="mt-6 flex justify-end">
           <button 
            onClick={() => window.location.reload()}
-           className="px-6 py-2 bg-[#364153] hover:bg-[#364153] text-white text-sm font-medium transition"
+           className="px-6 py-2 bg-[#364153] hover:bg-[#364153] text-foreground text-sm font-medium transition"
           >
            Refresh Application
           </button>

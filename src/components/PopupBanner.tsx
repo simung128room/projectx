@@ -42,7 +42,7 @@ export const PopupBanner: React.FC<PopupBannerProps> = ({ enabled, imgUrl, linkU
             <Megaphone className="w-6 h-6 text-blue-450" />
           </div>
           <h3 className="text-base font-bold text-zinc-100 tracking-tight">ข่าวประกาศจากทางร้าน</h3>
-          <p className="text-xs text-zinc-400 font-medium max-w-xs mt-2 leading-relaxed">
+          <p className="text-xs text-muted-foreground font-medium max-w-xs mt-2 leading-relaxed">
             ยินดีต้อนรับสู่ร้านค้าจำหน่ายไอดีเกมชั้นนำ ระบบเติมเงินและสั่งซื้ออัตโนมัติทำงานอย่างสมบูรณ์แบบ 24 ชั่วโมง
           </p>
         </div>
@@ -71,12 +71,12 @@ export const PopupBanner: React.FC<PopupBannerProps> = ({ enabled, imgUrl, linkU
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.98, y: 10 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
-            className="relative w-full max-w-[430px] bg-zinc-900 border border-zinc-800/80 shadow-2xl flex flex-col z-10 rounded-2xl overflow-hidden select-none text-white"
+            className="relative w-full max-w-[430px] bg-zinc-900 border border-zinc-800/80 shadow-2xl flex flex-col z-10 rounded-2xl overflow-hidden select-none text-foreground"
           >
             {/* Extremely Visible Close Button at the top right of dynamic pop-up */}
             <button
               onClick={handleClose}
-              className="absolute top-3.5 right-3.5 z-20 w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shadow-lg shadow-red-500/25"
+              className="absolute top-3.5 right-3.5 z-20 w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 active:scale-95 flex items-center justify-center text-foreground transition-all cursor-pointer shadow-lg shadow-red-500/25"
               aria-label="Close"
               id="announcement-close-btn"
             >
@@ -84,8 +84,8 @@ export const PopupBanner: React.FC<PopupBannerProps> = ({ enabled, imgUrl, linkU
             </button>
 
             {/* Elegant Header */}
-            <div className="bg-zinc-950 text-white px-5 py-4 flex items-center gap-2 border-b border-zinc-800/60 shrink-0">
-              <Megaphone className="w-4 h-4 text-blue-400 shrink-0" />
+            <div className="bg-zinc-950 text-foreground px-5 py-4 flex items-center gap-2 border-b border-zinc-800/60 shrink-0">
+              <Megaphone className="w-4 h-4 text-primary shrink-0" />
               <span className="text-[11px] font-extrabold tracking-widest uppercase text-zinc-300">ANNOUNCEMENT / ประชาสัมพันธ์</span>
             </div>
             
@@ -116,15 +116,15 @@ export const PopupBanner: React.FC<PopupBannerProps> = ({ enabled, imgUrl, linkU
                     onChange={(e) => setDontShow(e.target.checked)}
                   />
                   <div className={`w-[18px] h-[18px] border transition-all duration-200 flex items-center justify-center rounded-md bg-zinc-900 ${dontShow ? 'bg-blue-600 border-blue-600' : 'border-zinc-700 group-hover:border-zinc-600'}`}>
-                    {dontShow && <Check className="w-3 h-3 text-white stroke-[3.5]" />}
+                    {dontShow && <Check className="w-3 h-3 text-foreground stroke-[3.5]" />}
                   </div>
                 </div>
-                <span className="text-zinc-400 text-xs font-bold select-none group-hover:text-zinc-350 transition-colors">ไม่แสดงอีกภายใน 24 ชม.</span>
+                <span className="text-muted-foreground text-xs font-bold select-none group-hover:text-zinc-350 transition-colors">ไม่แสดงอีกภายใน 24 ชม.</span>
               </label>
 
               <button 
                 onClick={handleClose} 
-                className="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold uppercase tracking-wider transition-all cursor-pointer rounded-xl shrink-0 active:scale-95 shadow-md shadow-blue-500/15"
+                className="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-foreground text-xs font-bold uppercase tracking-wider transition-all cursor-pointer rounded-xl shrink-0 active:scale-95 shadow-md shadow-blue-500/15"
               >
                 ตกลง / รับทราบ
               </button>

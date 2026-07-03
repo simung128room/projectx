@@ -940,7 +940,7 @@ function AppContent() {
           title: "สั่งซื้อสำเร็จ",
           icon: ShoppingCart,
           bg: "bg-[#3b82f6]",
-          color: "text-white",
+          color: "text-foreground",
         });
       }
     } catch (err: any) {
@@ -1547,7 +1547,7 @@ function AppContent() {
     const { value: formValues } = await Swal.fire({
       title: "สร้างคีย์ใหม่",
       html:
-        '<select id="swal-input1" class="swal2-input bg-card border-#1f2937 text-white w-full">' +
+        '<select id="swal-input1" class="swal2-input bg-card border-#1f2937 text-foreground w-full">' +
         '<option value="Day">1 วัน (Day)</option>' +
         '<option value="Week">7 วัน (Week)</option>' +
         '<option value="Month">1 เดือน (Month)</option>' +
@@ -1555,7 +1555,7 @@ function AppContent() {
         '<option value="Year">1 ปี (Year)</option>' +
         '<option value="Lifetime">ถาวร (Lifetime)</option>' +
         "</select>" +
-        '<input id="swal-input2" class="swal2-input bg-card border-#1f2937 text-white w-full" placeholder="จำนวนคีย์ (1-50)" type="number" value="1">',
+        '<input id="swal-input2" class="swal2-input bg-card border-#1f2937 text-foreground w-full" placeholder="จำนวนคีย์ (1-50)" type="number" value="1">',
       focusConfirm: false,
       background: "#ffffff",
       color: "#18181b",
@@ -1603,8 +1603,8 @@ function AppContent() {
     const { value: ipData } = await Swal.fire({
       title: "บล็อค IP ผู้ใช้",
       html:
-        '<input id="swal-ip" class="swal2-input bg-card border-#1f2937 text-white w-full" placeholder="IP Address เช่น 1.1.1.1">' +
-        '<input id="swal-reason" class="swal2-input bg-card border-#1f2937 text-white w-full" placeholder="เหตุผลการบล็อค">',
+        '<input id="swal-ip" class="swal2-input bg-card border-#1f2937 text-foreground w-full" placeholder="IP Address เช่น 1.1.1.1">' +
+        '<input id="swal-reason" class="swal2-input bg-card border-#1f2937 text-foreground w-full" placeholder="เหตุผลการบล็อค">',
       focusConfirm: false,
       background: "#ffffff",
       color: "#18181b",
@@ -1779,11 +1779,11 @@ function AppContent() {
   const isLoadingSkeleton = !isDBReady;
 
   return (
-    <div className="w-full relative min-h-screen font-sans text-foreground overflow-x-hidden bg-[#0A0A0A]">
+    <div className="w-full relative min-h-screen font-sans text-foreground overflow-x-hidden bg-background">
         <ScrollToTop activeView={activeView} />
 
         {/* XENOBUX STORE Navbar */}
-        <nav className="relative top-0 z-50 w-full bg-[#0A0A0A]/80 backdrop-blur-md border-b border-white/[0.08] sticky">
+        <nav className="relative top-0 z-50 w-full bg-background/80 backdrop-blur-md border-b border-border sticky">
           <div className="container mx-auto flex h-[64px] items-center px-4 relative justify-between">
             
             {/* Left side empty spacer to ensure absolute centering is stable and uncluttered */}
@@ -1798,7 +1798,7 @@ function AppContent() {
                 <img 
                   src="https://img2.pic.in.th/IMG_7319.png" 
                   alt="Sunoid.shop Logo" 
-                  className="h-[40px] w-[40px] md:h-[44px] md:w-[44px] rounded-full object-cover border border-white/[0.12] transition-transform group-hover:scale-105" 
+                  className="h-[40px] w-[40px] md:h-[44px] md:w-[44px] rounded-full object-cover border border-border transition-transform group-hover:scale-105" 
                 />
               </div>
             </div>
@@ -1807,7 +1807,7 @@ function AppContent() {
             <div className="flex items-center gap-2.5 ml-auto z-[1001] relative">
               {/* Globe + TH shown only when menu is open on desktop/computer */}
               {isMobileMenuOpen && (
-                <div className="hidden md:flex items-center gap-1.5 text-white font-medium mr-1 select-none animate-fade-in">
+                <div className="hidden md:flex items-center gap-1.5 text-foreground font-medium mr-1 select-none animate-fade-in">
                   <Globe className="w-[16px] h-[16px] text-zinc-300" />
                   <span className="text-[13px] text-zinc-300 font-semibold uppercase tracking-wider font-mono">TH</span>
                 </div>
@@ -1815,14 +1815,14 @@ function AppContent() {
 
               <button 
                 onClick={() => setShowSearchPopup(true)}
-                className="text-zinc-400 hover:text-white transition-all duration-300 outline-none select-none relative w-9 h-9 flex items-center justify-center cursor-pointer bg-[#121212] border border-white/[0.08] rounded-lg hover:border-white/[0.18]"
+                className="text-muted-foreground hover:text-foreground transition-all duration-300 outline-none select-none relative w-9 h-9 flex items-center justify-center cursor-pointer bg-card border border-border rounded-lg hover:border-ring"
                 aria-label="ค้นหา"
               >
                 <Search className="w-[16px] h-[16px] stroke-[2]" />
               </button>
               
               <button 
-                className="text-zinc-400 hover:text-white transition-colors duration-300 outline-none select-none relative w-9 h-9 flex items-center justify-center cursor-pointer bg-[#121212] border border-white/[0.08] rounded-lg hover:border-white/[0.18]" 
+                className="text-muted-foreground hover:text-foreground transition-colors duration-300 outline-none select-none relative w-9 h-9 flex items-center justify-center cursor-pointer bg-card border border-border rounded-lg hover:border-ring" 
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 aria-label="เมนู"
               >
@@ -1861,7 +1861,7 @@ function AppContent() {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 15, scale: 0.95 }}
                     transition={{ duration: 0.15, ease: "easeOut" }}
-                    className="hidden md:flex absolute top-[120%] right-0 w-[240px] bg-[#121212] border border-white/[0.08] rounded-lg shadow-[0_12px_40px_rgba(0,0,0,0.8)] z-[1002] flex-col p-1.5 select-none overflow-hidden"
+                    className="hidden md:flex absolute top-[120%] right-0 w-[240px] bg-card border border-border rounded-lg shadow-[0_12px_40px_rgba(0,0,0,0.8)] z-[1002] flex-col p-1.5 select-none overflow-hidden"
                   >
                     {/* Subtle top glow overlay */}
                     <div className="absolute top-0 right-0 w-32 h-32 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.03),transparent_70%)] pointer-events-none" />
@@ -1871,7 +1871,7 @@ function AppContent() {
                       {isAdmin && (
                         <button 
                           onClick={() => { setIsMobileMenuOpen(false); setActiveView('admin'); }}
-                          className="w-full text-left px-4 py-2.5 text-[13.5px] font-medium text-zinc-200 hover:text-white rounded transition-all bg-transparent hover:bg-white/[0.04] border-none outline-none cursor-pointer flex items-center gap-2.5 group/item"
+                          className="w-full text-left px-4 py-2.5 text-[13.5px] font-medium text-zinc-200 hover:text-foreground rounded transition-all bg-transparent hover:bg-border border-none outline-none cursor-pointer flex items-center gap-2.5 group/item"
                         >
                           <span className="w-1.5 h-1.5 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)] group-hover/item:scale-110 transition-transform animate-pulse" />
                           จัดการระบบ (แอดมิน)
@@ -1880,31 +1880,31 @@ function AppContent() {
 
                       <button 
                         onClick={() => { setIsMobileMenuOpen(false); setActiveView('home'); window.scrollTo(0, 0); }}
-                        className="w-full text-left px-4 py-2.5 text-[13.5px] font-medium text-zinc-200 hover:text-white rounded transition-all bg-transparent hover:bg-white/[0.04] border-none outline-none cursor-pointer flex items-center gap-2.5 group/item"
+                        className="w-full text-left px-4 py-2.5 text-[13.5px] font-medium text-zinc-200 hover:text-foreground rounded transition-all bg-transparent hover:bg-border border-none outline-none cursor-pointer flex items-center gap-2.5 group/item"
                       >
-                        <Home className="w-[14px] h-[14px] text-zinc-400 group-hover/item:text-zinc-200 transition-colors" />
+                        <Home className="w-[14px] h-[14px] text-muted-foreground group-hover/item:text-zinc-200 transition-colors" />
                         หน้าแรก
                       </button>
 
                       <button 
                         onClick={() => { setIsMobileMenuOpen(false); setActiveView('categories'); window.scrollTo(0, 0); }}
-                        className="w-full text-left px-4 py-2.5 text-[13.5px] font-medium text-zinc-200 hover:text-white rounded transition-all bg-transparent hover:bg-white/[0.04] border-none outline-none cursor-pointer flex items-center gap-2.5 group/item"
+                        className="w-full text-left px-4 py-2.5 text-[13.5px] font-medium text-zinc-200 hover:text-foreground rounded transition-all bg-transparent hover:bg-border border-none outline-none cursor-pointer flex items-center gap-2.5 group/item"
                       >
-                        <Package className="w-[14px] h-[14px] text-zinc-400 group-hover/item:text-zinc-200 transition-colors" />
+                        <Package className="w-[14px] h-[14px] text-muted-foreground group-hover/item:text-zinc-200 transition-colors" />
                         สินค้าทั้งหมด
                       </button>
 
                       <button 
                         onClick={() => { setIsMobileMenuOpen(false); if (!user) { setActiveView('login'); } else { setActiveView('wallet'); } }}
-                        className="w-full text-left px-4 py-2.5 text-[13.5px] font-medium text-zinc-200 hover:text-white rounded transition-all bg-transparent hover:bg-white/[0.04] border-none outline-none cursor-pointer flex items-center gap-2.5 group/item"
+                        className="w-full text-left px-4 py-2.5 text-[13.5px] font-medium text-zinc-200 hover:text-foreground rounded transition-all bg-transparent hover:bg-border border-none outline-none cursor-pointer flex items-center gap-2.5 group/item"
                       >
-                        <Wallet className="w-[14px] h-[14px] text-zinc-400 group-hover/item:text-zinc-200 transition-colors" />
+                        <Wallet className="w-[14px] h-[14px] text-muted-foreground group-hover/item:text-zinc-200 transition-colors" />
                         กระเป๋าเงิน (เติมเงิน)
                       </button>
 
                       <button 
                         onClick={() => { setIsMobileMenuOpen(false); if (!user) { setActiveView('login'); } else { setActiveView('redeem'); } }}
-                        className="w-full text-left px-4 py-2.5 text-[13.5px] font-medium text-zinc-200 hover:text-white rounded transition-all bg-transparent hover:bg-white/[0.04] border-none outline-none cursor-pointer flex items-center gap-2.5 group/item"
+                        className="w-full text-left px-4 py-2.5 text-[13.5px] font-medium text-zinc-200 hover:text-foreground rounded transition-all bg-transparent hover:bg-border border-none outline-none cursor-pointer flex items-center gap-2.5 group/item"
                       >
                         <Gift className="w-[14px] h-[14px] text-amber-500 group-hover/item:scale-105 transition-transform" />
                         <span className="text-amber-500 font-semibold">รับโบนัสฟรี (Daily Reward)</span>
@@ -1912,24 +1912,24 @@ function AppContent() {
 
                       <button 
                         onClick={() => { setIsMobileMenuOpen(false); if (!user) { setActiveView('login'); } else { setActiveView('history'); } }}
-                        className="w-full text-left px-4 py-2.5 text-[13.5px] font-medium text-zinc-200 hover:text-white rounded transition-all bg-transparent hover:bg-white/[0.04] border-none outline-none cursor-pointer flex items-center gap-2.5 group/item"
+                        className="w-full text-left px-4 py-2.5 text-[13.5px] font-medium text-zinc-200 hover:text-foreground rounded transition-all bg-transparent hover:bg-border border-none outline-none cursor-pointer flex items-center gap-2.5 group/item"
                       >
-                        <History className="w-[14px] h-[14px] text-zinc-400 group-hover/item:text-zinc-200 transition-colors" />
+                        <History className="w-[14px] h-[14px] text-muted-foreground group-hover/item:text-zinc-200 transition-colors" />
                         คำสั่งซื้อของฉัน
                       </button>
 
                       <button 
                         onClick={() => { setIsMobileMenuOpen(false); if (!user) { setActiveView('login'); } else { setActiveView('profile'); } }}
-                        className="w-full text-left px-4 py-2.5 text-[13.5px] font-medium text-zinc-200 hover:text-white rounded transition-all bg-transparent hover:bg-white/[0.04] border-none outline-none cursor-pointer flex items-center gap-2.5 group/item"
+                        className="w-full text-left px-4 py-2.5 text-[13.5px] font-medium text-zinc-200 hover:text-foreground rounded transition-all bg-transparent hover:bg-border border-none outline-none cursor-pointer flex items-center gap-2.5 group/item"
                       >
-                        <User className="w-[14px] h-[14px] text-zinc-400 group-hover/item:text-zinc-200 transition-colors" />
+                        <User className="w-[14px] h-[14px] text-muted-foreground group-hover/item:text-zinc-200 transition-colors" />
                         โปรไฟล์ / บัญชีของฉัน
                       </button>
 
                       {!user && (
                         <button 
                           onClick={() => { setIsMobileMenuOpen(false); setActiveView('login'); }}
-                          className="w-full text-left px-4 py-2.5 text-[13.5px] font-medium text-amber-400 hover:text-amber-300 rounded transition-all bg-transparent hover:bg-white/[0.04] border-none outline-none cursor-pointer flex items-center gap-2.5"
+                          className="w-full text-left px-4 py-2.5 text-[13.5px] font-medium text-amber-400 hover:text-amber-300 rounded transition-all bg-transparent hover:bg-border border-none outline-none cursor-pointer flex items-center gap-2.5"
                         >
                           <LogIn className="w-[14px] h-[14px]" />
                           เข้าสู่ระบบ / สมัครสมาชิก
@@ -1939,7 +1939,7 @@ function AppContent() {
                       {user && (
                         <>
                           {/* Divider line exactly like screenshot */}
-                          <div className="h-[1px] w-full bg-white/[0.08] my-1" />
+                          <div className="h-[1px] w-full bg-border my-1" />
 
                           <button 
                             onClick={() => { setIsMobileMenuOpen(false); handleLogout(); }}
@@ -1981,66 +1981,66 @@ function AppContent() {
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: "-100%", opacity: 0.5 }}
               transition={{ type: "spring", damping: 28, stiffness: 220 }}
-              className="md:hidden fixed left-0 top-0 bottom-0 h-full w-[260px] max-w-[85vw] bg-[#0F0F0F] border-r border-white/[0.08] shadow-[0_0_40px_rgba(0,0,0,0.8)] z-[1000] flex flex-col font-sans overflow-x-hidden overflow-y-auto"
+              className="md:hidden fixed left-0 top-0 bottom-0 h-full w-[260px] max-w-[85vw] bg-background border-r border-border shadow-[0_0_40px_rgba(0,0,0,0.8)] z-[1000] flex flex-col font-sans overflow-x-hidden overflow-y-auto"
             >
-              <div className="flex flex-col h-full py-6 px-6 select-none bg-[#0F0F0F] text-white w-full" style={{ scrollbarWidth: 'none' }}>
+              <div className="flex flex-col h-full py-6 px-6 select-none bg-background text-foreground w-full" style={{ scrollbarWidth: 'none' }}>
                 {/* Header: Logo and Close Button */}
                 <div className="flex justify-between items-center w-full mb-6">
                   <img src="https://i.postimg.cc/3wDpxHPp/D7D8FA4A-524D-480E-9BF3-8451C296F760.png" alt="Logo" className="h-[28px] w-auto object-contain" />
                   <button 
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="w-10 h-10 flex items-center justify-center text-zinc-400 hover:text-white transition-colors cursor-pointer rounded-full border-none bg-transparent outline-none -mr-4"
+                    className="w-10 h-10 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer rounded-full border-none bg-transparent outline-none -mr-4"
                     aria-label="ปิดเมนู"
                   >
                     <X className="w-6 h-6" />
                   </button>
                 </div>
 
-                <div className="h-[1px] w-full bg-white/[0.08] mb-4" />
+                <div className="h-[1px] w-full bg-border mb-4" />
 
                 {/* Overview Section */}
                 <div className="flex flex-col space-y-2">
-                  <span className="text-[12px] text-zinc-500 font-medium tracking-wider font-mono mb-2">ภาพรวม</span>
-                  <button onClick={() => { setIsMobileMenuOpen(false); setActiveView('home'); window.scrollTo(0, 0); }} className="flex items-center gap-3 text-left font-medium text-[15px] text-zinc-300 hover:text-white bg-transparent hover:bg-white/[0.04] py-2 px-3 -mx-3 rounded transition-colors cursor-pointer border-none outline-none">
-                    <Home className="w-4 h-4 text-zinc-400" />
+                  <span className="text-[12px] text-muted-foreground/80 font-medium tracking-wider font-mono mb-2">ภาพรวม</span>
+                  <button onClick={() => { setIsMobileMenuOpen(false); setActiveView('home'); window.scrollTo(0, 0); }} className="flex items-center gap-3 text-left font-medium text-[15px] text-zinc-300 hover:text-foreground bg-transparent hover:bg-border py-2 px-3 -mx-3 rounded transition-colors cursor-pointer border-none outline-none">
+                    <Home className="w-4 h-4 text-muted-foreground" />
                     หน้าแรก
                   </button>
-                  <button onClick={() => { setIsMobileMenuOpen(false); setActiveView('categories'); window.scrollTo(0, 0); }} className="flex items-center gap-3 text-left font-medium text-[15px] text-zinc-300 hover:text-white bg-transparent hover:bg-white/[0.04] py-2 px-3 -mx-3 rounded transition-colors cursor-pointer border-none outline-none">
-                    <Package className="w-4 h-4 text-zinc-400" />
+                  <button onClick={() => { setIsMobileMenuOpen(false); setActiveView('categories'); window.scrollTo(0, 0); }} className="flex items-center gap-3 text-left font-medium text-[15px] text-zinc-300 hover:text-foreground bg-transparent hover:bg-border py-2 px-3 -mx-3 rounded transition-colors cursor-pointer border-none outline-none">
+                    <Package className="w-4 h-4 text-muted-foreground" />
                     สินค้าทั้งหมด
                   </button>
-                  <button onClick={() => { setIsMobileMenuOpen(false); /* Optional: add contact view/popup */ }} className="flex items-center gap-3 text-left font-medium text-[15px] text-zinc-300 hover:text-white bg-transparent hover:bg-white/[0.04] py-2 px-3 -mx-3 rounded transition-colors cursor-pointer border-none outline-none">
-                    <MessageSquare className="w-4 h-4 text-zinc-400" />
+                  <button onClick={() => { setIsMobileMenuOpen(false); /* Optional: add contact view/popup */ }} className="flex items-center gap-3 text-left font-medium text-[15px] text-zinc-300 hover:text-foreground bg-transparent hover:bg-border py-2 px-3 -mx-3 rounded transition-colors cursor-pointer border-none outline-none">
+                    <MessageSquare className="w-4 h-4 text-muted-foreground" />
                     ติดต่อเรา
                   </button>
                 </div>
 
-                <div className="h-[1px] w-full bg-white/[0.08] my-4" />
+                <div className="h-[1px] w-full bg-border my-4" />
 
                 {/* Finance Section */}
                 <div className="flex flex-col space-y-2">
-                  <span className="text-[12px] text-zinc-500 font-medium tracking-wider font-mono mb-2">บัญชีผู้ใช้</span>
-                  <button onClick={() => { setIsMobileMenuOpen(false); if (!user) { setActiveView('login'); } else { setActiveView('wallet'); } }} className="flex items-center gap-3 text-left font-medium text-[15px] text-zinc-300 hover:text-white bg-transparent hover:bg-white/[0.04] py-2 px-3 -mx-3 rounded transition-colors cursor-pointer border-none outline-none">
-                    <Wallet className="w-4 h-4 text-zinc-400" />
+                  <span className="text-[12px] text-muted-foreground/80 font-medium tracking-wider font-mono mb-2">บัญชีผู้ใช้</span>
+                  <button onClick={() => { setIsMobileMenuOpen(false); if (!user) { setActiveView('login'); } else { setActiveView('wallet'); } }} className="flex items-center gap-3 text-left font-medium text-[15px] text-zinc-300 hover:text-foreground bg-transparent hover:bg-border py-2 px-3 -mx-3 rounded transition-colors cursor-pointer border-none outline-none">
+                    <Wallet className="w-4 h-4 text-muted-foreground" />
                     กระเป๋าเงิน
                   </button>
-                  <button onClick={() => { setIsMobileMenuOpen(false); if (!user) { setActiveView('login'); } else { setActiveView('redeem'); } }} className="flex items-center gap-3 text-left font-medium text-[15px] text-zinc-300 hover:text-white bg-transparent hover:bg-white/[0.04] py-2 px-3 -mx-3 rounded transition-colors cursor-pointer border-none outline-none">
+                  <button onClick={() => { setIsMobileMenuOpen(false); if (!user) { setActiveView('login'); } else { setActiveView('redeem'); } }} className="flex items-center gap-3 text-left font-medium text-[15px] text-zinc-300 hover:text-foreground bg-transparent hover:bg-border py-2 px-3 -mx-3 rounded transition-colors cursor-pointer border-none outline-none">
                     <Gift className="w-4 h-4 text-amber-500" />
                     <span className="text-amber-550 font-semibold">รับโบนัสฟรี (Daily Reward)</span>
                   </button>
-                  <button onClick={() => { setIsMobileMenuOpen(false); if (!user) { setActiveView('login'); } else { setActiveView('history'); } }} className="flex items-center gap-3 text-left font-medium text-[15px] text-zinc-300 hover:text-white bg-transparent hover:bg-white/[0.04] py-2 px-3 -mx-3 rounded transition-colors cursor-pointer border-none outline-none">
-                    <History className="w-4 h-4 text-zinc-400" />
+                  <button onClick={() => { setIsMobileMenuOpen(false); if (!user) { setActiveView('login'); } else { setActiveView('history'); } }} className="flex items-center gap-3 text-left font-medium text-[15px] text-zinc-300 hover:text-foreground bg-transparent hover:bg-border py-2 px-3 -mx-3 rounded transition-colors cursor-pointer border-none outline-none">
+                    <History className="w-4 h-4 text-muted-foreground" />
                     ประวัติธุรกรรม
                   </button>
-                  <button onClick={() => { setIsMobileMenuOpen(false); if (!user) { setActiveView('login'); } else { setActiveView('profile'); } }} className="flex items-center gap-3 text-left font-medium text-[15px] text-zinc-300 hover:text-white bg-transparent hover:bg-white/[0.04] py-2 px-3 -mx-3 rounded transition-colors cursor-pointer border-none outline-none">
-                    <User className="w-4 h-4 text-zinc-400" />
+                  <button onClick={() => { setIsMobileMenuOpen(false); if (!user) { setActiveView('login'); } else { setActiveView('profile'); } }} className="flex items-center gap-3 text-left font-medium text-[15px] text-zinc-300 hover:text-foreground bg-transparent hover:bg-border py-2 px-3 -mx-3 rounded transition-colors cursor-pointer border-none outline-none">
+                    <User className="w-4 h-4 text-muted-foreground" />
                     บัญชีของฉัน
                   </button>
                 </div>
 
                 <div className="mt-auto flex flex-col w-full pt-4">
                   <div className="flex flex-col space-y-2 mb-2">
-                     <span className="text-[12px] text-zinc-500 font-medium tracking-wider font-mono">บัญชี</span>
+                     <span className="text-[12px] text-muted-foreground/80 font-medium tracking-wider font-mono">บัญชี</span>
                   </div>
 
                   {/* Account Section */}
@@ -2048,26 +2048,26 @@ function AppContent() {
                     {!user ? (
                       <button 
                         onClick={() => { setIsMobileMenuOpen(false); setActiveView('login'); }}
-                        className="w-full py-2.5 bg-white text-black hover:bg-neutral-200 font-semibold text-sm rounded transition-colors cursor-pointer border-none outline-none"
+                        className="w-full py-2.5 bg-foreground text-background hover:opacity-90 font-semibold text-sm rounded transition-colors cursor-pointer border-none outline-none"
                       >
                         เข้าสู่ระบบ
                       </button>
                     ) : (
                       <div className="relative">
                         <div className="flex justify-between items-center mb-4">
-                          <button onClick={() => { /* bell action */ }} className="flex-1 max-w-[44px] h-[44px] rounded bg-[#121212] border border-white/[0.08] flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/[0.04] transition-colors outline-none cursor-pointer">
+                          <button onClick={() => { /* bell action */ }} className="flex-1 max-w-[44px] h-[44px] rounded bg-card border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-border transition-colors outline-none cursor-pointer">
                             <Bell className="w-4 h-4" />
                           </button>
                           <div className="w-2" />
-                          <button onClick={() => { setIsMobileMenuOpen(false); setActiveView('settings'); }} className="flex-1 max-w-[44px] h-[44px] rounded bg-[#121212] border border-white/[0.08] flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/[0.04] transition-colors outline-none cursor-pointer">
+                          <button onClick={() => { setIsMobileMenuOpen(false); setActiveView('settings'); }} className="flex-1 max-w-[44px] h-[44px] rounded bg-card border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-border transition-colors outline-none cursor-pointer">
                             <Settings className="w-4 h-4" />
                           </button>
                           <div className="w-2" />
-                          <button onClick={() => { setIsMobileMenuOpen(false); setShowSearchPopup(true); }} className="flex-1 max-w-[44px] h-[44px] rounded bg-[#121212] border border-white/[0.08] flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/[0.04] transition-colors outline-none cursor-pointer">
+                          <button onClick={() => { setIsMobileMenuOpen(false); setShowSearchPopup(true); }} className="flex-1 max-w-[44px] h-[44px] rounded bg-card border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-border transition-colors outline-none cursor-pointer">
                             <Search className="w-4 h-4" />
                           </button>
                           <div className="w-2" />
-                          <button onClick={() => { setIsMobileMenuOpen(false); if (isAdmin) setActiveView('admin'); }} className="flex-1 max-w-[44px] h-[44px] rounded bg-[#121212] border border-white/[0.08] flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/[0.04] transition-colors outline-none cursor-pointer">
+                          <button onClick={() => { setIsMobileMenuOpen(false); if (isAdmin) setActiveView('admin'); }} className="flex-1 max-w-[44px] h-[44px] rounded bg-card border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-border transition-colors outline-none cursor-pointer">
                             <Key className="w-4 h-4" />
                           </button>
                         </div>
@@ -2078,15 +2078,15 @@ function AppContent() {
                               animate={{ opacity: 1, y: 0, scale: 1 }}
                               exit={{ opacity: 0, y: 10, scale: 0.95 }}
                               transition={{ duration: 0.15 }}
-                              className="absolute bottom-[110%] left-0 w-full bg-[#121212] border border-white/[0.08] rounded shadow-2xl overflow-hidden z-[1001] flex flex-col p-1.5"
+                              className="absolute bottom-[110%] left-0 w-full bg-card border border-border rounded shadow-2xl overflow-hidden z-[1001] flex flex-col p-1.5"
                             >
-                              <button className="text-left px-3 py-2 text-[14px] font-medium text-zinc-200 hover:bg-white/[0.04] hover:text-white rounded transition-colors mb-0.5 border-none bg-transparent outline-none cursor-pointer" onClick={() => { setIsMobileProfilePopupOpen(false); setIsMobileMenuOpen(false); setActiveView('profile'); }}>โปรไฟล์</button>
-                              <button className="text-left px-3 py-2 text-[14px] font-medium text-zinc-200 hover:bg-white/[0.04] hover:text-white rounded transition-colors mb-0.5 border-none bg-transparent outline-none cursor-pointer" onClick={() => { setIsMobileProfilePopupOpen(false); setIsMobileMenuOpen(false); setActiveView('settings'); }}>การตั้งค่า</button>
-                              <button className="text-left px-3 py-2 text-[14px] font-medium text-zinc-200 hover:bg-white/[0.04] hover:text-white rounded transition-colors mb-0.5 border-none bg-transparent outline-none cursor-pointer" onClick={() => { setIsMobileProfilePopupOpen(false); setIsMobileMenuOpen(false); setActiveView('history'); }}>ประวัติการสั่งซื้อ</button>
-                              <button className="text-left px-3 py-2 text-[14px] font-medium text-zinc-200 hover:bg-white/[0.04] hover:text-white rounded transition-colors mb-0.5 border-none bg-transparent outline-none cursor-pointer" onClick={() => { setIsMobileProfilePopupOpen(false); setIsMobileMenuOpen(false); setActiveView('wallet'); }}>ประวัติการเติมเงิน</button>
-                              <button className="text-left px-3 py-2 text-[14px] font-medium text-zinc-200 hover:bg-white/[0.04] hover:text-white rounded transition-colors mb-0.5 border-none bg-transparent outline-none cursor-pointer" onClick={() => { setIsMobileProfilePopupOpen(false); setIsMobileMenuOpen(false); setActiveView('history'); }}>ออเดอร์ของฉัน</button>
-                              <button className="text-left px-3 py-2 text-[14px] font-medium text-zinc-200 hover:bg-white/[0.04] hover:text-white rounded transition-colors mb-0.5 border-none bg-transparent outline-none cursor-pointer" onClick={() => { setIsMobileProfilePopupOpen(false); setIsMobileMenuOpen(false); setActiveView('topup'); }}>กรอกโค๊ด</button>
-                              <div className="h-[1px] bg-white/[0.08] my-1 mx-1.5" />
+                              <button className="text-left px-3 py-2 text-[14px] font-medium text-zinc-200 hover:bg-border hover:text-foreground rounded transition-colors mb-0.5 border-none bg-transparent outline-none cursor-pointer" onClick={() => { setIsMobileProfilePopupOpen(false); setIsMobileMenuOpen(false); setActiveView('profile'); }}>โปรไฟล์</button>
+                              <button className="text-left px-3 py-2 text-[14px] font-medium text-zinc-200 hover:bg-border hover:text-foreground rounded transition-colors mb-0.5 border-none bg-transparent outline-none cursor-pointer" onClick={() => { setIsMobileProfilePopupOpen(false); setIsMobileMenuOpen(false); setActiveView('settings'); }}>การตั้งค่า</button>
+                              <button className="text-left px-3 py-2 text-[14px] font-medium text-zinc-200 hover:bg-border hover:text-foreground rounded transition-colors mb-0.5 border-none bg-transparent outline-none cursor-pointer" onClick={() => { setIsMobileProfilePopupOpen(false); setIsMobileMenuOpen(false); setActiveView('history'); }}>ประวัติการสั่งซื้อ</button>
+                              <button className="text-left px-3 py-2 text-[14px] font-medium text-zinc-200 hover:bg-border hover:text-foreground rounded transition-colors mb-0.5 border-none bg-transparent outline-none cursor-pointer" onClick={() => { setIsMobileProfilePopupOpen(false); setIsMobileMenuOpen(false); setActiveView('wallet'); }}>ประวัติการเติมเงิน</button>
+                              <button className="text-left px-3 py-2 text-[14px] font-medium text-zinc-200 hover:bg-border hover:text-foreground rounded transition-colors mb-0.5 border-none bg-transparent outline-none cursor-pointer" onClick={() => { setIsMobileProfilePopupOpen(false); setIsMobileMenuOpen(false); setActiveView('history'); }}>ออเดอร์ของฉัน</button>
+                              <button className="text-left px-3 py-2 text-[14px] font-medium text-zinc-200 hover:bg-border hover:text-foreground rounded transition-colors mb-0.5 border-none bg-transparent outline-none cursor-pointer" onClick={() => { setIsMobileProfilePopupOpen(false); setIsMobileMenuOpen(false); setActiveView('topup'); }}>กรอกโค๊ด</button>
+                              <div className="h-[1px] bg-border my-1 mx-1.5" />
                               <button className="text-left px-3 py-2 text-[14px] font-semibold text-red-500 hover:bg-red-500/10 rounded transition-colors border-none bg-transparent outline-none cursor-pointer" onClick={() => { setIsMobileProfilePopupOpen(false); setIsMobileMenuOpen(false); handleLogout(); }}>ออกจากระบบ</button>
                             </motion.div>
                           )}
@@ -2094,17 +2094,17 @@ function AppContent() {
 
                         <button 
                           onClick={() => setIsMobileProfilePopupOpen(!isMobileProfilePopupOpen)}
-                          className="w-full flex items-center p-2.5 bg-[#121212] hover:bg-white/[0.04] border border-white/[0.08] rounded-lg transition-colors cursor-pointer outline-none"
+                          className="w-full flex items-center p-2.5 bg-card hover:bg-border border border-border rounded-lg transition-colors cursor-pointer outline-none"
                         >
-                          <div className="w-8 h-8 rounded-full bg-zinc-800 shrink-0 overflow-hidden flex items-center justify-center border border-white/[0.08]">
-                            {user.photoURL ? <img src={user.photoURL} alt="Avatar" className="w-full h-full object-cover" /> : <User className="w-4 h-4 text-zinc-400" />}
+                          <div className="w-8 h-8 rounded-full bg-zinc-800 shrink-0 overflow-hidden flex items-center justify-center border border-border">
+                            {user.photoURL ? <img src={user.photoURL} alt="Avatar" className="w-full h-full object-cover" /> : <User className="w-4 h-4 text-muted-foreground" />}
                           </div>
                           <div className="flex flex-col text-left ml-2.5 overflow-hidden justify-center flex-1">
                             <span className="text-[13px] text-zinc-300 font-medium truncate block leading-tight">
                               {user.email || 'user@example.com'}
                             </span>
-                            <span className="text-[11px] text-zinc-400 font-medium truncate block mt-0.5 leading-tight">
-                              ยอดเงิน: <span className="text-white">฿{(userPlan?.balance || 0).toFixed(2)}</span>
+                            <span className="text-[11px] text-muted-foreground font-medium truncate block mt-0.5 leading-tight">
+                              ยอดเงิน: <span className="text-foreground">฿{(userPlan?.balance || 0).toFixed(2)}</span>
                             </span>
                           </div>
                         </button>
@@ -2355,8 +2355,8 @@ function AppContent() {
             <div className="container mx-auto px-8 py-12">
               <div className="mb-8">
                 <div className="flex items-center gap-1.5 text-sm text-muted-foreground select-none">
-                  <span className="text-[17px] font-sans font-extrabold text-white tracking-tight">
-                    Sunoid<span className="inline-block w-[3.5px] h-[3.5px] bg-blue-600 mx-[1.2px] rounded-[0.8px] align-baseline"></span>shop
+                  <span className="text-[17px] font-sans font-extrabold text-foreground tracking-tight">
+                    Sunoid<span className="inline-block w-[3.5px] h-[3.5px] bg-primary mx-[1.2px] rounded-[0.8px] align-baseline"></span>shop
                   </span>
                 </div>
               </div>

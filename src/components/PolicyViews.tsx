@@ -16,23 +16,23 @@ export const PrivacyView: React.FC<PolicyViewProps> = ({ onBack }) => {
     >
       <button
         onClick={onBack}
-        className="flex items-center gap-2 text-zinc-600 hover:text-zinc-900 text-sm font-medium transition-colors mb-8 cursor-pointer bg-white border border-zinc-200 px-4 py-2 rounded-full shadow-sm hover:shadow-md transition-all"
+        className="flex items-center gap-2 text-zinc-600 hover:text-zinc-900 text-sm font-medium transition-colors mb-8 cursor-pointer bg-foreground border border-zinc-200 px-4 py-2 rounded-full shadow-sm hover:shadow-md transition-all"
       >
         <ArrowLeft className="w-4 h-4" /> ย้อนกลับ
       </button>
       
       <div className="flex items-center gap-4 mb-10">
-        <div className="w-12 h-12 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center shrink-0 shadow-sm">
+        <div className="w-12 h-12 rounded-xl bg-cardmerald-50 border border-emerald-100 flex items-center justify-center shrink-0 shadow-sm">
           <Shield className="w-6 h-6 text-emerald-600" />
         </div>
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-zinc-900">นโยบายความเป็นส่วนตัว</h1>
-          <p className="text-zinc-500 text-xs font-semibold uppercase mt-1">อัปเดตล่าสุด: {new Date().toLocaleDateString("th-TH", { year: "numeric", month: "long", day: "numeric" })}</p>
+          <p className="text-muted-foreground/80 text-xs font-semibold uppercase mt-1">อัปเดตล่าสุด: {new Date().toLocaleDateString("th-TH", { year: "numeric", month: "long", day: "numeric" })}</p>
         </div>
       </div>
 
       <div className="space-y-8">
-        <section className="bg-white rounded-3xl border border-zinc-200 p-6 sm:p-8 shadow-sm">
+        <section className="bg-foreground rounded-3xl border border-zinc-200 p-6 sm:p-8 shadow-sm">
           <h2 className="text-lg sm:text-xl font-bold mb-4 text-emerald-600 border-b border-zinc-100 pb-2">1. ข้อมูลที่เราเก็บรวบรวมอย่างละเอียด</h2>
           <div className="space-y-4 text-zinc-600 text-sm leading-relaxed">
             <p><strong>1.1 ข้อมูลระบุตัวตนและบัญชีผู้ใช้งาน:</strong> เมื่อคุณสมัครสมาชิก เราทำการจัดเก็บและประมวลผลข้อมูลอีเมล ชื่อผู้ใช้ รหัสผ่าน (ซึ่งถูกเข้ารหัสด้วยกระบวนการแฮชชิ่งที่ได้มาตรฐานทางอุตสาหกรรม โดยเราไม่สามารถรู้รหัสผ่านเดิมของคุณได้) ข้อมูลระดับการใช้งาน (Role/VIP) และเครดิตคงเหลือของคุณอย่างครบถ้วน ข้อมูลนี้เป็นส่วนสำคัญที่ระบบต้องใช้ในการรักษาบัญชีของคุณให้ปลอดภัย</p>
@@ -42,7 +42,7 @@ export const PrivacyView: React.FC<PolicyViewProps> = ({ onBack }) => {
           </div>
         </section>
 
-        <section className="bg-white rounded-3xl border border-zinc-200 p-6 sm:p-8 shadow-sm">
+        <section className="bg-foreground rounded-3xl border border-zinc-200 p-6 sm:p-8 shadow-sm">
           <h2 className="text-lg sm:text-xl font-bold mb-4 text-emerald-600 border-b border-zinc-100 pb-2">2. การปกป้องข้อมูล Combo และสินทรัพย์ของท่าน (Zero-Logging Assurance)</h2>
           <div className="space-y-4 text-zinc-600 text-sm leading-relaxed">
             <p>ทางทีมบริหารงานและวิศวกรของระบบ ขอยืนยันพันธสัญญาด้วยเกียรติว่า <strong>ระบบจะไม่มีพฤติกรรมการบันทึก, แอบขโมย, หรือทำการดักจับข้อมูลบัญชี (Combo) / รหัสผ่านเป้าหมายที่มีการใช้งานบนหน้าเว็บไปรวบรวมเป็นฐานข้อมูลส่วนตัวเพื่อผลประโยชน์อื่นใดทั้งสิ้น</strong></p>
@@ -50,7 +50,7 @@ export const PrivacyView: React.FC<PolicyViewProps> = ({ onBack }) => {
           </div>
         </section>
 
-        <section className="bg-white rounded-3xl border border-zinc-200 p-6 sm:p-8 shadow-sm">
+        <section className="bg-foreground rounded-3xl border border-zinc-200 p-6 sm:p-8 shadow-sm">
           <h2 className="text-lg sm:text-xl font-bold mb-4 text-emerald-600 border-b border-zinc-100 pb-2">3. นโยบายการเปิดเผยข้อมูลแก่บุคคลที่สามอย่างรัดกุม</h2>
           <div className="space-y-4 text-zinc-600 text-sm leading-relaxed">
             <p>แพลตฟอร์มตระหนักเสมอว่าข้อมูลของคุณคือสิทธิ์ขาดของคุณ เรามีนโยบายควบคุมระดับองค์กรที่จะไม่นำข้อมูลส่วนตัว อีเมล หรือฐานข้อมูลประวัติใดๆ ของคุณไปมอบ แจกจ่าย จำหน่าย เผยแพร่ หรือแลกเปลี่ยนผลประโยชน์กับบุคคลภายนอก หรือองค์กรที่สามโดยเด็ดขาด <em className="text-emerald-700">ยกเว้นในกรณีที่มีเงื่อนไขบังคับต่อไปนี้:</em></p>
@@ -62,7 +62,7 @@ export const PrivacyView: React.FC<PolicyViewProps> = ({ onBack }) => {
           </div>
         </section>
 
-        <section className="bg-white rounded-3xl border border-zinc-200 p-6 sm:p-8 shadow-sm">
+        <section className="bg-foreground rounded-3xl border border-zinc-200 p-6 sm:p-8 shadow-sm">
           <h2 className="text-lg sm:text-xl font-bold mb-4 text-emerald-600 border-b border-zinc-100 pb-2">4. สิทธิของเจ้าของข้อมูล และการติดต่อเพื่อสิทธิ</h2>
           <div className="space-y-4 text-zinc-600 text-sm leading-relaxed">
             <p>ผู้ใช้แพลตฟอร์มทุกคนมีสิทธิที่จะเป็นผู้แจ้งยุติ หรือปรับปรุงการจัดเก็บข้อมูลของตน:</p>
@@ -88,7 +88,7 @@ export const TermsView: React.FC<PolicyViewProps> = ({ onBack }) => {
     >
       <button
         onClick={onBack}
-        className="flex items-center gap-2 text-zinc-600 hover:text-zinc-900 text-sm font-medium transition-colors mb-8 cursor-pointer bg-white border border-zinc-200 px-4 py-2 rounded-full shadow-sm hover:shadow-md transition-all"
+        className="flex items-center gap-2 text-zinc-600 hover:text-zinc-900 text-sm font-medium transition-colors mb-8 cursor-pointer bg-foreground border border-zinc-200 px-4 py-2 rounded-full shadow-sm hover:shadow-md transition-all"
       >
         <ArrowLeft className="w-4 h-4" /> ย้อนกลับ
       </button>
@@ -99,19 +99,19 @@ export const TermsView: React.FC<PolicyViewProps> = ({ onBack }) => {
         </div>
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-zinc-900">ข้อกำหนดและเงื่อนไขการใช้บริการ</h1>
-          <p className="text-zinc-400 mt-1">อัปเดตล่าสุด: {new Date().toLocaleDateString("th-TH", { year: "numeric", month: "long", day: "numeric" })}</p>
+          <p className="text-muted-foreground mt-1">อัปเดตล่าสุด: {new Date().toLocaleDateString("th-TH", { year: "numeric", month: "long", day: "numeric" })}</p>
         </div>
       </div>
 
       <div className="space-y-8">
-        <section className="bg-white rounded-3xl border border-zinc-200 p-6 sm:p-8 shadow-sm">
+        <section className="bg-foreground rounded-3xl border border-zinc-200 p-6 sm:p-8 shadow-sm">
           <h2 className="text-lg sm:text-xl font-bold mb-4 text-rose-600 border-b border-zinc-100 pb-2">1. การรับรองความยินยอมและผูกพัน</h2>
           <div className="space-y-4 text-zinc-600 text-sm leading-relaxed">
             <p>การดำเนินการใดๆ บนหน้าเว็บไซต์ ซึ่งรวมไปถึงการคลิกเข้าสู่ระบบ การเข้าแท็บสั่งซื้อ หรือการรันเครื่องมือต่างๆ บนแพลตฟอร์มของเรา ถือเป็นภาระทางแพ่งที่คุณยินยอมและยอมรับเงื่อนไขการใช้บริการของ <strong>APEXSTORE</strong> ทันทีอย่างไม่อาจเพิกถอนได้ องค์ประกอบและกฎเหล่านี้ถูกตราไว้เพื่อคุ้มครองความปลอดภัยของผู้ใช้โดยรวม ควบคุมกรอบการใช้งาน และยืนยันความรับผิดชอบของตัวลูกค้าเอง หากท่านไม่ยินยอมหรือไม่เห็นด้วยกับมาตรการ กฎกติกา ข้อตกลง และพันธสัญญาข้อใดข้อหนึ่ง กรุณายุติการเข้าใช้งาน ปิดหน้าต่าง และปฏิเสธการโอนเงินโดยทันที</p>
           </div>
         </section>
 
-        <section className="bg-white rounded-3xl border border-zinc-200 p-6 sm:p-8 shadow-sm">
+        <section className="bg-foreground rounded-3xl border border-zinc-200 p-6 sm:p-8 shadow-sm">
           <h2 className="text-lg sm:text-xl font-bold mb-4 text-rose-600 border-b border-zinc-100 pb-2">2. ขอบเขตสิทธิ์ หน้าที่ และการใช้งานที่ต้องห้าม (Strict AUP)</h2>
           <div className="space-y-4 text-zinc-600 text-sm leading-relaxed">
             <p>แพลตฟอร์ม APEXSTORE อนุญาตให้ผู้ใช้งานที่ประพฤติตนดี ได้รับสิทธิ์ในการใช้ระบบนิเวศและ API อย่างโปร่งใส การใช้งานที่ละเมิดข้อจำกัดต่อไปนี้จะส่งผลเด็ดขาดให้บัญชีและยอดคงเหลือทั้งหมดของคุณถูกทำการระงับ ทรัพย์สินและสิทธิ์จะถูกยึดรวมเป็นค่าปรับทันที:</p>
@@ -124,7 +124,7 @@ export const TermsView: React.FC<PolicyViewProps> = ({ onBack }) => {
           </div>
         </section>
 
-        <section className="bg-white rounded-3xl border border-zinc-200 p-6 sm:p-8 shadow-sm">
+        <section className="bg-foreground rounded-3xl border border-zinc-200 p-6 sm:p-8 shadow-sm">
           <h2 className="text-lg sm:text-xl font-bold mb-4 text-rose-600 border-b border-zinc-100 pb-2">3. ข้อตกลงแห่งการทำธุรกิจดิจิทัลและนโยบายไม่รับคืน (No Refund Principle)</h2>
           <div className="space-y-4 text-zinc-600 text-sm leading-relaxed">
             <p><strong>3.1 ความไม่อาจย้อนกลับของการทำธุรกรรม:</strong> เนื่องจากธุรกิจที่เกี่ยวกับ ซอฟต์แวร์ คีย์โปรแกรม (Digital Keys) ไอดี และเครดิตดิจิทัล (Digital Credits) นั้นเป็นสิ่งที่เมื่อกระทำการส่งมอบแล้วจะไม่สามารถนำสินค้าไปรีเซ็ตหรือหมุนเวียนขายผู้ใช้ท่านอื่นได้ ดังนั้น ทุกการเติมเงิน ทุกการซื้อคีย์ ทุกการเช่าโปรแกรม และการทำรายการชำระซื้อบนร้านค้า ถือเป็นการสรุปสมบูรณ์ (Final Sale) และ <strong>ไม่สามารถเรียกร้องคืนเป็นเงินสดหรือการยกเลิกคืนยอด (Non-Refundable) ในทุกรณี</strong></p>
@@ -133,7 +133,7 @@ export const TermsView: React.FC<PolicyViewProps> = ({ onBack }) => {
           </div>
         </section>
 
-        <section className="bg-white rounded-3xl border border-zinc-200 p-6 sm:p-8 shadow-sm">
+        <section className="bg-foreground rounded-3xl border border-zinc-200 p-6 sm:p-8 shadow-sm">
           <h2 className="text-lg sm:text-xl font-bold mb-4 text-rose-600 border-b border-zinc-100 pb-2">4. ข้อจำกัดความรับผิดชอบและข้อยกเว้นทางกฎหมาย (Liability Disclaimer)</h2>
           <div className="space-y-4 text-zinc-600 text-sm leading-relaxed">
             <p><strong>4.1 สถานะเชิงเทคนิค (Technical "As Is"):</strong> เราสร้างแพลตฟอร์มนี้อย่างสุดฝีมือที่สุด แต่เราสงวนสิทธิ์ให้บริการภายใต้นิยาม "ตามสภาพ (As Available & As Is)" นั่นคือเราไม่สามารถรับรองความสมบูรณ์ตลอด 100% อาจจะมีความหน่วง ข้อผิดพลาด และช่วงพักฉุกเฉิน</p>
@@ -142,7 +142,7 @@ export const TermsView: React.FC<PolicyViewProps> = ({ onBack }) => {
           </div>
         </section>
 
-        <section className="bg-white rounded-3xl border border-zinc-200 p-6 sm:p-8 shadow-sm">
+        <section className="bg-foreground rounded-3xl border border-zinc-200 p-6 sm:p-8 shadow-sm">
           <h2 className="text-lg sm:text-xl font-bold mb-4 text-rose-600 border-b border-zinc-100 pb-2">5. อำนาจสูงสุดของทีมงานระดับแอดมินิสเตรเตอร์ (Admin Absolute Authority)</h2>
           <div className="space-y-4 text-zinc-600 text-sm leading-relaxed">
             <p>การบริหารงานและสิทธิบัญชาการขั้นสูงสุด (Ultimate Veto) เป็นไปตามดุลพินิจและการจัดการของแอดมินิสเตรเตอร์แห่ง APEXSTORE ทุกระดับ หากแอดมินพิจารณาประจักษ์ว่าคุณมีความน่าจะละเมิด ต่อต้าน หมิ่นประมาท ทำให้เสื่อมเสีย แฮ็กระบบ ดื้อดึง ฉ้อฉลการเติมเงิน หรือสร้างภาวะ Toxic ให้แก่สังคม หรือทำพฤติกรรมผิดธรรมเนียม:</p>
@@ -151,7 +151,7 @@ export const TermsView: React.FC<PolicyViewProps> = ({ onBack }) => {
         </section>
       </div>
 
-      <div className="mt-16 text-center text-zinc-400 text-sm pb-8 border-b border-zinc-200 font-medium">
+      <div className="mt-16 text-center text-muted-foreground text-sm pb-8 border-b border-zinc-200 font-medium">
         <p>คุณมาถึงจุดนี้ได้ นั่นหมายความว่าคุณเคารพและทำความเข้าใจมันอย่างเต็มเปี่ยม</p>
         <p className="mt-2 text-rose-600 font-bold">-- ขอให้คุณโชคดีในโลกของ Sunoid.shop --</p>
       </div>

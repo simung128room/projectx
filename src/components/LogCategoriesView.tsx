@@ -69,7 +69,7 @@ export const LogCategoriesView: React.FC<LogCategoriesViewProps> = ({ userPlan, 
           return `<img loading="lazy" src="${safeUrl}" class="w-full rounded-md mb-2" />`;
         }
         if (att.type === 'file') {
-          return `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="block w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-center font-bold text-sm mb-2 shadow-sm">ดาวน์โหลดไฟล์</a>`;
+          return `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="block w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-foreground rounded-xl text-center font-bold text-sm mb-2 shadow-sm">ดาวน์โหลดไฟล์</a>`;
         }
         return `<div class="bg-slate-50 border border-zinc-200 p-3.5 rounded-xl mb-3 text-left text-sm text-zinc-800 break-all select-all font-mono max-h-48 overflow-y-auto">${(att.data || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>`;
     }).join('');
@@ -108,21 +108,21 @@ export const LogCategoriesView: React.FC<LogCategoriesViewProps> = ({ userPlan, 
              <p className="text-sm font-semibold text-zinc-550 mt-2">ดาวน์โหลดไฟล์และเอกสารฟรี & พรีเมียม</p>
           </div>
           {isAdmin && (
-            <button onClick={() => setShowAdmin(!showAdmin)} className="flex bg-white hover:bg-slate-50 text-zinc-800 px-4 py-2 border border-zinc-200 text-sm font-bold shadow-sm rounded-xl self-start md:self-auto hover:-translate-y-0.5 transition-all cursor-pointer">
+            <button onClick={() => setShowAdmin(!showAdmin)} className="flex bg-foreground hover:bg-slate-50 text-zinc-800 px-4 py-2 border border-zinc-200 text-sm font-bold shadow-sm rounded-xl self-start md:self-auto hover:-translate-y-0.5 transition-all cursor-pointer">
                {showAdmin ? 'ปิดจัดการเนื้อหา' : 'เพิ่มเนื้อหา (แอดมิน)'}
             </button>
           )}
        </div>
 
        {showAdmin ? (
-          <div className="bg-white border border-zinc-200 rounded-3xl p-4 sm:p-6 mb-8 shadow-sm">
+          <div className="bg-foreground border border-zinc-200 rounded-3xl p-4 sm:p-6 mb-8 shadow-sm">
             <AdminToolsManagement />
           </div>
        ) : selectedCategory ? (
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
              <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-6">
                 <div className="flex items-center gap-3">
-                  <button onClick={() => setSelectedCategory(null)} className="px-4 py-2 bg-white hover:bg-slate-50 border border-zinc-200 text-zinc-700 font-bold text-sm rounded-xl shadow-sm cursor-pointer">
+                  <button onClick={() => setSelectedCategory(null)} className="px-4 py-2 bg-foreground hover:bg-slate-50 border border-zinc-200 text-zinc-700 font-bold text-sm rounded-xl shadow-sm cursor-pointer">
                     กลับ
                   </button>
                   <h2 className="text-xl font-bold text-zinc-900 flex items-center gap-2">
@@ -131,8 +131,8 @@ export const LogCategoriesView: React.FC<LogCategoriesViewProps> = ({ userPlan, 
                   </h2>
                 </div>
                 <div className="sm:ml-auto w-full sm:w-64 relative">
-                  <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
-                  <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="ค้นหา..." className="w-full bg-white border border-zinc-200 pl-9 pr-4 py-2 rounded-xl text-sm text-zinc-805 placeholder:text-zinc-300 focus:outline-[#364153] outline-offset-0 focus:border-zinc-400 shadow-sm" />
+                  <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                  <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="ค้นหา..." className="w-full bg-foreground border border-zinc-200 pl-9 pr-4 py-2 rounded-xl text-sm text-zinc-805 placeholder:text-zinc-300 focus:outline-[#364153] outline-offset-0 focus:border-zinc-400 shadow-sm" />
                 </div>
              </div>
 
@@ -140,19 +140,19 @@ export const LogCategoriesView: React.FC<LogCategoriesViewProps> = ({ userPlan, 
                {currentItems.map((item) => {
                   const isLocked = item.type === 'premium' && !isVip;
                   return (
-                     <div key={item.id} onClick={() => handleOpenItem(item)} className={`bg-white border border-zinc-200 rounded-2xl p-5 cursor-pointer hover:border-blue-500 hover:shadow-md transition-all ${isLocked ? 'opacity-80' : 'hover:-translate-y-1 '}`}>
+                     <div key={item.id} onClick={() => handleOpenItem(item)} className={`bg-foreground border border-zinc-200 rounded-2xl p-5 cursor-pointer hover:border-blue-500 hover:shadow-md transition-all ${isLocked ? 'opacity-80' : 'hover:-translate-y-1 '}`}>
                        <div className="flex justify-between items-start mb-3">
                          <span className={`text-[10px] font-bold px-2.5 py-1 rounded-md uppercase ${item.type === 'premium' ? 'bg-amber-100 text-amber-700' : 'bg-blue-50 text-blue-600'}`}>
                            {item.type === 'premium' ? 'Premium' : 'Free'}
                          </span>
-                         {isLocked ? <Lock className="w-4 h-4 text-zinc-400"/> : <Download className="w-4 h-4 text-blue-600"/>}
+                         {isLocked ? <Lock className="w-4 h-4 text-muted-foreground"/> : <Download className="w-4 h-4 text-blue-600"/>}
                        </div>
                        <h3 className="text-lg font-bold text-zinc-900 mb-2">{item.title}</h3>
                        {item.keyword && <span className="text-[10px] text-zinc-450 font-semibold bg-zinc-50 border border-zinc-100 px-2.5 py-1 rounded-md font-mono">#{item.keyword}</span>}
                     </div>
                   );
                })}
-               {currentItems.length === 0 && <div className="col-span-full py-12 text-center text-zinc-450 font-bold bg-white border border-zinc-100 rounded-2xl">ไม่พบเนื้อหาในหมวดหมู่นี้</div>}
+               {currentItems.length === 0 && <div className="col-span-full py-12 text-center text-zinc-450 font-bold bg-foreground border border-zinc-100 rounded-2xl">ไม่พบเนื้อหาในหมวดหมู่นี้</div>}
              </div>
           </motion.div>
        ) : (
@@ -167,7 +167,7 @@ export const LogCategoriesView: React.FC<LogCategoriesViewProps> = ({ userPlan, 
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.05 }}
                     onClick={() => { setSelectedCategory(c); setSearch(''); }}
-                    className="bg-white border border-zinc-200 hover:border-blue-500 overflow-hidden shadow-sm hover:shadow-lg transition-all rounded-3xl cursor-pointer group flex flex-col pt-2"
+                    className="bg-foreground border border-zinc-200 hover:border-blue-500 overflow-hidden shadow-sm hover:shadow-lg transition-all rounded-3xl cursor-pointer group flex flex-col pt-2"
                   >
                     <div className="p-6 flex-1 flex flex-col">
                        <div className="flex items-center justify-between mb-4">
@@ -177,11 +177,11 @@ export const LogCategoriesView: React.FC<LogCategoriesViewProps> = ({ userPlan, 
                          {c.isVip && <span className="bg-amber-100 text-amber-500 border border-amber-200/50 px-3 py-1 text-xs font-bold uppercase tracking-wider rounded-lg">VIP</span>}
                        </div>
                        <h2 className="text-xl font-bold text-zinc-900 group-hover:text-blue-600 transition-colors tracking-tight">{c.name}</h2>
-                       <p className="text-sm text-zinc-500 font-medium mt-1 mb-4 flex-1">{c.subtitle}</p>
+                       <p className="text-sm text-muted-foreground/80 font-medium mt-1 mb-4 flex-1">{c.subtitle}</p>
                        
                        <div className="w-full flex items-center justify-between pt-4 border-t border-zinc-100 mt-auto">
-                         <span className="text-xs font-bold text-zinc-500">{catItemsCount} รายการ</span>
-                         <div className="w-8 h-8 rounded-full bg-slate-50 border border-zinc-100 flex items-center justify-center text-zinc-400 group-hover:bg-blue-50 group-hover:text-blue-600 transition-all">
+                         <span className="text-xs font-bold text-muted-foreground/80">{catItemsCount} รายการ</span>
+                         <div className="w-8 h-8 rounded-full bg-slate-50 border border-zinc-100 flex items-center justify-center text-muted-foreground group-hover:bg-blue-50 group-hover:text-blue-600 transition-all">
                            <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-all" />
                          </div>
                        </div>

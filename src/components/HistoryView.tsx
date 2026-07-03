@@ -64,7 +64,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ purchaseHistory = [], 
       title: 'ประวัติการเติมเงิน (ธนาคาร)',
       subtitle: 'Bank Slip History',
       icon: CreditCard,
-      bg: 'bg-emerald-50 border border-emerald-100 shadow-sm',
+      bg: 'bg-cardmerald-50 border border-emerald-100 shadow-sm',
       color: 'text-emerald-600'
     }
   ];
@@ -72,13 +72,13 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ purchaseHistory = [], 
   const getStatusBadge = (status: string) => {
     switch(status?.toLowerCase()) {
       case 'success':
-        return <span className="bg-emerald-50 text-emerald-600 px-3 py-1 text-[10px] font-bold uppercase tracking-widest border border-emerald-100 rounded-lg flex items-center gap-1.5"><div className="w-1.5 h-1.5 bg-emerald-600 rounded-full"></div>สำเร็จ</span>;
+        return <span className="bg-cardmerald-50 text-emerald-600 px-3 py-1 text-[10px] font-bold uppercase tracking-widest border border-emerald-100 rounded-lg flex items-center gap-1.5"><div className="w-1.5 h-1.5 bg-cardmerald-600 rounded-full"></div>สำเร็จ</span>;
       case 'pending':
         return <span className="bg-amber-50 text-amber-600 px-3 py-1 text-[10px] font-bold uppercase tracking-widest border border-amber-100 rounded-lg flex items-center gap-1.5"><div className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse"></div>รอดำเนินการ</span>;
       case 'failed':
         return <span className="bg-red-50 text-red-600 px-3 py-1 text-[10px] font-bold uppercase tracking-widest border border-red-100 rounded-lg flex items-center gap-1.5"><div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>ล้มเหลว</span>;
       default:
-        return <span className="bg-slate-50 text-zinc-600 px-3 py-1 text-[10px] font-bold uppercase tracking-widest border border-slate-200 rounded-lg flex items-center gap-1.5"><div className="w-1.5 h-1.5 bg-[#cbd5e1] rounded-full"></div>{status || 'สำเร็จ'}</span>;
+        return <span className="bg-card text-foreground px-3 py-1 text-[10px] font-bold uppercase tracking-widest border border-border rounded-lg flex items-center gap-1.5"><div className="w-1.5 h-1.5 bg-[#cbd5e1] rounded-full"></div>{status || 'สำเร็จ'}</span>;
     }
   };
 
@@ -91,7 +91,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ purchaseHistory = [], 
       case 'topup_gift':
         return topupHistory.filter(t => t.method?.toLowerCase().includes('gift') || t.method?.toLowerCase().includes('อั่งเปา')).map(t => ({ ...t, type: 'topup_gift', title: 'TrueMoney Wallet (อั่งเปา)', icon: Gift, color: 'text-rose-600', bg: 'bg-rose-50 border border-rose-100 shadow-sm', money: t.amount, date: t.date || t.timestamp }));
       case 'topup_slip':
-        return topupHistory.filter(t => !t.method?.toLowerCase().includes('gift') && !t.method?.toLowerCase().includes('อั่งเปา')).map(t => ({ ...t, type: 'topup_slip', title: 'ธนาคาร เช็คสลิป', icon: CreditCard, color: 'text-emerald-600', bg: 'bg-emerald-50 border border-emerald-100 shadow-sm', money: t.amount, date: t.date || t.timestamp }));
+        return topupHistory.filter(t => !t.method?.toLowerCase().includes('gift') && !t.method?.toLowerCase().includes('อั่งเปา')).map(t => ({ ...t, type: 'topup_slip', title: 'ธนาคาร เช็คสลิป', icon: CreditCard, color: 'text-emerald-600', bg: 'bg-cardmerald-50 border border-emerald-100 shadow-sm', money: t.amount, date: t.date || t.timestamp }));
       case 'key_usage':
         return usedKeysHistory.map(k => ({ ...k, type: 'key_usage', title: 'เปิดใช้งานคีย์', icon: Key, color: 'text-indigo-600', bg: 'bg-indigo-50 border border-indigo-100 shadow-sm', money: 0, date: k.used_at || k.date || new Date().toISOString(), productName: k.key || k.code }));
       default:
@@ -108,22 +108,22 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ purchaseHistory = [], 
     
     return (
       <div style={{ ...style, paddingTop: '12px' }}>
-        <div className="bg-white border border-zinc-200 p-5 transition-all hover:shadow-md hover:border-zinc-350 flex flex-col gap-4 mx-1 rounded-2xl shadow-sm">
+        <div className="bg-card border border-zinc-200 p-5 transition-all hover:shadow-md hover:border-zinc-350 flex flex-col gap-4 mx-1 rounded-2xl shadow-sm">
           <div className="flex gap-4 items-center w-full">
             <div className={`w-14 h-14 shrink-0 flex items-center justify-center rounded-xl ${item.bg}`}>
               <item.icon className={`w-6 h-6 ${item.color}`} />
             </div>
             
             <div className="flex flex-col flex-1 min-w-0 justify-center">
-              <h3 className="text-zinc-900 font-bold text-sm sm:text-base truncate tracking-wide">{item.title}</h3>
+              <h3 className="text-foreground font-bold text-sm sm:text-base truncate tracking-wide">{item.title}</h3>
               <div className="flex items-center justify-between mt-1.5">
-                <span className="text-xs font-bold text-zinc-400">{new Date(item.date).toLocaleDateString('th-TH')}</span>
+                <span className="text-xs font-bold text-muted-foreground">{new Date(item.date).toLocaleDateString('th-TH')}</span>
                 {item.money !== 0 ? (
                   <span className={`font-extrabold font-mono text-sm sm:text-base ${item.money > 0 ? 'text-emerald-605' : 'text-rose-600'}`}>
                     {item.money > 0 ? '+' : ''}{item.money} ฿
                   </span>
                 ) : (
-                  <span className="font-bold text-xs text-zinc-400">0 ฿</span>
+                  <span className="font-bold text-xs text-muted-foreground">0 ฿</span>
                 )}
               </div>
             </div>
@@ -135,7 +135,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ purchaseHistory = [], 
             </div>
             <button 
               onClick={() => setSelectedItem(item)}
-              className="text-[11px] sm:text-xs font-bold text-zinc-700 bg-white px-4 py-2 hover:bg-slate-50 hover:text-zinc-900 transition-all flex items-center gap-1 active:scale-95 border border-zinc-200 rounded-xl cursor-pointer shadow-sm"
+              className="text-[11px] sm:text-xs font-bold text-foreground bg-card px-4 py-2 hover:bg-card hover:text-foreground transition-all flex items-center gap-1 active:scale-95 border border-zinc-200 rounded-xl cursor-pointer shadow-sm"
             >
               ดูรายละเอียด <ChevronRight className="w-3.5 h-3.5" />
             </button>
@@ -157,15 +157,15 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ purchaseHistory = [], 
             exit={{ opacity: 0, y: -10 }}
             className="space-y-4"
           >
-            <div className="bg-white border border-zinc-200 overflow-hidden mb-6 rounded-3xl shadow-sm">
-              <div className="p-6 md:p-8 border-b border-zinc-100 bg-slate-50/50">
+            <div className="bg-card border border-zinc-200 overflow-hidden mb-6 rounded-3xl shadow-sm">
+              <div className="p-6 md:p-8 border-b border-zinc-100 bg-card/50">
                 <div className="flex items-center gap-3">
                   <div className="p-3 bg-blue-50 text-blue-600 rounded-2xl border border-blue-100 shadow-sm flex items-center justify-center shrink-0">
                     <History className="w-6 h-6 " />
                   </div>
                   <div>
-                    <h2 className="text-xl font-extrabold text-zinc-900 leading-none mb-1.5">ประวัติสั่งซื้อ</h2>
-                    <p className="text-xs font-semibold text-zinc-400">เลือกหมวดหมู่ที่ต้องการตรวจสอบ</p>
+                    <h2 className="text-xl font-extrabold text-foreground leading-none mb-1.5">ประวัติสั่งซื้อ</h2>
+                    <p className="text-xs font-semibold text-muted-foreground">เลือกหมวดหมู่ที่ต้องการตรวจสอบ</p>
                   </div>
                 </div>
               </div>
@@ -176,18 +176,18 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ purchaseHistory = [], 
                     <button
                       key={cat.id}
                       onClick={() => setCurrentCategory(cat.id)}
-                      className="group flex items-center justify-between p-4 bg-white border border-zinc-200 hover:border-blue-400 rounded-2xl cursor-pointer hover:-translate-y-0.5 transition-all duration-150 shadow-sm hover:shadow-md"
+                      className="group flex items-center justify-between p-4 bg-card border border-zinc-200 hover:border-blue-400 rounded-2xl cursor-pointer hover:-translate-y-0.5 transition-all duration-150 shadow-sm hover:shadow-md"
                     >
                       <div className="flex items-center gap-4">
                         <div className={`w-12 h-12 flex items-center justify-center rounded-xl transition-all ${cat.bg}`}>
                           <cat.icon className={`w-6 h-6 transition-transform group-hover:scale-110 ${cat.color}`} />
                         </div>
                         <div className="text-left">
-                          <h3 className="text-sm font-bold text-zinc-900 tracking-wide group-hover:text-blue-600 transition-colors">{cat.title}</h3>
-                          <p className="text-[10px] sm:text-xs font-bold text-zinc-400 uppercase tracking-tight mt-0.5">{cat.subtitle}</p>
+                          <h3 className="text-sm font-bold text-foreground tracking-wide group-hover:text-blue-600 transition-colors">{cat.title}</h3>
+                          <p className="text-[10px] sm:text-xs font-bold text-muted-foreground uppercase tracking-tight mt-0.5">{cat.subtitle}</p>
                         </div>
                       </div>
-                      <ChevronRight className="w-5 h-5 text-zinc-400 group-hover:text-blue-605 transition-colors" />
+                      <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-blue-605 transition-colors" />
                     </button>
                   ))}
                 </div>
@@ -202,12 +202,12 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ purchaseHistory = [], 
             exit={{ opacity: 0, x: -20 }}
             className="space-y-4"
           >
-            <div className="bg-white border border-zinc-200 overflow-hidden rounded-3xl shadow-sm">
-              <div className="p-4 sm:p-6 border-b border-zinc-100 bg-slate-50/50 flex items-center justify-between">
+            <div className="bg-card border border-zinc-200 overflow-hidden rounded-3xl shadow-sm">
+              <div className="p-4 sm:p-6 border-b border-zinc-100 bg-card/50 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <button 
                     onClick={() => setCurrentCategory(null)}
-                    className="p-2.5 bg-white border border-zinc-200 text-zinc-600 hover:bg-slate-50 hover:text-zinc-900 transition-all mr-2 rounded-xl cursor-pointer shadow-sm"
+                    className="p-2.5 bg-card border border-zinc-200 text-foreground hover:bg-card hover:text-foreground transition-all mr-2 rounded-xl cursor-pointer shadow-sm"
                   >
                     <ChevronLeft className="w-5 h-5" />
                   </button>
@@ -215,8 +215,8 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ purchaseHistory = [], 
                     {currentCategoryInfo && <currentCategoryInfo.icon className={`w-6 h-6 ${currentCategoryInfo?.color}`} />}
                   </div>
                   <div className="text-left pl-1">
-                    <h2 className="text-sm sm:text-base font-extrabold text-zinc-900 leading-none mb-1">{currentCategoryInfo?.title}</h2>
-                    <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">{currentCategoryInfo?.subtitle}</p>
+                    <h2 className="text-sm sm:text-base font-extrabold text-foreground leading-none mb-1">{currentCategoryInfo?.title}</h2>
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{currentCategoryInfo?.subtitle}</p>
                   </div>
                 </div>
               </div>
@@ -225,7 +225,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ purchaseHistory = [], 
                 {isLoading ? (
                   <div className="space-y-3">
                     {[1, 2, 3].map((i) => (
-                      <div key={i} className="bg-white border border-zinc-200 p-5 flex flex-col gap-4 rounded-2xl shadow-sm">
+                      <div key={i} className="bg-card border border-zinc-200 p-5 flex flex-col gap-4 rounded-2xl shadow-sm">
                         <div className="flex gap-4 items-center">
                           <Skeleton className="w-14 h-14 rounded-xl" />
                           <div className="flex-1 space-y-2">
@@ -254,14 +254,14 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ purchaseHistory = [], 
                   </div>
                 ) : (
                   <div className="py-20 flex flex-col items-center justify-center text-center">
-                    <div className="w-16 h-16 bg-slate-50 border border-zinc-200 flex items-center justify-center mb-4 rounded-full">
-                      <History className="w-8 h-8 text-zinc-400 animate-spin" style={{ animationDuration: '4s' }} />
+                    <div className="w-16 h-16 bg-card border border-zinc-200 flex items-center justify-center mb-4 rounded-full">
+                      <History className="w-8 h-8 text-muted-foreground animate-spin" style={{ animationDuration: '4s' }} />
                     </div>
-                    <h3 className="text-base font-extrabold text-zinc-900 mb-1">ยังไม่มีประวัติ</h3>
-                    <p className="text-xs font-bold text-zinc-400">ยังไม่พบข้อมูลในหมวดหมู่นี้</p>
+                    <h3 className="text-base font-extrabold text-foreground mb-1">ยังไม่มีประวัติ</h3>
+                    <p className="text-xs font-bold text-muted-foreground">ยังไม่พบข้อมูลในหมวดหมู่นี้</p>
                     <button 
                       onClick={() => setCurrentCategory(null)}
-                      className="mt-6 px-6 py-2.5 bg-white border border-zinc-200 rounded-xl text-zinc-700 text-xs font-bold hover:bg-slate-50 hover:text-zinc-900 transition-all cursor-pointer shadow-sm"
+                      className="mt-6 px-6 py-2.5 bg-card border border-zinc-200 rounded-xl text-foreground text-xs font-bold hover:bg-card hover:text-foreground transition-all cursor-pointer shadow-sm"
                     >
                       ย้อนกลับ
                     </button>

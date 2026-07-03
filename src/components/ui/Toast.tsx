@@ -20,11 +20,11 @@ const Toast: React.FC<{ toast: ToastType; onClose: (id: string) => void }> = ({ 
   };
 
   const bgColors = {
-    success: 'bg-[#050505] border-emerald-500/20 shadow-emerald-500/5',
-    error: 'bg-[#050505] border-red-500/20 shadow-red-500/5',
-    warning: 'bg-[#050505] border-amber-500/20 shadow-amber-500/5',
-    info: 'bg-[#050505] border-[#364153]/20 shadow-sm/5',
-    payment: 'bg-[#050505] border-[#374151]/20 shadow-purple-500/5'
+    success: 'bg-background border-emerald-500/20 shadow-emerald-500/5',
+    error: 'bg-background border-red-500/20 shadow-red-500/5',
+    warning: 'bg-background border-amber-500/20 shadow-amber-500/5',
+    info: 'bg-background border-[#364153]/20 shadow-sm/5',
+    payment: 'bg-background border-[#374151]/20 shadow-purple-500/5'
   };
 
   return (
@@ -39,12 +39,12 @@ const Toast: React.FC<{ toast: ToastType; onClose: (id: string) => void }> = ({ 
         {icons[toast.type]}
       </div>
       <div className="flex flex-col">
-        {toast.title && <span className="text-[13px] font-semibold text-white leading-tight mb-0.5 uppercase tracking-wide">{toast.title}</span>}
+        {toast.title && <span className="text-[13px] font-semibold text-foreground leading-tight mb-0.5 uppercase tracking-wide">{toast.title}</span>}
         <p className="text-muted-foreground text-xs sm:text-[13px] font-medium leading-relaxed">{toast.message}</p>
       </div>
       <button 
         onClick={() => onClose(toast.id)}
-        className="absolute right-3 top-3 text-muted-foreground hover:text-white transition-colors"
+        className="absolute right-3 top-3 text-muted-foreground hover:text-foreground transition-colors"
       >
         <X className="w-4 h-4" />
       </button>
