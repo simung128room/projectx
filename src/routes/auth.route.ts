@@ -219,7 +219,7 @@ export function createAuthRouter({
         if (err.details) console.error("Error Details:", err.details);
       }
       return res.json({ success: true, user: data.user });
-    } catch (e) {
+    } catch (e: any) {
       return res.status(500).json({ error: String(e) });
     }
   });

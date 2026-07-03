@@ -210,7 +210,7 @@ function toDB(data: any, collection?: string): any {
 
   for (const k in _data) {
     let target = k;
-    if (forwardMap[k]) target = forwardMap[k];
+    if ((forwardMap as any)[k]) target = (forwardMap as any)[k];
     else target = k.toLowerCase();
 
     // Skip known missing columns for this collection
@@ -335,6 +335,7 @@ class SupabaseDoc {
     return { exists: false, data: () => null };
   }
   async update(data: any) {
+    if (!isSupabaseAdminConfigured) return;
     if (isVirtual(this.collection)) {
         const slug = getVirtualSlug(this.collection, this.id);
         const legacySlug = `v:${this.collection}:${this.id}`;
@@ -554,7 +555,7 @@ class SupabaseQuery {
 
   where(field: string, op: string, value: any) {
     let target = field;
-    if (forwardMap[field]) target = forwardMap[field];
+    if ((forwardMap as any)[field]) target = (forwardMap as any)[field];
     else target = field.toLowerCase();
     
     this._where.push({ field: target, op, value });
@@ -562,7 +563,7 @@ class SupabaseQuery {
   }
   orderBy(field: string, dir: string = 'asc') {
     let target = field;
-    if (forwardMap[field]) target = forwardMap[field];
+    if ((forwardMap as any)[field]) target = (forwardMap as any)[field];
     else target = field.toLowerCase();
 
     this._orderBy.push({ field: target, dir });
@@ -580,7 +581,7 @@ class SupabaseQuery {
 
   select(...fields: string[]) {
     const mapped = fields.map(field => {
-      if (forwardMap[field]) return forwardMap[field];
+      if ((forwardMap as any)[field]) return (forwardMap as any)[field];
       return field.toLowerCase();
     });
     this._selectFields = mapped.join(',');
@@ -716,7 +717,7 @@ class SupabaseQuery {
             };
           }),
           empty: finalData.length === 0,
-          forEach: function(cb: Function) {
+          forEach: (cb: Function) => {
             finalData.forEach((d: any) => {
               const mapped = fromDB(d);
               const docId = d.id || d.key || d.ip || d.username;
@@ -769,6 +770,9 @@ class SupabaseCollection extends SupabaseQuery {
     return new SupabaseDoc(this.collection, id || genId());
   }
   async add(data: any) {
+    if (!isSupabaseAdminConfigured) {
+        return { id: data.id || crypto.randomUUID() };
+    }
     if (isVirtual(this.collection)) {
         const docId = data.id || crypto.randomUUID();
         const slug = getVirtualSlug(this.collection, docId);

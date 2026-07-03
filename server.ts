@@ -8,7 +8,7 @@ declare module 'express-serve-static-core' {
   }
 }
 var __defProp = Object.defineProperty;
-var __name = (target, value) =>
+var __name = (target: any, value: any) =>
   __defProp(target, "name", { value, configurable: true });
 import express from "express";
 import dotenv from "dotenv";
@@ -36,7 +36,7 @@ import os from "os";
 import zlib from "zlib";
 import { promisify } from "util";
 import { compressStock, decompressStock } from "./src/lib/stockUtils.js";
-let freeProxies = [];
+let freeProxies: string[] = [];
 let lastFreeProxyFetch = 0;
 async function fetchFreeProxies() {
   if (process.env.PROXY_URL && !freeProxies.includes(process.env.PROXY_URL)) {
@@ -56,7 +56,7 @@ const communityUpload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 5 * 1024 * 1024 },
 });
-async function uploadToSupabaseStorage(buffer, originalName, mimeType) {
+async function uploadToSupabaseStorage(buffer: any, originalName: any, mimeType: any) {
   const isSupabaseConfigured2 = !!(
     process.env.SUPABASE_URL &&
     process.env.SUPABASE_URL.startsWith("http") &&
@@ -110,7 +110,7 @@ for (const key of REQUIRED_SECRETS) {
     console.error("[Warning] Missing recommended secret: " + key);
   }
 }
-async function sendAlert(title, message, color = 16711680, requestId) {
+async function sendAlert(title: any, message: any, color = 16711680, requestId?: any) {
   const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
   if (!webhookUrl) return;
   try {
@@ -129,12 +129,12 @@ async function sendAlert(title, message, color = 16711680, requestId) {
         },
       ],
     });
-  } catch (err) {
+  } catch (err: any) {
     console.error("Failed to send discord alert:", err.message);
   }
 }
 __name(sendAlert, "sendAlert");
-async function writeAuditLog(action, actor, target, req, extraContext = {}) {
+async function writeAuditLog(action: any, actor: any, target: any, req: any, extraContext = {}) {
   try {
     const logEntry = {
       timestamp: new Date().toISOString(),
@@ -146,7 +146,7 @@ async function writeAuditLog(action, actor, target, req, extraContext = {}) {
       ...extraContext,
     };
     await admin.firestore().collection("sys_audit_logs").add(logEntry);
-  } catch (err) {
+  } catch (err: any) {
     console.error("[Audit Log] Failed to write audit log:", err);
   }
 }
@@ -176,7 +176,7 @@ process.on("uncaughtException", (err) => {
       `${new Date().toISOString()} ${err.stack}
 `,
     );
-  } catch (e) {
+  } catch (e: any) {
     console.error("Caught error:", e);
   }
       // @ts-ignore
@@ -184,7 +184,7 @@ process.on("uncaughtException", (err) => {
     "Uncaught Exception \u{1F525}",
     `**Error**: ${err.message}`,
     16711680,
-  ).catch((e) => console.error(e));
+  ).catch((e: any) => console.error(e));
 });
 process.on("unhandledRejection", (reason, promise) => {
   console.error(
@@ -312,7 +312,7 @@ const asyncLocalStorage = new AsyncLocalStorage();
 const logger = pino({
   level: process.env.LOG_LEVEL || "info",
   formatters: {
-    level: __name((label) => {
+    level: __name((label: any) => {
       return { level: label };
     }, "level"),
   },
@@ -449,13 +449,13 @@ app.use((req, res, next) => {
 app.use(
   pinoHttp({
     logger,
-    customProps: __name((req, res) => {
+    customProps: __name((req: any, res: any) => {
       return {};
     }, "customProps"),
     useLevel: "info",
     quietReqLogger: true,
     autoLogging: {
-      ignore: __name((req) => {
+      ignore: __name((req: any) => {
         const url = req.url || "";
         return (
           url.includes("/health") ||
@@ -507,7 +507,7 @@ app.get("/health", async (req, res) => {
       "High Memory Usage \u26A0\uFE0F",
       `Heap is at ${Math.round((used.heapUsed / used.heapTotal) * 100)}% (${Math.round(used.heapUsed / 1024 / 1024)}MB)`,
       16753920,
-    ).catch((e) => console.error(e));
+    ).catch((e: any) => console.error(e));
   }
   res.json({
     status: "ok",
@@ -536,7 +536,7 @@ app.get("/ready", async (req, res) => {
       uptime: process.uptime(),
       sheddingMetrics: { currentConcurrentRequests },
     });
-  } catch (err) {
+  } catch (err: any) {
     logger.error(
       { err: err.message },
       "Readiness Probe Failed: Database disconnected or slow",
@@ -544,21 +544,17 @@ app.get("/ready", async (req, res) => {
     res.status(503).json({ status: "not ready", error: String(err) });
   }
 });
-const userRateLimitKeyGenerator = __name((req, res) => {
-  return req.headers["x-forwarded-for"] ? (req.headers["x-forwarded-for"] as string).split(',')[0] : req.socket.remoteAddress || "127.0.0.1";
-}, "userRateLimitKeyGenerator");
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1e3,
   max: 50,
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: userRateLimitKeyGenerator,
   validate: { trustProxy: true },
   message: {
     error:
       "\u0E02\u0E2D\u0E2D\u0E20\u0E31\u0E22 \u0E04\u0E38\u0E13\u0E17\u0E33\u0E23\u0E32\u0E22\u0E01\u0E32\u0E23\u0E1A\u0E48\u0E2D\u0E22\u0E40\u0E01\u0E34\u0E19\u0E44\u0E1B \u0E01\u0E23\u0E38\u0E13\u0E32\u0E23\u0E2D\u0E2A\u0E31\u0E01\u0E04\u0E23\u0E39\u0E48",
   },
-  handler: __name((req, res, next, options) => {
+  handler: __name((req: any, res: any, next: any, options: any) => {
     sendAlert(
       "Auth Rate Limit Triggered \u{1F6A8}",
       `**IP**: ${req.ip}
@@ -578,13 +574,12 @@ const mutationLimiter = rateLimit({
   max: 30,
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: userRateLimitKeyGenerator,
   validate: { trustProxy: true },
   message: {
     error:
       "\u0E04\u0E38\u0E13\u0E14\u0E33\u0E40\u0E19\u0E34\u0E19\u0E01\u0E32\u0E23\u0E1A\u0E32\u0E07\u0E2D\u0E22\u0E48\u0E32\u0E07\u0E40\u0E23\u0E47\u0E27\u0E40\u0E01\u0E34\u0E19\u0E44\u0E1B \u0E01\u0E23\u0E38\u0E13\u0E32\u0E23\u0E2D\u0E2A\u0E31\u0E01\u0E04\u0E23\u0E39\u0E48",
   },
-  handler: __name((req, res, next, options) => {
+  handler: __name((req: any, res: any, next: any, options: any) => {
     sendAlert(
       "Mutation Rate Limit Triggered \u26A0\uFE0F",
       `**IP**: ${req.ip}
@@ -604,13 +599,12 @@ const checkLimiter = rateLimit({
   max: 100,
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: userRateLimitKeyGenerator,
   validate: { trustProxy: true },
   message: {
     error:
       "\u0E02\u0E2D\u0E2D\u0E20\u0E31\u0E22 \u0E04\u0E38\u0E13\u0E2A\u0E48\u0E07\u0E04\u0E33\u0E23\u0E49\u0E2D\u0E07\u0E02\u0E2D\u0E40\u0E22\u0E2D\u0E30\u0E40\u0E01\u0E34\u0E19\u0E44\u0E1B (Anti-Bot Protection) \u0E01\u0E23\u0E38\u0E13\u0E32\u0E23\u0E2D\u0E2A\u0E31\u0E01\u0E04\u0E23\u0E39\u0E48",
   },
-  handler: __name((req, res, next, options) => {
+  handler: __name((req: any, res: any, next: any, options: any) => {
     res
       .status(options.statusCode || 429)
       .json({ ...options.message, requestId: req.id });
@@ -627,7 +621,7 @@ const globalLimiter = rateLimit({
 app.use("/api/", globalLimiter);
 const userTokenCache = new LRUCache({ max: 1e3, ttl: 6e4 });
 const uidToTokens = new LRUCache<string, Set<string>>({ max: 5e3, ttl: 864e5 });
-const invalidateUserTokenCache = __name((uid) => {
+const invalidateUserTokenCache = __name((uid: any) => {
   const tokens = uidToTokens.get(uid);
   if (tokens) {
     for (const t of tokens) {
@@ -642,7 +636,7 @@ const invalidateUserTokenCache = __name((uid) => {
     }
   }
 }, "invalidateUserTokenCache");
-const injectUser = __name(async (req, res, next) => {
+const injectUser = __name(async (req: any, res: any, next: any) => {
   const authHeader = req.headers.authorization;
   if (authHeader && authHeader.startsWith("Bearer ")) {
     const token = authHeader.split("Bearer ")[1]?.trim();
@@ -658,13 +652,14 @@ const injectUser = __name(async (req, res, next) => {
             if (!uidToTokens.has(uidStr)) {
               uidToTokens.set(uidStr, new Set());
             }
-            uidToTokens.get(uidStr).add(token);
+            const userTokens = uidToTokens.get(uidStr);
+            if (userTokens) userTokens.add(token);
           }
           return next();
         }
       }
       const resolveAuth = __name(async () => {
-        let userObj = null;
+        let userObj: any = null;
         let isAdminObj = false;
         const {
           data: { user },
@@ -676,7 +671,7 @@ const injectUser = __name(async (req, res, next) => {
           userObj.uid = user.id;
           let adminEmails = [];
           if (process.env.ADMIN_EMAILS) {
-            adminEmails = process.env.ADMIN_EMAILS.split(",").map((e) =>
+            adminEmails = process.env.ADMIN_EMAILS.split(",").map((e: any) =>
               e.trim().toLowerCase(),
             );
           }
@@ -688,22 +683,22 @@ const injectUser = __name(async (req, res, next) => {
               .collection("admins")
               .doc(user.id)
               .get();
-            isAdminObj = adminDoc.exists;
+            isAdminObj = !!adminDoc.exists;
           }
         }
         return { user: userObj, isAdmin: isAdminObj, timestamp: Date.now() };
       }, "resolveAuth");
 
-      if (!global.userTokenPromiseCache) global.userTokenPromiseCache = new Map();
-      let authPromise = global.userTokenPromiseCache.get(token);
+      if (!(global as any).userTokenPromiseCache) (global as any).userTokenPromiseCache = new Map();
+      let authPromise = (global as any).userTokenPromiseCache.get(token);
       if (!authPromise) {
         authPromise = resolveAuth();
-        global.userTokenPromiseCache.set(token, authPromise);
+        (global as any).userTokenPromiseCache.set(token, authPromise);
       }
 
       try {
         const result = await authPromise;
-        global.userTokenPromiseCache.delete(token);
+        (global as any).userTokenPromiseCache.delete(token);
         userTokenCache.set(token, result);
         if (result.user) {
           req.user = result.user;
@@ -713,11 +708,12 @@ const injectUser = __name(async (req, res, next) => {
             if (!uidToTokens.has(uidStr)) {
               uidToTokens.set(uidStr, new Set());
             }
-            uidToTokens.get(uidStr).add(token);
+            const userTokens = uidToTokens.get(uidStr);
+            if (userTokens) userTokens.add(token);
           }
         }
-      } catch (error) {
-        global.userTokenPromiseCache.delete(token);
+      } catch (error: any) {
+        (global as any).userTokenPromiseCache.delete(token);
         userTokenCache.delete(token);
         if (error && error.message && error.message.includes("expired")) {
           return res.status(401).json({ error: "Token expired" });
@@ -732,7 +728,7 @@ const injectUser = __name(async (req, res, next) => {
   }
   next();
 }, "injectUser");
-const requireAuth = __name(async (req, res, next) => {
+const requireAuth = __name(async (req: any, res: any, next: any) => {
   if (!req.user) {
     return res
       .status(401)
@@ -740,7 +736,7 @@ const requireAuth = __name(async (req, res, next) => {
   }
   next();
 }, "requireAuth");
-const requireAdmin = __name(async (req, res, next) => {
+const requireAdmin = __name(async (req: any, res: any, next: any) => {
   if (!req.user || !req.isAdmin) {
     console.error(
       `[AdminCheck] Access Denied for ${req.user?.email || "Unknown"}. isAdmin: ${req.isAdmin}`,
@@ -753,7 +749,7 @@ const requireAdmin = __name(async (req, res, next) => {
 }, "requireAdmin");
 import healthRoute from "./src/routes/health.route.js";
 app.use("/api", healthRoute);
-const rawOrigins = [];
+const rawOrigins: string[] = [];
 if (process.env.ALLOWED_ORIGINS) {
   const splitOrigins = process.env.ALLOWED_ORIGINS.split(",")
     .map((url) => url.trim())
@@ -794,7 +790,7 @@ app.use((req, res, next) => {
   next();
 });
 app.use(injectUser);
-const isImageSafe = __name((buffer) => {
+const isImageSafe = __name((buffer: any) => {
   if (buffer.length < 4) return false;
   const hex = buffer.toString("hex", 0, 4).toUpperCase();
   const isJpeg = hex.startsWith("FFD8FF");
@@ -827,7 +823,7 @@ const isImageSafe = __name((buffer) => {
   }
   return true;
 }, "isImageSafe");
-const validateUploadFileMetadata = __name((file) => {
+const validateUploadFileMetadata = __name((file: any) => {
   if (!file) return false;
   const ext = path.extname(file.originalname || "").toLowerCase();
   const allowedExtensions = [".jpg", ".jpeg", ".png", ".gif", ".webp"];
@@ -844,8 +840,8 @@ const validateUploadFileMetadata = __name((file) => {
 app.post(
   "/api/upload",
   requireAdmin,
-  (req, res, next) => {
-    upload.single("file")(req, res, (err) => {
+  (req: any, res: any, next: any) => {
+    upload.single("file")(req, res, (err: any) => {
       if (err) {
         console.error("Multer error:", err);
         return res.status(500).json({ error: "Upload failed: " + err.message });
@@ -853,7 +849,7 @@ app.post(
       next();
     });
   },
-  async (req, res) => {
+  async (req: any, res: any) => {
     if (!req.file) return res.status(400).json({ error: "No file uploaded" });
     if (
       !validateUploadFileMetadata(req.file) ||
@@ -891,7 +887,7 @@ app.post(
           mimeType,
         );
         console.log("[Storage] Successfully uploaded to Supabase:", fileUrl);
-      } catch (uploadErr) {
+      } catch (uploadErr: any) {
         console.warn(
           "[Storage] Supabase upload failed, falling back to base64:",
           uploadErr.message || uploadErr,
@@ -900,7 +896,7 @@ app.post(
         fileUrl = `data:${mimeType};base64,${base64Data}`;
       }
       res.json({ url: fileUrl });
-    } catch (err) {
+    } catch (err: any) {
       console.error("Image processing failed:", err);
       res.status(500).json({ error: "Failed to process image" });
     }
@@ -909,8 +905,8 @@ app.post(
 app.post(
   "/api/community/upload",
   requireAuth,
-  (req, res, next) => {
-    communityUpload.single("file")(req, res, (err) => {
+  (req: any, res: any, next: any) => {
+    communityUpload.single("file")(req, res, (err: any) => {
       if (err) {
         console.error("Multer error:", err);
         return res.status(500).json({ error: "Upload failed: " + err.message });
@@ -918,7 +914,7 @@ app.post(
       next();
     });
   },
-  async (req, res) => {
+  async (req: any, res: any) => {
     if (!req.file) return res.status(400).json({ error: "No file uploaded" });
     if (
       !validateUploadFileMetadata(req.file) ||
@@ -959,7 +955,7 @@ app.post(
           "[Storage] Successfully uploaded community image to Supabase:",
           fileUrl,
         );
-      } catch (uploadErr) {
+      } catch (uploadErr: any) {
         console.warn(
           "[Storage] Supabase upload failed, falling back to base64:",
           uploadErr.message || uploadErr,
@@ -968,14 +964,14 @@ app.post(
         fileUrl = `data:${mimeType};base64,${base64Data}`;
       }
       res.json({ url: fileUrl });
-    } catch (err) {
+    } catch (err: any) {
       console.error("Image processing failed:", err);
       res.status(500).json({ error: "Failed to process image" });
     }
   },
 );
 let lastStatsFetch = 0;
-let cachedStats = null;
+let cachedStats: any = null;
 const invalidateStatsCache = __name(() => {
   lastStatsFetch = 0;
   cachedStats = null;
@@ -1024,12 +1020,12 @@ if (isSupabaseConfigured) {
         let parsed = {};
         try {
           parsed = JSON.parse(data.content);
-        } catch (e) {
+        } catch (e: any) {
           console.error("Caught error:", e);
         }
         siteSettings = { ...siteSettings, ...parsed };
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Caught error:", err);
     }
   }, "loadSiteSettings");
@@ -1037,10 +1033,10 @@ if (isSupabaseConfigured) {
     await loadSiteSettings();
     console.log("Loaded initial site settings from DB", siteSettings);
     setInterval(loadSiteSettings, 1e4);
-  } catch (err) {
+  } catch (err: any) {
     console.warn(
       "Could not load initial site settings from DB (might not exist yet).",
-      err.message || err,
+      (err as any).message || err,
     );
   }
 } else {
@@ -1072,7 +1068,7 @@ app.post("/api/admin/migrate-encryption", requireAdmin, async (req, res, next) =
 });
 app.post("/api/settings", requireAdmin, async (req, res) => {
   console.log("=== POST /api/settings REACHED ===", req.body);
-  const beforeLogs = {
+  const beforeLogs: Record<string, any> = {
     stats_users_override: siteSettings.stats_users_override,
     stats_sales_override: siteSettings.stats_sales_override,
     stats_stock_override: siteSettings.stats_stock_override,
@@ -1119,18 +1115,18 @@ app.post("/api/settings", requireAdmin, async (req, res) => {
       for (const p of pData) realSales += Number(p.price) || 0;
     } else {
       const purchases = await getCachedCollection("purchases", 6e4);
-      purchases.forEach((p) => (realSales += Number(p.price) || 0));
+      purchases.forEach((p: any) => (realSales += Number(p.price) || 0));
     }
-  } catch (e) {
+  } catch (e: any) {
     console.error("Caught error:", e);
   }
   let realStock = 0;
   try {
     const pData = await getCachedCollection("products", 3e5);
-    pData.forEach((p) => {
+    pData.forEach((p: any) => {
       if (p.stock > 0 && p.stock < 999999) realStock += Number(p.stock);
     });
-  } catch (e) {
+  } catch (e: any) {
     console.error("Caught error:", e);
   }
   if (stats_users_target !== void 0 && stats_users_type !== void 0) {
@@ -1241,9 +1237,9 @@ app.post("/api/settings", requireAdmin, async (req, res) => {
       await supabaseAdmin.from("custom_pages").insert([payload]);
     }
     console.log(`[Settings] Save Successful for ${docName}`);
-  } catch (e) {
+  } catch (e: any) {
     console.error("[API/Settings] CRITICAL SAVE ERROR:", e);
-    const errorDetail = e.message || e.details || JSON.stringify(e);
+    const errorDetail = (e as any)?.message || (e as any)?.details || JSON.stringify(e);
     return res
       .status(500)
       .json({
@@ -1253,13 +1249,13 @@ app.post("/api/settings", requireAdmin, async (req, res) => {
           process.env.NODE_ENV === "production" ? "sys_site" : "sys_site_dev",
       });
   }
-  const afterLogs = {
+  const afterLogs: Record<string, any> = {
     stats_users_override: siteSettings.stats_users_override,
     stats_sales_override: siteSettings.stats_sales_override,
     stats_stock_override: siteSettings.stats_stock_override,
     stats_categories_override: siteSettings.stats_categories_override,
   };
-  const changes = {};
+  const changes: Record<string, any> = {};
   let hasChanges = false;
   for (const key of Object.keys(beforeLogs)) {
     if (beforeLogs[key] !== afterLogs[key]) {
@@ -1280,7 +1276,7 @@ app.post("/api/settings", requireAdmin, async (req, res) => {
     logger.info(auditLog, `[Audit] Stats override changed by ${actorEmail}`);
     try {
       await admin.firestore().collection("audit_logs").add(auditLog);
-    } catch (err) {
+    } catch (err: any) {
       logger.error(
         { err: err.message },
         "Failed to save audit log to Firestore",
@@ -1289,7 +1285,7 @@ app.post("/api/settings", requireAdmin, async (req, res) => {
   }
   const safeSettings = { ...siteSettings };
   if (safeSettings.proxies)
-    safeSettings.proxies = safeSettings.proxies.map((p) =>
+    safeSettings.proxies = safeSettings.proxies.map((p: any) =>
       p.replace(/\/\/.*@/, "//***:***@"),
     );
   console.log(`[Settings] Updated:`, safeSettings);
@@ -1306,7 +1302,6 @@ const topupLimiter = rateLimit({
   max: 5,
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: userRateLimitKeyGenerator,
   validate: { xForwardedForHeader: false, trustProxy: false },
 });
 app.post(
@@ -1353,7 +1348,7 @@ app.post(
       );
       voucherRef = admin.firestore().collection("vouchers").doc(voucherHash);
       try {
-        await admin.firestore().runTransaction(async (t) => {
+        await admin.firestore().runTransaction(async (t: any) => {
           const doc = await t.get(voucherRef);
           if (doc.exists) {
             throw new Error("DUPLICATE_VOUCHER");
@@ -1364,7 +1359,7 @@ app.post(
             status: "pending",
           });
         });
-      } catch (err) {
+      } catch (err: any) {
         if (err.message === "DUPLICATE_VOUCHER") {
           return res.json({
             success: false,
@@ -1388,7 +1383,7 @@ app.post(
       let response;
       try {
         response = await topupBreaker.fire(voucherHash, phone);
-      } catch (err) {
+      } catch (err: any) {
         console.error(
           `[TrueWallet] XPLUEM Circuit Breaker Error:`,
           err.message,
@@ -1411,7 +1406,7 @@ app.post(
         const amount = parseFloat(result.data?.amount || 0);
         if (isNaN(amount) || amount <= 0) {
           if (voucherRef) {
-            await voucherRef.delete().catch((e) => console.error(e));
+            await voucherRef.delete().catch((e: any) => console.error(e));
           }
           return res.json({
             success: false,
@@ -1425,7 +1420,7 @@ app.post(
             const userRef = admin.firestore().collection("users").doc(uid);
             let finalBalance = 0;
             let topupDoc = null;
-            await admin.firestore().runTransaction(async (t) => {
+            await admin.firestore().runTransaction(async (t: any) => {
               const uDoc = await t.get(userRef);
               if (uDoc.exists) {
                 const currentBalance = uDoc.data().balance || 0;
@@ -1466,7 +1461,7 @@ app.post(
             });
           } catch (syncErr) {
             if (syncErr.message === "USER_NOT_FOUND") {
-              await voucherRef.delete().catch((e) => console.error(e));
+              await voucherRef.delete().catch((e: any) => console.error(e));
               return res.json({
                 success: false,
                 error:
@@ -1489,14 +1484,14 @@ app.post(
           "\u0E44\u0E21\u0E48\u0E2A\u0E32\u0E21\u0E32\u0E23\u0E16\u0E23\u0E31\u0E1A\u0E40\u0E07\u0E34\u0E19\u0E44\u0E14\u0E49 (\u0E2A\u0E16\u0E32\u0E19\u0E30\u0E44\u0E21\u0E48\u0E2A\u0E33\u0E40\u0E23\u0E47\u0E08)";
         console.warn(`[TrueWallet] Failed: ${errorMsg}`);
         if (voucherRef) {
-          await voucherRef.delete().catch((e) => console.error(e));
+          await voucherRef.delete().catch((e: any) => console.error(e));
         }
         return res.json({ success: false, error: errorMsg });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("[TrueWallet] Gateway Error:", error.message);
       if (voucherRef) {
-        await voucherRef.delete().catch((e) => console.error(e));
+        await voucherRef.delete().catch((e: any) => console.error(e));
       }
       if (error.response) {
         const result = error.response.data;
@@ -1530,688 +1525,12 @@ app.post("/api/check", checkLimiter, requireAuth, async (req, res) => {
         "\u0E23\u0E30\u0E1A\u0E1A\u0E15\u0E23\u0E27\u0E08\u0E2A\u0E2D\u0E1A\u0E19\u0E35\u0E49\u0E16\u0E39\u0E01\u0E1B\u0E34\u0E14\u0E43\u0E0A\u0E49\u0E07\u0E32\u0E19\u0E2D\u0E22\u0E48\u0E32\u0E07\u0E16\u0E32\u0E27\u0E23\u0E40\u0E1E\u0E37\u0E48\u0E2D\u0E04\u0E27\u0E32\u0E21\u0E1B\u0E25\u0E2D\u0E14\u0E20\u0E31\u0E22",
     });
 });
-const ___dep_check = __name(async (req, res) => {
-  const account = req.body.account?.toString().trim();
-  const password = req.body.password?.toString().trim();
-  const turnstileToken = req.body.turnstileToken;
-  const apiKey =
-    req.headers["x-api-key"]?.toString().trim() ||
-    req.body.apiKey?.toString().trim();
-  if (
-    !account ||
-    typeof account !== "string" ||
-    account.length > 64 ||
-    !/^[a-zA-Z0-9_\-@.]+$/.test(account)
-  ) {
-    return res
-      .status(400)
-      .json({
-        error:
-          "\u0E1A\u0E31\u0E0D\u0E0A\u0E35\u0E1C\u0E39\u0E49\u0E43\u0E0A\u0E49\u0E44\u0E21\u0E48\u0E16\u0E39\u0E01\u0E15\u0E49\u0E2D\u0E07 (\u0E04\u0E27\u0E32\u0E21\u0E22\u0E32\u0E27 1-64 \u0E15\u0E31\u0E27\u0E2D\u0E31\u0E01\u0E29\u0E23, \u0E2D\u0E19\u0E38\u0E0D\u0E32\u0E15\u0E40\u0E09\u0E1E\u0E32\u0E30 a-z, 0-9, _, -, @, .)",
-      });
-  }
-  if (!password || typeof password !== "string" || password.length > 64) {
-    return res
-      .status(400)
-      .json({
-        error:
-          "\u0E23\u0E2B\u0E31\u0E2A\u0E1C\u0E48\u0E32\u0E19\u0E44\u0E21\u0E48\u0E16\u0E39\u0E01\u0E15\u0E49\u0E2D\u0E07 (\u0E04\u0E27\u0E32\u0E21\u0E22\u0E32\u0E27 1-64 \u0E15\u0E31\u0E27\u0E2D\u0E31\u0E01\u0E29\u0E23)",
-      });
-  }
-  if (!account || !password)
-    return res.status(400).json({ error: "Missing credentials" });
-  let isApiKeyValid = false;
-  if (apiKey) {
-    if (!admin.firestore()) {
-      return res.status(500).json({ error: "Database connection error" });
-    }
-    try {
-      const apiKeyDoc = await admin
-        .firestore()
-        .collection("api_keys")
-        .doc(apiKey)
-        .get();
-      if (apiKeyDoc.exists) {
-        const data = apiKeyDoc.data();
-        if (data?.status === "active") {
-          if (data?.expires_at && new Date(data.expires_at) < new Date()) {
-            await admin
-              .firestore()
-              .collection("api_keys")
-              .doc(apiKey)
-              .update({ status: "expired" })
-              .catch((e) => console.error(e));
-            return res.status(401).json({ error: "API Key has expired" });
-          }
-          isApiKeyValid = true;
-          admin
-            .firestore()
-            .collection("api_keys")
-            .doc(apiKey)
-            .update({ last_used: new Date().toISOString() })
-            .catch((e) => console.error(e));
-        } else {
-          return res
-            .status(401)
-            .json({ error: "API Key is disabled or expired" });
-        }
-      } else {
-        return res.status(401).json({ error: "Invalid API Key" });
-      }
-    } catch (err) {
-      console.error("Error verifying API Key:", err);
-      return res.status(500).json({ error: "Error verifying API Key" });
-    }
-  }
-  if (!isApiKeyValid) {
-    if (!turnstileToken) {
-      return res
-        .status(403)
-        .json({
-          error:
-            "Missing Captcha token. Please refresh the page and verify you are human. (Or provide valid API Key)",
-        });
-    }
-    const now = Date.now();
-    const cacheKey = turnstileToken + "_" + req.user.uid;
-    const cacheEntry = turnstileCache.get(cacheKey);
-    if (cacheEntry && now - cacheEntry.time < 500 && cacheEntry.uses < 0) {
-      cacheEntry.uses++;
-    } else {
-      const secretKey = process.env.TURNSTILE_SECRET_KEY || "";
-      if (!secretKey) {
-        turnstileCache.set(cacheKey, { time: now, uses: 1 });
-      } else {
-        try {
-          const params = new URLSearchParams();
-          params.append("secret", secretKey);
-          params.append("response", turnstileToken);
-          if (req.ip) params.append("remoteip", req.ip);
-          const turnstileResponse = await axios.post(
-            "https://challenges.cloudflare.com/turnstile/v0/siteverify",
-            params,
-            {
-              headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            },
-          );
-          if (!turnstileResponse.data.success) {
-            console.error(
-              "Turnstile verification failed:",
-              turnstileResponse.data,
-            );
-            return res
-              .status(403)
-              .json({
-                error:
-                  "Turnstile verification failed. Please refresh the page and try again.",
-              });
-          }
-          turnstileCache.set(cacheKey, { time: now, uses: 1 });
-          if (turnstileCache.size > 1e3) {
-            for (const [key, val] of turnstileCache.entries()) {
-              if (now - val.time > 5 * 60 * 1e3) {
-                turnstileCache.delete(key);
-              }
-            }
-          }
-        } catch (error) {
-          console.error("Error verifying Turnstile token:", error);
-          return res
-            .status(500)
-            .json({
-              error: "Internal server error during captcha verification.",
-            });
-        }
-      }
-    }
-  }
-  const jar = new CookieJar();
-  const userAgents = [
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36 Edg/130.0.0.0",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36",
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36",
-  ];
-  const randomUserAgent =
-    userAgents[Math.floor(Math.random() * userAgents.length)];
-  const isEdge = randomUserAgent.includes("Edg/");
-  const isMac = randomUserAgent.includes("Mac OS");
-  const chromeVer = randomUserAgent.match(/Chrome\/(\d+)\./)?.[1] || "130";
-  let secChUa = isEdge
-    ? `"Chromium";v="${chromeVer}", "Microsoft Edge";v="${chromeVer}", "Not?A_Brand";v="99"`
-    : `"Chromium";v="${chromeVer}", "Google Chrome";v="${chromeVer}", "Not?A_Brand";v="99"`;
-  let secChPlatform = isMac ? '"macOS"' : '"Windows"';
-  if (freeProxies.length === 0) {
-    await fetchFreeProxies();
-  }
-  let proxyUrl = "";
-  const availableProxies = [];
-  if (
-    siteSettings.proxies &&
-    Array.isArray(siteSettings.proxies) &&
-    siteSettings.proxies.length > 0
-  ) {
-    availableProxies.push(...siteSettings.proxies);
-  }
-  if (siteSettings.auto_proxy !== false && freeProxies.length > 0) {
-    availableProxies.push(...freeProxies);
-  } else if (!siteSettings.proxies || siteSettings.proxies.length === 0) {
-    availableProxies.push(...freeProxies);
-  }
-  if (availableProxies.length > 0) {
-    proxyUrl =
-      availableProxies[Math.floor(Math.random() * availableProxies.length)];
-  }
-  let agent;
-  try {
-    if (proxyUrl) {
-      agent = new HttpsProxyAgent(proxyUrl, {
-        timeout: 1e4,
-        rejectUnauthorized: true,
-      });
-    } else {
-      agent = new https.Agent({ rejectUnauthorized: true });
-    }
-  } catch (err) {
-    agent = new https.Agent({ rejectUnauthorized: true });
-  }
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 2e4);
-  res.on("finish", () => clearTimeout(timeoutId));
-  res.on("close", () => clearTimeout(timeoutId));
-  const axiosConfig = {
-    headers: {
-      "User-Agent": randomUserAgent,
-      Accept: "application/json, text/plain, */*",
-      "Accept-Language": "th-TH,th;q=0.9,en-US;q=0.8,en;q=0.7",
-      Referer: "https://sso.garena.com/",
-    },
-    httpsAgent: agent,
-    httpAgent: agent,
-    proxy: false,
-    timeout: 1e4,
-    signal: controller.signal,
-    validateStatus: __name((status) => status < 500, "validateStatus"),
-  };
-  const { wrapper } = await import("axios-cookiejar-support").then((s) => {
-    const e = "default";
-    return s[e] && typeof s[e] == "object" && "__esModule" in s[e] ? s[e] : s;
-  });
-      // @ts-ignore
-  let client2 = wrapper(axios.create(axiosConfig));
-  client2.defaults.jar = jar;
-  const setupFallbackClient = __name(() => {
-    const directAgent = new https.Agent({ rejectUnauthorized: true });
-    const fbClient = wrapper(
-      // @ts-ignore
-      axios.create({
-        ...axiosConfig,
-        httpsAgent: directAgent,
-        httpAgent: directAgent,
-      }),
-    );
-    fbClient.defaults.jar = jar;
-    return fbClient;
-  }, "setupFallbackClient");
-  try {
-    const getDatadomeCookie = __name(async (httpClient) => {
-      const url = "https://dd.garena.com/js/";
-      const headers = {
-        accept: "*/*",
-        "accept-encoding": "gzip, deflate, br, zstd",
-        "accept-language": "en-US,en;q=0.9",
-        "cache-control": "no-cache",
-        "content-type": "application/x-www-form-urlencoded",
-        origin: "https://account.garena.com",
-        pragma: "no-cache",
-        referer: "https://account.garena.com/",
-        "sec-ch-ua": secChUa,
-        "sec-ch-ua-mobile": "?0",
-        "sec-ch-ua-platform": secChPlatform,
-        "sec-fetch-dest": "empty",
-        "sec-fetch-mode": "cors",
-        "sec-fetch-site": "same-site",
-        "user-agent": randomUserAgent,
-      };
-      const jsDataPayload = {
-        ttst: 76.70000004768372,
-        ifov: false,
-        hc: 4,
-        br_oh: 824,
-        br_ow: 1536,
-        ua: randomUserAgent,
-        wbd: false,
-        dp0: true,
-        tagpu: 5.738121195951787,
-        wdif: false,
-        wdifrm: false,
-        npmtm: false,
-        br_h: 738,
-        br_w: 260,
-        isf: false,
-        nddc: 1,
-        rs_h: 864,
-        rs_w: 1536,
-        rs_cd: 24,
-        phe: false,
-        nm: false,
-        jsf: false,
-        lg: "en-US",
-        pr: 1.25,
-        ars_h: 824,
-        ars_w: 1536,
-        tz: -480,
-        str_ss: true,
-        str_ls: true,
-        str_idb: true,
-        str_odb: false,
-        plgod: false,
-        plg: 5,
-        plgne: true,
-        plgre: true,
-        plgof: false,
-        plggt: false,
-        pltod: false,
-        hcovdr: false,
-        hcovdr2: false,
-        plovdr: false,
-        plovdr2: false,
-        ftsovdr: false,
-        ftsovdr2: false,
-        lb: false,
-        eva: 33,
-        lo: false,
-        ts_mtp: 0,
-        ts_tec: false,
-        ts_tsa: false,
-        vnd: "Google Inc.",
-        bid: "NA",
-        mmt: "application/pdf,text/pdf",
-        plu: "PDF Viewer,Chrome PDF Viewer,Chromium PDF Viewer,Microsoft Edge PDF Viewer,WebKit built-in PDF",
-        hdn: false,
-        awe: false,
-        geb: false,
-        dat: false,
-        med: "defined",
-        aco: "probably",
-        acots: false,
-        acmp: "probably",
-        acmpts: true,
-        acw: "probably",
-        acwts: false,
-        acma: "maybe",
-        acmats: false,
-        acaa: "probably",
-        acaats: true,
-        ac3: "",
-        ac3ts: false,
-        acf: "probably",
-        acfts: false,
-        acmp4: "maybe",
-        acmp4ts: false,
-        acmp3: "probably",
-        acmp3ts: false,
-        acwm: "maybe",
-        acwmts: false,
-        ocpt: false,
-        vco: "",
-        vcots: false,
-        vch: "probably",
-        vchts: true,
-        vcw: "probably",
-        vcwts: true,
-        vc3: "maybe",
-        vc3ts: false,
-        vcmp: "",
-        vcmpts: false,
-        vcq: "maybe",
-        vcqts: false,
-        vc1: "probably",
-        vc1ts: true,
-        dvm: 8,
-        sqt: false,
-        so: "landscape-primary",
-        bda: false,
-        wdw: true,
-        prm: true,
-        tzp: true,
-        cvs: true,
-        usb: true,
-        cap: true,
-        tbf: false,
-        lgs: true,
-        tpd: true,
-      };
-      const payload = {
-        jsData: JSON.stringify(jsDataPayload),
-        eventCounters: "[]",
-        jsType: "ch",
-        cid: "KOWn3t9QNk3dJJJEkpZJpspfb2HPZIVs0KSR7RYTscx5iO7o84cw95j40zFFG7mpfbKxmfhAOs~bM8Lr8cHia2JZ3Cq2LAn5k6XAKkONfSSad99Wu36EhKYyODGCZwae",
-        ddk: "AE3F04AD3F0D3A462481A337485081",
-        Referer: "https://account.garena.com/",
-        request: "/",
-        responsePage: "origin",
-        ddv: "4.35.4",
-      };
-      const dataParams = new URLSearchParams();
-      for (const key in payload) {
-        dataParams.append(key, payload[key]);
-      }
-      const ddRes = await httpClient.post(url, dataParams.toString(), {
-        headers,
-        timeout: 1e4,
-      });
-      if (ddRes.data && typeof ddRes.data === "string") {
-        try {
-          return JSON.parse(ddRes.data);
-        } catch (e) {
-          console.error("Caught error:", e);
-        }
-      }
-      return ddRes.data;
-    }, "getDatadomeCookie");
-    let ddJson = await getDatadomeCookie(client2);
-    let activeClient = client2;
-    if (!ddJson || !ddJson.cookie || ddJson.status === 403) {
-      console.log(
-        `Proxy failed DataDome. Using direct connection for DataDome...`,
-      );
-      activeClient = setupFallbackClient();
-      ddJson = await getDatadomeCookie(activeClient);
-    }
-    if (ddJson && ddJson.cookie) {
-      const datadomeValue = ddJson.cookie.split(";")[0];
-      await jar.setCookie(datadomeValue, "https://sso.garena.com");
-    }
-    const preloginHeaders = {
-      accept: "application/json, text/plain, */*",
-      "accept-encoding": "gzip, deflate, br, zstd",
-      "accept-language": "en-US,en;q=0.9",
-      connection: "keep-alive",
-      host: "sso.garena.com",
-      referer: `https://sso.garena.com/universal/login?app_id=10100&redirect_uri=https%3A%2F%2Faccount.garena.com%2F&locale=en-SG&account=${account}`,
-      "sec-ch-ua": secChUa,
-      "sec-ch-ua-mobile": "?0",
-      "sec-ch-ua-platform": secChPlatform,
-      "sec-fetch-dest": "empty",
-      "sec-fetch-mode": "cors",
-      "sec-fetch-site": "same-origin",
-      "user-agent": randomUserAgent,
-    };
-    let preloginRes = await activeClient.get(
-      "https://sso.garena.com/api/prelogin",
-      {
-        params: {
-          app_id: "10100",
-          account: account,
-          format: "json",
-          id: Date.now().toString(),
-        },
-        headers: preloginHeaders,
-      },
-    );
-    if (preloginRes.status === 403 && activeClient === client2) {
-      console.log(`Proxy blocked at Prelogin. Switching to Direct...`);
-      activeClient = setupFallbackClient();
-      ddJson = await getDatadomeCookie(activeClient);
-      if (ddJson && ddJson.cookie) {
-        await jar.setCookie(
-          ddJson.cookie.split(";")[0],
-          "https://sso.garena.com",
-        );
-      }
-      preloginRes = await activeClient.get(
-        "https://sso.garena.com/api/prelogin",
-        {
-          params: {
-            app_id: "10100",
-            account: account,
-            format: "json",
-            id: Date.now().toString(),
-          },
-          headers: preloginHeaders,
-        },
-      );
-    }
-    if (preloginRes.status === 403) {
-      return res.json({
-        success: false,
-        error:
-          "\u0E23\u0E30\u0E1A\u0E1A\u0E42\u0E14\u0E19\u0E08\u0E33\u0E01\u0E31\u0E14\u0E01\u0E32\u0E23\u0E40\u0E02\u0E49\u0E32\u0E16\u0E36\u0E07 (403 Forbidden)",
-      });
-    }
-    const preData = preloginRes.data;
-    if (preData.error) {
-      return res.json({ success: false, error: `Prelogin: ${preData.error}` });
-    }
-    if (!preData.v1 || !preData.v2) {
-      return res.json({
-        success: false,
-        error:
-          "\u0E23\u0E30\u0E1A\u0E1A\u0E15\u0E23\u0E27\u0E08\u0E1E\u0E1A\u0E42\u0E1B\u0E23\u0E41\u0E01\u0E23\u0E21\u0E2D\u0E31\u0E15\u0E42\u0E19\u0E21\u0E31\u0E15\u0E34 (DataDome / Captcha).",
-      });
-    }
-    const hashed_password = "dummy";
-    const loginParams = {
-      app_id: "10100",
-      account: account,
-      password: hashed_password,
-      redirect_uri: "https://account.garena.com/",
-      format: "json",
-      id: Date.now().toString(),
-    };
-    const loginRes = await activeClient.get(
-      "https://sso.garena.com/api/login",
-      {
-        params: loginParams,
-        headers: {
-          accept: "application/json, text/plain, */*",
-          referer: "https://account.garena.com/",
-          "user-agent": randomUserAgent,
-        },
-      },
-    );
-    const loginData = loginRes.data;
-    if (loginData.error) {
-      const errorMsg =
-        loginData.error === "error_auth"
-          ? "\u0E23\u0E2B\u0E31\u0E2A\u0E1C\u0E48\u0E32\u0E19\u0E1C\u0E34\u0E14"
-          : loginData.error.includes("captcha")
-            ? "\u0E15\u0E49\u0E2D\u0E07\u0E41\u0E01\u0E49 Captcha (Garena Login)"
-            : loginData.error === "error_not_exist"
-              ? "\u0E44\u0E21\u0E48\u0E1E\u0E1A\u0E44\u0E2D\u0E14\u0E35\u0E19\u0E35\u0E49"
-              : loginData.error;
-      return res.json({ success: false, error: errorMsg });
-    }
-    const initRes = await activeClient.get(
-      "https://account.garena.com/api/account/init",
-      {
-        headers: {
-          accept: "*/*",
-          referer: "https://account.garena.com/",
-          "user-agent": randomUserAgent,
-        },
-      },
-    );
-    const resData = initRes.data || {};
-    const userData = resData.user_info || resData || {};
-    let fbLinked = false;
-    let fbUsername = "N/A";
-    let fbUid = "N/A";
-    const fbAccount = userData.fb_account;
-    if (fbAccount) {
-      if (typeof fbAccount === "object") {
-        fbUsername = fbAccount.name || "N/A";
-        fbUid = fbAccount.id || "N/A";
-      } else if (typeof fbAccount === "string" && fbAccount !== "Not Set") {
-        try {
-          const parsed = JSON.parse(fbAccount);
-          fbUsername = parsed.name || parsed.fb_username || "N/A";
-          fbUid = parsed.id || parsed.fb_uid || "N/A";
-        } catch (e) {
-          fbUsername = fbAccount;
-        }
-      }
-      fbLinked = true;
-    }
-    if (userData.is_fbconnect_enabled) fbLinked = true;
-    const binds = [];
-    if (
-      userData.email &&
-      userData.email !== "N/A" &&
-      !userData.email.startsWith("***") &&
-      userData.email.includes("@")
-    )
-      binds.push("Email");
-    if (
-      userData.mobile_no &&
-      userData.mobile_no !== "N/A" &&
-      String(userData.mobile_no).trim()
-    )
-      binds.push("Phone");
-    if (fbLinked) binds.push("Facebook");
-    if (
-      userData.idcard &&
-      userData.idcard !== "N/A" &&
-      String(userData.idcard).trim()
-    )
-      binds.push("ID Card");
-    const isClean = binds.length === 0;
-    const [codmInfo, gameConnections] = [null, []];
-    const rovGames = (gameConnections || []).filter((g) =>
-      g.toUpperCase().includes("ROV"),
-    );
-    const hasRov = rovGames.length > 0;
-    let rovCharacter = "N/A";
-    if (hasRov) {
-      try {
-        const cleanName = rovGames[0].replace("[", "").replace("]", "");
-        const parts = cleanName.split("-");
-        if (parts.length > 2) rovCharacter = parts[2].trim();
-      } catch (e) {
-        console.error("Caught error:", e);
-      }
-    }
-    const phoneBound = !!(userData.mobile_no && userData.mobile_no !== "N/A");
-    const emailVerified = !!userData.email_v;
-    const rovClean = hasRov && !emailVerified && !phoneBound;
-    const hasCodm = codmInfo != null && codmInfo.level !== "Unknown";
-    let lastLoginDateFormatted = "N/A";
-    const lastHist = resData.login_history?.[0];
-    if (lastHist?.timestamp) {
-      lastLoginDateFormatted = new Date(
-        lastHist.timestamp * 1e3,
-      ).toLocaleString("en-US", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-      });
-    } else if (userData.last_login?.time) {
-      lastLoginDateFormatted = new Date(
-        userData.last_login.time * 1e3,
-      ).toLocaleString("en-US", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-      });
-    }
-    let avatarUrl = "N/A";
-    if (userData.avatar && userData.avatar !== "N/A") {
-      avatarUrl = userData.avatar.startsWith("http")
-        ? userData.avatar
-        : `https://account.garena.com/static/${userData.avatar}`;
-    }
-    return res.json({
-      success: true,
-      data: {
-        account,
-        uid: userData.uid || "N/A",
-        shells: userData.shell || 0,
-        level: codmInfo?.level || 0,
-        rank: "Success",
-        isClean,
-        phoneBound,
-        emailVerified,
-        fbLinked,
-        region: userData.acc_country || "TH",
-        otherGames: gameConnections || [],
-        codmNickname: codmInfo?.nickname || "N/A",
-        codmUid: codmInfo?.uid || "N/A",
-        codmOpenId: codmInfo?.open_id || "N/A",
-        codmTOpenId: codmInfo?.t_open_id || "N/A",
-        codmRegion: codmInfo?.region || "N/A",
-        codmRegionName: codmInfo?.region_name || "Unknown",
-        codmRegionFlag: codmInfo?.region_flag || "\u{1F3F3}\uFE0F",
-        idCardBound: !!(userData.idcard && userData.idcard !== "N/A"),
-        hasRov,
-        rovCharacter,
-        rovClean,
-        hasCodm,
-        avatarUrl,
-        mobileNumber: userData.mobile_no || "N/A",
-        emailAddress: userData.email || "N/A",
-        fbUsername,
-        twoFaEnabled: !!userData.two_step_verify_enable,
-        authenticatorEnabled: !!userData.authenticator_enable,
-        lastLoginDate: lastLoginDateFormatted,
-        lastLoginIp: lastHist?.ip || userData.last_login?.ip || "N/A",
-        lastLoginCountry:
-          lastHist?.country || userData.last_login?.country || "N/A",
-        lastLoginSource:
-          lastHist?.source || userData.last_login?.source || "Unknown",
-      },
-    });
-  } catch (err) {
-    const errMsg = err?.message || "";
-    console.error("Garena API Error:", errMsg || err);
-    let errorMsg = "Network Error: " + (errMsg || "Unknown Error");
-    if (
-      err?.code === "ECONNABORTED" ||
-      errMsg.includes("timeout") ||
-      err?.code === "ETIMEDOUT"
-    ) {
-      errorMsg =
-        "\u0E01\u0E32\u0E23\u0E40\u0E0A\u0E37\u0E48\u0E2D\u0E21\u0E15\u0E48\u0E2D\u0E16\u0E39\u0E01\u0E22\u0E01\u0E40\u0E25\u0E34\u0E01 (\u0E43\u0E0A\u0E49\u0E40\u0E27\u0E25\u0E32\u0E40\u0E01\u0E34\u0E19). Proxy \u0E0A\u0E49\u0E32\u0E40\u0E01\u0E34\u0E19\u0E44\u0E1B \u0E2B\u0E23\u0E37\u0E2D\u0E04\u0E49\u0E32\u0E07";
-    } else if (
-      err?.name === "AbortError" ||
-      err?.code === "ERR_CANCELED" ||
-      err?.name === "CanceledError" ||
-      errMsg === "canceled"
-    ) {
-      errorMsg =
-        "\u0E01\u0E32\u0E23\u0E40\u0E0A\u0E37\u0E48\u0E2D\u0E21\u0E15\u0E48\u0E2D\u0E16\u0E39\u0E01\u0E22\u0E01\u0E40\u0E25\u0E34\u0E01 (\u0E43\u0E0A\u0E49\u0E40\u0E27\u0E25\u0E32\u0E40\u0E01\u0E34\u0E19). Proxy \u0E0A\u0E49\u0E32\u0E40\u0E01\u0E34\u0E19\u0E44\u0E1B \u0E2B\u0E23\u0E37\u0E2D\u0E04\u0E49\u0E32\u0E07";
-    } else if (err?.code === "ECONNRESET") {
-      errorMsg =
-        "\u0E01\u0E32\u0E23\u0E40\u0E0A\u0E37\u0E48\u0E2D\u0E21\u0E15\u0E48\u0E2D\u0E16\u0E39\u0E01\u0E15\u0E31\u0E14 (ECONNRESET)";
-    } else if (errMsg.includes("disconnected") || errMsg.includes("TLS")) {
-      errorMsg =
-        "\u0E40\u0E0A\u0E37\u0E48\u0E2D\u0E21\u0E15\u0E48\u0E2D\u0E44\u0E21\u0E48\u0E1B\u0E25\u0E2D\u0E14\u0E20\u0E31\u0E22 (TLS Error/Blocked)";
-    } else if (
-      err?.code === "ECONNREFUSED" ||
-      errMsg.includes("ECONNREFUSED")
-    ) {
-      errorMsg =
-        "\u0E40\u0E0B\u0E34\u0E23\u0E4C\u0E1F\u0E40\u0E27\u0E2D\u0E23\u0E4C Proxy \u0E2D\u0E2D\u0E1F\u0E44\u0E25\u0E19\u0E4C";
-    } else if (errMsg.includes("CONNECT response")) {
-      errorMsg =
-        "Proxy \u0E2B\u0E21\u0E14\u0E2D\u0E32\u0E22\u0E38\u0E2B\u0E23\u0E37\u0E2D\u0E16\u0E39\u0E01\u0E41\u0E1A\u0E19";
-    }
-    return res.json({ success: false, error: errorMsg, isProxyError: true });
-  }
-}, "___dep_check");
-let redis = null;
+let redis: any = null;
 if (process.env.REDIS_URL) {
   try {
     redis = new Redis(process.env.REDIS_URL, {
       maxRetriesPerRequest: 1,
-      retryStrategy: __name((times) => {
+      retryStrategy: __name((times: number) => {
         if (times > 5) {
           console.warn(
             "Redis reconnect exhausted, relying fully on memory cache.",
@@ -2223,10 +1542,10 @@ if (process.env.REDIS_URL) {
       commandTimeout: 2e3,
     });
     redis.on("connect", () => console.log("Redis connected successfully"));
-    redis.on("error", (err) =>
+    redis.on("error", (err: any) =>
       console.error("Redis connection error (falling back to memory):", err),
     );
-  } catch (e) {
+  } catch (e: any) {
     console.error("Failed to initialize Redis:", e);
   }
 }
@@ -2246,7 +1565,7 @@ const dbReadBreaker = new CircuitBreaker(async (action) => await action(), {
 dbReadBreaker.fallback(() => {
   throw new Error("Database read circuit breaker open or timeout");
 });
-async function findPurchaseByLicenseKey(key) {
+async function findPurchaseByLicenseKey(key: any) {
   const cleanKey = key.trim();
   if (!cleanKey) return null;
   try {
@@ -2265,13 +1584,13 @@ async function findPurchaseByLicenseKey(key) {
       }
       return { id: doc.id, ...data, secretData: secret };
     }
-  } catch (err) {
+  } catch (err: any) {
     console.error("Error finding purchase by license key (Discord):", err);
   }
   return null;
 }
 __name(findPurchaseByLicenseKey, "findPurchaseByLicenseKey");
-async function findPurchaseByWebClaimKey(key) {
+async function findPurchaseByWebClaimKey(key: any) {
   const cleanKey = key.trim();
   if (!cleanKey) return null;
   try {
@@ -2292,17 +1611,17 @@ async function findPurchaseByWebClaimKey(key) {
         return { id: doc.id, ...data, secretData: secret };
       }
     }
-  } catch (err) {
+  } catch (err: any) {
     console.error("Error finding purchase by claim key (Web):", err);
   }
   return null;
 }
 __name(findPurchaseByWebClaimKey, "findPurchaseByWebClaimKey");
 const getCachedCollection = __name(
-  async (collectionName, ttl = 2e4, res, req) => {
+  async (collectionName: any, ttl = 2e4, res?: any, req?: any) => {
     const now = Date.now();
     let cacheHit = false;
-    let cachedData = void 0;
+    let cachedData: any = void 0;
     const redisKey = `cache:${collectionName}`;
     if (redis && redis.status === "ready") {
       try {
@@ -2311,7 +1630,7 @@ const getCachedCollection = __name(
           cachedData = JSON.parse(redisData);
           cacheHit = true;
         }
-      } catch (err) {
+      } catch (err: any) {
         console.warn("Redis get error, falling back to memory layer", err);
       }
     }
@@ -2371,11 +1690,11 @@ const getCachedCollection = __name(
             return snapshot2;
           }, "fetchFromDB");
           const snapshot = await dbReadBreaker.fire(fetchFromDB);
-          let data = snapshot.docs.map((doc) => {
+          let data = snapshot.docs.map((doc: any) => {
             const d = doc.data();
             return { id: doc.id, ...d };
           });
-          data = data.filter((d) => !d.isDeleted && d.active !== false);
+          data = data.filter((d: any) => !d.isDeleted && d.active !== false);
           if (collectionName === "products" && data.length === 0 && false) {
             try {
               const seedingRef = admin
@@ -2383,7 +1702,7 @@ const getCachedCollection = __name(
                 .collection("system_metadata")
                 .doc("seeding");
               const seedingDoc = await seedingRef.get();
-              if (seedingDoc.exists && seedingDoc.data()?.has_seeded) {
+              if (seedingDoc.exists && seedingDoc.data && (seedingDoc as any).data()?.has_seeded) {
                 console.log(
                   "Products are empty, but seeding has already run before. Respecting empty collection.",
                 );
@@ -2515,11 +1834,11 @@ const getCachedCollection = __name(
                   .collection("products")
                   .get();
                 data = newSnapshot.docs
-                  .map((doc) => {
+                  .map((doc: any) => {
                     const d = doc.data();
                     return { id: doc.id, ...d };
                   })
-                  .filter((d) => !d.isDeleted && d.active !== false);
+                  .filter((d: any) => !d.isDeleted && d.active !== false);
               }
             } catch (seedErr) {
               console.error("Error seeding default products:", seedErr);
@@ -2544,7 +1863,7 @@ const getCachedCollection = __name(
           if (redis && redis.status === "ready") {
             try {
               await redis.set(redisKey, JSON.stringify(freshData), "PX", ttl);
-            } catch (err) {
+            } catch (err: any) {
               console.warn("Redis set error", err);
             }
           }
@@ -2575,14 +1894,14 @@ const getCachedCollection = __name(
   },
   "getCachedCollection",
 );
-const invalidateCache = __name(async (collectionName) => {
+const invalidateCache = __name(async (collectionName: any) => {
   cacheRevisionCounter++;
   memoryCache.delete(collectionName);
   inflightRequests.delete(collectionName);
   if (redis && redis.status === "ready") {
     try {
       await redis.del(`cache:${collectionName}`);
-    } catch (err) {
+    } catch (err: any) {
       console.warn("Redis del error", err);
     }
   }
@@ -2593,10 +1912,10 @@ app.use("/api", createAuthRouter({ authLimiter, invalidateCache, invalidateStats
 app.get("/api/debug-products", requireAdmin, async (req, res) => {
   try {
     const snap = await admin.firestore().collection("products").get();
-    const docs = snap.docs.map((d) => d.data()).filter((p) => p.stock > 0);
+    const docs = snap.docs.map((d: any) => d.data()).filter((p: any) => p.stock > 0);
     res.json({
       count: docs.length,
-      products: docs.map((p) => ({
+      products: docs.map((p: any) => ({
         id: p.id,
         name: p.name,
         stock: p.stock,
@@ -2609,8 +1928,8 @@ app.get("/api/debug-products", requireAdmin, async (req, res) => {
             : null,
       })),
     });
-  } catch (e) {
-    res.status(500).json({ error: e.message });
+  } catch (e: any) {
+    res.status(500).json({ error: (e as any)?.message });
   }
 });
 const { createProductsRouter } = await import("./src/routes/products.route.js");
@@ -2624,6 +1943,7 @@ app.use(
     invalidateStatsCache,
   }),
 );
+const twApi: any = null;
 const { createPaymentsRouter } = await import("./src/routes/payments.route.js");
 app.use(
   "/api",
@@ -2703,7 +2023,7 @@ app.get("/api/stats", async (req, res) => {
           lastStatsFetch = now;
           return sendCachedStats();
         }
-      } catch (e) {
+      } catch (e: any) {
         console.error("Caught error:", e);
       }
     }
@@ -2711,10 +2031,10 @@ app.get("/api/stats", async (req, res) => {
     let totalStock = 0;
     try {
       const data = await getCachedCollection("products", 3e5);
-      data.forEach((p) => {
+      data.forEach((p: any) => {
         if (p.stock > 0 && p.stock < 999999) totalStock += Number(p.stock);
       });
-    } catch (e) {
+    } catch (e: any) {
       console.error("Caught error:", e);
     }
     let totalSales = 0;
@@ -2724,14 +2044,14 @@ app.get("/api/stats", async (req, res) => {
     await Promise.all([
       (async () => {
         const purchases = await getCachedCollection("purchases", 60000);
-        purchases.forEach((p) => {
+        purchases.forEach((p: any) => {
           totalSales += Number(p.price) || 0;
           totalPurchaseOrders++;
         });
       })(),
       (async () => {
         const topups = await getCachedCollection("topups", 60000);
-        topups.forEach((t) => {
+        topups.forEach((t: any) => {
           totalTopupsAmount += Number(t.amount) || 0;
         });
       })(),
@@ -2757,13 +2077,13 @@ app.get("/api/stats", async (req, res) => {
       if (redis && redis.status === "ready") {
         try {
           await redis.set(redisKey, JSON.stringify(cachedStats), "PX", 1e4);
-        } catch (e) {
+        } catch (e: any) {
           console.error("Caught error:", e);
         }
       }
     }
     sendCachedStats();
-  } catch (err) {
+  } catch (err: any) {
     console.error("STATS ERROR:", err);
     res.json(
       cachedStats || {
@@ -2810,7 +2130,7 @@ app.get("/api/latest-purchases", async (req, res) => {
       .orderBy("date", "desc")
       .limit(limit);
     const snap = await q.get();
-    const data = snap.docs.map((doc) => {
+    const data = snap.docs.map((doc: any) => {
       const d = doc.data();
       let qty = d.quantity;
       if (!qty) {
@@ -2826,11 +2146,11 @@ app.get("/api/latest-purchases", async (req, res) => {
       };
     });
     return res.json(data);
-  } catch (err) {
-    console.error("Error fetching latest purchases:", err.message || err);
+  } catch (err: any) {
+    console.error("Error fetching latest purchases:", (err as any).message || err);
     res
       .status(500)
-      .json({ error: String(err && err.message ? err.message : err) });
+      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
   }
 });
 app.get("/api/purchases", requireAuth, async (req, res) => {
@@ -2874,7 +2194,7 @@ app.get("/api/purchases", requireAuth, async (req, res) => {
     }
     const snap = await q.get();
     const data = await Promise.all(
-      snap.docs.map(async (doc) => {
+      snap.docs.map(async (doc: any) => {
         const item = doc.data();
         if (item.secretData && (item.secretData.startsWith("enc:") || item.secretData.startsWith("enc2:"))) {
           item.secretData = await decrypt(item.secretData);
@@ -2885,11 +2205,11 @@ app.get("/api/purchases", requireAuth, async (req, res) => {
     const nextCursor =
       snap.docs.length === limit ? snap.docs[snap.docs.length - 1].id : null;
     return res.json({ data, nextCursor });
-  } catch (err) {
-    console.error("Error fetching purchases:", err.message || err);
+  } catch (err: any) {
+    console.error("Error fetching purchases:", (err as any).message || err);
     res
       .status(500)
-      .json({ error: String(err && err.message ? err.message : err) });
+      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
   }
 });
 app.post("/api/purchases", requireAdmin, async (req, res) => {
@@ -2901,9 +2221,9 @@ app.post("/api/purchases", requireAdmin, async (req, res) => {
       const rawSecret = data.secretData || "";
       const keysList = rawSecret
         .split("\n")
-        .map((k) => k.trim())
+        .map((k: any) => k.trim())
         .filter(Boolean);
-      data.licenseKeyHashes = keysList.map((k) =>
+      data.licenseKeyHashes = keysList.map((k: any) =>
         crypto.createHash("sha256").update(k).digest("hex"),
       );
       data.secretData = await encrypt(data.secretData);
@@ -2915,11 +2235,11 @@ app.post("/api/purchases", requireAdmin, async (req, res) => {
       ...data,
       secretData: req.body.secretData,
     });
-  } catch (err) {
+  } catch (err: any) {
     console.error("Internal server error creating purchase:", err);
     res
       .status(500)
-      .json({ error: String(err && err.message ? err.message : err) });
+      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
   }
 });
 app.put("/api/purchases/:id", requireAdmin, async (req, res) => {
@@ -2940,7 +2260,7 @@ app.put("/api/purchases/:id", requireAdmin, async (req, res) => {
       const rawSecret = secretData || "";
       const keysList = rawSecret
         .split("\n")
-        .map((k) => k.trim())
+        .map((k: any) => k.trim())
         .filter(Boolean);
       // @ts-ignore
       payload.licenseKeyHashes = keysList.map((k) =>
@@ -2951,7 +2271,7 @@ app.put("/api/purchases/:id", requireAdmin, async (req, res) => {
     if (preOrderStatus !== void 0) payload.preOrderStatus = preOrderStatus;
     await docRef.update(payload);
     res.json({ success: true, id, ...payload, secretData });
-  } catch (err) {
+  } catch (err: any) {
     console.error("Error updating purchase:", err);
     res.status(500).json({ error: err.message || "Internal server error" });
   }
@@ -2980,7 +2300,7 @@ app.post("/api/discord-rekey", async (req, res) => {
       message: `\u0E40\u0E1E\u0E34\u0E48\u0E21\u0E04\u0E35\u0E22\u0E4C ${key} \u0E2A\u0E33\u0E40\u0E23\u0E47\u0E08!`,
       plan: newDoc.plan,
     });
-  } catch (error) {
+  } catch (error: any) {
     res.status(500).json({ error: "Internal server error while adding key" });
   }
 });
@@ -3063,15 +2383,15 @@ app.post("/api/discord-redeem", async (req, res) => {
       req,
       { key: req.body.key },
     );
-  } catch (e) {
+  } catch (e: any) {
     console.error(e);
     res
       .status(500)
-      .json({ error: e?.details || e?.message || "Internal server error" });
+      .json({ error: (e as any)?.details || (e as any)?.message || "Internal server error" });
   }
 });
 const productLocks = new Set();
-async function acquireMutex(key, timeoutMs = 15e3) {
+async function acquireMutex(key: any, timeoutMs = 15e3) {
   const start = Date.now();
   while (productLocks.has(key)) {
     if (Date.now() - start > timeoutMs) {
@@ -3083,21 +2403,21 @@ async function acquireMutex(key, timeoutMs = 15e3) {
   return true;
 }
 __name(acquireMutex, "acquireMutex");
-function releaseMutex(key) {
+function releaseMutex(key: any) {
   productLocks.delete(key);
 }
 __name(releaseMutex, "releaseMutex");
-async function acquireRedisLock(lockKey, ttlMs = 15e3) {
+async function acquireRedisLock(lockKey: any, ttlMs = 15e3) {
   if (!redis || redis.status !== "ready") return true;
   try {
     const result = await redis.set(lockKey, "locked", "PX", ttlMs, "NX");
     return result === "OK";
-  } catch (err) {
+  } catch (err: any) {
     return true;
   }
 }
 __name(acquireRedisLock, "acquireRedisLock");
-async function releaseRedisLock(lockKey) {
+async function releaseRedisLock(lockKey: any) {
   if (!redis) return;
   try {
     await redis.del(lockKey);
@@ -3121,11 +2441,11 @@ app.get("/api/pages", async (req, res) => {
   try {
     const data = await getCachedCollection("custom_pages", 1e4, res, req);
     if (data) res.json(data);
-  } catch (err) {
-    console.error("Internal server error fetching pages:", err.message || err);
+  } catch (err: any) {
+    console.error("Internal server error fetching pages:", (err as any).message || err);
     res
       .status(500)
-      .json({ error: String(err && err.message ? err.message : err) });
+      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
   }
 });
 app.post("/api/pages", requireAdmin, async (req, res) => {
@@ -3140,11 +2460,11 @@ app.post("/api/pages", requireAdmin, async (req, res) => {
       .add({ ...dataToSave, created_at: new Date().toISOString() });
     invalidateCache("custom_pages");
     res.json({ id: docRef.id, dbId: docRef.id, ...dataToSave });
-  } catch (err) {
+  } catch (err: any) {
     console.error("Internal server error creating page:", err);
     res
       .status(500)
-      .json({ error: String(err && err.message ? err.message : err) });
+      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
   }
 });
 app.put("/api/pages/:id", requireAdmin, async (req, res) => {
@@ -3160,11 +2480,11 @@ app.put("/api/pages/:id", requireAdmin, async (req, res) => {
     await docRef.update(dataToSave);
     invalidateCache("custom_pages");
     res.json({ id: req.params.id, ...dataToSave });
-  } catch (err) {
+  } catch (err: any) {
     console.error("Internal server error updating page:", err);
     res
       .status(500)
-      .json({ error: String(err && err.message ? err.message : err) });
+      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
   }
 });
 app.delete("/api/pages/:id", requireAdmin, async (req, res) => {
@@ -3178,11 +2498,11 @@ app.delete("/api/pages/:id", requireAdmin, async (req, res) => {
       .delete();
     invalidateCache("custom_pages");
     res.json({ success: true });
-  } catch (err) {
+  } catch (err: any) {
     console.error("Internal server error deleting page:", err);
     res
       .status(500)
-      .json({ error: String(err && err.message ? err.message : err) });
+      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
   }
 });
 let memoryLogSystemData = { categories: [], items: [] };
@@ -3199,7 +2519,7 @@ app.get("/api/logs-system", injectUser, async (req, res) => {
         const d = doc.data();
         dbData = d?.data;
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error("Caught error:", e);
     }
     let payload = dbData || memoryLogSystemData;
@@ -3225,13 +2545,13 @@ app.get("/api/logs-system", injectUser, async (req, res) => {
             .get();
           if (adminDoc.exists) isVip = true;
         }
-      } catch (e) {
+      } catch (e: any) {
         console.error("Caught error:", e);
       }
     }
     if (!isVip) {
       if (Array.isArray(payload.items)) {
-        payload.items = payload.items.map((item) => {
+        payload.items = payload.items.map((item: any) => {
           if (item.type === "premium") {
             return { ...item, attachments: [] };
           }
@@ -3240,10 +2560,10 @@ app.get("/api/logs-system", injectUser, async (req, res) => {
       }
     }
     res.json({ ...payload, isVip });
-  } catch (err) {
+  } catch (err: any) {
     res
       .status(500)
-      .json({ error: String(err && err.message ? err.message : err) });
+      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
   }
 });
 app.post("/api/logs-system", requireAdmin, async (req, res) => {
@@ -3258,18 +2578,18 @@ app.post("/api/logs-system", requireAdmin, async (req, res) => {
           .doc("log_system_data")
           .set({ data }, { merge: false });
       }
-    } catch (e) {
+    } catch (e: any) {
       console.warn(
         "Failed to save log system data to DB, keeping in memory:",
-        e.message,
+        (e as any)?.message,
       );
     }
     res.json({ success: true });
-  } catch (err) {
+  } catch (err: any) {
     console.error("Internal server error saving log system data:", err);
     res
       .status(500)
-      .json({ error: String(err && err.message ? err.message : err) });
+      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
   }
 });
 app.get("/api/license_keys", requireAdmin, async (req, res) => {
@@ -3285,22 +2605,22 @@ app.get("/api/license_keys", requireAdmin, async (req, res) => {
       .limit(limit)
       .offset(offset);
     const snapshot = await q.get();
-    const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    const data = snapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() }));
     await new Promise((r) => setTimeout(r, 0));
     data.sort(
-      (a, b) =>
+      (a: any, b: any) =>
         new Date(b.created_at || 0).getTime() -
         new Date(a.created_at || 0).getTime(),
     );
     res.json(data);
-  } catch (err) {
+  } catch (err: any) {
     console.error(
       "Internal server error fetching license_keys:",
-      err.message || err,
+      (err as any).message || err,
     );
     res
       .status(500)
-      .json({ error: String(err && err.message ? err.message : err) });
+      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
   }
 });
 app.post("/api/license_keys", requireAdmin, async (req, res) => {
@@ -3312,11 +2632,11 @@ app.post("/api/license_keys", requireAdmin, async (req, res) => {
       .collection("license_keys")
       .add(newDoc);
     res.json({ id: docRef.id, dbId: docRef.id, ...newDoc });
-  } catch (err) {
+  } catch (err: any) {
     console.error("Internal server error inserting license_key:", err);
     res
       .status(500)
-      .json({ error: String(err && err.message ? err.message : err) });
+      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
   }
 });
 app.delete("/api/license_keys/:id", requireAdmin, async (req, res) => {
@@ -3327,11 +2647,11 @@ app.delete("/api/license_keys/:id", requireAdmin, async (req, res) => {
       .doc(req.params.id)
       .delete();
     res.json({ success: true });
-  } catch (err) {
+  } catch (err: any) {
     console.error("Internal server error deleting license_key:", err);
     res
       .status(500)
-      .json({ error: String(err && err.message ? err.message : err) });
+      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
   }
 });
 app.post("/api/license_keys/bulk_delete", requireAdmin, async (req, res) => {
@@ -3345,11 +2665,11 @@ app.post("/api/license_keys/bulk_delete", requireAdmin, async (req, res) => {
       ),
     );
     res.json({ success: true, deletedCount: ids.length });
-  } catch (err) {
+  } catch (err: any) {
     console.error("Internal server error bulk deleting license_keys:", err);
     res
       .status(500)
-      .json({ error: String(err && err.message ? err.message : err) });
+      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
   }
 });
 app.patch("/api/license_keys/:id", requireAdmin, async (req, res) => {
@@ -3361,11 +2681,11 @@ app.patch("/api/license_keys/:id", requireAdmin, async (req, res) => {
       .doc(req.params.id);
     await docRef.update({ status });
     res.json({ id: req.params.id, status });
-  } catch (err) {
+  } catch (err: any) {
     console.error("Internal server error updating license_key:", err);
     res
       .status(500)
-      .json({ error: String(err && err.message ? err.message : err) });
+      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
   }
 });
 app.post("/api/license_keys/bulk", requireAdmin, async (req, res) => {
@@ -3380,7 +2700,7 @@ app.post("/api/license_keys/bulk", requireAdmin, async (req, res) => {
         .json({ error: "Maximum 500 keys per bulk insert" });
     }
     const results = await Promise.all(
-      keys.map(async (k) => {
+      keys.map(async (k: any) => {
         const docRef = await admin
           .firestore()
           .collection("license_keys")
@@ -3389,11 +2709,11 @@ app.post("/api/license_keys/bulk", requireAdmin, async (req, res) => {
       }),
     );
     res.json(results);
-  } catch (err) {
+  } catch (err: any) {
     console.error("Internal server error bulk inserting license_keys:", err);
     res
       .status(500)
-      .json({ error: String(err && err.message ? err.message : err) });
+      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
   }
 });
 app.get("/api/validate_key/:key", requireAuth, async (req, res) => {
@@ -3408,7 +2728,7 @@ app.get("/api/validate_key/:key", requireAuth, async (req, res) => {
       return res.status(404).json({ valid: false, error: "Key not found" });
     }
     res.json({ valid: true });
-  } catch (err) {
+  } catch (err: any) {
     console.error("Internal server error validating key:", err);
     res.status(500).json({ valid: false, error: "Internal error" });
   }
@@ -3426,21 +2746,21 @@ app.get("/api/blocked_ips", requireAdmin, async (req, res) => {
       .collection("blocked_ips")
       .limit(500)
       .get();
-    const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    const data = snapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() }));
     data.sort(
-      (a, b) =>
+      (a: any, b: any) =>
         new Date(b.blocked_at || 0).getTime() -
         new Date(a.blocked_at || 0).getTime(),
     );
     res.json(data);
-  } catch (err) {
+  } catch (err: any) {
     console.error(
       "Internal server error fetching blocked_ips:",
-      err.message || err,
+      (err as any).message || err,
     );
     res
       .status(500)
-      .json({ error: String(err && err.message ? err.message : err) });
+      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
   }
 });
 app.post("/api/blocked_ips", requireAdmin, async (req, res) => {
@@ -3450,11 +2770,11 @@ app.post("/api/blocked_ips", requireAdmin, async (req, res) => {
     const docRef = admin.firestore().collection("blocked_ips").doc(ip);
     await docRef.set(newDoc);
     res.json({ id: ip, ...newDoc });
-  } catch (err) {
+  } catch (err: any) {
     console.error("Internal server error upserting blocked_ip:", err);
     res
       .status(500)
-      .json({ error: String(err && err.message ? err.message : err) });
+      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
   }
 });
 app.delete("/api/blocked_ips/:ip", requireAdmin, async (req, res) => {
@@ -3465,11 +2785,11 @@ app.delete("/api/blocked_ips/:ip", requireAdmin, async (req, res) => {
       .doc(req.params.ip)
       .delete();
     res.json({ success: true });
-  } catch (err) {
+  } catch (err: any) {
     console.error("Internal server error deleting blocked_ip:", err);
     res
       .status(500)
-      .json({ error: String(err && err.message ? err.message : err) });
+      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
   }
 });
 app.get("/api/check_ip/:ip", requireAdmin, async (req, res) => {
@@ -3480,11 +2800,11 @@ app.get("/api/check_ip/:ip", requireAdmin, async (req, res) => {
       .doc(req.params.ip)
       .get();
     res.json({ blocked: !!doc.exists });
-  } catch (err) {
+  } catch (err: any) {
     console.error("Internal server error checking IP:", err);
     res
       .status(500)
-      .json({ error: String(err && err.message ? err.message : err) });
+      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
   }
 });
 app.get("/api/api_keys", requireAdmin, async (req, res, next) => {
@@ -3507,14 +2827,14 @@ app.post("/api/admins", requireAdmin, async (req, res) => {
     await docRef.set(newDoc);
     invalidateUserTokenCache(username);
     res.json({ id: username, ...newDoc });
-  } catch (err) {
+  } catch (err: any) {
     console.error("Internal server error upserting admin:", err);
     res
       .status(500)
-      .json({ error: String(err && err.message ? err.message : err) });
+      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
   }
 });
-let communityData = {
+let communityData: any = {
   categories: [],
   channels: [],
   messages: [],
@@ -3534,7 +2854,7 @@ let communityData = {
         if (!communityData.userRanks) communityData.userRanks = {};
       }
     }
-  } catch (e) {
+  } catch (e: any) {
     console.warn("Could not load communityData from Firestore:", e);
   }
 })();
@@ -3545,7 +2865,7 @@ const saveCommunity = __name(async () => {
       .collection("settings")
       .doc("community_data")
       .set({ data: communityData }, { merge: false });
-  } catch (e) {
+  } catch (e: any) {
     console.warn("Could not save communityData to Firestore:", e);
   }
 }, "saveCommunity");
@@ -3591,7 +2911,6 @@ const logLimiter = rateLimit({
   max: 10,
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: userRateLimitKeyGenerator,
   validate: { xForwardedForHeader: false, trustProxy: false },
 });
 app.post("/api/log_error", logLimiter, (req, res) => {
@@ -3606,7 +2925,7 @@ app.post("/api/log_error", logLimiter, (req, res) => {
           }).substring(0, 1e3)
         : String(req.body).substring(0, 200);
     console.error("CLIENT ERROR:", safeBody);
-  } catch (e) {
+  } catch (e: any) {
     console.error("Caught error:", e);
   }
   res.json({ received: true });
@@ -3626,7 +2945,7 @@ app.post("/api/log_vitals", logLimiter, (req, res) => {
         }),
       );
     }
-  } catch (e) {
+  } catch (e: any) {
     console.error("Caught error:", e);
   }
   res.status(204).end();
@@ -3653,222 +2972,6 @@ app.get("/api/bot/config", requireAdmin, (req, res) => {
       "# This feature has been permanently deactivated for security reasons.",
   });
 });
-let TelegramClient;
-let StringSession;
-let NewMessage;
-let twApi;
-class TopupSystem {
-  static {
-    __name(this, "TopupSystem");
-  }
-  constructor(phoneNumber) {
-      // @ts-ignore
-    this.phoneNumber = phoneNumber;
-  }
-  async redeemVoucher(giftLink) {
-    try {
-      const voucherCode = giftLink.split("v=")[1]?.split("&")[0];
-      if (!voucherCode) return { success: false, message: "INVALID_CODE" };
-      const res = await axios.post(
-        `https://gift.truemoney.com/campaign/vouchers/${voucherCode}/redeem`,
-      // @ts-ignore
-        { mobile: this.phoneNumber, voucher_hash: voucherCode },
-        {
-          headers: {
-            Referer: `https://gift.truemoney.com/campaign/?v=${voucherCode}`,
-            Origin: "https://gift.truemoney.com",
-            "Content-Type": "application/json",
-            "User-Agent":
-              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-          },
-        },
-      );
-      const response = res.data;
-      if (response?.status?.code === "SUCCESS") {
-        return {
-          success: true,
-          amount: response.data.my_ticket.amount_baht,
-          ownerName: response.data.owner_profile.full_name,
-          voucherCode,
-        };
-      }
-      return { success: false, message: response?.status?.message || "FAILED" };
-    } catch (error) {
-      if (error.response?.data) {
-        try {
-          const errData =
-            typeof error.response.data === "string"
-              ? JSON.parse(error.response.data)
-              : error.response.data;
-          return {
-            success: false,
-            message: errData.status?.message || "FAILED",
-          };
-        } catch (e) {
-          console.error("Caught error:", e);
-        }
-      }
-      return { success: false, message: "RATE_LIMIT/ERROR" };
-    }
-  }
-}
-(async () => {
-  const t = await import("telegram").then((s) => {
-    const e = "default";
-    return s[e] && typeof s[e] == "object" && "__esModule" in s[e] ? s[e] : s;
-  });
-  TelegramClient = t.TelegramClient;
-  const ts = await import("telegram/sessions/index.js").then((s) => {
-    const e = "default";
-    return s[e] && typeof s[e] == "object" && "__esModule" in s[e] ? s[e] : s;
-  });
-  StringSession = ts.StringSession;
-  const te = await import("telegram/events/index.js").then((s) => {
-    const e = "default";
-    return s[e] && typeof s[e] == "object" && "__esModule" in s[e] ? s[e] : s;
-  });
-  NewMessage = te.NewMessage;
-  const tw = await import("@opecgame/twapi").then((s) => {
-    const e = "default";
-    return s[e] && typeof s[e] == "object" && "__esModule" in s[e] ? s[e] : s;
-  });
-  twApi = tw.default;
-})();
-let tgDailyCount = 0;
-let tgLastResetDate = new Date().toISOString().slice(0, 10);
-const tgSessions = new Map();
-const tgPhoneHashToSessionId = new Map();
-function pushTgLog(sessionId, msg) {
-  const sess = tgSessions.get(sessionId);
-  if (sess) {
-    sess.logs.push(`[${new Date().toLocaleTimeString()}] ${msg}`);
-    if (sess.logs.length > 50) sess.logs.shift();
-  }
-}
-__name(pushTgLog, "pushTgLog");
-function createResolver() {
-  let rs;
-  const p = new Promise((resolve) => (rs = resolve));
-  return { promise: p, resolve: rs };
-}
-__name(createResolver, "createResolver");
-app.post("/api/telegram/catcher/request", requireAuth, async (req, res) => {
-  return res
-    .status(410)
-    .json({
-      status: "error",
-      error:
-        "\u0E23\u0E30\u0E1A\u0E1A\u0E14\u0E31\u0E01\u0E0B\u0E2D\u0E07\u0E16\u0E39\u0E01\u0E1B\u0E34\u0E14\u0E43\u0E0A\u0E49\u0E07\u0E32\u0E19\u0E2D\u0E22\u0E48\u0E32\u0E07\u0E16\u0E32\u0E27\u0E23\u0E40\u0E1E\u0E37\u0E48\u0E2D\u0E04\u0E27\u0E32\u0E21\u0E1B\u0E25\u0E2D\u0E14\u0E20\u0E31\u0E22",
-    });
-});
-app.post("/api/telegram/catcher/submit", requireAuth, async (req, res) => {
-  return res
-    .status(410)
-    .json({
-      success: false,
-      error:
-        "\u0E23\u0E30\u0E1A\u0E1A\u0E1B\u0E34\u0E14\u0E43\u0E0A\u0E49\u0E07\u0E32\u0E19",
-    });
-});
-app.post("/api/telegram/catcher/status", requireAuth, async (req, res) => {
-  return res.json({
-    status: "error",
-    logs: [
-      "\u0E23\u0E30\u0E1A\u0E1A\u0E1B\u0E34\u0E14\u0E43\u0E0A\u0E49\u0E07\u0E32\u0E19",
-    ],
-  });
-});
-app.post("/api/telegram/catcher/stop", requireAuth, async (req, res) => {
-  return res.json({ success: true });
-});
-const ___dep_tg_catcher_start = __name(
-  async (req, res) => {},
-  "___dep_tg_catcher_start",
-);
-app.post("/api/truemoney/redeem", requireAuth, async (req, res) => {
-  try {
-    const { url, phone } = req.body;
-    if (!url || !phone)
-      return res.status(400).json({ error: "Missing parameters" });
-    const result = await twApi(url, phone);
-    res.json(result);
-  } catch (err) {
-    res.status(500).json({ error: err.message || String(err) });
-  }
-});
-const discordTokenOnSessions = new Map();
-function pushDiscordOnLog(token, msg) {
-  const sess = discordTokenOnSessions.get(token);
-  if (sess) {
-    sess.logs.push(`[${new Date().toLocaleTimeString()}] ${msg}`);
-    if (sess.logs.length > 50) sess.logs.shift();
-  }
-}
-__name(pushDiscordOnLog, "pushDiscordOnLog");
-app.post("/api/discord/token-on/start", requireAuth, async (req, res) => {
-  return res
-    .status(410)
-    .json({ error: "This feature has been deactivated for security reasons." });
-});
-app.post("/api/discord/token-on/status", requireAuth, async (req, res) => {
-  return res.json({
-    status: "none",
-    logs: [
-      "\u0E23\u0E30\u0E1A\u0E1A\u0E1B\u0E34\u0E14\u0E43\u0E0A\u0E49\u0E07\u0E32\u0E19",
-    ],
-  });
-});
-app.post("/api/discord/token-on/stop", requireAuth, async (req, res) => {
-  return res.json({ success: true });
-});
-const ___dep_discord_token_on = __name(
-  async (req, res) => {},
-  "___dep_discord_token_on",
-);
-const discordSessions = new Map();
-const discordTokenHashToSessionId = new Map();
-function pushDiscordLog(sessionId, msg) {
-  const sess = discordSessions.get(sessionId);
-  if (sess) {
-    sess.logs.push(`[${new Date().toLocaleTimeString()}] ${msg}`);
-    if (sess.logs.length > 50) sess.logs.shift();
-  }
-}
-__name(pushDiscordLog, "pushDiscordLog");
-app.post("/api/discord/catcher/request", requireAuth, async (req, res) => {
-  return res
-    .status(410)
-    .json({
-      error:
-        "This feature has been permanently deactivated for security reasons.",
-    });
-});
-app.post("/api/discord/catcher/status", async (req, res) => {
-  return res
-    .status(410)
-    .json({
-      error:
-        "This feature has been permanently deactivated for security reasons.",
-    });
-});
-app.post("/api/discord/catcher/stop", requireAuth, async (req, res) => {
-  return res
-    .status(410)
-    .json({
-      error:
-        "This feature has been permanently deactivated for security reasons.",
-    });
-});
-app.post("/api/discord/hypesquad", requireAuth, async (req, res) => {
-  return res
-    .status(410)
-    .json({ error: "This feature has been deactivated for security reasons." });
-});
-app.delete("/api/discord/hypesquad", requireAuth, async (req, res) => {
-  return res
-    .status(410)
-    .json({ error: "This feature has been deactivated for security reasons." });
-});
 app.use((err: any, req: any, res: any, next: any) => {
   if (err instanceof AppError) {
     return res.status(err.statusCode).json({
@@ -3887,26 +2990,19 @@ app.use((err: any, req: any, res: any, next: any) => {
     error: 'Internal server error'
   });
 });
-if (!process.env.VERCEL) {
+if (true) {
   (async () => {
     if (process.env.NODE_ENV !== "production") {
       console.log("Initializing Vite middleware (async)...");
       try {
-        const { createServer: createViteServer } = await import("vite").then(
-          (s) => {
-            const e = "default";
-            return s[e] && typeof s[e] == "object" && "__esModule" in s[e]
-              ? s[e]
-              : s;
-          },
-        );
+        const { createServer: createViteServer } = await import("vite");
         const vite = await createViteServer({
           server: { middlewareMode: true },
           appType: "spa",
         });
         app.use(vite.middlewares);
         console.log("Vite middleware attached.");
-      } catch (err) {
+      } catch (err: any) {
         console.error("Failed to initialize Vite middleware:", err);
       }
     } else {
@@ -3914,7 +3010,7 @@ if (!process.env.VERCEL) {
       app.use(
         express.static(distPath, {
           maxAge: "1y",
-          setHeaders: __name((res, path2) => {
+          setHeaders: __name((res: any, path2: any) => {
             if (path2.endsWith(".html")) {
               res.setHeader("Cache-Control", "no-cache");
             } else {
@@ -3937,7 +3033,7 @@ if (!process.env.VERCEL) {
           } else {
             res.status(404).send("Not Found");
           }
-        } catch (e) {
+        } catch (e: any) {
           console.error("Error reading index.html:", e);
           res.status(500).send("Internal Server Error");
         }
@@ -3945,13 +3041,13 @@ if (!process.env.VERCEL) {
     }
     try {
       await initializeAdminDb();
-    } catch (e) {
+    } catch (e: any) {
       console.error("Failed to initialize missing columns on startup:", e);
     }
     const server = app.listen(3e3, "0.0.0.0", () => {
       logger.info(`[Server] Listening on http://0.0.0.0:3000`);
     });
-    const gracefulShutdown = __name((signal) => {
+    const gracefulShutdown = __name((signal: any) => {
       logger.info(`[Server] Received ${signal}. Shutting down immediately...`);
       process.exit(0);
     }, "gracefulShutdown");

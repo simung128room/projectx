@@ -39,7 +39,7 @@ async function decompressStock(data: any): Promise<any[]> {
     try {
       data = JSON.parse(data);
       compData = data;
-    } catch (e) {
+    } catch (e: any) {
       console.error("Caught error:", e);
     }
   }
@@ -68,7 +68,7 @@ async function decompressStock(data: any): Promise<any[]> {
         Buffer.from(compData.__compressed, "base64"),
       );
       return JSON.parse(buffer.toString("utf-8"));
-    } catch (e) {
+    } catch (e: any) {
       console.error("decompressStock error:", e);
       return [];
     }
@@ -102,7 +102,7 @@ export function createProductsRouter({
     try {
       const data = await getCachedCollection("products", 1e4, res, req);
       if (data) {
-        const processedData = data.map((item) => {
+        const processedData = data.map((item: any) => {
           const { stockData, ...publicItem } = item;
           return publicItem;
         });
@@ -261,8 +261,8 @@ export function createProductsRouter({
           input: fileStream,
           crlfDelay: Infinity,
         });
-        let currentLines = [];
-        const chunkedItems = [];
+        let currentLines: string[] = [];
+        const chunkedItems: any[] = [];
         for await (const line of rl) {
           const trimmed = line.trim();
           if (trimmed.length > 0) {
@@ -285,7 +285,7 @@ export function createProductsRouter({
           .collection("products")
           .doc(req.params.id);
         let finalProductData = {};
-        await admin.firestore().runTransaction(async (t) => {
+        await admin.firestore().runTransaction(async (t: any) => {
           const doc = await t.get(docRef);
           if (!doc.exists) {
             throw new Error("NOT_FOUND");
@@ -346,7 +346,7 @@ export function createProductsRouter({
       }
       const docRef = admin.firestore().collection("products").doc(req.params.id);
       let finalProductData = {};
-      await admin.firestore().runTransaction(async (t) => {
+      await admin.firestore().runTransaction(async (t: any) => {
         const doc = await t.get(docRef);
         if (!doc.exists) {
           throw new Error("NOT_FOUND");
@@ -469,13 +469,13 @@ export function createProductsRouter({
       let finalData: any;
       let deltaBefore: any = {};
       let deltaAfter: any = {};
-      await admin.firestore().runTransaction(async (t) => {
+      await admin.firestore().runTransaction(async (t: any) => {
         const currentDoc = await t.get(docRef);
         if (!currentDoc.exists) {
           throw new Error("NOT_FOUND");
         }
         const existingData = currentDoc.data() || {};
-        Object.keys(sanitizedUpdates).forEach((k) => {
+        Object.keys(sanitizedUpdates).forEach((k: any) => {
           if (k !== "_version" && sanitizedUpdates[k] !== existingData[k]) {
             deltaBefore[k] = existingData[k];
             deltaAfter[k] = sanitizedUpdates[k];

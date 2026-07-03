@@ -34,7 +34,7 @@ async function findPurchaseByWebClaimKey(key: string) {
         return { id: doc.id, ...data, secretData: secret };
       }
     }
-  } catch (err) {
+  } catch (err: any) {
     console.error("Error finding purchase by claim key (Web):", err);
   }
   return null;
@@ -68,7 +68,7 @@ async function acquireRedisLock(redis: any, lockKey: string, ttlMs = 15e3) {
   try {
     const result = await redis.set(lockKey, "locked", "PX", ttlMs, "NX");
     return result === "OK";
-  } catch (err) {
+  } catch (err: any) {
     return true;
   }
 }
@@ -194,7 +194,7 @@ export function createPaymentsRouter({
                 .get();
 
               await Promise.all(
-                oldKeysSnap.docs.map((doc) =>
+                oldKeysSnap.docs.map((doc: any) =>
                   admin
                     .firestore()
                     .collection("idempotency_keys")
@@ -211,7 +211,7 @@ export function createPaymentsRouter({
               .get();
 
             if (recentIdempSnap.docs.length >= 10) {
-              const docs = recentIdempSnap.docs.map((d) => ({
+              const docs = recentIdempSnap.docs.map((d: any) => ({
                 id: d.id,
                 ...d.data(),
               }));
@@ -222,7 +222,7 @@ export function createPaymentsRouter({
               );
               const toDelete = docs.slice(0, docs.length - 8);
               await Promise.all(
-                toDelete.map((doc) =>
+                toDelete.map((doc: any) =>
                   admin
                     .firestore()
                     .collection("idempotency_keys")
@@ -232,12 +232,12 @@ export function createPaymentsRouter({
               );
             }
           }
-        } catch (err) {
+        } catch (err: any) {
           console.error("[Idempotency] Error handling limit:", err);
         }
       }
 
-      const result: any = await admin.firestore().runTransaction(async (t) => {
+      const result: any = await admin.firestore().runTransaction(async (t: any) => {
         let idempRef;
         let idempPromise = Promise.resolve<any>(null);
         if (idempotencyKey) {
@@ -413,7 +413,7 @@ export function createPaymentsRouter({
 
         const keysList = productData.isPreOrder
           ? []
-          : claimedItems.map((k) => String(k).trim()).filter(Boolean);
+          : claimedItems.map((k: any) => String(k).trim()).filter(Boolean);
 
         const licenseKeyHashes = keysList.map((k) =>
           crypto.createHash("sha256").update(k).digest("hex")
@@ -512,7 +512,7 @@ export function createPaymentsRouter({
       let q = adminDb.collection("topups");
       if (req.isAdmin) {
         const snapshot = await q.limit(100).get();
-        let data = snapshot.docs.map((doc) => ({ dbId: doc.id, ...doc.data() }));
+        let data = snapshot.docs.map((doc: any) => ({ dbId: doc.id, ...doc.data() }));
         data.sort(
           (a: any, b: any) =>
             new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime()
@@ -605,7 +605,7 @@ export function createPaymentsRouter({
         return res.status(401).json({ error: "Unauthorized" });
       }
       const snapshot = await q.get();
-      let data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      let data = snapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() }));
       if (needsSortInMemory) {
         data.sort((a: any, b: any) => {
           const dateA = new Date(a.used_at || 0).getTime();
@@ -692,7 +692,7 @@ export function createPaymentsRouter({
       voucherRef = admin.firestore().collection("vouchers").doc(voucherHash);
 
       try {
-        await admin.firestore().runTransaction(async (t) => {
+        await admin.firestore().runTransaction(async (t: any) => {
           const doc = await t.get(voucherRef);
           if (doc.exists) {
             throw new Error("DUPLICATE_VOUCHER");
@@ -748,7 +748,7 @@ export function createPaymentsRouter({
         const amount = parseFloat(result.data?.amount || 0);
         if (isNaN(amount) || amount <= 0) {
           if (voucherRef) {
-            await voucherRef.delete().catch((e) => console.error(e));
+            await voucherRef.delete().catch((e: any) => console.error(e));
           }
           return res.json({
             success: false,
@@ -763,7 +763,7 @@ export function createPaymentsRouter({
             let finalBalance = 0;
             let topupDoc: any = null;
 
-            await admin.firestore().runTransaction(async (t) => {
+            await admin.firestore().runTransaction(async (t: any) => {
               const uDoc = await t.get(userRef);
               if (uDoc.exists) {
                 const currentBalance = uDoc.data().balance || 0;
@@ -816,14 +816,14 @@ export function createPaymentsRouter({
         const errorMsg = result.message || "ไม่สามารถรับเงินได้ (สถานะไม่สำเร็จ)";
         console.warn(`[TrueWallet] Failed: ${errorMsg}`);
         if (voucherRef) {
-          await voucherRef.delete().catch((e) => console.error(e));
+          await voucherRef.delete().catch((e: any) => console.error(e));
         }
         return res.json({ success: false, error: errorMsg });
       }
     } catch (error: any) {
       console.error("[TrueWallet] Gateway Error:", error.message);
       if (voucherRef) {
-        await voucherRef.delete().catch((e) => console.error(e));
+        await voucherRef.delete().catch((e: any) => console.error(e));
       }
       if (error.response) {
         const result = error.response.data;
@@ -990,7 +990,7 @@ export function createPaymentsRouter({
                 error: "สลิปนี้เก่าเกินไป ระบบรับเฉพาะสลิปที่มีอายุไม่เกิน 7 วันเท่านั้น",
               });
             }
-          } catch (e) {
+          } catch (e: any) {
             console.error("Caught error parsing slip date:", e);
             return res.json({
               success: false,
@@ -1027,7 +1027,7 @@ export function createPaymentsRouter({
 
         if (transRef) {
           try {
-            await admin.firestore().runTransaction(async (t) => {
+            await admin.firestore().runTransaction(async (t: any) => {
               const docRef = admin.firestore().collection("slips").doc(transRef);
               const existingRef = await t.get(docRef);
               if (existingRef.exists) {
@@ -1056,7 +1056,7 @@ export function createPaymentsRouter({
             let finalBalance = 0;
             let topupDoc: any = null;
 
-            await admin.firestore().runTransaction(async (t) => {
+            await admin.firestore().runTransaction(async (t: any) => {
               const uDoc = await t.get(userRef);
               if (uDoc.exists) {
                 const currentBalance = uDoc.data().balance || 0;
@@ -1163,7 +1163,7 @@ export function createPaymentsRouter({
       let rankToGive = "premium";
       let expireDate = new Date();
 
-      await admin.firestore().runTransaction(async (t) => {
+      await admin.firestore().runTransaction(async (t: any) => {
         const docSnap = await t.get(keyDocRef);
         if (!docSnap.exists) throw new Error("Key not found");
         const docData = docSnap.data();
@@ -1287,7 +1287,7 @@ export function createPaymentsRouter({
       let rankToGive = "premium";
       let expireDate = new Date();
 
-      await admin.firestore().runTransaction(async (t) => {
+      await admin.firestore().runTransaction(async (t: any) => {
         const docSnap = await t.get(keyDocRef);
         if (!docSnap.exists) throw new Error("Key not found");
         const docData = docSnap.data();

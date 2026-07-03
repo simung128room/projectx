@@ -145,13 +145,13 @@ export function createUsersRouter({
         const usersRef = admin.firestore().collection("users");
         if (parsedBody.email) {
           const emailSnap = await usersRef.where("email", "==", parsedBody.email).get();
-          if (!emailSnap.empty && emailSnap.docs.some(doc => doc.id !== uid)) {
+          if (!emailSnap.empty && emailSnap.docs.some((doc: any) => doc.id !== uid)) {
             return res.status(400).json({ error: "อีเมลนี้ถูกใช้งานแล้ว" });
           }
         }
         if (parsedBody.username) {
           const usernameSnap = await usersRef.where("username", "==", parsedBody.username).get();
-          if (!usernameSnap.empty && usernameSnap.docs.some(doc => doc.id !== uid)) {
+          if (!usernameSnap.empty && usernameSnap.docs.some((doc: any) => doc.id !== uid)) {
             return res.status(400).json({ error: "ชื่อผู้ใช้นี้ถูกใช้งานแล้ว" });
           }
         }
@@ -219,7 +219,7 @@ export function createUsersRouter({
       if (req.user.uid !== uid && !req.isAdmin) {
         return res.status(403).json({ error: "Forbidden" });
       }
-      await supabaseAdmin.auth.admin.deleteUser(uid).catch((e) => console.error(e));
+      await supabaseAdmin.auth.admin.deleteUser(uid).catch((e: any) => console.error(e));
       await admin.firestore().collection("users").doc(uid).delete();
       invalidateUserTokenCache(uid);
       invalidateCache("users");

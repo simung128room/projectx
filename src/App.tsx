@@ -129,8 +129,6 @@ axios.interceptors.response.use(
 
 type SupabaseUser = any;
 import { Turnstile } from "@marsidev/react-turnstile";
-import { Analytics } from "@vercel/analytics/react";
-import { SpeedInsights } from "@vercel/speed-insights/react";
 import { useToastStore } from "./lib/toastStore";
 import { ToastContainer } from "./components/ui/Toast";
 import { GlobalErrorBoundary } from "./components/GlobalErrorBoundary";
@@ -2177,11 +2175,11 @@ function AppContent() {
                           siteSettings={siteSettings}
                           purchaseHistory={purchaseHistory}
                           setActiveView={setActiveView}
-                          onProductClick={(id) => {
+                          onProductClick={(id: any) => {
                             setSelectedProductId(id);
                             setActiveView("product_detail");
                           }}
-                          onSelectCategory={(cat) => {
+                          onSelectCategory={(cat: any) => {
                             setSelectedCategory(cat);
                             setActiveView("category_products");
                           }}
@@ -2481,8 +2479,6 @@ export default function App() {
           <Route path="*" element={<AppContent />} />
         </Routes>
       </BrowserRouter>
-      <Analytics />
-      <SpeedInsights />
       <ToastContainer />
     </GlobalErrorBoundary>
   );

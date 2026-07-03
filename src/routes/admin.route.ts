@@ -51,7 +51,7 @@ export function createAdminRouter({
       let users = [];
       if (!search) {
         const snapshot = await db.collection("users").limit(limit).offset(offset).get();
-        users = snapshot.docs.map((doc) => ({
+        users = snapshot.docs.map((doc: any) => ({
           id: doc.id,
           uid: doc.id,
           ...doc.data(),
@@ -60,7 +60,7 @@ export function createAdminRouter({
         // Firestore limit memory load for search
         const snapshot = await db.collection("users").get();
         
-        const allUsers = snapshot.docs.map((doc) => ({
+        const allUsers = snapshot.docs.map((doc: any) => ({
           id: doc.id,
           uid: doc.id,
           ...doc.data(),
@@ -190,7 +190,7 @@ export function createAdminRouter({
       await admin.firestore().collection("users").doc(uid).delete();
       
       // Attempt delete from Supabase Auth
-      await supabaseAdmin.auth.admin.deleteUser(uid).catch((e) => {
+      await supabaseAdmin.auth.admin.deleteUser(uid).catch((e: any) => {
         console.error("Supabase user deletion failed, continuing...", e.message || e);
       });
 
@@ -229,7 +229,7 @@ export function createAdminRouter({
         .offset(offset)
         .get();
 
-      const logs = snapshot.docs.map((doc) => ({
+      const logs = snapshot.docs.map((doc: any) => ({
         id: doc.id,
         ...doc.data(),
       }));
@@ -289,9 +289,9 @@ export function createAdminRouter({
         .collection("api_keys")
         .limit(500)
         .get();
-      const keys = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      const keys = snapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() }));
       keys.sort(
-        (a, b) =>
+        (a: any, b: any) =>
           new Date(b.created_at || 0).getTime() -
           new Date(a.created_at || 0).getTime(),
       );
