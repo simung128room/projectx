@@ -162,16 +162,16 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
         <div className="flex items-center gap-4">
           <button 
             onClick={onBack}
-            className="p-3 bg-[#11131a] hover:bg-[#161a26] border border-[#1f293d] rounded-xl transition-colors group cursor-pointer outline-none"
+            className="p-2.5 bg-[#121212] hover:bg-white/[0.04] border border-white/[0.08] rounded-lg transition-colors group cursor-pointer outline-none"
             aria-label="กลับหน้าหลัก"
           >
-            <ArrowLeft className="w-5 h-5 text-zinc-400 group-hover:text-white" />
+            <ArrowLeft className="w-5 h-5 text-[#888888] group-hover:text-white" />
           </button>
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight flex items-center gap-2">
-              <Sparkles className="w-7 h-7 text-blue-500 animate-pulse" /> ซื้อไอดีเกม & บริการ
+            <h1 className="text-2xl sm:text-3xl font-semibold text-[#EDEDED] tracking-tight flex items-center gap-2">
+              <Sparkles className="w-6 h-6 text-white" /> ซื้อไอดีเกม & บริการ
             </h1>
-            <p className="text-xs sm:text-sm font-semibold text-zinc-400 mt-1">ปลอดภัย ไร้กังวล จัดส่งข้อมูลทันทีหลังทำรายการ</p>
+            <p className="text-xs sm:text-sm text-[#888888] mt-1">ปลอดภัย ไร้กังวล จัดส่งข้อมูลทันทีหลังทำรายการ</p>
           </div>
         </div>
       </div>
@@ -181,28 +181,28 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
         {/* ======================================================== */}
         {/* 1. Category Navigation (DESKTOP SIDEBAR)               */}
         {/* ======================================================== */}
-        <div className="hidden lg:flex flex-col w-[280px] bg-[#11131a] border border-[#1f293d] rounded-2xl p-5 shrink-0 shadow-[0_4px_20px_-8px_rgba(0,0,0,0.5)] sticky top-24">
-          <h2 className="text-xs font-black text-zinc-400 uppercase tracking-widest mb-4 px-2 flex items-center gap-2">
-            <SlidersHorizontal className="w-3.5 h-3.5 text-blue-500" /> เลือกหมวดหมู่
+        <div className="hidden lg:flex flex-col w-[280px] bg-[#121212] border border-white/[0.08] rounded-lg p-5 shrink-0 sticky top-24">
+          <h2 className="text-[11px] font-mono text-[#888888] uppercase tracking-wider mb-4 px-1 flex items-center gap-2">
+            <SlidersHorizontal className="w-3.5 h-3.5 text-white" /> เลือกหมวดหมู่
           </h2>
           
           <div className="space-y-1">
             {/* "All" Category Item */}
             <button
               onClick={() => handleSelectCategory('all')}
-              className={`w-full text-left flex items-center justify-between p-3.5 rounded-xl text-xs font-bold transition-all group cursor-pointer border ${
+              className={`w-full text-left flex items-center justify-between p-3 rounded-lg text-xs font-semibold transition-all group cursor-pointer border ${
                 activeCategory === 'all' 
-                  ? 'bg-blue-600/10 text-blue-400 border-blue-500/30' 
-                  : 'text-zinc-400 hover:text-white hover:bg-[#161a26] border-transparent hover:border-[#2d3748]'
+                  ? 'bg-white/[0.04] text-white border-white/[0.12]' 
+                  : 'text-zinc-400 hover:text-white hover:bg-white/[0.02] border-transparent hover:border-white/[0.06]'
               }`}
             >
               <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-lg transition-colors duration-300 ${activeCategory === 'all' ? 'bg-blue-500/20 text-blue-400' : 'bg-[#1a1c23] text-zinc-500 group-hover:bg-[#1f293d] group-hover:text-zinc-300'}`}>
+                <div className={`p-2 rounded transition-colors duration-300 ${activeCategory === 'all' ? 'bg-white/[0.08] text-white' : 'bg-[#161616] text-[#888888] group-hover:bg-white/[0.04] group-hover:text-zinc-300'}`}>
                   <Package className="w-4 h-4" />
                 </div>
                 <span>สินค้าทั้งหมด</span>
               </div>
-              <span className={`text-[10px] px-2 py-0.5 font-bold rounded-full font-mono transition-colors duration-300 ${activeCategory === 'all' ? 'bg-blue-500/20 text-blue-400' : 'bg-[#1a1c23] text-zinc-500'}`}>
+              <span className={`text-[10px] px-2 py-0.5 font-semibold rounded font-mono transition-colors duration-300 ${activeCategory === 'all' ? 'bg-white/[0.08] text-white' : 'bg-[#161616] text-[#888888]'}`}>
                 {getProductCountText('all')}
               </span>
             </button>
@@ -215,19 +215,19 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
                 <button
                   key={c.id || c.name}
                   onClick={() => handleSelectCategory(c.id || c.name || c.title)}
-                  className={`w-full text-left flex items-center justify-between p-3.5 rounded-xl text-xs font-bold transition-all group cursor-pointer border ${
+                  className={`w-full text-left flex items-center justify-between p-3 rounded-lg text-xs font-semibold transition-all group cursor-pointer border ${
                     isActive 
-                      ? 'bg-blue-600/10 text-blue-400 border-blue-500/30' 
-                      : 'text-zinc-400 hover:text-white hover:bg-[#161a26] border-transparent hover:border-[#2d3748]'
+                      ? 'bg-white/[0.04] text-white border-white/[0.12]' 
+                      : 'text-zinc-400 hover:text-white hover:bg-white/[0.02] border-transparent hover:border-white/[0.06]'
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <div className={`p-2 rounded-lg transition-colors duration-300 ${isActive ? 'bg-blue-500/20 text-blue-400' : 'bg-[#1a1c23] text-zinc-500 group-hover:bg-[#1f293d] group-hover:text-zinc-300'}`}>
+                    <div className={`p-2 rounded transition-colors duration-300 ${isActive ? 'bg-white/[0.08] text-white' : 'bg-[#161616] text-[#888888] group-hover:bg-white/[0.04] group-hover:text-zinc-300'}`}>
                       {getCategoryIcon(c.title || c.name)}
                     </div>
                     <span className="truncate max-w-[130px]">{c.title}</span>
                   </div>
-                  <span className={`text-[10px] px-2 py-0.5 font-bold rounded-full font-mono transition-colors duration-300 ${isActive ? 'bg-blue-500/20 text-blue-400' : 'bg-[#1a1c23] text-zinc-500'}`}>
+                  <span className={`text-[10px] px-2 py-0.5 font-semibold rounded font-mono transition-colors duration-300 ${isActive ? 'bg-white/[0.08] text-white' : 'bg-[#161616] text-[#888888]'}`}>
                     {count}
                   </span>
                 </button>
@@ -236,11 +236,11 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
           </div>
 
           {/* Quick Notice Banner inside Sidebar */}
-          <div className="mt-8 bg-[#161a26] border border-[#1f293d] p-4 rounded-xl text-left">
-            <h4 className="text-[11px] font-black text-white flex items-center gap-1.5 mb-1.5 uppercase tracking-wide">
-              <Info className="w-3.5 h-3.5 text-blue-500" /> บริการแบบออโต้
+          <div className="mt-8 bg-[#161616] border border-white/[0.08] p-4 rounded-lg text-left">
+            <h4 className="text-[11px] font-mono text-white flex items-center gap-1.5 mb-1.5 uppercase tracking-wide">
+              <Info className="w-3.5 h-3.5 text-white" /> บริการแบบออโต้
             </h4>
-            <p className="text-[10px] leading-relaxed text-zinc-400 font-semibold">
+            <p className="text-[11px] leading-relaxed text-[#888888]">
               เว็บไซต์ของเราจัดจำหน่ายผ่านระบบอัตโนมัติ 100% ชำระเงินแล้วสามารถรอการแสดงผลและจัดส่งข้อมูลรหัสลับได้ทันทีทางเมนูประวัติการสั่งซื้อ
             </p>
           </div>
@@ -253,10 +253,10 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
           {/* Scroll item "All" */}
           <button
             onClick={() => handleSelectCategory('all')}
-            className={`flex items-center gap-2 px-5 py-3 rounded-full text-xs font-bold whitespace-nowrap transition-all border cursor-pointer ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all border cursor-pointer ${
               activeCategory === 'all'
-                ? 'bg-[#161a26] text-blue-500 border-[#2d3748] shadow-[0_4px_14px_rgba(59,130,246,0.15)] hover:bg-[#1f293d]'
-                : 'bg-[#11131a] text-zinc-400 border-[#1f293d] hover:border-[#2d3748]'
+                ? 'bg-white text-black border-transparent hover:bg-neutral-200'
+                : 'bg-[#121212] text-zinc-400 border-white/[0.08] hover:border-white/[0.12]'
             }`}
           >
             <Package className="w-3.5 h-3.5" />
@@ -271,10 +271,10 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
               <button
                 key={c.id || c.name}
                 onClick={() => handleSelectCategory(c.id || c.name || c.title)}
-                className={`flex items-center gap-2 px-5 py-3 rounded-full text-xs font-bold whitespace-nowrap transition-all border cursor-pointer ${
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all border cursor-pointer ${
                   isActive
-                    ? 'bg-[#161a26] text-blue-500 border-[#2d3748] shadow-[0_4px_14px_rgba(59,130,246,0.15)] hover:bg-[#1f293d]'
-                    : 'bg-[#11131a] text-zinc-400 border-[#1f293d] hover:border-[#2d3748]'
+                    ? 'bg-white text-black border-transparent hover:bg-neutral-200'
+                    : 'bg-[#121212] text-zinc-400 border-white/[0.08] hover:border-white/[0.12]'
                 }`}
               >
                 {getCategoryIcon(c.title || c.name)}
@@ -291,17 +291,17 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
         <div className="flex-1 w-full flex flex-col">
           
           {/* Filters, Search Inputs, Layout */}
-          <div className="bg-[#11131a] border border-[#1f293d] rounded-2xl p-4 sm:p-5 mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-[0_4px_20px_-8px_rgba(0,0,0,0.5)] w-full">
+          <div className="bg-[#121212] border border-white/[0.08] rounded-lg p-4 sm:p-5 mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4 w-full">
             
             {/* Left: Input Text Search */}
             <div className="relative w-full md:max-w-md group">
-              <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 group-focus-within:text-blue-500 transition-colors" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 group-focus-within:text-white transition-colors" />
               <input
                 type="text"
                 placeholder="ค้นหาสินค้า..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-[#161a26] border border-[#1f293d] text-xs font-bold py-3 pl-12 pr-10 rounded-full placeholder:text-zinc-500 outline-none focus:border-[#2d3748] transition-all text-white h-10 shadow-[0_2px_8px_-4px_rgba(0,0,0,0.4)]"
+                className="w-full bg-[#161616] border border-white/[0.08] text-xs font-medium py-3 pl-11 pr-10 rounded-lg placeholder:text-zinc-500 outline-none focus:border-white/[0.18] transition-all text-white h-10"
               />
               {searchQuery && (
                 <button
@@ -319,16 +319,16 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
               {/* Only in Stock Checkbox */}
               <button
                 onClick={() => setShowOnlyInStock(!showOnlyInStock)}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer outline-none ${
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border text-xs font-semibold transition-all cursor-pointer outline-none ${
                   showOnlyInStock 
-                    ? 'bg-[#161a26] border-[#2d3748] text-blue-500 shadow-sm' 
-                    : 'bg-[#161a26] border-[#1f293d] text-zinc-500 hover:border-[#2d3748] hover:text-white'
+                    ? 'bg-white text-black border-transparent hover:bg-neutral-200' 
+                    : 'bg-[#161616] border-white/[0.08] text-zinc-400 hover:border-white/[0.12] hover:text-white'
                 }`}
               >
                 {showOnlyInStock ? (
-                  <CheckCircle className="w-4 h-4 text-blue-500 shrink-0" />
+                  <CheckCircle className="w-4 h-4 text-black shrink-0" />
                 ) : (
-                  <div className="w-4 h-4 border-2 border-zinc-500 rounded-md shrink-0" />
+                  <div className="w-4 h-4 border border-[#888888] rounded shrink-0" />
                 )}
                 <span>เฉพาะพร้อมส่ง</span>
               </button>
@@ -338,7 +338,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
-                  className="bg-[#161a26] border border-[#1f293d] text-xs font-bold px-4 py-2.5 pr-9 rounded-xl outline-none focus:border-[#2d3748] transition-all text-white cursor-pointer appearance-none"
+                  className="bg-[#161616] border border-white/[0.08] text-xs font-semibold px-4 py-2.5 pr-9 rounded-lg outline-none focus:border-white/[0.18] transition-all text-white cursor-pointer appearance-none"
                 >
                   <option value="recommend">แนะนำล่าสุด</option>
                   <option value="price_asc">ราคา: ประหยัดสุด</option>

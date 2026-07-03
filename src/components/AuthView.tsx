@@ -161,12 +161,12 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
   };
 
   return (
-    <div className="min-h-[calc(100vh-52px)] w-full flex items-center justify-center p-4 sm:p-8 relative overflow-hidden bg-[#050505] text-white font-sans">
+    <div className="min-h-[calc(100vh-52px)] w-full flex items-center justify-center p-4 sm:p-8 relative overflow-hidden bg-[#0A0A0A] text-white font-sans">
       <motion.div 
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-        className="w-full max-w-[420px] bg-[#0a0a0a] p-8 sm:p-10 rounded-[32px] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] border border-zinc-800 relative z-10 mx-auto"
+        className="w-full max-w-[400px] bg-[#121212] p-8 sm:p-10 rounded-lg border border-white/[0.08] relative z-10 mx-auto"
       >
         {/* Header */}
         <div className="mb-8 flex justify-between items-start">
@@ -215,7 +215,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
                     type="text" 
                     value={authUsername}
                     onChange={(e) => setAuthUsername(e.target.value)}
-                    className="w-full pl-[42px] pr-4 py-3.5 bg-zinc-900/50 hover:bg-zinc-900/80 border border-zinc-800 focus:border-zinc-700 focus:bg-[#111] rounded-2xl outline-none transition-all text-white text-[15px] font-medium"
+                    className="w-full pl-[40px] pr-4 py-2.5 bg-[#161616] border border-white/[0.08] focus:border-white/[0.18] rounded-lg outline-none transition-all text-white text-[14px] font-medium"
                     required
                   />
                 </div>
@@ -237,7 +237,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
                       type="email" 
                       value={authEmail}
                       onChange={(e) => setAuthEmail(e.target.value)}
-                      className="w-full pl-[42px] pr-4 py-3.5 bg-zinc-900/50 hover:bg-zinc-900/80 border border-zinc-800 focus:border-zinc-700 focus:bg-[#111] rounded-2xl outline-none transition-all text-white text-[15px] font-medium"
+                      className="w-full pl-[40px] pr-4 py-2.5 bg-[#161616] border border-white/[0.08] focus:border-white/[0.18] rounded-lg outline-none transition-all text-white text-[14px] font-medium"
                       required
                     />
                   </div>
@@ -260,7 +260,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
                       type="text" 
                       value={otp}
                       onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                      className="w-full pl-[42px] pr-4 py-3.5 bg-zinc-900/50 hover:bg-zinc-900/80 border border-zinc-800 focus:border-blue-500/50 focus:bg-[#111] rounded-2xl outline-none transition-all text-white text-[15px] text-center tracking-[0.25em] font-medium"
+                      className="w-full pl-[40px] pr-4 py-2.5 bg-[#161616] border border-white/[0.08] focus:border-white/[0.18] rounded-lg outline-none transition-all text-white text-[14px] text-center tracking-[0.25em] font-medium"
                       required
                       maxLength={6}
                       minLength={6}
@@ -284,7 +284,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
                     type={showPassword ? "text" : "password"}
                     value={authPassword}
                     onChange={(e) => setAuthPassword(e.target.value)}
-                    className="w-full pl-[42px] pr-12 py-3.5 bg-zinc-900/50 hover:bg-zinc-900/80 border border-zinc-800 focus:border-zinc-700 focus:bg-[#111] rounded-2xl outline-none transition-all text-white text-[15px] font-medium"
+                    className="w-full pl-[40px] pr-12 py-2.5 bg-[#161616] border border-white/[0.08] focus:border-white/[0.18] rounded-lg outline-none transition-all text-white text-[14px] font-medium"
                     required
                     minLength={6}
                   />
@@ -333,7 +333,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
                       type={showConfirmPassword ? "text" : "password"}
                       value={authConfirmPassword}
                       onChange={(e) => setAuthConfirmPassword(e.target.value)}
-                      className="w-full pl-[42px] pr-12 py-3.5 bg-zinc-900/50 hover:bg-zinc-900/80 border border-zinc-800 focus:border-zinc-700 focus:bg-[#111] rounded-2xl outline-none transition-all text-white text-[15px] font-medium"
+                      className="w-full pl-[40px] pr-12 py-2.5 bg-[#161616] border border-white/[0.08] focus:border-white/[0.18] rounded-lg outline-none transition-all text-white text-[14px] font-medium"
                       required
                       minLength={6}
                     />
@@ -366,7 +366,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
           <button 
             type="submit" 
             disabled={authLoading}
-            className="w-full mt-6 py-[14px] rounded-2xl font-bold bg-[#ffe300] hover:bg-[#ffe300]/90 text-black disabled:opacity-50 transition-colors text-[15px] flex justify-center items-center gap-2 cursor-pointer shadow-[0_0_20px_rgba(255,227,0,0.15)]"
+            className="w-full mt-6 py-2.5 rounded-lg font-semibold bg-white hover:bg-neutral-200 text-black disabled:opacity-50 transition-colors text-sm flex justify-center items-center gap-2 cursor-pointer"
           >
             {authLoading ? (
               <span className="w-5 h-5 border-2 border-black/20 border-t-black rounded-full animate-spin" />
@@ -387,7 +387,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
 
             {/* Social Logins */}
             <div className="flex justify-center gap-4">
-              <button onClick={handleSocialLogin} type="button" className="w-[52px] h-[52px] flex items-center justify-center bg-[#111] hover:bg-zinc-900 border border-zinc-800 rounded-full transition-colors cursor-pointer text-white shrink-0">
+              <button onClick={handleSocialLogin} type="button" className="w-[44px] h-[44px] flex items-center justify-center bg-[#161616] hover:bg-white/[0.04] border border-white/[0.08] rounded-lg transition-colors cursor-pointer text-white shrink-0">
                 <svg className="w-[18px] h-[18px]" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
                   <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
@@ -396,13 +396,13 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
                 </svg>
               </button>
               
-              <button onClick={handleSocialLogin} type="button" className="w-[52px] h-[52px] flex items-center justify-center bg-[#111] hover:bg-zinc-900 border border-zinc-800 rounded-full transition-colors cursor-pointer text-white shrink-0">
+              <button onClick={handleSocialLogin} type="button" className="w-[44px] h-[44px] flex items-center justify-center bg-[#161616] hover:bg-white/[0.04] border border-white/[0.08] rounded-lg transition-colors cursor-pointer text-white shrink-0">
                 <svg className="w-[18px] h-[18px]" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" fill="#1877F2"/>
                 </svg>
               </button>
 
-              <button onClick={handleSocialLogin} type="button" className="w-[52px] h-[52px] flex items-center justify-center bg-[#111] hover:bg-zinc-900 border border-zinc-800 rounded-full transition-colors cursor-pointer text-white shrink-0">
+              <button onClick={handleSocialLogin} type="button" className="w-[44px] h-[44px] flex items-center justify-center bg-[#161616] hover:bg-white/[0.04] border border-white/[0.08] rounded-lg transition-colors cursor-pointer text-white shrink-0">
                 <svg className="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.641-.026 2.669-1.48 3.666-2.947 1.152-1.688 1.631-3.325 1.657-3.411-.039-.013-3.182-1.22-3.182-4.857 0-3.052 2.502-4.52 2.605-4.585-1.428-2.09-3.633-2.376-4.423-2.415-2.08-.182-4.065 1.143-4.608 1.143zM15.467 4.254c.831-1.006 1.39-2.402 1.24-3.802-1.182.047-2.656.786-3.513 1.805-.76.864-1.403 2.288-1.22 3.667 1.32.102 2.662-.662 3.493-1.67z" />
                 </svg>
