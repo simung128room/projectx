@@ -62,7 +62,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onProductClic
           <span className="text-4xl font-extrabold text-foreground/10 uppercase tracking-tighter group-hover:scale-105 transition-transform duration-500">
             {(formatProductName(product.name) || "P")[0].toUpperCase()}
           </span>
-          <span className="text-[10px] font-mono text-foreground/30 uppercase tracking-wider mt-1">SUNOID</span>
+          <span className="text-[10px] font-mono text-foreground/30 uppercase tracking-wider mt-1">NEXUS</span>
         </div>
  
         {/* Diagonal "Best Seller" ribbon in image corner */}

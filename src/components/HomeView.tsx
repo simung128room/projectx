@@ -53,7 +53,7 @@ export const HomeView = (props: any) => {
           </div>
           
           <h1 className="text-4xl md:text-6xl font-semibold tracking-[-0.03em] mb-4 text-foreground leading-[1.1] font-sans">
-            Sunoid.shop
+            NexusStore
             <span className="text-muted-foreground font-sans font-normal tracking-[-0.02em] text-2xl md:text-4xl mt-3 block">
               บริการเติมเกม สะดวก ปลอดภัย ด้วยระบบอัตโนมัติ
             </span>
@@ -243,7 +243,7 @@ export const HomeView = (props: any) => {
              <div className="w-10 h-10 bg-border text-foreground rounded-lg flex items-center justify-center mb-5 border border-white/[0.04]">
                <ShieldCheck className="w-5 h-5" />
              </div>
-             <h2 className="text-xl sm:text-2xl font-semibold mb-3 text-foreground tracking-[-0.02em]">เชื่อมั่นใน Sunoid.shop</h2>
+             <h2 className="text-xl sm:text-2xl font-semibold mb-3 text-foreground tracking-[-0.02em]">เชื่อมั่นใน NexusStore</h2>
              <p className="text-sm text-muted-foreground font-normal leading-relaxed">
                ทีมงานมีประสบการณ์ดูแลระบบมายาวนานกว่า 3 ปี พร้อมดูแลแก้ไขปัญหา หากพบเจอบัคหรือปัญหาการใช้งานแจ้งทีมงานได้ทันที บริการหลังการขายเป็นเลิศ
              </p>

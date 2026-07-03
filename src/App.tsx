@@ -1786,41 +1786,8 @@ function AppContent() {
         <nav className="relative top-0 z-50 w-full bg-background/80 backdrop-blur-md border-b border-border sticky">
           <div className="container mx-auto flex h-[64px] items-center px-4 relative justify-between">
             
-            {/* Left side empty spacer to ensure absolute centering is stable and uncluttered */}
-            <div className="flex-1 hidden md:block"></div>
-
-            {/* Centered Logo with clean minimal border */}
-            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[1001]">
-              <div 
-                className="flex items-center cursor-pointer select-none group" 
-                onClick={() => { setActiveView('home'); window.scrollTo(0,0); }}
-              >
-                <img 
-                  src="https://img2.pic.in.th/IMG_7319.png" 
-                  alt="Sunoid.shop Logo" 
-                  className="h-[40px] w-[40px] md:h-[44px] md:w-[44px] rounded-full object-cover border border-border transition-transform group-hover:scale-105" 
-                />
-              </div>
-            </div>
-
-            {/* Right side controls matching screenshot exactly in a dark theme style */}
-            <div className="flex items-center gap-2.5 ml-auto z-[1001] relative">
-              {/* Globe + TH shown only when menu is open on desktop/computer */}
-              {isMobileMenuOpen && (
-                <div className="hidden md:flex items-center gap-1.5 text-foreground font-medium mr-1 select-none animate-fade-in">
-                  <Globe className="w-[16px] h-[16px] text-zinc-300" />
-                  <span className="text-[13px] text-zinc-300 font-semibold uppercase tracking-wider font-mono">TH</span>
-                </div>
-              )}
-
-              <button 
-                onClick={() => setShowSearchPopup(true)}
-                className="text-muted-foreground hover:text-foreground transition-all duration-300 outline-none select-none relative w-9 h-9 flex items-center justify-center cursor-pointer bg-card border border-border rounded-lg hover:border-ring"
-                aria-label="ค้นหา"
-              >
-                <Search className="w-[16px] h-[16px] stroke-[2]" />
-              </button>
-              
+            {/* Left side controls (Hamburger Menu) */}
+            <div className="flex-1 flex items-center z-[1001] relative">
               <button 
                 className="text-muted-foreground hover:text-foreground transition-colors duration-300 outline-none select-none relative w-9 h-9 flex items-center justify-center cursor-pointer bg-card border border-border rounded-lg hover:border-ring" 
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -1861,7 +1828,7 @@ function AppContent() {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 15, scale: 0.95 }}
                     transition={{ duration: 0.15, ease: "easeOut" }}
-                    className="hidden md:flex absolute top-[120%] right-0 w-[240px] bg-card border border-border rounded-lg shadow-[0_12px_40px_rgba(0,0,0,0.8)] z-[1002] flex-col p-1.5 select-none overflow-hidden"
+                    className="hidden md:flex absolute top-[120%] left-0 w-[240px] bg-card border border-border rounded-lg shadow-[0_12px_40px_rgba(0,0,0,0.8)] z-[1002] flex-col p-1.5 select-none overflow-hidden"
                   >
                     {/* Subtle top glow overlay */}
                     <div className="absolute top-0 right-0 w-32 h-32 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.03),transparent_70%)] pointer-events-none" />
@@ -1954,6 +1921,31 @@ function AppContent() {
                   </motion.div>
                 )}
               </AnimatePresence>
+            </div>
+
+            {/* Centered Logo with clean minimal border */}
+            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[1001]">
+              <div 
+                className="flex items-center cursor-pointer select-none group" 
+                onClick={() => { setActiveView('home'); window.scrollTo(0,0); }}
+              >
+                <img 
+                  src="https://img2.pic.in.th/IMG_7319.png" 
+                  alt="NexusStore Logo" 
+                  className="h-[40px] w-[40px] md:h-[44px] md:w-[44px] rounded-full object-cover border border-border transition-transform group-hover:scale-105" 
+                />
+              </div>
+            </div>
+
+            {/* Right side controls matching screenshot exactly in a dark theme style */}
+            <div className="flex-1 flex items-center justify-end z-[1001] relative">
+              <button 
+                onClick={() => setShowSearchPopup(true)}
+                className="text-muted-foreground hover:text-foreground transition-all duration-300 outline-none select-none relative w-9 h-9 flex items-center justify-center cursor-pointer bg-card border border-border rounded-lg hover:border-ring"
+                aria-label="ค้นหา"
+              >
+                <Search className="w-[16px] h-[16px] stroke-[2]" />
+              </button>
             </div>
             
           </div>
@@ -2356,7 +2348,7 @@ function AppContent() {
               <div className="mb-8">
                 <div className="flex items-center gap-1.5 text-sm text-muted-foreground select-none">
                   <span className="text-[17px] font-sans font-extrabold text-foreground tracking-tight">
-                    Sunoid<span className="inline-block w-[3.5px] h-[3.5px] bg-primary mx-[1.2px] rounded-[0.8px] align-baseline"></span>shop
+                    NexusStore
                   </span>
                 </div>
               </div>
@@ -2383,7 +2375,7 @@ function AppContent() {
                 </div>
               </div>
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 text-xs text-muted-foreground pt-8 border-t border-border">
-                <p>Copyright © 2026 Sunoid.shop Inc. สงวนสิทธิ์ทุกประการ</p>
+                <p>Copyright © 2026 NexusStore Inc. สงวนสิทธิ์ทุกประการ</p>
                 <div className="flex flex-wrap items-center gap-3">
                   <button onClick={() => { setActiveView('terms'); window.scrollTo(0,0); }} className="hover:text-foreground transition-colors">ข้อกำหนดการใช้งาน</button>
                   <span>|</span>
