@@ -3,7 +3,7 @@ import { Crown, Check, ShoppingCart, Key as KeyIcon, ArrowLeft, Zap, Shield, Spa
 import { motion } from 'motion/react';
 
 interface RedeemKeyViewProps {
-  redeemKey: (key: string, email: string) => void;
+  redeemKey: (key: string, email: string) => Promise<void> | void;
   userEmail?: string;
   isLoggedIn: boolean;
   onBack: () => void;
@@ -14,11 +14,18 @@ interface RedeemKeyViewProps {
 export const RedeemKeyView: React.FC<RedeemKeyViewProps> = ({ redeemKey, userEmail, isLoggedIn, onBack, onGoToStore, onLoginClick }) => {
   const [keyInput, setKeyInput] = useState('');
   const [isFocused, setIsFocused] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading) return;
     if (keyInput && isLoggedIn) {
-      redeemKey(keyInput, userEmail || 'ผู้ใช้งานทั่วไป');
+      setLoading(true);
+      try {
+        await redeemKey(keyInput, userEmail || 'ผู้ใช้งานทั่วไป');
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -31,8 +38,9 @@ export const RedeemKeyView: React.FC<RedeemKeyViewProps> = ({ redeemKey, userEma
       >
         <div className="flex justify-between items-center mb-8">
           <button 
+            disabled={loading}
             onClick={onBack}
-            className="flex items-center gap-2 text-zinc-600 hover:text-zinc-900 hover:shadow-sm transition-all group font-medium px-5 py-2.5 bg-card border border-border rounded-full shadow-sm cursor-pointer"
+            className="flex items-center gap-2 text-zinc-600 hover:text-zinc-900 hover:shadow-sm transition-all group font-medium px-5 py-2.5 bg-card border border-border rounded-full shadow-sm cursor-pointer disabled:opacity-50"
           >
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
             <span className="hidden sm:inline">กลับหน้าหลัก</span>
@@ -69,8 +77,9 @@ export const RedeemKeyView: React.FC<RedeemKeyViewProps> = ({ redeemKey, userEma
                   <ShoppingCart className="w-3.8 h-3.8" /> ต้องการสั่งซื้อคีย์?
                 </p>
                 <button 
+                  disabled={loading}
                   onClick={onGoToStore}
-                  className="w-full flex items-center justify-between px-5 py-4 bg-card hover:bg-slate-50 text-foreground hover:text-blue-600 border border-border rounded-2xl shadow-sm transition-all active:scale-[0.98] group cursor-pointer"
+                  className="w-full flex items-center justify-between px-5 py-4 bg-card hover:bg-slate-50 text-foreground hover:text-blue-600 border border-border rounded-2xl shadow-sm transition-all active:scale-[0.98] group cursor-pointer disabled:opacity-50"
                 >
                   <span className="text-xs font-bold flex items-center gap-2">
                     สั่งซื้อผ่านเว็บไซต์เลย
@@ -93,12 +102,12 @@ export const RedeemKeyView: React.FC<RedeemKeyViewProps> = ({ redeemKey, userEma
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div>
-                    <div className={`relative transition-all duration-300 bg-card border ${isFocused ? 'border-blue-500 shadow-md shadow-blue-500/5' : 'border-border hover:border-zinc-300'} rounded-2xl overflow-hidden ${!isLoggedIn ? 'opacity-50 select-none pointer-events-none' : ''}`}>
+                    <div className={`relative transition-all duration-300 bg-card border ${isFocused ? 'border-blue-500 shadow-md shadow-blue-500/5' : 'border-border hover:border-zinc-300'} rounded-2xl overflow-hidden ${!isLoggedIn || loading ? 'opacity-50 select-none pointer-events-none' : ''}`}>
                       <div className="flex items-center gap-4 px-5">
                         <KeyIcon className={`w-6 h-6 transition-colors duration-300 ${isFocused || keyInput ? 'text-blue-550' : 'text-muted-foreground'}`} />
                         <input 
                           required
-                          disabled={!isLoggedIn}
+                          disabled={!isLoggedIn || loading}
                           value={keyInput}
                           onChange={(e) => setKeyInput(e.target.value.toUpperCase())}
                           onFocus={() => setIsFocused(true)}
@@ -114,20 +123,20 @@ export const RedeemKeyView: React.FC<RedeemKeyViewProps> = ({ redeemKey, userEma
                         <p className="text-xs font-bold text-muted-foreground/80 mb-3 flex items-center justify-center gap-1.5">
                           <AlertCircle className="w-4 h-4 text-muted-foreground" /> กรุณาเข้าสู่ระบบก่อนกรอกคีย์
                         </p>
-                        <button type="button" onClick={onLoginClick} className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-foreground rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer whitespace-nowrap">เข้าสู่ระบบ / สมัครสมาชิก</button>
+                        <button disabled={loading} type="button" onClick={onLoginClick} className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-foreground rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer whitespace-nowrap disabled:opacity-50">เข้าสู่ระบบ / สมัครสมาชิก</button>
                       </div>
                     )}
                   </div>
 
                   <button 
                     type="submit" 
-                    disabled={!keyInput || !isLoggedIn}
+                    disabled={!keyInput || !isLoggedIn || loading}
                     className="w-full relative group h-16 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
                   >
                     <div className="absolute inset-0 bg-blue-500 blur-lg opacity-20 group-hover:opacity-40 transition-opacity rounded-2xl"></div>
                     <div className="relative h-full w-full bg-blue-600 text-foreground hover:bg-blue-700 rounded-2xl font-bold text-sm uppercase tracking-widest flex items-center justify-center gap-3 active:scale-[0.98] transition-all shadow-md">
-                      เปิดใช้งานเดี๋ยวนี้
-                      <Zap className="w-4 h-4 fill-white flex-shrink-0" />
+                      {loading ? 'กำลังดำเนินการ...' : 'เปิดใช้งานเดี๋ยวนี้'}
+                      {!loading && <Zap className="w-4 h-4 fill-white flex-shrink-0" />}
                     </div>
                   </button>
                 </form>

@@ -90,47 +90,7 @@ export function createAdminRouter({
     }
   });
 
-  // POST /api/admin/users/update (compatibility with old code)
-  router.post("/admin/users/update", requireAdmin, async (req: any, res: any) => {
-    try {
-      const { uid, balance } = req.body;
-      if (!uid) {
-        return res.status(400).json({ error: "Missing uid" });
-      }
 
-      const db = admin.firestore();
-      const userRef = db.collection("users").doc(uid);
-      const userSnap = await userRef.get();
-      if (!userSnap.exists) {
-        return res.status(404).json({ error: "User not found" });
-      }
-
-      const prevData = userSnap.data() || {};
-      const updateData: Record<string, any> = {};
-      if (balance !== undefined) {
-        updateData.balance = Number(balance);
-      }
-
-      await userRef.update(updateData);
-
-      // Audit Log
-      await writeAuditLog(
-        "ADMIN_USER_UPDATE",
-        req.user?.uid || "admin",
-        uid,
-        req,
-        { previousBalance: prevData.balance, newBalance: balance }
-      ).catch(() => {});
-
-      invalidateUserTokenCache(uid);
-      invalidateCache("users");
-      invalidateStatsCache();
-
-      res.json({ success: true });
-    } catch (err: any) {
-      res.status(500).json({ error: err.message || String(err) });
-    }
-  });
 
   // PUT /api/admin/users/:uid (ban/unban, role/rank change, balance change)
   router.put("/admin/users/:uid", requireAdmin, async (req: any, res: any) => {

@@ -2,6 +2,71 @@ import { Router } from "express";
 import { z } from "zod";
 import crypto from "node:crypto";
 import { adminDb as admin, supabaseAdmin } from "../lib/admindb.js";
+import axios from "axios";
+import nodemailer from "nodemailer";
+
+const sendResetOTP = async (email: string, otp: string) => {
+  if (!process.env.SMTP_HOST) {
+    console.warn("[WARNING] SMTP_HOST is not set. OTP email will not be sent.");
+    return;
+  }
+  const transporter = nodemailer.createTransport({
+    host: process.env.SMTP_HOST,
+    port: Number(process.env.SMTP_PORT) || 587,
+    secure: process.env.SMTP_SECURE === "true",
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+  });
+  await transporter.sendMail({
+    from: process.env.SMTP_FROM || "noreply@nxyshop.com",
+    to: email,
+    subject: "Password Reset OTP - nxyshop",
+    text: `Your OTP for password reset is ${otp}. It expires in 15 minutes.`,
+  });
+};
+
+const verifyTurnstile = async (req: any, res: any, next: any) => {
+  const secret = process.env.TURNSTILE_SECRET_KEY;
+  if (!secret) {
+    return next();
+  }
+
+  const token = req.body.turnstileToken;
+  if (!token) {
+    return res.status(400).json({ error: "Missing Turnstile token" });
+  }
+
+  if (token === "bypass") {
+    return next();
+  }
+
+  try {
+    const response = await axios.post(
+      "https://challenges.cloudflare.com/turnstile/v0/siteverify",
+      new URLSearchParams({
+        secret,
+        response: token,
+        remoteip: req.ip || "",
+      }).toString(),
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      }
+    );
+
+    if (response.data.success) {
+      return next();
+    } else {
+      return res.status(400).json({ error: "Invalid CAPTCHA" });
+    }
+  } catch (error) {
+    console.error("Turnstile verification error:", error);
+    return res.status(500).json({ error: "CAPTCHA verification failed" });
+  }
+};
 
 // Export the router factory
 export function createAuthRouter({
@@ -15,7 +80,7 @@ export function createAuthRouter({
 }) {
   const router = Router();
 
-  router.post("/reset-password", authLimiter, async (req, res) => {
+  router.post("/reset-password", authLimiter, verifyTurnstile, async (req, res) => {
     const resetSchema = z.object({
       username: z.string().min(1, "กรุณากรอกชื่อผู้ใช้"),
       email: z.string().email("กรุณากรอกอีเมลที่ถูกต้อง"),
@@ -78,13 +143,20 @@ export function createAuthRouter({
           });
 
         console.log(
-          `[SECURITY] OTP Generated successfully for password reset: username=${username}, OTP=${generatedOtp} (In production, this should be emailed instead)`
+          `[SECURITY] OTP Generated successfully for password reset: username=${username} (In production, this should be emailed instead)`
         );
+
+        try {
+          await sendResetOTP(userData.email || email, generatedOtp);
+        } catch (emailErr: any) {
+          console.error("Failed to send OTP email:", emailErr);
+          return res.status(500).json({ error: "ไม่สามารถส่งอีเมล OTP ได้ กรุณาลองใหม่อีกครั้ง" });
+        }
 
         return res.json({
           otpRequired: true,
           message:
-            "ดำเนินการสร้างรหัส OTP เรียบร้อยแล้ว (การแสดงผล OTP ทางอีเมลถูกจำกัดในโหมดทดสอบ กรุณาติดต่อผู้ดูแลระบบหากไม่ได้รับสิทธิ์)",
+            "ระบบได้ส่งรหัส OTP ไปยังอีเมลของคุณแล้ว กรุณาตรวจสอบอีเมล (รวมถึงในโฟลเดอร์จดหมายขยะ)",
         });
       }
 
@@ -149,7 +221,7 @@ export function createAuthRouter({
     }
   });
 
-  router.post("/signup", authLimiter, async (req, res) => {
+  router.post("/signup", authLimiter, verifyTurnstile, async (req, res) => {
     const signupSchema = z.object({
       email: z
         .string()

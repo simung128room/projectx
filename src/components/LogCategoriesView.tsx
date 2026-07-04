@@ -66,7 +66,7 @@ export const LogCategoriesView: React.FC<LogCategoriesViewProps> = ({ userPlan, 
         const safeUrl = /^(javascript:|data:)/i.test(cleanData) ? '#' : cleanData;
         
         if (att.type === 'image') {
-          return `<img loading="lazy" src="${safeUrl}" class="w-full rounded-md mb-2" />`;
+          return `<img loading="lazy" src="${safeUrl}" alt="Attachment" class="w-full rounded-md mb-2" />`;
         }
         if (att.type === 'file') {
           return `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="block w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-foreground rounded-xl text-center font-bold text-sm mb-2 shadow-sm">ดาวน์โหลดไฟล์</a>`;

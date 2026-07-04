@@ -93,7 +93,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
 
       if (authMode === 'signup') {
         try {
-          const res = await axios.post('/api/signup', { email: generatedEmail, password: authPassword, recoveryEmail: authEmail });
+          const res = await axios.post('/api/signup', { email: generatedEmail, password: authPassword, recoveryEmail: authEmail, turnstileToken: currentToken });
           if (res.data.error) {
              throw new Error(res.data.error);
           }
@@ -110,7 +110,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
             username: authUsername,
             email: authEmail,
             newPassword: authPassword,
-            otp: otpRequired ? otp : undefined
+            otp: otpRequired ? otp : undefined, turnstileToken: currentToken
           });
           if (res.data.otpRequired) {
             setOtpRequired(true);

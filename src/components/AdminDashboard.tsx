@@ -112,9 +112,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
   const handleSaveUser = async (user: any) => {
      try {
-       await axios.post('/api/admin/users/update', {
-          uid: user.uid,
-          balance: editUserBalance
+       await axios.put(`/api/admin/users/${user.uid}`, {
+          balance: Number(editUserBalance)
        });
        setEditingUserId(null);
        onRefreshData && onRefreshData();

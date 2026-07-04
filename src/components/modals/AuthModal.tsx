@@ -56,7 +56,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
 
       if (authMode === 'signup') {
         try {
-          const res = await axios.post('/api/signup', { email: generatedEmail, password: authPassword });
+          const res = await axios.post('/api/signup', { email: generatedEmail, password: authPassword, turnstileToken: currentToken });
           if (res.data.error) {
              throw new Error(res.data.error);
           }
@@ -77,7 +77,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
       } else {
         let error;
         try {
-           await auth.auth.signInWithPassword({ email: generatedEmail, password: authPassword });
+           const res = await auth.auth.signInWithPassword({ email: generatedEmail, password: authPassword });
+           error = res.error;
         } catch(e) {
            error = e;
         }

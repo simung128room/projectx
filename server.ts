@@ -715,13 +715,31 @@ const injectUser = __name(async (req: any, res: any, next: any) => {
       } catch (error: any) {
         (global as any).userTokenPromiseCache.delete(token);
         userTokenCache.delete(token);
-        if (error && error.message && error.message.includes("expired")) {
+
+        const status = error?.status;
+        const code = error?.code;
+        const msg = error?.message ? String(error.message).toLowerCase() : "";
+        const codeStr = code ? String(code).toLowerCase() : "";
+
+        // Check if it is a standard expired token error (robust matching on code and message)
+        const isExpired = status === 401 && (codeStr.includes("expired") || msg.includes("expired"));
+
+        // Check if it is an invalid client authentication error (status 400/401, or clear invalid token patterns)
+        const isAuthError = status === 401 || status === 400 || 
+          codeStr.includes("invalid") || codeStr.includes("jwt") || codeStr.includes("signature") || codeStr.includes("session") ||
+          msg.includes("invalid") || msg.includes("jwt") || msg.includes("signature") || msg.includes("token");
+
+        if (isExpired) {
           return res.status(401).json({ error: "Token expired" });
-        } else {
+        } else if (isAuthError) {
           console.error(
             "Error verifying ID token in injectUser:",
             error.message || error,
           );
+          return res.status(401).json({ error: "Invalid token" });
+        } else {
+          console.error("Upstream or temporary error verifying ID token:", error.message || error);
+          // Fail-soft: continue as guest for non-auth errors (and do not cache this fail-soft result)
         }
       }
     }
@@ -763,7 +781,14 @@ if (process.env.ALLOWED_ORIGINS) {
 if (process.env.ALLOW_LOCALHOST === "true") {
   rawOrigins.push("http://localhost:3000");
 }
-const corsOrigins = rawOrigins.length > 0 ? rawOrigins : true;
+let corsOrigins: boolean | string[] = rawOrigins;
+if (rawOrigins.length === 0) {
+  if (process.env.NODE_ENV === "production") {
+    console.error("FATAL: ALLOWED_ORIGINS must be set in production.");
+    process.exit(1);
+  }
+  corsOrigins = true;
+}
 const corsOptions = { origin: corsOrigins, credentials: true };
 app.use(cors(corsOptions));
 app.options("*", cors(corsOptions));
@@ -1512,9 +1537,6 @@ app.post(
     }
   },
 ); */
-app.post("/api/topup/slip", mutationLimiter, requireAuth, async (req, res, next) => {
-  next();
-});
 const turnstileCache = new Map();
 app.post("/api/check", checkLimiter, requireAuth, async (req, res) => {
   return res
