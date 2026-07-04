@@ -39,7 +39,10 @@ const verifyTurnstile = async (req: any, res: any, next: any) => {
   }
 
   if (token === "bypass") {
-    return next();
+    if (process.env.NODE_ENV !== "production") {
+      return next();
+    }
+    return res.status(400).json({ error: "Bypass not allowed in production" });
   }
 
   try {
@@ -147,7 +150,7 @@ export function createAuthRouter({
         );
 
         try {
-          await sendResetOTP(userData.email || email, generatedOtp);
+          await sendResetOTP(userData.recoveryEmail || email, generatedOtp);
         } catch (emailErr: any) {
           console.error("Failed to send OTP email:", emailErr);
           return res.status(500).json({ error: "ไม่สามารถส่งอีเมล OTP ได้ กรุณาลองใหม่อีกครั้ง" });
