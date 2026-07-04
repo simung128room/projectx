@@ -156,7 +156,7 @@ export const ContactView: React.FC<ContactViewProps> = ({
       <div className="mt-8 bg-foreground border border-zinc-200 p-8 rounded-3xl shadow-sm">
         <h3 className="text-lg font-bold text-zinc-900 mb-4 border-b border-zinc-100 pb-3 flex items-center gap-2">
           <span className="w-2.5 h-2.5 bg-blue-500 rounded-full inline-block animate-pulse"></span>
-          ข้อมูลจดทะเบียนและการทำธุรกรรมที่ถูกต้อง (NexusStore Trust Center)
+          ข้อมูลจดทะเบียนและการทำธุรกรรมที่ถูกต้อง (nxyshop Trust Center)
         </h3>
         <p className="text-muted-foreground/80 text-xs leading-relaxed mb-6 font-medium">
           สโตร์ของเราอยู่ภายใต้การบริหารงานของบริษัทร่วมค้าหลักสากล จดทะเบียนอย่างถูกต้องเป็นบริษัทพันธมิตรผู้ให้บริการสินค้าดิจิทัลและรหัสคีย์ความปลอดภัย ข้อมูลธุรกรรมทั้งหมดรองรับมาตรการรักษาความปลอดภัยขั้นสูงสุด และมีการตรวจสอบความปลอดภัย (Audited) ทุกสัปดาห์
@@ -164,7 +164,7 @@ export const ContactView: React.FC<ContactViewProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs text-muted-foreground/80 font-medium">
           <div className="bg-slate-50/50 p-5 border border-zinc-100 rounded-2xl">
             <span className="text-zinc-800 font-bold block mb-1">ผู้ให้บริการ (Owner/Licensee)</span>
-            NexusStore Inc. (สยามยูนิตี้ ซัพพอร์ต ฮับ จำกัด)
+            nxyshop Inc. (สยามยูนิตี้ ซัพพอร์ต ฮับ จำกัด)
           </div>
           <div className="bg-slate-50/50 p-5 border border-zinc-100 rounded-2xl">
             <span className="text-zinc-800 font-bold block mb-1">ที่ทำงานและสำนักงานใหญ่</span>

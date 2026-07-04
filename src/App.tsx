@@ -1931,7 +1931,7 @@ function AppContent() {
               >
                 <img 
                   src="https://img2.pic.in.th/IMG_7319.png" 
-                  alt="NexusStore Logo" 
+                  alt="nxyshop Logo" 
                   className="h-[40px] w-[40px] md:h-[44px] md:w-[44px] rounded-full object-cover border border-border transition-transform group-hover:scale-105" 
                 />
               </div>
@@ -2348,7 +2348,7 @@ function AppContent() {
               <div className="mb-8">
                 <div className="flex items-center gap-1.5 text-sm text-muted-foreground select-none">
                   <span className="text-[17px] font-sans font-extrabold text-foreground tracking-tight">
-                    NexusStore
+                    nxyshop
                   </span>
                 </div>
               </div>
@@ -2375,7 +2375,7 @@ function AppContent() {
                 </div>
               </div>
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 text-xs text-muted-foreground pt-8 border-t border-border">
-                <p>Copyright © 2026 NexusStore Inc. สงวนสิทธิ์ทุกประการ</p>
+                <p>Copyright © 2026 nxyshop Inc. สงวนสิทธิ์ทุกประการ</p>
                 <div className="flex flex-wrap items-center gap-3">
                   <button onClick={() => { setActiveView('terms'); window.scrollTo(0,0); }} className="hover:text-foreground transition-colors">ข้อกำหนดการใช้งาน</button>
                   <span>|</span>
