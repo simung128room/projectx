@@ -24,11 +24,137 @@ async function getLocalTable(collection: string) {
   if (localTableCache[collection]) return localTableCache[collection];
   const fp = path.join(localDBPath, `${collection}.json`);
   if (!fs.existsSync(fp)) {
-    localTableCache[collection] = [];
+    let initialData: any[] = [];
+    if (collection === 'categories') {
+      initialData = [
+        {
+          id: "ไอดีเกมส์ยอดนิยม",
+          name: "ไอดีเกมส์ยอดนิยม",
+          title: "ไอดีเกมส์ยอดนิยม",
+          subtitle: "หมวดหมู่ไอดีเกมยอดนิยม ปลอดภัย 100%",
+          bannerUrl: "https://img2.pic.in.th/IMG_7177176d5344301b32a1.png",
+          imageUrl: "https://seeklogo.com/images/A/arena-of-valor-logo-1BDD4A191C-seeklogo.com.png"
+        },
+        {
+          id: "แอปพรีเมียม / บันเทิง",
+          name: "แอปพรีเมียม / บันเทิง",
+          title: "แอปพรีเมียม / บันเทิง",
+          subtitle: "บริการแอปพลิเคชันพรีเมียมราคาประหยัด",
+          bannerUrl: "https://img2.pic.in.th/IMG_7177176d5344301b32a1.png",
+          imageUrl: "https://upload.wikimedia.org/wikipedia/commons/f/ff/Netflix-new-icon.png"
+        }
+      ];
+    } else if (collection === 'products') {
+      initialData = [
+        {
+          id: "rov_standard",
+          name: "ไอดีเกม RoV ระดับพรีเมียม (สกินอลังการ พร้อมไต่แรงก์)",
+          price: 390,
+          originalPrice: 450,
+          category: "ไอดีเกมส์ยอดนิยม",
+          stock: 5,
+          soldCount: 142,
+          imageUrl: "https://seeklogo.com/images/A/arena-of-valor-logo-1BDD4A191C-seeklogo.com.png",
+          description: "ประวัติขาวสะอาด ไม่เคยโดนแบน ฮีโร่ครบ สกินเพียบพร้อมรูนเลเวล 90 ทุกสาย",
+          isPopular: true,
+          isDeleted: false,
+          stockData: [
+            "rov_user1:rov_pass1",
+            "rov_user2:rov_pass2",
+            "rov_user3:rov_pass3",
+            "rov_user4:rov_pass4",
+            "rov_user5:rov_pass5"
+          ],
+          created_at: new Date().toISOString(),
+          _version: 1
+        },
+        {
+          id: "netflix_4k",
+          name: "Netflix Premium Ultra HD 4K (30 วัน - จอส่วนตัว)",
+          price: 139,
+          originalPrice: 199,
+          category: "แอปพรีเมียม / บันเทิง",
+          stock: 0,
+          soldCount: 945,
+          imageUrl: "https://upload.wikimedia.org/wikipedia/commons/f/ff/Netflix-new-icon.png",
+          description: "ความละเอียด 4K HDR เสียงรอบทิศทาง ใช้งานส่วนตัว เสถียรสูง 100% ตลอดทั้งเดือน",
+          isPopular: true,
+          isDeleted: false,
+          stockData: [],
+          created_at: new Date().toISOString(),
+          _version: 1
+        },
+        {
+          id: "youtube_premium",
+          name: "YouTube Premium 4K (30 วัน - บัญชีส่วนตัวความปลอดภัยสูง)",
+          price: 39,
+          originalPrice: 69,
+          category: "แอปพรีเมียม / บันเทิง",
+          stock: 0,
+          soldCount: 1248,
+          imageUrl: "https://upload.wikimedia.org/wikipedia/commons/e/e1/Logo_of_YouTube_%282015-2017%29.svg",
+          description: "ไม่มีโฆษณาคั่นอย่างสมบูรณ์ เล่นขณะปิดหน้าจอได้ แถมบริการเสริม Youtube Music HQ",
+          isPopular: true,
+          isDeleted: false,
+          stockData: [],
+          created_at: new Date().toISOString(),
+          _version: 1
+        },
+        {
+          id: "discord_nitro",
+          name: "Discord Nitro Premium Gift (1 เดือน - บัญชีแท้ 100%)",
+          price: 119,
+          originalPrice: 320,
+          category: "แอปพรีเมียม / บันเทิง",
+          stock: 0,
+          soldCount: 231,
+          imageUrl: "https://upload.wikimedia.org/wikipedia/commons/c/ca/Discord_Color_Logo.svg",
+          description: "รับบูสเซิร์ฟเวอร์ฟรี x2 สติกเกอร์เคลื่อนไหว อีโมจิพิเศษทุกเซิร์ฟ และแชร์จอ 1080p 60fps",
+          isPopular: true,
+          isDeleted: false,
+          stockData: [],
+          created_at: new Date().toISOString(),
+          _version: 1
+        }
+      ];
+    } else if (collection === 'settings') {
+      initialData = [
+        {
+          id: "config",
+          site_name: "STORETH",
+          contact_line: "",
+          discord_link: "",
+          facebook_link: "",
+          instagram_link: "",
+          contact_email: "support.apexstoreth@gmail.com",
+          stats_users_offset: 0,
+          stats_sales_offset: 0,
+          popup_img_url: "https://img2.pic.in.th/Red-Black-White-Anime-Podcast-Discord-Logocc6d3bfe807340af.png",
+          popup_enabled: true,
+          popup_link: "",
+          banners: ["https://img2.pic.in.th/-71_20260516210303.png"],
+          spotify_url: "https://youtu.be/WczSfh3gJaU?si=PI1i4X0p0FGbdEfq",
+          spotify_autoplay: true,
+          bank_name: ""
+        }
+      ];
+    }
+
+    localTableCache[collection] = initialData;
+    try {
+      fs.writeFileSync(fp, JSON.stringify(initialData));
+    } catch (e) {
+      console.error("Local file sync write error:", e);
+    }
     return localTableCache[collection];
   }
-  const data = await fs.promises.readFile(fp, 'utf8');
-  localTableCache[collection] = JSON.parse(data);
+  try {
+    const data = await fs.promises.readFile(fp, 'utf8');
+    localTableCache[collection] = JSON.parse(data);
+  } catch (err) {
+    console.error(`Local file read error for ${collection}, falling back to empty:`, err);
+    localTableCache[collection] = [];
+  }
   return localTableCache[collection];
 }
 
@@ -275,7 +401,12 @@ class SupabaseDoc {
 
   async get() {
     if (!isSupabaseAdminConfigured) {
-        return { exists: false, data: () => null };
+      const table = await getLocalTable(this.collection);
+      const found = table.find((item: any) => item.id === this.id);
+      if (found) {
+        return { id: this.id, ref: this, exists: true, data: () => found };
+      }
+      return { id: this.id, ref: this, exists: false, data: () => null };
     }
     if (isVirtual(this.collection)) {
         const slug = getVirtualSlug(this.collection, this.id);
@@ -335,7 +466,15 @@ class SupabaseDoc {
     return { exists: false, data: () => null };
   }
   async update(data: any) {
-    if (!isSupabaseAdminConfigured) return;
+    if (!isSupabaseAdminConfigured) {
+      const table = await getLocalTable(this.collection);
+      const idx = table.findIndex((item: any) => item.id === this.id);
+      if (idx !== -1) {
+        table[idx] = { ...table[idx], ...data };
+        await saveLocalTable(this.collection, table);
+      }
+      return;
+    }
     if (isVirtual(this.collection)) {
         const slug = getVirtualSlug(this.collection, this.id);
         const legacySlug = `v:${this.collection}:${this.id}`;
@@ -423,7 +562,12 @@ class SupabaseDoc {
     }
   }
   async delete() {
-    if (!isSupabaseAdminConfigured) return;
+    if (!isSupabaseAdminConfigured) {
+      const table = await getLocalTable(this.collection);
+      const filtered = table.filter((item: any) => item.id !== this.id);
+      await saveLocalTable(this.collection, filtered);
+      return;
+    }
     if (isVirtual(this.collection)) {
         const slug = getVirtualSlug(this.collection, this.id);
         const legacySlug = `v:${this.collection}:${this.id}`;
@@ -438,7 +582,21 @@ class SupabaseDoc {
     if (error) throw error;
   }
   async set(data: any, options: any = {}) {
-    if (!isSupabaseAdminConfigured) return;
+    if (!isSupabaseAdminConfigured) {
+      const table = await getLocalTable(this.collection);
+      const idx = table.findIndex((item: any) => item.id === this.id);
+      let finalData = { ...data, id: this.id };
+      if (idx !== -1) {
+        if (options.merge) {
+          finalData = { ...table[idx], ...data, id: this.id };
+        }
+        table[idx] = finalData;
+      } else {
+        table.push(finalData);
+      }
+      await saveLocalTable(this.collection, table);
+      return;
+    }
     if (isVirtual(this.collection)) {
         const slug = getVirtualSlug(this.collection, this.id);
         const legacySlug = `v:${this.collection}:${this.id}`;
@@ -589,10 +747,38 @@ class SupabaseQuery {
   }
   async get() {
     if (!isSupabaseAdminConfigured) {
+      const table = await getLocalTable(this.collection);
+      let filteredData = [...table];
+      for (const w of this._where) {
+        if (w.op === '==') filteredData = filteredData.filter((d: any) => d[w.field] === w.value);
+        else if (w.op === '>') filteredData = filteredData.filter((d: any) => d[w.field] > w.value);
+        else if (w.op === '<') filteredData = filteredData.filter((d: any) => d[w.field] < w.value);
+      }
+      for (const o of this._orderBy) {
+        filteredData.sort((a: any, b: any) => {
+          return o.dir === 'asc' ? (a[o.field] > b[o.field] ? 1 : -1) : (a[o.field] < b[o.field] ? 1 : -1);
+        });
+      }
+      if (this._offset) {
+        if (this._limit) filteredData = filteredData.slice(this._offset, this._offset + this._limit);
+        else filteredData = filteredData.slice(this._offset);
+      } else if (this._limit) {
+        filteredData = filteredData.slice(0, this._limit);
+      }
       return {
-        docs: [],
-        empty: true,
-        forEach: (cb: any) => {}
+        docs: filteredData.map((d: any) => {
+          const docId = d.id || d.key || d.ip || d.username || 'unknown';
+          return {
+            id: docId,
+            ref: new SupabaseDoc(this.collection, docId),
+            data: () => d
+          };
+        }),
+        empty: filteredData.length === 0,
+        forEach: (cb: any) => filteredData.forEach((d: any) => {
+          const docId = d.id || d.key || d.ip || d.username || 'unknown';
+          cb({ id: docId, ref: new SupabaseDoc(this.collection, docId), data: () => d });
+        })
       };
     }
     if (isVirtual(this.collection)) {
@@ -771,7 +957,12 @@ class SupabaseCollection extends SupabaseQuery {
   }
   async add(data: any) {
     if (!isSupabaseAdminConfigured) {
-        return { id: data.id || crypto.randomUUID() };
+        const docId = data.id || crypto.randomUUID();
+        const table = await getLocalTable(this.collection);
+        const finalData = { ...data, id: docId };
+        table.push(finalData);
+        await saveLocalTable(this.collection, table);
+        return { id: docId };
     }
     if (isVirtual(this.collection)) {
         const docId = data.id || crypto.randomUUID();
