@@ -724,10 +724,26 @@ const injectUser = __name(async (req: any, res: any, next: any) => {
         // Check if it is a standard expired token error (robust matching on code and message)
         const isExpired = status === 401 && (codeStr.includes("expired") || msg.includes("expired"));
 
-        // Check if it is an invalid client authentication error (status 400/401, or clear invalid token patterns)
-        const isAuthError = status === 401 || status === 400 || 
-          codeStr.includes("invalid") || codeStr.includes("jwt") || codeStr.includes("signature") || codeStr.includes("session") ||
-          msg.includes("invalid") || msg.includes("jwt") || msg.includes("signature") || msg.includes("token");
+        // Keywords indicating authentication token issues
+        const hasAuthKeywords =
+          codeStr.includes("invalid") ||
+          codeStr.includes("jwt") ||
+          codeStr.includes("signature") ||
+          codeStr.includes("session") ||
+          msg.includes("invalid") ||
+          msg.includes("jwt") ||
+          msg.includes("signature") ||
+          msg.includes("token") ||
+          msg.includes("expired");
+
+        // Check if it is an invalid client authentication error.
+        // 401 is standard for invalid/expired credentials.
+        // For status 400, we only treat it as an auth error if it contains clear token invalidation keywords
+        // to prevent false positives (e.g. temporary malformed requests or other API issues).
+        const isAuthError =
+          status === 401 ||
+          (status === 400 && hasAuthKeywords) ||
+          (!status && hasAuthKeywords);
 
         if (isExpired) {
           return res.status(401).json({ error: "Token expired" });
