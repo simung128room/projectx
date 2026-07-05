@@ -1273,8 +1273,13 @@ function AppContent() {
           setDbErrorDetail(`Backend API ไม่ตอบสนอง (Offline): ${errorMsg}`);
         });
 
-      // Await only the critical home view endpoints + backend health check to reveal the home UI instantly
-      await Promise.all([mainFetchPromise, healthPromise]);
+      // Fetch UI endpoints non-blocking to allow instant home reveal
+      mainFetchPromise.catch((err) => {
+          console.error("Main fetch promise error:", err);
+      });
+
+      // Await health check only, let main data fill in asynchronously to avoid skeleton loop
+      await healthPromise;
       console.timeEnd(`fetchAllData-${currentRequestId}`);
     } catch (err: any) {
       console.error("Critical fetch error in fetchAllData:", err);
