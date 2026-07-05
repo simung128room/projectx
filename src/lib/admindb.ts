@@ -306,7 +306,7 @@ async function hydrateMissingColumns() {
       const arr = JSON.parse(data[0].content);
       if (Array.isArray(arr)) arr.forEach(col => missingColumns.add(col));
     }
-  } catch(e) {}
+  } catch(e) { console.error("Error hydrating missing columns", e); }
   isMissingColumnsHydrated = true;
 }
 
@@ -321,7 +321,7 @@ async function persistMissingColumn(colName: string) {
     } else {
       await supabaseAdmin.from('custom_pages').insert([payload]);
     }
-  } catch(e) {}
+  } catch(e) { console.error("Error persisting missing column", e); }
 }
 
 function toDB(data: any, collection?: string): any {

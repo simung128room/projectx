@@ -453,6 +453,19 @@
   --color-input: rgba(255, 255, 255, 0.08);
   --color-ring: rgba(222, 115, 86, 0.2);
 
+  --color-blue-550: #3b82f6;
+  --color-blue-605: #2563eb;
+  --color-blue-650: #1d4ed8;
+  --color-zinc-450: #71717a;
+  --color-zinc-550: #52525b;
+  --color-zinc-605: #3f3f46;
+  --color-zinc-805: #27272a;
+  --color-zinc-850: #1f1f22;
+  --color-amber-705: #b45309;
+
+  --spacing-3\.8: 0.95rem;
+  --spacing-4\.5: 1.125rem;
+
   --color-neon-green: #10b981;
   --color-neon-red: #ef4444;
   --color-neon-yellow: #f59e0b;

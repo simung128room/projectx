@@ -77,7 +77,9 @@ async function releaseRedisLock(redis: any, lockKey: string) {
   if (!redis) return;
   try {
     await redis.del(lockKey);
-  } catch (_) {}
+  } catch (err) {
+    console.warn("Failed to release redis lock", err);
+  }
 }
 
 export interface PaymentsRouterOptions {

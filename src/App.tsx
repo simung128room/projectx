@@ -987,7 +987,6 @@ function AppContent() {
   const [purchasedItemReceipt, setPurchasedItemReceipt] = useState<any>(null);
 
   // Product + Stats loaders - No localStorage fallback, trust API
-  useEffect(() => {}, []);
 
   const syncUserPlan = useCallback(
     async (newPlan: UserPlan | null, uid: string) => {
@@ -1309,7 +1308,9 @@ function AppContent() {
                 const parsed = JSON.parse(name);
                 name = parsed.n || parsed.name || name;
               }
-            } catch (e) {}
+            } catch (e) {
+              console.warn("Failed to parse product name json in purchase history", e);
+            }
             return { ...p, productName: name };
           });
           setPurchaseHistory(purchaseData);
