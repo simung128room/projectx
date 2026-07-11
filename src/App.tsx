@@ -1259,18 +1259,17 @@ function AppContent() {
       });
 
       // Health check for DB readiness
-      const healthPromise = axios
-        .get("/api/health")
-        .then(() => {
+      const healthPromise = fetchApi("/api/health").then((res) => {
+        if (res.error) {
+          if (res.error !== "canceled" && res.error !== "stale") {
+            setIsDBReady(false);
+            setDbErrorDetail(`Backend API ไม่ตอบสนอง (Offline): ${res.error}`);
+          }
+        } else {
           setIsDBReady(true);
           setDbErrorDetail(null);
-        })
-        .catch((e) => {
-          setIsDBReady(false);
-          let errorMsg =
-            e.response?.data?.error || e.message || "Unknown Error";
-          setDbErrorDetail(`Backend API ไม่ตอบสนอง (Offline): ${errorMsg}`);
-        });
+        }
+      });
 
       // Fetch UI endpoints non-blocking to allow instant home reveal
       mainFetchPromise.catch((err) => {

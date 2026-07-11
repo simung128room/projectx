@@ -91,7 +91,7 @@ export const PopupBanner: React.FC<PopupBannerProps> = ({ enabled, imgUrl, linkU
             
             {/* Content box */}
             <div className="w-full flex-1 overflow-y-auto max-h-[65vh] bg-zinc-900">
-              {linkUrl ? (
+              {(linkUrl && (linkUrl.startsWith("http://") || linkUrl.startsWith("https://"))) ? (
                 <a 
                   href={linkUrl} 
                   target="_blank" 

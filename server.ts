@@ -65,7 +65,7 @@ async function uploadToSupabaseStorage(buffer: any, originalName: any, mimeType:
   if (!isSupabaseConfigured2) {
     throw new Error("Supabase is not configured");
   }
-  const fileExt = originalName.split(".").pop() || "webp";
+  const fileExt = "webp"; // Hardcoded to webp for security
   const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 11)}.${fileExt}`;
   const bucketName = "uploads";
   const { data, error } = await supabaseAdmin.storage
@@ -274,7 +274,7 @@ app.use(
           "https://unpkg.com",
           "https://va.vercel-scripts.com",
         ],
-        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+        styleSrc: process.env.NODE_ENV === "production" ? ["'self'", "https://fonts.googleapis.com"] : ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
         imgSrc: ["'self'", "data:", "https:"],
         mediaSrc: ["'self'", "https:"],
         connectSrc: [
@@ -282,8 +282,7 @@ app.use(
           "https://*.supabase.co",
           "https://api.ipify.org",
           "wss://*.supabase.co",
-          "ws:",
-          "wss:",
+          ...(process.env.NODE_ENV === "production" ? [] : ["ws:", "wss:"]),
         ],
         frameSrc: [
           "'self'",
@@ -609,6 +608,27 @@ const checkLimiter = rateLimit({
       .status(options.statusCode || 429)
       .json({ ...options.message, requestId: req.id });
   }, "handler"),
+});
+const discordLimiter = rateLimit({
+  windowMs: 1 * 60 * 1e3,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  validate: { trustProxy: true },
+  message: { error: "Too many requests to Discord integration." },
+});
+const safeCompare = (a, b) => {
+  if (typeof a !== 'string' || typeof b !== 'string') return false;
+  if (a.length !== b.length) return false;
+  return crypto.timingSafeEqual(Buffer.from(a), Buffer.from(b));
+};
+const uploadLimiter = rateLimit({
+  windowMs: 1 * 60 * 1e3,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  validate: { trustProxy: true },
+  message: { error: "Too many uploads, please wait." },
 });
 const globalLimiter = rateLimit({
   windowMs: 1 * 60 * 1e3,
@@ -945,6 +965,7 @@ app.post(
 );
 app.post(
   "/api/community/upload",
+  uploadLimiter,
   requireAuth,
   (req: any, res: any, next: any) => {
     communityUpload.single("file")(req, res, (err: any) => {
@@ -1805,6 +1826,7 @@ const { createUsersRouter } = await import("./src/routes/users.route.js");
 app.use(
   "/api",
   createUsersRouter({
+    uploadLimiter,
     requireAuth,
     requireAdmin,
     mutationLimiter,
@@ -1988,7 +2010,7 @@ app.get("/api/latest-purchases", async (req, res) => {
     console.error("Error fetching latest purchases:", (err as any).message || err);
     res
       .status(500)
-      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
+      .json({ error: "Internal server error" });
   }
 });
 app.get("/api/purchases", requireAuth, async (req, res) => {
@@ -2047,7 +2069,7 @@ app.get("/api/purchases", requireAuth, async (req, res) => {
     console.error("Error fetching purchases:", (err as any).message || err);
     res
       .status(500)
-      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
+      .json({ error: "Internal server error" });
   }
 });
 app.post("/api/purchases", requireAdmin, async (req, res) => {
@@ -2077,7 +2099,7 @@ app.post("/api/purchases", requireAdmin, async (req, res) => {
     console.error("Internal server error creating purchase:", err);
     res
       .status(500)
-      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
+      .json({ error: "Internal server error" });
   }
 });
 app.put("/api/purchases/:id", requireAdmin, async (req, res) => {
@@ -2114,21 +2136,22 @@ app.put("/api/purchases/:id", requireAdmin, async (req, res) => {
     res.status(500).json({ error: err.message || "Internal server error" });
   }
 });
-app.post("/api/discord-rekey", async (req, res) => {
+app.post("/api/discord-rekey", discordLimiter, async (req, res) => {
   const { key, secret, plan } = req.body;
+  if (!key || typeof key !== "string" || key.length < 16) { return res.status(400).json({ error: "Key must be at least 16 characters for security" }); }
   const expectedSecret = process.env.DISCORD_BOT_SECRET;
   if (!expectedSecret) {
     return res
       .status(500)
       .json({ error: "DISCORD_BOT_SECRET is not configured" });
   }
-  if (secret !== expectedSecret) {
+  if (!safeCompare(secret, expectedSecret)) {
     return res.status(401).json({ error: "Unauthorized" });
   }
   try {
     const newDoc = {
       key,
-      plan: plan || "premium",
+      plan: (plan && ["premium", "basic", "pro"].includes(plan)) ? plan : "premium",
       status: "active",
       created_at: new Date().toISOString(),
     };
@@ -2142,7 +2165,7 @@ app.post("/api/discord-rekey", async (req, res) => {
     res.status(500).json({ error: "Internal server error while adding key" });
   }
 });
-app.post("/api/discord-redeem", async (req, res) => {
+app.post("/api/discord-redeem", discordLimiter, async (req, res) => {
   const { key, secret } = req.body;
   const expectedSecret = process.env.DISCORD_BOT_SECRET;
   if (!expectedSecret) {
@@ -2150,7 +2173,7 @@ app.post("/api/discord-redeem", async (req, res) => {
       .status(500)
       .json({ error: "DISCORD_BOT_SECRET is not configured" });
   }
-  if (secret !== expectedSecret) {
+  if (!safeCompare(secret, expectedSecret)) {
     return res.status(401).json({ error: "Unauthorized" });
   }
   if (!key || typeof key !== "string" || key.trim().length < 8) {
@@ -2285,7 +2308,7 @@ app.get("/api/pages", async (req, res) => {
     console.error("Internal server error fetching pages:", (err as any).message || err);
     res
       .status(500)
-      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
+      .json({ error: "Internal server error" });
   }
 });
 app.post("/api/pages", requireAdmin, async (req, res) => {
@@ -2304,7 +2327,7 @@ app.post("/api/pages", requireAdmin, async (req, res) => {
     console.error("Internal server error creating page:", err);
     res
       .status(500)
-      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
+      .json({ error: "Internal server error" });
   }
 });
 app.put("/api/pages/:id", requireAdmin, async (req, res) => {
@@ -2324,7 +2347,7 @@ app.put("/api/pages/:id", requireAdmin, async (req, res) => {
     console.error("Internal server error updating page:", err);
     res
       .status(500)
-      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
+      .json({ error: "Internal server error" });
   }
 });
 app.delete("/api/pages/:id", requireAdmin, async (req, res) => {
@@ -2342,7 +2365,7 @@ app.delete("/api/pages/:id", requireAdmin, async (req, res) => {
     console.error("Internal server error deleting page:", err);
     res
       .status(500)
-      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
+      .json({ error: "Internal server error" });
   }
 });
 let memoryLogSystemData = { categories: [], items: [] };
@@ -2403,7 +2426,7 @@ app.get("/api/logs-system", injectUser, async (req, res) => {
   } catch (err: any) {
     res
       .status(500)
-      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
+      .json({ error: "Internal server error" });
   }
 });
 app.post("/api/logs-system", requireAdmin, async (req, res) => {
@@ -2429,7 +2452,7 @@ app.post("/api/logs-system", requireAdmin, async (req, res) => {
     console.error("Internal server error saving log system data:", err);
     res
       .status(500)
-      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
+      .json({ error: "Internal server error" });
   }
 });
 app.get("/api/license_keys", requireAdmin, async (req, res) => {
@@ -2460,7 +2483,7 @@ app.get("/api/license_keys", requireAdmin, async (req, res) => {
     );
     res
       .status(500)
-      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
+      .json({ error: "Internal server error" });
   }
 });
 app.post("/api/license_keys", requireAdmin, async (req, res) => {
@@ -2476,7 +2499,7 @@ app.post("/api/license_keys", requireAdmin, async (req, res) => {
     console.error("Internal server error inserting license_key:", err);
     res
       .status(500)
-      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
+      .json({ error: "Internal server error" });
   }
 });
 app.delete("/api/license_keys/:id", requireAdmin, async (req, res) => {
@@ -2491,7 +2514,7 @@ app.delete("/api/license_keys/:id", requireAdmin, async (req, res) => {
     console.error("Internal server error deleting license_key:", err);
     res
       .status(500)
-      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
+      .json({ error: "Internal server error" });
   }
 });
 app.post("/api/license_keys/bulk_delete", requireAdmin, async (req, res) => {
@@ -2509,7 +2532,7 @@ app.post("/api/license_keys/bulk_delete", requireAdmin, async (req, res) => {
     console.error("Internal server error bulk deleting license_keys:", err);
     res
       .status(500)
-      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
+      .json({ error: "Internal server error" });
   }
 });
 app.patch("/api/license_keys/:id", requireAdmin, async (req, res) => {
@@ -2525,7 +2548,7 @@ app.patch("/api/license_keys/:id", requireAdmin, async (req, res) => {
     console.error("Internal server error updating license_key:", err);
     res
       .status(500)
-      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
+      .json({ error: "Internal server error" });
   }
 });
 app.post("/api/license_keys/bulk", requireAdmin, async (req, res) => {
@@ -2553,10 +2576,10 @@ app.post("/api/license_keys/bulk", requireAdmin, async (req, res) => {
     console.error("Internal server error bulk inserting license_keys:", err);
     res
       .status(500)
-      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
+      .json({ error: "Internal server error" });
   }
 });
-app.get("/api/validate_key/:key", requireAuth, async (req, res) => {
+app.get("/api/validate_key/:key", requireAuth, checkLimiter, async (req, res) => {
   try {
     const snapshot = await admin
       .firestore()
@@ -2600,7 +2623,7 @@ app.get("/api/blocked_ips", requireAdmin, async (req, res) => {
     );
     res
       .status(500)
-      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
+      .json({ error: "Internal server error" });
   }
 });
 app.post("/api/blocked_ips", requireAdmin, async (req, res) => {
@@ -2614,7 +2637,7 @@ app.post("/api/blocked_ips", requireAdmin, async (req, res) => {
     console.error("Internal server error upserting blocked_ip:", err);
     res
       .status(500)
-      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
+      .json({ error: "Internal server error" });
   }
 });
 app.delete("/api/blocked_ips/:ip", requireAdmin, async (req, res) => {
@@ -2629,7 +2652,7 @@ app.delete("/api/blocked_ips/:ip", requireAdmin, async (req, res) => {
     console.error("Internal server error deleting blocked_ip:", err);
     res
       .status(500)
-      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
+      .json({ error: "Internal server error" });
   }
 });
 app.get("/api/check_ip/:ip", requireAdmin, async (req, res) => {
@@ -2644,7 +2667,7 @@ app.get("/api/check_ip/:ip", requireAdmin, async (req, res) => {
     console.error("Internal server error checking IP:", err);
     res
       .status(500)
-      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
+      .json({ error: "Internal server error" });
   }
 });
 app.get("/api/api_keys", requireAdmin, async (req, res, next) => {
@@ -2671,7 +2694,7 @@ app.post("/api/admins", requireAdmin, async (req, res) => {
     console.error("Internal server error upserting admin:", err);
     res
       .status(500)
-      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
+      .json({ error: "Internal server error" });
   }
 });
 let communityData: any = {

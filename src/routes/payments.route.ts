@@ -134,8 +134,8 @@ export function createPaymentsRouter({
     const { productId, quantity } = parseResult.data;
 
     const userId = req.user.uid;
-    const lockKey = `lock:product:${productId}`;
-    const localAcquired = await acquireMutex(lockKey, 15e3);
+    const lockKey = `lock:product:${productId}:${uid}`;
+    const localAcquired = await acquireMutex(lockKey, 3000);
     if (!localAcquired) {
       return res.status(429).json({
         error: "ระบบไม่ว่าง กรุณาดำเนินการใหม่อีกครั้งในภายหลัง (Mutex lock timeout)",

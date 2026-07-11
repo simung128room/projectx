@@ -259,7 +259,7 @@ export function createUsersRouter({
   router.post(
     "/avatar",
     requireAuth,
-    mutationLimiter,
+    options.uploadLimiter || mutationLimiter,
     (req: any, res: any, next: any) => {
       communityUpload.single("file")(req, res, (err: any) => {
         if (err) {

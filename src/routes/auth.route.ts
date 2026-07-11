@@ -5,6 +5,12 @@ import { adminDb as admin, supabaseAdmin } from "../lib/admindb.js";
 import axios from "axios";
 import nodemailer from "nodemailer";
 
+const safeCompare = (a: string, b: string) => {
+  if (typeof a !== 'string' || typeof b !== 'string') return false;
+  if (a.length !== b.length) return false;
+  return crypto.timingSafeEqual(Buffer.from(a), Buffer.from(b));
+};
+
 const sendResetOTP = async (email: string, otp: string) => {
   if (!process.env.SMTP_HOST) {
     console.warn("[WARNING] SMTP_HOST is not set. OTP email will not be sent.");
@@ -176,7 +182,7 @@ export function createAuthRouter({
       if (
         !storedOtp ||
         !storedOtpExpires ||
-        storedOtp !== otp ||
+        !safeCompare(storedOtp, otp) ||
         storedOtpExpires < Date.now()
       ) {
         await admin
