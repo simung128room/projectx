@@ -274,7 +274,7 @@ app.use(
           "https://unpkg.com",
           "https://va.vercel-scripts.com",
         ],
-        styleSrc: process.env.NODE_ENV === "production" ? ["'self'", "https://fonts.googleapis.com"] : ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
         imgSrc: ["'self'", "data:", "https:"],
         mediaSrc: ["'self'", "https:"],
         connectSrc: [
@@ -2133,7 +2133,7 @@ app.put("/api/purchases/:id", requireAdmin, async (req, res) => {
     res.json({ success: true, id, ...payload, secretData });
   } catch (err: any) {
     console.error("Error updating purchase:", err);
-    res.status(500).json({ error: err.message || "Internal server error" });
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 app.post("/api/discord-rekey", discordLimiter, async (req, res) => {

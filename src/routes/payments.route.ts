@@ -500,7 +500,7 @@ export function createPaymentsRouter({
         16711680,
         req.id
       );
-      res.status(500).json({ error: String(err && err.message ? err.message : err) });
+      res.status(500).json({ error: "Internal server error" });
     } finally {
       releaseMutex(lockKey);
       await releaseRedisLock(redis, lockKey);
@@ -556,7 +556,7 @@ export function createPaymentsRouter({
       }
     } catch (err: any) {
       console.error("Internal server error fetching topups:", err.message || err);
-      res.status(500).json({ error: String(err && err.message ? err.message : err) });
+      res.status(500).json({ error: "Internal server error" });
     }
   });
 
@@ -580,7 +580,7 @@ export function createPaymentsRouter({
       res.json({ id: docRef.id, dbId: docRef.id, ...data });
     } catch (err: any) {
       console.error("Internal server error creating topup:", err);
-      res.status(500).json({ error: String(err && err.message ? err.message : err) });
+      res.status(500).json({ error: "Internal server error" });
     }
   });
 
@@ -619,7 +619,7 @@ export function createPaymentsRouter({
       res.json(data);
     } catch (err: any) {
       console.error("Internal server error fetching used_keys:", err.message || err);
-      res.status(500).json({ error: String(err && err.message ? err.message : err) });
+      res.status(500).json({ error: "Internal server error" });
     }
   });
 
@@ -649,7 +649,7 @@ export function createPaymentsRouter({
       res.json({ id: docRef.id, dbId: docRef.id, ...newDoc });
     } catch (err: any) {
       console.error("Internal server error inserting used_key:", err);
-      res.status(500).json({ error: String(err && err.message ? err.message : err) });
+      res.status(500).json({ error: "Internal server error" });
     }
   });
 

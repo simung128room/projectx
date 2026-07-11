@@ -1264,10 +1264,12 @@ function AppContent() {
           if (res.error !== "canceled" && res.error !== "stale") {
             setIsDBReady(false);
             setDbErrorDetail(`Backend API ไม่ตอบสนอง (Offline): ${res.error}`);
+            setClientIp("offline_local");
           }
         } else {
           setIsDBReady(true);
           setDbErrorDetail(null);
+          setClientIp(res.data?.clientIp || "Unknown");
         }
       });
 
@@ -1422,16 +1424,6 @@ function AppContent() {
       // Concurrent parallel boot loading of metadata, pages, settings, stats, and client configuration
       try {
         await Promise.all([
-          axios
-            .get("/api/health")
-            .then((res) => {
-              const ip = res.data.clientIp || "Unknown";
-              setClientIp(ip);
-            })
-            .catch((err) => {
-              setClientIp("offline_local");
-              console.error("IP Check Failed", err);
-            }),
           fetchAllData(),
         ]);
       } catch (err) {
