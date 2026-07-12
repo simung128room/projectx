@@ -70,32 +70,5 @@ export async function decrypt(cipherText: string) {
       return cipherText;
     }
   }
-  if (cipherText.startsWith("enc:")) {
-    try {
-      const parts = cipherText.substring(4).split(":");
-      if (parts.length === 2) {
-        const [ivHex, encryptedHex] = parts;
-        const rawKey = getEncryptionKey();
-        const key = crypto.createHash("sha256").update(String(rawKey)).digest();
-        const iv = Buffer.from(ivHex, "hex");
-        const encryptedText = Buffer.from(encryptedHex, "hex");
-        const decipher = crypto.createDecipheriv("aes-256-cbc", key, iv);
-        const decrypted = Buffer.concat([
-          decipher.update(encryptedText),
-          decipher.final()
-        ]);
-        const decryptedString = decrypted.toString("utf8");
-        if (decryptCache.size >= MAX_CACHE_SIZE) {
-          const firstKey = decryptCache.keys().next().value;
-          if (firstKey) decryptCache.delete(firstKey);
-        }
-        decryptCache.set(cipherText, decryptedString);
-        return decryptedString;
-      }
-    } catch (err) {
-      console.error("Decryption error (enc):", err);
-      return cipherText;
-    }
-  }
   return cipherText;
 }

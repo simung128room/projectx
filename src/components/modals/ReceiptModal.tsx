@@ -22,7 +22,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ selectedItem, setSel
   }, [selectedItem.id, selectedItem.billNumber, isPurchase]);
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200 ">
+    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200 " role="dialog" aria-modal="true" onKeyDown={(e) => { if (e.key === 'Escape') setSelectedItem(null); }} tabIndex={-1} autoFocus>
       <div className="bg-[#0d0f15] border border-[#1f293d] w-full sm:max-w-[750px] sm:rounded-2xl relative overflow-hidden animate-in slide-in-from-bottom-full sm:zoom-in-95 duration-300 flex flex-col max-h-[95vh] shadow-2xl">
         
         {/* Header */}

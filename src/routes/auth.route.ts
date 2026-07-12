@@ -222,7 +222,7 @@ export function createAuthRouter({
         .firestore()
         .collection("users")
         .doc(userId)
-        .update({ resetOtp: null, resetOtpExpires: null });
+        .update({ resetOtp: null, resetOtpExpires: null, resetOtpAttempts: 0 });
 
       res.json({ success: true });
     } catch (err: any) {

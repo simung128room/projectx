@@ -325,7 +325,7 @@ function AppContent() {
         "ยินดีต้อนรับสู่ APEXSTORE ศูนย์รวมสินค้าไอดีและข้อเสนอยอดฮิต ระบบซื้อขายทำงานอัตโนมัติ 24 ชั่วโมง - กรณีมีปัญหาโปรดติดต่อแอดมิน",
     };
     try {
-      const saved = localStorage.getItem("apex_settings_cache");
+      const saved = localStorage.getItem("apex_v2_settings_cache");
       return saved ? JSON.parse(saved) : defaultSettings;
     } catch {
       return defaultSettings;
@@ -419,7 +419,7 @@ function AppContent() {
 
   const [products, setProducts] = useState<Product[]>(() => {
     try {
-      const saved = localStorage.getItem("apex_products_cache");
+      const saved = localStorage.getItem("apex_v2_products_cache");
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) return parsed;
@@ -438,18 +438,18 @@ function AppContent() {
       topups: 125400,
     };
     try {
-      const saved = localStorage.getItem("apex_stats_cache");
+      const saved = localStorage.getItem("apex_v2_stats_cache");
       return saved ? JSON.parse(saved) : defaultStats;
     } catch (e) {
-      console.warn("Failed to parse apex_stats_cache", e);
-      localStorage.removeItem("apex_stats_cache");
+      console.warn("Failed to parse apex_v2_stats_cache", e);
+      localStorage.removeItem("apex_v2_stats_cache");
       return defaultStats;
     }
   });
 
   const [customPages, setCustomPages] = useState<any[]>(() => {
     try {
-      const saved = localStorage.getItem("apex_pages_cache");
+      const saved = localStorage.getItem("apex_v2_pages_cache");
       return saved ? JSON.parse(saved) : [];
     } catch (e) {
       console.warn("Failed to parse cache", e);
@@ -459,7 +459,7 @@ function AppContent() {
 
   const [categories, setCategories] = useState<any[]>(() => {
     try {
-      const saved = localStorage.getItem("apex_categories_cache");
+      const saved = localStorage.getItem("apex_v2_categories_cache");
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0)
@@ -1178,7 +1178,7 @@ function AppContent() {
             setSiteSettings(res.data);
             try {
               localStorage.setItem(
-                "apex_settings_cache",
+                "apex_v2_settings_cache",
                 JSON.stringify(res.data),
               );
             } catch (e) {
@@ -1193,7 +1193,7 @@ function AppContent() {
             setProducts(finalProds);
             try {
               localStorage.setItem(
-                "apex_products_cache",
+                "apex_v2_products_cache",
                 JSON.stringify(finalProds),
               );
             } catch (e) {
@@ -1208,7 +1208,7 @@ function AppContent() {
             setCategories(sanitized);
             try {
               localStorage.setItem(
-                "apex_categories_cache",
+                "apex_v2_categories_cache",
                 JSON.stringify(sanitized),
               );
             } catch (e) {
@@ -1225,7 +1225,7 @@ function AppContent() {
             setSiteStats(statsObj);
             try {
               localStorage.setItem(
-                "apex_stats_cache",
+                "apex_v2_stats_cache",
                 JSON.stringify(statsObj),
               );
             } catch (e) {
@@ -1241,7 +1241,7 @@ function AppContent() {
             setCustomPages(pagesToSet);
             try {
               localStorage.setItem(
-                "apex_pages_cache",
+                "apex_v2_pages_cache",
                 JSON.stringify(pagesToSet),
               );
             } catch (e) {
@@ -1402,10 +1402,10 @@ function AppContent() {
       if (savedUserPlan) setUserPlan(JSON.parse(savedUserPlan));
 
       // Fast check if cache resources exist to bypass loading screen delays
-      const hasCachedStats = !!localStorage.getItem("apex_stats_cache");
-      const hasCachedProducts = !!localStorage.getItem("apex_products_cache");
+      const hasCachedStats = !!localStorage.getItem("apex_v2_stats_cache");
+      const hasCachedProducts = !!localStorage.getItem("apex_v2_products_cache");
       const hasCachedCategories = !!localStorage.getItem(
-        "apex_categories_cache",
+        "apex_v2_categories_cache",
       );
       const isCacheAvailable =
         hasCachedStats && hasCachedProducts && hasCachedCategories;

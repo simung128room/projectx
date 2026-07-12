@@ -15,7 +15,7 @@ export const KeyModal: React.FC<KeyModalProps> = ({ show, onClose, vipTab, redee
   if (!show) return null;
 
   return (
-    <div className="fixed inset-0 bg-card flex items-center justify-center p-4 z-[70] font-sans animate-in zoom-in-95 duration-200 overflow-y-auto ">
+    <div className="fixed inset-0 bg-card flex items-center justify-center p-4 z-[70] font-sans animate-in zoom-in-95 duration-200 overflow-y-auto " role="dialog" aria-modal="true" onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }} tabIndex={-1} autoFocus>
       <div className="bg-card border-[#374151]  border border-[#364153]/25 p-6 sm:p-8 max-w-lg w-full relative overflow-hidden my-8 ">
         <div className="absolute top-0 right-0 w-64 h-64 bg-primary text-primary-foreground pointer-events-none"></div>
         <div className="text-center mb-6 relative z-10">

@@ -57,31 +57,44 @@ export function createAdminRouter({
           ...doc.data(),
         }));
       } else {
-        // Firestore limit memory load for search
-        const snapshot = await db.collection("users").get();
+        // Mitigation: Do multiple queries with prefix match and merge, limiting results
+        // to prevent loading all users into memory
+        const endSearch = search + "\uf8ff";
         
-        const allUsers = snapshot.docs.map((doc: any) => ({
-          id: doc.id,
-          uid: doc.id,
-          ...doc.data(),
-        }));
+        // Exact match by ID first
+        const idDoc = await db.collection("users").doc(search).get();
+        const idUser = idDoc.exists ? [{ id: idDoc.id, uid: idDoc.id, ...idDoc.data() }] : [];
 
-        users = allUsers.filter((u: any) => {
-          const username = (u.username || "").toLowerCase();
-          const email = (u.email || "").toLowerCase();
-          const fullName = (u.fullName || "").toLowerCase();
-          const displayName = (u.displayName || "").toLowerCase();
-          const uid = (u.uid || u.id || "").toLowerCase();
-          return (
-            username.includes(search) ||
-            email.includes(search) ||
-            fullName.includes(search) ||
-            displayName.includes(search) ||
-            uid.includes(search)
-          );
+        // Prefix match by username
+        const usernameSnap = await db.collection("users")
+          .where("username", ">=", search)
+          .where("username", "<=", endSearch)
+          .limit(limit)
+          .get();
+        
+        // Prefix match by email
+        const emailSnap = await db.collection("users")
+          .where("email", ">=", search)
+          .where("email", "<=", endSearch)
+          .limit(limit)
+          .get();
+          
+        const resultsMap = new Map();
+        
+        if (idUser.length) resultsMap.set(idUser[0].id, idUser[0]);
+        
+        usernameSnap.docs.forEach((doc: any) => {
+          resultsMap.set(doc.id, { id: doc.id, uid: doc.id, ...doc.data() });
         });
-        users = users.slice(offset, offset + limit);
+        
+        emailSnap.docs.forEach((doc: any) => {
+          resultsMap.set(doc.id, { id: doc.id, uid: doc.id, ...doc.data() });
+        });
+
+        users = Array.from(resultsMap.values());
       }
+
+      users = users.slice(offset, offset + limit);
 
       res.json(users);
     } catch (err: any) {

@@ -40,7 +40,7 @@ const Toast: React.FC<{ toast: ToastType; onClose: (id: string) => void }> = ({ 
       </div>
       <div className="flex flex-col">
         {toast.title && <span className="text-[13px] font-semibold text-foreground leading-tight mb-0.5 uppercase tracking-wide">{toast.title}</span>}
-        <p className="text-muted-foreground text-xs sm:text-[13px] font-medium leading-relaxed">{toast.message}</p>
+        <p className="text-muted-foreground text-xs sm:text-[13px] font-medium leading-relaxed line-clamp-4">{toast.message}</p>
       </div>
       <button 
         onClick={() => onClose(toast.id)}

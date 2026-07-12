@@ -300,7 +300,11 @@ app.use(
   }),
 );
 app.use(compression());
-app.set("trust proxy", 1);
+
+// Parse TRUST_PROXY_HOPS from env to allow correct IP resolution behind multiple reverse proxies/LBs
+const trustProxyHops = process.env.TRUST_PROXY_HOPS ? parseInt(process.env.TRUST_PROXY_HOPS, 10) : 1;
+app.set("trust proxy", trustProxyHops);
+
 const PORT = 3e3;
 import { pinoHttp } from "pino-http";
 import pino from "pino";
@@ -2681,21 +2685,6 @@ app.delete("/api/api_keys/:key", requireAdmin, async (req, res, next) => {
 });
 app.patch("/api/api_keys/:key", requireAdmin, async (req, res, next) => {
   next();
-});
-app.post("/api/admins", requireAdmin, async (req, res) => {
-  try {
-    const { username, role } = req.body;
-    const newDoc = { username, role, granted_at: new Date().toISOString() };
-    const docRef = admin.firestore().collection("admins").doc(username);
-    await docRef.set(newDoc);
-    invalidateUserTokenCache(username);
-    res.json({ id: username, ...newDoc });
-  } catch (err: any) {
-    console.error("Internal server error upserting admin:", err);
-    res
-      .status(500)
-      .json({ error: "Internal server error" });
-  }
 });
 let communityData: any = {
   categories: [],

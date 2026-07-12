@@ -125,7 +125,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
   if (!show) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 ">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 " role="dialog" aria-modal="true" onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }} tabIndex={-1} autoFocus>
       <div className="w-full max-w-sm bg-card border border-[#374151]  p-8 animate-in fade-in zoom-in duration-300 overflow-hidden relative ">
       <div className={`absolute top-0 right-0 w-32 h-32 -mr-16 -mt-16 ${authMode === 'login' ? 'bg-[#364153]/10' : 'bg-[#364153]/10'}`}></div>
       <div className="flex flex-col items-center text-center mb-6 relative z-10">
