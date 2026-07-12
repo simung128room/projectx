@@ -82,9 +82,9 @@ export const AddStockModal = ({
 
     if (rejectedFiles.length > 0) {
       if (rejectedFiles.length === 1) {
-        Swal.fire({title: 'ไฟล์ใหญ่เกินไป', text: `ไฟล์ ${rejectedFiles[0]} มีขนาดใหญ่กว่า 5MB. ให้ใช้วิธีอัพโหลดไฟล์แล้ววางลิงก์แทน`, icon: 'error', background: '#1f1c14', color: '#fff'});
+        Swal.fire({title: 'ไฟล์ใหญ่เกินไป', text: `ไฟล์ ${rejectedFiles[0]} มีขนาดใหญ่กว่า 5MB. ให้ใช้วิธีอัพโหลดไฟล์แล้ววางลิงก์แทน`, icon: 'error', background: '#1f1c14', color: '#f5f0e8'});
       } else {
-        Swal.fire({title: 'พบไฟล์ใหญ่เกิน 5MB', text: `มี ${rejectedFiles.length} ไฟล์ที่มีขนาดใหญ่กว่า 5MB เช่น ${rejectedFiles[0]} ระบบจึงต้องข้ามไฟล์เหล่านี้ไป`, icon: 'warning', background: '#1f1c14', color: '#fff'});
+        Swal.fire({title: 'พบไฟล์ใหญ่เกิน 5MB', text: `มี ${rejectedFiles.length} ไฟล์ที่มีขนาดใหญ่กว่า 5MB เช่น ${rejectedFiles[0]} ระบบจึงต้องข้ามไฟล์เหล่านี้ไป`, icon: 'warning', background: '#1f1c14', color: '#f5f0e8'});
       }
     }
   };
@@ -163,7 +163,7 @@ export const AddStockModal = ({
     }
 
     if (newItems.length === 0) {
-      return Swal.fire({title: 'ข้อมูลว่างเปล่า', text: 'ไม่ได้เพิ่มสต๊อกใหม่', icon: 'error', background: '#1f1c14', color: '#fff'});
+      return Swal.fire({title: 'ข้อมูลว่างเปล่า', text: 'ไม่ได้เพิ่มสต๊อกใหม่', icon: 'error', background: '#1f1c14', color: '#f5f0e8'});
     }
 
     if (newItems.length > 500) {
@@ -173,7 +173,7 @@ export const AddStockModal = ({
         icon: 'info',
         showConfirmButton: false,
         allowOutsideClick: false,
-        background: '#1f1c14', color: '#fff'
+        background: '#1f1c14', color: '#f5f0e8'
       });
     }
 
@@ -182,9 +182,9 @@ export const AddStockModal = ({
 
   return (
     <div className="fixed inset-0 bg-[#000000]/60 backdrop-blur-3xl saturate-150 flex items-center justify-end p-0 z-50">
-      <div className="bg-card border-l border-[#374151] border w-full max-w-md h-full relative p-6 sm:p-8 overflow-y-auto animate-in slide-in-from-right-full duration-300">
+      <div className="bg-card border-l border-border border w-full max-w-md h-full relative p-6 sm:p-8 overflow-y-auto animate-in slide-in-from-right-full duration-300">
         <h2 className="text-xl font-medium text-foreground mb-6 flex items-center gap-2">
-          <Database className="w-5 h-5 text-[#364153]" />
+          <Database className="w-5 h-5 text-primary" />
           เพิ่มสต๊อก: {product.name}
         </h2>
         
@@ -213,9 +213,9 @@ export const AddStockModal = ({
           <div className="space-y-4">
             <div 
               onClick={() => fileRef.current?.click()}
-              className="border border-dashed border-[#374151] hover:border-emerald-500/50 bg-card p-8 flex flex-col items-center justify-center cursor-pointer transition-colors"
+              className="border border-dashed border-border hover:border-emerald-500/50 bg-card p-8 flex flex-col items-center justify-center cursor-pointer transition-colors"
             >
-              <Upload className="w-8 h-8 text-[#364153] mb-3" />
+              <Upload className="w-8 h-8 text-primary mb-3" />
               <p className="text-sm font-medium text-muted-foreground">คลิกเพื่ออัพโหลดไฟล์ .txt</p>
               <p className="text-xs text-muted-foreground mt-1">1 บรรทัด = 1 สต๊อก</p>
               <input 
@@ -228,35 +228,35 @@ export const AddStockModal = ({
             </div>
 
             {uploadProgress >= 0 && (
-              <div className="bg-card border border-[#374151] border p-4 mt-2">
+              <div className="bg-card border border-border border p-4 mt-2">
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-xs font-medium text-muted-foreground">กำลังประมวลผลไฟล์...</span>
-                  <span className="text-xs font-medium text-[#364153]">{uploadProgress}%</span>
+                  <span className="text-xs font-medium text-primary">{uploadProgress}%</span>
                 </div>
                 <div className="w-full bg-card h-1.5 object-cover overflow-hidden">
-                  <div className="bg-[#364153] h-1.5 transition-all duration-300" style={{ width: `${uploadProgress}%` }}></div>
+                  <div className="bg-primary h-1.5 transition-all duration-300" style={{ width: `${uploadProgress}%` }}></div>
                 </div>
               </div>
             )}
             
-            <div className="flex items-center justify-between bg-card p-3 border border-[#374151] border">
+            <div className="flex items-center justify-between bg-card p-3 border border-border border">
               <label className="text-sm font-medium text-muted-foreground">จำนวนบรรทัดต่อ 1 สต๊อก</label>
               <input 
                 type="number" 
                 min="1" 
                 value={linesPerStock} 
                 onChange={(e) => setLinesPerStock(Math.max(1, parseInt(e.target.value) || 1))} 
-                className="w-20 bg-card border border-[#374151] px-3 py-1 text-foreground text-center font-medium"
+                className="w-20 bg-card border border-border px-3 py-1 text-foreground text-center font-medium"
               />
             </div>
 
             {fileStockPreview.length > 0 && (
-              <div className="bg-[#364153]/10 border border-emerald-500/20 p-4 flex items-center justify-between">
+              <div className="bg-primary/10 border border-emerald-500/20 p-4 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <FileText className="w-5 h-5 text-[#364153]" />
+                  <FileText className="w-5 h-5 text-primary" />
                   <div>
-                    <p className="text-sm font-medium text-[#364153]">พบข้อมูลสต๊อก</p>
-                    <p className="text-xs text-[#364153]/80">พร้อมเพิ่ม {Math.ceil(fileStockPreview.length / linesPerStock)} รายการ (จาก {fileStockPreview.length} บรรทัด)</p>
+                    <p className="text-sm font-medium text-primary">พบข้อมูลสต๊อก</p>
+                    <p className="text-xs text-primary/80">พร้อมเพิ่ม {Math.ceil(fileStockPreview.length / linesPerStock)} รายการ (จาก {fileStockPreview.length} บรรทัด)</p>
                   </div>
                 </div>
               </div>
@@ -268,9 +268,9 @@ export const AddStockModal = ({
           <div className="space-y-4">
             <div 
               onClick={() => singleFileRef.current?.click()}
-              className="border border-dashed border-[#374151] hover:border-emerald-500/50 bg-card p-8 flex flex-col items-center justify-center cursor-pointer transition-colors"
+              className="border border-dashed border-border hover:border-emerald-500/50 bg-card p-8 flex flex-col items-center justify-center cursor-pointer transition-colors"
             >
-              <Upload className="w-8 h-8 text-[#364153] mb-3" />
+              <Upload className="w-8 h-8 text-primary mb-3" />
               <p className="text-sm font-medium text-muted-foreground">อัพโหลดไฟล์สินค้า</p>
               <p className="text-xs text-muted-foreground mt-1">สูงสุด 5MB ต่อไฟล์ (เลือกหลายไฟล์ได้)</p>
               <input 
@@ -284,9 +284,9 @@ export const AddStockModal = ({
             {singleFilesPreview.length > 0 && (
               <div className="flex flex-col gap-2 max-h-32 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-zinc-800">
                 {singleFilesPreview.map((f, i) => (
-                  <div key={i} className="bg-card border border-[#374151] border p-2.5 flex items-center justify-between">
+                  <div key={i} className="bg-card border border-border border p-2.5 flex items-center justify-between">
                     <span className="text-xs font-medium truncate max-w-[200px] text-muted-foreground">{f.name}</span>
-                    <span className="text-[10px] text-[#364153] font-medium bg-[#364153] text-background px-2 py-0.5 rounded">Ready</span>
+                    <span className="text-[10px] text-primary font-medium bg-primary text-background px-2 py-0.5 rounded">Ready</span>
                   </div>
                 ))}
               </div>
@@ -296,14 +296,14 @@ export const AddStockModal = ({
 
         {mode === 'text' && (
           <div className="space-y-4">
-            <div className="flex items-center justify-between bg-card p-3 border border-[#374151] border">
+            <div className="flex items-center justify-between bg-card p-3 border border-border border">
               <label className="text-sm font-medium text-muted-foreground">จำนวนบรรทัดต่อ 1 สต๊อก</label>
               <input 
                 type="number" 
                 min="1" 
                 value={linesPerStock} 
                 onChange={(e) => setLinesPerStock(Math.max(1, parseInt(e.target.value) || 1))} 
-                className="w-20 bg-card border border-[#374151] px-3 py-1 text-foreground text-center font-medium"
+                className="w-20 bg-card border border-border px-3 py-1 text-foreground text-center font-medium"
               />
             </div>
             
@@ -326,7 +326,7 @@ export const AddStockModal = ({
                 onChange={updateTextCount}
                 onPaste={handlePaste}
                 disabled={isBigTextMode}
-                className="w-full bg-card border border-[#374151] border p-4 text-foreground focus:outline-none focus:border-emerald-500 text-sm h-40 resize-none font-mono text-xs leading-relaxed disabled:opacity-50"
+                className="w-full bg-card border border-border border p-4 text-foreground focus:outline-none focus:border-emerald-500 text-sm h-40 resize-none font-mono text-xs leading-relaxed disabled:opacity-50"
                 placeholder="ข้อมูลบรรทัดที่ 1&#10;ข้อมูลบรรทัดที่ 2&#10;ข้อมูลบรรทัดที่ 3&#10;..."
               />
             </div>
@@ -342,7 +342,7 @@ export const AddStockModal = ({
           </button>
           <button 
             onClick={handleSaveStock}
-            className="flex-1 px-4 py-3 bg-[#364153] hover:bg-[#364153] text-foreground text-sm font-medium transition-colors"
+            className="flex-1 px-4 py-3 bg-primary hover:bg-primary text-foreground text-sm font-medium transition-colors"
           >
             เพิ่มสต๊อกเข้าสู่ระบบ
           </button>

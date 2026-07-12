@@ -93,8 +93,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
         title: 'บันทึกข้อมูลเรียบร้อย', 
         timer: 1550, 
         showConfirmButton: false, 
-        background: '#ffffff', 
-        color: '#1f2937',
+        background: '#1f1c14', 
+        color: '#f5f0e8',
         customClass: {
           popup: 'rounded-2xl border border-zinc-200 shadow-[0_15px_40px_rgba(0,0,0,0.05)]'
         }
@@ -105,8 +105,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
         icon: 'error',
         title: 'บันทึกข้อมูลไม่สำเร็จ',
         text: err.response?.data?.error || err.message || 'เกิดข้อผิดพลาดในการเชื่อมต่อ',
-        background: '#ffffff',
-        color: '#1f2937',
+        background: '#1f1c14',
+        color: '#f5f0e8',
         customClass: {
           popup: 'rounded-2xl border border-zinc-200 shadow-[0_15px_40px_rgba(0,0,0,0.05)]'
         }
@@ -254,12 +254,12 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                   text: 'คุณต้องการปิดหน้าเซสชั่นการใช้งานปัจจุบันหรือไม่',
                   icon: 'warning',
                   showCancelButton: true,
-                  confirmButtonColor: '#ef4444',
+                  confirmButtonColor: '#de7356',
                   cancelButtonColor: '#e4e4e7',
                   cancelButtonText: 'ยกเลิก',
                   confirmButtonText: 'ยืนยันการออก',
-                  background: '#ffffff',
-                  color: '#1f2937',
+                  background: '#1f1c14',
+                  color: '#f5f0e8',
                   customClass: {
                     popup: 'rounded-2xl border border-zinc-200 shadow-[0_15px_40px_rgba(0,0,0,0.05)]',
                     confirmButton: 'rounded-xl px-5 py-2.5 font-bold text-xs',

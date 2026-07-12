@@ -804,7 +804,7 @@ function AppContent() {
         icon: "error",
         title: "สินค้าไม่เพียงพอ",
         text: "สินค้าหน้านี้มีสต๊อกไม่พอสำหรับจำนวนที่คุณต้องการ",
-        confirmButtonColor: "#dc2626",
+        confirmButtonColor: '#de7356',
       });
       return;
     }
@@ -816,7 +816,7 @@ function AppContent() {
         icon: "error",
         title: "ยอดเงินไม่เพียงพอ",
         text: `กรุณาเติมเงินก่อนทำการสั่งซื้อสินค้า (ยอดรวม: ฿${totalPrice.toLocaleString()})`,
-        confirmButtonColor: "#dc2626",
+        confirmButtonColor: '#de7356',
       });
       return;
     }
@@ -842,9 +842,9 @@ function AppContent() {
           inputValidator: (value) => {
             return !value ? "กรุณาเลือกประเภทไอดีเพื่อดำเนินการต่อ" : "";
           },
-          background: "#121212",
-          color: "#fff",
-          confirmButtonColor: "#3b82f6",
+          background: '#1f1c14',
+          color: '#f5f0e8',
+          confirmButtonColor: '#de7356',
           cancelButtonColor: "#27272a",
         });
 
@@ -864,9 +864,9 @@ function AppContent() {
           inputValidator: (value) => {
             return !value ? "กรุณาระบุรายละเอียดเพื่อดำเนินการต่อ" : "";
           },
-          background: "#121212",
-          color: "#fff",
-          confirmButtonColor: "#3b82f6",
+          background: '#1f1c14',
+          color: '#f5f0e8',
+          confirmButtonColor: '#de7356',
           cancelButtonColor: "#27272a",
         });
 
@@ -952,7 +952,7 @@ function AppContent() {
           icon: "error",
           title: "ขออภัย",
           text: "สินค้าชิ้นนี้เพิ่งหมดไป หรือจำนวนในสต๊อกไม่เพียงพอ",
-          confirmButtonColor: "#dc2626",
+          confirmButtonColor: '#de7356',
         });
 
         // Refetch to update stock and disable button
@@ -976,7 +976,7 @@ function AppContent() {
           icon: "error",
           title: "เกิดข้อผิดพลาด",
           text: errorMessage || "ไม่สามารถทำรายการได้ในขณะนี้ กรุณาลองใหม่",
-          confirmButtonColor: "#dc2626",
+          confirmButtonColor: '#de7356',
         });
       }
     }
@@ -1454,8 +1454,8 @@ function AppContent() {
         didOpen: () => {
           Swal.showLoading();
         },
-        background: "#121212",
-        color: "#fff",
+        background: '#1f1c14',
+        color: '#f5f0e8',
       });
 
       const res = await axios.post("/api/redeem", { key: keyInput.trim() });
@@ -1473,8 +1473,8 @@ function AppContent() {
         icon: "success",
         title: "ยินดีด้วย!",
         text: `คุณได้รับสิทธิ์ระดับ Premium เรียบร้อยแล้ว`,
-        background: "#121212",
-        color: "#fff",
+        background: '#1f1c14',
+        color: '#f5f0e8',
       });
     } catch (err: any) {
       if (
@@ -1486,16 +1486,16 @@ function AppContent() {
           icon: "error",
           title: "ไม่พบกุญแจนี้",
           text: "รหัสที่คุณกรอกอาจจะผิด หรือถูกใช้งานไปแล้ว",
-          background: "#121212",
-          color: "#fff",
+          background: '#1f1c14',
+          color: '#f5f0e8',
         });
       } else if (err.response && err.response.status === 404) {
         Swal.fire({
           icon: "error",
           title: "ไม่พบกุญแจนี้",
           text: "รหัสที่คุณกรอกอาจจะผิด หรือถูกใช้งานไปแล้ว",
-          background: "#121212",
-          color: "#fff",
+          background: '#1f1c14',
+          color: '#f5f0e8',
         });
       } else {
         handleDbError(err, OperationType.WRITE, "license_keys");
@@ -1531,8 +1531,8 @@ function AppContent() {
       title: "ออกจากระบบแล้ว",
       timer: 1500,
       showConfirmButton: false,
-      background: "#121212",
-      color: "#fff",
+      background: '#1f1c14',
+      color: '#f5f0e8',
     });
   };
 
@@ -1554,7 +1554,7 @@ function AppContent() {
         "</select>" +
         '<input id="swal-input2" class="swal2-input bg-card border-#1f2937 text-foreground w-full" placeholder="จำนวนคีย์ (1-50)" type="number" value="1">',
       focusConfirm: false,
-      background: "#ffffff",
+      background: '#1f1c14',
       color: "#18181b",
       preConfirm: () => {
         return [
@@ -1603,7 +1603,7 @@ function AppContent() {
         '<input id="swal-ip" class="swal2-input bg-card border-#1f2937 text-foreground w-full" placeholder="IP Address เช่น 1.1.1.1">' +
         '<input id="swal-reason" class="swal2-input bg-card border-#1f2937 text-foreground w-full" placeholder="เหตุผลการบล็อค">',
       focusConfirm: false,
-      background: "#ffffff",
+      background: '#1f1c14',
       color: "#18181b",
       preConfirm: () => {
         return [
@@ -1639,10 +1639,10 @@ function AppContent() {
       text: "คุณกำลังลบคีย์ " + keyId,
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#ef4444",
+      confirmButtonColor: '#de7356',
       cancelButtonColor: "#27272a",
       confirmButtonText: "ลบออก",
-      background: "#ffffff",
+      background: '#1f1c14',
       color: "#18181b",
     });
 
@@ -1718,7 +1718,7 @@ function AppContent() {
         text: `คุณต้องการลบคีย์จำนวน ${keysToDelete.length} รายการใช่หรือไม่?`,
         icon: "warning",
         showCancelButton: true,
-        confirmButtonColor: "#ef4444",
+        confirmButtonColor: '#de7356',
         confirmButtonText: "ยืนยันการลบ",
         cancelButtonText: "ยกเลิก",
       });

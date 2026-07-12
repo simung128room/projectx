@@ -40,10 +40,10 @@ export const LogCategoriesView: React.FC<LogCategoriesViewProps> = ({ userPlan, 
           icon: 'warning',
           title: 'สำหรับสมาชิก VIP เท่านั้น!',
           text: 'คุณต้องเป็น VIP จึงจะสามารถดูหรือดาวน์โหลดได้',
-          background: '#ffffff',
+          background: '#1f1c14',
           color: '#111827',
           confirmButtonText: 'ตกลง',
-          confirmButtonColor: '#2563eb'
+          confirmButtonColor: '#de7356'
        });
        return;
     }
@@ -53,7 +53,7 @@ export const LogCategoriesView: React.FC<LogCategoriesViewProps> = ({ userPlan, 
             icon: 'error',
             title: 'ไม่พบเนื้อหา',
             text: 'ถูกซ่อนหรือไม่มีข้อมูล',
-            background: '#ffffff',
+            background: '#1f1c14',
             color: '#111827'
         });
         return;
@@ -77,7 +77,7 @@ export const LogCategoriesView: React.FC<LogCategoriesViewProps> = ({ userPlan, 
     Swal.fire({
         title: item.title,
         html: `<div class="mt-4">${htmlAttachments}</div>`,
-        background: '#ffffff',
+        background: '#1f1c14',
         color: '#111827',
         confirmButtonText: 'ปิด',
         confirmButtonColor: '#4b5563'

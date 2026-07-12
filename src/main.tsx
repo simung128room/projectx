@@ -14,10 +14,10 @@ const originalFire = Swal.fire;
     opts = { ...args[0] };
   }
   
-  opts.background = '#11131a';
-  opts.color = '#ffffff';
-  opts.confirmButtonColor = '#0084ff';
-  opts.cancelButtonColor = '#1f293d';
+  opts.background = '#1f1c14';
+  opts.color = '#f5f0e8';
+  opts.confirmButtonColor = '#de7356';
+  opts.cancelButtonColor = '#242019';
   
   if (!opts.showCancelButton && !opts.input && !opts.confirmButtonText && opts.showConfirmButton !== true) {
     opts.toast = true;

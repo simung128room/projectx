@@ -53,8 +53,8 @@ export const HistoryLogsView: React.FC<HistoryLogsViewProps> = ({
       title: 'คัดลอกรหัสสำเร็จ!',
       showConfirmButton: false,
       timer: 1500,
-      background: '#ffffff',
-      color: '#1f2937',
+      background: '#1f1c14',
+      color: '#f5f0e8',
       customClass: {
         popup: 'border border-border rounded-xl shadow-md'
       }

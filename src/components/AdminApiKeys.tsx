@@ -23,8 +23,8 @@ export const AdminApiKeys: React.FC = () => {
         title: 'Error',
         text: err.response?.data?.error || 'Failed to fetch API keys',
         background: '#1f1c14',
-        color: '#fff',
-        confirmButtonColor: '#EF4444'
+        color: '#f5f0e8',
+        confirmButtonColor: '#de7356'
       });
     } finally {
       setIsLoading(false);
@@ -50,7 +50,7 @@ export const AdminApiKeys: React.FC = () => {
         timer: 1500,
         showConfirmButton: false,
         background: '#1f1c14',
-        color: '#fff',
+        color: '#f5f0e8',
       });
       setIsAdding(false);
       setNewKeyName('');
@@ -61,8 +61,8 @@ export const AdminApiKeys: React.FC = () => {
         text: err.response?.data?.error || 'Failed to create API key',
         icon: 'error',
         background: '#1f1c14',
-        color: '#fff',
-        confirmButtonColor: '#EF4444'
+        color: '#f5f0e8',
+        confirmButtonColor: '#de7356'
       });
     }
   };
@@ -79,8 +79,8 @@ export const AdminApiKeys: React.FC = () => {
         text: err.response?.data?.error || 'Failed to update API key',
         icon: 'error',
         background: '#1f1c14',
-        color: '#fff',
-        confirmButtonColor: '#EF4444'
+        color: '#f5f0e8',
+        confirmButtonColor: '#de7356'
       });
     }
   };
@@ -91,12 +91,12 @@ export const AdminApiKeys: React.FC = () => {
       text: "การลบกุญแจเชื่อมต่อนี้ จะรบกวนบอทหรือเช็คเกอร์ภายนอกทั้งหมดทันที!",
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#EF4444',
+      confirmButtonColor: '#de7356',
       cancelButtonColor: '#71717a',
       confirmButtonText: 'ลบกุญแจเชื่อมต่อ',
       cancelButtonText: 'ยกเลิก',
       background: '#1f1c14',
-      color: '#fff',
+      color: '#f5f0e8',
     });
 
     if (confirm.isConfirmed) {
@@ -108,7 +108,7 @@ export const AdminApiKeys: React.FC = () => {
           timer: 1000,
           showConfirmButton: false,
           background: '#1f1c14',
-          color: '#fff',
+          color: '#f5f0e8',
         });
         fetchKeys();
       } catch (err: any) {
@@ -117,8 +117,8 @@ export const AdminApiKeys: React.FC = () => {
           text: err.response?.data?.error || 'Failed to delete API key',
           icon: 'error',
           background: '#1f1c14',
-          color: '#fff',
-          confirmButtonColor: '#EF4444'
+          color: '#f5f0e8',
+          confirmButtonColor: '#de7356'
         });
       }
     }

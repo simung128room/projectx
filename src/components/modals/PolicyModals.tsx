@@ -23,10 +23,10 @@ export const PrivacyModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.95, opacity: 0, y: 20 }}
         transition={{ type: "spring", damping: 25, stiffness: 300 }}
-        className="bg-card border border-[#374151] p-6 sm:p-8 max-w-3xl w-full max-h-[90vh] flex flex-col relative"
+        className="bg-card border border-border rounded-2xl shadow-xl shadow-black/50 p-6 sm:p-8 max-w-3xl w-full max-h-[90vh] flex flex-col relative"
       >
         <h2 className="text-xl sm:text-2xl font-medium mb-6 text-foreground flex items-center gap-2">
-          <Shield className="w-6 h-6 shrink-0 text-[#364153]" />{" "}
+          <Shield className="w-6 h-6 shrink-0 text-primary" />{" "}
           นโยบายความเป็นส่วนตัว (Privacy Policy)
         </h2>
         <div className="overflow-y-auto pr-2 sm:pr-4 space-y-6 text-sm leading-relaxed text-muted-foreground scrollbar-thin scrollbar-thumb-zinc-700 flex-1">
@@ -157,10 +157,10 @@ export const PrivacyModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
             </p>
           </div>
         </div>
-        <div className="pt-6 mt-6 border-t border-[#374151] flex gap-3 flex-col sm:flex-row justify-end">
+        <div className="pt-6 mt-6 border-t border-border flex gap-3 flex-col sm:flex-row justify-end">
           <button
             onClick={onClose}
-            className="bg-primary text-primary-foreground hover:bg-zinc-600/25 text-[#364153] font-medium py-3 px-8 transition-colors w-full sm:w-auto cursor-pointer"
+            className="bg-primary text-primary-foreground hover:bg-primary/90 font-medium py-3 px-8 transition-colors w-full sm:w-auto cursor-pointer rounded-xl"
           >
             ทำความเข้าใจและปิดหน้าต่าง
           </button>
@@ -186,10 +186,10 @@ export const TermsModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.95, opacity: 0, y: 20 }}
         transition={{ type: "spring", damping: 25, stiffness: 300 }}
-        className="bg-card border border-[#374151] p-6 sm:p-8 max-w-3xl w-full max-h-[90vh] flex flex-col relative"
+        className="bg-card border border-border rounded-2xl shadow-xl shadow-black/50 p-6 sm:p-8 max-w-3xl w-full max-h-[90vh] flex flex-col relative"
       >
         <h2 className="text-xl sm:text-2xl font-medium mb-6 flex items-center gap-2 text-foreground">
-          <ListChecks className="w-6 h-6 shrink-0 text-[#364153]" />{" "}
+          <ListChecks className="w-6 h-6 shrink-0 text-primary" />{" "}
           ข้อกำหนดการใช้งาน (Terms of Use)
         </h2>
         <div className="overflow-y-auto pr-2 sm:pr-4 space-y-6 text-sm leading-relaxed text-muted-foreground scrollbar-thin scrollbar-thumb-zinc-700 flex-1">
@@ -375,10 +375,10 @@ export const TermsModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
             </p>
           </div>
         </div>
-        <div className="pt-6 mt-6 border-t border-[#374151] flex justify-end w-full">
+        <div className="pt-6 mt-6 border-t border-border flex justify-end w-full">
           <button
             onClick={onClose}
-            className="bg-primary text-primary-foreground hover:bg-zinc-600/25 text-[#364153] font-medium py-3 px-8 transition-all w-full sm:w-auto cursor-pointer"
+            className="bg-primary text-primary-foreground hover:bg-primary/90 font-medium py-3 px-8 transition-all w-full sm:w-auto cursor-pointer rounded-xl"
           >
             ปิดหน้าต่างนี้
           </button>
@@ -408,16 +408,16 @@ export const ContactUsModal: React.FC<ContactModalProps> = ({ isOpen, onClose, s
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.95, opacity: 0, y: 20 }}
         transition={{ type: "spring", damping: 25, stiffness: 300 }}
-        className="bg-card border border-[#374151] p-6 sm:p-8 max-w-md w-full flex flex-col relative"
+        className="bg-card border border-border p-6 sm:p-8 max-w-md w-full flex flex-col relative"
       >
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl sm:text-2xl font-medium flex items-center gap-2 text-foreground">
-            <Phone className="w-6 h-6 shrink-0 text-[#364153]" />{" "}
+            <Phone className="w-6 h-6 shrink-0 text-primary" />{" "}
             ติดต่อเรา
           </h2>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-foreground/10 transition-colors cursor-pointer"
+            className="p-2 hover:bg-foreground/10 transition-colors cursor-pointer rounded-xl"
           >
             <X className="w-5 h-5 text-muted-foreground" />
           </button>
@@ -444,7 +444,7 @@ export const ContactUsModal: React.FC<ContactModalProps> = ({ isOpen, onClose, s
           {siteSettings?.contact_email && (
             <a
               href={`mailto:${siteSettings.contact_email}`}
-              className="flex items-center gap-4 p-4 bg-card hover:bg-[#1e1e1e] border border-[#374151] text-foreground transition-all group"
+              className="flex items-center gap-4 p-4 bg-card hover:bg-muted border border-border text-foreground transition-all group"
             >
               <div className="w-12 h-12 bg-card flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                 <Mail className="w-6 h-6" />
@@ -459,10 +459,10 @@ export const ContactUsModal: React.FC<ContactModalProps> = ({ isOpen, onClose, s
           )}
         </div>
 
-        <div className="pt-6 mt-6 border-t border-[#374151] flex justify-end w-full">
+        <div className="pt-6 mt-6 border-t border-border flex justify-end w-full">
           <button
             onClick={onClose}
-            className="bg-primary text-primary-foreground hover:bg-zinc-600/25 text-[#364153] font-medium py-3 px-8 transition-all w-full sm:w-auto cursor-pointer"
+            className="bg-primary text-primary-foreground hover:bg-primary/90 font-medium py-3 px-8 transition-all w-full sm:w-auto cursor-pointer rounded-xl"
           >
             ปิดหน้าต่างนี้
           </button>
