@@ -617,7 +617,7 @@ const discordLimiter = rateLimit({
   validate: { trustProxy: true },
   message: { error: "Too many requests to Discord integration." },
 });
-const safeCompare = (a, b) => {
+const safeCompare = (a: string | undefined, b: string | undefined) => {
   if (typeof a !== 'string' || typeof b !== 'string') return false;
   if (a.length !== b.length) return false;
   return crypto.timingSafeEqual(Buffer.from(a), Buffer.from(b));

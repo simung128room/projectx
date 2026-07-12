@@ -134,7 +134,7 @@ export function createPaymentsRouter({
     const { productId, quantity } = parseResult.data;
 
     const userId = req.user.uid;
-    const lockKey = `lock:product:${productId}:${uid}`;
+    const lockKey = `lock:product:${productId}:${userId}`;
     const localAcquired = await acquireMutex(lockKey, 3000);
     if (!localAcquired) {
       return res.status(429).json({

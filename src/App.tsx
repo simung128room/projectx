@@ -1773,7 +1773,6 @@ function AppContent() {
     }
   };
 
-  const isLoadingSkeleton = !isDBReady;
 
   return (
     <div className="w-full relative min-h-screen font-sans text-foreground overflow-x-hidden bg-background">
@@ -2129,16 +2128,7 @@ function AppContent() {
                   transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
                   className="flex-1 w-full flex flex-col min-h-0"
                 >
-                  {isLoadingSkeleton ? (
-                    activeView === "home" ? (
-                      <HomeViewSkeleton />
-                    ) : (activeView === "categories" || activeView === "category_products") ? (
-                      <CategoriesViewSkeleton />
-                    ) : (
-                      <SupplementaryLoader />
-                    )
-                  ) : (
-                    <>
+                  <>
                       {(activeView === "categories" || activeView === "category_products") && (
                         <CategoriesView
                           categories={categories}
@@ -2331,7 +2321,6 @@ function AppContent() {
                         <TermsView onBack={() => { setActiveView("home"); window.scrollTo(0,0); }} />
                       )}
                     </>
-                  )}
                 </motion.div>
               </AnimatePresence>
             </Suspense>

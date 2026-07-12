@@ -73,6 +73,7 @@ const profileUpdateSchema = z.object({
 }).partial();
 
 interface UsersRouterDeps {
+  uploadLimiter: any;
   requireAuth: any;
   requireAdmin: any;
   mutationLimiter: any;
@@ -86,6 +87,7 @@ interface UsersRouterDeps {
 }
 
 export function createUsersRouter({
+  uploadLimiter,
   requireAuth,
   requireAdmin,
   mutationLimiter,
@@ -259,7 +261,7 @@ export function createUsersRouter({
   router.post(
     "/avatar",
     requireAuth,
-    options.uploadLimiter || mutationLimiter,
+    uploadLimiter || mutationLimiter,
     (req: any, res: any, next: any) => {
       communityUpload.single("file")(req, res, (err: any) => {
         if (err) {
