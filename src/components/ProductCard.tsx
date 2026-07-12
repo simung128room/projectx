@@ -126,7 +126,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onProductClic
                 confirmButtonText: 'ตกลง',
                 background: '#1f1c14',
                 color: '#EDEDED',
-                confirmButtoncolor: '#f5f0e8',
+                confirmButtonColor: '#f5f0e8',
                 customClass: {
                   confirmButton: 'bg-foreground text-background font-semibold px-5 py-2 rounded'
                 }

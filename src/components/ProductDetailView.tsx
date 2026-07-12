@@ -275,7 +275,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
                         confirmButtonText: 'ตกลง',
                         background: '#1f1c14',
                         color: '#f5f0e8',
-                        confirmButtoncolor: '#f5f0e8'
+                        confirmButtonColor: '#f5f0e8'
                       });
                       return;
                     }
