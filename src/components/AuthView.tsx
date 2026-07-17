@@ -191,7 +191,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
             <motion.img 
               animate={{ y: [0, -4, 0] }}
               transition={{ repeat: Infinity, duration: 3, ease: 'easeInOut' }}
-              src="https://i.postimg.cc/J0rFVmMJ/file-00000000479471fab8f294ee09f67d3f.png" 
+              src="https://i.postimg.cc/23R21z5h/file-0000000058c07207a33e20ff92690f16.png" 
               alt="Logo" 
               className="w-full h-full object-contain drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]" 
             />

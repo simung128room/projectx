@@ -1813,7 +1813,7 @@ function AppContent() {
                 onClick={() => { setActiveView('home'); window.scrollTo(0,0); }}
               >
                 <img 
-                  src="https://i.postimg.cc/J0rFVmMJ/file-00000000479471fab8f294ee09f67d3f.png" 
+                  src="https://i.postimg.cc/23R21z5h/file-0000000058c07207a33e20ff92690f16.png" 
                   alt="nxyshop Logo" 
                   className="h-[36px] w-[36px] md:h-[40px] md:w-[40px] rounded-full object-cover border border-border transition-transform group-hover:scale-105" 
                 />
@@ -1975,7 +1975,7 @@ function AppContent() {
                 {/* Header: Logo and Close Button */}
                 <div className="flex justify-between items-center w-full mb-6">
                   <div className="flex items-center gap-2.5">
-                    <img src="https://i.postimg.cc/J0rFVmMJ/file-00000000479471fab8f294ee09f67d3f.png" alt="Logo" className="h-[32px] w-[32px] rounded-full object-cover border border-border" />
+                    <img src="https://i.postimg.cc/23R21z5h/file-0000000058c07207a33e20ff92690f16.png" alt="Logo" className="h-[32px] w-[32px] rounded-full object-cover border border-border" />
                     <span className="font-bold text-lg tracking-tight font-display">nxyshop</span>
                   </div>
                   <button 

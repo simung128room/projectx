@@ -68,7 +68,7 @@ export const ChevronDownIcon = ({ color = "#5aade0" }) => (
 /* ── Logo SVG ── */
 export const SunnyBuxLogo = ({ size = 64 }) => (
   <img
-    src="https://i.postimg.cc/J0rFVmMJ/file-00000000479471fab8f294ee09f67d3f.png"
+    src="https://i.postimg.cc/23R21z5h/file-0000000058c07207a33e20ff92690f16.png"
     alt="nxyshop Logo"
     style={{
       width: size,
