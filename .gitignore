@@ -37,3 +37,8 @@ fetch_*.cjs
 !/server.ts
 !/vite.config.ts
 !/eslint.config.js
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
