@@ -1,4 +1,8 @@
-import React from "react";
+const fs = require('fs');
+const file = 'src/components/ProductCard.tsx';
+let content = fs.readFileSync(file, 'utf8');
+
+const newProductCard = `import React from "react";
 import { motion } from "motion/react";
 import { Package, ShoppingCart, Bell } from "lucide-react";
 import { Product } from "../types";
@@ -12,7 +16,7 @@ const generateEmojiFallback = (name: string) => {
 };
 
 const formatProductName = (name: string) => {
-  return name.replace(/\)/g, " )").replace(/\(/g, "( ");
+  return name.replace(/\\)/g, " )").replace(/\\(/g, "( ");
 };
 
 interface ProductCardProps {
@@ -119,7 +123,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onProductClic
               e.stopPropagation();
               Swal.fire({
                 title: 'แจ้งเตือนเมื่อมีสินค้า',
-                text: `เราจะส่งข้อความแจ้งเตือนเมื่อ ${product.name} กลับมามีสต็อกอีกครั้ง`,
+                text: \`เราจะส่งข้อความแจ้งเตือนเมื่อ \${product.name} กลับมามีสต็อกอีกครั้ง\`,
                 icon: 'success',
                 confirmButtonText: 'ตกลง',
                 background: '#1a1f35',
@@ -148,3 +152,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onProductClic
     </motion.div>
   );
 };
+`;
+
+fs.writeFileSync(file, newProductCard);
+console.log('Replaced ProductCard');

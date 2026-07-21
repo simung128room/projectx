@@ -153,7 +153,7 @@ export const TermsView: React.FC<PolicyViewProps> = ({ onBack }) => {
 
       <div className="mt-16 text-center text-muted-foreground text-sm pb-8 border-b border-zinc-200 font-medium">
         <p>คุณมาถึงจุดนี้ได้ นั่นหมายความว่าคุณเคารพและทำความเข้าใจมันอย่างเต็มเปี่ยม</p>
-        <p className="mt-2 text-rose-600 font-bold">-- ขอให้คุณโชคดีในโลกของ nxyshop --</p>
+        <p className="mt-2 text-rose-600 font-bold">-- ขอให้คุณโชคดีในโลกของ ZEROSHOP --</p>
       </div>
     </motion.div>
   );

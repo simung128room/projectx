@@ -26,9 +26,9 @@ const sendResetOTP = async (email: string, otp: string) => {
     },
   });
   await transporter.sendMail({
-    from: process.env.SMTP_FROM || "noreply@nxyshop.com",
+    from: process.env.SMTP_FROM || "noreply@ZEROSHOP.com",
     to: email,
-    subject: "Password Reset OTP - nxyshop",
+    subject: "Password Reset OTP - ZEROSHOP",
     text: `Your OTP for password reset is ${otp}. It expires in 15 minutes.`,
   });
 };
