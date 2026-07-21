@@ -35,7 +35,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onProductClic
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ y: -4, boxShadow: '0 10px 25px -5px rgba(0, 212, 170, 0.25)', borderColor: '#00d4aa' }}
       transition={{ duration: 0.2 }}
-      className="group relative bg-[#1a1f35] border border-[#1e293b] rounded-xl overflow-hidden transition-all duration-300 flex flex-col cursor-pointer"
+      className="group relative bg-white/5 backdrop-blur-md border border-white/10 rounded-xl overflow-hidden transition-all duration-300 flex flex-col cursor-pointer"
       onClick={() => onProductClick(product.id)}
     >
       {/* Image area */}
@@ -88,7 +88,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onProductClic
 
       {/* Content */}
       <div className="p-4 flex flex-col flex-1 z-10 relative">
-        <h3 className="text-[14px] font-bold text-[#f1f5f9] leading-snug line-clamp-2 min-h-[42px] mb-3 group-hover:text-teal-400 transition-colors duration-300">
+        <h3 className="text-[14px] font-bold text-white leading-snug line-clamp-2 min-h-[42px] mb-3 group-hover:text-teal-400 transition-colors duration-300">
           {formatProductName(product.name)}
         </h3>
 
@@ -98,7 +98,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onProductClic
             ฿{(product.price || 0).toLocaleString()}
           </span>
           {product.originalPrice && product.price < product.originalPrice ? (
-            <span className="text-xs text-slate-500 line-through font-mono mb-1">฿{product.originalPrice.toLocaleString()}</span>
+            <span className="text-xs text-white/40 line-through font-mono mb-1">฿{product.originalPrice.toLocaleString()}</span>
           ) : null}
           
           {product.stock > 0 ? (
@@ -128,7 +128,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onProductClic
                 customClass: { confirmButton: 'text-black font-bold px-5 py-2 rounded' }
               });
             }}
-            className="w-full bg-[#111827] text-slate-400 py-2.5 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer mt-auto border border-[#334155] transition-all hover:bg-[#1e293b]"
+            className="w-full bg-black/40 backdrop-blur-md text-white/60 py-2.5 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer mt-auto border border-white/20 transition-all hover:bg-white/10"
           >
             <Bell className="w-3.5 h-3.5" /> แจ้งเตือนเมื่อมาใหม่
           </button>

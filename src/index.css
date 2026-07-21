@@ -7,14 +7,14 @@
   --font-logo: "Prompt", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
   
-  --color-background: #0a0e1a;
-  --color-surface: #1a1f35;
-  --color-border: #1e293b;
-  --color-text-primary: #f1f5f9;
-  --color-text-secondary: #94a3b8;
+  --color-background: transparent;
+  --color-surface: rgba(255, 255, 255, 0.03);
+  --color-border: rgba(255, 255, 255, 0.1);
+  --color-text-primary: #ffffff;
+  --color-text-secondary: rgba(255, 255, 255, 0.6);
   --color-accent: #00d4aa;
-  --color-user-bubble: #1a1f35;
-  --color-input-bg: #1a1f35;
+  --color-user-bubble: rgba(255, 255, 255, 0.05);
+  --color-input-bg: rgba(0, 0, 0, 0.2);
 }
 
 @layer base {
@@ -28,7 +28,9 @@
     width: 100%;
     min-height: 100%;
     overflow-x: clip;
-    background-color: var(--color-background);
+    background: radial-gradient(circle at 15% 50%, rgba(20, 11, 46, 1), transparent 50%), radial-gradient(circle at 85% 30%, rgba(10, 14, 26, 1), transparent 50%), linear-gradient(135deg, #0f172a 0%, #020617 100%);
+    background-attachment: fixed;
+    background-color: #020617;
     color: var(--color-text-primary);
     font-family: var(--font-sans);
     font-size: 14.5px;

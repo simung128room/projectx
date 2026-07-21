@@ -1780,13 +1780,13 @@ function AppContent() {
         <ScrollToTop activeView={activeView} />
 
                 {/* ZEROSHOP Navbar */}
-        <nav className="relative top-0 z-50 w-full bg-[#0a0e1a]/85 backdrop-blur-md border-b border-[#1e293b] sticky">
+        <nav className="relative top-0 z-50 w-full bg-black/20 backdrop-blur-lg border-b border-white/10 sticky">
           <div className="container mx-auto flex h-[72px] items-center px-4 relative justify-between gap-4">
             
             {/* Mobile Hamburger (left on mobile, hidden on desktop) */}
             <div className="flex md:hidden items-center z-[1001] relative">
               <button 
-                className="text-muted-foreground hover:text-foreground transition-colors duration-300 outline-none select-none relative w-10 h-10 flex items-center justify-center cursor-pointer bg-[#1a1f35] border border-[#1e293b] rounded-lg hover:border-teal-500/50" 
+                className="text-muted-foreground hover:text-foreground transition-colors duration-300 outline-none select-none relative w-10 h-10 flex items-center justify-center cursor-pointer bg-white/5 backdrop-blur-md border border-white/10 rounded-lg hover:border-teal-500/50" 
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 aria-label="เมนู"
               >
@@ -1825,20 +1825,20 @@ function AppContent() {
 
             {/* Desktop Menu */}
             <div className="hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
-              <button onClick={() => { setActiveView('home'); window.scrollTo(0,0); }} className={`text-[15px] font-medium transition-colors ${activeView === 'home' ? 'text-teal-400' : 'text-slate-400 hover:text-teal-400'}`}>หน้าแรก</button>
-              <button onClick={() => { setActiveView('categories'); window.scrollTo(0,0); }} className={`text-[15px] font-medium transition-colors ${activeView === 'categories' ? 'text-teal-400' : 'text-slate-400 hover:text-teal-400'}`}>ร้านค้า</button>
-              <button onClick={() => { if (!user) { setActiveView('login'); } else { setActiveView('wallet'); } }} className={`text-[15px] font-medium transition-colors ${activeView === 'wallet' ? 'text-teal-400' : 'text-slate-400 hover:text-teal-400'}`}>เติมเงิน</button>
-              <button onClick={() => { window.open('#', '_blank'); }} className="text-[15px] font-medium text-slate-400 hover:text-teal-400 transition-colors">ซื้อเบอร์ sms</button>
+              <button onClick={() => { setActiveView('home'); window.scrollTo(0,0); }} className={`text-[15px] font-medium transition-colors ${activeView === 'home' ? 'text-teal-400' : 'text-white/60 hover:text-teal-400'}`}>หน้าแรก</button>
+              <button onClick={() => { setActiveView('categories'); window.scrollTo(0,0); }} className={`text-[15px] font-medium transition-colors ${activeView === 'categories' ? 'text-teal-400' : 'text-white/60 hover:text-teal-400'}`}>ร้านค้า</button>
+              <button onClick={() => { if (!user) { setActiveView('login'); } else { setActiveView('wallet'); } }} className={`text-[15px] font-medium transition-colors ${activeView === 'wallet' ? 'text-teal-400' : 'text-white/60 hover:text-teal-400'}`}>เติมเงิน</button>
+              <button onClick={() => { window.open('#', '_blank'); }} className="text-[15px] font-medium text-white/60 hover:text-teal-400 transition-colors">ซื้อเบอร์ sms</button>
             </div>
 
             {/* Right side controls */}
             <div className="flex flex-1 md:flex-none items-center justify-end z-[1001] gap-3">
               <div className="hidden lg:flex relative w-[220px]">
-                <Search className="w-[16px] h-[16px] text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                <Search className="w-[16px] h-[16px] text-white/40 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input 
                   type="text" 
                   placeholder="ค้นหาเกม / บัตรเติมเงิน..." 
-                  className="w-full bg-[#0a0e1a] border border-[#1e293b] rounded-full py-2 pl-9 pr-4 text-[13px] text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-teal-500/50 transition-colors"
+                  className="w-full bg-black/20 backdrop-blur-lg border border-white/10 rounded-full py-2 pl-9 pr-4 text-[13px] text-white/80 placeholder:text-slate-600 focus:outline-none focus:border-teal-500/50 transition-colors"
                   onClick={() => setShowSearchPopup(true)}
                   readOnly
                 />
@@ -1846,7 +1846,7 @@ function AppContent() {
               
               <button 
                 onClick={() => setShowSearchPopup(true)}
-                className="lg:hidden text-slate-400 hover:text-white transition-colors duration-300 w-10 h-10 flex items-center justify-center bg-[#1a1f35] border border-[#1e293b] rounded-lg"
+                className="lg:hidden text-white/60 hover:text-white transition-colors duration-300 w-10 h-10 flex items-center justify-center bg-white/5 backdrop-blur-md border border-white/10 rounded-lg"
               >
                 <Search className="w-[18px] h-[18px]" />
               </button>
@@ -1869,7 +1869,7 @@ function AppContent() {
                   </div>
                   <button 
                     onClick={() => setIsMobileProfilePopupOpen(!isMobileProfilePopupOpen)}
-                    className="w-10 h-10 rounded-full border-2 border-teal-500/50 bg-[#1a1f35] overflow-hidden flex items-center justify-center relative cursor-pointer"
+                    className="w-10 h-10 rounded-full border-2 border-teal-500/50 bg-white/5 backdrop-blur-md overflow-hidden flex items-center justify-center relative cursor-pointer"
                   >
                     {user.photoURL ? <img src={user.photoURL} alt="Avatar" className="w-full h-full object-cover" /> : <User className="w-[18px] h-[18px] text-teal-400" />}
                   </button>
@@ -2265,7 +2265,7 @@ function AppContent() {
           
           <FloatingElements />
           {/* Footer */}
-          <footer className="mt-auto bg-[#0a0e1a] border-t border-[#1e293b] relative z-20">
+          <footer className="mt-auto bg-black/20 backdrop-blur-lg border-t border-white/10 relative z-20">
             <div className="container mx-auto px-6 lg:px-8 py-16">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
                 <div>
@@ -2275,36 +2275,36 @@ function AppContent() {
                       ZEROSHOP
                     </span>
                   </div>
-                  <p className="text-[13px] text-slate-400 leading-relaxed mb-6">
+                  <p className="text-[13px] text-white/60 leading-relaxed mb-6">
                     บริการจัดจำหน่ายไอดีและสินค้าเกมชั้นนำราคาประหยัด ปลอดภัย มั่นใจได้ 100% พร้อมบริการดูแลตลอด 24 ชั่วโมง
                   </p>
                 </div>
                 <div>
                   <h3 className="font-bold text-[15px] text-white mb-6">เมนูหลัก</h3>
                   <ul className="space-y-3">
-                    <li><button onClick={() => { setActiveView('home'); window.scrollTo(0,0); }} className="text-[14px] text-slate-400 hover:text-teal-400 transition-colors">หน้าแรก</button></li>
-                    <li><button onClick={() => { setActiveView('categories'); window.scrollTo(0,0); }} className="text-[14px] text-slate-400 hover:text-teal-400 transition-colors">สินค้าทั้งหมด</button></li>
-                    <li><button onClick={() => { setActiveView('wallet'); window.scrollTo(0,0); }} className="text-[14px] text-slate-400 hover:text-teal-400 transition-colors">เติมเงิน</button></li>
-                    <li><button onClick={() => { window.open('#', '_blank'); }} className="text-[14px] text-slate-400 hover:text-teal-400 transition-colors">ซื้อเบอร์ SMS</button></li>
+                    <li><button onClick={() => { setActiveView('home'); window.scrollTo(0,0); }} className="text-[14px] text-white/60 hover:text-teal-400 transition-colors">หน้าแรก</button></li>
+                    <li><button onClick={() => { setActiveView('categories'); window.scrollTo(0,0); }} className="text-[14px] text-white/60 hover:text-teal-400 transition-colors">สินค้าทั้งหมด</button></li>
+                    <li><button onClick={() => { setActiveView('wallet'); window.scrollTo(0,0); }} className="text-[14px] text-white/60 hover:text-teal-400 transition-colors">เติมเงิน</button></li>
+                    <li><button onClick={() => { window.open('#', '_blank'); }} className="text-[14px] text-white/60 hover:text-teal-400 transition-colors">ซื้อเบอร์ SMS</button></li>
                   </ul>
                 </div>
                 <div>
                   <h3 className="font-bold text-[15px] text-white mb-6">ข้อมูลช่วยเหลือ</h3>
                   <ul className="space-y-3">
-                    <li><button onClick={() => { setActiveView('terms'); window.scrollTo(0,0); }} className="text-[14px] text-slate-400 hover:text-teal-400 transition-colors">ข้อตกลงและเงื่อนไข</button></li>
-                    <li><button onClick={() => { setActiveView('privacy'); window.scrollTo(0,0); }} className="text-[14px] text-slate-400 hover:text-teal-400 transition-colors">นโยบายความเป็นส่วนตัว</button></li>
+                    <li><button onClick={() => { setActiveView('terms'); window.scrollTo(0,0); }} className="text-[14px] text-white/60 hover:text-teal-400 transition-colors">ข้อตกลงและเงื่อนไข</button></li>
+                    <li><button onClick={() => { setActiveView('privacy'); window.scrollTo(0,0); }} className="text-[14px] text-white/60 hover:text-teal-400 transition-colors">นโยบายความเป็นส่วนตัว</button></li>
                   </ul>
                 </div>
                 <div>
                   <h3 className="font-bold text-[15px] text-white mb-6">ติดต่อเรา</h3>
                   <ul className="space-y-3">
-                    <li><button onClick={() => window.open('https://line.me', '_blank')} className="text-[14px] text-slate-400 hover:text-teal-400 transition-colors flex items-center gap-2"><span className="text-green-500 text-lg">💬</span> LINE Official</button></li>
-                    <li><button onClick={() => window.open('https://facebook.com', '_blank')} className="text-[14px] text-slate-400 hover:text-teal-400 transition-colors flex items-center gap-2"><span className="text-blue-500 text-lg">📘</span> Facebook</button></li>
-                    <li><button onClick={() => window.open('https://discord.com', '_blank')} className="text-[14px] text-slate-400 hover:text-teal-400 transition-colors flex items-center gap-2"><span className="text-indigo-400 text-lg">👾</span> Discord</button></li>
+                    <li><button onClick={() => window.open('https://line.me', '_blank')} className="text-[14px] text-white/60 hover:text-teal-400 transition-colors flex items-center gap-2"><span className="text-green-500 text-lg">💬</span> LINE Official</button></li>
+                    <li><button onClick={() => window.open('https://facebook.com', '_blank')} className="text-[14px] text-white/60 hover:text-teal-400 transition-colors flex items-center gap-2"><span className="text-blue-500 text-lg">📘</span> Facebook</button></li>
+                    <li><button onClick={() => window.open('https://discord.com', '_blank')} className="text-[14px] text-white/60 hover:text-teal-400 transition-colors flex items-center gap-2"><span className="text-indigo-400 text-lg">👾</span> Discord</button></li>
                   </ul>
                 </div>
               </div>
-              <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-[13px] text-slate-500 pt-8 border-t border-[#1e293b]">
+              <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-[13px] text-white/40 pt-8 border-t border-white/10">
                 <p>© 2025 ZEROSHOP.COM All rights reserved.</p>
                 <div className="flex items-center gap-4">
                   <button onClick={() => { setActiveView('terms'); window.scrollTo(0,0); }} className="hover:text-teal-400 transition-colors">ข้อกำหนด</button>
