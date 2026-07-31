@@ -1779,108 +1779,111 @@ function AppContent() {
     <div className="w-full relative min-h-screen font-sans text-foreground overflow-x-hidden bg-background">
         <ScrollToTop activeView={activeView} />
 
-                {/* ZEROSHOP Navbar */}
-        <nav className="relative top-0 z-50 w-full bg-black/20 backdrop-blur-lg border-b border-white/10 sticky">
-          <div className="container mx-auto flex h-[72px] items-center px-4 relative justify-between gap-4">
-            
-            {/* Mobile Hamburger (left on mobile, hidden on desktop) */}
-            <div className="flex md:hidden items-center z-[1001] relative">
-              <button 
-                className="text-muted-foreground hover:text-foreground transition-colors duration-300 outline-none select-none relative w-10 h-10 flex items-center justify-center cursor-pointer bg-white/5 backdrop-blur-md border border-white/10 rounded-lg hover:border-teal-500/50" 
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                aria-label="เมนู"
-              >
-                <div className="w-[18px] h-[10px] relative select-none">
-                  <motion.span
-                    animate={isMobileMenuOpen ? { rotate: 45, y: 4 } : { rotate: 0, y: 0 }}
-                    transition={{ type: "spring", stiffness: 260, damping: 20 }}
-                    className="w-full h-[2px] bg-zinc-300 absolute top-0 left-0 origin-center rounded-full"
-                  />
-                  <motion.span
-                    animate={isMobileMenuOpen ? { opacity: 0, scale: 0.5 } : { opacity: 1, scale: 1 }}
-                    transition={{ type: "spring", stiffness: 260, damping: 20 }}
-                    className="w-full h-[2px] bg-zinc-300 absolute top-[4px] left-0 origin-center rounded-full"
-                  />
-                  <motion.span
-                    animate={isMobileMenuOpen ? { rotate: -45, y: -4 } : { rotate: 0, y: 0 }}
-                    transition={{ type: "spring", stiffness: 260, damping: 20 }}
-                    className="w-full h-[2px] bg-zinc-300 absolute bottom-0 left-0 origin-center rounded-full"
-                  />
-                </div>
-              </button>
-            </div>
-
-            {/* Logo */}
-            <div 
-              className="flex items-center gap-3 cursor-pointer select-none group z-[1001]" 
-              onClick={() => { setActiveView('home'); window.scrollTo(0,0); }}
-            >
-              <img 
-                src="https://img1.pic.in.th/images/1000045512.png" 
-                alt="ZEROSHOP Logo" 
-                className="h-[40px] w-[40px] md:h-[44px] md:w-[44px] rounded-[10px] object-cover border-2 border-transparent bg-gradient-to-br from-blue-500 to-teal-500 p-[1px] transition-transform group-hover:scale-105" 
-              />
-              <span className="font-bold text-[20px] tracking-tight font-display hidden sm:block bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-teal-400">ZEROSHOP</span>
-            </div>
-
-            {/* Desktop Menu */}
-            <div className="hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
-              <button onClick={() => { setActiveView('home'); window.scrollTo(0,0); }} className={`text-[15px] font-medium transition-colors ${activeView === 'home' ? 'text-teal-400' : 'text-white/60 hover:text-teal-400'}`}>หน้าแรก</button>
-              <button onClick={() => { setActiveView('categories'); window.scrollTo(0,0); }} className={`text-[15px] font-medium transition-colors ${activeView === 'categories' ? 'text-teal-400' : 'text-white/60 hover:text-teal-400'}`}>ร้านค้า</button>
-              <button onClick={() => { if (!user) { setActiveView('login'); } else { setActiveView('wallet'); } }} className={`text-[15px] font-medium transition-colors ${activeView === 'wallet' ? 'text-teal-400' : 'text-white/60 hover:text-teal-400'}`}>เติมเงิน</button>
-              <button onClick={() => { window.open('#', '_blank'); }} className="text-[15px] font-medium text-white/60 hover:text-teal-400 transition-colors">ซื้อเบอร์ sms</button>
-            </div>
-
-            {/* Right side controls */}
-            <div className="flex flex-1 md:flex-none items-center justify-end z-[1001] gap-3">
-              <div className="hidden lg:flex relative w-[220px]">
-                <Search className="w-[16px] h-[16px] text-white/40 absolute left-3 top-1/2 -translate-y-1/2" />
-                <input 
-                  type="text" 
-                  placeholder="ค้นหาเกม / บัตรเติมเงิน..." 
-                  className="w-full bg-black/20 backdrop-blur-lg border border-white/10 rounded-full py-2 pl-9 pr-4 text-[13px] text-white/80 placeholder:text-slate-600 focus:outline-none focus:border-teal-500/50 transition-colors"
-                  onClick={() => setShowSearchPopup(true)}
-                  readOnly
-                />
-              </div>
+                {/* ZEROSHOP Floating Glass Navbar */}
+        <div className="sticky top-0 sm:top-3 z-50 w-full px-2 sm:px-6 max-w-7xl mx-auto pointer-events-auto">
+          <nav className="w-full bg-slate-950/70 backdrop-blur-xl border border-white/15 rounded-2xl shadow-[0_12px_40px_rgba(0,0,0,0.6),inset_0_1px_1px_rgba(255,255,255,0.2)] transition-all">
+            <div className="container mx-auto flex h-[68px] items-center px-4 relative justify-between gap-4">
               
-              <button 
-                onClick={() => setShowSearchPopup(true)}
-                className="lg:hidden text-white/60 hover:text-white transition-colors duration-300 w-10 h-10 flex items-center justify-center bg-white/5 backdrop-blur-md border border-white/10 rounded-lg"
-              >
-                <Search className="w-[18px] h-[18px]" />
-              </button>
-
-              {!user ? (
+              {/* Mobile Hamburger (left on mobile, hidden on desktop) */}
+              <div className="flex md:hidden items-center z-[1001] relative">
                 <button 
-                  onClick={() => setActiveView('login')}
-                  className="px-5 py-2 md:py-2 md:px-6 rounded-full bg-gradient-to-r from-blue-600 to-teal-500 hover:from-blue-500 hover:to-teal-400 text-white font-medium text-[14px] shadow-[0_0_15px_rgba(20,184,166,0.4)] transition-all transform hover:scale-105 outline-none whitespace-nowrap"
+                  className="text-white/80 hover:text-white transition-colors duration-300 outline-none select-none relative w-10 h-10 flex items-center justify-center cursor-pointer bg-white/10 backdrop-blur-md border border-white/20 rounded-xl hover:border-blue-400/60 shadow-[inset_0_1px_1px_rgba(255,255,255,0.25)]" 
+                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                  aria-label="เมนู"
                 >
-                  เข้าสู่ระบบ
-                </button>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <div className="hidden sm:flex flex-col items-end mr-2">
-                    <span className="text-[13px] font-bold text-white">{user.displayName || 'User'}</span>
-                    <div className="flex items-center gap-1 text-[11px] font-mono text-teal-400">
-                      <Wallet className="w-3 h-3" />
-                      {user.balance.toFixed(2)} ฿
-                    </div>
+                  <div className="w-[18px] h-[10px] relative select-none">
+                    <motion.span
+                      animate={isMobileMenuOpen ? { rotate: 45, y: 4 } : { rotate: 0, y: 0 }}
+                      transition={{ type: "spring", stiffness: 260, damping: 20 }}
+                      className="w-full h-[2px] bg-white absolute top-0 left-0 origin-center rounded-full"
+                    />
+                    <motion.span
+                      animate={isMobileMenuOpen ? { opacity: 0, scale: 0.5 } : { opacity: 1, scale: 1 }}
+                      transition={{ type: "spring", stiffness: 260, damping: 20 }}
+                      className="w-full h-[2px] bg-white absolute top-[4px] left-0 origin-center rounded-full"
+                    />
+                    <motion.span
+                      animate={isMobileMenuOpen ? { rotate: -45, y: -4 } : { rotate: 0, y: 0 }}
+                      transition={{ type: "spring", stiffness: 260, damping: 20 }}
+                      className="w-full h-[2px] bg-white absolute bottom-0 left-0 origin-center rounded-full"
+                    />
                   </div>
-                  <button 
-                    onClick={() => setIsMobileProfilePopupOpen(!isMobileProfilePopupOpen)}
-                    className="w-10 h-10 rounded-full border-2 border-teal-500/50 bg-white/5 backdrop-blur-md overflow-hidden flex items-center justify-center relative cursor-pointer"
-                  >
-                    {user.photoURL ? <img src={user.photoURL} alt="Avatar" className="w-full h-full object-cover" /> : <User className="w-[18px] h-[18px] text-teal-400" />}
-                  </button>
+                </button>
+              </div>
+
+              {/* Logo */}
+              <div 
+                className="flex items-center gap-3 cursor-pointer select-none group z-[1001]" 
+                onClick={() => { setActiveView('home'); window.scrollTo(0,0); }}
+              >
+                <img 
+                  src="https://img1.pic.in.th/images/1000045512.png" 
+                  alt="ZEROSHOP Logo" 
+                  className="h-[38px] w-[38px] md:h-[42px] md:w-[42px] rounded-[12px] object-cover border border-white/20 shadow-[0_0_15px_rgba(37,99,235,0.3)] transition-transform group-hover:scale-105" 
+                />
+                <span className="font-bold text-[20px] tracking-tight font-display hidden sm:block text-white">
+                  ZERO<span className="text-blue-500">SHOP</span>
+                </span>
+              </div>
+
+              {/* Desktop Menu */}
+              <div className="hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
+                <button onClick={() => { setActiveView('home'); window.scrollTo(0,0); }} className={`text-[15px] font-medium transition-all ${activeView === 'home' ? 'text-blue-400 font-semibold' : 'text-white/70 hover:text-white'}`}>หน้าแรก</button>
+                <button onClick={() => { setActiveView('categories'); window.scrollTo(0,0); }} className={`text-[15px] font-medium transition-all ${activeView === 'categories' ? 'text-blue-400 font-semibold' : 'text-white/70 hover:text-white'}`}>ร้านค้า</button>
+                <button onClick={() => { if (!user) { setActiveView('login'); } else { setActiveView('wallet'); } }} className={`text-[15px] font-medium transition-all ${activeView === 'wallet' ? 'text-blue-400 font-semibold' : 'text-white/70 hover:text-white'}`}>เติมเงิน</button>
+                <button onClick={() => { window.open('#', '_blank'); }} className="text-[15px] font-medium text-white/70 hover:text-white transition-colors">ซื้อเบอร์ sms</button>
+              </div>
+
+              {/* Right side controls */}
+              <div className="flex flex-1 md:flex-none items-center justify-end z-[1001] gap-3">
+                <div className="hidden lg:flex relative w-[220px]">
+                  <Search className="w-[16px] h-[16px] text-white/50 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input 
+                    type="text" 
+                    placeholder="ค้นหาเกม / บัตรเติมเงิน..." 
+                    className="w-full bg-white/5 backdrop-blur-md border border-white/15 rounded-full py-2 pl-9 pr-4 text-[13px] text-white placeholder:text-white/40 focus:outline-none focus:border-blue-400/70 focus:bg-white/10 transition-all shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]"
+                    onClick={() => setShowSearchPopup(true)}
+                    readOnly
+                  />
                 </div>
-              )}
+                
+                <button 
+                  onClick={() => setShowSearchPopup(true)}
+                  className="lg:hidden text-white/70 hover:text-white transition-colors duration-300 w-10 h-10 flex items-center justify-center bg-white/10 backdrop-blur-md border border-white/15 rounded-xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)]"
+                >
+                  <Search className="w-[18px] h-[18px]" />
+                </button>
+
+                {!user ? (
+                  <button 
+                    onClick={() => setActiveView('login')}
+                    className="px-5 py-2 md:py-2 md:px-6 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-semibold text-[14px] shadow-[0_4px_20px_rgba(37,99,235,0.5),inset_0_1px_1px_rgba(255,255,255,0.3)] transition-all transform hover:scale-105 active:scale-95 outline-none whitespace-nowrap cursor-pointer border border-blue-400/40"
+                  >
+                    เข้าสู่ระบบ
+                  </button>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <div className="hidden sm:flex flex-col items-end mr-2">
+                      <span className="text-[13px] font-bold text-white">{user.displayName || 'User'}</span>
+                      <div className="flex items-center gap-1 text-[11px] font-mono text-blue-400 font-semibold">
+                        <Wallet className="w-3 h-3 text-blue-400" />
+                        {user.balance.toFixed(2)} ฿
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => setIsMobileProfilePopupOpen(!isMobileProfilePopupOpen)}
+                      className="w-10 h-10 rounded-full border-2 border-blue-400/60 bg-white/10 backdrop-blur-md overflow-hidden flex items-center justify-center relative cursor-pointer shadow-[0_0_12px_rgba(37,99,235,0.3)] hover:border-blue-300 transition-all"
+                    >
+                      {user.photoURL ? <img src={user.photoURL} alt="Avatar" className="w-full h-full object-cover" /> : <User className="w-[18px] h-[18px] text-blue-400" />}
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
-            
-            {/* Desktop profile dropdown popup logic is unchanged below this section */}
-          </div>
-        </nav>
-        {/* Universal Sidebar Drawer */}
+          </nav>
+        </div>
+
+        {/* Universal Floating Glass Sidebar Drawer ( sidebar ลอย กระจกสะท้อนแสง ) */}
         <AnimatePresence>
           {isMobileMenuOpen && (
             <motion.div
@@ -1888,82 +1891,87 @@ function AppContent() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
+              transition={{ duration: 0.25 }}
               onClick={() => setIsMobileMenuOpen(false)}
-              className="md:hidden fixed inset-0 bg-black/60 backdrop-blur-md z-[999]"
+              className="fixed inset-0 bg-black/75 backdrop-blur-xl z-[999]"
             />
           )}
 
           {isMobileMenuOpen && (
             <motion.div
               key="sidebar-drawer"
-              initial={{ x: "-100%", opacity: 0.5 }}
+              initial={{ x: "-100%", opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
-              exit={{ x: "-100%", opacity: 0.5 }}
-              transition={{ type: "spring", damping: 28, stiffness: 220 }}
-              className="md:hidden fixed left-0 top-0 bottom-0 h-full w-[260px] max-w-[85vw] bg-background border-r border-border shadow-[0_0_40px_rgba(0,0,0,0.8)] z-[1000] flex flex-col font-sans overflow-x-hidden overflow-y-auto"
+              exit={{ x: "-100%", opacity: 0 }}
+              transition={{ type: "spring", damping: 26, stiffness: 220 }}
+              className="fixed left-3 top-3 bottom-3 w-[275px] max-w-[85vw] bg-slate-950/85 backdrop-blur-2xl border border-white/20 rounded-3xl shadow-[0_25px_60px_rgba(0,0,0,0.9),inset_0_1px_2px_rgba(255,255,255,0.3)] z-[1000] flex flex-col font-sans overflow-hidden"
             >
-              <div className="flex flex-col h-full py-6 px-6 select-none bg-background text-foreground w-full" style={{ scrollbarWidth: 'none' }}>
+              {/* Glass reflection beam effect */}
+              <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-br from-white/15 via-white/5 to-transparent pointer-events-none" />
+
+              <div className="relative z-10 flex flex-col h-full py-6 px-5 select-none text-white w-full overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
                 {/* Header: Logo and Close Button */}
                 <div className="flex justify-between items-center w-full mb-6">
                   <div className="flex items-center gap-2.5">
-                    <img src="https://img1.pic.in.th/images/1000045512.png" alt="Logo" className="h-[32px] w-[32px] rounded-full object-cover border border-border" />
-                    <span className="font-bold text-lg tracking-tight font-display">ZEROSHOP</span>
+                    <img src="https://img1.pic.in.th/images/1000045512.png" alt="Logo" className="h-[34px] w-[34px] rounded-xl object-cover border border-white/20 shadow-[0_0_10px_rgba(37,99,235,0.4)]" />
+                    <span className="font-bold text-lg tracking-tight font-display text-white">
+                      ZERO<span className="text-blue-500">SHOP</span>
+                    </span>
                   </div>
                   <button 
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="w-10 h-10 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer rounded-full border-none bg-transparent outline-none -mr-4"
+                    className="w-9 h-9 flex items-center justify-center text-white/70 hover:text-white transition-colors cursor-pointer rounded-full bg-white/10 border border-white/15 hover:bg-white/20 outline-none"
                     aria-label="ปิดเมนู"
                   >
-                    <X className="w-6 h-6" />
+                    <X className="w-5 h-5" />
                   </button>
                 </div>
 
-                <div className="h-[1px] w-full bg-border mb-4" />
+                <div className="h-[1px] w-full bg-white/10 mb-5" />
 
                 {/* Overview Section */}
                 <div className="flex flex-col space-y-2">
-                  <span className="text-[12px] text-muted-foreground/80 font-medium tracking-wider font-mono mb-2">ภาพรวม</span>
-                  <button onClick={() => { setIsMobileMenuOpen(false); setActiveView('home'); window.scrollTo(0, 0); }} className="flex items-center gap-3 text-left font-medium text-[15px] text-zinc-300 hover:text-foreground bg-transparent hover:bg-border py-2 px-3 -mx-3 rounded transition-colors cursor-pointer border-none outline-none">
-                    <Home className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-[11px] text-blue-400 font-bold tracking-wider font-mono uppercase mb-1">ภาพรวม</span>
+                  <button onClick={() => { setIsMobileMenuOpen(false); setActiveView('home'); window.scrollTo(0, 0); }} className={`flex items-center gap-3 text-left font-medium text-[14px] py-2.5 px-3 rounded-xl transition-all cursor-pointer border-none outline-none ${activeView === 'home' ? 'bg-blue-600/30 text-white border border-blue-500/40 shadow-[inset_0_1px_0_rgba(255,255,255,0.2)]' : 'text-white/80 hover:text-white hover:bg-white/10'}`}>
+                    <Home className="w-4 h-4 text-blue-400" />
                     หน้าแรก
                   </button>
-                  <button onClick={() => { setIsMobileMenuOpen(false); setActiveView('categories'); window.scrollTo(0, 0); }} className="flex items-center gap-3 text-left font-medium text-[15px] text-zinc-300 hover:text-foreground bg-transparent hover:bg-border py-2 px-3 -mx-3 rounded transition-colors cursor-pointer border-none outline-none">
-                    <Package className="w-4 h-4 text-muted-foreground" />
+                  <button onClick={() => { setIsMobileMenuOpen(false); setActiveView('categories'); window.scrollTo(0, 0); }} className={`flex items-center gap-3 text-left font-medium text-[14px] py-2.5 px-3 rounded-xl transition-all cursor-pointer border-none outline-none ${activeView === 'categories' ? 'bg-blue-600/30 text-white border border-blue-500/40 shadow-[inset_0_1px_0_rgba(255,255,255,0.2)]' : 'text-white/80 hover:text-white hover:bg-white/10'}`}>
+                    <Package className="w-4 h-4 text-blue-400" />
                     สินค้าทั้งหมด
                   </button>
-                  <button onClick={() => { setIsMobileMenuOpen(false); /* Optional: add contact view/popup */ }} className="flex items-center gap-3 text-left font-medium text-[15px] text-zinc-300 hover:text-foreground bg-transparent hover:bg-border py-2 px-3 -mx-3 rounded transition-colors cursor-pointer border-none outline-none">
-                    <MessageSquare className="w-4 h-4 text-muted-foreground" />
+                  <button onClick={() => { setIsMobileMenuOpen(false); setActiveView('categories'); }} className="flex items-center gap-3 text-left font-medium text-[14px] py-2.5 px-3 rounded-xl text-white/80 hover:text-white hover:bg-white/10 transition-all cursor-pointer border-none outline-none">
+                    <MessageSquare className="w-4 h-4 text-blue-400" />
                     ติดต่อเรา
                   </button>
                 </div>
 
-                <div className="h-[1px] w-full bg-border my-4" />
+                <div className="h-[1px] w-full bg-white/10 my-4" />
 
                 {/* Finance Section */}
                 <div className="flex flex-col space-y-2">
-                  <span className="text-[12px] text-muted-foreground/80 font-medium tracking-wider font-mono mb-2">บัญชีผู้ใช้</span>
-                  <button onClick={() => { setIsMobileMenuOpen(false); if (!user) { setActiveView('login'); } else { setActiveView('wallet'); } }} className="flex items-center gap-3 text-left font-medium text-[15px] text-zinc-300 hover:text-foreground bg-transparent hover:bg-border py-2 px-3 -mx-3 rounded transition-colors cursor-pointer border-none outline-none">
-                    <Wallet className="w-4 h-4 text-muted-foreground" />
-                    กระเป๋าเงิน
+                  <span className="text-[11px] text-blue-400 font-bold tracking-wider font-mono uppercase mb-1">บริการผู้ใช้</span>
+                  <button onClick={() => { setIsMobileMenuOpen(false); if (!user) { setActiveView('login'); } else { setActiveView('wallet'); } }} className={`flex items-center gap-3 text-left font-medium text-[14px] py-2.5 px-3 rounded-xl transition-all cursor-pointer border-none outline-none ${activeView === 'wallet' ? 'bg-blue-600/30 text-white border border-blue-500/40 shadow-[inset_0_1px_0_rgba(255,255,255,0.2)]' : 'text-white/80 hover:text-white hover:bg-white/10'}`}>
+                    <Wallet className="w-4 h-4 text-blue-400" />
+                    เติมเงิน / กระเป๋าเงิน
                   </button>
-                  <button onClick={() => { setIsMobileMenuOpen(false); if (!user) { setActiveView('login'); } else { setActiveView('redeem'); } }} className="flex items-center gap-3 text-left font-medium text-[15px] text-zinc-300 hover:text-foreground bg-transparent hover:bg-border py-2 px-3 -mx-3 rounded transition-colors cursor-pointer border-none outline-none">
-                    <Gift className="w-4 h-4 text-amber-500" />
-                    <span className="text-amber-550 font-semibold">รับโบนัสฟรี (Daily Reward)</span>
+                  <button onClick={() => { setIsMobileMenuOpen(false); if (!user) { setActiveView('login'); } else { setActiveView('redeem'); } }} className="flex items-center gap-3 text-left font-medium text-[14px] py-2.5 px-3 rounded-xl text-amber-300 hover:bg-amber-500/20 transition-all cursor-pointer border border-amber-500/30 bg-amber-500/10 outline-none">
+                    <Gift className="w-4 h-4 text-amber-400 animate-bounce" />
+                    <span className="font-semibold">รับโบนัสฟรี (Daily)</span>
                   </button>
-                  <button onClick={() => { setIsMobileMenuOpen(false); if (!user) { setActiveView('login'); } else { setActiveView('history'); } }} className="flex items-center gap-3 text-left font-medium text-[15px] text-zinc-300 hover:text-foreground bg-transparent hover:bg-border py-2 px-3 -mx-3 rounded transition-colors cursor-pointer border-none outline-none">
-                    <History className="w-4 h-4 text-muted-foreground" />
-                    ประวัติธุรกรรม
+                  <button onClick={() => { setIsMobileMenuOpen(false); if (!user) { setActiveView('login'); } else { setActiveView('history'); } }} className="flex items-center gap-3 text-left font-medium text-[14px] py-2.5 px-3 rounded-xl text-white/80 hover:text-white hover:bg-white/10 transition-all cursor-pointer border-none outline-none">
+                    <History className="w-4 h-4 text-blue-400" />
+                    ประวัติการสั่งซื้อ
                   </button>
-                  <button onClick={() => { setIsMobileMenuOpen(false); if (!user) { setActiveView('login'); } else { setActiveView('profile'); } }} className="flex items-center gap-3 text-left font-medium text-[15px] text-zinc-300 hover:text-foreground bg-transparent hover:bg-border py-2 px-3 -mx-3 rounded transition-colors cursor-pointer border-none outline-none">
-                    <User className="w-4 h-4 text-muted-foreground" />
+                  <button onClick={() => { setIsMobileMenuOpen(false); if (!user) { setActiveView('login'); } else { setActiveView('profile'); } }} className="flex items-center gap-3 text-left font-medium text-[14px] py-2.5 px-3 rounded-xl text-white/80 hover:text-white hover:bg-white/10 transition-all cursor-pointer border-none outline-none">
+                    <User className="w-4 h-4 text-blue-400" />
                     บัญชีของฉัน
                   </button>
                 </div>
 
                 <div className="mt-auto flex flex-col w-full pt-4">
                   <div className="flex flex-col space-y-2 mb-2">
-                     <span className="text-[12px] text-muted-foreground/80 font-medium tracking-wider font-mono">บัญชี</span>
+                     <span className="text-[11px] text-blue-400 font-bold tracking-wider font-mono uppercase">บัญชี</span>
                   </div>
 
                   {/* Account Section */}
@@ -1971,27 +1979,27 @@ function AppContent() {
                     {!user ? (
                       <button 
                         onClick={() => { setIsMobileMenuOpen(false); setActiveView('login'); }}
-                        className="w-full py-2.5 bg-foreground text-background hover:opacity-90 font-semibold text-sm rounded transition-colors cursor-pointer border-none outline-none"
+                        className="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm rounded-xl transition-all cursor-pointer border border-blue-400/40 shadow-[0_4px_15px_rgba(37,99,235,0.4),inset_0_1px_1px_rgba(255,255,255,0.3)] outline-none"
                       >
                         เข้าสู่ระบบ
                       </button>
                     ) : (
                       <div className="relative">
                         <div className="flex justify-between items-center mb-4">
-                          <button onClick={() => { /* bell action */ }} className="flex-1 max-w-[44px] h-[44px] rounded bg-card border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-border transition-colors outline-none cursor-pointer">
+                          <button onClick={() => { }} className="flex-1 max-w-[44px] h-[44px] rounded-xl bg-white/10 border border-white/15 flex items-center justify-center text-white/80 hover:text-white hover:bg-white/20 transition-colors outline-none cursor-pointer">
                             <Bell className="w-4 h-4" />
                           </button>
                           <div className="w-2" />
-                          <button onClick={() => { setIsMobileMenuOpen(false); setActiveView('settings'); }} className="flex-1 max-w-[44px] h-[44px] rounded bg-card border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-border transition-colors outline-none cursor-pointer">
+                          <button onClick={() => { setIsMobileMenuOpen(false); setActiveView('settings'); }} className="flex-1 max-w-[44px] h-[44px] rounded-xl bg-white/10 border border-white/15 flex items-center justify-center text-white/80 hover:text-white hover:bg-white/20 transition-colors outline-none cursor-pointer">
                             <Settings className="w-4 h-4" />
                           </button>
                           <div className="w-2" />
-                          <button onClick={() => { setIsMobileMenuOpen(false); setShowSearchPopup(true); }} className="flex-1 max-w-[44px] h-[44px] rounded bg-card border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-border transition-colors outline-none cursor-pointer">
+                          <button onClick={() => { setIsMobileMenuOpen(false); setShowSearchPopup(true); }} className="flex-1 max-w-[44px] h-[44px] rounded-xl bg-white/10 border border-white/15 flex items-center justify-center text-white/80 hover:text-white hover:bg-white/20 transition-colors outline-none cursor-pointer">
                             <Search className="w-4 h-4" />
                           </button>
                           <div className="w-2" />
-                          <button onClick={() => { setIsMobileMenuOpen(false); if (isAdmin) setActiveView('admin'); }} className="flex-1 max-w-[44px] h-[44px] rounded bg-card border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-border transition-colors outline-none cursor-pointer">
-                            <Key className="w-4 h-4" />
+                          <button onClick={() => { setIsMobileMenuOpen(false); if (isAdmin) setActiveView('admin'); }} className="flex-1 max-w-[44px] h-[44px] rounded-xl bg-white/10 border border-white/15 flex items-center justify-center text-white/80 hover:text-white hover:bg-white/20 transition-colors outline-none cursor-pointer">
+                            <Key className="w-4 h-4 text-blue-400" />
                           </button>
                         </div>
                         <AnimatePresence>
@@ -2001,23 +2009,21 @@ function AppContent() {
                               animate={{ opacity: 1, y: 0, scale: 1 }}
                               exit={{ opacity: 0, y: 10, scale: 0.95 }}
                               transition={{ duration: 0.15 }}
-                              className="absolute bottom-[110%] left-0 w-full bg-card border border-border rounded shadow-2xl overflow-hidden z-[1001] flex flex-col p-1.5"
+                              className="absolute bottom-[110%] left-0 w-full bg-slate-900 border border-white/20 rounded-2xl shadow-2xl overflow-hidden z-[1001] flex flex-col p-2"
                             >
-                              <button className="text-left px-3 py-2 text-[14px] font-medium text-zinc-200 hover:bg-border hover:text-foreground rounded transition-colors mb-0.5 border-none bg-transparent outline-none cursor-pointer" onClick={() => { setIsMobileProfilePopupOpen(false); setIsMobileMenuOpen(false); setActiveView('profile'); }}>โปรไฟล์</button>
-                              <button className="text-left px-3 py-2 text-[14px] font-medium text-zinc-200 hover:bg-border hover:text-foreground rounded transition-colors mb-0.5 border-none bg-transparent outline-none cursor-pointer" onClick={() => { setIsMobileProfilePopupOpen(false); setIsMobileMenuOpen(false); setActiveView('settings'); }}>การตั้งค่า</button>
-                              <button className="text-left px-3 py-2 text-[14px] font-medium text-zinc-200 hover:bg-border hover:text-foreground rounded transition-colors mb-0.5 border-none bg-transparent outline-none cursor-pointer" onClick={() => { setIsMobileProfilePopupOpen(false); setIsMobileMenuOpen(false); setActiveView('history'); }}>ประวัติการสั่งซื้อ</button>
-                              <button className="text-left px-3 py-2 text-[14px] font-medium text-zinc-200 hover:bg-border hover:text-foreground rounded transition-colors mb-0.5 border-none bg-transparent outline-none cursor-pointer" onClick={() => { setIsMobileProfilePopupOpen(false); setIsMobileMenuOpen(false); setActiveView('wallet'); }}>ประวัติการเติมเงิน</button>
-                              <button className="text-left px-3 py-2 text-[14px] font-medium text-zinc-200 hover:bg-border hover:text-foreground rounded transition-colors mb-0.5 border-none bg-transparent outline-none cursor-pointer" onClick={() => { setIsMobileProfilePopupOpen(false); setIsMobileMenuOpen(false); setActiveView('history'); }}>ออเดอร์ของฉัน</button>
-                              <button className="text-left px-3 py-2 text-[14px] font-medium text-zinc-200 hover:bg-border hover:text-foreground rounded transition-colors mb-0.5 border-none bg-transparent outline-none cursor-pointer" onClick={() => { setIsMobileProfilePopupOpen(false); setIsMobileMenuOpen(false); setActiveView('topup'); }}>กรอกโค๊ด</button>
-                              <div className="h-[1px] bg-border my-1 mx-1.5" />
-                              <button className="text-left px-3 py-2 text-[14px] font-semibold text-red-500 hover:bg-red-500/10 rounded transition-colors border-none bg-transparent outline-none cursor-pointer" onClick={() => { setIsMobileProfilePopupOpen(false); setIsMobileMenuOpen(false); handleLogout(); }}>ออกจากระบบ</button>
+                              <button className="text-left px-3 py-2 text-[14px] font-medium text-white/90 hover:bg-white/10 rounded-lg transition-colors mb-0.5 border-none bg-transparent outline-none cursor-pointer" onClick={() => { setIsMobileProfilePopupOpen(false); setIsMobileMenuOpen(false); setActiveView('profile'); }}>โปรไฟล์</button>
+                              <button className="text-left px-3 py-2 text-[14px] font-medium text-white/90 hover:bg-white/10 rounded-lg transition-colors mb-0.5 border-none bg-transparent outline-none cursor-pointer" onClick={() => { setIsMobileProfilePopupOpen(false); setIsMobileMenuOpen(false); setActiveView('settings'); }}>การตั้งค่า</button>
+                              <button className="text-left px-3 py-2 text-[14px] font-medium text-white/90 hover:bg-white/10 rounded-lg transition-colors mb-0.5 border-none bg-transparent outline-none cursor-pointer" onClick={() => { setIsMobileProfilePopupOpen(false); setIsMobileMenuOpen(false); setActiveView('history'); }}>ประวัติการสั่งซื้อ</button>
+                              <button className="text-left px-3 py-2 text-[14px] font-medium text-white/90 hover:bg-white/10 rounded-lg transition-colors mb-0.5 border-none bg-transparent outline-none cursor-pointer" onClick={() => { setIsMobileProfilePopupOpen(false); setIsMobileMenuOpen(false); setActiveView('wallet'); }}>ประวัติการเติมเงิน</button>
+                              <div className="h-[1px] bg-white/10 my-1 mx-1.5" />
+                              <button className="text-left px-3 py-2 text-[14px] font-semibold text-red-400 hover:bg-red-500/20 rounded-lg transition-colors border-none bg-transparent outline-none cursor-pointer" onClick={() => { setIsMobileProfilePopupOpen(false); setIsMobileMenuOpen(false); handleLogout(); }}>ออกจากระบบ</button>
                             </motion.div>
                           )}
                         </AnimatePresence>
 
                         <button 
                           onClick={() => setIsMobileProfilePopupOpen(!isMobileProfilePopupOpen)}
-                          className="w-full flex items-center p-2.5 bg-card hover:bg-border border border-border rounded-lg transition-colors cursor-pointer outline-none"
+                          className="w-full flex items-center p-2.5 bg-white/10 hover:bg-white/15 border border-white/15 rounded-xl transition-all cursor-pointer outline-none shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)]"
                         >
                           <div className="w-8 h-8 rounded-full bg-zinc-800 shrink-0 overflow-hidden flex items-center justify-center border border-border">
                             {user.photoURL ? <img src={user.photoURL} alt="Avatar" className="w-full h-full object-cover" /> : <User className="w-4 h-4 text-muted-foreground" />}
