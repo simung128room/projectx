@@ -23,9 +23,9 @@ export const PrivacyModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.95, opacity: 0, y: 20 }}
         transition={{ type: "spring", damping: 25, stiffness: 300 }}
-        className="bg-card border border-[#374151] p-6 sm:p-8 max-w-3xl w-full max-h-[90vh] flex flex-col relative"
+        className="bg-[#121212] border border-[#374151] p-6 sm:p-8 max-w-3xl w-full max-h-[90vh] flex flex-col relative"
       >
-        <h2 className="text-xl sm:text-2xl font-medium mb-6 text-foreground flex items-center gap-2">
+        <h2 className="text-xl sm:text-2xl font-medium mb-6 text-white flex items-center gap-2">
           <Shield className="w-6 h-6 shrink-0 text-[#364153]" />{" "}
           นโยบายความเป็นส่วนตัว (Privacy Policy)
         </h2>
@@ -40,7 +40,7 @@ export const PrivacyModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
           </p>
 
           <div>
-            <h3 className="font-medium text-foreground text-base mb-2">
+            <h3 className="font-medium text-white text-base mb-2">
               1. ข้อมูลที่เราเก็บรวบรวม
             </h3>
             <ul className="list-disc pl-5 space-y-1">
@@ -76,7 +76,7 @@ export const PrivacyModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
           </div>
 
           <div>
-            <h3 className="font-medium text-foreground text-base mb-2">
+            <h3 className="font-medium text-white text-base mb-2">
               2. การปกป้องข้อมูล Combo และสินทรัพย์ของท่าน
             </h3>
             <p className="mb-2">
@@ -94,7 +94,7 @@ export const PrivacyModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
           </div>
 
           <div>
-            <h3 className="font-medium text-foreground text-base mb-2">
+            <h3 className="font-medium text-white text-base mb-2">
               3. การเปิดเผยข้อมูลแก่บุคคลที่สาม
             </h3>
             <p>
@@ -119,7 +119,7 @@ export const PrivacyModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
           </div>
 
           <div>
-            <h3 className="font-medium text-foreground text-base mb-2">
+            <h3 className="font-medium text-white text-base mb-2">
               4. คุกกี้ (Cookies) และการจัดเก็บ Cache
             </h3>
             <p>
@@ -132,7 +132,7 @@ export const PrivacyModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
           </div>
 
           <div>
-            <h3 className="font-medium text-foreground text-base mb-2">
+            <h3 className="font-medium text-white text-base mb-2">
               5. สิทธิของเจ้าของข้อมูล (Data Subject Rights)
             </h3>
             <p>
@@ -146,7 +146,7 @@ export const PrivacyModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
           </div>
 
           <div>
-            <h3 className="font-medium text-foreground text-base mb-2">
+            <h3 className="font-medium text-white text-base mb-2">
               6. การแก้ไขเปลี่ยนแปลงนโยบาย
             </h3>
             <p>
@@ -186,15 +186,15 @@ export const TermsModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.95, opacity: 0, y: 20 }}
         transition={{ type: "spring", damping: 25, stiffness: 300 }}
-        className="bg-card border border-[#374151] p-6 sm:p-8 max-w-3xl w-full max-h-[90vh] flex flex-col relative"
+        className="bg-[#121212] border border-[#374151] p-6 sm:p-8 max-w-3xl w-full max-h-[90vh] flex flex-col relative"
       >
-        <h2 className="text-xl sm:text-2xl font-medium mb-6 flex items-center gap-2 text-foreground">
+        <h2 className="text-xl sm:text-2xl font-medium mb-6 flex items-center gap-2 text-white">
           <ListChecks className="w-6 h-6 shrink-0 text-[#364153]" />{" "}
           ข้อกำหนดการใช้งาน (Terms of Use)
         </h2>
         <div className="overflow-y-auto pr-2 sm:pr-4 space-y-6 text-sm leading-relaxed text-muted-foreground scrollbar-thin scrollbar-thumb-zinc-700 flex-1">
           <div>
-            <h3 className="font-medium text-foreground text-base mb-2">
+            <h3 className="font-medium text-white text-base mb-2">
               1. การรับรองความยินยอมและผูกพัน
             </h3>
             <p>
@@ -207,7 +207,7 @@ export const TermsModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
           </div>
 
           <div>
-            <h3 className="font-medium text-foreground text-base mb-2">
+            <h3 className="font-medium text-white text-base mb-2">
               2. ขอบเขตสิทธิ์ หน้าที่ และการใช้งานที่ยอมรับได้ (AUP)
             </h3>
             <p className="mb-2">
@@ -249,7 +249,7 @@ export const TermsModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
           </div>
 
           <div>
-            <h3 className="font-medium text-foreground text-base mb-2">
+            <h3 className="font-medium text-white text-base mb-2">
               3. การชำระเงิน การเติมเงิน และนโยบายล้างบางเครดิต (No
               Refund Policy)
             </h3>
@@ -272,7 +272,7 @@ export const TermsModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
           </div>
 
           <div>
-            <h3 className="font-medium text-foreground text-base mb-2">
+            <h3 className="font-medium text-white text-base mb-2">
               4. ข้อยกเว้นและข้อจำกัดความรับผิดชอบ (Disclaimer)
             </h3>
             <p className="mb-2">
@@ -291,7 +291,7 @@ export const TermsModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
           </div>
 
           <div>
-            <h3 className="font-medium text-foreground text-base mb-2">
+            <h3 className="font-medium text-white text-base mb-2">
               5. สิทธิของการยุติการให้บริการ และ IP Ban
             </h3>
             <p>
@@ -304,12 +304,12 @@ export const TermsModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
           </div>
 
           <div>
-            <h3 className="font-medium text-foreground text-base mb-2">
+            <h3 className="font-medium text-white text-base mb-2">
               6. การจัดการและระบบต่างๆ
             </h3>
           </div>
           <div>
-            <h3 className="font-medium text-foreground text-base mb-2">
+            <h3 className="font-medium text-white text-base mb-2">
               ระบบและบริการของเรา
             </h3>
             <ul className="list-disc pl-5">
@@ -334,7 +334,7 @@ export const TermsModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
           </div>
 
           <div>
-            <h3 className="font-medium text-foreground text-base mb-2">
+            <h3 className="font-medium text-white text-base mb-2">
               ความมุ่งมั่นด้านความปลอดภัย (Security Commitment)
             </h3>
             <p>
@@ -349,7 +349,7 @@ export const TermsModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
           </div>
 
           <div>
-            <h3 className="font-medium text-foreground text-base mb-2">
+            <h3 className="font-medium text-white text-base mb-2">
               ช่องทางติดต่อคอมมูนิตี้ (Contact & Community)
             </h3>
             <p className="mb-2">
@@ -408,16 +408,16 @@ export const ContactUsModal: React.FC<ContactModalProps> = ({ isOpen, onClose, s
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.95, opacity: 0, y: 20 }}
         transition={{ type: "spring", damping: 25, stiffness: 300 }}
-        className="bg-card border border-[#374151] p-6 sm:p-8 max-w-md w-full flex flex-col relative"
+        className="bg-[#121212] border border-[#374151] p-6 sm:p-8 max-w-md w-full flex flex-col relative"
       >
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl sm:text-2xl font-medium flex items-center gap-2 text-foreground">
+          <h2 className="text-xl sm:text-2xl font-medium flex items-center gap-2 text-white">
             <Phone className="w-6 h-6 shrink-0 text-[#364153]" />{" "}
             ติดต่อเรา
           </h2>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-foreground/10 transition-colors cursor-pointer"
+            className="p-2 hover:bg-white/10 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5 text-muted-foreground" />
           </button>
@@ -428,9 +428,9 @@ export const ContactUsModal: React.FC<ContactModalProps> = ({ isOpen, onClose, s
             href="https://discord.gg/EvFjgkSB4W"
             target="_blank"
             rel="noreferrer"
-            className="flex items-center gap-4 p-4 bg-card hover:bg-[#5865F2]/20 border border-[#5865F2]/20 text-foreground transition-all group"
+            className="flex items-center gap-4 p-4 bg-[#121212] hover:bg-[#5865F2]/20 border border-[#5865F2]/20 text-white transition-all group"
           >
-            <div className="w-12 h-12 bg-card flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+            <div className="w-12 h-12 bg-[#121212] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
               <span className="font-semibold text-xl block">D</span>
             </div>
             <div>
@@ -444,9 +444,9 @@ export const ContactUsModal: React.FC<ContactModalProps> = ({ isOpen, onClose, s
           {siteSettings?.contact_email && (
             <a
               href={`mailto:${siteSettings.contact_email}`}
-              className="flex items-center gap-4 p-4 bg-card hover:bg-[#1e1e1e] border border-[#374151] text-foreground transition-all group"
+              className="flex items-center gap-4 p-4 bg-[#121212] hover:bg-[#1e1e1e] border border-[#374151] text-white transition-all group"
             >
-              <div className="w-12 h-12 bg-card flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+              <div className="w-12 h-12 bg-[#121212] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                 <Mail className="w-6 h-6" />
               </div>
               <div>

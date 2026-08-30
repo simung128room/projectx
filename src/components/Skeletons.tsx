@@ -2,7 +2,7 @@ import React from 'react';
 
 export const HomeViewSkeleton: React.FC = () => {
   return (
-    <div className="w-full text-foreground pb-24 lg:pb-0 overflow-x-hidden bg-card animate-pulse">
+    <div className="w-full text-foreground pb-24 lg:pb-0 overflow-x-hidden bg-white animate-pulse">
       {/* Hero Content Skeleton */}
       <section className="relative w-full overflow-hidden min-h-[40vh] sm:min-h-[50vh] flex flex-col items-center justify-center p-6 text-center border-b border-[#e2e8f0] bg-zinc-50">
         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-blue-500/5 to-transparent opacity-60 pointer-events-none" />
@@ -21,7 +21,7 @@ export const HomeViewSkeleton: React.FC = () => {
       <section className="px-4 py-8 max-w-7xl mx-auto -mt-12 relative z-20">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="bg-card border border-[#e2e8f0] p-5 rounded-2xl flex flex-col gap-2 shadow-sm">
+            <div key={i} className="bg-white border border-[#e2e8f0] p-5 rounded-2xl flex flex-col gap-2 shadow-sm">
               <div className="w-10 h-10 rounded-full bg-zinc-100 mb-2"></div>
               <div className="w-16 h-3 bg-zinc-200 rounded-full"></div>
               <div className="w-20 h-6 bg-zinc-200 rounded-lg"></div>
@@ -44,7 +44,7 @@ export const HomeViewSkeleton: React.FC = () => {
         {/* Products Grid */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mt-6">
           {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-            <div key={i} className="bg-card rounded-2xl border border-zinc-200 overflow-hidden shadow-sm flex flex-col">
+            <div key={i} className="bg-white rounded-2xl border border-zinc-200 overflow-hidden shadow-sm flex flex-col">
               {/* Product Cover */}
               <div className="aspect-[4/3] w-full bg-zinc-200"></div>
               {/* Product Info */}
@@ -70,9 +70,9 @@ export const HomeViewSkeleton: React.FC = () => {
 
 export const CategoriesViewSkeleton: React.FC = () => {
   return (
-    <div className="w-full text-foreground pb-24 lg:pb-0 overflow-x-hidden bg-background flex flex-col min-h-screen animate-pulse">
+    <div className="w-full text-foreground pb-24 lg:pb-0 overflow-x-hidden bg-[#fafafa] flex flex-col min-h-screen animate-pulse">
       {/* Search Header Skeleton */}
-      <section className="bg-card border-b border-zinc-200 shadow-sm sticky top-0 z-30 pt-4 pb-6 px-4 md:px-8">
+      <section className="bg-white border-b border-zinc-200 shadow-sm sticky top-0 z-30 pt-4 pb-6 px-4 md:px-8">
         <div className="max-w-7xl mx-auto flex flex-col gap-4">
           <div className="flex items-center gap-4">
             <div className="w-10 h-10 rounded-xl bg-zinc-200"></div>
@@ -102,7 +102,7 @@ export const CategoriesViewSkeleton: React.FC = () => {
           
           <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="bg-card rounded-2xl border border-zinc-200 overflow-hidden shadow-sm flex flex-col">
+              <div key={i} className="bg-white rounded-2xl border border-zinc-200 overflow-hidden shadow-sm flex flex-col">
                 <div className="aspect-[4/3] w-full bg-zinc-200"></div>
                 <div className="p-4 flex flex-col gap-3 flex-1">
                   <div className="w-full h-5 bg-zinc-200 rounded-lg"></div>

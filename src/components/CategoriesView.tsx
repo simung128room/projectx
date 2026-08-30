@@ -155,23 +155,23 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 font-sans text-foreground bg-transparent">
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24 font-sans text-[#1e1e20] bg-white">
       
       {/* ===== Header Bar ===== */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div className="flex items-center gap-4">
           <button 
             onClick={onBack}
-            className="p-2.5 bg-card hover:bg-border border border-border rounded-lg transition-colors group cursor-pointer outline-none"
+            className="p-3 bg-white hover:bg-slate-100 border border-[#e2e8f0] rounded-xl transition-colors group cursor-pointer"
             aria-label="กลับหน้าหลัก"
           >
-            <ArrowLeft className="w-5 h-5 text-muted-foreground group-hover:text-foreground" />
+            <ArrowLeft className="w-5 h-5 text-muted-foreground group-hover:text-[#1e1e20]" />
           </button>
           <div>
-            <h1 className="text-2xl sm:text-3xl font-semibold text-foreground tracking-tight flex items-center gap-2">
-              <Sparkles className="w-6 h-6 text-foreground" /> ซื้อไอดีเกม & บริการ
+            <h1 className="text-2xl sm:text-3xl font-bold text-[#1e1e20] tracking-tight flex items-center gap-2">
+              <Sparkles className="w-7 h-7 text-blue-500 animate-pulse" /> ซื้อไอดีเกม & บริการ
             </h1>
-            <p className="text-xs sm:text-sm text-muted-foreground mt-1">ปลอดภัย ไร้กังวล จัดส่งข้อมูลทันทีหลังทำรายการ</p>
+            <p className="text-xs sm:text-sm font-semibold text-muted-foreground mt-1">ปลอดภัย ไร้กังวล จัดส่งข้อมูลทันทีหลังทำรายการ</p>
           </div>
         </div>
       </div>
@@ -181,28 +181,28 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
         {/* ======================================================== */}
         {/* 1. Category Navigation (DESKTOP SIDEBAR)               */}
         {/* ======================================================== */}
-        <div className="hidden lg:flex flex-col w-[280px] bg-card border border-border rounded-lg p-5 shrink-0 sticky top-24">
-          <h2 className="text-[11px] font-mono text-muted-foreground uppercase tracking-wider mb-4 px-1 flex items-center gap-2">
-            <SlidersHorizontal className="w-3.5 h-3.5 text-foreground" /> เลือกหมวดหมู่
+        <div className="hidden lg:flex flex-col w-[280px] bg-white border border-[#e2e8f0] rounded-2xl p-5 shrink-0 shadow-sm sticky top-24">
+          <h2 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-4 px-2 flex items-center gap-2">
+            <SlidersHorizontal className="w-3.5 h-3.5" /> เลือกหมวดหมู่
           </h2>
           
           <div className="space-y-1">
             {/* "All" Category Item */}
             <button
               onClick={() => handleSelectCategory('all')}
-              className={`w-full text-left flex items-center justify-between p-3 rounded-lg text-xs font-semibold transition-all group cursor-pointer border ${
+              className={`w-full text-left flex items-center justify-between p-3.5 rounded-xl text-xs font-bold transition-all group cursor-pointer ${
                 activeCategory === 'all' 
-                  ? 'bg-border text-foreground border-border' 
-                  : 'text-muted-foreground hover:text-foreground hover:bg-border/50 border-transparent hover:border-white/[0.06]'
+                  ? 'bg-blue-50 text-blue-600 border border-blue-200/50' 
+                  : 'text-muted-foreground hover:text-foreground hover:bg-slate-50'
               }`}
             >
               <div className="flex items-center gap-3">
-                <div className={`p-2 rounded transition-colors duration-300 ${activeCategory === 'all' ? 'bg-border text-foreground' : 'bg-secondary text-muted-foreground group-hover:bg-border group-hover:text-zinc-300'}`}>
+                <div className={`p-2 rounded-lg transition-colors ${activeCategory === 'all' ? 'bg-blue-100 text-blue-600' : 'bg-slate-50 text-muted-foreground group-hover:bg-white'}`}>
                   <Package className="w-4 h-4" />
                 </div>
                 <span>สินค้าทั้งหมด</span>
               </div>
-              <span className={`text-[10px] px-2 py-0.5 font-semibold rounded font-mono transition-colors duration-300 ${activeCategory === 'all' ? 'bg-border text-foreground' : 'bg-secondary text-muted-foreground'}`}>
+              <span className={`text-[10px] px-2 py-0.5 font-bold rounded-full font-mono transition-colors ${activeCategory === 'all' ? 'bg-blue-100/50 text-blue-600' : 'bg-zinc-100 text-muted-foreground'}`}>
                 {getProductCountText('all')}
               </span>
             </button>
@@ -215,19 +215,19 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
                 <button
                   key={c.id || c.name}
                   onClick={() => handleSelectCategory(c.id || c.name || c.title)}
-                  className={`w-full text-left flex items-center justify-between p-3 rounded-lg text-xs font-semibold transition-all group cursor-pointer border ${
+                  className={`w-full text-left flex items-center justify-between p-3.5 rounded-xl text-xs font-bold transition-all group cursor-pointer ${
                     isActive 
-                      ? 'bg-border text-foreground border-border' 
-                      : 'text-muted-foreground hover:text-foreground hover:bg-border/50 border-transparent hover:border-white/[0.06]'
+                      ? 'bg-blue-50 text-blue-600 border border-blue-200/50' 
+                      : 'text-muted-foreground hover:text-foreground hover:bg-slate-50'
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <div className={`p-2 rounded transition-colors duration-300 ${isActive ? 'bg-border text-foreground' : 'bg-secondary text-muted-foreground group-hover:bg-border group-hover:text-zinc-300'}`}>
+                    <div className={`p-2 rounded-lg transition-colors ${isActive ? 'bg-blue-100 text-blue-600' : 'bg-slate-50 text-muted-foreground group-hover:bg-white'}`}>
                       {getCategoryIcon(c.title || c.name)}
                     </div>
                     <span className="truncate max-w-[130px]">{c.title}</span>
                   </div>
-                  <span className={`text-[10px] px-2 py-0.5 font-semibold rounded font-mono transition-colors duration-300 ${isActive ? 'bg-border text-foreground' : 'bg-secondary text-muted-foreground'}`}>
+                  <span className={`text-[10px] px-2 py-0.5 font-bold rounded-full font-mono transition-colors ${isActive ? 'bg-blue-100/50 text-blue-600' : 'bg-zinc-100 text-muted-foreground'}`}>
                     {count}
                   </span>
                 </button>
@@ -236,11 +236,11 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
           </div>
 
           {/* Quick Notice Banner inside Sidebar */}
-          <div className="mt-8 bg-secondary border border-border p-4 rounded-lg text-left">
-            <h4 className="text-[11px] font-mono text-foreground flex items-center gap-1.5 mb-1.5 uppercase tracking-wide">
-              <Info className="w-3.5 h-3.5 text-foreground" /> บริการแบบออโต้
+          <div className="mt-8 bg-zinc-50 border border-dashed border-[#e2e8f0] p-4 rounded-xl text-left">
+            <h4 className="text-[11px] font-bold text-foreground flex items-center gap-1.5 mb-1.5 uppercase tracking-wide">
+              <Info className="w-3.5 h-3.5 text-blue-500" /> บริการแบบออโต้
             </h4>
-            <p className="text-[11px] leading-relaxed text-muted-foreground">
+            <p className="text-[10px] leading-relaxed text-muted-foreground font-medium">
               เว็บไซต์ของเราจัดจำหน่ายผ่านระบบอัตโนมัติ 100% ชำระเงินแล้วสามารถรอการแสดงผลและจัดส่งข้อมูลรหัสลับได้ทันทีทางเมนูประวัติการสั่งซื้อ
             </p>
           </div>
@@ -249,14 +249,14 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
         {/* ======================================================== */}
         {/* 1. Category Selector (MOBILE HORIZONTAL TABS SCROLLER) */}
         {/* ======================================================== */}
-        <div className="lg:hidden w-full overflow-x-auto overflow-y-hidden py-1.5 mb-3 shrink-0 flex items-center gap-2 select-none scrollbar-none" style={{ scrollbarWidth: 'none' }}>
+        <div className="lg:hidden w-full overflow-x-auto overflow-y-hidden py-1 mb-2 shrink-0 flex items-center gap-2 select-none" style={{ scrollbarWidth: 'none' }}>
           {/* Scroll item "All" */}
           <button
             onClick={() => handleSelectCategory('all')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all border cursor-pointer ${
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-xs font-bold whitespace-nowrap transition-all border cursor-pointer ${
               activeCategory === 'all'
-                ? 'bg-foreground text-background border-transparent hover:opacity-90'
-                : 'bg-card text-muted-foreground border-border hover:border-border'
+                ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-500/15'
+                : 'bg-white text-muted-foreground border-[#e2e8f0] hover:text-[#1e1e20]'
             }`}
           >
             <Package className="w-3.5 h-3.5" />
@@ -271,10 +271,10 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
               <button
                 key={c.id || c.name}
                 onClick={() => handleSelectCategory(c.id || c.name || c.title)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all border cursor-pointer ${
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-xs font-bold whitespace-nowrap transition-all border cursor-pointer ${
                   isActive
-                    ? 'bg-foreground text-background border-transparent hover:opacity-90'
-                    : 'bg-card text-muted-foreground border-border hover:border-border'
+                    ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-500/15'
+                    : 'bg-white text-muted-foreground border-[#e2e8f0] hover:text-[#1e1e20]'
                 }`}
               >
                 {getCategoryIcon(c.title || c.name)}
@@ -291,22 +291,22 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
         <div className="flex-1 w-full flex flex-col">
           
           {/* Filters, Search Inputs, Layout */}
-          <div className="bg-card border border-border rounded-lg p-4 sm:p-5 mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4 w-full">
+          <div className="bg-white border border-[#e2e8f0] rounded-2xl p-4 sm:p-5 mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm w-full">
             
             {/* Left: Input Text Search */}
-            <div className="relative w-full md:max-w-md group">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/80 group-focus-within:text-foreground transition-colors" />
+            <div className="relative w-full md:max-w-md">
+              <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
               <input
                 type="text"
                 placeholder="ค้นหาสินค้า..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-secondary border border-border text-xs font-medium py-3 pl-11 pr-10 rounded-lg placeholder:text-muted-foreground/80 outline-none focus:border-ring transition-all text-foreground h-10"
+                className="w-full bg-white border border-zinc-200/85 text-xs font-bold py-3 pl-12 pr-10 rounded-full placeholder:text-zinc-400 outline-none focus:border-blue-500/60 focus:ring-1 focus:ring-blue-500/10 transition-all text-[#1e1e20] h-10 shadow-sm"
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-4.5 top-1/2 -translate-y-1/2 text-muted-foreground/80 hover:text-foreground cursor-pointer transition-colors outline-none"
+                  className="absolute right-4.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-[#1e1e20] cursor-pointer"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -319,16 +319,16 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
               {/* Only in Stock Checkbox */}
               <button
                 onClick={() => setShowOnlyInStock(!showOnlyInStock)}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border text-xs font-semibold transition-all cursor-pointer outline-none ${
+                className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
                   showOnlyInStock 
-                    ? 'bg-foreground text-background border-transparent hover:opacity-90' 
-                    : 'bg-secondary border-border text-muted-foreground hover:border-border hover:text-foreground'
+                    ? 'bg-blue-50 border-blue-200/50 text-blue-600' 
+                    : 'bg-white border-[#e2e8f0] text-muted-foreground hover:text-[#1e1e20]'
                 }`}
               >
                 {showOnlyInStock ? (
-                  <CheckCircle className="w-4 h-4 text-background shrink-0" />
+                  <CheckCircle className="w-4 h-4 text-blue-500 shrink-0 fill-blue-500/15" />
                 ) : (
-                  <div className="w-4 h-4 border border-[#888888] rounded shrink-0" />
+                  <div className="w-4 h-4 border-2 border-zinc-300 rounded-md shrink-0" />
                 )}
                 <span>เฉพาะพร้อมส่ง</span>
               </button>
@@ -338,14 +338,14 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
-                  className="bg-secondary border border-border text-xs font-semibold px-4 py-2.5 pr-9 rounded-lg outline-none focus:border-ring transition-all text-foreground cursor-pointer appearance-none"
+                  className="bg-white border border-[#e2e8f0] text-xs font-bold px-4 py-2.5 pr-8 rounded-xl outline-none focus:border-blue-500/60 transition-all text-[#1e1e20] cursor-pointer appearance-none"
                 >
                   <option value="recommend">แนะนำล่าสุด</option>
                   <option value="price_asc">ราคา: ประหยัดสุด</option>
                   <option value="price_desc">ราคา: ราคาสูงไปต่ำ</option>
                   <option value="name">ชื่อสินค้า (A - Z)</option>
                 </select>
-                <div className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/80 pointer-events-none">
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none">
                   <ChevronRight className="w-3.5 h-3.5 transform rotate-90" />
                 </div>
               </div>
@@ -360,7 +360,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="relative w-full rounded-2xl overflow-hidden border border-zinc-200 bg-foreground mb-6 group shadow-[0_8px_24px_rgba(0,0,0,0.02)] shrink-0"
+                className="relative w-full rounded-2xl overflow-hidden border border-[#e2e8f0] bg-white mb-6 group shadow-sm shrink-0"
                 style={{ aspectRatio: '1640 / 500' }}
               >
                 <img
@@ -381,7 +381,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 15 }}
-                className="w-full border border-dashed border-[#e2e8f0] bg-foreground rounded-2xl py-16 px-6 text-center shadow-sm"
+                className="w-full border border-dashed border-[#e2e8f0] bg-white rounded-2xl py-16 px-6 text-center shadow-sm"
               >
                 <Package className="w-14 h-14 text-zinc-300 mx-auto mb-4" />
                 <h3 className="text-base font-bold text-[#1e1e20]">ไม่พบรายงานสินค้าที่คุณกำลังต้องการ</h3>
@@ -425,7 +425,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
             <div className="mt-12 flex justify-center pb-12">
               <button
                 onClick={() => setRenderLimit(prev => prev + 24)}
-                className="px-8 py-3 bg-foreground border border-[#e2e8f0] text-[#1e1e20] hover:bg-slate-50 rounded-xl text-xs font-bold transition-all active:scale-95 shadow-sm cursor-pointer"
+                className="px-8 py-3 bg-white border border-[#e2e8f0] text-[#1e1e20] hover:bg-slate-50 rounded-xl text-xs font-bold transition-all active:scale-95 shadow-sm cursor-pointer"
               >
                 แสดงสินค้าเพิ่มเติม ({sortedProducts.length - visibleProducts.length} ชิ้น)
               </button>

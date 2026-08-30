@@ -245,7 +245,7 @@ export const MyOrdersView: React.FC<MyOrdersViewProps> = ({
                 return (
                   <div
                     key={item.id || idx}
-                    className="group bg-[#1c1c1e]/40 backdrop-blur-md border border-white/[0.03] hover:border-border hover:bg-[#2c2c2e]/60 rounded-[24px] p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-5 transition-all duration-300 shadow-md hover:shadow-xl relative overflow-hidden"
+                    className="group bg-[#1c1c1e]/40 backdrop-blur-md border border-white/[0.03] hover:border-white/[0.08] hover:bg-[#2c2c2e]/60 rounded-[24px] p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-5 transition-all duration-300 shadow-md hover:shadow-xl relative overflow-hidden"
                   >
                     {/* Horizontal Card Main Body */}
                     <div className="flex items-center gap-5 min-w-0 flex-1">

@@ -14,7 +14,7 @@ export const AdminApiKeys: React.FC = () => {
   const fetchKeys = async () => {
     setIsLoading(true);
     try {
-      const res = await axios.get('/api/admin/api-keys');
+      const res = await axios.get('/api/api_keys');
       setApiKeys(res.data);
     } catch (err: any) {
       console.error(err);
@@ -22,7 +22,7 @@ export const AdminApiKeys: React.FC = () => {
         icon: 'error',
         title: 'Error',
         text: err.response?.data?.error || 'Failed to fetch API keys',
-        background: '#1f1c14',
+        background: '#121212',
         color: '#fff',
         confirmButtonColor: '#EF4444'
       });
@@ -38,7 +38,7 @@ export const AdminApiKeys: React.FC = () => {
   const handleAddKey = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await axios.post('/api/admin/api-keys', {
+      await axios.post('/api/api_keys', {
         name: newKeyName,
         is_lifetime: isLifetime,
         expire_days: expireDays
@@ -49,7 +49,7 @@ export const AdminApiKeys: React.FC = () => {
         icon: 'success',
         timer: 1500,
         showConfirmButton: false,
-        background: '#1f1c14',
+        background: '#121212',
         color: '#fff',
       });
       setIsAdding(false);
@@ -60,7 +60,7 @@ export const AdminApiKeys: React.FC = () => {
         title: 'Error',
         text: err.response?.data?.error || 'Failed to create API key',
         icon: 'error',
-        background: '#1f1c14',
+        background: '#121212',
         color: '#fff',
         confirmButtonColor: '#EF4444'
       });
@@ -69,7 +69,7 @@ export const AdminApiKeys: React.FC = () => {
 
   const handleToggleStatus = async (key: string, currentStatus: string) => {
     try {
-      await axios.patch(`/api/admin/api-keys/${key}`, {
+      await axios.patch(`/api/api_keys/${key}`, {
         status: currentStatus === 'active' ? 'disabled' : 'active'
       });
       fetchKeys();
@@ -78,7 +78,7 @@ export const AdminApiKeys: React.FC = () => {
         title: 'Error',
         text: err.response?.data?.error || 'Failed to update API key',
         icon: 'error',
-        background: '#1f1c14',
+        background: '#121212',
         color: '#fff',
         confirmButtonColor: '#EF4444'
       });
@@ -95,19 +95,19 @@ export const AdminApiKeys: React.FC = () => {
       cancelButtonColor: '#71717a',
       confirmButtonText: 'ลบกุญแจเชื่อมต่อ',
       cancelButtonText: 'ยกเลิก',
-      background: '#1f1c14',
+      background: '#121212',
       color: '#fff',
     });
 
     if (confirm.isConfirmed) {
       try {
-        await axios.delete(`/api/admin/api-keys/${key}`);
+        await axios.delete(`/api/api_keys/${key}`);
         Swal.fire({
           title: 'ลบเสร็จสิ้น',
           icon: 'success',
           timer: 1000,
           showConfirmButton: false,
-          background: '#1f1c14',
+          background: '#121212',
           color: '#fff',
         });
         fetchKeys();
@@ -116,7 +116,7 @@ export const AdminApiKeys: React.FC = () => {
           title: 'Error',
           text: err.response?.data?.error || 'Failed to delete API key',
           icon: 'error',
-          background: '#1f1c14',
+          background: '#121212',
           color: '#fff',
           confirmButtonColor: '#EF4444'
         });
@@ -128,11 +128,11 @@ export const AdminApiKeys: React.FC = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center bg-zinc-950/20 p-4 border border-[#374151] rounded-md">
         <div>
-          <h2 className="text-lg font-medium text-foreground flex items-center gap-2">
+          <h2 className="text-lg font-medium text-white flex items-center gap-2">
             <Key className="w-5 h-5 text-[#364153]" />
             จัดการกุญแจเชื่อมต่อ (API Keys Management)
           </h2>
-          <p className="text-xs text-muted-foreground/80 mt-1">
+          <p className="text-xs text-zinc-500 mt-1">
             สร้างและควบคุม Token ของ API /api/check เพื่อใช้งานเช็คเกอร์ หรือสคริปต์ภายนอกเว็บ
           </p>
         </div>
@@ -140,8 +140,8 @@ export const AdminApiKeys: React.FC = () => {
           onClick={() => setIsAdding(!isAdding)}
           className={`px-4 py-2 text-xs font-medium flex items-center gap-2 rounded-md transition-all duration-200 ${
             isAdding 
-              ? 'border border-[#374151] bg-background text-muted-foreground hover:text-foreground' 
-              : 'bg-[#364153] hover:bg-[#364153] text-foreground shadow-sm'
+              ? 'border border-[#374151] bg-[#050505] text-zinc-400 hover:text-white' 
+              : 'bg-[#364153] hover:bg-[#364153] text-white shadow-sm'
           }`}
         >
           {isAdding ? <XCircle className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
@@ -152,14 +152,14 @@ export const AdminApiKeys: React.FC = () => {
       {isAdding && (
         <form onSubmit={handleAddKey} className="bg-[#0B0C0E] border border-[#374151] rounded-md overflow-hidden shrink-0 shadow-sm p-6 space-y-5 animate-in fade-in zoom-in-95 duration-200">
           <div className="flex flex-col gap-2">
-            <label className="text-xs font-medium text-muted-foreground uppercase">ชื่ออ้างอิงกุญแจ / Description</label>
+            <label className="text-xs font-medium text-zinc-400 uppercase">ชื่ออ้างอิงกุญแจ / Description</label>
             <input
               required
               type="text"
               value={newKeyName}
               onChange={e => setNewKeyName(e.target.value)}
               placeholder="เช่น script สำหรับเชื่อมต่อระบบอื่นๆ"
-              className="w-full bg-zinc-950 border border-zinc-850 focus:border-[#364153]/60 rounded-md px-4 py-2.5 text-foreground text-sm focus:outline-none transition-colors"
+              className="w-full bg-zinc-950 border border-zinc-850 focus:border-[#364153]/60 rounded-md px-4 py-2.5 text-white text-sm focus:outline-none transition-colors"
             />
           </div>
           
@@ -176,29 +176,29 @@ export const AdminApiKeys: React.FC = () => {
 
           {!isLifetime && (
             <div className="flex flex-col gap-2">
-              <label className="text-xs font-medium text-muted-foreground uppercase">ระยะเวลากุญแจใช้งาน (วัน)</label>
+              <label className="text-xs font-medium text-zinc-400 uppercase">ระยะเวลากุญแจใช้งาน (วัน)</label>
               <input
                 type="number"
                 min="1"
                 required
                 value={expireDays}
                 onChange={e => setExpireDays(e.target.value)}
-                className="w-full bg-zinc-950 border border-zinc-850 focus:border-[#364153]/60 rounded-md px-4 py-2.5 text-foreground text-sm focus:outline-none transition-colors"
+                className="w-full bg-zinc-950 border border-zinc-850 focus:border-[#364153]/60 rounded-md px-4 py-2.5 text-white text-sm focus:outline-none transition-colors"
               />
             </div>
           )}
           
           <div className="pt-2 border-t border-[#374151] flex justify-end">
-             <button type="submit" className="bg-[#364153] hover:bg-[#364153] text-foreground text-xs font-medium py-2 px-5 rounded-md transition-colors">
+             <button type="submit" className="bg-[#364153] hover:bg-[#364153] text-white text-xs font-medium py-2 px-5 rounded-md transition-colors">
                ยืนยันการผลิตรหัสเชื่อมต่อ (Generate Key)
              </button>
           </div>
         </form>
       )}
 
-      <div className="bg-card border border-[#374151] rounded-md overflow-hidden shadow-sm">
+      <div className="bg-[#121212] border border-[#374151] rounded-md overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse text-sm text-muted-foreground">
+          <table className="w-full text-left border-collapse text-sm text-zinc-400">
             <thead>
               <tr className="bg-[#0B0C0E] border-b border-[#374151] text-zinc-550 uppercase text-xs tracking-wider">
                 <th className="px-5 py-3.5 font-medium">สถานะ</th>
@@ -224,7 +224,7 @@ export const AdminApiKeys: React.FC = () => {
                 </tr>
               ) : (
                 apiKeys.map(k => (
-                  <tr key={k.key} className="hover:bg-background/10 transition-colors">
+                  <tr key={k.key} className="hover:bg-[#050505]/10 transition-colors">
                     <td className="px-5 py-3.5">
                       {k.status === 'active' ? (
                         <span className="bg-[#364153]/10 text-[#364153] px-2 py-0.5 rounded text-[10px] uppercase font-medium border border-emerald-500/20">Active</span>
@@ -234,18 +234,18 @@ export const AdminApiKeys: React.FC = () => {
                         <span className="bg-rose-500/10 text-rose-400 px-2 py-0.5 rounded text-[10px] uppercase font-medium border border-rose-500/20">Disabled</span>
                       )}
                     </td>
-                    <td className="px-5 py-3.5 font-medium text-foreground text-xs">{k.name}</td>
+                    <td className="px-5 py-3.5 font-medium text-white text-xs">{k.name}</td>
                     <td className="px-5 py-3.5">
                       <span className="font-mono text-xs text-[#364153] font-medium select-all cursor-pointer bg-zinc-950 border border-zinc-850 px-2 py-1 rounded">
                         {k.key}
                       </span>
                     </td>
-                    <td className="px-5 py-3.5 text-xs text-muted-foreground/80 whitespace-nowrap">{new Date(k.created_at).toLocaleString('th-TH')}</td>
-                    <td className="px-5 py-3.5 text-xs text-muted-foreground/80 whitespace-nowrap">
-                      {k.expires_at ? new Date(k.expires_at).toLocaleString('th-TH') : <span className="font-medium text-muted-foreground"> Lifetime ถาวร</span>}
+                    <td className="px-5 py-3.5 text-xs text-zinc-500 whitespace-nowrap">{new Date(k.created_at).toLocaleString('th-TH')}</td>
+                    <td className="px-5 py-3.5 text-xs text-zinc-500 whitespace-nowrap">
+                      {k.expires_at ? new Date(k.expires_at).toLocaleString('th-TH') : <span className="font-medium text-zinc-400"> Lifetime ถาวร</span>}
                     </td>
-                    <td className="px-5 py-3.5 text-xs text-muted-foreground/80 whitespace-nowrap">
-                      {k.last_used ? new Date(k.last_used).toLocaleString('th-TH') : <span className="italic text-muted-foreground/80">ยังไม่มี</span>}
+                    <td className="px-5 py-3.5 text-xs text-zinc-500 whitespace-nowrap">
+                      {k.last_used ? new Date(k.last_used).toLocaleString('th-TH') : <span className="italic text-zinc-650">ยังไม่มี</span>}
                     </td>
                     <td className="px-5 py-3.5 text-right whitespace-nowrap">
                       <div className="flex items-center justify-end gap-1.5">

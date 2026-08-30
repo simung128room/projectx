@@ -4,17 +4,9 @@ import path from 'path';
 
 import os from 'os';
 import crypto from 'crypto';
-let localDBPath = path.join(process.cwd(), '.data');
-try {
-  if (!fs.existsSync(localDBPath)) {
-    fs.mkdirSync(localDBPath, { recursive: true });
-  }
-} catch (e) {
-  // Fallback to /tmp if process.cwd() is read-only (like in some production environments)
-  localDBPath = path.join(os.tmpdir(), '.data');
-  if (!fs.existsSync(localDBPath)) {
-    fs.mkdirSync(localDBPath, { recursive: true });
-  }
+const localDBPath = os.tmpdir() + `/.data`;
+if (!fs.existsSync(localDBPath)) {
+  fs.mkdirSync(localDBPath, { recursive: true });
 }
 
 const localTableCache: Record<string, any[]> = {};
@@ -84,25 +76,7 @@ export const supabaseAdmin = createClient(safeUrl, safeKey, {
   }
 });
 
-type DbColumn = 
-  | 'user_id' | 'product_name' | 'is_premium' | 'updated_at'
-  | 'created_at' | 'stock_data' | 'image_url' | 'original_price'
-  | 'is_popular' | 'sold_count' | 'banner_url' | 'secret_data'
-  | 'bill_number' | 'discord_claimed' | 'web_claimed' | 'product_id'
-  | 'is_deleted' | 'category_id' | 'is_highlight' | 'custom_page_id'
-  | 'youtube_url' | 'is_preorder' | 'preorder_options' | 'userid'
-  | 'productname' | 'ispremium' | 'updatedat' | 'createdat' | 'stockdata'
-  | 'image' | 'username' | 'isdeleted';
-
-type CamelField =
-  | 'userId' | 'productName' | 'isPremium' | 'updatedAt'
-  | 'createdAt' | 'stockData' | 'imageUrl' | 'originalPrice'
-  | 'isPopular' | 'soldCount' | 'bannerUrl' | 'secretData' | 'username'
-  | 'billNumber' | 'discordClaimed' | 'webClaimed' | 'productId'
-  | 'isDeleted' | 'categoryId' | 'isHighlight' | 'customPageId'
-  | 'youtubeUrl' | 'isPreOrder' | 'preOrderOptions';
-
-const camelMap: Record<string, CamelField> = {
+const camelMap: Record<string, string> = {
   userid: 'userId',
   product_name: 'productName',
   productname: 'productName',
@@ -136,7 +110,7 @@ const camelMap: Record<string, CamelField> = {
   preorder_options: 'preOrderOptions'
 };
 
-const forwardMap: Record<CamelField, DbColumn> = {
+const forwardMap: Record<string, string> = {
   imageUrl: 'image_url',
   bannerUrl: 'banner_url',
   createdAt: 'created_at',
@@ -159,16 +133,10 @@ const forwardMap: Record<CamelField, DbColumn> = {
   customPageId: 'custom_page_id',
   youtubeUrl: 'youtube_url',
   isPreOrder: 'is_preorder',
-  preOrderOptions: 'preorder_options',
-  username: 'username'
+  preOrderOptions: 'preorder_options'
 };
 
 const missingColumns = new Set<string>();
-
-export async function initializeAdminDb(): Promise<void> {
-  await hydrateMissingColumns();
-  console.log('[AdminDB] missingColumns hydrated:', Array.from(missingColumns));
-}
 
 // Pre-hydrate from DB to persist across serverless instances
 let isMissingColumnsHydrated = false;
@@ -210,7 +178,7 @@ function toDB(data: any, collection?: string): any {
 
   for (const k in _data) {
     let target = k;
-    if ((forwardMap as any)[k]) target = (forwardMap as any)[k];
+    if (forwardMap[k]) target = forwardMap[k];
     else target = k.toLowerCase();
 
     // Skip known missing columns for this collection
@@ -274,9 +242,6 @@ class SupabaseDoc {
   }
 
   async get() {
-    if (!isSupabaseAdminConfigured) {
-        return { exists: false, data: () => null };
-    }
     if (isVirtual(this.collection)) {
         const slug = getVirtualSlug(this.collection, this.id);
         const legacySlug = `v:${this.collection}:${this.id}`;
@@ -335,7 +300,6 @@ class SupabaseDoc {
     return { exists: false, data: () => null };
   }
   async update(data: any) {
-    if (!isSupabaseAdminConfigured) return;
     if (isVirtual(this.collection)) {
         const slug = getVirtualSlug(this.collection, this.id);
         const legacySlug = `v:${this.collection}:${this.id}`;
@@ -423,7 +387,6 @@ class SupabaseDoc {
     }
   }
   async delete() {
-    if (!isSupabaseAdminConfigured) return;
     if (isVirtual(this.collection)) {
         const slug = getVirtualSlug(this.collection, this.id);
         const legacySlug = `v:${this.collection}:${this.id}`;
@@ -438,7 +401,6 @@ class SupabaseDoc {
     if (error) throw error;
   }
   async set(data: any, options: any = {}) {
-    if (!isSupabaseAdminConfigured) return;
     if (isVirtual(this.collection)) {
         const slug = getVirtualSlug(this.collection, this.id);
         const legacySlug = `v:${this.collection}:${this.id}`;
@@ -555,7 +517,7 @@ class SupabaseQuery {
 
   where(field: string, op: string, value: any) {
     let target = field;
-    if ((forwardMap as any)[field]) target = (forwardMap as any)[field];
+    if (forwardMap[field]) target = forwardMap[field];
     else target = field.toLowerCase();
     
     this._where.push({ field: target, op, value });
@@ -563,7 +525,7 @@ class SupabaseQuery {
   }
   orderBy(field: string, dir: string = 'asc') {
     let target = field;
-    if ((forwardMap as any)[field]) target = (forwardMap as any)[field];
+    if (forwardMap[field]) target = forwardMap[field];
     else target = field.toLowerCase();
 
     this._orderBy.push({ field: target, dir });
@@ -581,7 +543,7 @@ class SupabaseQuery {
 
   select(...fields: string[]) {
     const mapped = fields.map(field => {
-      if ((forwardMap as any)[field]) return (forwardMap as any)[field];
+      if (forwardMap[field]) return forwardMap[field];
       return field.toLowerCase();
     });
     this._selectFields = mapped.join(',');
@@ -717,7 +679,7 @@ class SupabaseQuery {
             };
           }),
           empty: finalData.length === 0,
-          forEach: (cb: Function) => {
+          forEach: function(cb: Function) {
             finalData.forEach((d: any) => {
               const mapped = fromDB(d);
               const docId = d.id || d.key || d.ip || d.username;
@@ -770,9 +732,6 @@ class SupabaseCollection extends SupabaseQuery {
     return new SupabaseDoc(this.collection, id || genId());
   }
   async add(data: any) {
-    if (!isSupabaseAdminConfigured) {
-        return { id: data.id || crypto.randomUUID() };
-    }
     if (isVirtual(this.collection)) {
         const docId = data.id || crypto.randomUUID();
         const slug = getVirtualSlug(this.collection, docId);

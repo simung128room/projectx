@@ -18,20 +18,21 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user 
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  // Real loading state used only for active network tasks
   useEffect(() => {
-    setIsLoading(false);
+    setIsLoading(true);
+    const timer = setTimeout(() => setIsLoading(false), 150);
+    return () => clearTimeout(timer);
   }, [currentTab]);
 
   const handleChangePassword = async () => {
     if (!oldPassword) {
-      return Swal.fire({ icon: 'error', title: 'ข้อผิดพลาด', text: 'กรุณากรอกรหัสผ่านเดิม', background: '#11131a', color: '#ffffff' });
+      return Swal.fire({ icon: 'error', title: 'ข้อผิดพลาด', text: 'กรุณากรอกรหัสผ่านเดิม', background: '#121212', color: '#fff' });
     }
     if (!newPassword || !confirmPassword) {
-      return Swal.fire({ icon: 'error', title: 'ข้อผิดพลาด', text: 'กรุณากรอกข้อมูลให้ครบถ้วน', background: '#11131a', color: '#ffffff' });
+      return Swal.fire({ icon: 'error', title: 'ข้อผิดพลาด', text: 'กรุณากรอกข้อมูลให้ครบถ้วน', background: '#121212', color: '#fff' });
     }
     if (newPassword !== confirmPassword) {
-      return Swal.fire({ icon: 'error', title: 'ข้อผิดพลาด', text: 'รหัสผ่านใหม่และยืนยันรหัสผ่านไม่ตรงกัน', background: '#11131a', color: '#ffffff' });
+      return Swal.fire({ icon: 'error', title: 'ข้อผิดพลาด', text: 'รหัสผ่านใหม่และยืนยันรหัสผ่านไม่ตรงกัน', background: '#121212', color: '#fff' });
     }
 
     try {
@@ -57,8 +58,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user 
         title: 'เปลี่ยนรหัสผ่านสำเร็จ',
         text: 'รหัสผ่านของคุณถูกอัปเดตเรียบร้อยแล้ว',
         icon: 'success',
-        background: '#11131a',
-        color: '#ffffff'
+        background: '#121212',
+        color: '#fff'
       });
       setOldPassword('');
       setNewPassword('');
@@ -68,8 +69,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user 
          title: 'เกิดข้อผิดพลาด',
          text: error.message || 'ไม่สามารถเปลี่ยนรหัสผ่านได้',
          icon: 'error',
-         background: '#11131a',
-         color: '#ffffff'
+         background: '#121212',
+         color: '#fff'
       });
     } finally {
       setIsLoading(false);
@@ -88,10 +89,10 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user 
       cancelButtonColor: '#18181b',
       confirmButtonText: 'ลบบัญชีถาวร',
       cancelButtonText: 'ยกเลิก',
-      background: '#11131a',
-      color: '#ffffff',
+      background: '#121212',
+      color: '#fff',
       customClass: {
-        input: 'bg-background border-[#374151] text-foreground rounded-md'
+        input: 'bg-[#050505] border-[#374151] text-white rounded-md'
       }
     });
 
@@ -122,8 +123,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user 
           title: 'ลบบัญชีสำเร็จ',
           text: 'บัญชีของคุณถูกลบออกจากระบบแล้ว',
           icon: 'success',
-          background: '#11131a',
-          color: '#ffffff'
+          background: '#121212',
+          color: '#fff'
         }).then(() => {
           window.location.reload();
         });
@@ -132,8 +133,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user 
           title: 'เกิดข้อผิดพลาด',
           text: error.message || 'ไม่สามารถลบบัญชีได้',
           icon: 'error',
-          background: '#11131a',
-          color: '#ffffff'
+          background: '#121212',
+          color: '#fff'
         });
       } finally {
         setIsLoading(false);
@@ -145,25 +146,25 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user 
     <AnimatedScroll direction="up">
       <div className="font-sans px-4 pb-12">
         <div className="max-w-4xl mx-auto mt-6">
-          <div className="bg-card border border-[#1f293d] overflow-hidden flex flex-col md:flex-row rounded-2xl shadow-[0_4px_20px_-8px_rgba(0,0,0,0.5)]">
+          <div className="bg-white border border-[#e2e8f0] overflow-hidden flex flex-col md:flex-row rounded-2xl shadow-sm">
             
             {/* Sidebar Tabs */}
-            <div className="md:w-1/3 bg-secondary border-b md:border-b-0 md:border-r border-[#1f293d] p-6 flex flex-col justify-start">
-              <h2 className="text-base font-bold text-foreground mb-6 flex items-center gap-2.5">
+            <div className="md:w-1/3 bg-slate-50 border-b md:border-b-0 md:border-r border-[#e2e8f0] p-6 flex flex-col justify-start">
+              <h2 className="text-base font-bold text-[#1e1e20] mb-6 flex items-center gap-2.5">
                 <ShieldCheck className="w-5 h-5 text-[#3b82f6]" /> ตั้งค่าผู้ใช้
               </h2>
               
               <div className="space-y-1.5">
                 <button 
                   onClick={() => setCurrentTab('password')}
-                  className={`w-full flex items-center gap-3.5 px-4 py-3.5 text-sm font-semibold rounded-xl transition-all cursor-pointer outline-none ${currentTab === 'password' ? 'bg-[#3b82f6]/10 text-[#3b82f6] border-l-2 border-[#3b82f6] pl-[14px]' : 'text-muted-foreground hover:text-foreground hover:bg-[#1f293d] hover:pl-[18px]'}`}
+                  className={`w-full flex items-center gap-3.5 px-4 py-3.5 text-sm font-semibold rounded-xl transition-all cursor-pointer ${currentTab === 'password' ? 'bg-[#3b82f6]/10 text-[#3b82f6] border-l-2 border-[#3b82f6] pl-[14px]' : 'text-zinc-500 hover:text-[#1e1e20] hover:bg-slate-100 hover:pl-[18px]'}`}
                 >
-                  <Key className={`w-4.5 h-4.5 ${currentTab === 'password' ? 'text-[#3b82f6]' : 'text-muted-foreground/80'}`} />
+                  <Key className={`w-4.5 h-4.5 ${currentTab === 'password' ? 'text-[#3b82f6]' : 'text-zinc-400'}`} />
                   <span className="text-sm font-bold">เปลี่ยนรหัสผ่าน</span>
                 </button>
                 <button 
                   onClick={() => setCurrentTab('delete')}
-                  className={`w-full flex items-center gap-3.5 px-4 py-3.5 text-sm font-semibold rounded-xl transition-all cursor-pointer outline-none ${currentTab === 'delete' ? 'bg-red-500/10 text-red-500 border-l-2 border-red-500 pl-[14px]' : 'text-red-500/80 hover:text-red-400 hover:bg-red-500/5 hover:pl-[18px]'}`}
+                  className={`w-full flex items-center gap-3.5 px-4 py-3.5 text-sm font-semibold rounded-xl transition-all cursor-pointer ${currentTab === 'delete' ? 'bg-red-500/10 text-red-600 border-l-2 border-red-500 pl-[14px]' : 'text-red-500/80 hover:text-red-650 hover:bg-red-50 hover:pl-[18px]'}`}
                 >
                   <Trash2 className="w-4.5 h-4.5 text-red-500" />
                   <span className="text-sm font-bold">ลบบัญชี</span>
@@ -172,7 +173,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user 
             </div>
 
             {/* Content Area */}
-            <div className="md:w-2/3 p-6 sm:p-8 bg-card">
+            <div className="md:w-2/3 p-6 sm:p-8 bg-white">
               {isLoading ? (
                 <div className="space-y-6 animate-in fade-in duration-300">
                   <Skeleton className="h-8 w-1/3 mb-6" />
@@ -192,50 +193,50 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user 
                 <>
                   {currentTab === 'password' && (
                     <div className="animate-in fade-in duration-300">
-                      <h3 className="text-base font-bold text-foreground mb-6">เปลี่ยนรหัสผ่านใหม่</h3>
+                      <h3 className="text-base font-bold text-[#1e1e20] mb-6">เปลี่ยนรหัสผ่านใหม่</h3>
                       <div className="space-y-4">
                         <div>
-                          <label className="text-[10px] text-muted-foreground/80 font-bold uppercase tracking-wider mb-2 block">รหัสผ่านเดิม</label>
+                          <label className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mb-2 block">รหัสผ่านเดิม</label>
                           <div className="relative">
-                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-muted-foreground/80" />
+                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-zinc-400" />
                             <input 
                               type="password" 
                               placeholder="••••••••" 
                               value={oldPassword} 
                               onChange={e => setOldPassword(e.target.value)} 
-                              className="w-full bg-secondary border border-[#1f293d] rounded-xl py-3 pl-11 pr-4 text-sm text-foreground focus:border-[#2d3748] outline-none transition-all placeholder:text-zinc-600"
+                              className="w-full bg-white border border-[#e2e8f0] rounded-xl py-3 pl-11 pr-4 text-sm text-[#1e1e20] focus:border-blue-500/60 focus:ring-1 focus:ring-blue-500/10 outline-none transition-all placeholder:text-zinc-400"
                             />
                           </div>
                         </div>
                         <div>
-                          <label className="text-[10px] text-muted-foreground/80 font-bold uppercase tracking-wider mb-2 block">รหัสผ่านใหม่</label>
+                          <label className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mb-2 block">รหัสผ่านใหม่</label>
                           <div className="relative">
-                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-muted-foreground/80" />
+                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-zinc-400" />
                             <input 
                               type="password" 
                               placeholder="••••••••" 
                               value={newPassword} 
                               onChange={e => setNewPassword(e.target.value)} 
-                              className="w-full bg-secondary border border-[#1f293d] rounded-xl py-3 pl-11 pr-4 text-sm text-foreground focus:border-[#2d3748] outline-none transition-all placeholder:text-zinc-600"
+                              className="w-full bg-white border border-[#e2e8f0] rounded-xl py-3 pl-11 pr-4 text-sm text-[#1e1e20] focus:border-blue-500/60 focus:ring-1 focus:ring-blue-500/10 outline-none transition-all placeholder:text-zinc-400"
                             />
                           </div>
                         </div>
                         <div>
-                          <label className="text-[10px] text-muted-foreground/80 font-bold uppercase tracking-wider mb-2 block">ยืนยันรหัสผ่านใหม่</label>
+                          <label className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mb-2 block">ยืนยันรหัสผ่านใหม่</label>
                           <div className="relative">
-                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-muted-foreground/80" />
+                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-zinc-400" />
                             <input 
                               type="password" 
                               placeholder="••••••••" 
                               value={confirmPassword} 
                               onChange={e => setConfirmPassword(e.target.value)} 
-                              className="w-full bg-secondary border border-[#1f293d] rounded-xl py-3 pl-11 pr-4 text-sm text-foreground focus:border-[#2d3748] outline-none transition-all placeholder:text-zinc-600"
+                              className="w-full bg-white border border-[#e2e8f0] rounded-xl py-3 pl-11 pr-4 text-sm text-[#1e1e20] focus:border-blue-500/60 focus:ring-1 focus:ring-blue-500/10 outline-none transition-all placeholder:text-zinc-400"
                             />
                           </div>
                         </div>
                         <button 
                           onClick={handleChangePassword} 
-                          className="w-full bg-[#3b82f6] hover:bg-blue-600 text-foreground font-bold py-3.5 transition-all text-sm rounded-xl uppercase tracking-wider cursor-pointer shadow-md shadow-blue-500/10 active:scale-[0.98] outline-none border-none"
+                          className="w-full bg-[#3b82f6] hover:bg-blue-600 text-white font-bold py-3.5 transition-all text-sm rounded-xl uppercase tracking-wider cursor-pointer shadow-md shadow-blue-500/10 active:scale-[0.98]"
                         >
                           ยืนยันการเปลี่ยนรหัสผ่าน
                         </button>
@@ -245,15 +246,15 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ setActiveView, user 
 
                   {currentTab === 'delete' && (
                     <div className="animate-in fade-in duration-300">
-                      <div className="bg-red-500/10 border border-red-500/20 p-6 text-center rounded-2xl">
+                      <div className="bg-red-50 border border-red-200/60 p-6 text-center rounded-2xl">
                         <ShieldAlert className="w-12 h-12 text-red-500 mx-auto mb-4" />
-                        <h3 className="text-base font-bold text-red-400 mb-2">ลบบัญชีผู้ใช้งาน</h3>
-                        <p className="text-xs text-red-500 mb-6 leading-relaxed">
+                        <h3 className="text-base font-bold text-red-650 mb-2">ลบบัญชีผู้ใช้งาน</h3>
+                        <p className="text-xs text-zinc-500 mb-6 leading-relaxed">
                           คำเตือน: หากคุณลบบัญชี ข้อมูลประวัติการสั่งซื้อ ยอดเงินคงเหลือ และข้อมูลส่วนตัวทั้งหมดจะถูกลบออกถาวรและไม่สามารถกู้คืนได้
                         </p>
                         <button 
                           onClick={handleDeleteAccount}
-                          className="w-full bg-red-600 hover:bg-red-700 text-foreground font-bold py-3.5 transition-all text-sm rounded-xl uppercase tracking-wider cursor-pointer active:scale-[0.98] outline-none border-none"
+                          className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 transition-all text-sm rounded-xl uppercase tracking-wider cursor-pointer active:scale-[0.98]"
                         >
                           ลบบัญชีถาวร
                         </button>

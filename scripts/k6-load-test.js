@@ -35,7 +35,7 @@ export default function () {
 
     // 2. Buy Load (High contention)
     // Generating dynamic idempotency key matching our frontend logic
-    const idempotencyKey = `buy_${TEST_PRODUCT_ID}_${new Date().getTime()}_${Math.random().toString(36).substring(2)}`;
+    const idempotencyKey = `buy_${TEST_PRODUCT_ID}_${new Date().getTime()}_${Math.random()}`;
     
     const payload = JSON.stringify({
         productId: TEST_PRODUCT_ID,

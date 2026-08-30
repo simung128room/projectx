@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Gamepad2, ArrowRight, ShoppingCart, ShieldCheck, Server, Activity, Users, CreditCard, Package, Gift } from "lucide-react";
+import { Gamepad2, ArrowRight, ShoppingCart, ShieldCheck, Server, Activity, Users, CreditCard, Package } from "lucide-react";
 import { ProductCard } from "./ProductCard";
 
 export const HomeView = (props: any) => {
@@ -39,34 +39,32 @@ export const HomeView = (props: any) => {
   const visibleProducts = sortedProducts.slice(0, 8);
 
   return (
-    <div className="w-full text-foreground pb-24 lg:pb-0 overflow-x-hidden bg-background">
+    <div className="w-full text-foreground pb-24 lg:pb-0 overflow-x-hidden bg-white">
       
-      {/* ===== Hero section ===== */}
-      <section className="relative w-full overflow-hidden py-20 sm:py-28 flex flex-col items-center justify-center p-6 text-center border-b border-[rgba(255,255,255,0.08)] bg-background">
-        {/* Subtle, soft dark gradient highlight */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-primary/10 rounded-full blur-[120px] pointer-events-none" />
+      {/* ===== Hero Gradient Banner ===== */}
+      <section className="relative w-full overflow-hidden min-h-[40vh] sm:min-h-[50vh] flex flex-col items-center justify-center p-6 text-center border-b border-[#e2e8f0] bg-gradient-to-b from-white via-white to-transparent">
+        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-blue-500/5 to-transparent opacity-60 pointer-events-none" />
+        <div className="absolute -top-24 -right-24 w-96 h-96 bg-blue-500/10 rounded-full blur-[100px] pointer-events-none" />
+        <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-blue-500/5 rounded-full blur-[100px] pointer-events-none" />
 
         <div className="relative z-10 max-w-3xl flex flex-col items-center animate-in fade-in slide-in-from-bottom-8 duration-700">
-          <div className="bg-border text-foreground border border-border px-3.5 py-1.5 rounded-md text-xs font-medium tracking-tight mb-6 flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-foreground animate-pulse" />
-            <span className="font-mono text-xs tracking-wider">SYSTEM STATUS: ONLINE</span>
+          <div className="bg-[#3b82f6]/10 text-[#3b82f6] border border-[#3b82f6]/20 px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-6 flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+            ต้อนรับสู่ Sunoid.shop
           </div>
-          
-          <h1 className="text-4xl md:text-6xl font-semibold tracking-[-0.03em] mb-4 text-foreground leading-[1.1] font-sans">
-            nxyshop
-            <span className="text-muted-foreground font-sans font-normal tracking-[-0.02em] text-2xl md:text-4xl mt-3 block">
-              บริการเติมเกม สะดวก ปลอดภัย ด้วยระบบอัตโนมัติ
+          <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-4 text-[#1e1e20] leading-tight">
+            ไอดีเกมราคาถูก คุณภาพสูง <br/>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-teal-600">
+              ปลอดภัย และ จัดส่งทันที
             </span>
           </h1>
-          
-          <p className="text-sm sm:text-base text-muted-foreground mb-10 max-w-lg font-normal leading-relaxed">
-            ให้บริการจัดจำหน่ายไอดีและสินค้าเกมชั้นนำราคาประหยัด ปลอดภัย มั่นใจได้ 100% พร้อมบริการดูแลตลอด 24 ชั่วโมง
+          <p className="text-sm sm:text-base text-muted-foreground mb-8 max-w-xl">
+            Sunoid.shop ให้บริการจัดจำหน่ายไอดีเกมชั้นนำราคาประหยัด มีสินค้าให้เลือกหลากหลาย ปลอดภัย มั่นใจได้ 100% พร้อมบริการดูแลตลอด 24 ชั่วโมง
           </p>
-          
-          <div className="flex flex-wrap items-center justify-center gap-3">
+          <div className="flex flex-wrap items-center justify-center gap-4">
             <button 
               onClick={() => setActiveView('categories')}
-              className="bg-primary hover:opacity-90 text-primary-foreground px-6 py-3 rounded-lg font-medium text-sm flex items-center gap-2 transition-all active:scale-[0.97] cursor-pointer border-none"
+              className="bg-[#3b82f6] hover:bg-blue-600 text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2 transition-all shadow-md shadow-blue-500/10 active:scale-95 cursor-pointer"
             >
               เลือกซื้อสินค้า <ShoppingCart className="w-4 h-4" />
             </button>
@@ -75,110 +73,82 @@ export const HomeView = (props: any) => {
                 if(!user) { setActiveView('login'); return; }
                 setActiveView('wallet');
               }}
-              className="bg-card hover:bg-secondary border border-border text-foreground px-6 py-3 rounded-lg font-medium text-sm flex items-center gap-2 transition-all active:scale-[0.97] cursor-pointer"
+              className="bg-white hover:bg-slate-50 border border-[#e2e8f0] text-[#1e1e20] px-8 py-3 rounded-xl font-bold flex items-center gap-2 transition-all active:scale-95 cursor-pointer"
             >
-              เติมเงิน <CreditCard className="w-4 h-4 text-muted-foreground" />
-            </button>
-            <button 
-              onClick={() => {
-                if(!user) { setActiveView('login'); return; }
-                setActiveView('redeem');
-              }}
-              className="bg-transparent hover:bg-border border border-dashed border-amber-500/20 text-amber-400 px-6 py-3 rounded-lg font-medium text-sm flex items-center gap-2 transition-all active:scale-[0.97] cursor-pointer"
-            >
-              รับโบนัสฟรี <Gift className="w-4 h-4 text-amber-400" />
+              เติมเงินเข้าระบบ <CreditCard className="w-4 h-4 text-blue-500" />
             </button>
           </div>
         </div>
       </section>
 
       {/* ===== Stats Grid ===== */}
-      <section className="px-4 py-8 max-w-7xl mx-auto -mt-10 relative z-20">
+      <section className="px-4 py-8 max-w-7xl mx-auto -mt-12 relative z-20">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <motion.div 
-            whileHover={{ y: -2 }}
-            transition={{ duration: 0.2 }}
-            className="bg-card border border-border p-5 rounded-lg flex flex-col gap-2 transition-all duration-300"
-          >
-            <div className="w-8 h-8 rounded bg-border flex items-center justify-center text-foreground mb-1 border border-white/[0.04]">
+          <div className="bg-white border border-[#e2e8f0] p-5 rounded-2xl flex flex-col gap-2 shadow-sm">
+            <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500 mb-2">
               <Users className="w-4 h-4" />
             </div>
-            <span className="text-muted-foreground text-xs font-medium tracking-tight">สมาชิกทั้งหมด</span>
-            <span className="text-xl font-semibold text-foreground tracking-tight font-mono">{stats?.totalUsers?.toLocaleString() || '1,000+'}</span>
-          </motion.div>
-
-          <motion.div 
-            whileHover={{ y: -2 }}
-            transition={{ duration: 0.2 }}
-            className="bg-card border border-border p-5 rounded-lg flex flex-col gap-2 transition-all duration-300"
-          >
-            <div className="w-8 h-8 rounded bg-border flex items-center justify-center text-foreground mb-1 border border-white/[0.04]">
+            <span className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">สมาชิกทั้งหมด</span>
+            <span className="text-2xl font-bold text-[#1e1e20]">{stats?.totalUsers?.toLocaleString() || '1,000+'}</span>
+          </div>
+          <div className="bg-white border border-[#e2e8f0] p-5 rounded-2xl flex flex-col gap-2 shadow-sm">
+            <div className="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center text-green-500 mb-2">
               <ShoppingCart className="w-4 h-4" />
             </div>
-            <span className="text-muted-foreground text-xs font-medium tracking-tight">สินค้าที่ขายแล้ว</span>
-            <span className="text-xl font-semibold text-foreground tracking-tight font-mono">{stats?.totalOrders?.toLocaleString() || '2,500+'}</span>
-          </motion.div>
-
-          <motion.div 
-            whileHover={{ y: -2 }}
-            transition={{ duration: 0.2 }}
-            className="bg-card border border-border p-5 rounded-lg flex flex-col gap-2 transition-all duration-300"
-          >
-            <div className="w-8 h-8 rounded bg-border flex items-center justify-center text-foreground mb-1 border border-white/[0.04]">
+            <span className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">สินค้าที่ขายแล้ว</span>
+            <span className="text-2xl font-bold text-[#1e1e20]">{stats?.totalOrders?.toLocaleString() || '2,500+'}</span>
+          </div>
+          <div className="bg-white border border-[#e2e8f0] p-5 rounded-2xl flex flex-col gap-2 shadow-sm">
+            <div className="w-10 h-10 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-500 mb-2">
               <Server className="w-4 h-4" />
             </div>
-            <span className="text-muted-foreground text-xs font-medium tracking-tight">จำนวนสินค้า</span>
-            <span className="text-xl font-semibold text-foreground tracking-tight font-mono">{products?.length || '50+'}</span>
-          </motion.div>
-
-          <motion.div 
-            whileHover={{ y: -2 }}
-            transition={{ duration: 0.2 }}
-            className="bg-card border border-border p-5 rounded-lg flex flex-col gap-2 transition-all duration-300"
-          >
-            <div className="w-8 h-8 rounded bg-border flex items-center justify-center text-foreground mb-1 border border-white/[0.04]">
+            <span className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">จำนวนสินค้า</span>
+            <span className="text-2xl font-bold text-[#1e1e20]">{products?.length || '50+'}</span>
+          </div>
+          <div className="bg-white border border-[#e2e8f0] p-5 rounded-2xl flex flex-col gap-2 shadow-sm">
+            <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-500 mb-2">
               <Activity className="w-4 h-4" />
             </div>
-            <span className="text-muted-foreground text-xs font-medium tracking-tight">อัพไทม์ระบบ</span>
-            <span className="text-xl font-semibold text-foreground tracking-tight font-mono">99.9%</span>
-          </motion.div>
+            <span className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">อัพไทม์ระบบ</span>
+            <span className="text-2xl font-bold text-[#1e1e20]">99.9%</span>
+          </div>
         </div>
       </section>
 
       {/* ===== Recent Products ===== */}
-      <section className="max-w-7xl mx-auto px-4 py-12">
+      <section className="max-w-7xl mx-auto px-4 py-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
           <div>
-            <h2 className="text-xl sm:text-2xl font-semibold flex items-center gap-2 text-foreground tracking-[-0.02em]">
-              <Gamepad2 className="w-5 h-5 text-muted-foreground" /> สินค้าและบริการหลัก
+            <h2 className="text-xl sm:text-2xl font-bold flex items-center gap-2 text-[#1e1e20]">
+              <Gamepad2 className="w-5 h-5 text-blue-500" /> สินค้าและบริการหลัก
             </h2>
-            <p className="text-xs sm:text-sm text-muted-foreground mt-1 font-normal">บริการคีย์และไอดีเกมแบบจัดส่งด่วนรวดเร็วทันใจ</p>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-1">แยกหมวดหมู่บริการเพื่อง่ายต่อการเลือกชมและสั่งซื้อง่ายขึ้น</p>
           </div>
           <button 
             onClick={() => {
-              if (onSelectCategory && activeCategory !== 'all') {
+              if (onSelectCategory) {
                 onSelectCategory(activeCategory);
               } else {
                 setActiveView('categories');
               }
             }}
-            className="text-xs sm:text-sm font-medium text-foreground hover:text-[#FFFFFF] flex items-center gap-1.5 group transition-colors cursor-pointer self-start md:self-end leading-none"
+            className="text-xs sm:text-sm font-semibold text-blue-500 hover:text-blue-600 flex items-center gap-1.5 group transition-colors cursor-pointer self-start md:self-end"
           >
-            ดูสินค้าทั้งหมดในหมวดหมู่นี้ <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
+            ดูสินค้าทั้งหมดในหมวดหมู่นี้ <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </button>
         </div>
 
-        {/* Categories Tab Selector */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-4 mb-8 select-none scrollbar-none" style={{ scrollbarWidth: 'none' }}>
+        {/* Categories Tab Selector with Horizontal scroll layout */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-4 mb-6 select-none scrollbar-none" style={{ scrollbarWidth: 'none' }}>
           <button
             onClick={() => setActiveCategory('all')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-all border cursor-pointer ${
+            className={`flex items-center gap-1 px-4 py-2.5 rounded-full text-xs font-bold whitespace-nowrap transition-all border cursor-pointer ${
               activeCategory === 'all'
-                ? 'bg-foreground text-primary-foreground border-[#EDEDED]'
-                : 'bg-card text-muted-foreground border-border hover:text-foreground hover:border-white/[0.15]'
+                ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-500/10'
+                : 'bg-white text-muted-foreground border-[#e2e8f0] hover:text-[#1e1e20]'
             }`}
           >
-            <Package className="w-3.5 h-3.5 shrink-0" />
+            <Package className="w-3.5 h-3.5" />
             <span>ทั้งหมด ({products.length})</span>
           </button>
 
@@ -189,14 +159,14 @@ export const HomeView = (props: any) => {
               <button
                 key={c.id || c.name}
                 onClick={() => setActiveCategory(c.id || c.name || c.title)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-all border cursor-pointer ${
+                className={`flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs font-bold whitespace-nowrap transition-all border cursor-pointer ${
                   isActive
-                    ? 'bg-foreground text-primary-foreground border-[#EDEDED]'
-                    : 'bg-card text-muted-foreground border-border hover:text-foreground hover:border-white/[0.15]'
+                    ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-500/10'
+                    : 'bg-white text-zinc-500 border-[#e2e8f0] hover:text-[#1e1e20]'
                 }`}
               >
                 <span>{c.title}</span>
-                <span className={`text-[9.5px] px-1.5 py-0.5 rounded font-mono transition-colors ${isActive ? 'bg-black/10 text-primary-foreground' : 'bg-foreground/[0.05] text-muted-foreground'}`}>
+                <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-bold font-mono ${isActive ? 'bg-blue-500/15 text-white' : 'bg-slate-100 text-muted-foreground'}`}>
                   {count}
                 </span>
               </button>
@@ -207,10 +177,10 @@ export const HomeView = (props: any) => {
         <AnimatePresence mode="popLayout">
           <motion.div
             key={activeCategory}
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.25, ease: 'easeOut' }}
+            exit={{ opacity: 0, y: -15 }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
             className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6"
           >
             {visibleProducts.map((p: any, idx: number) => (
@@ -225,7 +195,7 @@ export const HomeView = (props: any) => {
         </AnimatePresence>
 
         {visibleProducts.length === 0 && (
-          <div className="w-full text-center py-20 text-muted-foreground bg-card border border-dashed border-border rounded-lg font-medium text-sm">
+          <div className="w-full text-center py-16 text-muted-foreground bg-white border border-[#e2e8f0] rounded-2xl">
             ยังไม่มีสินค้าในหมวดหมู่นี้ในระบบอัพเดท...
           </div>
         )}
@@ -233,30 +203,26 @@ export const HomeView = (props: any) => {
 
       {/* ===== Features Banner ===== */}
       <section className="max-w-7xl mx-auto px-4 py-12 mb-12">
-        <motion.div 
-          whileHover={{ y: -2 }}
-          transition={{ duration: 0.2 }}
-          className="bg-card border border-border rounded-lg p-8 md:p-12 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8 transition-all duration-300"
-        >
-           <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-foreground/[0.01] rounded-full blur-[80px] pointer-events-none" />
+        <div className="bg-white border border-[#e2e8f0] rounded-3xl p-8 md:p-12 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8 shadow-sm">
+           <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-bl from-blue-500/5 to-transparent rounded-full blur-[80px] pointer-events-none" />
            <div className="relative z-10 max-w-xl text-left">
-             <div className="w-10 h-10 bg-border text-foreground rounded-lg flex items-center justify-center mb-5 border border-white/[0.04]">
-               <ShieldCheck className="w-5 h-5" />
+             <div className="w-12 h-12 bg-blue-500/10 text-blue-500 rounded-xl flex items-center justify-center mb-6">
+               <ShieldCheck className="w-6 h-6" />
              </div>
-             <h2 className="text-xl sm:text-2xl font-semibold mb-3 text-foreground tracking-[-0.02em]">เชื่อมั่นใน nxyshop</h2>
-             <p className="text-sm text-muted-foreground font-normal leading-relaxed">
+             <h2 className="text-2xl sm:text-3xl font-bold mb-4 text-[#1e1e20]">เชื่อมั่นใน <span className="text-blue-500">Sunoid.shop</span></h2>
+             <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
                ทีมงานมีประสบการณ์ดูแลระบบมายาวนานกว่า 3 ปี พร้อมดูแลแก้ไขปัญหา หากพบเจอบัคหรือปัญหาการใช้งานแจ้งทีมงานได้ทันที บริการหลังการขายเป็นเลิศ
              </p>
            </div>
            <div className="relative z-10 shrink-0 w-full md:w-auto flex justify-end">
              <button 
                 onClick={() => window.open(siteSettings?.facebook_link || '#', '_blank')}
-                className="bg-card hover:bg-secondary border border-border text-foreground px-6 py-3 rounded-lg font-medium text-sm flex items-center gap-2 transition-all active:scale-[0.97] cursor-pointer"
+                className="bg-white hover:bg-[#f1f5f9] border border-[#e2e8f0] text-[#1e1e20] px-8 py-4 rounded-2xl font-bold flex items-center gap-2 transition-all active:scale-95 shadow-sm cursor-pointer"
               >
-                ติดต่อทีมงาน <ArrowRight className="w-4 h-4 text-muted-foreground" />
+                ติดต่อทีมงาน <ArrowRight className="w-4 h-4 text-blue-500" />
               </button>
            </div>
-        </motion.div>
+        </div>
       </section>
 
     </div>

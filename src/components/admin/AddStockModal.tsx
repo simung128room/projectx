@@ -82,9 +82,9 @@ export const AddStockModal = ({
 
     if (rejectedFiles.length > 0) {
       if (rejectedFiles.length === 1) {
-        Swal.fire({title: 'ไฟล์ใหญ่เกินไป', text: `ไฟล์ ${rejectedFiles[0]} มีขนาดใหญ่กว่า 5MB. ให้ใช้วิธีอัพโหลดไฟล์แล้ววางลิงก์แทน`, icon: 'error', background: '#1f1c14', color: '#fff'});
+        Swal.fire({title: 'ไฟล์ใหญ่เกินไป', text: `ไฟล์ ${rejectedFiles[0]} มีขนาดใหญ่กว่า 5MB. ให้ใช้วิธีอัพโหลดไฟล์แล้ววางลิงก์แทน`, icon: 'error', background: '#121212', color: '#fff'});
       } else {
-        Swal.fire({title: 'พบไฟล์ใหญ่เกิน 5MB', text: `มี ${rejectedFiles.length} ไฟล์ที่มีขนาดใหญ่กว่า 5MB เช่น ${rejectedFiles[0]} ระบบจึงต้องข้ามไฟล์เหล่านี้ไป`, icon: 'warning', background: '#1f1c14', color: '#fff'});
+        Swal.fire({title: 'พบไฟล์ใหญ่เกิน 5MB', text: `มี ${rejectedFiles.length} ไฟล์ที่มีขนาดใหญ่กว่า 5MB เช่น ${rejectedFiles[0]} ระบบจึงต้องข้ามไฟล์เหล่านี้ไป`, icon: 'warning', background: '#121212', color: '#fff'});
       }
     }
   };
@@ -163,7 +163,7 @@ export const AddStockModal = ({
     }
 
     if (newItems.length === 0) {
-      return Swal.fire({title: 'ข้อมูลว่างเปล่า', text: 'ไม่ได้เพิ่มสต๊อกใหม่', icon: 'error', background: '#1f1c14', color: '#fff'});
+      return Swal.fire({title: 'ข้อมูลว่างเปล่า', text: 'ไม่ได้เพิ่มสต๊อกใหม่', icon: 'error', background: '#121212', color: '#fff'});
     }
 
     if (newItems.length > 500) {
@@ -173,7 +173,7 @@ export const AddStockModal = ({
         icon: 'info',
         showConfirmButton: false,
         allowOutsideClick: false,
-        background: '#1f1c14', color: '#fff'
+        background: '#121212', color: '#fff'
       });
     }
 
@@ -182,28 +182,28 @@ export const AddStockModal = ({
 
   return (
     <div className="fixed inset-0 bg-[#000000]/60 backdrop-blur-3xl saturate-150 flex items-center justify-end p-0 z-50">
-      <div className="bg-card border-l border-[#374151] border w-full max-w-md h-full relative p-6 sm:p-8 overflow-y-auto animate-in slide-in-from-right-full duration-300">
-        <h2 className="text-xl font-medium text-foreground mb-6 flex items-center gap-2">
+      <div className="bg-[#121212] border-l border-[#374151] border w-full max-w-md h-full relative p-6 sm:p-8 overflow-y-auto animate-in slide-in-from-right-full duration-300">
+        <h2 className="text-xl font-medium text-white mb-6 flex items-center gap-2">
           <Database className="w-5 h-5 text-[#364153]" />
           เพิ่มสต๊อก: {product.name}
         </h2>
         
-        <div className="flex bg-card p-1 mb-6">
+        <div className="flex bg-[#121212] p-1 mb-6">
           <button 
             onClick={() => setMode('file')}
-            className={`flex-1 py-2 text-xs font-medium transition-all ${mode === 'file' ? 'bg-card text-foreground' : 'text-muted-foreground/80 hover:text-zinc-300'}`}
+            className={`flex-1 py-2 text-xs font-medium transition-all ${mode === 'file' ? 'bg-[#121212] text-white' : 'text-zinc-500 hover:text-zinc-300'}`}
           >
             ไฟล์ .txt (หลายสต๊อก)
           </button>
           <button 
             onClick={() => setMode('single-file')}
-            className={`flex-1 py-2 text-xs font-medium transition-all ${mode === 'single-file' ? 'bg-card text-foreground' : 'text-muted-foreground/80 hover:text-zinc-300'}`}
+            className={`flex-1 py-2 text-xs font-medium transition-all ${mode === 'single-file' ? 'bg-[#121212] text-white' : 'text-zinc-500 hover:text-zinc-300'}`}
           >
             ไฟล์ทั่วไป (1 ไฟล์ = 1 สต๊อก)
           </button>
           <button 
             onClick={() => setMode('text')}
-            className={`flex-1 py-2 text-xs font-medium transition-all ${mode === 'text' ? 'bg-card text-foreground' : 'text-muted-foreground/80 hover:text-zinc-300'}`}
+            className={`flex-1 py-2 text-xs font-medium transition-all ${mode === 'text' ? 'bg-[#121212] text-white' : 'text-zinc-500 hover:text-zinc-300'}`}
           >
             วางข้อความ
           </button>
@@ -213,11 +213,11 @@ export const AddStockModal = ({
           <div className="space-y-4">
             <div 
               onClick={() => fileRef.current?.click()}
-              className="border border-dashed border-[#374151] hover:border-emerald-500/50 bg-card p-8 flex flex-col items-center justify-center cursor-pointer transition-colors"
+              className="border border-dashed border-[#374151] hover:border-emerald-500/50 bg-[#121212] p-8 flex flex-col items-center justify-center cursor-pointer transition-colors"
             >
               <Upload className="w-8 h-8 text-[#364153] mb-3" />
-              <p className="text-sm font-medium text-muted-foreground">คลิกเพื่ออัพโหลดไฟล์ .txt</p>
-              <p className="text-xs text-muted-foreground mt-1">1 บรรทัด = 1 สต๊อก</p>
+              <p className="text-sm font-medium text-zinc-400">คลิกเพื่ออัพโหลดไฟล์ .txt</p>
+              <p className="text-xs text-zinc-400 mt-1">1 บรรทัด = 1 สต๊อก</p>
               <input 
                 type="file" 
                 accept=".txt" 
@@ -228,25 +228,25 @@ export const AddStockModal = ({
             </div>
 
             {uploadProgress >= 0 && (
-              <div className="bg-card border border-[#374151] border p-4 mt-2">
+              <div className="bg-[#121212] border border-[#374151] border p-4 mt-2">
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-xs font-medium text-muted-foreground">กำลังประมวลผลไฟล์...</span>
+                  <span className="text-xs font-medium text-zinc-400">กำลังประมวลผลไฟล์...</span>
                   <span className="text-xs font-medium text-[#364153]">{uploadProgress}%</span>
                 </div>
-                <div className="w-full bg-card h-1.5 object-cover overflow-hidden">
+                <div className="w-full bg-[#121212] h-1.5 object-cover overflow-hidden">
                   <div className="bg-[#364153] h-1.5 transition-all duration-300" style={{ width: `${uploadProgress}%` }}></div>
                 </div>
               </div>
             )}
             
-            <div className="flex items-center justify-between bg-card p-3 border border-[#374151] border">
-              <label className="text-sm font-medium text-muted-foreground">จำนวนบรรทัดต่อ 1 สต๊อก</label>
+            <div className="flex items-center justify-between bg-[#121212] p-3 border border-[#374151] border">
+              <label className="text-sm font-medium text-zinc-400">จำนวนบรรทัดต่อ 1 สต๊อก</label>
               <input 
                 type="number" 
                 min="1" 
                 value={linesPerStock} 
                 onChange={(e) => setLinesPerStock(Math.max(1, parseInt(e.target.value) || 1))} 
-                className="w-20 bg-card border border-[#374151] px-3 py-1 text-foreground text-center font-medium"
+                className="w-20 bg-[#121212] border border-[#374151] px-3 py-1 text-white text-center font-medium"
               />
             </div>
 
@@ -268,11 +268,11 @@ export const AddStockModal = ({
           <div className="space-y-4">
             <div 
               onClick={() => singleFileRef.current?.click()}
-              className="border border-dashed border-[#374151] hover:border-emerald-500/50 bg-card p-8 flex flex-col items-center justify-center cursor-pointer transition-colors"
+              className="border border-dashed border-[#374151] hover:border-emerald-500/50 bg-[#121212] p-8 flex flex-col items-center justify-center cursor-pointer transition-colors"
             >
               <Upload className="w-8 h-8 text-[#364153] mb-3" />
-              <p className="text-sm font-medium text-muted-foreground">อัพโหลดไฟล์สินค้า</p>
-              <p className="text-xs text-muted-foreground mt-1">สูงสุด 5MB ต่อไฟล์ (เลือกหลายไฟล์ได้)</p>
+              <p className="text-sm font-medium text-zinc-400">อัพโหลดไฟล์สินค้า</p>
+              <p className="text-xs text-zinc-400 mt-1">สูงสุด 5MB ต่อไฟล์ (เลือกหลายไฟล์ได้)</p>
               <input 
                 type="file" 
                 multiple
@@ -284,9 +284,9 @@ export const AddStockModal = ({
             {singleFilesPreview.length > 0 && (
               <div className="flex flex-col gap-2 max-h-32 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-zinc-800">
                 {singleFilesPreview.map((f, i) => (
-                  <div key={i} className="bg-card border border-[#374151] border p-2.5 flex items-center justify-between">
-                    <span className="text-xs font-medium truncate max-w-[200px] text-muted-foreground">{f.name}</span>
-                    <span className="text-[10px] text-[#364153] font-medium bg-[#364153] text-background px-2 py-0.5 rounded">Ready</span>
+                  <div key={i} className="bg-[#121212] border border-[#374151] border p-2.5 flex items-center justify-between">
+                    <span className="text-xs font-medium truncate max-w-[200px] text-zinc-400">{f.name}</span>
+                    <span className="text-[10px] text-[#364153] font-medium bg-[#364153] text-black px-2 py-0.5 rounded">Ready</span>
                   </div>
                 ))}
               </div>
@@ -296,27 +296,27 @@ export const AddStockModal = ({
 
         {mode === 'text' && (
           <div className="space-y-4">
-            <div className="flex items-center justify-between bg-card p-3 border border-[#374151] border">
-              <label className="text-sm font-medium text-muted-foreground">จำนวนบรรทัดต่อ 1 สต๊อก</label>
+            <div className="flex items-center justify-between bg-[#121212] p-3 border border-[#374151] border">
+              <label className="text-sm font-medium text-zinc-400">จำนวนบรรทัดต่อ 1 สต๊อก</label>
               <input 
                 type="number" 
                 min="1" 
                 value={linesPerStock} 
                 onChange={(e) => setLinesPerStock(Math.max(1, parseInt(e.target.value) || 1))} 
-                className="w-20 bg-card border border-[#374151] px-3 py-1 text-foreground text-center font-medium"
+                className="w-20 bg-[#121212] border border-[#374151] px-3 py-1 text-white text-center font-medium"
               />
             </div>
             
             <div>
               <div className="flex items-center justify-between mb-2">
-                <label className="text-xs font-medium text-muted-foreground">วางข้อมูลสต๊อก</label>
+                <label className="text-xs font-medium text-zinc-400">วางข้อมูลสต๊อก</label>
                 <div className="flex items-center gap-2">
                   {isBigTextMode && (
                     <button onClick={resetBigData} className="text-[10px] bg-red-500/20 text-red-400 hover:bg-red-500/30 px-2 py-0.5 rounded font-medium transition-colors">
                       ล้างข้อมูล (Clear)
                     </button>
                   )}
-                  <span className="text-[10px] text-muted-foreground bg-card px-2 py-0.5 rounded">
+                  <span className="text-[10px] text-zinc-400 bg-[#121212] px-2 py-0.5 rounded">
                     คำนวณได้: {stockCount} สต๊อก
                   </span>
                 </div>
@@ -326,7 +326,7 @@ export const AddStockModal = ({
                 onChange={updateTextCount}
                 onPaste={handlePaste}
                 disabled={isBigTextMode}
-                className="w-full bg-card border border-[#374151] border p-4 text-foreground focus:outline-none focus:border-emerald-500 text-sm h-40 resize-none font-mono text-xs leading-relaxed disabled:opacity-50"
+                className="w-full bg-[#121212] border border-[#374151] border p-4 text-white focus:outline-none focus:border-emerald-500 text-sm h-40 resize-none font-mono text-xs leading-relaxed disabled:opacity-50"
                 placeholder="ข้อมูลบรรทัดที่ 1&#10;ข้อมูลบรรทัดที่ 2&#10;ข้อมูลบรรทัดที่ 3&#10;..."
               />
             </div>
@@ -336,13 +336,13 @@ export const AddStockModal = ({
         <div className="mt-8 flex items-center gap-3">
           <button 
             onClick={onClose}
-            className="flex-1 px-4 py-3 bg-card hover:bg-[#1e1e1e] text-foreground text-sm font-medium transition-colors"
+            className="flex-1 px-4 py-3 bg-[#121212] hover:bg-[#1e1e1e] text-white text-sm font-medium transition-colors"
           >
             ยกเลิก
           </button>
           <button 
             onClick={handleSaveStock}
-            className="flex-1 px-4 py-3 bg-[#364153] hover:bg-[#364153] text-foreground text-sm font-medium transition-colors"
+            className="flex-1 px-4 py-3 bg-[#364153] hover:bg-[#364153] text-white text-sm font-medium transition-colors"
           >
             เพิ่มสต๊อกเข้าสู่ระบบ
           </button>

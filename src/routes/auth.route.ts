@@ -78,7 +78,7 @@ export function createAuthRouter({
           });
 
         console.log(
-          `[SECURITY] OTP Generated successfully for password reset: username=${username}, OTP=${generatedOtp} (In production, this should be emailed instead)`
+          `[SECURITY] OTP Generated successfully for password reset: username=${username}, OTP=[REDACTED]`,
         );
 
         return res.json({
@@ -219,7 +219,7 @@ export function createAuthRouter({
         if (err.details) console.error("Error Details:", err.details);
       }
       return res.json({ success: true, user: data.user });
-    } catch (e: any) {
+    } catch (e) {
       return res.status(500).json({ error: String(e) });
     }
   });

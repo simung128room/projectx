@@ -39,22 +39,10 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
     
     if (score <= 2) return { score, label: 'อ่อน (Weak)', color: 'bg-rose-500' };
     if (score <= 3) return { score, label: 'ปานกลาง (Medium)', color: 'bg-amber-500' };
-    return { score, label: 'ปลอดภัย (Strong)', color: 'bg-primary' };
+    return { score, label: 'ปลอดภัย (Strong)', color: 'bg-blue-600' };
   };
 
   const strength = getPasswordStrength(authPassword);
-
-  const handleSocialLogin = () => {
-    Swal.fire({
-      title: 'แจ้งเตือน',
-      text: 'ระบบยังไม่รองรับช่องทางนี้ในขณะนี้',
-      icon: 'info',
-      confirmButtonText: 'ตกลง',
-      confirmButtonColor: '#ffe300',
-      background: '#0a0a0a',
-      color: '#ffffff'
-    });
-  };
 
   useEffect(() => {
     setAuthMode(initialMode);
@@ -126,14 +114,15 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
           if (res.data.error) {
             throw new Error(res.data.error);
           }
-          Swal.fire({ icon: 'success', title: 'รีเซ็ตรหัสผ่านสำเร็จ', text: 'กรุณาเข้าสู่ระบบด้วยรหัสผ่านใหม่', timer: 1500, showConfirmButton: false });
-          setAuthMode('login');
-          setActiveView('login');
-          setOtpRequired(false);
-          setOtp('');
         } catch (e: any) {
           throw new Error(e.response?.data?.error || e.message);
         }
+
+        Swal.fire({ icon: 'success', title: 'รีเซ็ตรหัสผ่านสำเร็จ', text: 'กรุณาเข้าสู่ระบบด้วยรหัสผ่านใหม่', timer: 1500, showConfirmButton: false });
+        setAuthMode('login');
+        setActiveView('login');
+        setOtpRequired(false);
+        setOtp('');
       } else {
         const { data, error } = await auth.auth.signInWithPassword({ email: generatedEmail, password: authPassword });
 
@@ -161,61 +150,83 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
   };
 
   return (
-    <div className="min-h-[calc(100vh-52px)] w-full flex items-center justify-center p-4 sm:p-8 relative overflow-hidden bg-background text-foreground font-sans">
+    <div className="min-h-screen w-full flex items-center justify-center p-4 relative overflow-hidden bg-[#f8fafc] text-zinc-800 font-sans">
+      {/* Immersive Background */}
+      <div className="absolute inset-0 z-0 select-none pointer-events-none">
+        <div className="absolute top-[-10%] left-[50%] -translate-x-1/2 w-[400px] h-[400px] bg-blue-500/10 rounded-full blur-[100px]" />
+        <div className="absolute bottom-[10%] left-[20%] w-[350px] h-[350px] bg-indigo-500/5 rounded-full blur-[90px]" />
+      </div>
+
       <motion.div 
-        initial={{ opacity: 0, y: 15 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-        className="w-full max-w-[400px] bg-card p-8 sm:p-10 rounded-lg border border-border relative z-10 mx-auto"
+        initial={{ opacity: 0, scale: 0.98, y: 15 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.35, ease: "easeOut" }}
+        className="w-full max-w-md bg-white border border-zinc-200 p-8 sm:p-10 rounded-[32px] shadow-xl relative z-10"
       >
-        {/* Header */}
-        <div className="mb-8 flex justify-between items-start">
-          <div className="text-left">
-            <h1 className="text-2xl font-bold text-foreground tracking-tight mb-1">
-              {authMode === 'forgot' ? 'รีเซ็ตรหัสผ่าน' : authMode === 'login' ? 'เข้าสู่ระบบ' : 'สร้างบัญชี'}
-            </h1>
-            <p className="text-base text-muted-foreground font-semibold tracking-wide uppercase">
-              {authMode === 'forgot' ? 'RESET PASSWORD' : authMode === 'login' ? 'LOGIN' : 'REGISTER'}
-            </p>
-          </div>
+        {/* Header / Brand */}
+        <div className="text-center mb-6 flex flex-col items-center">
           <motion.div 
-            initial={{ opacity: 0, scale: 0.5, y: -20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ 
-              duration: 0.6, 
-              type: 'spring', 
-              bounce: 0.5 
-            }}
-            className="w-14 h-14 shrink-0 rounded-2xl flex items-center justify-center overflow-hidden ml-4"
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.05, duration: 0.3 }}
+            className="mb-4 cursor-pointer"
+            onClick={() => setActiveView("home")}
           >
-            <motion.img 
-              animate={{ y: [0, -4, 0] }}
-              transition={{ repeat: Infinity, duration: 3, ease: 'easeInOut' }}
-              src="https://i.postimg.cc/3wDpxHPp/D7D8FA4A-524D-480E-9BF3-8451C296F760.png" 
-              alt="Logo" 
-              className="w-full h-full object-contain drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]" 
-            />
+            <img src="https://img2.pic.in.th/983B3DCE-90A3-4822-8940-D6B81CCA63A3.png" alt="APEXSTORE Logo" className="h-[48px] md:h-[56px] object-contain drop-shadow-[0_0_12px_rgba(59,130,246,0.2)] hover:scale-102 transition-all duration-300" />
           </motion.div>
+          
+          <h1 className="text-xl font-black text-zinc-805 tracking-tight mb-1">
+            {authMode === 'login' ? 'ยินดีต้อนรับกลับมา' : authMode === 'forgot' ? 'รีเซ็ตรหัสผ่าน' : 'สร้างบัญชีผู้ใช้ใหม่'}
+          </h1>
+          <p className="text-xs text-zinc-400 font-bold">
+            {authMode === 'login' ? 'กรุณาเข้าสู่ระบบเพื่อดำเนินการต่อ' : authMode === 'forgot' ? 'กรอกอีเมลเพื่อกู้คืนรหัสผ่านของคุณ' : 'สมัครสมาชิกได้ง่ายๆ ภายในไม่กี่วินาที'}
+          </p>
         </div>
 
-        {/* Tab Switcher - Using simple text buttons at the bottom instead of tabs for this card design */}
-        <form onSubmit={handleAuth} className="space-y-0">
+        {/* Authentication Mode Switcher Pill */}
+        {authMode !== 'forgot' && (
+          <div className="p-1 rounded-2xl bg-zinc-100 border border-zinc-200/50 flex gap-1 mb-6 relative">
+            <button
+              type="button"
+              onClick={() => { setAuthMode('login'); setActiveView('login'); }}
+              className={`flex-1 py-3 rounded-xl text-xs font-black tracking-wider uppercase transition-all duration-300 z-10 cursor-pointer ${authMode === 'login' ? 'text-zinc-800' : 'text-zinc-400 hover:text-zinc-600'}`}
+            >
+              ลงชื่อเข้าใช้
+            </button>
+            <button
+              type="button"
+              onClick={() => { setAuthMode('signup'); setActiveView('signup'); }}
+              className={`flex-1 py-3 rounded-xl text-xs font-black tracking-wider uppercase transition-all duration-300 z-10 cursor-pointer ${authMode === 'signup' ? 'text-zinc-800' : 'text-zinc-400 hover:text-zinc-600'}`}
+            >
+              สมัครสมาชิก
+            </button>
+            {/* Sliding Pill Background */}
+            <div 
+              className="absolute top-1 bottom-1 w-[calc(50%-4px)] bg-white border border-zinc-200/30 rounded-xl shadow-sm transition-all duration-300 ease-out z-0"
+              style={{ left: authMode === 'login' ? '4px' : 'calc(50%)' }}
+            />
+          </div>
+        )}
+
+        <form onSubmit={handleAuth} className="space-y-4">
           <AnimatePresence mode="popLayout">
             {/* Username field */}
-            <motion.div layout key="username" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-              <div className="flex flex-col gap-2">
-                <label className="text-[13px] font-bold text-zinc-300">
-                  ชื่อผู้ใช้
+            <motion.div layout key="username" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} transition={{ duration: 0.2 }}>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-black text-zinc-500 tracking-wide pl-1 flex items-center gap-1.5 select-none uppercase">
+                  <User className="w-3.5 h-3.5 text-zinc-400" />
+                  <span>ชื่อผู้ใช้</span>
                 </label>
-                <div className="relative">
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none">
-                    <User className="w-[18px] h-[18px]" />
+                <div className="relative group">
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 group-focus-within:text-blue-500 transition-colors">
+                    <User className="w-4.5 h-4.5" />
                   </div>
                   <input 
                     type="text" 
                     value={authUsername}
                     onChange={(e) => setAuthUsername(e.target.value)}
-                    className="w-full pl-[40px] pr-4 py-2.5 bg-secondary border border-border focus:border-ring rounded-lg outline-none transition-all text-foreground text-[14px] font-medium"
+                    className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-zinc-200 hover:border-zinc-300 rounded-xl outline-none hover:bg-slate-100/50 focus:bg-white focus:border-blue-500 transition-all text-zinc-805 font-bold text-sm placeholder:text-zinc-400 font-sans"
+                    placeholder="ใส่ชื่อผู้ใช้ภาษาอังกฤษ/ตัวเลข"
                     required
                   />
                 </div>
@@ -224,20 +235,22 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
 
             {/* Email field (Only for signup/forgot) */}
             {(authMode === 'signup' || authMode === 'forgot') && (
-              <motion.div layout key="email" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
-                <div className="flex flex-col gap-2 mt-4">
-                  <label className="text-[13px] font-bold text-zinc-300">
-                    อีเมล
+              <motion.div layout key="email" initial={{ opacity: 0, height: 0, scale: 0.95 }} animate={{ opacity: 1, height: 'auto', scale: 1 }} exit={{ opacity: 0, height: 0, scale: 0.95 }} transition={{ duration: 0.2 }}>
+                <div className="flex flex-col gap-1.5 mt-4">
+                  <label className="text-xs font-black text-zinc-500 tracking-wide pl-1 flex items-center gap-1.5 select-none uppercase">
+                    <Mail className="w-3.5 h-3.5 text-zinc-400" />
+                    <span>อีเมลติดต่อกลับ / กู้คืน</span>
                   </label>
-                  <div className="relative">
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none">
-                      <Mail className="w-[18px] h-[18px]" />
+                  <div className="relative group">
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 group-focus-within:text-blue-500 transition-colors">
+                      <Mail className="w-4.5 h-4.5" />
                     </div>
                     <input 
                       type="email" 
                       value={authEmail}
                       onChange={(e) => setAuthEmail(e.target.value)}
-                      className="w-full pl-[40px] pr-4 py-2.5 bg-secondary border border-border focus:border-ring rounded-lg outline-none transition-all text-foreground text-[14px] font-medium"
+                      className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-zinc-200 hover:border-zinc-300 rounded-xl outline-none hover:bg-slate-100/50 focus:bg-white focus:border-blue-500 transition-all text-zinc-805 font-bold text-sm placeholder:text-zinc-400 font-sans"
+                      placeholder="เช่น cleanemail@example.com"
                       required
                     />
                   </div>
@@ -247,20 +260,22 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
 
             {/* OTP field (Only for forgot password when otpRequired is true) */}
             {authMode === 'forgot' && otpRequired && (
-              <motion.div layout key="otp" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
-                <div className="flex flex-col gap-2 mt-4">
-                  <label className="text-[13px] font-bold text-primary">
-                    รหัส OTP
+              <motion.div layout key="otp" initial={{ opacity: 0, height: 0, scale: 0.95 }} animate={{ opacity: 1, height: 'auto', scale: 1 }} exit={{ opacity: 0, height: 0, scale: 0.95 }} transition={{ duration: 0.2 }}>
+                <div className="flex flex-col gap-1.5 mt-4">
+                  <label className="text-xs font-black text-emerald-600 tracking-wide pl-1 flex items-center gap-1.5 select-none uppercase animate-pulse">
+                    <Shield className="w-3.5 h-3.5 text-emerald-500" />
+                    <span>รหัสยืนยัน OTP</span>
                   </label>
-                  <div className="relative">
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none">
-                      <Shield className="w-[18px] h-[18px]" />
+                  <div className="relative group">
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-500 group-focus-within:text-emerald-600 transition-colors">
+                      <Shield className="w-4.5 h-4.5" />
                     </div>
                     <input 
                       type="text" 
                       value={otp}
                       onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                      className="w-full pl-[40px] pr-4 py-2.5 bg-secondary border border-border focus:border-ring rounded-lg outline-none transition-all text-foreground text-[14px] text-center tracking-[0.25em] font-medium"
+                      className="w-full pl-11 pr-4 py-3 bg-emerald-50/50 border border-emerald-200 rounded-xl outline-none focus:bg-white focus:border-emerald-500 transition-all text-emerald-900 text-sm placeholder:text-emerald-300 font-bold text-center tracking-widest"
+                      placeholder="กรอกตัวเลข 6 หลัก"
                       required
                       maxLength={6}
                       minLength={6}
@@ -271,78 +286,78 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
             )}
 
             {/* Password field */}
-            <motion.div layout key="password" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-              <div className="flex flex-col gap-2 mt-4">
-                <label className="text-[13px] font-bold text-zinc-300">
-                  รหัสผ่าน
+            <motion.div layout key="password" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} transition={{ duration: 0.2 }} className={authMode !== 'login' ? 'mt-4' : ''}>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-black text-zinc-500 tracking-wide pl-1 flex items-center gap-1.5 select-none uppercase">
+                  <Lock className="w-3.5 h-3.5 text-zinc-400" />
+                  <span>รหัสผ่าน</span>
                 </label>
-                <div className="relative">
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none">
-                    <Lock className="w-[18px] h-[18px]" />
+                <div className="relative group">
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 group-focus-within:text-blue-500 transition-colors">
+                    <Lock className="w-4.5 h-4.5" />
                   </div>
                   <input 
                     type={showPassword ? "text" : "password"}
                     value={authPassword}
                     onChange={(e) => setAuthPassword(e.target.value)}
-                    className="w-full pl-[40px] pr-12 py-2.5 bg-secondary border border-border focus:border-ring rounded-lg outline-none transition-all text-foreground text-[14px] font-medium"
+                    className="w-full pl-11 pr-12 py-3 bg-slate-50 border border-zinc-200 hover:border-zinc-300 rounded-xl outline-none hover:bg-slate-100/50 focus:bg-white focus:border-blue-500 transition-all text-zinc-805 font-bold text-sm placeholder:text-zinc-405 font-sans"
+                    placeholder="อย่างน้อย 8 ตัวอักษร"
                     required
-                    minLength={6}
+                    minLength={8}
                   />
                   <button 
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-4 flex items-center text-muted-foreground/80 hover:text-zinc-300 transition-colors"
+                    className="absolute inset-y-0 right-4 flex items-center text-zinc-450 hover:text-zinc-700 transition-colors p-1"
                   >
-                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
               </div>
-              {authMode === 'login' && (
-                <div className="flex justify-end mt-3 mr-1">
-                  <button type="button" onClick={() => setAuthMode('forgot')} className="text-[13px] font-bold text-muted-foreground hover:text-foreground transition-colors">
-                    ลืมรหัสผ่าน?
-                  </button>
-                </div>
-              )}
             </motion.div>
 
             {/* Password strength indicator */}
             {authMode === 'signup' && authPassword && (
-              <motion.div layout key="strength" className="space-y-1.5 mt-2.5 px-1">
-                <div className="flex justify-between text-[11px] font-bold text-muted-foreground/80">
-                  <span>ความแข็งแกร่งของรหัสผ่าน:</span>
-                  <span className={strength.score >= 4 ? "text-primary" : strength.score >= 3 ? "text-amber-500" : "text-rose-500"}>
+              <motion.div layout key="strength" className="space-y-1.5 mt-2">
+                <div className="flex justify-between text-[11px] font-black text-zinc-400 px-1">
+                  <span>ระดับความปลอดภัย</span>
+                  <span className={strength.score >= 4 ? "text-blue-600" : strength.score >= 3 ? "text-amber-500" : "text-rose-500"}>
                     {strength.label}
                   </span>
+                </div>
+                <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden flex gap-0.5">
+                  <div className={`h-full transition-all duration-500 ease-out ${strength.color}`} style={{ width: `${(strength.score / 5) * 100}%` }}></div>
                 </div>
               </motion.div>
             )}
 
             {/* Confirm Password field (Only for signup/forgot) */}
             {(authMode === 'signup' || authMode === 'forgot') && (
-              <motion.div layout key="confirmPassword" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
-                <div className="flex flex-col gap-2 mt-4">
-                  <label className="text-[13px] font-bold text-zinc-300">
-                    ยืนยันรหัสผ่าน
+              <motion.div layout key="confirmPassword" initial={{ opacity: 0, height: 0, scale: 0.95 }} animate={{ opacity: 1, height: 'auto', scale: 1 }} exit={{ opacity: 0, height: 0, scale: 0.95 }} transition={{ duration: 0.2 }}>
+                <div className="flex flex-col gap-1.5 mt-4">
+                  <label className="text-xs font-black text-zinc-500 tracking-wide pl-1 flex items-center gap-1.5 select-none uppercase">
+                    <Shield className="w-3.5 h-3.5 text-zinc-400" />
+                    <span>ยืนยันรหัสผ่านอีกครั้ง</span>
                   </label>
-                  <div className="relative">
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none">
-                      <Lock className="w-[18px] h-[18px]" />
+                  <div className="relative group">
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 group-focus-within:text-blue-500 transition-colors">
+                      <Shield className="w-4.5 h-4.5" />
                     </div>
                     <input 
                       type={showConfirmPassword ? "text" : "password"}
                       value={authConfirmPassword}
                       onChange={(e) => setAuthConfirmPassword(e.target.value)}
-                      className="w-full pl-[40px] pr-12 py-2.5 bg-secondary border border-border focus:border-ring rounded-lg outline-none transition-all text-foreground text-[14px] font-medium"
+                      className="w-full pl-11 pr-12 py-3 bg-slate-50 border border-zinc-200 hover:border-zinc-300 rounded-xl outline-none hover:bg-slate-100/50 focus:bg-white focus:border-blue-500 transition-all text-zinc-850 font-bold text-sm placeholder:text-zinc-405 font-sans"
+                      placeholder="กรอกรหัสผ่านเพื่อยืนยันอีกครั้ง"
                       required
-                      minLength={6}
+                      minLength={8}
                     />
                     <button 
                       type="button"
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute inset-y-0 right-4 flex items-center text-muted-foreground/80 hover:text-zinc-300 transition-colors"
+                      className="absolute inset-y-0 right-4 flex items-center text-zinc-450 hover:text-zinc-700 transition-colors p-1"
                     >
-                      {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                      {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
                   </div>
                 </div>
@@ -350,10 +365,27 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
             )}
           </AnimatePresence>
 
+          {/* Forget password trigger for login view */}
+          {authMode === 'login' && (
+            <div className="flex justify-between items-center px-1 mt-2 font-sans">
+              <label className="flex items-center gap-2 cursor-pointer group select-none">
+                 <input type="checkbox" className="w-4 h-4 rounded border-zinc-300 bg-slate-50 text-blue-600 focus:ring-0 focus:ring-offset-0 transition-all cursor-pointer" />
+                 <span className="text-xs font-bold text-zinc-400 group-hover:text-zinc-700 transition-colors">จดจำการเข้าระบบ</span>
+              </label>
+              <button
+                type="button"
+                onClick={() => setAuthMode('forgot')}
+                className="text-xs font-black text-zinc-400 hover:text-blue-600 transition-colors cursor-pointer"
+              >
+                ลืมรหัสผ่าน?
+              </button>
+            </div>
+          )}
+
           {/* Turnstile Integration */}
-          {formError && <div className="mt-4 text-rose-500 bg-rose-500/10 border border-rose-500/20 rounded-xl p-3 text-sm text-center font-medium">{formError}</div>}
+          {formError && <div className="mt-4 text-[#ef4444] bg-[#ef4444]/10 border border-[#ef4444]/20 rounded-xl p-3 text-sm font-bold text-center">{formError}</div>}
           {TURNSTILE_SITE_KEY && (
-            <div className="flex justify-center relative z-20 py-2 mt-2 w-full max-w-[300px] mx-auto overflow-hidden">
+            <div className="flex justify-center relative z-20 py-1 w-full max-w-[300px] mx-auto overflow-hidden">
               <Turnstile
                 siteKey={TURNSTILE_SITE_KEY}
                 onSuccess={(token) => setTurnstileToken(token)}
@@ -366,75 +398,35 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
           <button 
             type="submit" 
             disabled={authLoading}
-            className="w-full mt-6 py-2.5 rounded-lg font-semibold bg-primary hover:opacity-90 text-primary-foreground disabled:opacity-50 transition-colors text-sm flex justify-center items-center gap-2 cursor-pointer"
+            className="w-full py-3.5 rounded-xl font-black bg-blue-600 text-white hover:bg-blue-700 disabled:bg-zinc-200 transition-colors text-xs uppercase tracking-wider flex justify-center items-center gap-1.5 mt-6 cursor-pointer shadow-sm shadow-blue-500/10"
           >
             {authLoading ? (
-              <span className="w-5 h-5 border-2 border-primary-foreground/20 border-t-primary-foreground rounded-full animate-spin" />
+              <>
+                <span className="w-4 h-4 border-2 border-white/25 border-t-white rounded-full animate-spin" />
+                <span>กำลังดำเนินการ...</span>
+              </>
             ) : (
-              <span>{authMode === 'login' ? 'เข้าสู่ระบบ' : authMode === 'forgot' ? 'รีเซ็ตรหัสผ่าน' : 'เปิดบัญชี XENOBUX'}</span>
+              <>
+                {authMode === 'login' ? 'เข้าสู่ระบบบัญชี' : authMode === 'forgot' ? 'ส่งรหัสตั้งรหัสผ่านใหม่' : 'สร้างบัญชีสมาชิก'}
+                <ArrowLeft className="w-4 h-4 rotate-180" />
+              </>
             )}
           </button>
         </form>
-
-        {/* Separator */}
-        {authMode !== 'forgot' && (
-          <>
-            <div className="relative flex items-center my-6">
-              <div className="flex-grow border-t border-zinc-800" style={{ borderTopWidth: '1px' }}></div>
-              <span className="flex-shrink-0 mx-4 text-[12px] text-muted-foreground/80 font-medium">หรือเข้าสู่ระบบด้วย</span>
-              <div className="flex-grow border-t border-zinc-800" style={{ borderTopWidth: '1px' }}></div>
-            </div>
-
-            {/* Social Logins */}
-            <div className="flex justify-center gap-4">
-              <button onClick={handleSocialLogin} type="button" className="w-[44px] h-[44px] flex items-center justify-center bg-secondary hover:bg-border border border-border rounded-lg transition-colors cursor-pointer text-foreground shrink-0">
-                <svg className="w-[18px] h-[18px]" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                  <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                  <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-                  <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-                </svg>
-              </button>
-              
-              <button onClick={handleSocialLogin} type="button" className="w-[44px] h-[44px] flex items-center justify-center bg-secondary hover:bg-border border border-border rounded-lg transition-colors cursor-pointer text-foreground shrink-0">
-                <svg className="w-[18px] h-[18px]" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" fill="#1877F2"/>
-                </svg>
-              </button>
-
-              <button onClick={handleSocialLogin} type="button" className="w-[44px] h-[44px] flex items-center justify-center bg-secondary hover:bg-border border border-border rounded-lg transition-colors cursor-pointer text-foreground shrink-0">
-                <svg className="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.641-.026 2.669-1.48 3.666-2.947 1.152-1.688 1.631-3.325 1.657-3.411-.039-.013-3.182-1.22-3.182-4.857 0-3.052 2.502-4.52 2.605-4.585-1.428-2.09-3.633-2.376-4.423-2.415-2.08-.182-4.065 1.143-4.608 1.143zM15.467 4.254c.831-1.006 1.39-2.402 1.24-3.802-1.182.047-2.656.786-3.513 1.805-.76.864-1.403 2.288-1.22 3.667 1.32.102 2.662-.662 3.493-1.67z" />
-                </svg>
-              </button>
-            </div>
-          </>
-        )}
-
-        {/* Footer Link */}
-        <div className="mt-6 text-center text-[11px]">
-          {authMode === 'login' ? (
-            <p className="text-muted-foreground/80">
-              ไม่มีบัญชีใช่หรือไม่?{' '}
-              <button type="button" onClick={() => setAuthMode('signup')} className="font-semibold text-zinc-300 hover:text-foreground transition-colors">
-                สร้างบัญชี
-              </button>
-            </p>
-          ) : authMode === 'signup' ? (
-            <p className="text-muted-foreground/80">
-              มีบัญชีอยู่แล้ว?{' '}
-              <button type="button" onClick={() => setAuthMode('login')} className="font-semibold text-zinc-300 hover:text-foreground transition-colors">
-                เข้าสู่ระบบ
-              </button>
-            </p>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setAuthMode('login')}
-              className="font-semibold text-zinc-300 hover:text-foreground transition-colors inline-flex items-center gap-1.5"
+        
+        {/* Sub Navigation Links */}
+        <div className="mt-6 pt-5 border-t border-zinc-100 text-center font-sans">
+          {authMode === 'forgot' ? (
+            <button 
+              onClick={() => setAuthMode('login')} 
+              className="text-zinc-500 hover:text-blue-600 text-xs font-black flex items-center justify-center gap-1.5 mx-auto transition-colors cursor-pointer"
             >
-              <ArrowLeft className="w-3.5 h-3.5" /> กลับหน้าเข้าสู่ระบบ
+              <ArrowLeft className="w-3.5 h-3.5" /> กลับไปหน้าเข้าสู่ระบบ
             </button>
+          ) : (
+            <p className="text-zinc-400 text-xs font-bold leading-relaxed">
+              เมื่อเข้าสู่ระบบ คุณยอมรับ <a href="#" onClick={(e)=>{e.preventDefault();setActiveView("custom_page");}} className="text-zinc-400 hover:text-zinc-650 cursor-pointer underline underline-offset-2 transition-colors">ข้อกำหนด</a> และ <a href="#" onClick={(e)=>{e.preventDefault();setActiveView("custom_page");}} className="text-zinc-400 hover:text-zinc-650 cursor-pointer underline underline-offset-2 transition-colors">นโยบายความเป็นส่วนตัว</a> ของเรา
+            </p>
           )}
         </div>
       </motion.div>

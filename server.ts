@@ -3,12 +3,12 @@ declare module 'express-serve-static-core' {
   interface Request {
     user?: any;
     isAdmin?: boolean;
-      // @ts-ignore - Bypass Express ip property read-only clash
+      // @ts-ignore
     ip?: string;
   }
 }
 var __defProp = Object.defineProperty;
-var __name = (target: any, value: any) =>
+var __name = (target, value) =>
   __defProp(target, "name", { value, configurable: true });
 import express from "express";
 import dotenv from "dotenv";
@@ -20,7 +20,6 @@ import cors from "cors";
 import axios from "axios";
 import { z } from "zod";
 import { encrypt, decrypt, getEncryptionKey } from "./src/services/encryption.service.js";
-import { AppError } from "./src/lib/errors.js";
 axios.defaults.timeout = 15e3;
 import CircuitBreaker from "opossum";
 import { CookieJar } from "tough-cookie";
@@ -35,8 +34,64 @@ import readline from "readline";
 import os from "os";
 import zlib from "zlib";
 import { promisify } from "util";
-import { compressStock, decompressStock } from "./src/lib/stockUtils.js";
-let freeProxies: string[] = [];
+const gzipAsync = promisify(zlib.gzip);
+const gunzipAsync = promisify(zlib.gunzip);
+const compressStock = __name(async (stockData) => {
+  if (!Array.isArray(stockData)) return stockData;
+  if (stockData.length >= 250) {
+    const buffer = await gzipAsync(JSON.stringify(stockData));
+    return [{ __compressed: buffer.toString("base64") }];
+  }
+  const str = JSON.stringify(stockData);
+  if (str.length > 5e4) {
+    const buffer = await gzipAsync(str);
+    return [{ __compressed: buffer.toString("base64") }];
+  }
+  return stockData;
+}, "compressStock");
+const decompressStock = __name(async (data) => {
+  let compData = data;
+  if (typeof data === "string") {
+    try {
+      data = JSON.parse(data);
+      compData = data;
+    } catch (e) {
+      console.error("Caught error:", e);
+    }
+  }
+  if (data && typeof data === "object" && !Array.isArray(data)) {
+    if (data["0"]) {
+      const arr = [];
+      for (let i = 0; i < Object.keys(data).length; i++) {
+        if (data[i] !== void 0) arr.push(data[i]);
+      }
+      data = arr;
+      compData = data;
+    }
+  }
+  if (
+    Array.isArray(data) &&
+    data.length === 1 &&
+    data[0] &&
+    typeof data[0] === "object" &&
+    data[0].__compressed
+  ) {
+    compData = data[0];
+  }
+  if (compData && typeof compData === "object" && compData.__compressed) {
+    try {
+      const buffer = await gunzipAsync(
+        Buffer.from(compData.__compressed, "base64"),
+      );
+      return JSON.parse(buffer.toString("utf-8"));
+    } catch (e) {
+      console.error("decompressStock error:", e);
+      return [];
+    }
+  }
+  return data;
+}, "decompressStock");
+let freeProxies = [];
 let lastFreeProxyFetch = 0;
 async function fetchFreeProxies() {
   if (process.env.PROXY_URL && !freeProxies.includes(process.env.PROXY_URL)) {
@@ -46,7 +101,7 @@ async function fetchFreeProxies() {
 __name(fetchFreeProxies, "fetchFreeProxies");
 fetchFreeProxies();
 setInterval(fetchFreeProxies, 15 * 60 * 1e3);
-import { adminDb as admin, supabaseAdmin, initializeAdminDb } from "./src/lib/admindb.js";
+import { adminDb as admin, supabaseAdmin } from "./src/lib/admindb.js";
 const _dirname = typeof __dirname !== "undefined" ? __dirname : process.cwd();
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -56,7 +111,7 @@ const communityUpload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 5 * 1024 * 1024 },
 });
-async function uploadToSupabaseStorage(buffer: any, originalName: any, mimeType: any) {
+async function uploadToSupabaseStorage(buffer, originalName, mimeType) {
   const isSupabaseConfigured2 = !!(
     process.env.SUPABASE_URL &&
     process.env.SUPABASE_URL.startsWith("http") &&
@@ -110,7 +165,7 @@ for (const key of REQUIRED_SECRETS) {
     console.error("[Warning] Missing recommended secret: " + key);
   }
 }
-async function sendAlert(title: any, message: any, color = 16711680, requestId?: any) {
+async function sendAlert(title, message, color = 16711680, requestId) {
   const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
   if (!webhookUrl) return;
   try {
@@ -129,12 +184,12 @@ async function sendAlert(title: any, message: any, color = 16711680, requestId?:
         },
       ],
     });
-  } catch (err: any) {
+  } catch (err) {
     console.error("Failed to send discord alert:", err.message);
   }
 }
 __name(sendAlert, "sendAlert");
-async function writeAuditLog(action: any, actor: any, target: any, req: any, extraContext = {}) {
+async function writeAuditLog(action, actor, target, req, extraContext = {}) {
   try {
     const logEntry = {
       timestamp: new Date().toISOString(),
@@ -146,7 +201,7 @@ async function writeAuditLog(action: any, actor: any, target: any, req: any, ext
       ...extraContext,
     };
     await admin.firestore().collection("sys_audit_logs").add(logEntry);
-  } catch (err: any) {
+  } catch (err) {
     console.error("[Audit Log] Failed to write audit log:", err);
   }
 }
@@ -176,7 +231,7 @@ process.on("uncaughtException", (err) => {
       `${new Date().toISOString()} ${err.stack}
 `,
     );
-  } catch (e: any) {
+  } catch (e) {
     console.error("Caught error:", e);
   }
       // @ts-ignore
@@ -184,7 +239,7 @@ process.on("uncaughtException", (err) => {
     "Uncaught Exception \u{1F525}",
     `**Error**: ${err.message}`,
     16711680,
-  ).catch((e: any) => console.error(e));
+  ).catch((e) => console.error(e));
 });
 process.on("unhandledRejection", (reason, promise) => {
   console.error(
@@ -312,7 +367,7 @@ const asyncLocalStorage = new AsyncLocalStorage();
 const logger = pino({
   level: process.env.LOG_LEVEL || "info",
   formatters: {
-    level: __name((label: any) => {
+    level: __name((label) => {
       return { level: label };
     }, "level"),
   },
@@ -449,13 +504,13 @@ app.use((req, res, next) => {
 app.use(
   pinoHttp({
     logger,
-    customProps: __name((req: any, res: any) => {
+    customProps: __name((req, res) => {
       return {};
     }, "customProps"),
     useLevel: "info",
     quietReqLogger: true,
     autoLogging: {
-      ignore: __name((req: any) => {
+      ignore: __name((req) => {
         const url = req.url || "";
         return (
           url.includes("/health") ||
@@ -467,38 +522,6 @@ app.use(
     },
   }),
 );
-app.get("/robots.txt", (req, res) => {
-  const robotsPath = path.join(process.cwd(), "public", "robots.txt");
-  if (fs.existsSync(robotsPath)) {
-    res.type("text/plain");
-    res.sendFile(robotsPath);
-  } else {
-    res.type("text/plain").send("User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /admin\n\nSitemap: https://www.sainamyuni.xyz/sitemap.xml");
-  }
-});
-
-app.get("/sitemap.xml", (req, res) => {
-  const sitemapPath = path.join(process.cwd(), "public", "sitemap.xml");
-  if (fs.existsSync(sitemapPath)) {
-    res.type("application/xml");
-    res.sendFile(sitemapPath);
-  } else {
-    res.type("application/xml").send(`<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://www.sainamyuni.xyz/</loc>
-    <changefreq>daily</changefreq>
-    <priority>1.0</priority>
-  </url>
-  <url>
-    <loc>https://www.sainamyuni.xyz/categories</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-</urlset>`);
-  }
-});
-
 app.get("/health", async (req, res) => {
   const used = process.memoryUsage();
   if (used.heapUsed / used.heapTotal > 0.9) {
@@ -507,7 +530,7 @@ app.get("/health", async (req, res) => {
       "High Memory Usage \u26A0\uFE0F",
       `Heap is at ${Math.round((used.heapUsed / used.heapTotal) * 100)}% (${Math.round(used.heapUsed / 1024 / 1024)}MB)`,
       16753920,
-    ).catch((e: any) => console.error(e));
+    ).catch((e) => console.error(e));
   }
   res.json({
     status: "ok",
@@ -536,7 +559,7 @@ app.get("/ready", async (req, res) => {
       uptime: process.uptime(),
       sheddingMetrics: { currentConcurrentRequests },
     });
-  } catch (err: any) {
+  } catch (err) {
     logger.error(
       { err: err.message },
       "Readiness Probe Failed: Database disconnected or slow",
@@ -544,17 +567,21 @@ app.get("/ready", async (req, res) => {
     res.status(503).json({ status: "not ready", error: String(err) });
   }
 });
+const userRateLimitKeyGenerator = __name((req, res) => {
+  return req.ip || "127.0.0.1";
+}, "userRateLimitKeyGenerator");
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1e3,
   max: 50,
   standardHeaders: true,
   legacyHeaders: false,
+  keyGenerator: userRateLimitKeyGenerator,
   validate: { trustProxy: true },
   message: {
     error:
       "\u0E02\u0E2D\u0E2D\u0E20\u0E31\u0E22 \u0E04\u0E38\u0E13\u0E17\u0E33\u0E23\u0E32\u0E22\u0E01\u0E32\u0E23\u0E1A\u0E48\u0E2D\u0E22\u0E40\u0E01\u0E34\u0E19\u0E44\u0E1B \u0E01\u0E23\u0E38\u0E13\u0E32\u0E23\u0E2D\u0E2A\u0E31\u0E01\u0E04\u0E23\u0E39\u0E48",
   },
-  handler: __name((req: any, res: any, next: any, options: any) => {
+  handler: __name((req, res, next, options) => {
     sendAlert(
       "Auth Rate Limit Triggered \u{1F6A8}",
       `**IP**: ${req.ip}
@@ -574,12 +601,13 @@ const mutationLimiter = rateLimit({
   max: 30,
   standardHeaders: true,
   legacyHeaders: false,
+  keyGenerator: userRateLimitKeyGenerator,
   validate: { trustProxy: true },
   message: {
     error:
       "\u0E04\u0E38\u0E13\u0E14\u0E33\u0E40\u0E19\u0E34\u0E19\u0E01\u0E32\u0E23\u0E1A\u0E32\u0E07\u0E2D\u0E22\u0E48\u0E32\u0E07\u0E40\u0E23\u0E47\u0E27\u0E40\u0E01\u0E34\u0E19\u0E44\u0E1B \u0E01\u0E23\u0E38\u0E13\u0E32\u0E23\u0E2D\u0E2A\u0E31\u0E01\u0E04\u0E23\u0E39\u0E48",
   },
-  handler: __name((req: any, res: any, next: any, options: any) => {
+  handler: __name((req, res, next, options) => {
     sendAlert(
       "Mutation Rate Limit Triggered \u26A0\uFE0F",
       `**IP**: ${req.ip}
@@ -599,12 +627,13 @@ const checkLimiter = rateLimit({
   max: 100,
   standardHeaders: true,
   legacyHeaders: false,
+  keyGenerator: userRateLimitKeyGenerator,
   validate: { trustProxy: true },
   message: {
     error:
       "\u0E02\u0E2D\u0E2D\u0E20\u0E31\u0E22 \u0E04\u0E38\u0E13\u0E2A\u0E48\u0E07\u0E04\u0E33\u0E23\u0E49\u0E2D\u0E07\u0E02\u0E2D\u0E40\u0E22\u0E2D\u0E30\u0E40\u0E01\u0E34\u0E19\u0E44\u0E1B (Anti-Bot Protection) \u0E01\u0E23\u0E38\u0E13\u0E32\u0E23\u0E2D\u0E2A\u0E31\u0E01\u0E04\u0E23\u0E39\u0E48",
   },
-  handler: __name((req: any, res: any, next: any, options: any) => {
+  handler: __name((req, res, next, options) => {
     res
       .status(options.statusCode || 429)
       .json({ ...options.message, requestId: req.id });
@@ -620,8 +649,8 @@ const globalLimiter = rateLimit({
 });
 app.use("/api/", globalLimiter);
 const userTokenCache = new LRUCache({ max: 1e3, ttl: 6e4 });
-const uidToTokens = new LRUCache<string, Set<string>>({ max: 5e3, ttl: 864e5 });
-const invalidateUserTokenCache = __name((uid: any) => {
+const uidToTokens = new Map();
+const invalidateUserTokenCache = __name((uid) => {
   const tokens = uidToTokens.get(uid);
   if (tokens) {
     for (const t of tokens) {
@@ -636,7 +665,7 @@ const invalidateUserTokenCache = __name((uid: any) => {
     }
   }
 }, "invalidateUserTokenCache");
-const injectUser = __name(async (req: any, res: any, next: any) => {
+const injectUser = __name(async (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (authHeader && authHeader.startsWith("Bearer ")) {
     const token = authHeader.split("Bearer ")[1]?.trim();
@@ -652,14 +681,13 @@ const injectUser = __name(async (req: any, res: any, next: any) => {
             if (!uidToTokens.has(uidStr)) {
               uidToTokens.set(uidStr, new Set());
             }
-            const userTokens = uidToTokens.get(uidStr);
-            if (userTokens) userTokens.add(token);
+            uidToTokens.get(uidStr).add(token);
           }
           return next();
         }
       }
       const resolveAuth = __name(async () => {
-        let userObj: any = null;
+        let userObj = null;
         let isAdminObj = false;
         const {
           data: { user },
@@ -671,7 +699,7 @@ const injectUser = __name(async (req: any, res: any, next: any) => {
           userObj.uid = user.id;
           let adminEmails = [];
           if (process.env.ADMIN_EMAILS) {
-            adminEmails = process.env.ADMIN_EMAILS.split(",").map((e: any) =>
+            adminEmails = process.env.ADMIN_EMAILS.split(",").map((e) =>
               e.trim().toLowerCase(),
             );
           }
@@ -683,22 +711,22 @@ const injectUser = __name(async (req: any, res: any, next: any) => {
               .collection("admins")
               .doc(user.id)
               .get();
-            isAdminObj = !!adminDoc.exists;
+            isAdminObj = adminDoc.exists;
           }
         }
         return { user: userObj, isAdmin: isAdminObj, timestamp: Date.now() };
       }, "resolveAuth");
 
-      if (!(global as any).userTokenPromiseCache) (global as any).userTokenPromiseCache = new Map();
-      let authPromise = (global as any).userTokenPromiseCache.get(token);
+      if (!global.userTokenPromiseCache) global.userTokenPromiseCache = new Map();
+      let authPromise = global.userTokenPromiseCache.get(token);
       if (!authPromise) {
         authPromise = resolveAuth();
-        (global as any).userTokenPromiseCache.set(token, authPromise);
+        global.userTokenPromiseCache.set(token, authPromise);
       }
 
       try {
         const result = await authPromise;
-        (global as any).userTokenPromiseCache.delete(token);
+        global.userTokenPromiseCache.delete(token);
         userTokenCache.set(token, result);
         if (result.user) {
           req.user = result.user;
@@ -708,12 +736,11 @@ const injectUser = __name(async (req: any, res: any, next: any) => {
             if (!uidToTokens.has(uidStr)) {
               uidToTokens.set(uidStr, new Set());
             }
-            const userTokens = uidToTokens.get(uidStr);
-            if (userTokens) userTokens.add(token);
+            uidToTokens.get(uidStr).add(token);
           }
         }
-      } catch (error: any) {
-        (global as any).userTokenPromiseCache.delete(token);
+      } catch (error) {
+        global.userTokenPromiseCache.delete(token);
         userTokenCache.delete(token);
         if (error && error.message && error.message.includes("expired")) {
           return res.status(401).json({ error: "Token expired" });
@@ -728,7 +755,7 @@ const injectUser = __name(async (req: any, res: any, next: any) => {
   }
   next();
 }, "injectUser");
-const requireAuth = __name(async (req: any, res: any, next: any) => {
+const requireAuth = __name(async (req, res, next) => {
   if (!req.user) {
     return res
       .status(401)
@@ -736,7 +763,7 @@ const requireAuth = __name(async (req: any, res: any, next: any) => {
   }
   next();
 }, "requireAuth");
-const requireAdmin = __name(async (req: any, res: any, next: any) => {
+const requireAdmin = __name(async (req, res, next) => {
   if (!req.user || !req.isAdmin) {
     console.error(
       `[AdminCheck] Access Denied for ${req.user?.email || "Unknown"}. isAdmin: ${req.isAdmin}`,
@@ -749,7 +776,7 @@ const requireAdmin = __name(async (req: any, res: any, next: any) => {
 }, "requireAdmin");
 import healthRoute from "./src/routes/health.route.js";
 app.use("/api", healthRoute);
-const rawOrigins: string[] = [];
+const rawOrigins = [];
 if (process.env.ALLOWED_ORIGINS) {
   const splitOrigins = process.env.ALLOWED_ORIGINS.split(",")
     .map((url) => url.trim())
@@ -763,7 +790,7 @@ if (process.env.ALLOWED_ORIGINS) {
 if (process.env.ALLOW_LOCALHOST === "true") {
   rawOrigins.push("http://localhost:3000");
 }
-const corsOrigins = rawOrigins.length > 0 ? rawOrigins : true;
+const corsOrigins = rawOrigins;
 const corsOptions = { origin: corsOrigins, credentials: true };
 app.use(cors(corsOptions));
 app.options("*", cors(corsOptions));
@@ -790,7 +817,7 @@ app.use((req, res, next) => {
   next();
 });
 app.use(injectUser);
-const isImageSafe = __name((buffer: any) => {
+const isImageSafe = __name((buffer) => {
   if (buffer.length < 4) return false;
   const hex = buffer.toString("hex", 0, 4).toUpperCase();
   const isJpeg = hex.startsWith("FFD8FF");
@@ -823,7 +850,7 @@ const isImageSafe = __name((buffer: any) => {
   }
   return true;
 }, "isImageSafe");
-const validateUploadFileMetadata = __name((file: any) => {
+const validateUploadFileMetadata = __name((file) => {
   if (!file) return false;
   const ext = path.extname(file.originalname || "").toLowerCase();
   const allowedExtensions = [".jpg", ".jpeg", ".png", ".gif", ".webp"];
@@ -840,8 +867,8 @@ const validateUploadFileMetadata = __name((file: any) => {
 app.post(
   "/api/upload",
   requireAdmin,
-  (req: any, res: any, next: any) => {
-    upload.single("file")(req, res, (err: any) => {
+  (req, res, next) => {
+    upload.single("file")(req, res, (err) => {
       if (err) {
         console.error("Multer error:", err);
         return res.status(500).json({ error: "Upload failed: " + err.message });
@@ -849,7 +876,7 @@ app.post(
       next();
     });
   },
-  async (req: any, res: any) => {
+  async (req, res) => {
     if (!req.file) return res.status(400).json({ error: "No file uploaded" });
     if (
       !validateUploadFileMetadata(req.file) ||
@@ -887,7 +914,7 @@ app.post(
           mimeType,
         );
         console.log("[Storage] Successfully uploaded to Supabase:", fileUrl);
-      } catch (uploadErr: any) {
+      } catch (uploadErr) {
         console.warn(
           "[Storage] Supabase upload failed, falling back to base64:",
           uploadErr.message || uploadErr,
@@ -896,7 +923,7 @@ app.post(
         fileUrl = `data:${mimeType};base64,${base64Data}`;
       }
       res.json({ url: fileUrl });
-    } catch (err: any) {
+    } catch (err) {
       console.error("Image processing failed:", err);
       res.status(500).json({ error: "Failed to process image" });
     }
@@ -905,8 +932,8 @@ app.post(
 app.post(
   "/api/community/upload",
   requireAuth,
-  (req: any, res: any, next: any) => {
-    communityUpload.single("file")(req, res, (err: any) => {
+  (req, res, next) => {
+    communityUpload.single("file")(req, res, (err) => {
       if (err) {
         console.error("Multer error:", err);
         return res.status(500).json({ error: "Upload failed: " + err.message });
@@ -914,7 +941,7 @@ app.post(
       next();
     });
   },
-  async (req: any, res: any) => {
+  async (req, res) => {
     if (!req.file) return res.status(400).json({ error: "No file uploaded" });
     if (
       !validateUploadFileMetadata(req.file) ||
@@ -955,7 +982,7 @@ app.post(
           "[Storage] Successfully uploaded community image to Supabase:",
           fileUrl,
         );
-      } catch (uploadErr: any) {
+      } catch (uploadErr) {
         console.warn(
           "[Storage] Supabase upload failed, falling back to base64:",
           uploadErr.message || uploadErr,
@@ -964,14 +991,14 @@ app.post(
         fileUrl = `data:${mimeType};base64,${base64Data}`;
       }
       res.json({ url: fileUrl });
-    } catch (err: any) {
+    } catch (err) {
       console.error("Image processing failed:", err);
       res.status(500).json({ error: "Failed to process image" });
     }
   },
 );
 let lastStatsFetch = 0;
-let cachedStats: any = null;
+let cachedStats = null;
 const invalidateStatsCache = __name(() => {
   lastStatsFetch = 0;
   cachedStats = null;
@@ -1020,12 +1047,12 @@ if (isSupabaseConfigured) {
         let parsed = {};
         try {
           parsed = JSON.parse(data.content);
-        } catch (e: any) {
+        } catch (e) {
           console.error("Caught error:", e);
         }
         siteSettings = { ...siteSettings, ...parsed };
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error("Caught error:", err);
     }
   }, "loadSiteSettings");
@@ -1033,10 +1060,10 @@ if (isSupabaseConfigured) {
     await loadSiteSettings();
     console.log("Loaded initial site settings from DB", siteSettings);
     setInterval(loadSiteSettings, 1e4);
-  } catch (err: any) {
+  } catch (err) {
     console.warn(
       "Could not load initial site settings from DB (might not exist yet).",
-      (err as any).message || err,
+      err.message || err,
     );
   }
 } else {
@@ -1063,12 +1090,39 @@ app.get("/api/settings", injectUser, (req, res) => {
   } = siteSettings || {};
   res.json(publicSettings);
 });
-app.post("/api/admin/migrate-encryption", requireAdmin, async (req, res, next) => {
-  next();
+app.post("/api/admin/migrate-encryption", requireAdmin, async (req, res) => {
+  try {
+    const db = admin.firestore();
+    const purchasesSnap = await db.collection("purchases").get();
+    let migratedCount = 0;
+    const promises = [];
+
+    for (const doc of purchasesSnap.docs) {
+      const data = doc.data();
+      if (data.secretData && data.secretData.startsWith("enc:")) {
+        const decrypted = await decrypt(data.secretData);
+        if (decrypted !== data.secretData) {
+          const reEncrypted = await encrypt(decrypted);
+          promises.push(doc.ref.update({ secretData: reEncrypted }));
+          migratedCount++;
+        }
+      }
+    }
+    
+    // Process in batches of 50 to avoid connection overload
+    for (let i = 0; i < promises.length; i += 50) {
+       await Promise.all(promises.slice(i, i + 50));
+    }
+
+    res.json({ success: true, migratedCount });
+  } catch (error) {
+    console.error("Migration error:", error);
+    res.status(500).json({ error: String(error) });
+  }
 });
 app.post("/api/settings", requireAdmin, async (req, res) => {
   console.log("=== POST /api/settings REACHED ===", req.body);
-  const beforeLogs: Record<string, any> = {
+  const beforeLogs = {
     stats_users_override: siteSettings.stats_users_override,
     stats_sales_override: siteSettings.stats_sales_override,
     stats_stock_override: siteSettings.stats_stock_override,
@@ -1115,18 +1169,18 @@ app.post("/api/settings", requireAdmin, async (req, res) => {
       for (const p of pData) realSales += Number(p.price) || 0;
     } else {
       const purchases = await getCachedCollection("purchases", 6e4);
-      purchases.forEach((p: any) => (realSales += Number(p.price) || 0));
+      purchases.forEach((p) => (realSales += Number(p.price) || 0));
     }
-  } catch (e: any) {
+  } catch (e) {
     console.error("Caught error:", e);
   }
   let realStock = 0;
   try {
     const pData = await getCachedCollection("products", 3e5);
-    pData.forEach((p: any) => {
+    pData.forEach((p) => {
       if (p.stock > 0 && p.stock < 999999) realStock += Number(p.stock);
     });
-  } catch (e: any) {
+  } catch (e) {
     console.error("Caught error:", e);
   }
   if (stats_users_target !== void 0 && stats_users_type !== void 0) {
@@ -1237,9 +1291,9 @@ app.post("/api/settings", requireAdmin, async (req, res) => {
       await supabaseAdmin.from("custom_pages").insert([payload]);
     }
     console.log(`[Settings] Save Successful for ${docName}`);
-  } catch (e: any) {
+  } catch (e) {
     console.error("[API/Settings] CRITICAL SAVE ERROR:", e);
-    const errorDetail = (e as any)?.message || (e as any)?.details || JSON.stringify(e);
+    const errorDetail = e.message || e.details || JSON.stringify(e);
     return res
       .status(500)
       .json({
@@ -1249,13 +1303,13 @@ app.post("/api/settings", requireAdmin, async (req, res) => {
           process.env.NODE_ENV === "production" ? "sys_site" : "sys_site_dev",
       });
   }
-  const afterLogs: Record<string, any> = {
+  const afterLogs = {
     stats_users_override: siteSettings.stats_users_override,
     stats_sales_override: siteSettings.stats_sales_override,
     stats_stock_override: siteSettings.stats_stock_override,
     stats_categories_override: siteSettings.stats_categories_override,
   };
-  const changes: Record<string, any> = {};
+  const changes = {};
   let hasChanges = false;
   for (const key of Object.keys(beforeLogs)) {
     if (beforeLogs[key] !== afterLogs[key]) {
@@ -1276,7 +1330,7 @@ app.post("/api/settings", requireAdmin, async (req, res) => {
     logger.info(auditLog, `[Audit] Stats override changed by ${actorEmail}`);
     try {
       await admin.firestore().collection("audit_logs").add(auditLog);
-    } catch (err: any) {
+    } catch (err) {
       logger.error(
         { err: err.message },
         "Failed to save audit log to Firestore",
@@ -1285,7 +1339,7 @@ app.post("/api/settings", requireAdmin, async (req, res) => {
   }
   const safeSettings = { ...siteSettings };
   if (safeSettings.proxies)
-    safeSettings.proxies = safeSettings.proxies.map((p: any) =>
+    safeSettings.proxies = safeSettings.proxies.map((p) =>
       p.replace(/\/\/.*@/, "//***:***@"),
     );
   console.log(`[Settings] Updated:`, safeSettings);
@@ -1302,17 +1356,18 @@ const topupLimiter = rateLimit({
   max: 5,
   standardHeaders: true,
   legacyHeaders: false,
+  keyGenerator: userRateLimitKeyGenerator,
   validate: { xForwardedForHeader: false, trustProxy: false },
 });
 app.post(
   "/api/topup/truemoney",
   topupLimiter,
   requireAuth,
-  async (req, res, next) => {
-    next();
-  }
-);
-      /* const { voucherCode } = req.body;
+  async (req, res) => {
+    let voucherRef = null;
+    let apiSuccess = false;
+    try {
+      const { voucherCode } = req.body;
       const uid = req.user.uid;
       const phone = siteSettings.truewallet_phone;
       if (!voucherCode) {
@@ -1348,7 +1403,7 @@ app.post(
       );
       voucherRef = admin.firestore().collection("vouchers").doc(voucherHash);
       try {
-        await admin.firestore().runTransaction(async (t: any) => {
+        await admin.firestore().runTransaction(async (t) => {
           const doc = await t.get(voucherRef);
           if (doc.exists) {
             throw new Error("DUPLICATE_VOUCHER");
@@ -1359,7 +1414,7 @@ app.post(
             status: "pending",
           });
         });
-      } catch (err: any) {
+      } catch (err) {
         if (err.message === "DUPLICATE_VOUCHER") {
           return res.json({
             success: false,
@@ -1383,7 +1438,7 @@ app.post(
       let response;
       try {
         response = await topupBreaker.fire(voucherHash, phone);
-      } catch (err: any) {
+      } catch (err) {
         console.error(
           `[TrueWallet] XPLUEM Circuit Breaker Error:`,
           err.message,
@@ -1406,7 +1461,7 @@ app.post(
         const amount = parseFloat(result.data?.amount || 0);
         if (isNaN(amount) || amount <= 0) {
           if (voucherRef) {
-            await voucherRef.delete().catch((e: any) => console.error(e));
+            await voucherRef.delete().catch((e) => console.error(e));
           }
           return res.json({
             success: false,
@@ -1420,7 +1475,7 @@ app.post(
             const userRef = admin.firestore().collection("users").doc(uid);
             let finalBalance = 0;
             let topupDoc = null;
-            await admin.firestore().runTransaction(async (t: any) => {
+            await admin.firestore().runTransaction(async (t) => {
               const uDoc = await t.get(userRef);
               if (uDoc.exists) {
                 const currentBalance = uDoc.data().balance || 0;
@@ -1461,7 +1516,7 @@ app.post(
             });
           } catch (syncErr) {
             if (syncErr.message === "USER_NOT_FOUND") {
-              await voucherRef.delete().catch((e: any) => console.error(e));
+              await voucherRef.delete().catch((e) => console.error(e));
               return res.json({
                 success: false,
                 error:
@@ -1484,14 +1539,14 @@ app.post(
           "\u0E44\u0E21\u0E48\u0E2A\u0E32\u0E21\u0E32\u0E23\u0E16\u0E23\u0E31\u0E1A\u0E40\u0E07\u0E34\u0E19\u0E44\u0E14\u0E49 (\u0E2A\u0E16\u0E32\u0E19\u0E30\u0E44\u0E21\u0E48\u0E2A\u0E33\u0E40\u0E23\u0E47\u0E08)";
         console.warn(`[TrueWallet] Failed: ${errorMsg}`);
         if (voucherRef) {
-          await voucherRef.delete().catch((e: any) => console.error(e));
+          await voucherRef.delete().catch((e) => console.error(e));
         }
         return res.json({ success: false, error: errorMsg });
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error("[TrueWallet] Gateway Error:", error.message);
       if (voucherRef) {
-        await voucherRef.delete().catch((e: any) => console.error(e));
+        await voucherRef.delete().catch((e) => console.error(e));
       }
       if (error.response) {
         const result = error.response.data;
@@ -1511,9 +1566,308 @@ app.post(
         });
     }
   },
-); */
-app.post("/api/topup/slip", mutationLimiter, requireAuth, async (req, res, next) => {
-  next();
+);
+app.post("/api/topup/slip", mutationLimiter, requireAuth, async (req, res) => {
+  try {
+    const { imageBase64 } = req.body;
+    const uid = req.user.uid;
+    if (!imageBase64) {
+      return res
+        .status(400)
+        .json({
+          success: false,
+          error:
+            "\u0E02\u0E49\u0E2D\u0E21\u0E39\u0E25\u0E44\u0E21\u0E48\u0E04\u0E23\u0E1A\u0E16\u0E49\u0E27\u0E19",
+        });
+    }
+    if (!process.env.SLIPOK_API_KEY) {
+      console.warn(`[Slip] SLIPOK_API_KEY is missing. Rejecting slip upload.`);
+      return res
+        .status(503)
+        .json({
+          success: false,
+          error:
+            "\u0E23\u0E30\u0E1A\u0E1A\u0E2A\u0E41\u0E01\u0E19\u0E2A\u0E25\u0E34\u0E1B\u0E1B\u0E34\u0E14\u0E1B\u0E23\u0E31\u0E1A\u0E1B\u0E23\u0E38\u0E07\u0E0A\u0E31\u0E48\u0E27\u0E04\u0E23\u0E32\u0E27 \u0E01\u0E23\u0E38\u0E13\u0E32\u0E15\u0E34\u0E14\u0E15\u0E48\u0E2D\u0E1C\u0E39\u0E49\u0E19\u0E33\u0E40\u0E02\u0E49\u0E32\u0E23\u0E30\u0E1A\u0E1A\u0E2B\u0E23\u0E37\u0E2D\u0E41\u0E2D\u0E14\u0E21\u0E34\u0E19",
+        });
+    }
+    const imageBuffer = Buffer.from(imageBase64, "base64");
+    if (imageBuffer.length > 5 * 1024 * 1024) {
+      console.warn(
+        `[Security] User ${uid} attempted to upload a file too large (${imageBuffer.length} bytes).`,
+      );
+      return res
+        .status(400)
+        .json({
+          success: false,
+          error:
+            "\u0E02\u0E19\u0E32\u0E14\u0E44\u0E1F\u0E25\u0E4C\u0E43\u0E2B\u0E0D\u0E48\u0E40\u0E01\u0E34\u0E19\u0E44\u0E1B (\u0E2B\u0E49\u0E32\u0E21\u0E40\u0E01\u0E34\u0E19 5MB)",
+        });
+    }
+    const hex = imageBuffer.toString("hex", 0, 4).toUpperCase();
+    const isJpeg = hex.startsWith("FFD8FF");
+    const isPng = hex.startsWith("89504E47");
+    if (!isJpeg && !isPng) {
+      console.warn(
+        `[Security] User ${uid} uploaded invalid file type (magic bytes: ${hex}).`,
+      );
+      return res
+        .status(400)
+        .json({
+          success: false,
+          error:
+            "\u0E23\u0E39\u0E1B\u0E41\u0E1A\u0E1A\u0E44\u0E1F\u0E25\u0E4C\u0E44\u0E21\u0E48\u0E16\u0E39\u0E01\u0E15\u0E49\u0E2D\u0E07 \u0E23\u0E2D\u0E07\u0E23\u0E31\u0E1A\u0E40\u0E09\u0E1E\u0E32\u0E30 JPG \u0E2B\u0E23\u0E37\u0E2D PNG \u0E40\u0E17\u0E48\u0E32\u0E19\u0E31\u0E49\u0E19",
+        });
+    }
+    const blob = new Blob([imageBuffer], {
+      type: isJpeg ? "image/jpeg" : "image/png",
+    });
+    const form = new FormData();
+    form.append("files", blob, isJpeg ? "slip.jpg" : "slip.png");
+    const slipokApiId = process.env.SLIPOK_API_ID;
+    const slipokApiKey = process.env.SLIPOK_API_KEY;
+    if (!slipokApiId || !slipokApiKey) {
+      return res
+        .status(500)
+        .json({
+          success: false,
+          error:
+            "\u0E23\u0E30\u0E1A\u0E1A\u0E44\u0E21\u0E48\u0E44\u0E14\u0E49\u0E15\u0E31\u0E49\u0E07\u0E04\u0E48\u0E32 SLIPOK_API_ID \u0E2B\u0E23\u0E37\u0E2D SLIPOK_API_KEY \u0E44\u0E27\u0E49",
+        });
+    }
+    const response = await axios.post(
+      `https://api.slipok.com/api/line/apikey/${slipokApiId}`,
+      form,
+      { headers: { "x-authorization": slipokApiKey } },
+    );
+    if (
+      response.data.success === true ||
+      response.data.code === "0000" ||
+      response.data.data?.amount !== void 0
+    ) {
+      const amount = parseFloat(response.data.data?.amount || 0);
+      if (isNaN(amount) || amount <= 0) {
+        return res.json({
+          success: false,
+          error:
+            "\u0E22\u0E2D\u0E14\u0E40\u0E07\u0E34\u0E19\u0E43\u0E19\u0E2A\u0E25\u0E34\u0E1B\u0E44\u0E21\u0E48\u0E16\u0E39\u0E01\u0E15\u0E49\u0E2D\u0E07",
+        });
+      }
+      const transRef = response.data.data?.transRef;
+      const transDateStr =
+        response.data.data?.sendingDateTime ||
+        response.data.data?.date?.value ||
+        response.data.data?.transDate ||
+        "";
+      if (
+        !transRef ||
+        typeof transRef !== "string" ||
+        transRef.trim().length < 8 ||
+        !/^[A-Za-z0-9\-_]+$/.test(transRef.trim())
+      ) {
+        return res.json({
+          success: false,
+          error:
+            "\u0E44\u0E21\u0E48\u0E1E\u0E1A\u0E2B\u0E21\u0E32\u0E22\u0E40\u0E25\u0E02\u0E2D\u0E49\u0E32\u0E07\u0E2D\u0E34\u0E07\u0E2A\u0E25\u0E34\u0E1B\u0E17\u0E35\u0E48\u0E16\u0E39\u0E01\u0E15\u0E49\u0E2D\u0E07 \u0E2B\u0E23\u0E37\u0E2D\u0E2A\u0E25\u0E34\u0E1B\u0E44\u0E21\u0E48\u0E44\u0E14\u0E49\u0E21\u0E32\u0E15\u0E23\u0E10\u0E32\u0E19 (Invalid or missing Transaction Reference)",
+        });
+      }
+      if (transDateStr) {
+        try {
+          const parseSlipDate = __name((dateStr) => {
+            const clean = dateStr.trim();
+            if (!clean) return null;
+            if (/^\d{8}$/.test(clean)) {
+              const y = parseInt(clean.substring(0, 4), 10);
+              const m = parseInt(clean.substring(4, 6), 10) - 1;
+              const d = parseInt(clean.substring(6, 8), 10);
+              return new Date(y, m, d);
+            }
+            const dmyMatch = clean.match(
+              /^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})(?:\s+(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?)?/,
+            );
+            if (dmyMatch) {
+              const d = parseInt(dmyMatch[1], 10);
+              const m = parseInt(dmyMatch[2], 10) - 1;
+              const y = parseInt(dmyMatch[3], 10);
+              const hh = dmyMatch[4] ? parseInt(dmyMatch[4], 10) : 0;
+              const mm = dmyMatch[5] ? parseInt(dmyMatch[5], 10) : 0;
+              const ss = dmyMatch[6] ? parseInt(dmyMatch[6], 10) : 0;
+              return new Date(y, m, d, hh, mm, ss);
+            }
+            const ymdMatch = clean.match(
+              /^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})(?:\s+(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?)?/,
+            );
+            if (ymdMatch) {
+              const y = parseInt(ymdMatch[1], 10);
+              const m = parseInt(ymdMatch[2], 10) - 1;
+              const d = parseInt(ymdMatch[3], 10);
+              const hh = ymdMatch[4] ? parseInt(ymdMatch[4], 10) : 0;
+              const mm = ymdMatch[5] ? parseInt(ymdMatch[5], 10) : 0;
+              const ss = ymdMatch[6] ? parseInt(ymdMatch[6], 10) : 0;
+              return new Date(y, m, d, hh, mm, ss);
+            }
+            const parsed = new Date(clean);
+            if (!isNaN(parsed.getTime())) {
+              return parsed;
+            }
+            return null;
+          }, "parseSlipDate");
+          const parsedDate = parseSlipDate(transDateStr);
+          if (!parsedDate || isNaN(parsedDate.getTime())) {
+            return res.json({
+              success: false,
+              error:
+                "\u0E23\u0E30\u0E1A\u0E1A\u0E44\u0E21\u0E48\u0E2A\u0E32\u0E21\u0E32\u0E23\u0E16\u0E22\u0E37\u0E19\u0E22\u0E31\u0E19\u0E27\u0E31\u0E19\u0E17\u0E35\u0E48\u0E02\u0E2D\u0E07\u0E2A\u0E25\u0E34\u0E1B\u0E44\u0E14\u0E49 (Invalid Date format)",
+            });
+          }
+          const diffTime = Math.abs(Date.now() - parsedDate.getTime());
+          const diffDays = Math.ceil(diffTime / (1e3 * 60 * 60 * 24));
+          if (diffDays > 7) {
+            return res.json({
+              success: false,
+              error:
+                "\u0E2A\u0E25\u0E34\u0E1B\u0E19\u0E35\u0E49\u0E40\u0E01\u0E48\u0E32\u0E40\u0E01\u0E34\u0E19\u0E44\u0E1B \u0E23\u0E30\u0E1A\u0E1A\u0E23\u0E31\u0E1A\u0E40\u0E09\u0E1E\u0E32\u0E30\u0E2A\u0E25\u0E34\u0E1B\u0E17\u0E35\u0E48\u0E21\u0E35\u0E2D\u0E32\u0E22\u0E38\u0E44\u0E21\u0E48\u0E40\u0E01\u0E34\u0E19 7 \u0E27\u0E31\u0E19\u0E40\u0E17\u0E48\u0E32\u0E19\u0E31\u0E49\u0E19",
+            });
+          }
+        } catch (e) {
+          console.error("Caught error parsing slip date:", e);
+          return res.json({
+            success: false,
+            error:
+              "\u0E23\u0E30\u0E1A\u0E1A\u0E40\u0E01\u0E34\u0E14\u0E02\u0E49\u0E2D\u0E1C\u0E34\u0E14\u0E1E\u0E25\u0E32\u0E14\u0E43\u0E19\u0E01\u0E32\u0E23\u0E15\u0E23\u0E27\u0E08\u0E2A\u0E2D\u0E1A\u0E2A\u0E25\u0E34\u0E1B",
+          });
+        }
+      }
+      const receiverProxy = response.data.data?.receiver?.proxy?.value || "";
+      const receiverName =
+        response.data.data?.receiver?.displayName ||
+        response.data.data?.receiver?.name ||
+        "";
+      const EXPECTED_NAME_TH =
+        process.env.SHOP_ACCOUNT_NAME_TH ||
+        "\u0E01\u0E23\u0E27\u0E34\u0E0A\u0E0D\u0E4C";
+      const EXPECTED_NAME_EN = process.env.SHOP_ACCOUNT_NAME_EN || "KORNWICH";
+      const EXPECTED_PROMPTPAY = process.env.SHOP_PROMPTPAY_NUMBER || "";
+      if (!EXPECTED_PROMPTPAY) {
+        return res.json({
+          success: false,
+          error:
+            "\u0E23\u0E30\u0E1A\u0E1A\u0E44\u0E21\u0E48\u0E44\u0E14\u0E49\u0E40\u0E1B\u0E34\u0E14\u0E43\u0E0A\u0E49\u0E07\u0E32\u0E19\u0E0A\u0E48\u0E2D\u0E07\u0E17\u0E32\u0E07\u0E01\u0E32\u0E23\u0E0A\u0E33\u0E23\u0E30\u0E40\u0E07\u0E34\u0E19\u0E40\u0E19\u0E37\u0E48\u0E2D\u0E07\u0E08\u0E32\u0E01\u0E02\u0E49\u0E2D\u0E21\u0E39\u0E25\u0E2A\u0E25\u0E34\u0E1B\u0E44\u0E21\u0E48\u0E04\u0E23\u0E1A\u0E16\u0E49\u0E27\u0E19 (\u0E01\u0E23\u0E38\u0E13\u0E32\u0E15\u0E31\u0E49\u0E07\u0E04\u0E48\u0E32 SHOP_PROMPTPAY_NUMBER)",
+        });
+      }
+      const isMatch =
+        receiverProxy.includes(EXPECTED_PROMPTPAY) ||
+        receiverProxy.replace(/-/g, "").includes(EXPECTED_PROMPTPAY);
+      if (!isMatch) {
+        return res.json({
+          success: false,
+          error: `\u0E0A\u0E37\u0E48\u0E2D\u0E1A\u0E31\u0E0D\u0E0A\u0E35\u0E1C\u0E39\u0E49\u0E23\u0E31\u0E1A\u0E40\u0E07\u0E34\u0E19\u0E2B\u0E23\u0E37\u0E2D\u0E40\u0E1A\u0E2D\u0E23\u0E4C\u0E1C\u0E39\u0E49\u0E23\u0E31\u0E1A\u0E44\u0E21\u0E48\u0E16\u0E39\u0E01\u0E15\u0E49\u0E2D\u0E07 (\u0E2A\u0E25\u0E34\u0E1B\u0E42\u0E2D\u0E19\u0E44\u0E1B\u0E17\u0E35\u0E48: ${receiverName || "\u0E44\u0E21\u0E48\u0E23\u0E30\u0E1A\u0E38"}) \u0E44\u0E21\u0E48\u0E15\u0E23\u0E07\u0E01\u0E31\u0E1A\u0E02\u0E2D\u0E07\u0E17\u0E32\u0E07\u0E23\u0E49\u0E32\u0E19 \u0E01\u0E23\u0E38\u0E13\u0E32\u0E15\u0E34\u0E14\u0E15\u0E48\u0E2D\u0E41\u0E2D\u0E14\u0E21\u0E34\u0E19`,
+        });
+      }
+      if (transRef) {
+        try {
+          await admin.firestore().runTransaction(async (t) => {
+            const docRef = admin.firestore().collection("slips").doc(transRef);
+            const existingRef = await t.get(docRef);
+            if (existingRef.exists) {
+              throw new Error("SLIP_USED");
+            }
+            t.set(docRef, { uid, amount, used_at: new Date().toISOString() });
+          });
+        } catch (e) {
+          if (e.message === "SLIP_USED") {
+            return res.json({
+              success: false,
+              error:
+                "\u0E2A\u0E25\u0E34\u0E1B\u0E19\u0E35\u0E49\u0E16\u0E39\u0E01\u0E43\u0E0A\u0E49\u0E07\u0E32\u0E19\u0E44\u0E1B\u0E41\u0E25\u0E49\u0E27 (\u0E15\u0E23\u0E27\u0E08\u0E2A\u0E2D\u0E1A\u0E08\u0E32\u0E01\u0E23\u0E30\u0E1A\u0E1A)",
+            });
+          }
+          console.error("Slip transaction failed:", e);
+          return res
+            .status(500)
+            .json({
+              success: false,
+              error:
+                "\u0E23\u0E30\u0E1A\u0E1A\u0E02\u0E31\u0E14\u0E02\u0E49\u0E2D\u0E07\u0E0A\u0E31\u0E48\u0E27\u0E04\u0E23\u0E32\u0E27 \u0E44\u0E21\u0E48\u0E2A\u0E32\u0E21\u0E32\u0E23\u0E16\u0E15\u0E23\u0E27\u0E08\u0E2A\u0E2D\u0E1A\u0E2A\u0E25\u0E34\u0E1B\u0E44\u0E14\u0E49 \u0E01\u0E23\u0E38\u0E13\u0E32\u0E25\u0E2D\u0E07\u0E43\u0E2B\u0E21\u0E48\u0E2D\u0E35\u0E01\u0E04\u0E23\u0E31\u0E49\u0E07",
+            });
+        }
+      }
+      if (uid) {
+        try {
+          const userRef = admin.firestore().collection("users").doc(uid);
+          let finalBalance = 0;
+          let topupDoc = null;
+          await admin.firestore().runTransaction(async (t) => {
+            const uDoc = await t.get(userRef);
+            if (uDoc.exists) {
+              const currentBalance = uDoc.data().balance || 0;
+              finalBalance = currentBalance + amount;
+              t.update(userRef, { balance: finalBalance });
+              topupDoc = {
+                id: crypto.randomUUID(),
+                userId: uDoc.data().username || "Unknown",
+                uid,
+                amount,
+                date: new Date().toISOString(),
+                type: "slip",
+                money: amount,
+                title:
+                  "\u0E40\u0E15\u0E34\u0E21\u0E40\u0E07\u0E34\u0E19\u0E2A\u0E33\u0E40\u0E23\u0E47\u0E08",
+                image: "https://img2.pic.in.th/IMG_6166.png",
+              };
+              const topupRef = admin
+                .firestore()
+                .collection("topups")
+                .doc(topupDoc.id);
+              t.set(topupRef, topupDoc);
+            } else {
+              throw new Error("USER_NOT_FOUND");
+            }
+          });
+          console.log(
+            `[Slip] Updated balance for user ${uid} (+\u0E3F${amount})`,
+          );
+          return res.json({ success: true, amount, topup: topupDoc });
+        } catch (syncErr) {
+          if (syncErr.message === "USER_NOT_FOUND") {
+            return res.json({
+              success: false,
+              error:
+                "\u0E02\u0E49\u0E2D\u0E21\u0E39\u0E25\u0E2A\u0E21\u0E32\u0E0A\u0E34\u0E01\u0E44\u0E21\u0E48\u0E16\u0E39\u0E01\u0E15\u0E49\u0E2D\u0E07",
+            });
+          }
+          console.error(`[Slip] Balance sync error:`, syncErr);
+        }
+      }
+      return res.json({ success: true, amount });
+    } else {
+      const errorMsg = response.data.data?.message || response.data.message;
+      return res.json({
+        success: false,
+        error:
+          errorMsg ||
+          "\u0E44\u0E21\u0E48\u0E2A\u0E32\u0E21\u0E32\u0E23\u0E16\u0E23\u0E31\u0E1A\u0E40\u0E07\u0E34\u0E19\u0E44\u0E14\u0E49",
+      });
+    }
+  } catch (error) {
+    if (error.response) {
+      const errorMsg = error.response.data?.message;
+      return res.json({
+        success: false,
+        error:
+          errorMsg ||
+          "\u0E2A\u0E25\u0E34\u0E1B\u0E44\u0E21\u0E48\u0E16\u0E39\u0E01\u0E15\u0E49\u0E2D\u0E07 \u0E2B\u0E23\u0E37\u0E2D\u0E16\u0E39\u0E01\u0E43\u0E0A\u0E49\u0E07\u0E32\u0E19\u0E44\u0E1B\u0E41\u0E25\u0E49\u0E27",
+      });
+    } else {
+      console.error("SlipOK API Error:", error.message);
+      return res
+        .status(500)
+        .json({
+          success: false,
+          error:
+            "\u0E40\u0E01\u0E34\u0E14\u0E02\u0E49\u0E2D\u0E1C\u0E34\u0E14\u0E1E\u0E25\u0E32\u0E14\u0E43\u0E19\u0E01\u0E32\u0E23\u0E40\u0E0A\u0E37\u0E48\u0E2D\u0E21\u0E15\u0E48\u0E2D\u0E40\u0E04\u0E23\u0E37\u0E2D\u0E02\u0E48\u0E32\u0E22",
+        });
+    }
+  }
 });
 const turnstileCache = new Map();
 app.post("/api/check", checkLimiter, requireAuth, async (req, res) => {
@@ -1525,12 +1879,688 @@ app.post("/api/check", checkLimiter, requireAuth, async (req, res) => {
         "\u0E23\u0E30\u0E1A\u0E1A\u0E15\u0E23\u0E27\u0E08\u0E2A\u0E2D\u0E1A\u0E19\u0E35\u0E49\u0E16\u0E39\u0E01\u0E1B\u0E34\u0E14\u0E43\u0E0A\u0E49\u0E07\u0E32\u0E19\u0E2D\u0E22\u0E48\u0E32\u0E07\u0E16\u0E32\u0E27\u0E23\u0E40\u0E1E\u0E37\u0E48\u0E2D\u0E04\u0E27\u0E32\u0E21\u0E1B\u0E25\u0E2D\u0E14\u0E20\u0E31\u0E22",
     });
 });
-let redis: any = null;
+const ___dep_check = __name(async (req, res) => {
+  const account = req.body.account?.toString().trim();
+  const password = req.body.password?.toString().trim();
+  const turnstileToken = req.body.turnstileToken;
+  const apiKey =
+    req.headers["x-api-key"]?.toString().trim() ||
+    req.body.apiKey?.toString().trim();
+  if (
+    !account ||
+    typeof account !== "string" ||
+    account.length > 64 ||
+    !/^[a-zA-Z0-9_\-@.]+$/.test(account)
+  ) {
+    return res
+      .status(400)
+      .json({
+        error:
+          "\u0E1A\u0E31\u0E0D\u0E0A\u0E35\u0E1C\u0E39\u0E49\u0E43\u0E0A\u0E49\u0E44\u0E21\u0E48\u0E16\u0E39\u0E01\u0E15\u0E49\u0E2D\u0E07 (\u0E04\u0E27\u0E32\u0E21\u0E22\u0E32\u0E27 1-64 \u0E15\u0E31\u0E27\u0E2D\u0E31\u0E01\u0E29\u0E23, \u0E2D\u0E19\u0E38\u0E0D\u0E32\u0E15\u0E40\u0E09\u0E1E\u0E32\u0E30 a-z, 0-9, _, -, @, .)",
+      });
+  }
+  if (!password || typeof password !== "string" || password.length > 64) {
+    return res
+      .status(400)
+      .json({
+        error:
+          "\u0E23\u0E2B\u0E31\u0E2A\u0E1C\u0E48\u0E32\u0E19\u0E44\u0E21\u0E48\u0E16\u0E39\u0E01\u0E15\u0E49\u0E2D\u0E07 (\u0E04\u0E27\u0E32\u0E21\u0E22\u0E32\u0E27 1-64 \u0E15\u0E31\u0E27\u0E2D\u0E31\u0E01\u0E29\u0E23)",
+      });
+  }
+  if (!account || !password)
+    return res.status(400).json({ error: "Missing credentials" });
+  let isApiKeyValid = false;
+  if (apiKey) {
+    if (!admin.firestore()) {
+      return res.status(500).json({ error: "Database connection error" });
+    }
+    try {
+      const apiKeyDoc = await admin
+        .firestore()
+        .collection("api_keys")
+        .doc(apiKey)
+        .get();
+      if (apiKeyDoc.exists) {
+        const data = apiKeyDoc.data();
+        if (data?.status === "active") {
+          if (data?.expires_at && new Date(data.expires_at) < new Date()) {
+            await admin
+              .firestore()
+              .collection("api_keys")
+              .doc(apiKey)
+              .update({ status: "expired" })
+              .catch((e) => console.error(e));
+            return res.status(401).json({ error: "API Key has expired" });
+          }
+          isApiKeyValid = true;
+          admin
+            .firestore()
+            .collection("api_keys")
+            .doc(apiKey)
+            .update({ last_used: new Date().toISOString() })
+            .catch((e) => console.error(e));
+        } else {
+          return res
+            .status(401)
+            .json({ error: "API Key is disabled or expired" });
+        }
+      } else {
+        return res.status(401).json({ error: "Invalid API Key" });
+      }
+    } catch (err) {
+      console.error("Error verifying API Key:", err);
+      return res.status(500).json({ error: "Error verifying API Key" });
+    }
+  }
+  if (!isApiKeyValid) {
+    if (!turnstileToken) {
+      return res
+        .status(403)
+        .json({
+          error:
+            "Missing Captcha token. Please refresh the page and verify you are human. (Or provide valid API Key)",
+        });
+    }
+    const now = Date.now();
+    const cacheKey = turnstileToken + "_" + req.user.uid;
+    const cacheEntry = turnstileCache.get(cacheKey);
+    if (cacheEntry && now - cacheEntry.time < 500 && cacheEntry.uses < 0) {
+      cacheEntry.uses++;
+    } else {
+      const secretKey = process.env.TURNSTILE_SECRET_KEY || "";
+      if (!secretKey) {
+        turnstileCache.set(cacheKey, { time: now, uses: 1 });
+      } else {
+        try {
+          const params = new URLSearchParams();
+          params.append("secret", secretKey);
+          params.append("response", turnstileToken);
+          if (req.ip) params.append("remoteip", req.ip);
+          const turnstileResponse = await axios.post(
+            "https://challenges.cloudflare.com/turnstile/v0/siteverify",
+            params,
+            {
+              headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            },
+          );
+          if (!turnstileResponse.data.success) {
+            console.error(
+              "Turnstile verification failed:",
+              turnstileResponse.data,
+            );
+            return res
+              .status(403)
+              .json({
+                error:
+                  "Turnstile verification failed. Please refresh the page and try again.",
+              });
+          }
+          turnstileCache.set(cacheKey, { time: now, uses: 1 });
+          if (turnstileCache.size > 1e3) {
+            for (const [key, val] of turnstileCache.entries()) {
+              if (now - val.time > 5 * 60 * 1e3) {
+                turnstileCache.delete(key);
+              }
+            }
+          }
+        } catch (error) {
+          console.error("Error verifying Turnstile token:", error);
+          return res
+            .status(500)
+            .json({
+              error: "Internal server error during captcha verification.",
+            });
+        }
+      }
+    }
+  }
+  const jar = new CookieJar();
+  const userAgents = [
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36 Edg/130.0.0.0",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36",
+  ];
+  const randomUserAgent =
+    userAgents[Math.floor(Math.random() * userAgents.length)];
+  const isEdge = randomUserAgent.includes("Edg/");
+  const isMac = randomUserAgent.includes("Mac OS");
+  const chromeVer = randomUserAgent.match(/Chrome\/(\d+)\./)?.[1] || "130";
+  let secChUa = isEdge
+    ? `"Chromium";v="${chromeVer}", "Microsoft Edge";v="${chromeVer}", "Not?A_Brand";v="99"`
+    : `"Chromium";v="${chromeVer}", "Google Chrome";v="${chromeVer}", "Not?A_Brand";v="99"`;
+  let secChPlatform = isMac ? '"macOS"' : '"Windows"';
+  if (freeProxies.length === 0) {
+    await fetchFreeProxies();
+  }
+  let proxyUrl = "";
+  const availableProxies = [];
+  if (
+    siteSettings.proxies &&
+    Array.isArray(siteSettings.proxies) &&
+    siteSettings.proxies.length > 0
+  ) {
+    availableProxies.push(...siteSettings.proxies);
+  }
+  if (siteSettings.auto_proxy !== false && freeProxies.length > 0) {
+    availableProxies.push(...freeProxies);
+  } else if (!siteSettings.proxies || siteSettings.proxies.length === 0) {
+    availableProxies.push(...freeProxies);
+  }
+  if (availableProxies.length > 0) {
+    proxyUrl =
+      availableProxies[Math.floor(Math.random() * availableProxies.length)];
+  }
+  let agent;
+  try {
+    if (proxyUrl) {
+      agent = new HttpsProxyAgent(proxyUrl, {
+        timeout: 1e4,
+        rejectUnauthorized: true,
+      });
+    } else {
+      agent = new https.Agent({ rejectUnauthorized: true });
+    }
+  } catch (err) {
+    agent = new https.Agent({ rejectUnauthorized: true });
+  }
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 2e4);
+  res.on("finish", () => clearTimeout(timeoutId));
+  res.on("close", () => clearTimeout(timeoutId));
+  const axiosConfig = {
+    headers: {
+      "User-Agent": randomUserAgent,
+      Accept: "application/json, text/plain, */*",
+      "Accept-Language": "th-TH,th;q=0.9,en-US;q=0.8,en;q=0.7",
+      Referer: "https://sso.garena.com/",
+    },
+    httpsAgent: agent,
+    httpAgent: agent,
+    proxy: false,
+    timeout: 1e4,
+    signal: controller.signal,
+    validateStatus: __name((status) => status < 500, "validateStatus"),
+  };
+  const { wrapper } = await import("axios-cookiejar-support").then((s) => {
+    const e = "default";
+    return s[e] && typeof s[e] == "object" && "__esModule" in s[e] ? s[e] : s;
+  });
+      // @ts-ignore
+  let client2 = wrapper(axios.create(axiosConfig));
+  client2.defaults.jar = jar;
+  const setupFallbackClient = __name(() => {
+    const directAgent = new https.Agent({ rejectUnauthorized: true });
+    const fbClient = wrapper(
+      // @ts-ignore
+      axios.create({
+        ...axiosConfig,
+        httpsAgent: directAgent,
+        httpAgent: directAgent,
+      }),
+    );
+    fbClient.defaults.jar = jar;
+    return fbClient;
+  }, "setupFallbackClient");
+  try {
+    const getDatadomeCookie = __name(async (httpClient) => {
+      const url = "https://dd.garena.com/js/";
+      const headers = {
+        accept: "*/*",
+        "accept-encoding": "gzip, deflate, br, zstd",
+        "accept-language": "en-US,en;q=0.9",
+        "cache-control": "no-cache",
+        "content-type": "application/x-www-form-urlencoded",
+        origin: "https://account.garena.com",
+        pragma: "no-cache",
+        referer: "https://account.garena.com/",
+        "sec-ch-ua": secChUa,
+        "sec-ch-ua-mobile": "?0",
+        "sec-ch-ua-platform": secChPlatform,
+        "sec-fetch-dest": "empty",
+        "sec-fetch-mode": "cors",
+        "sec-fetch-site": "same-site",
+        "user-agent": randomUserAgent,
+      };
+      const jsDataPayload = {
+        ttst: 76.70000004768372,
+        ifov: false,
+        hc: 4,
+        br_oh: 824,
+        br_ow: 1536,
+        ua: randomUserAgent,
+        wbd: false,
+        dp0: true,
+        tagpu: 5.738121195951787,
+        wdif: false,
+        wdifrm: false,
+        npmtm: false,
+        br_h: 738,
+        br_w: 260,
+        isf: false,
+        nddc: 1,
+        rs_h: 864,
+        rs_w: 1536,
+        rs_cd: 24,
+        phe: false,
+        nm: false,
+        jsf: false,
+        lg: "en-US",
+        pr: 1.25,
+        ars_h: 824,
+        ars_w: 1536,
+        tz: -480,
+        str_ss: true,
+        str_ls: true,
+        str_idb: true,
+        str_odb: false,
+        plgod: false,
+        plg: 5,
+        plgne: true,
+        plgre: true,
+        plgof: false,
+        plggt: false,
+        pltod: false,
+        hcovdr: false,
+        hcovdr2: false,
+        plovdr: false,
+        plovdr2: false,
+        ftsovdr: false,
+        ftsovdr2: false,
+        lb: false,
+        eva: 33,
+        lo: false,
+        ts_mtp: 0,
+        ts_tec: false,
+        ts_tsa: false,
+        vnd: "Google Inc.",
+        bid: "NA",
+        mmt: "application/pdf,text/pdf",
+        plu: "PDF Viewer,Chrome PDF Viewer,Chromium PDF Viewer,Microsoft Edge PDF Viewer,WebKit built-in PDF",
+        hdn: false,
+        awe: false,
+        geb: false,
+        dat: false,
+        med: "defined",
+        aco: "probably",
+        acots: false,
+        acmp: "probably",
+        acmpts: true,
+        acw: "probably",
+        acwts: false,
+        acma: "maybe",
+        acmats: false,
+        acaa: "probably",
+        acaats: true,
+        ac3: "",
+        ac3ts: false,
+        acf: "probably",
+        acfts: false,
+        acmp4: "maybe",
+        acmp4ts: false,
+        acmp3: "probably",
+        acmp3ts: false,
+        acwm: "maybe",
+        acwmts: false,
+        ocpt: false,
+        vco: "",
+        vcots: false,
+        vch: "probably",
+        vchts: true,
+        vcw: "probably",
+        vcwts: true,
+        vc3: "maybe",
+        vc3ts: false,
+        vcmp: "",
+        vcmpts: false,
+        vcq: "maybe",
+        vcqts: false,
+        vc1: "probably",
+        vc1ts: true,
+        dvm: 8,
+        sqt: false,
+        so: "landscape-primary",
+        bda: false,
+        wdw: true,
+        prm: true,
+        tzp: true,
+        cvs: true,
+        usb: true,
+        cap: true,
+        tbf: false,
+        lgs: true,
+        tpd: true,
+      };
+      const payload = {
+        jsData: JSON.stringify(jsDataPayload),
+        eventCounters: "[]",
+        jsType: "ch",
+        cid: "KOWn3t9QNk3dJJJEkpZJpspfb2HPZIVs0KSR7RYTscx5iO7o84cw95j40zFFG7mpfbKxmfhAOs~bM8Lr8cHia2JZ3Cq2LAn5k6XAKkONfSSad99Wu36EhKYyODGCZwae",
+        ddk: "AE3F04AD3F0D3A462481A337485081",
+        Referer: "https://account.garena.com/",
+        request: "/",
+        responsePage: "origin",
+        ddv: "4.35.4",
+      };
+      const dataParams = new URLSearchParams();
+      for (const key in payload) {
+        dataParams.append(key, payload[key]);
+      }
+      const ddRes = await httpClient.post(url, dataParams.toString(), {
+        headers,
+        timeout: 1e4,
+      });
+      if (ddRes.data && typeof ddRes.data === "string") {
+        try {
+          return JSON.parse(ddRes.data);
+        } catch (e) {
+          console.error("Caught error:", e);
+        }
+      }
+      return ddRes.data;
+    }, "getDatadomeCookie");
+    let ddJson = await getDatadomeCookie(client2);
+    let activeClient = client2;
+    if (!ddJson || !ddJson.cookie || ddJson.status === 403) {
+      console.log(
+        `Proxy failed DataDome. Using direct connection for DataDome...`,
+      );
+      activeClient = setupFallbackClient();
+      ddJson = await getDatadomeCookie(activeClient);
+    }
+    if (ddJson && ddJson.cookie) {
+      const datadomeValue = ddJson.cookie.split(";")[0];
+      await jar.setCookie(datadomeValue, "https://sso.garena.com");
+    }
+    const preloginHeaders = {
+      accept: "application/json, text/plain, */*",
+      "accept-encoding": "gzip, deflate, br, zstd",
+      "accept-language": "en-US,en;q=0.9",
+      connection: "keep-alive",
+      host: "sso.garena.com",
+      referer: `https://sso.garena.com/universal/login?app_id=10100&redirect_uri=https%3A%2F%2Faccount.garena.com%2F&locale=en-SG&account=${account}`,
+      "sec-ch-ua": secChUa,
+      "sec-ch-ua-mobile": "?0",
+      "sec-ch-ua-platform": secChPlatform,
+      "sec-fetch-dest": "empty",
+      "sec-fetch-mode": "cors",
+      "sec-fetch-site": "same-origin",
+      "user-agent": randomUserAgent,
+    };
+    let preloginRes = await activeClient.get(
+      "https://sso.garena.com/api/prelogin",
+      {
+        params: {
+          app_id: "10100",
+          account: account,
+          format: "json",
+          id: Date.now().toString(),
+        },
+        headers: preloginHeaders,
+      },
+    );
+    if (preloginRes.status === 403 && activeClient === client2) {
+      console.log(`Proxy blocked at Prelogin. Switching to Direct...`);
+      activeClient = setupFallbackClient();
+      ddJson = await getDatadomeCookie(activeClient);
+      if (ddJson && ddJson.cookie) {
+        await jar.setCookie(
+          ddJson.cookie.split(";")[0],
+          "https://sso.garena.com",
+        );
+      }
+      preloginRes = await activeClient.get(
+        "https://sso.garena.com/api/prelogin",
+        {
+          params: {
+            app_id: "10100",
+            account: account,
+            format: "json",
+            id: Date.now().toString(),
+          },
+          headers: preloginHeaders,
+        },
+      );
+    }
+    if (preloginRes.status === 403) {
+      return res.json({
+        success: false,
+        error:
+          "\u0E23\u0E30\u0E1A\u0E1A\u0E42\u0E14\u0E19\u0E08\u0E33\u0E01\u0E31\u0E14\u0E01\u0E32\u0E23\u0E40\u0E02\u0E49\u0E32\u0E16\u0E36\u0E07 (403 Forbidden)",
+      });
+    }
+    const preData = preloginRes.data;
+    if (preData.error) {
+      return res.json({ success: false, error: `Prelogin: ${preData.error}` });
+    }
+    if (!preData.v1 || !preData.v2) {
+      return res.json({
+        success: false,
+        error:
+          "\u0E23\u0E30\u0E1A\u0E1A\u0E15\u0E23\u0E27\u0E08\u0E1E\u0E1A\u0E42\u0E1B\u0E23\u0E41\u0E01\u0E23\u0E21\u0E2D\u0E31\u0E15\u0E42\u0E19\u0E21\u0E31\u0E15\u0E34 (DataDome / Captcha).",
+      });
+    }
+    const hashed_password = "dummy";
+    const loginParams = {
+      app_id: "10100",
+      account: account,
+      password: hashed_password,
+      redirect_uri: "https://account.garena.com/",
+      format: "json",
+      id: Date.now().toString(),
+    };
+    const loginRes = await activeClient.get(
+      "https://sso.garena.com/api/login",
+      {
+        params: loginParams,
+        headers: {
+          accept: "application/json, text/plain, */*",
+          referer: "https://account.garena.com/",
+          "user-agent": randomUserAgent,
+        },
+      },
+    );
+    const loginData = loginRes.data;
+    if (loginData.error) {
+      const errorMsg =
+        loginData.error === "error_auth"
+          ? "\u0E23\u0E2B\u0E31\u0E2A\u0E1C\u0E48\u0E32\u0E19\u0E1C\u0E34\u0E14"
+          : loginData.error.includes("captcha")
+            ? "\u0E15\u0E49\u0E2D\u0E07\u0E41\u0E01\u0E49 Captcha (Garena Login)"
+            : loginData.error === "error_not_exist"
+              ? "\u0E44\u0E21\u0E48\u0E1E\u0E1A\u0E44\u0E2D\u0E14\u0E35\u0E19\u0E35\u0E49"
+              : loginData.error;
+      return res.json({ success: false, error: errorMsg });
+    }
+    const initRes = await activeClient.get(
+      "https://account.garena.com/api/account/init",
+      {
+        headers: {
+          accept: "*/*",
+          referer: "https://account.garena.com/",
+          "user-agent": randomUserAgent,
+        },
+      },
+    );
+    const resData = initRes.data || {};
+    const userData = resData.user_info || resData || {};
+    let fbLinked = false;
+    let fbUsername = "N/A";
+    let fbUid = "N/A";
+    const fbAccount = userData.fb_account;
+    if (fbAccount) {
+      if (typeof fbAccount === "object") {
+        fbUsername = fbAccount.name || "N/A";
+        fbUid = fbAccount.id || "N/A";
+      } else if (typeof fbAccount === "string" && fbAccount !== "Not Set") {
+        try {
+          const parsed = JSON.parse(fbAccount);
+          fbUsername = parsed.name || parsed.fb_username || "N/A";
+          fbUid = parsed.id || parsed.fb_uid || "N/A";
+        } catch (e) {
+          fbUsername = fbAccount;
+        }
+      }
+      fbLinked = true;
+    }
+    if (userData.is_fbconnect_enabled) fbLinked = true;
+    const binds = [];
+    if (
+      userData.email &&
+      userData.email !== "N/A" &&
+      !userData.email.startsWith("***") &&
+      userData.email.includes("@")
+    )
+      binds.push("Email");
+    if (
+      userData.mobile_no &&
+      userData.mobile_no !== "N/A" &&
+      String(userData.mobile_no).trim()
+    )
+      binds.push("Phone");
+    if (fbLinked) binds.push("Facebook");
+    if (
+      userData.idcard &&
+      userData.idcard !== "N/A" &&
+      String(userData.idcard).trim()
+    )
+      binds.push("ID Card");
+    const isClean = binds.length === 0;
+    const [codmInfo, gameConnections] = [null, []];
+    const rovGames = (gameConnections || []).filter((g) =>
+      g.toUpperCase().includes("ROV"),
+    );
+    const hasRov = rovGames.length > 0;
+    let rovCharacter = "N/A";
+    if (hasRov) {
+      try {
+        const cleanName = rovGames[0].replace("[", "").replace("]", "");
+        const parts = cleanName.split("-");
+        if (parts.length > 2) rovCharacter = parts[2].trim();
+      } catch (e) {
+        console.error("Caught error:", e);
+      }
+    }
+    const phoneBound = !!(userData.mobile_no && userData.mobile_no !== "N/A");
+    const emailVerified = !!userData.email_v;
+    const rovClean = hasRov && !emailVerified && !phoneBound;
+    const hasCodm = codmInfo != null && codmInfo.level !== "Unknown";
+    let lastLoginDateFormatted = "N/A";
+    const lastHist = resData.login_history?.[0];
+    if (lastHist?.timestamp) {
+      lastLoginDateFormatted = new Date(
+        lastHist.timestamp * 1e3,
+      ).toLocaleString("en-US", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      });
+    } else if (userData.last_login?.time) {
+      lastLoginDateFormatted = new Date(
+        userData.last_login.time * 1e3,
+      ).toLocaleString("en-US", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      });
+    }
+    let avatarUrl = "N/A";
+    if (userData.avatar && userData.avatar !== "N/A") {
+      avatarUrl = userData.avatar.startsWith("http")
+        ? userData.avatar
+        : `https://account.garena.com/static/${userData.avatar}`;
+    }
+    return res.json({
+      success: true,
+      data: {
+        account,
+        uid: userData.uid || "N/A",
+        shells: userData.shell || 0,
+        level: codmInfo?.level || 0,
+        rank: "Success",
+        isClean,
+        phoneBound,
+        emailVerified,
+        fbLinked,
+        region: userData.acc_country || "TH",
+        otherGames: gameConnections || [],
+        codmNickname: codmInfo?.nickname || "N/A",
+        codmUid: codmInfo?.uid || "N/A",
+        codmOpenId: codmInfo?.open_id || "N/A",
+        codmTOpenId: codmInfo?.t_open_id || "N/A",
+        codmRegion: codmInfo?.region || "N/A",
+        codmRegionName: codmInfo?.region_name || "Unknown",
+        codmRegionFlag: codmInfo?.region_flag || "\u{1F3F3}\uFE0F",
+        idCardBound: !!(userData.idcard && userData.idcard !== "N/A"),
+        hasRov,
+        rovCharacter,
+        rovClean,
+        hasCodm,
+        avatarUrl,
+        mobileNumber: userData.mobile_no || "N/A",
+        emailAddress: userData.email || "N/A",
+        fbUsername,
+        twoFaEnabled: !!userData.two_step_verify_enable,
+        authenticatorEnabled: !!userData.authenticator_enable,
+        lastLoginDate: lastLoginDateFormatted,
+        lastLoginIp: lastHist?.ip || userData.last_login?.ip || "N/A",
+        lastLoginCountry:
+          lastHist?.country || userData.last_login?.country || "N/A",
+        lastLoginSource:
+          lastHist?.source || userData.last_login?.source || "Unknown",
+      },
+    });
+  } catch (err) {
+    const errMsg = err?.message || "";
+    console.error("Garena API Error:", errMsg || err);
+    let errorMsg = "Network Error: " + (errMsg || "Unknown Error");
+    if (
+      err?.code === "ECONNABORTED" ||
+      errMsg.includes("timeout") ||
+      err?.code === "ETIMEDOUT"
+    ) {
+      errorMsg =
+        "\u0E01\u0E32\u0E23\u0E40\u0E0A\u0E37\u0E48\u0E2D\u0E21\u0E15\u0E48\u0E2D\u0E16\u0E39\u0E01\u0E22\u0E01\u0E40\u0E25\u0E34\u0E01 (\u0E43\u0E0A\u0E49\u0E40\u0E27\u0E25\u0E32\u0E40\u0E01\u0E34\u0E19). Proxy \u0E0A\u0E49\u0E32\u0E40\u0E01\u0E34\u0E19\u0E44\u0E1B \u0E2B\u0E23\u0E37\u0E2D\u0E04\u0E49\u0E32\u0E07";
+    } else if (
+      err?.name === "AbortError" ||
+      err?.code === "ERR_CANCELED" ||
+      err?.name === "CanceledError" ||
+      errMsg === "canceled"
+    ) {
+      errorMsg =
+        "\u0E01\u0E32\u0E23\u0E40\u0E0A\u0E37\u0E48\u0E2D\u0E21\u0E15\u0E48\u0E2D\u0E16\u0E39\u0E01\u0E22\u0E01\u0E40\u0E25\u0E34\u0E01 (\u0E43\u0E0A\u0E49\u0E40\u0E27\u0E25\u0E32\u0E40\u0E01\u0E34\u0E19). Proxy \u0E0A\u0E49\u0E32\u0E40\u0E01\u0E34\u0E19\u0E44\u0E1B \u0E2B\u0E23\u0E37\u0E2D\u0E04\u0E49\u0E32\u0E07";
+    } else if (err?.code === "ECONNRESET") {
+      errorMsg =
+        "\u0E01\u0E32\u0E23\u0E40\u0E0A\u0E37\u0E48\u0E2D\u0E21\u0E15\u0E48\u0E2D\u0E16\u0E39\u0E01\u0E15\u0E31\u0E14 (ECONNRESET)";
+    } else if (errMsg.includes("disconnected") || errMsg.includes("TLS")) {
+      errorMsg =
+        "\u0E40\u0E0A\u0E37\u0E48\u0E2D\u0E21\u0E15\u0E48\u0E2D\u0E44\u0E21\u0E48\u0E1B\u0E25\u0E2D\u0E14\u0E20\u0E31\u0E22 (TLS Error/Blocked)";
+    } else if (
+      err?.code === "ECONNREFUSED" ||
+      errMsg.includes("ECONNREFUSED")
+    ) {
+      errorMsg =
+        "\u0E40\u0E0B\u0E34\u0E23\u0E4C\u0E1F\u0E40\u0E27\u0E2D\u0E23\u0E4C Proxy \u0E2D\u0E2D\u0E1F\u0E44\u0E25\u0E19\u0E4C";
+    } else if (errMsg.includes("CONNECT response")) {
+      errorMsg =
+        "Proxy \u0E2B\u0E21\u0E14\u0E2D\u0E32\u0E22\u0E38\u0E2B\u0E23\u0E37\u0E2D\u0E16\u0E39\u0E01\u0E41\u0E1A\u0E19";
+    }
+    return res.json({ success: false, error: errorMsg, isProxyError: true });
+  }
+}, "___dep_check");
+let redis = null;
 if (process.env.REDIS_URL) {
   try {
     redis = new Redis(process.env.REDIS_URL, {
       maxRetriesPerRequest: 1,
-      retryStrategy: __name((times: number) => {
+      retryStrategy: __name((times) => {
         if (times > 5) {
           console.warn(
             "Redis reconnect exhausted, relying fully on memory cache.",
@@ -1542,10 +2572,10 @@ if (process.env.REDIS_URL) {
       commandTimeout: 2e3,
     });
     redis.on("connect", () => console.log("Redis connected successfully"));
-    redis.on("error", (err: any) =>
+    redis.on("error", (err) =>
       console.error("Redis connection error (falling back to memory):", err),
     );
-  } catch (e: any) {
+  } catch (e) {
     console.error("Failed to initialize Redis:", e);
   }
 }
@@ -1565,7 +2595,7 @@ const dbReadBreaker = new CircuitBreaker(async (action) => await action(), {
 dbReadBreaker.fallback(() => {
   throw new Error("Database read circuit breaker open or timeout");
 });
-async function findPurchaseByLicenseKey(key: any) {
+async function findPurchaseByLicenseKey(key) {
   const cleanKey = key.trim();
   if (!cleanKey) return null;
   try {
@@ -1579,18 +2609,18 @@ async function findPurchaseByLicenseKey(key: any) {
       const doc = querySnapshot.docs[0];
       const data = doc.data();
       let secret = data.secretData || "";
-      if (secret.startsWith("enc:") || secret.startsWith("enc2:")) {
+      if (secret.startsWith("enc:")) {
         secret = await decrypt(secret);
       }
       return { id: doc.id, ...data, secretData: secret };
     }
-  } catch (err: any) {
+  } catch (err) {
     console.error("Error finding purchase by license key (Discord):", err);
   }
   return null;
 }
 __name(findPurchaseByLicenseKey, "findPurchaseByLicenseKey");
-async function findPurchaseByWebClaimKey(key: any) {
+async function findPurchaseByWebClaimKey(key) {
   const cleanKey = key.trim();
   if (!cleanKey) return null;
   try {
@@ -1605,23 +2635,23 @@ async function findPurchaseByWebClaimKey(key: any) {
         const data = doc.data();
         if (data.webClaimed) continue;
         let secret = data.secretData || "";
-        if (secret.startsWith("enc:") || secret.startsWith("enc2:")) {
+        if (secret.startsWith("enc:")) {
           secret = await decrypt(secret);
         }
         return { id: doc.id, ...data, secretData: secret };
       }
     }
-  } catch (err: any) {
+  } catch (err) {
     console.error("Error finding purchase by claim key (Web):", err);
   }
   return null;
 }
 __name(findPurchaseByWebClaimKey, "findPurchaseByWebClaimKey");
 const getCachedCollection = __name(
-  async (collectionName: any, ttl = 2e4, res?: any, req?: any) => {
+  async (collectionName, ttl = 2e4, res, req) => {
     const now = Date.now();
     let cacheHit = false;
-    let cachedData: any = void 0;
+    let cachedData = void 0;
     const redisKey = `cache:${collectionName}`;
     if (redis && redis.status === "ready") {
       try {
@@ -1630,7 +2660,7 @@ const getCachedCollection = __name(
           cachedData = JSON.parse(redisData);
           cacheHit = true;
         }
-      } catch (err: any) {
+      } catch (err) {
         console.warn("Redis get error, falling back to memory layer", err);
       }
     }
@@ -1690,11 +2720,11 @@ const getCachedCollection = __name(
             return snapshot2;
           }, "fetchFromDB");
           const snapshot = await dbReadBreaker.fire(fetchFromDB);
-          let data = snapshot.docs.map((doc: any) => {
+          let data = snapshot.docs.map((doc) => {
             const d = doc.data();
             return { id: doc.id, ...d };
           });
-          data = data.filter((d: any) => !d.isDeleted && d.active !== false);
+          data = data.filter((d) => !d.isDeleted && d.active !== false);
           if (collectionName === "products" && data.length === 0 && false) {
             try {
               const seedingRef = admin
@@ -1702,7 +2732,7 @@ const getCachedCollection = __name(
                 .collection("system_metadata")
                 .doc("seeding");
               const seedingDoc = await seedingRef.get();
-              if (seedingDoc.exists && seedingDoc.data && (seedingDoc as any).data()?.has_seeded) {
+              if (seedingDoc.exists && seedingDoc.data()?.has_seeded) {
                 console.log(
                   "Products are empty, but seeding has already run before. Respecting empty collection.",
                 );
@@ -1834,11 +2864,11 @@ const getCachedCollection = __name(
                   .collection("products")
                   .get();
                 data = newSnapshot.docs
-                  .map((doc: any) => {
+                  .map((doc) => {
                     const d = doc.data();
                     return { id: doc.id, ...d };
                   })
-                  .filter((d: any) => !d.isDeleted && d.active !== false);
+                  .filter((d) => !d.isDeleted && d.active !== false);
               }
             } catch (seedErr) {
               console.error("Error seeding default products:", seedErr);
@@ -1863,7 +2893,7 @@ const getCachedCollection = __name(
           if (redis && redis.status === "ready") {
             try {
               await redis.set(redisKey, JSON.stringify(freshData), "PX", ttl);
-            } catch (err: any) {
+            } catch (err) {
               console.warn("Redis set error", err);
             }
           }
@@ -1894,14 +2924,14 @@ const getCachedCollection = __name(
   },
   "getCachedCollection",
 );
-const invalidateCache = __name(async (collectionName: any) => {
+const invalidateCache = __name(async (collectionName) => {
   cacheRevisionCounter++;
   memoryCache.delete(collectionName);
   inflightRequests.delete(collectionName);
   if (redis && redis.status === "ready") {
     try {
       await redis.del(`cache:${collectionName}`);
-    } catch (err: any) {
+    } catch (err) {
       console.warn("Redis del error", err);
     }
   }
@@ -1912,10 +2942,10 @@ app.use("/api", createAuthRouter({ authLimiter, invalidateCache, invalidateStats
 app.get("/api/debug-products", requireAdmin, async (req, res) => {
   try {
     const snap = await admin.firestore().collection("products").get();
-    const docs = snap.docs.map((d: any) => d.data()).filter((p: any) => p.stock > 0);
+    const docs = snap.docs.map((d) => d.data()).filter((p) => p.stock > 0);
     res.json({
       count: docs.length,
-      products: docs.map((p: any) => ({
+      products: docs.map((p) => ({
         id: p.id,
         name: p.name,
         stock: p.stock,
@@ -1928,71 +2958,449 @@ app.get("/api/debug-products", requireAdmin, async (req, res) => {
             : null,
       })),
     });
-  } catch (e: any) {
-    res.status(500).json({ error: (e as any)?.message });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
   }
 });
-const { createProductsRouter } = await import("./src/routes/products.route.js");
-app.use(
-  "/api",
-  createProductsRouter({
-    requireAdmin,
-    getCachedCollection,
-    writeAuditLog,
-    invalidateCache,
-    invalidateStatsCache,
-  }),
+app.get("/api/products", async (req, res) => {
+  res.setHeader(
+    "Cache-Control",
+    "no-store, no-cache, must-revalidate, proxy-revalidate",
+  );
+  try {
+    const data = await getCachedCollection("products", 1e4, res, req);
+    if (data) {
+      const processedData = data.map((item) => {
+        const { stockData, ...publicItem } = item;
+        return publicItem;
+      });
+      res.json(processedData);
+    }
+  } catch (err) {
+    console.error(
+      "PROD ERR OBJ:",
+      JSON.stringify(err, Object.getOwnPropertyNames(err)),
+    );
+    res
+      .status(500)
+      .json({ error: String(err && err.message ? err.message : err) });
+  }
+});
+app.get("/api/products/:id", requireAdmin, async (req, res) => {
+  if (!admin.firestore())
+    return res.status(500).json({ error: "DB not connected" });
+  try {
+    const doc = await admin
+      .firestore()
+      .collection("products")
+      .doc(req.params.id)
+      .get();
+    if (!doc.exists)
+      return res.status(404).json({ error: "Product not found" });
+    const data = doc.data();
+    const { stockData, ...safeProductData } = data;
+    const responseData = { id: doc.id, ...safeProductData };
+    res.json(responseData);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: String(err && err.message ? err.message : err) });
+  }
+});
+app.get("/api/products/:id/stock", requireAdmin, async (req, res) => {
+  if (!admin.firestore())
+    return res.status(500).json({ error: "DB not connected" });
+  try {
+    const docRef = admin.firestore().collection("products").doc(req.params.id);
+    const doc = await docRef.get();
+    if (!doc.exists) {
+      return res.status(404).json({ error: "Product not found" });
+    }
+    let stockData = doc.data()?.stockData || [];
+    if (stockData) {
+      stockData = await decompressStock(stockData);
+    }
+    if (!Array.isArray(stockData)) stockData = [];
+    const chunksSnapshot = await admin
+      .firestore()
+      .collection("product_stock_chunks")
+      .where("productId", "==", req.params.id)
+      .get();
+    for (const chunkDoc of chunksSnapshot.docs) {
+      const chunkItems = chunkDoc.data().items;
+      if (chunkItems) {
+        const dec = await decompressStock(chunkItems);
+        if (Array.isArray(dec)) stockData = stockData.concat(dec);
+      }
+    }
+    res.json({ stockData });
+  } catch (err) {
+    console.error("Error fetching stock data:", err);
+    res.status(500).json({ error: String(err.message || err) });
+  }
+});
+app.post("/api/products", requireAdmin, async (req, res) => {
+  if (!admin.firestore())
+    return res.status(500).json({ error: "DB not connected" });
+
+  const productSchema = z.object({
+    name: z.string().min(1, "กรุณากรอกชื่อสินค้า"),
+    price: z.coerce.number().min(0, "ราคาไม่สามารถติดลบได้"),
+    stock: z.coerce.number().min(0, "สต๊อกสินค้าไม่สามารถติดลบได้").optional().default(0),
+  }).passthrough();
+
+  try {
+    const parseResult = productSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      return res.status(400).json({ error: parseResult.error.issues[0].message });
+    }
+    const product = parseResult.data;
+    const allowedFields = [
+      "name",
+      "description",
+      "price",
+      "originalPrice",
+      "stock",
+      "categoryId",
+      "stockData",
+      "image",
+      "imageUrl",
+      "category",
+      "isHighlight",
+      "customPageId",
+      "youtubeUrl",
+      "type",
+      "isPopular",
+      "soldCount",
+      "tag",
+      "_version",
+      "isPreOrder",
+      "preOrderOptions",
+    ];
+    const sanitizedProduct = Object.fromEntries(
+      Object.entries(product).filter(([k]) => allowedFields.includes(k)),
+    );
+    sanitizedProduct._version = 1;
+    const { id, ...dataToSaveRaw } = sanitizedProduct;
+    if (dataToSaveRaw.stockData) {
+      dataToSaveRaw.stockData = await compressStock(dataToSaveRaw.stockData);
+    }
+    const dataToSave = JSON.parse(JSON.stringify(dataToSaveRaw));
+    const docRef = await admin
+      .firestore()
+      .collection("products")
+      .add(dataToSave);
+    invalidateCache("products");
+    invalidateStatsCache();
+    const { stockData, ...safeData } = dataToSave;
+    const responseData = { id: docRef.id, dbId: docRef.id, ...safeData };
+    res.json(responseData);
+  } catch (err) {
+    console.error(
+      "Internal server error creating product:",
+      JSON.stringify(err, Object.getOwnPropertyNames(err)),
+    );
+    const errMsg = err?.message || JSON.stringify(err);
+    res.status(500).json({ error: String(errMsg) });
+  }
+});
+const uploadDir = path.join(os.tmpdir(), "uploads");
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+const diskUpload = multer({ dest: uploadDir });
+app.post(
+  "/api/products/:id/stock-file",
+  requireAdmin,
+  diskUpload.single("file"),
+  async (req, res) => {
+    if (!admin.firestore())
+      return res.status(500).json({ error: "DB not connected" });
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: "No file uploaded" });
+      }
+      const linesPerItem = parseInt(req.body.linesPerItem || "1") || 1;
+      const fileStream = fs.createReadStream(req.file.path);
+      const rl = readline.createInterface({
+        input: fileStream,
+        crlfDelay: Infinity,
+      });
+      let currentLines = [];
+      const chunkedItems = [];
+      for await (const line of rl) {
+        const trimmed = line.trim();
+        if (trimmed.length > 0) {
+          currentLines.push(trimmed);
+          if (currentLines.length >= linesPerItem) {
+            chunkedItems.push(currentLines.join("\n"));
+            currentLines = [];
+          }
+        }
+      }
+      if (currentLines.length > 0) {
+        chunkedItems.push(currentLines.join("\n"));
+      }
+      fs.unlink(req.file.path, () => {});
+      if (chunkedItems.length === 0) {
+        return res.status(400).json({ error: "No valid data found in file" });
+      }
+      const docRef = admin
+        .firestore()
+        .collection("products")
+        .doc(req.params.id);
+      let finalProductData = {};
+      await admin.firestore().runTransaction(async (t) => {
+        const doc = await t.get(docRef);
+        if (!doc.exists) {
+          throw new Error("NOT_FOUND");
+        }
+        const p = doc.data();
+        let existingStock = [];
+        if (p.stockData) {
+          existingStock = await decompressStock(p.stockData);
+        }
+        const mergedStock = [...existingStock, ...chunkedItems];
+        const compressed = await compressStock(mergedStock);
+        const newVersion = (p._version || 0) + 1;
+        t.update(docRef, {
+          stockData: compressed,
+          stock: mergedStock.length,
+          _version: newVersion,
+        });
+        finalProductData = {
+          ...p,
+          stockData: void 0,
+          stock: mergedStock.length,
+          _version: newVersion,
+          id: doc.id,
+        };
+      });
+      invalidateCache("products");
+      invalidateStatsCache();
+      await writeAuditLog(
+        "ADD_STOCK",
+        req.user?.uid || "admin",
+        `Product ${req.params.id}`,
+        req,
+        { itemsAdded: chunkedItems.length },
+      );
+      res.json({
+        success: true,
+        count: chunkedItems.length,
+        product: finalProductData,
+      });
+    } catch (err) {
+      if (req.file) fs.unlink(req.file.path, () => {});
+      console.error("Error in /api/products/:id/stock-file:", err);
+      res
+        .status(err.message === "NOT_FOUND" ? 404 : 500)
+        .json({ error: String(err.message || err) });
+    }
+  },
 );
-const twApi: any = null;
-const { createPaymentsRouter } = await import("./src/routes/payments.route.js");
-app.use(
-  "/api",
-  createPaymentsRouter({
-    requireAuth,
-    requireAdmin,
-    mutationLimiter,
-    topupLimiter,
-    getSiteSettings: () => siteSettings,
-    getRedis: () => redis,
-    getTwApi: () => twApi,
-    writeAuditLog,
-    sendAlert,
-    invalidateCache,
-    invalidateStatsCache,
-    getCommunityData: () => communityData,
-    saveCommunity: () => saveCommunity(),
-  }),
-);
-const { createUsersRouter } = await import("./src/routes/users.route.js");
-app.use(
-  "/api",
-  createUsersRouter({
-    requireAuth,
-    requireAdmin,
-    mutationLimiter,
-    communityUpload,
-    uploadToSupabaseStorage,
-    getCommunityData: () => communityData,
-    invalidateUserTokenCache,
-    invalidateCache,
-    invalidateStatsCache,
-    sendAlert,
-  }),
-);
-const { createAdminRouter } = await import("./src/routes/admin.route.js");
-app.use(
-  "/api",
-  createAdminRouter({
-    requireAdmin,
-    writeAuditLog,
-    sendAlert,
-    invalidateUserTokenCache,
-    invalidateCache,
-    invalidateStatsCache,
-    getCommunityData: () => communityData,
-    saveCommunity: () => saveCommunity(),
-  }),
-);
+app.post("/api/products/:id/stock", requireAdmin, async (req, res) => {
+  if (!admin.firestore())
+    return res.status(500).json({ error: "DB not connected" });
+  try {
+    const { newItems } = req.body;
+    if (!Array.isArray(newItems) || newItems.length === 0) {
+      return res.json({ success: true });
+    }
+    const docRef = admin.firestore().collection("products").doc(req.params.id);
+    let finalProductData = {};
+    await admin.firestore().runTransaction(async (t) => {
+      const doc = await t.get(docRef);
+      if (!doc.exists) {
+        throw new Error("NOT_FOUND");
+      }
+      let existingStock = doc.data()?.stockData || [];
+      if (existingStock) {
+        existingStock = await decompressStock(existingStock);
+      }
+      if (!Array.isArray(existingStock)) {
+        existingStock = [];
+      }
+      existingStock = existingStock.concat(newItems);
+      const previousStock = doc.data()?.stock || 0;
+      const newStockCount = previousStock + newItems.length;
+      t.update(docRef, {
+        stock: newStockCount,
+        stockData: await compressStock(existingStock),
+      });
+      const { stockData, ...safeData } = doc.data();
+      finalProductData = { ...safeData, stock: newStockCount };
+    });
+    invalidateCache("products");
+    invalidateStatsCache();
+    res.json({
+      success: true,
+      added: newItems.length,
+      product: finalProductData,
+    });
+  } catch (err) {
+    if (err.message === "NOT_FOUND") {
+      return res.status(404).json({ error: "Product not found" });
+    }
+    console.error(
+      "Internal server error appending stock:",
+      JSON.stringify(err, Object.getOwnPropertyNames(err)),
+    );
+    const errMsg = err?.message || JSON.stringify(err);
+    res.status(500).json({ error: String(errMsg) });
+  }
+});
+app.put("/api/products/:id", requireAdmin, async (req, res) => {
+  if (!admin.firestore())
+    return res.status(500).json({ error: "DB not connected" });
+
+  const productUpdateSchema = z.object({
+    name: z.string().min(1, "กรุณากรอกชื่อสินค้า").optional(),
+    price: z.coerce.number().min(0, "ราคาไม่สามารถติดลบได้").optional(),
+    stock: z.coerce.number().min(0, "สต๊อกสินค้าไม่สามารถติดลบได้").optional(),
+  }).passthrough();
+
+  try {
+    const parseResult = productUpdateSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      return res.status(400).json({ error: parseResult.error.issues[0].message });
+    }
+    const productUpdates = parseResult.data;
+    const docRef = admin.firestore().collection("products").doc(req.params.id);
+    const allowedFields = [
+      "name",
+      "description",
+      "price",
+      "originalPrice",
+      "stock",
+      "categoryId",
+      "stockData",
+      "image",
+      "imageUrl",
+      "category",
+      "isHighlight",
+      "customPageId",
+      "youtubeUrl",
+      "type",
+      "isPopular",
+      "soldCount",
+      "tag",
+      "_version",
+      "isPreOrder",
+      "preOrderOptions",
+    ];
+    const sanitizedUpdates = Object.fromEntries(
+      Object.entries(productUpdates).filter(
+        ([k]) => allowedFields.includes(k) && k !== "id",
+      ),
+    );
+    let finalData;
+    let deltaBefore = {};
+    let deltaAfter = {};
+    await admin.firestore().runTransaction(async (t) => {
+      const currentDoc = await t.get(docRef);
+      if (!currentDoc.exists) {
+        throw new Error("NOT_FOUND");
+      }
+      const existingData = currentDoc.data();
+      Object.keys(sanitizedUpdates).forEach((k) => {
+        if (k !== "_version" && sanitizedUpdates[k] !== existingData[k]) {
+          deltaBefore[k] = existingData[k];
+          deltaAfter[k] = sanitizedUpdates[k];
+        }
+      });
+      let nextVersion = existingData._version || 0;
+      if (Object.keys(deltaAfter).length > 0) {
+        nextVersion += 1;
+      // @ts-ignore
+        deltaAfter._version = nextVersion;
+      }
+      // @ts-ignore
+      if (deltaAfter.stockData && !deltaAfter.stockData[0]?.__compressed) {
+      // @ts-ignore
+        deltaAfter.stockData = await compressStock(deltaAfter.stockData);
+      }
+      const dataToSave = JSON.parse(JSON.stringify(deltaAfter));
+      if (Object.keys(dataToSave).length > 0) {
+        t.update(docRef, dataToSave);
+      }
+      finalData = { ...existingData, ...dataToSave, id: req.params.id };
+    });
+    invalidateCache("products");
+    invalidateStatsCache();
+    if (Object.keys(deltaAfter).length > 0) {
+      writeAuditLog(
+        "PRODUCT_UPDATE",
+        req.user?.uid || "admin",
+        req.params.id,
+        req,
+        { changes: { before: deltaBefore, after: deltaAfter } },
+      );
+    }
+    const { stockData, ...safeFinalData } = finalData;
+    res.json(safeFinalData);
+  } catch (err) {
+    if (err.message === "VERSION_CONFLICT") {
+      return res
+        .status(409)
+        .json({
+          error:
+            "Conflict: Product was updated by another admin. Please refresh and try again.",
+        });
+    }
+    if (err.message === "NOT_FOUND") {
+      return res.status(404).json({ error: "Product not found" });
+    }
+    console.error(
+      "Internal server error updating product:",
+      JSON.stringify(err, Object.getOwnPropertyNames(err)),
+    );
+    const errMsg = err?.message || JSON.stringify(err);
+    res.status(500).json({ error: String(errMsg) });
+  }
+});
+app.delete("/api/products/:id", requireAdmin, async (req, res) => {
+  if (!admin.firestore())
+    return res.status(500).json({ error: "DB not connected" });
+  try {
+    const docRef = admin.firestore().collection("products").doc(req.params.id);
+    let existingData = null;
+    let exists = false;
+    const doc = await docRef.get();
+    if (doc.exists) {
+      exists = true;
+      existingData = doc.data();
+      await docRef.delete();
+    }
+    invalidateCache("products");
+    invalidateStatsCache();
+    if (exists && existingData) {
+      writeAuditLog(
+        "PRODUCT_DELETE",
+        req.user?.uid || "admin",
+        req.params.id,
+        req,
+        {
+          changes: {
+            before: existingData,
+            after: { isDeleted: true, hardDeleted: true },
+          },
+        },
+      );
+    }
+    res.json({
+      success: true,
+      softDeleted: false,
+      deleted: true,
+      existed: exists,
+    });
+  } catch (err) {
+    console.error("Internal server error deleting product:", err);
+    res
+      .status(500)
+      .json({ error: String(err && err.message ? err.message : err) });
+  }
+});
 app.get("/api/test_stats", async (req, res) => {
   res.json({ ok: 1 });
 });
@@ -2023,7 +3431,7 @@ app.get("/api/stats", async (req, res) => {
           lastStatsFetch = now;
           return sendCachedStats();
         }
-      } catch (e: any) {
+      } catch (e) {
         console.error("Caught error:", e);
       }
     }
@@ -2031,10 +3439,10 @@ app.get("/api/stats", async (req, res) => {
     let totalStock = 0;
     try {
       const data = await getCachedCollection("products", 3e5);
-      data.forEach((p: any) => {
+      data.forEach((p) => {
         if (p.stock > 0 && p.stock < 999999) totalStock += Number(p.stock);
       });
-    } catch (e: any) {
+    } catch (e) {
       console.error("Caught error:", e);
     }
     let totalSales = 0;
@@ -2044,14 +3452,14 @@ app.get("/api/stats", async (req, res) => {
     await Promise.all([
       (async () => {
         const purchases = await getCachedCollection("purchases", 60000);
-        purchases.forEach((p: any) => {
+        purchases.forEach((p) => {
           totalSales += Number(p.price) || 0;
           totalPurchaseOrders++;
         });
       })(),
       (async () => {
         const topups = await getCachedCollection("topups", 60000);
-        topups.forEach((t: any) => {
+        topups.forEach((t) => {
           totalTopupsAmount += Number(t.amount) || 0;
         });
       })(),
@@ -2077,13 +3485,13 @@ app.get("/api/stats", async (req, res) => {
       if (redis && redis.status === "ready") {
         try {
           await redis.set(redisKey, JSON.stringify(cachedStats), "PX", 1e4);
-        } catch (e: any) {
+        } catch (e) {
           console.error("Caught error:", e);
         }
       }
     }
     sendCachedStats();
-  } catch (err: any) {
+  } catch (err) {
     console.error("STATS ERROR:", err);
     res.json(
       cachedStats || {
@@ -2130,7 +3538,7 @@ app.get("/api/latest-purchases", async (req, res) => {
       .orderBy("date", "desc")
       .limit(limit);
     const snap = await q.get();
-    const data = snap.docs.map((doc: any) => {
+    const data = snap.docs.map((doc) => {
       const d = doc.data();
       let qty = d.quantity;
       if (!qty) {
@@ -2146,11 +3554,11 @@ app.get("/api/latest-purchases", async (req, res) => {
       };
     });
     return res.json(data);
-  } catch (err: any) {
-    console.error("Error fetching latest purchases:", (err as any).message || err);
+  } catch (err) {
+    console.error("Error fetching latest purchases:", err.message || err);
     res
       .status(500)
-      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
+      .json({ error: String(err && err.message ? err.message : err) });
   }
 });
 app.get("/api/purchases", requireAuth, async (req, res) => {
@@ -2194,9 +3602,9 @@ app.get("/api/purchases", requireAuth, async (req, res) => {
     }
     const snap = await q.get();
     const data = await Promise.all(
-      snap.docs.map(async (doc: any) => {
+      snap.docs.map(async (doc) => {
         const item = doc.data();
-        if (item.secretData && (item.secretData.startsWith("enc:") || item.secretData.startsWith("enc2:"))) {
+        if (item.secretData && item.secretData.startsWith("enc:")) {
           item.secretData = await decrypt(item.secretData);
         }
         return { dbId: doc.id, ...item };
@@ -2205,11 +3613,11 @@ app.get("/api/purchases", requireAuth, async (req, res) => {
     const nextCursor =
       snap.docs.length === limit ? snap.docs[snap.docs.length - 1].id : null;
     return res.json({ data, nextCursor });
-  } catch (err: any) {
-    console.error("Error fetching purchases:", (err as any).message || err);
+  } catch (err) {
+    console.error("Error fetching purchases:", err.message || err);
     res
       .status(500)
-      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
+      .json({ error: String(err && err.message ? err.message : err) });
   }
 });
 app.post("/api/purchases", requireAdmin, async (req, res) => {
@@ -2221,9 +3629,9 @@ app.post("/api/purchases", requireAdmin, async (req, res) => {
       const rawSecret = data.secretData || "";
       const keysList = rawSecret
         .split("\n")
-        .map((k: any) => k.trim())
+        .map((k) => k.trim())
         .filter(Boolean);
-      data.licenseKeyHashes = keysList.map((k: any) =>
+      data.licenseKeyHashes = keysList.map((k) =>
         crypto.createHash("sha256").update(k).digest("hex"),
       );
       data.secretData = await encrypt(data.secretData);
@@ -2235,11 +3643,11 @@ app.post("/api/purchases", requireAdmin, async (req, res) => {
       ...data,
       secretData: req.body.secretData,
     });
-  } catch (err: any) {
+  } catch (err) {
     console.error("Internal server error creating purchase:", err);
     res
       .status(500)
-      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
+      .json({ error: String(err && err.message ? err.message : err) });
   }
 });
 app.put("/api/purchases/:id", requireAdmin, async (req, res) => {
@@ -2260,7 +3668,7 @@ app.put("/api/purchases/:id", requireAdmin, async (req, res) => {
       const rawSecret = secretData || "";
       const keysList = rawSecret
         .split("\n")
-        .map((k: any) => k.trim())
+        .map((k) => k.trim())
         .filter(Boolean);
       // @ts-ignore
       payload.licenseKeyHashes = keysList.map((k) =>
@@ -2271,7 +3679,7 @@ app.put("/api/purchases/:id", requireAdmin, async (req, res) => {
     if (preOrderStatus !== void 0) payload.preOrderStatus = preOrderStatus;
     await docRef.update(payload);
     res.json({ success: true, id, ...payload, secretData });
-  } catch (err: any) {
+  } catch (err) {
     console.error("Error updating purchase:", err);
     res.status(500).json({ error: err.message || "Internal server error" });
   }
@@ -2300,7 +3708,7 @@ app.post("/api/discord-rekey", async (req, res) => {
       message: `\u0E40\u0E1E\u0E34\u0E48\u0E21\u0E04\u0E35\u0E22\u0E4C ${key} \u0E2A\u0E33\u0E40\u0E23\u0E47\u0E08!`,
       plan: newDoc.plan,
     });
-  } catch (error: any) {
+  } catch (error) {
     res.status(500).json({ error: "Internal server error while adding key" });
   }
 });
@@ -2383,15 +3791,15 @@ app.post("/api/discord-redeem", async (req, res) => {
       req,
       { key: req.body.key },
     );
-  } catch (e: any) {
+  } catch (e) {
     console.error(e);
     res
       .status(500)
-      .json({ error: (e as any)?.details || (e as any)?.message || "Internal server error" });
+      .json({ error: e?.details || e?.message || "Internal server error" });
   }
 });
 const productLocks = new Set();
-async function acquireMutex(key: any, timeoutMs = 15e3) {
+async function acquireMutex(key, timeoutMs = 15e3) {
   const start = Date.now();
   while (productLocks.has(key)) {
     if (Date.now() - start > timeoutMs) {
@@ -2403,35 +3811,577 @@ async function acquireMutex(key: any, timeoutMs = 15e3) {
   return true;
 }
 __name(acquireMutex, "acquireMutex");
-function releaseMutex(key: any) {
+function releaseMutex(key) {
   productLocks.delete(key);
 }
 __name(releaseMutex, "releaseMutex");
-async function acquireRedisLock(lockKey: any, ttlMs = 15e3) {
+async function acquireRedisLock(lockKey, ttlMs = 15e3) {
   if (!redis || redis.status !== "ready") return true;
   try {
     const result = await redis.set(lockKey, "locked", "PX", ttlMs, "NX");
     return result === "OK";
-  } catch (err: any) {
+  } catch (err) {
     return true;
   }
 }
 __name(acquireRedisLock, "acquireRedisLock");
-async function releaseRedisLock(lockKey: any) {
+async function releaseRedisLock(lockKey) {
   if (!redis) return;
   try {
     await redis.del(lockKey);
   } catch (_) {}
 }
 __name(releaseRedisLock, "releaseRedisLock");
-app.post("/api/buy", mutationLimiter, requireAuth, async (req, res, next) => {
-  next();
+app.post("/api/buy", mutationLimiter, requireAuth, async (req, res) => {
+  const buySchema = z.object({
+    productId: z.string().min(1, "Product ID is missing"),
+    quantity: z.preprocess((val) => parseInt((val || 0).toString(), 10), z.number().int().min(1, "ชื่อสินค้า หรือ จำนวนไม่ถูกต้อง").max(1000, "ซื้อได้สูงสุด 1,000 ชิ้น/ครั้ง"))
+  });
+
+  const parseResult = buySchema.safeParse(req.body);
+  if (!parseResult.success) {
+     return res.status(400).json({ error: parseResult.error.issues[0].message || "\u0E0A\u0E37\u0E48\u0E2D\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32 \u0E2B\u0E23\u0E37\u0E2D \u0E08\u0E33\u0E19\u0E27\u0E19\u0E44\u0E21\u0E48\u0E16\u0E39\u0E01\u0E15\u0E49\u0E2D\u0E07" });
+  }
+  const { productId, quantity } = parseResult.data;
+
+  const userId = req.user.uid;
+  const lockKey = `lock:product:${productId}`;
+  const localAcquired = await acquireMutex(lockKey, 15e3);
+  if (!localAcquired) {
+    return res
+      .status(429)
+      .json({
+        error:
+          "\u0E23\u0E30\u0E1A\u0E1A\u0E44\u0E21\u0E48\u0E27\u0E48\u0E32\u0E07 \u0E01\u0E23\u0E38\u0E13\u0E32\u0E14\u0E33\u0E40\u0E19\u0E34\u0E19\u0E01\u0E32\u0E23\u0E43\u0E2B\u0E21\u0E48\u0E2D\u0E35\u0E01\u0E04\u0E23\u0E31\u0E49\u0E07\u0E43\u0E19\u0E20\u0E32\u0E22\u0E2B\u0E25\u0E31\u0E07 (Mutex lock timeout)",
+      });
+  }
+  const redisAcquired = await acquireRedisLock(lockKey, 15e3);
+  if (!redisAcquired) {
+    releaseMutex(lockKey);
+    return res
+      .status(429)
+      .json({
+        error:
+          "\u0E23\u0E30\u0E1A\u0E1A\u0E2D\u0E22\u0E39\u0E48\u0E23\u0E30\u0E2B\u0E27\u0E48\u0E32\u0E07\u0E1B\u0E23\u0E30\u0E21\u0E27\u0E25\u0E1C\u0E25\u0E01\u0E32\u0E23\u0E2A\u0E31\u0E48\u0E07\u0E0B\u0E37\u0E49\u0E2D \u0E01\u0E23\u0E38\u0E13\u0E32\u0E23\u0E2D\u0E2A\u0E31\u0E01\u0E04\u0E23\u0E39\u0E48 (Redis lock occupied)",
+      });
+  }
+  try {
+    const userRef = admin.firestore().collection("users").doc(userId);
+    const productRef = admin.firestore().collection("products").doc(productId);
+    const purchasesRef = admin.firestore().collection("purchases").doc();
+    console.log(
+      "buy request for user",
+      userId,
+      "product",
+      productId,
+      "qty",
+      quantity,
+    );
+    const idempotencyKey = req.headers["idempotency-key"];
+    if (idempotencyKey) {
+      if (
+        typeof idempotencyKey !== "string" ||
+        !/^[a-zA-Z0-9_-]{1,128}$/.test(idempotencyKey)
+      ) {
+        return res
+          .status(400)
+          .json({
+            error:
+              "\u0E23\u0E39\u0E1B\u0E41\u0E1A\u0E1A Idempotency Key \u0E44\u0E21\u0E48\u0E16\u0E39\u0E01\u0E15\u0E49\u0E2D\u0E07",
+          });
+      }
+      try {
+        const exactDoc = await admin
+          .firestore()
+          .collection("idempotency_keys")
+          .doc(idempotencyKey)
+          .get();
+        if (!exactDoc.exists) {
+          if (Math.random() < 0.01) {
+            const oldKeysSnap = await admin
+              .firestore()
+              .collection("idempotency_keys")
+              .where(
+                "timestamp",
+                "<",
+                new Date(Date.now() - 24 * 60 * 60 * 1e3).toISOString(),
+              )
+              .limit(100)
+              .get();
+            await Promise.all(
+              oldKeysSnap.docs.map((doc) =>
+                admin
+                  .firestore()
+                  .collection("idempotency_keys")
+                  .doc(doc.id)
+                  .delete(),
+              ),
+            );
+          }
+          const recentIdempSnap = await admin
+            .firestore()
+            .collection("idempotency_keys")
+            .where("userId", "==", userId)
+            .get();
+          if (recentIdempSnap.docs.length >= 10) {
+            const docs = recentIdempSnap.docs.map((d) => ({
+              id: d.id,
+              ...d.data(),
+            }));
+            docs.sort(
+              (a, b) =>
+                new Date(a.timestamp || 0).getTime() -
+                new Date(b.timestamp || 0).getTime(),
+            );
+            const toDelete = docs.slice(0, docs.length - 8);
+            await Promise.all(
+              toDelete.map((doc) =>
+                admin
+                  .firestore()
+                  .collection("idempotency_keys")
+                  .doc(doc.id)
+                  .delete(),
+              ),
+            );
+          }
+        }
+      } catch (err) {
+        console.error("[Idempotency] Error handling limit:", err);
+      }
+    }
+    const result = await admin.firestore().runTransaction(async (t) => {
+      let idempRef;
+      let idempPromise = Promise.resolve(null);
+      if (idempotencyKey) {
+        idempRef = admin
+          .firestore()
+          .collection("idempotency_keys")
+      // @ts-ignore
+          .doc(idempotencyKey);
+        idempPromise = t.get(idempRef);
+      }
+      const [idempDoc, userDoc, productDoc] = await Promise.all([
+        idempPromise,
+        t.get(userRef),
+        t.get(productRef),
+      ]);
+      if (idempotencyKey && idempDoc && idempDoc.exists) {
+        return {
+          isCachedIdempotency: true,
+          payload: idempDoc.data()?.response,
+        };
+      }
+      if (!userDoc.exists) {
+        return { isError: true, message: "User not found" };
+      }
+      if (!productDoc.exists) {
+        return { isError: true, message: "Product not found" };
+      }
+      const userData = userDoc.data() || {};
+      const productData = productDoc.data() || {};
+      const price = Number(productData.price) || 0;
+      const totalCost = price * quantity;
+      if ((Number(userData.balance) || 0) < totalCost) {
+        return {
+          isError: true,
+          message:
+            "\u0E22\u0E2D\u0E14\u0E40\u0E07\u0E34\u0E19\u0E44\u0E21\u0E48\u0E40\u0E1E\u0E35\u0E22\u0E07\u0E1E\u0E2D",
+        };
+      }
+      if (
+        !productData.isPreOrder &&
+        quantity > (Number(productData.stock) || 0)
+      ) {
+        return {
+          isError: true,
+          message:
+            "\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32\u0E43\u0E19\u0E2A\u0E15\u0E4A\u0E2D\u0E01\u0E44\u0E21\u0E48\u0E40\u0E1E\u0E35\u0E22\u0E07\u0E1E\u0E2D",
+        };
+      }
+      let claimedItems = [];
+      let chunkDocsToUpdate = [];
+      let chunkDocsToDelete = [];
+      let remainingBuffer = [];
+      if (productData.isPreOrder) {
+        claimedItems = [];
+      } else {
+        let existingStock = productData.stockData;
+        if (existingStock) {
+          existingStock = await decompressStock(existingStock);
+        }
+        if (!Array.isArray(existingStock)) {
+          existingStock = [];
+        }
+        if (existingStock.length > 0) {
+          const needed = quantity;
+          const taken = existingStock.splice(0, needed);
+          claimedItems.push(...taken);
+        }
+        if (claimedItems.length < quantity) {
+          const chunksQuery = admin
+            .firestore()
+            .collection("product_stock_chunks")
+            .where("productId", "==", productId);
+          const chunksSnap = await t.get(chunksQuery);
+          for (const chunkDoc of chunksSnap.docs) {
+            if (claimedItems.length >= quantity) break;
+            let chunkItems = chunkDoc.data().items;
+            if (chunkItems) {
+              chunkItems = await decompressStock(chunkItems);
+            }
+            if (!Array.isArray(chunkItems)) chunkItems = [];
+            if (chunkItems.length > 0) {
+              const needed = quantity - claimedItems.length;
+              const taken = chunkItems.splice(0, needed);
+              claimedItems.push(...taken);
+              if (chunkItems.length > 0) {
+                chunkDocsToUpdate.push({
+                  ref: chunkDoc.ref,
+                  remainingItems: chunkItems,
+                });
+              } else {
+                chunkDocsToDelete.push(chunkDoc.ref);
+              }
+            } else {
+              chunkDocsToDelete.push(chunkDoc.ref);
+            }
+          }
+        }
+        if (claimedItems.length < quantity) {
+          const actualRealStock = existingStock.length + claimedItems.length;
+          t.update(productRef, { stock: actualRealStock });
+          return {
+            isError: true,
+            message:
+              "\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32\u0E43\u0E19\u0E2A\u0E15\u0E4A\u0E2D\u0E01\u0E44\u0E21\u0E48\u0E40\u0E1E\u0E35\u0E22\u0E07\u0E1E\u0E2D",
+          };
+        }
+        remainingBuffer = existingStock;
+      }
+      const newBalance = (Number(userData.balance) || 0) - totalCost;
+      const newHistoryItem = {
+        id: purchasesRef.id,
+        userId,
+        username:
+          userData.username ||
+          (req.user && req.user.email
+            ? req.user.email.split("@")[0]
+            : "Unknown"),
+        productId,
+        productName: req.body.preOrderOption
+          ? `${productData.name || "Unknown Product"} [${req.body.preOrderOption}] (x${quantity})`
+          : `${productData.name || "Unknown Product"} (x${quantity})`,
+        product_name: productData.name || "Unknown Product",
+        quantity,
+        price: totalCost,
+        secretData: productData.isPreOrder
+          ? "\u0E23\u0E30\u0E1A\u0E1A\u0E2D\u0E22\u0E39\u0E48\u0E23\u0E30\u0E2B\u0E27\u0E48\u0E32\u0E07\u0E01\u0E33\u0E25\u0E31\u0E07\u0E08\u0E31\u0E14\u0E2B\u0E32\u0E44\u0E2D\u0E14\u0E35\u0E43\u0E2B\u0E49\u0E17\u0E48\u0E32\u0E19..."
+          : claimedItems.join("\n"),
+        date: new Date().toISOString(),
+        billNumber:
+          "B-" +
+          Date.now().toString(36).toUpperCase() +
+          crypto.randomBytes(4).toString("hex").toUpperCase(),
+        is_special: false,
+      };
+      if (productData.isPreOrder) {
+      // @ts-ignore
+        newHistoryItem.isPreOrder = true;
+      // @ts-ignore
+        newHistoryItem.preOrderOption = req.body.preOrderOption || "";
+      // @ts-ignore
+        newHistoryItem.preOrderStatus = "pending";
+      }
+      const userUpdatePayload = JSON.parse(
+        JSON.stringify({ balance: newBalance }),
+      );
+      const finalProductStock = productData.isPreOrder
+        ? productData.stock !== void 0
+          ? Math.max(0, (Number(productData.stock) || 0) - quantity)
+          : 0
+        : (Number(productData.stock) || 0) - quantity;
+      const productUpdatePayload = {
+        ...productData,
+        stock: finalProductStock,
+        soldCount: (Number(productData.soldCount) || 0) + quantity,
+      };
+      if (!productData.isPreOrder) {
+        productUpdatePayload.stockData = await compressStock(
+          remainingBuffer.filter((v) => v !== void 0 && v !== null),
+        );
+      }
+      const keysList = productData.isPreOrder
+        ? []
+        : claimedItems.map((k) => String(k).trim()).filter(Boolean);
+      const licenseKeyHashes = keysList.map((k) =>
+        crypto.createHash("sha256").update(k).digest("hex"),
+      );
+      const encryptedSecretData = await encrypt(newHistoryItem.secretData || "");
+      const historyPayload = JSON.parse(
+        JSON.stringify({
+          ...newHistoryItem,
+          secretData: encryptedSecretData,
+          licenseKeyHashes,
+        }),
+      );
+      for (const update of chunkDocsToUpdate) {
+        t.update(update.ref, {
+          items: await compressStock(update.remainingItems),
+        });
+      }
+      for (const delRef of chunkDocsToDelete) {
+        t.delete(delRef);
+      }
+      t.update(userRef, userUpdatePayload);
+      t.update(productRef, productUpdatePayload);
+      t.set(purchasesRef, historyPayload);
+      const { stockData: _omittedStock, ...safeProductData } = productData;
+      const resultPayload = {
+        purchase: newHistoryItem,
+        updatedUser: { ...userData, balance: newBalance },
+        updatedProduct: {
+          id: productId,
+          ...safeProductData,
+          stock: finalProductStock,
+          soldCount: (productData.soldCount || 0) + quantity,
+        },
+      };
+      if (idempRef) {
+        t.set(idempRef, {
+          response: resultPayload,
+          timestamp: new Date().toISOString(),
+          userId,
+        });
+      }
+      return resultPayload;
+    });
+    if (result.isCachedIdempotency) {
+      return res.json({ success: true, ...result.payload });
+    }
+    if (result.isError) {
+      console.warn(
+        `[Buy] Purchase validation failed: User ${userId}, Product ${productId}, Quantity ${quantity}. Message: ${result.message}`,
+      );
+      return res.status(400).json({ error: result.message });
+    }
+    invalidateCache("products");
+    invalidateCache("purchases");
+    invalidateStatsCache();
+    writeAuditLog("PRODUCT_PURCHASE", userId, productId, req, {
+      quantity,
+      totalCost: result.purchase.price,
+      billNumber: result.purchase.billNumber,
+    });
+    res.json({
+      success: true,
+      purchase: result.purchase,
+      updatedUser: result.updatedUser,
+      updatedProduct: result.updatedProduct,
+    });
+  } catch (err) {
+    const msg = err.message || "";
+    console.error("------- BUY ERROR TRACE -------", err);
+    sendAlert(
+      "Transaction Failed / Rollback \u274C",
+      `**User**: ${userId}
+**Product**: ${productId}
+**Error**: ${msg}`,
+      16711680,
+      req.id,
+    );
+    res
+      .status(500)
+      .json({ error: String(err && err.message ? err.message : err) });
+  } finally {
+    releaseMutex(lockKey);
+    await releaseRedisLock(lockKey);
+  }
 });
-app.get("/api/topups", requireAuth, async (req, res, next) => {
-  next();
+app.get("/api/topups", requireAuth, async (req, res) => {
+  try {
+    const adminDb = admin.firestore();
+    let q = adminDb.collection("topups");
+    if (req.isAdmin) {
+      const snapshot = await q.limit(100).get();
+      let data = snapshot.docs.map((doc) => ({ dbId: doc.id, ...doc.data() }));
+      data.sort(
+        (a, b) =>
+          new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime(),
+      );
+      return res.json(data);
+    } else if (req.user) {
+      const [snapByUid, snapByUserId] = await Promise.all([
+        adminDb
+          .collection("topups")
+          .where("uid", "==", req.user.uid)
+          .limit(100)
+          .get()
+          .catch(() => null),
+        adminDb
+          .collection("topups")
+          .where("userId", "==", req.user.uid)
+          .limit(100)
+          .get()
+          .catch(() => null),
+      ]);
+      const seen = new Set();
+      let data = [];
+      for (const snap of [snapByUid, snapByUserId]) {
+        if (!snap) continue;
+        for (const doc of snap.docs) {
+          if (!seen.has(doc.id)) {
+            seen.add(doc.id);
+            data.push({ dbId: doc.id, ...doc.data() });
+          }
+        }
+      }
+      data.sort(
+        (a, b) =>
+          new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime(),
+      );
+      return res.json(data.slice(0, 100));
+    } else {
+      return res.json([]);
+    }
+  } catch (err) {
+    console.error("Internal server error fetching topups:", err.message || err);
+    res
+      .status(500)
+      .json({ error: String(err && err.message ? err.message : err) });
+  }
 });
-app.post("/api/topups", requireAdmin, async (req, res, next) => {
-  next();
+app.post("/api/topups", requireAdmin, async (req, res) => {
+  if (!admin.firestore())
+    return res.status(500).json({ error: "DB not connected" });
+
+  const topupSchema = z.object({
+    amount: z.coerce.number().min(1, "จำนวนเงินต้องมากกว่า 0"),
+    method: z.enum(["truemoney", "promptpay", "bank_transfer", "giftcode"]).optional(), // Ensure this matches what is expected
+    // add other fields loosely or strictly as needed, fallback passing through
+  }).passthrough();
+
+  try {
+    const parseResult = topupSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      return res.status(400).json({ error: parseResult.error.issues[0].message });
+    }
+    const data = parseResult.data;
+    const docRef = await admin.firestore().collection("topups").add(data);
+    res.json({ id: docRef.id, dbId: docRef.id, ...data });
+  } catch (err) {
+    console.error("Internal server error creating topup:", err);
+    res
+      .status(500)
+      .json({ error: String(err && err.message ? err.message : err) });
+  }
+});
+app.get("/api/categories", async (req, res) => {
+  res.setHeader(
+    "Cache-Control",
+    "no-store, no-cache, must-revalidate, proxy-revalidate",
+  );
+  try {
+    const data = await getCachedCollection("categories", 1e4, res, req);
+    if (data) res.json(data);
+  } catch (err) {
+    console.error(
+      "Internal server error fetching categories:",
+      err.message || err,
+    );
+    res
+      .status(500)
+      .json({ error: String(err && err.message ? err.message : err) });
+  }
+});
+app.post("/api/categories", requireAdmin, async (req, res) => {
+  if (!admin.firestore())
+    return res.status(500).json({ error: "DB not connected" });
+  try {
+    const data = req.body;
+    const { id, ...dataToSave } = data;
+    const docRef = await admin
+      .firestore()
+      .collection("categories")
+      .add(dataToSave);
+    invalidateCache("categories");
+    res.json({ id: docRef.id, dbId: docRef.id, ...dataToSave });
+  } catch (err) {
+    console.error("Internal server error creating category:", err);
+    res
+      .status(500)
+      .json({ error: String(err && err.message ? err.message : err) });
+  }
+});
+app.put("/api/categories/:id", requireAdmin, async (req, res) => {
+  if (!admin.firestore())
+    return res.status(500).json({ error: "DB not connected" });
+  try {
+    const data = req.body;
+    const { id, ...dataToSave } = data;
+    const docRef = admin
+      .firestore()
+      .collection("categories")
+      .doc(req.params.id);
+    await docRef.update(dataToSave);
+    invalidateCache("categories");
+    res.json({ id: req.params.id, ...dataToSave });
+  } catch (err) {
+    console.error("Internal server error updating category:", err);
+    res
+      .status(500)
+      .json({ error: String(err && err.message ? err.message : err) });
+  }
+});
+app.put("/api/products/bulk/category", requireAdmin, async (req, res) => {
+  try {
+    const { idsToAdd, idsToRemove, categoryId } = req.body;
+    const updatePromises = [];
+    if (Array.isArray(idsToAdd)) {
+      for (const id of idsToAdd) {
+        updatePromises.push(
+          admin
+            .firestore()
+            .collection("products")
+            .doc(id)
+            .update({ category: categoryId }),
+        );
+      }
+    }
+    if (Array.isArray(idsToRemove)) {
+      for (const id of idsToRemove) {
+        updatePromises.push(
+          admin
+            .firestore()
+            .collection("products")
+            .doc(id)
+            .update({ category: "" }),
+        );
+      }
+    }
+    await Promise.all(updatePromises);
+    invalidateCache("products");
+    res.json({ success: true });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+app.delete("/api/categories/:id", requireAdmin, async (req, res) => {
+  if (!admin.firestore())
+    return res.status(500).json({ error: "DB not connected" });
+  try {
+    await admin
+      .firestore()
+      .collection("categories")
+      .doc(req.params.id)
+      .delete();
+    invalidateCache("categories");
+    res.json({ success: true });
+  } catch (err) {
+    console.error("Internal server error deleting category:", err);
+    res
+      .status(500)
+      .json({ error: String(err && err.message ? err.message : err) });
+  }
 });
 app.get("/api/pages", async (req, res) => {
   res.setHeader(
@@ -2441,11 +4391,11 @@ app.get("/api/pages", async (req, res) => {
   try {
     const data = await getCachedCollection("custom_pages", 1e4, res, req);
     if (data) res.json(data);
-  } catch (err: any) {
-    console.error("Internal server error fetching pages:", (err as any).message || err);
+  } catch (err) {
+    console.error("Internal server error fetching pages:", err.message || err);
     res
       .status(500)
-      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
+      .json({ error: String(err && err.message ? err.message : err) });
   }
 });
 app.post("/api/pages", requireAdmin, async (req, res) => {
@@ -2460,11 +4410,11 @@ app.post("/api/pages", requireAdmin, async (req, res) => {
       .add({ ...dataToSave, created_at: new Date().toISOString() });
     invalidateCache("custom_pages");
     res.json({ id: docRef.id, dbId: docRef.id, ...dataToSave });
-  } catch (err: any) {
+  } catch (err) {
     console.error("Internal server error creating page:", err);
     res
       .status(500)
-      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
+      .json({ error: String(err && err.message ? err.message : err) });
   }
 });
 app.put("/api/pages/:id", requireAdmin, async (req, res) => {
@@ -2480,11 +4430,11 @@ app.put("/api/pages/:id", requireAdmin, async (req, res) => {
     await docRef.update(dataToSave);
     invalidateCache("custom_pages");
     res.json({ id: req.params.id, ...dataToSave });
-  } catch (err: any) {
+  } catch (err) {
     console.error("Internal server error updating page:", err);
     res
       .status(500)
-      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
+      .json({ error: String(err && err.message ? err.message : err) });
   }
 });
 app.delete("/api/pages/:id", requireAdmin, async (req, res) => {
@@ -2498,11 +4448,11 @@ app.delete("/api/pages/:id", requireAdmin, async (req, res) => {
       .delete();
     invalidateCache("custom_pages");
     res.json({ success: true });
-  } catch (err: any) {
+  } catch (err) {
     console.error("Internal server error deleting page:", err);
     res
       .status(500)
-      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
+      .json({ error: String(err && err.message ? err.message : err) });
   }
 });
 let memoryLogSystemData = { categories: [], items: [] };
@@ -2519,7 +4469,7 @@ app.get("/api/logs-system", injectUser, async (req, res) => {
         const d = doc.data();
         dbData = d?.data;
       }
-    } catch (e: any) {
+    } catch (e) {
       console.error("Caught error:", e);
     }
     let payload = dbData || memoryLogSystemData;
@@ -2545,13 +4495,13 @@ app.get("/api/logs-system", injectUser, async (req, res) => {
             .get();
           if (adminDoc.exists) isVip = true;
         }
-      } catch (e: any) {
+      } catch (e) {
         console.error("Caught error:", e);
       }
     }
     if (!isVip) {
       if (Array.isArray(payload.items)) {
-        payload.items = payload.items.map((item: any) => {
+        payload.items = payload.items.map((item) => {
           if (item.type === "premium") {
             return { ...item, attachments: [] };
           }
@@ -2560,10 +4510,10 @@ app.get("/api/logs-system", injectUser, async (req, res) => {
       }
     }
     res.json({ ...payload, isVip });
-  } catch (err: any) {
+  } catch (err) {
     res
       .status(500)
-      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
+      .json({ error: String(err && err.message ? err.message : err) });
   }
 });
 app.post("/api/logs-system", requireAdmin, async (req, res) => {
@@ -2578,18 +4528,18 @@ app.post("/api/logs-system", requireAdmin, async (req, res) => {
           .doc("log_system_data")
           .set({ data }, { merge: false });
       }
-    } catch (e: any) {
+    } catch (e) {
       console.warn(
         "Failed to save log system data to DB, keeping in memory:",
-        (e as any)?.message,
+        e.message,
       );
     }
     res.json({ success: true });
-  } catch (err: any) {
+  } catch (err) {
     console.error("Internal server error saving log system data:", err);
     res
       .status(500)
-      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
+      .json({ error: String(err && err.message ? err.message : err) });
   }
 });
 app.get("/api/license_keys", requireAdmin, async (req, res) => {
@@ -2605,22 +4555,22 @@ app.get("/api/license_keys", requireAdmin, async (req, res) => {
       .limit(limit)
       .offset(offset);
     const snapshot = await q.get();
-    const data = snapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() }));
+    const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
     await new Promise((r) => setTimeout(r, 0));
     data.sort(
-      (a: any, b: any) =>
+      (a, b) =>
         new Date(b.created_at || 0).getTime() -
         new Date(a.created_at || 0).getTime(),
     );
     res.json(data);
-  } catch (err: any) {
+  } catch (err) {
     console.error(
       "Internal server error fetching license_keys:",
-      (err as any).message || err,
+      err.message || err,
     );
     res
       .status(500)
-      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
+      .json({ error: String(err && err.message ? err.message : err) });
   }
 });
 app.post("/api/license_keys", requireAdmin, async (req, res) => {
@@ -2632,11 +4582,11 @@ app.post("/api/license_keys", requireAdmin, async (req, res) => {
       .collection("license_keys")
       .add(newDoc);
     res.json({ id: docRef.id, dbId: docRef.id, ...newDoc });
-  } catch (err: any) {
+  } catch (err) {
     console.error("Internal server error inserting license_key:", err);
     res
       .status(500)
-      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
+      .json({ error: String(err && err.message ? err.message : err) });
   }
 });
 app.delete("/api/license_keys/:id", requireAdmin, async (req, res) => {
@@ -2647,11 +4597,11 @@ app.delete("/api/license_keys/:id", requireAdmin, async (req, res) => {
       .doc(req.params.id)
       .delete();
     res.json({ success: true });
-  } catch (err: any) {
+  } catch (err) {
     console.error("Internal server error deleting license_key:", err);
     res
       .status(500)
-      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
+      .json({ error: String(err && err.message ? err.message : err) });
   }
 });
 app.post("/api/license_keys/bulk_delete", requireAdmin, async (req, res) => {
@@ -2665,11 +4615,11 @@ app.post("/api/license_keys/bulk_delete", requireAdmin, async (req, res) => {
       ),
     );
     res.json({ success: true, deletedCount: ids.length });
-  } catch (err: any) {
+  } catch (err) {
     console.error("Internal server error bulk deleting license_keys:", err);
     res
       .status(500)
-      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
+      .json({ error: String(err && err.message ? err.message : err) });
   }
 });
 app.patch("/api/license_keys/:id", requireAdmin, async (req, res) => {
@@ -2681,11 +4631,11 @@ app.patch("/api/license_keys/:id", requireAdmin, async (req, res) => {
       .doc(req.params.id);
     await docRef.update({ status });
     res.json({ id: req.params.id, status });
-  } catch (err: any) {
+  } catch (err) {
     console.error("Internal server error updating license_key:", err);
     res
       .status(500)
-      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
+      .json({ error: String(err && err.message ? err.message : err) });
   }
 });
 app.post("/api/license_keys/bulk", requireAdmin, async (req, res) => {
@@ -2700,7 +4650,7 @@ app.post("/api/license_keys/bulk", requireAdmin, async (req, res) => {
         .json({ error: "Maximum 500 keys per bulk insert" });
     }
     const results = await Promise.all(
-      keys.map(async (k: any) => {
+      keys.map(async (k) => {
         const docRef = await admin
           .firestore()
           .collection("license_keys")
@@ -2709,11 +4659,11 @@ app.post("/api/license_keys/bulk", requireAdmin, async (req, res) => {
       }),
     );
     res.json(results);
-  } catch (err: any) {
+  } catch (err) {
     console.error("Internal server error bulk inserting license_keys:", err);
     res
       .status(500)
-      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
+      .json({ error: String(err && err.message ? err.message : err) });
   }
 });
 app.get("/api/validate_key/:key", requireAuth, async (req, res) => {
@@ -2728,16 +4678,82 @@ app.get("/api/validate_key/:key", requireAuth, async (req, res) => {
       return res.status(404).json({ valid: false, error: "Key not found" });
     }
     res.json({ valid: true });
-  } catch (err: any) {
+  } catch (err) {
     console.error("Internal server error validating key:", err);
     res.status(500).json({ valid: false, error: "Internal error" });
   }
 });
-app.get("/api/used_keys", requireAuth, async (req, res, next) => {
-  next();
+app.get("/api/used_keys", requireAuth, async (req, res) => {
+  try {
+    const db = admin.firestore();
+    let q = db.collection("used_keys");
+    const targetUID = typeof req.query.uid === 'string' ? req.query.uid : undefined;
+    let needsSortInMemory = false;
+    if (req.isAdmin) {
+      if (targetUID) {
+        q = q.where("uid", "==", targetUID);
+        needsSortInMemory = true;
+        q = q.limit(100);
+      } else {
+        q = q.limit(100);
+        needsSortInMemory = true;
+      }
+    } else if (req.user) {
+      q = q.where("uid", "==", req.user.uid).limit(100);
+      needsSortInMemory = true;
+    } else {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+    const snapshot = await q.get();
+    let data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    if (needsSortInMemory) {
+      data.sort((a, b) => {
+        const dateA = new Date(a.used_at || 0).getTime();
+        const dateB = new Date(b.used_at || 0).getTime();
+        return dateB - dateA;
+      });
+      data = data.slice(0, 100);
+    }
+    res.json(data);
+  } catch (err) {
+    console.error(
+      "Internal server error fetching used_keys:",
+      err.message || err,
+    );
+    res
+      .status(500)
+      .json({ error: String(err && err.message ? err.message : err) });
+  }
 });
-app.post("/api/used_keys", requireAdmin, async (req, res, next) => {
-  next();
+app.post("/api/used_keys", requireAdmin, async (req, res) => {
+  const usedKeySchema = z.object({
+    key: z.string().min(1, "Key is required"),
+    ip: z.string().min(1, "IP is required"),
+    details: z.any().optional(),
+    uid: z.union([z.string().uuid("Invalid UID format"), z.literal("")]).optional().nullable(),
+  });
+
+  try {
+    const parseResult = usedKeySchema.safeParse(req.body);
+    if (!parseResult.success) {
+      return res.status(400).json({ error: parseResult.error.issues[0].message });
+    }
+    const { key, ip, details, uid } = parseResult.data;
+    const newDoc = {
+      key,
+      ip,
+      details,
+      uid: uid || null,
+      used_at: new Date().toISOString(),
+    };
+    const docRef = await admin.firestore().collection("used_keys").add(newDoc);
+    res.json({ id: docRef.id, dbId: docRef.id, ...newDoc });
+  } catch (err) {
+    console.error("Internal server error inserting used_key:", err);
+    res
+      .status(500)
+      .json({ error: String(err && err.message ? err.message : err) });
+  }
 });
 app.get("/api/blocked_ips", requireAdmin, async (req, res) => {
   try {
@@ -2746,21 +4762,21 @@ app.get("/api/blocked_ips", requireAdmin, async (req, res) => {
       .collection("blocked_ips")
       .limit(500)
       .get();
-    const data = snapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() }));
+    const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
     data.sort(
-      (a: any, b: any) =>
+      (a, b) =>
         new Date(b.blocked_at || 0).getTime() -
         new Date(a.blocked_at || 0).getTime(),
     );
     res.json(data);
-  } catch (err: any) {
+  } catch (err) {
     console.error(
       "Internal server error fetching blocked_ips:",
-      (err as any).message || err,
+      err.message || err,
     );
     res
       .status(500)
-      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
+      .json({ error: String(err && err.message ? err.message : err) });
   }
 });
 app.post("/api/blocked_ips", requireAdmin, async (req, res) => {
@@ -2770,11 +4786,11 @@ app.post("/api/blocked_ips", requireAdmin, async (req, res) => {
     const docRef = admin.firestore().collection("blocked_ips").doc(ip);
     await docRef.set(newDoc);
     res.json({ id: ip, ...newDoc });
-  } catch (err: any) {
+  } catch (err) {
     console.error("Internal server error upserting blocked_ip:", err);
     res
       .status(500)
-      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
+      .json({ error: String(err && err.message ? err.message : err) });
   }
 });
 app.delete("/api/blocked_ips/:ip", requireAdmin, async (req, res) => {
@@ -2785,11 +4801,11 @@ app.delete("/api/blocked_ips/:ip", requireAdmin, async (req, res) => {
       .doc(req.params.ip)
       .delete();
     res.json({ success: true });
-  } catch (err: any) {
+  } catch (err) {
     console.error("Internal server error deleting blocked_ip:", err);
     res
       .status(500)
-      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
+      .json({ error: String(err && err.message ? err.message : err) });
   }
 });
 app.get("/api/check_ip/:ip", requireAdmin, async (req, res) => {
@@ -2800,24 +4816,84 @@ app.get("/api/check_ip/:ip", requireAdmin, async (req, res) => {
       .doc(req.params.ip)
       .get();
     res.json({ blocked: !!doc.exists });
-  } catch (err: any) {
+  } catch (err) {
     console.error("Internal server error checking IP:", err);
     res
       .status(500)
-      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
+      .json({ error: String(err && err.message ? err.message : err) });
   }
 });
-app.get("/api/api_keys", requireAdmin, async (req, res, next) => {
-  next();
+app.get("/api/api_keys", requireAdmin, async (req, res) => {
+  try {
+    const snapshot = await admin
+      .firestore()
+      .collection("api_keys")
+      .limit(500)
+      .get();
+    const keys = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    keys.sort(
+      (a, b) =>
+        new Date(b.created_at || 0).getTime() -
+        new Date(a.created_at || 0).getTime(),
+    );
+    res.json(keys);
+  } catch (err) {
+    console.error("API Keys fetch error:", err);
+    res
+      .status(500)
+      .json({ error: String(err && err.message ? err.message : err) });
+  }
 });
-app.post("/api/api_keys", requireAdmin, async (req, res, next) => {
-  next();
+app.post("/api/api_keys", requireAdmin, async (req, res) => {
+  try {
+    const { name, is_lifetime, expire_days } = req.body;
+    const keyString = "apx_" + crypto.randomBytes(16).toString("hex");
+    const now = new Date();
+    let expires_at = null;
+    if (!is_lifetime && expire_days) {
+      now.setDate(now.getDate() + parseInt(expire_days));
+      expires_at = now.toISOString();
+    }
+    const newKey = {
+      key: keyString,
+      name: name || "Unnamed Key",
+      status: "active",
+      created_at: new Date().toISOString(),
+      expires_at,
+      last_used: null,
+    };
+    await admin.firestore().collection("api_keys").doc(keyString).set(newKey);
+    res.json(newKey);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: String(err && err.message ? err.message : err) });
+  }
 });
-app.delete("/api/api_keys/:key", requireAdmin, async (req, res, next) => {
-  next();
+app.delete("/api/api_keys/:key", requireAdmin, async (req, res) => {
+  try {
+    await admin.firestore().collection("api_keys").doc(req.params.key).delete();
+    res.json({ success: true });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: String(err && err.message ? err.message : err) });
+  }
 });
-app.patch("/api/api_keys/:key", requireAdmin, async (req, res, next) => {
-  next();
+app.patch("/api/api_keys/:key", requireAdmin, async (req, res) => {
+  try {
+    const { status } = req.body;
+    await admin
+      .firestore()
+      .collection("api_keys")
+      .doc(req.params.key)
+      .update({ status });
+    res.json({ success: true, status });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: String(err && err.message ? err.message : err) });
+  }
 });
 app.post("/api/admins", requireAdmin, async (req, res) => {
   try {
@@ -2827,14 +4903,14 @@ app.post("/api/admins", requireAdmin, async (req, res) => {
     await docRef.set(newDoc);
     invalidateUserTokenCache(username);
     res.json({ id: username, ...newDoc });
-  } catch (err: any) {
+  } catch (err) {
     console.error("Internal server error upserting admin:", err);
     res
       .status(500)
-      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
+      .json({ error: String(err && err.message ? err.message : err) });
   }
 });
-let communityData: any = {
+let communityData = {
   categories: [],
   channels: [],
   messages: [],
@@ -2854,7 +4930,7 @@ let communityData: any = {
         if (!communityData.userRanks) communityData.userRanks = {};
       }
     }
-  } catch (e: any) {
+  } catch (e) {
     console.warn("Could not load communityData from Firestore:", e);
   }
 })();
@@ -2865,7 +4941,7 @@ const saveCommunity = __name(async () => {
       .collection("settings")
       .doc("community_data")
       .set({ data: communityData }, { merge: false });
-  } catch (e: any) {
+  } catch (e) {
     console.warn("Could not save communityData to Firestore:", e);
   }
 }, "saveCommunity");
@@ -2888,29 +4964,250 @@ if (communityData.categories.length === 0) {
   });
   saveCommunity();
 }
-app.post("/api/redeem", mutationLimiter, requireAuth, async (req, res, next) => {
-  next();
+app.post("/api/redeem", mutationLimiter, requireAuth, async (req, res) => {
+  const { key } = req.body;
+  if (!key || typeof key !== "string" || key.trim().length < 8) {
+    return res
+      .status(400)
+      .json({
+        error:
+          "\u0E23\u0E39\u0E1B\u0E41\u0E1A\u0E1A\u0E04\u0E35\u0E22\u0E4C\u0E44\u0E21\u0E48\u0E16\u0E39\u0E01\u0E15\u0E49\u0E2D\u0E07\u0E2B\u0E23\u0E37\u0E2D\u0E2A\u0E31\u0E49\u0E19\u0E40\u0E01\u0E34\u0E19\u0E44\u0E1B (\u0E04\u0E27\u0E32\u0E21\u0E22\u0E32\u0E27\u0E2D\u0E22\u0E48\u0E32\u0E07\u0E19\u0E49\u0E2D\u0E22 8 \u0E15\u0E31\u0E27\u0E2D\u0E31\u0E01\u0E29\u0E23)",
+      });
+  }
+  try {
+    const uid = req.user.uid;
+    let keyData = null;
+    let keyDocRef = null;
+    let isProductKey = false;
+    const snapshot = await admin
+      .firestore()
+      .collection("license_keys")
+      .where("key", "==", key)
+      .where("status", "==", "active")
+      .get();
+    if (!snapshot.docs || snapshot.docs.length === 0) {
+      let foundDoc = await findPurchaseByWebClaimKey(key);
+      if (!foundDoc) {
+        return res
+          .status(400)
+          .json({
+            error:
+              "\u0E44\u0E21\u0E48\u0E1E\u0E1A\u0E04\u0E35\u0E22\u0E4C\u0E43\u0E19\u0E23\u0E30\u0E1A\u0E1A \u0E2B\u0E23\u0E37\u0E2D\u0E04\u0E35\u0E22\u0E4C\u0E19\u0E35\u0E49\u0E16\u0E39\u0E01\u0E43\u0E0A\u0E49\u0E07\u0E32\u0E19\u0E44\u0E1B\u0E41\u0E25\u0E49\u0E27",
+          });
+      }
+      isProductKey = true;
+      keyData = foundDoc;
+      keyDocRef = admin.firestore().collection("purchases").doc(foundDoc.id);
+    } else {
+      keyData = snapshot.docs[0].data();
+      keyDocRef = admin
+        .firestore()
+        .collection("license_keys")
+        .doc(snapshot.docs[0].id);
+    }
+    let rankToGive = "premium";
+    let expireDate = new Date();
+    await admin.firestore().runTransaction(async (t) => {
+      const docSnap = await t.get(keyDocRef);
+      if (!docSnap.exists) throw new Error("Key not found");
+      const docData = docSnap.data();
+      if (isProductKey) {
+        if (docData.webClaimed) throw new Error("Key already used");
+        t.update(keyDocRef, { webClaimed: true });
+      } else {
+        if (docData.status === "used") throw new Error("Key already used");
+        t.update(keyDocRef, { status: "used" });
+      }
+    });
+    if (isProductKey) {
+      rankToGive = keyData.productName?.replace(/ \(.+\)/g, "") || "VIP";
+      await admin
+        .firestore()
+        .collection("used_keys")
+        .add({
+          key,
+          ip: req.ip || "",
+          uid,
+          details: `Redeemed product rank ${rankToGive}`,
+          used_at: new Date().toISOString(),
+        });
+      expireDate.setDate(expireDate.getDate() + 9999);
+    } else {
+      await admin
+        .firestore()
+        .collection("used_keys")
+        .add({
+          key,
+          ip: req.ip || "",
+          uid,
+          details: `Redeemed rank ${keyData.type}`,
+          used_at: new Date().toISOString(),
+        });
+      let days = 1;
+      if (keyData.type === "Week") days = 7;
+      if (keyData.type === "Month") days = 30;
+      if (keyData.type === "3Month") days = 90;
+      if (keyData.type === "Year") days = 365;
+      if (keyData.type === "Lifetime") days = 9999;
+      expireDate.setDate(expireDate.getDate() + days);
+    }
+    communityData.userRanks = communityData.userRanks || {};
+    communityData.userRanks[uid] = rankToGive;
+    saveCommunity();
+    await admin
+      .firestore()
+      .collection("users")
+      .doc(uid)
+      .set(
+        {
+          isPremium: true,
+          rank: rankToGive,
+          premiumExpireDate: expireDate.toISOString(),
+        },
+        { merge: true },
+      );
+    res.json({
+      success: true,
+      rank: rankToGive,
+      type: isProductKey ? "Product Rank" : keyData.type,
+    });
+  } catch (e) {
+    res
+      .status(500)
+      .json({
+        error:
+          e.message === "Key already used"
+            ? "\u0E04\u0E35\u0E22\u0E4C\u0E16\u0E39\u0E01\u0E43\u0E0A\u0E49\u0E07\u0E32\u0E19\u0E44\u0E1B\u0E41\u0E25\u0E49\u0E27"
+            : e.message,
+      });
+  }
 });
-app.get("/api/users/:uid", requireAuth, async (req, res, next) => {
-  next();
+app.get("/api/users/:uid", requireAuth, async (req, res) => {
+  if (req.user.uid !== req.params.uid && !req.isAdmin) {
+    return res.status(403).json({ error: "Forbidden" });
+  }
+  if (!admin.firestore())
+    return res.status(500).json({ error: "DB not connected" });
+  try {
+    const docRef = admin.firestore().collection("users").doc(req.params.uid);
+    const snapshot = await docRef.get();
+    if (snapshot.exists) {
+      const data = snapshot.data();
+      data.rank =
+        communityData.userRanks?.[req.params.uid] || data.rank || "user";
+      res.json(data);
+    } else {
+      res.status(404).json({ error: "User not found" });
+    }
+  } catch (err) {
+    console.error("Error fetching user:", err);
+    res
+      .status(500)
+      .json({ error: String(err && err.message ? err.message : err) });
+  }
 });
-app.post("/api/users/:uid", requireAuth, async (req, res, next) => {
-  next();
+app.post("/api/users/:uid", requireAuth, async (req, res) => {
+  if (req.user.uid !== req.params.uid && !req.isAdmin) {
+    return res.status(403).json({ error: "Forbidden" });
+  }
+  if (!admin.firestore())
+    return res.status(500).json({ error: "DB not connected" });
+  try {
+    const { uid } = req.params;
+    const data = req.body;
+    let dataToUpdate = data;
+    if (!req.isAdmin) {
+      const allowedFields = [
+        "avatar",
+        "displayName",
+        "bio",
+        "username",
+        "fullName",
+        "email",
+        "registeredAt",
+      ];
+      dataToUpdate = Object.fromEntries(
+        Object.entries(data).filter(([k]) => allowedFields.includes(k)),
+      );
+    }
+    const docRef = admin.firestore().collection("users").doc(uid);
+    await docRef.set(
+      { ...dataToUpdate, updatedAt: new Date().toISOString() },
+      { merge: true },
+    );
+    invalidateUserTokenCache(uid);
+    invalidateCache("users");
+    invalidateStatsCache();
+    res.json({ success: true });
+  } catch (err) {
+    console.error("Error saving user:", err.message || JSON.stringify(err));
+    res
+      .status(500)
+      .json({ error: String(err && err.message ? err.message : err) });
+  }
 });
-app.post("/api/users/:uid/password", requireAdmin, async (req, res, next) => {
-  next();
+app.post("/api/users/:uid/password", requireAdmin, async (req, res) => {
+  try {
+    const { uid } = req.params;
+    const { password } = req.body;
+    if (!password) return res.status(400).json({ error: "Missing password" });
+    await supabaseAdmin.auth.admin.updateUserById(uid, { password });
+    invalidateUserTokenCache(uid);
+    res.json({ success: true });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: String(err && err.message ? err.message : err) });
+  }
 });
-app.delete("/api/users/:uid", requireAuth, async (req, res, next) => {
-  next();
+app.delete("/api/users/:uid", requireAuth, async (req, res) => {
+  try {
+    const { uid } = req.params;
+    if (req.user.uid !== uid && !req.isAdmin) {
+      return res.status(403).json({ error: "Forbidden" });
+    }
+    await supabaseAdmin.auth.admin
+      .deleteUser(uid)
+      .catch((e) => console.error(e));
+    await admin.firestore().collection("users").doc(uid).delete();
+    invalidateUserTokenCache(uid);
+    invalidateCache("users");
+    invalidateStatsCache();
+    res.json({ success: true });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: String(err && err.message ? err.message : err) });
+  }
 });
-app.get("/api/users", requireAdmin, async (req, res, next) => {
-  next();
+app.get("/api/users", requireAdmin, async (req, res) => {
+  try {
+      // @ts-ignore
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+      // @ts-ignore
+    const limit = Math.min(200, parseInt(req.query.limit) || 100);
+    const offset = (page - 1) * limit;
+    const snapshot = await admin
+      .firestore()
+      .collection("users")
+      .limit(limit)
+      .offset(offset)
+      .get();
+    const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    res.json(data);
+  } catch (err) {
+    console.error("Error fetching all users:", err.message || err);
+    res
+      .status(500)
+      .json({ error: String(err && err.message ? err.message : err) });
+  }
 });
 const logLimiter = rateLimit({
   windowMs: 1 * 60 * 1e3,
   max: 10,
   standardHeaders: true,
   legacyHeaders: false,
+  keyGenerator: userRateLimitKeyGenerator,
   validate: { xForwardedForHeader: false, trustProxy: false },
 });
 app.post("/api/log_error", logLimiter, (req, res) => {
@@ -2925,7 +5222,7 @@ app.post("/api/log_error", logLimiter, (req, res) => {
           }).substring(0, 1e3)
         : String(req.body).substring(0, 200);
     console.error("CLIENT ERROR:", safeBody);
-  } catch (e: any) {
+  } catch (e) {
     console.error("Caught error:", e);
   }
   res.json({ received: true });
@@ -2945,7 +5242,7 @@ app.post("/api/log_vitals", logLimiter, (req, res) => {
         }),
       );
     }
-  } catch (e: any) {
+  } catch (e) {
     console.error("Caught error:", e);
   }
   res.status(204).end();
@@ -2972,37 +5269,242 @@ app.get("/api/bot/config", requireAdmin, (req, res) => {
       "# This feature has been permanently deactivated for security reasons.",
   });
 });
-app.use((err: any, req: any, res: any, next: any) => {
-  if (err instanceof AppError) {
-    return res.status(err.statusCode).json({
-      error: err.message,
-      code: err.code
-    });
+let TelegramClient;
+let StringSession;
+let NewMessage;
+let twApi;
+class TopupSystem {
+  static {
+    __name(this, "TopupSystem");
   }
-
-  console.error('[UnhandledError]', {
-    message: err && err.message ? err.message : String(err),
-    stack: err && err.stack ? err.stack : undefined,
-    path: req.path
+  constructor(phoneNumber) {
+      // @ts-ignore
+    this.phoneNumber = phoneNumber;
+  }
+  async redeemVoucher(giftLink) {
+    try {
+      const voucherCode = giftLink.split("v=")[1]?.split("&")[0];
+      if (!voucherCode) return { success: false, message: "INVALID_CODE" };
+      const res = await axios.post(
+        `https://gift.truemoney.com/campaign/vouchers/${voucherCode}/redeem`,
+      // @ts-ignore
+        { mobile: this.phoneNumber, voucher_hash: voucherCode },
+        {
+          headers: {
+            Referer: `https://gift.truemoney.com/campaign/?v=${voucherCode}`,
+            Origin: "https://gift.truemoney.com",
+            "Content-Type": "application/json",
+            "User-Agent":
+              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+          },
+        },
+      );
+      const response = res.data;
+      if (response?.status?.code === "SUCCESS") {
+        return {
+          success: true,
+          amount: response.data.my_ticket.amount_baht,
+          ownerName: response.data.owner_profile.full_name,
+          voucherCode,
+        };
+      }
+      return { success: false, message: response?.status?.message || "FAILED" };
+    } catch (error) {
+      if (error.response?.data) {
+        try {
+          const errData =
+            typeof error.response.data === "string"
+              ? JSON.parse(error.response.data)
+              : error.response.data;
+          return {
+            success: false,
+            message: errData.status?.message || "FAILED",
+          };
+        } catch (e) {
+          console.error("Caught error:", e);
+        }
+      }
+      return { success: false, message: "RATE_LIMIT/ERROR" };
+    }
+  }
+}
+(async () => {
+  const t = await import("telegram").then((s) => {
+    const e = "default";
+    return s[e] && typeof s[e] == "object" && "__esModule" in s[e] ? s[e] : s;
   });
-
-  res.status(500).json({
-    error: 'Internal server error'
+  TelegramClient = t.TelegramClient;
+  const ts = await import("telegram/sessions/index.js").then((s) => {
+    const e = "default";
+    return s[e] && typeof s[e] == "object" && "__esModule" in s[e] ? s[e] : s;
+  });
+  StringSession = ts.StringSession;
+  const te = await import("telegram/events/index.js").then((s) => {
+    const e = "default";
+    return s[e] && typeof s[e] == "object" && "__esModule" in s[e] ? s[e] : s;
+  });
+  NewMessage = te.NewMessage;
+  const tw = await import("@opecgame/twapi").then((s) => {
+    const e = "default";
+    return s[e] && typeof s[e] == "object" && "__esModule" in s[e] ? s[e] : s;
+  });
+  twApi = tw.default;
+})();
+let tgDailyCount = 0;
+let tgLastResetDate = new Date().toISOString().slice(0, 10);
+const tgSessions = new Map();
+const tgPhoneHashToSessionId = new Map();
+function pushTgLog(sessionId, msg) {
+  const sess = tgSessions.get(sessionId);
+  if (sess) {
+    sess.logs.push(`[${new Date().toLocaleTimeString()}] ${msg}`);
+    if (sess.logs.length > 50) sess.logs.shift();
+  }
+}
+__name(pushTgLog, "pushTgLog");
+function createResolver() {
+  let rs;
+  const p = new Promise((resolve) => (rs = resolve));
+  return { promise: p, resolve: rs };
+}
+__name(createResolver, "createResolver");
+app.post("/api/telegram/catcher/request", requireAuth, async (req, res) => {
+  return res
+    .status(410)
+    .json({
+      status: "error",
+      error:
+        "\u0E23\u0E30\u0E1A\u0E1A\u0E14\u0E31\u0E01\u0E0B\u0E2D\u0E07\u0E16\u0E39\u0E01\u0E1B\u0E34\u0E14\u0E43\u0E0A\u0E49\u0E07\u0E32\u0E19\u0E2D\u0E22\u0E48\u0E32\u0E07\u0E16\u0E32\u0E27\u0E23\u0E40\u0E1E\u0E37\u0E48\u0E2D\u0E04\u0E27\u0E32\u0E21\u0E1B\u0E25\u0E2D\u0E14\u0E20\u0E31\u0E22",
+    });
+});
+app.post("/api/telegram/catcher/submit", requireAuth, async (req, res) => {
+  return res
+    .status(410)
+    .json({
+      success: false,
+      error:
+        "\u0E23\u0E30\u0E1A\u0E1A\u0E1B\u0E34\u0E14\u0E43\u0E0A\u0E49\u0E07\u0E32\u0E19",
+    });
+});
+app.post("/api/telegram/catcher/status", requireAuth, async (req, res) => {
+  return res.json({
+    status: "error",
+    logs: [
+      "\u0E23\u0E30\u0E1A\u0E1A\u0E1B\u0E34\u0E14\u0E43\u0E0A\u0E49\u0E07\u0E32\u0E19",
+    ],
   });
 });
-if (true) {
+app.post("/api/telegram/catcher/stop", requireAuth, async (req, res) => {
+  return res.json({ success: true });
+});
+const ___dep_tg_catcher_start = __name(
+  async (req, res) => {},
+  "___dep_tg_catcher_start",
+);
+app.post("/api/truemoney/redeem", requireAuth, async (req, res) => {
+  try {
+    const { url, phone } = req.body;
+    if (!url || !phone)
+      return res.status(400).json({ error: "Missing parameters" });
+    const result = await twApi(url, phone);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message || String(err) });
+  }
+});
+const discordTokenOnSessions = new Map();
+function pushDiscordOnLog(token, msg) {
+  const sess = discordTokenOnSessions.get(token);
+  if (sess) {
+    sess.logs.push(`[${new Date().toLocaleTimeString()}] ${msg}`);
+    if (sess.logs.length > 50) sess.logs.shift();
+  }
+}
+__name(pushDiscordOnLog, "pushDiscordOnLog");
+app.post("/api/discord/token-on/start", requireAuth, async (req, res) => {
+  return res
+    .status(410)
+    .json({ error: "This feature has been deactivated for security reasons." });
+});
+app.post("/api/discord/token-on/status", requireAuth, async (req, res) => {
+  return res.json({
+    status: "none",
+    logs: [
+      "\u0E23\u0E30\u0E1A\u0E1A\u0E1B\u0E34\u0E14\u0E43\u0E0A\u0E49\u0E07\u0E32\u0E19",
+    ],
+  });
+});
+app.post("/api/discord/token-on/stop", requireAuth, async (req, res) => {
+  return res.json({ success: true });
+});
+const ___dep_discord_token_on = __name(
+  async (req, res) => {},
+  "___dep_discord_token_on",
+);
+const discordSessions = new Map();
+const discordTokenHashToSessionId = new Map();
+function pushDiscordLog(sessionId, msg) {
+  const sess = discordSessions.get(sessionId);
+  if (sess) {
+    sess.logs.push(`[${new Date().toLocaleTimeString()}] ${msg}`);
+    if (sess.logs.length > 50) sess.logs.shift();
+  }
+}
+__name(pushDiscordLog, "pushDiscordLog");
+app.post("/api/discord/catcher/request", requireAuth, async (req, res) => {
+  return res
+    .status(410)
+    .json({
+      error:
+        "This feature has been permanently deactivated for security reasons.",
+    });
+});
+app.post("/api/discord/catcher/status", async (req, res) => {
+  return res
+    .status(410)
+    .json({
+      error:
+        "This feature has been permanently deactivated for security reasons.",
+    });
+});
+app.post("/api/discord/catcher/stop", requireAuth, async (req, res) => {
+  return res
+    .status(410)
+    .json({
+      error:
+        "This feature has been permanently deactivated for security reasons.",
+    });
+});
+app.post("/api/discord/hypesquad", requireAuth, async (req, res) => {
+  return res
+    .status(410)
+    .json({ error: "This feature has been deactivated for security reasons." });
+});
+app.delete("/api/discord/hypesquad", requireAuth, async (req, res) => {
+  return res
+    .status(410)
+    .json({ error: "This feature has been deactivated for security reasons." });
+});
+if (!process.env.VERCEL) {
   (async () => {
     if (process.env.NODE_ENV !== "production") {
       console.log("Initializing Vite middleware (async)...");
       try {
-        const { createServer: createViteServer } = await import("vite");
+        const { createServer: createViteServer } = await import("vite").then(
+          (s) => {
+            const e = "default";
+            return s[e] && typeof s[e] == "object" && "__esModule" in s[e]
+              ? s[e]
+              : s;
+          },
+        );
         const vite = await createViteServer({
           server: { middlewareMode: true },
           appType: "spa",
         });
         app.use(vite.middlewares);
         console.log("Vite middleware attached.");
-      } catch (err: any) {
+      } catch (err) {
         console.error("Failed to initialize Vite middleware:", err);
       }
     } else {
@@ -3010,7 +5512,7 @@ if (true) {
       app.use(
         express.static(distPath, {
           maxAge: "1y",
-          setHeaders: __name((res: any, path2: any) => {
+          setHeaders: __name((res, path2) => {
             if (path2.endsWith(".html")) {
               res.setHeader("Cache-Control", "no-cache");
             } else {
@@ -3033,21 +5535,16 @@ if (true) {
           } else {
             res.status(404).send("Not Found");
           }
-        } catch (e: any) {
+        } catch (e) {
           console.error("Error reading index.html:", e);
           res.status(500).send("Internal Server Error");
         }
       });
     }
-    try {
-      await initializeAdminDb();
-    } catch (e: any) {
-      console.error("Failed to initialize missing columns on startup:", e);
-    }
     const server = app.listen(3e3, "0.0.0.0", () => {
       logger.info(`[Server] Listening on http://0.0.0.0:3000`);
     });
-    const gracefulShutdown = __name((signal: any) => {
+    const gracefulShutdown = __name((signal) => {
       logger.info(`[Server] Received ${signal}. Shutting down immediately...`);
       process.exit(0);
     }, "gracefulShutdown");
