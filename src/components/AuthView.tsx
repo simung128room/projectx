@@ -50,9 +50,9 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
       text: 'ระบบยังไม่รองรับช่องทางนี้ในขณะนี้',
       icon: 'info',
       confirmButtonText: 'ตกลง',
-      confirmButtonColor: '#de7356',
-      background: '#1f1c14',
-      color: '#f5f0e8'
+      confirmButtonColor: '#ffe300',
+      background: '#0a0a0a',
+      color: '#ffffff'
     });
   };
 
@@ -83,7 +83,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
 
   const executeAuth = async (currentToken: string | null = turnstileToken) => {
     if ((authMode === 'signup' || authMode === 'forgot') && authPassword !== authConfirmPassword) {
-      Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'รหัสผ่านไม่ตรงกัน', confirmButtonColor: '#de7356' });
+      Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'รหัสผ่านไม่ตรงกัน', confirmButtonColor: '#ef4444' });
       return;
     }
 
@@ -93,7 +93,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
 
       if (authMode === 'signup') {
         try {
-          const res = await axios.post('/api/signup', { email: generatedEmail, password: authPassword, recoveryEmail: authEmail, turnstileToken: currentToken });
+          const res = await axios.post('/api/signup', { email: generatedEmail, password: authPassword, recoveryEmail: authEmail });
           if (res.data.error) {
              throw new Error(res.data.error);
           }
@@ -110,7 +110,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
             username: authUsername,
             email: authEmail,
             newPassword: authPassword,
-            otp: otpRequired ? otp : undefined, turnstileToken: currentToken
+            otp: otpRequired ? otp : undefined
           });
           if (res.data.otpRequired) {
             setOtpRequired(true);
@@ -118,7 +118,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
               icon: 'info',
               title: 'กรุณากรอกรหัส OTP',
               text: res.data.message || 'ส่งรหัส OTP เรียบร้อยแล้ว (ตรวจสอบได้ใน console log ของเซิร์ฟเวอร์)',
-              confirmButtonColor: '#de7356'
+              confirmButtonColor: '#ef4444'
             });
             setAuthLoading(false);
             return;
@@ -154,7 +154,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
       if (msg.includes('Password should be at least')) msg = 'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร';
       if (msg.toLowerCase().includes('api key')) msg = 'ตั้งค่า API Key ของระบบไม่ถูกต้อง (API Key Invalid)';
       
-      Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: msg, confirmButtonColor: '#de7356' });
+      Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: msg, confirmButtonColor: '#ef4444' });
     } finally {
       setAuthLoading(false);
     }
@@ -191,7 +191,7 @@ export const AuthView: React.FC<AuthViewProps> = React.memo(({ initialMode, setA
             <motion.img 
               animate={{ y: [0, -4, 0] }}
               transition={{ repeat: Infinity, duration: 3, ease: 'easeInOut' }}
-              src="https://img1.pic.in.th/images/1000045512.png" 
+              src="https://i.postimg.cc/3wDpxHPp/D7D8FA4A-524D-480E-9BF3-8451C296F760.png" 
               alt="Logo" 
               className="w-full h-full object-contain drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]" 
             />

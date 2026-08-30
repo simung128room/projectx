@@ -27,7 +27,7 @@ export default function AdminStockManagement({ products, categories, setProducts
         })
         .catch(err => {
            console.error("Failed to load stock data", err);
-           Swal.fire({title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถโหลดข้อมูลสต็อกได้', icon: 'error', background: '#1f1c14', color: '#f5f0e8'});
+           Swal.fire({title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถโหลดข้อมูลสต็อกได้', icon: 'error', background: '#1f1c14', color: '#fff'});
         })
         .finally(() => {
            setLoading(false);
@@ -59,10 +59,10 @@ export default function AdminStockManagement({ products, categories, setProducts
            showConfirmButton: false, 
            timer: 1500,
            background: '#1f1c14',
-           color: '#f5f0e8'
+           color: '#fff'
          });
       } catch (err: any) {
-         Swal.fire({title: 'เกิดข้อผิดพลาด', text: err.response?.data?.error || err.message || 'ไม่สามารถบันทึกสต็อกได้', icon: 'error', background: '#1f1c14', color: '#f5f0e8'});
+         Swal.fire({title: 'เกิดข้อผิดพลาด', text: err.response?.data?.error || err.message || 'ไม่สามารถบันทึกสต็อกได้', icon: 'error', background: '#1f1c14', color: '#fff'});
       } finally {
          setLoading(false);
       }
@@ -77,8 +77,8 @@ export default function AdminStockManagement({ products, categories, setProducts
       confirmButtonText: 'ลบข้อมูล',
       cancelButtonText: 'ยกเลิก',
       background: '#1f1c14',
-      color: '#f5f0e8',
-      confirmButtonColor: '#de7356',
+      color: '#fff',
+      confirmButtonColor: '#EF4444',
       cancelButtonColor: '#71717a'
     }).then((result) => {
       if (result.isConfirmed) {
@@ -99,8 +99,8 @@ export default function AdminStockManagement({ products, categories, setProducts
       confirmButtonText: 'บันทึก',
       cancelButtonText: 'ยกเลิก',
       background: '#1f1c14',
-      color: '#f5f0e8',
-      confirmButtonColor: '#de7356',
+      color: '#fff',
+      confirmButtonColor: '#364153',
       cancelButtonColor: '#71717a'
     }).then((result) => {
       if (result.isConfirmed && result.value !== undefined) {

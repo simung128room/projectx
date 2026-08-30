@@ -73,7 +73,6 @@ const profileUpdateSchema = z.object({
 }).partial();
 
 interface UsersRouterDeps {
-  uploadLimiter: any;
   requireAuth: any;
   requireAdmin: any;
   mutationLimiter: any;
@@ -87,7 +86,6 @@ interface UsersRouterDeps {
 }
 
 export function createUsersRouter({
-  uploadLimiter,
   requireAuth,
   requireAdmin,
   mutationLimiter,
@@ -167,6 +165,8 @@ export function createUsersRouter({
           "bio",
           "username",
           "fullName",
+          "email",
+          "registeredAt",
         ];
         dataToUpdate = Object.fromEntries(
           Object.entries(parsedBody).filter(([k]) => allowedFields.includes(k) && parsedBody[k as keyof typeof parsedBody] !== undefined),
@@ -201,15 +201,8 @@ export function createUsersRouter({
     try {
       const { uid } = req.params;
       const { password } = req.body;
-      const passwordSchema = z.string()
-        .min(8, "รหัสผ่านต้องมีความยาวอย่างน้อย 8 ตัวอักษร")
-        .regex(/[a-z]/, "รหัสผ่านต้องมีตัวพิมพ์เล็กอย่างน้อย 1 ตัว")
-        .regex(/[A-Z]/, "รหัสผ่านต้องมีตัวพิมพ์ใหญ่อย่างน้อย 1 ตัว")
-        .regex(/\d/, "รหัสผ่านต้องมีตัวเลขอย่างน้อย 1 ตัว")
-        .regex(/[^a-zA-Z\d]/, "รหัสผ่านต้องมีอักขระพิเศษอย่างน้อย 1 ตัว");
-      const parseResult = passwordSchema.safeParse(password);
-      if (!parseResult.success) {
-        return res.status(400).json({ error: parseResult.error.issues[0].message });
+      if (!password || password.length < 6) {
+        return res.status(400).json({ error: "Password must be at least 6 characters" });
       }
       await supabaseAdmin.auth.admin.updateUserById(uid, { password });
       invalidateUserTokenCache(uid);
@@ -261,7 +254,7 @@ export function createUsersRouter({
   router.post(
     "/avatar",
     requireAuth,
-    uploadLimiter || mutationLimiter,
+    mutationLimiter,
     (req: any, res: any, next: any) => {
       communityUpload.single("file")(req, res, (err: any) => {
         if (err) {

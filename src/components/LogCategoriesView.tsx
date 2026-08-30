@@ -40,10 +40,10 @@ export const LogCategoriesView: React.FC<LogCategoriesViewProps> = ({ userPlan, 
           icon: 'warning',
           title: 'สำหรับสมาชิก VIP เท่านั้น!',
           text: 'คุณต้องเป็น VIP จึงจะสามารถดูหรือดาวน์โหลดได้',
-          background: '#1f1c14',
+          background: '#ffffff',
           color: '#111827',
           confirmButtonText: 'ตกลง',
-          confirmButtonColor: '#de7356'
+          confirmButtonColor: '#2563eb'
        });
        return;
     }
@@ -53,7 +53,7 @@ export const LogCategoriesView: React.FC<LogCategoriesViewProps> = ({ userPlan, 
             icon: 'error',
             title: 'ไม่พบเนื้อหา',
             text: 'ถูกซ่อนหรือไม่มีข้อมูล',
-            background: '#1f1c14',
+            background: '#ffffff',
             color: '#111827'
         });
         return;
@@ -66,7 +66,7 @@ export const LogCategoriesView: React.FC<LogCategoriesViewProps> = ({ userPlan, 
         const safeUrl = /^(javascript:|data:)/i.test(cleanData) ? '#' : cleanData;
         
         if (att.type === 'image') {
-          return `<img loading="lazy" src="${safeUrl}" alt="Attachment" class="w-full rounded-md mb-2" />`;
+          return `<img loading="lazy" src="${safeUrl}" class="w-full rounded-md mb-2" />`;
         }
         if (att.type === 'file') {
           return `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="block w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-foreground rounded-xl text-center font-bold text-sm mb-2 shadow-sm">ดาวน์โหลดไฟล์</a>`;
@@ -77,7 +77,7 @@ export const LogCategoriesView: React.FC<LogCategoriesViewProps> = ({ userPlan, 
     Swal.fire({
         title: item.title,
         html: `<div class="mt-4">${htmlAttachments}</div>`,
-        background: '#1f1c14',
+        background: '#ffffff',
         color: '#111827',
         confirmButtonText: 'ปิด',
         confirmButtonColor: '#4b5563'

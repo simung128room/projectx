@@ -420,13 +420,6 @@ export function createProductsRouter({
       await Promise.all(updatePromises);
       invalidateCache("products");
       res.json({ success: true });
-    } catch (err: any) {
-      console.error("Internal server error updating bulk category:", err);
-      res
-        .status(500)
-        .json({ error: String(err && err.message ? err.message : err) });
-    }
-  });
 
   // 7. PUT /api/products/:id (requireAdmin + Zod)
   router.put("/products/:id", requireAdmin, async (req: any, res: any) => {
@@ -640,6 +633,10 @@ export function createProductsRouter({
       res
         .status(500)
         .json({ error: String(err && err.message ? err.message : err) });
+    }
+  });
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
     }
   });
 

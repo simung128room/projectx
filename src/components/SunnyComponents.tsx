@@ -68,8 +68,8 @@ export const ChevronDownIcon = ({ color = "#5aade0" }) => (
 /* ── Logo SVG ── */
 export const SunnyBuxLogo = ({ size = 64 }) => (
   <img
-    src="https://img1.pic.in.th/images/1000045512.png"
-    alt="ZEROSHOP Logo"
+    src="https://img2.pic.in.th/IMG_7319.png"
+    alt="nxyshop Logo"
     style={{
       width: size,
       height: size,

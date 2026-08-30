@@ -38,18 +38,18 @@ export const AdminPagesManagement: React.FC<AdminPagesManagementProps> = ({ cust
       showCancelButton: true,
       confirmButtonText: 'ยืนยันลบ',
       cancelButtonText: 'ยกเลิก',
-      confirmButtonColor: '#de7356',
+      confirmButtonColor: '#EF4444',
       cancelButtonColor: '#71717a',
       background: '#1f1c14',
-      color: '#f5f0e8'
+      color: '#fff'
     }).then(async (result) => {
       if (result.isConfirmed) {
          try {
            await axios.delete(`/api/pages/${page.id}`);
            setCustomPages(prev => prev.filter(p => p.id !== page.id));
-           Swal.fire({ title: 'ลบข้อมูลสำเร็จ', icon: 'success', background: '#1f1c14', color: '#f5f0e8', timer: 1000, showConfirmButton: false });
+           Swal.fire({ title: 'ลบข้อมูลสำเร็จ', icon: 'success', background: '#1f1c14', color: '#fff', timer: 1000, showConfirmButton: false });
          } catch (err) {
-           Swal.fire({ title: 'ข้อผิดพลาด', text: 'ไม่สามารถดำเนินการลบได้', icon: 'error', background: '#1f1c14', color: '#f5f0e8' });
+           Swal.fire({ title: 'ข้อผิดพลาด', text: 'ไม่สามารถดำเนินการลบได้', icon: 'error', background: '#1f1c14', color: '#fff' });
          }
       }
     });
@@ -58,7 +58,7 @@ export const AdminPagesManagement: React.FC<AdminPagesManagementProps> = ({ cust
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.title || !formData.slug || !formData.content) {
-      Swal.fire({ title: 'กรอกข้อมูลไม่ครบ', text: 'โปรดระบุหัวข้อ ข้อมูลสลักและเนื้อหาของเพจ', icon: 'error', background: '#1f1c14', color: '#f5f0e8' });
+      Swal.fire({ title: 'กรอกข้อมูลไม่ครบ', text: 'โปรดระบุหัวข้อ ข้อมูลสลักและเนื้อหาของเพจ', icon: 'error', background: '#1f1c14', color: '#fff' });
       return;
     }
 
@@ -66,15 +66,15 @@ export const AdminPagesManagement: React.FC<AdminPagesManagementProps> = ({ cust
       if (editingPage) {
         const res = await axios.put(`/api/pages/${editingPage.id}`, formData);
         setCustomPages(prev => prev.map(p => p.id === editingPage.id ? res.data : p));
-        Swal.fire({ title: 'อัปเดตหน้าเพจสำเร็จ', icon: 'success', background: '#1f1c14', color: '#f5f0e8', timer: 1200, showConfirmButton: false });
+        Swal.fire({ title: 'อัปเดตหน้าเพจสำเร็จ', icon: 'success', background: '#1f1c14', color: '#fff', timer: 1200, showConfirmButton: false });
       } else {
         const res = await axios.post('/api/pages', formData);
         setCustomPages(prev => [...prev, res.data]);
-        Swal.fire({ title: 'สร้างหน้าเพจสำเร็จ', icon: 'success', background: '#1f1c14', color: '#f5f0e8', timer: 1200, showConfirmButton: false });
+        Swal.fire({ title: 'สร้างหน้าเพจสำเร็จ', icon: 'success', background: '#1f1c14', color: '#fff', timer: 1200, showConfirmButton: false });
       }
       setIsEditing(false);
     } catch (err) {
-      Swal.fire({ title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถบันทึกหน้าพอร์ทัลได้', icon: 'error', background: '#1f1c14', color: '#f5f0e8' });
+      Swal.fire({ title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถบันทึกหน้าพอร์ทัลได้', icon: 'error', background: '#1f1c14', color: '#fff' });
     }
   };
 

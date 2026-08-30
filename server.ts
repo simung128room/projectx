@@ -65,7 +65,7 @@ async function uploadToSupabaseStorage(buffer: any, originalName: any, mimeType:
   if (!isSupabaseConfigured2) {
     throw new Error("Supabase is not configured");
   }
-  const fileExt = "webp"; // Hardcoded to webp for security
+  const fileExt = originalName.split(".").pop() || "webp";
   const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 11)}.${fileExt}`;
   const bucketName = "uploads";
   const { data, error } = await supabaseAdmin.storage
@@ -282,7 +282,8 @@ app.use(
           "https://*.supabase.co",
           "https://api.ipify.org",
           "wss://*.supabase.co",
-          ...(process.env.NODE_ENV === "production" ? [] : ["ws:", "wss:"]),
+          "ws:",
+          "wss:",
         ],
         frameSrc: [
           "'self'",
@@ -300,11 +301,7 @@ app.use(
   }),
 );
 app.use(compression());
-
-// Parse TRUST_PROXY_HOPS from env to allow correct IP resolution behind multiple reverse proxies/LBs
-const trustProxyHops = process.env.TRUST_PROXY_HOPS ? parseInt(process.env.TRUST_PROXY_HOPS, 10) : 1;
-app.set("trust proxy", trustProxyHops);
-
+app.set("trust proxy", 1);
 const PORT = 3e3;
 import { pinoHttp } from "pino-http";
 import pino from "pino";
@@ -613,27 +610,6 @@ const checkLimiter = rateLimit({
       .json({ ...options.message, requestId: req.id });
   }, "handler"),
 });
-const discordLimiter = rateLimit({
-  windowMs: 1 * 60 * 1e3,
-  max: 10,
-  standardHeaders: true,
-  legacyHeaders: false,
-  validate: { trustProxy: true },
-  message: { error: "Too many requests to Discord integration." },
-});
-const safeCompare = (a: string | undefined, b: string | undefined) => {
-  if (typeof a !== 'string' || typeof b !== 'string') return false;
-  if (a.length !== b.length) return false;
-  return crypto.timingSafeEqual(Buffer.from(a), Buffer.from(b));
-};
-const uploadLimiter = rateLimit({
-  windowMs: 1 * 60 * 1e3,
-  max: 10,
-  standardHeaders: true,
-  legacyHeaders: false,
-  validate: { trustProxy: true },
-  message: { error: "Too many uploads, please wait." },
-});
 const globalLimiter = rateLimit({
   windowMs: 1 * 60 * 1e3,
   max: 200,
@@ -739,47 +715,13 @@ const injectUser = __name(async (req: any, res: any, next: any) => {
       } catch (error: any) {
         (global as any).userTokenPromiseCache.delete(token);
         userTokenCache.delete(token);
-
-        const status = error?.status;
-        const code = error?.code;
-        const msg = error?.message ? String(error.message).toLowerCase() : "";
-        const codeStr = code ? String(code).toLowerCase() : "";
-
-        // Check if it is a standard expired token error (robust matching on code and message)
-        const isExpired = status === 401 && (codeStr.includes("expired") || msg.includes("expired"));
-
-        // Keywords indicating authentication token issues
-        const hasAuthKeywords =
-          codeStr.includes("invalid") ||
-          codeStr.includes("jwt") ||
-          codeStr.includes("signature") ||
-          codeStr.includes("session") ||
-          msg.includes("invalid") ||
-          msg.includes("jwt") ||
-          msg.includes("signature") ||
-          msg.includes("token") ||
-          msg.includes("expired");
-
-        // Check if it is an invalid client authentication error.
-        // 401 is standard for invalid/expired credentials.
-        // For status 400, we only treat it as an auth error if it contains clear token invalidation keywords
-        // to prevent false positives (e.g. temporary malformed requests or other API issues).
-        const isAuthError =
-          status === 401 ||
-          (status === 400 && hasAuthKeywords) ||
-          (!status && hasAuthKeywords);
-
-        if (isExpired) {
+        if (error && error.message && error.message.includes("expired")) {
           return res.status(401).json({ error: "Token expired" });
-        } else if (isAuthError) {
+        } else {
           console.error(
             "Error verifying ID token in injectUser:",
             error.message || error,
           );
-          return res.status(401).json({ error: "Invalid token" });
-        } else {
-          console.error("Upstream or temporary error verifying ID token:", error.message || error);
-          // Fail-soft: continue as guest for non-auth errors (and do not cache this fail-soft result)
         }
       }
     }
@@ -821,14 +763,7 @@ if (process.env.ALLOWED_ORIGINS) {
 if (process.env.ALLOW_LOCALHOST === "true") {
   rawOrigins.push("http://localhost:3000");
 }
-let corsOrigins: boolean | string[] = rawOrigins;
-if (rawOrigins.length === 0) {
-  if (process.env.NODE_ENV === "production") {
-    console.error("FATAL: ALLOWED_ORIGINS must be set in production.");
-    process.exit(1);
-  }
-  corsOrigins = true;
-}
+const corsOrigins = rawOrigins.length > 0 ? rawOrigins : true;
 const corsOptions = { origin: corsOrigins, credentials: true };
 app.use(cors(corsOptions));
 app.options("*", cors(corsOptions));
@@ -969,7 +904,6 @@ app.post(
 );
 app.post(
   "/api/community/upload",
-  uploadLimiter,
   requireAuth,
   (req: any, res: any, next: any) => {
     communityUpload.single("file")(req, res, (err: any) => {
@@ -1378,6 +1312,209 @@ app.post(
     next();
   }
 );
+      /* const { voucherCode } = req.body;
+      const uid = req.user.uid;
+      const phone = siteSettings.truewallet_phone;
+      if (!voucherCode) {
+        return res
+          .status(400)
+          .json({
+            success: false,
+            error:
+              "\u0E01\u0E23\u0E38\u0E13\u0E32\u0E01\u0E23\u0E2D\u0E01\u0E25\u0E34\u0E07\u0E01\u0E4C\u0E0B\u0E2D\u0E07\u0E02\u0E2D\u0E07\u0E02\u0E27\u0E31\u0E0D",
+          });
+      }
+      let voucherHash = voucherCode.trim();
+      const urlMatch = voucherHash.match(/[?&]v=([^&#\s]+)/);
+      if (urlMatch) {
+        voucherHash = urlMatch[1];
+      } else if (voucherHash.includes("truemoney.com")) {
+        const parts = voucherHash.split("/");
+        const lastPart = parts[parts.length - 1];
+        if (lastPart && lastPart.length >= 10) {
+          voucherHash = lastPart;
+        }
+      }
+      voucherHash = voucherHash.trim();
+      if (!/^[a-zA-Z0-9\-_]+$/.test(voucherHash)) {
+        return res.json({
+          success: false,
+          error:
+            "\u0E23\u0E39\u0E1B\u0E41\u0E1A\u0E1A\u0E23\u0E2B\u0E31\u0E2A\u0E0B\u0E2D\u0E07\u0E02\u0E2D\u0E07\u0E02\u0E27\u0E31\u0E0D\u0E44\u0E21\u0E48\u0E16\u0E39\u0E01\u0E15\u0E49\u0E2D\u0E07 (\u0E15\u0E49\u0E2D\u0E07\u0E40\u0E1B\u0E47\u0E19\u0E20\u0E32\u0E29\u0E32\u0E2D\u0E31\u0E07\u0E01\u0E24\u0E29 \u0E15\u0E31\u0E27\u0E40\u0E25\u0E02 \u0E02\u0E35\u0E14\u0E01\u0E25\u0E32\u0E07 \u0E2B\u0E23\u0E37\u0E2D\u0E02\u0E35\u0E14\u0E25\u0E48\u0E32\u0E07\u0E40\u0E17\u0E48\u0E32\u0E19\u0E31\u0E49\u0E19)",
+        });
+      }
+      console.log(
+        `[TrueWallet] Attempting to redeem via XPLUEM: "${voucherHash}" for phone: ${phone}`,
+      );
+      voucherRef = admin.firestore().collection("vouchers").doc(voucherHash);
+      try {
+        await admin.firestore().runTransaction(async (t: any) => {
+          const doc = await t.get(voucherRef);
+          if (doc.exists) {
+            throw new Error("DUPLICATE_VOUCHER");
+          }
+          t.set(voucherRef, {
+            usedAt: new Date().toISOString(),
+            uid,
+            status: "pending",
+          });
+        });
+      } catch (err: any) {
+        if (err.message === "DUPLICATE_VOUCHER") {
+          return res.json({
+            success: false,
+            error:
+              "\u0E0B\u0E2D\u0E07\u0E02\u0E2D\u0E07\u0E02\u0E27\u0E31\u0E0D\u0E19\u0E35\u0E49\u0E16\u0E39\u0E01\u0E43\u0E0A\u0E49\u0E07\u0E32\u0E19\u0E44\u0E1B\u0E41\u0E25\u0E49\u0E27\u0E43\u0E19\u0E23\u0E30\u0E1A\u0E1A\u0E02\u0E2D\u0E07\u0E40\u0E23\u0E32",
+          });
+        }
+        throw err;
+      }
+      const fetchTopup = __name(async (vHash, pPhone) => {
+        return await axios.get(`https://api.xpluem.com/${vHash}/${pPhone}`, {
+          timeout: 15e3,
+          validateStatus: __name((status) => status < 500, "validateStatus"),
+        });
+      }, "fetchTopup");
+      const topupBreaker = new CircuitBreaker(fetchTopup, {
+        timeout: 15e3,
+        errorThresholdPercentage: 50,
+        resetTimeout: 3e4,
+      });
+      let response;
+      try {
+        response = await topupBreaker.fire(voucherHash, phone);
+      } catch (err: any) {
+        console.error(
+          `[TrueWallet] XPLUEM Circuit Breaker Error:`,
+          err.message,
+        );
+        if (voucherRef && !apiSuccess) {
+          await voucherRef.delete();
+        }
+        return res
+          .status(503)
+          .json({
+            error:
+              "\u0E23\u0E30\u0E1A\u0E1A\u0E40\u0E15\u0E34\u0E21\u0E40\u0E07\u0E34\u0E19\u0E02\u0E31\u0E14\u0E02\u0E49\u0E2D\u0E07 (Circuit Breaker Open) \u0E01\u0E23\u0E38\u0E13\u0E32\u0E25\u0E2D\u0E07\u0E43\u0E2B\u0E21\u0E48\u0E20\u0E32\u0E22\u0E2B\u0E25\u0E31\u0E07",
+            isProxyError: true,
+          });
+      }
+      const result = response.data;
+      console.log(`[TrueWallet] XPLUEM Response:`, JSON.stringify(result));
+      if (result.success === true) {
+        apiSuccess = true;
+        const amount = parseFloat(result.data?.amount || 0);
+        if (isNaN(amount) || amount <= 0) {
+          if (voucherRef) {
+            await voucherRef.delete().catch((e: any) => console.error(e));
+          }
+          return res.json({
+            success: false,
+            error:
+              "\u0E02\u0E49\u0E2D\u0E21\u0E39\u0E25\u0E0B\u0E2D\u0E07\u0E2D\u0E31\u0E48\u0E07\u0E40\u0E1B\u0E32\u0E44\u0E21\u0E48\u0E16\u0E39\u0E01\u0E15\u0E49\u0E2D\u0E07 (\u0E22\u0E2D\u0E14\u0E40\u0E07\u0E34\u0E19\u0E44\u0E21\u0E48\u0E16\u0E39\u0E01\u0E15\u0E49\u0E2D\u0E07)",
+          });
+        }
+        console.log(`[TrueWallet] Successfully redeemed \u0E3F${amount}`);
+        if (uid) {
+          try {
+            const userRef = admin.firestore().collection("users").doc(uid);
+            let finalBalance = 0;
+            let topupDoc = null;
+            await admin.firestore().runTransaction(async (t: any) => {
+              const uDoc = await t.get(userRef);
+              if (uDoc.exists) {
+                const currentBalance = uDoc.data().balance || 0;
+                finalBalance = currentBalance + amount;
+                t.update(userRef, { balance: finalBalance });
+                topupDoc = {
+                  id: crypto.randomUUID(),
+                  userId: uDoc.data().username || "Unknown",
+                  uid,
+                  amount,
+                  date: new Date().toISOString(),
+                  type: "truewallet",
+                  money: amount,
+                  title:
+                    "\u0E40\u0E15\u0E34\u0E21\u0E40\u0E07\u0E34\u0E19\u0E2A\u0E33\u0E40\u0E23\u0E47\u0E08",
+                  image: "https://img1.pic.in.th/images/IMG_6162.png",
+                };
+                const topupRef = admin
+                  .firestore()
+                  .collection("topups")
+                  .doc(topupDoc.id);
+                t.set(topupRef, topupDoc);
+                t.update(voucherRef, { status: "completed", amount });
+              } else {
+                throw new Error("USER_NOT_FOUND");
+              }
+            });
+            console.log(
+              `[TrueWallet] Updated balance for user ${uid} (+\u0E3F${amount})`,
+            );
+            return res.json({
+              success: true,
+              amount,
+              message:
+                result.message ||
+                "\u0E23\u0E31\u0E1A\u0E40\u0E07\u0E34\u0E19\u0E2A\u0E33\u0E40\u0E23\u0E47\u0E08",
+              topup: topupDoc,
+            });
+          } catch (syncErr) {
+            if (syncErr.message === "USER_NOT_FOUND") {
+              await voucherRef.delete().catch((e: any) => console.error(e));
+              return res.json({
+                success: false,
+                error:
+                  "\u0E02\u0E49\u0E2D\u0E21\u0E39\u0E25\u0E2A\u0E21\u0E32\u0E0A\u0E34\u0E01\u0E44\u0E21\u0E48\u0E16\u0E39\u0E01\u0E15\u0E49\u0E2D\u0E07",
+              });
+            }
+            console.error(`[TrueWallet] Balance sync error:`, syncErr);
+          }
+        }
+        return res.json({
+          success: true,
+          amount,
+          message:
+            result.message ||
+            "\u0E23\u0E31\u0E1A\u0E40\u0E07\u0E34\u0E19\u0E2A\u0E33\u0E40\u0E23\u0E47\u0E08",
+        });
+      } else {
+        const errorMsg =
+          result.message ||
+          "\u0E44\u0E21\u0E48\u0E2A\u0E32\u0E21\u0E32\u0E23\u0E16\u0E23\u0E31\u0E1A\u0E40\u0E07\u0E34\u0E19\u0E44\u0E14\u0E49 (\u0E2A\u0E16\u0E32\u0E19\u0E30\u0E44\u0E21\u0E48\u0E2A\u0E33\u0E40\u0E23\u0E47\u0E08)";
+        console.warn(`[TrueWallet] Failed: ${errorMsg}`);
+        if (voucherRef) {
+          await voucherRef.delete().catch((e: any) => console.error(e));
+        }
+        return res.json({ success: false, error: errorMsg });
+      }
+    } catch (error: any) {
+      console.error("[TrueWallet] Gateway Error:", error.message);
+      if (voucherRef) {
+        await voucherRef.delete().catch((e: any) => console.error(e));
+      }
+      if (error.response) {
+        const result = error.response.data;
+        return res.json({
+          success: false,
+          error:
+            result?.message ||
+            "\u0E40\u0E01\u0E34\u0E14\u0E02\u0E49\u0E2D\u0E1C\u0E34\u0E14\u0E1E\u0E25\u0E32\u0E14\u0E43\u0E19\u0E01\u0E32\u0E23\u0E40\u0E0A\u0E37\u0E48\u0E2D\u0E21\u0E15\u0E48\u0E2D\u0E40\u0E0B\u0E34\u0E23\u0E4C\u0E1F\u0E40\u0E27\u0E2D\u0E23\u0E4C API",
+        });
+      }
+      return res
+        .status(500)
+        .json({
+          success: false,
+          error:
+            "\u0E40\u0E01\u0E34\u0E14\u0E02\u0E49\u0E2D\u0E1C\u0E34\u0E14\u0E1E\u0E25\u0E32\u0E14\u0E43\u0E19\u0E01\u0E32\u0E23\u0E40\u0E0A\u0E37\u0E48\u0E2D\u0E21\u0E15\u0E48\u0E2D\u0E40\u0E04\u0E23\u0E37\u0E2D\u0E02\u0E48\u0E32\u0E22",
+        });
+    }
+  },
+); */
+app.post("/api/topup/slip", mutationLimiter, requireAuth, async (req, res, next) => {
+  next();
+});
 const turnstileCache = new Map();
 app.post("/api/check", checkLimiter, requireAuth, async (req, res) => {
   return res
@@ -1830,7 +1967,6 @@ const { createUsersRouter } = await import("./src/routes/users.route.js");
 app.use(
   "/api",
   createUsersRouter({
-    uploadLimiter,
     requireAuth,
     requireAdmin,
     mutationLimiter,
@@ -2014,7 +2150,7 @@ app.get("/api/latest-purchases", async (req, res) => {
     console.error("Error fetching latest purchases:", (err as any).message || err);
     res
       .status(500)
-      .json({ error: "Internal server error" });
+      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
   }
 });
 app.get("/api/purchases", requireAuth, async (req, res) => {
@@ -2073,7 +2209,7 @@ app.get("/api/purchases", requireAuth, async (req, res) => {
     console.error("Error fetching purchases:", (err as any).message || err);
     res
       .status(500)
-      .json({ error: "Internal server error" });
+      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
   }
 });
 app.post("/api/purchases", requireAdmin, async (req, res) => {
@@ -2103,7 +2239,7 @@ app.post("/api/purchases", requireAdmin, async (req, res) => {
     console.error("Internal server error creating purchase:", err);
     res
       .status(500)
-      .json({ error: "Internal server error" });
+      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
   }
 });
 app.put("/api/purchases/:id", requireAdmin, async (req, res) => {
@@ -2137,25 +2273,24 @@ app.put("/api/purchases/:id", requireAdmin, async (req, res) => {
     res.json({ success: true, id, ...payload, secretData });
   } catch (err: any) {
     console.error("Error updating purchase:", err);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: err.message || "Internal server error" });
   }
 });
-app.post("/api/discord-rekey", discordLimiter, async (req, res) => {
+app.post("/api/discord-rekey", async (req, res) => {
   const { key, secret, plan } = req.body;
-  if (!key || typeof key !== "string" || key.length < 16) { return res.status(400).json({ error: "Key must be at least 16 characters for security" }); }
   const expectedSecret = process.env.DISCORD_BOT_SECRET;
   if (!expectedSecret) {
     return res
       .status(500)
       .json({ error: "DISCORD_BOT_SECRET is not configured" });
   }
-  if (!safeCompare(secret, expectedSecret)) {
+  if (secret !== expectedSecret) {
     return res.status(401).json({ error: "Unauthorized" });
   }
   try {
     const newDoc = {
       key,
-      plan: (plan && ["premium", "basic", "pro"].includes(plan)) ? plan : "premium",
+      plan: plan || "premium",
       status: "active",
       created_at: new Date().toISOString(),
     };
@@ -2169,7 +2304,7 @@ app.post("/api/discord-rekey", discordLimiter, async (req, res) => {
     res.status(500).json({ error: "Internal server error while adding key" });
   }
 });
-app.post("/api/discord-redeem", discordLimiter, async (req, res) => {
+app.post("/api/discord-redeem", async (req, res) => {
   const { key, secret } = req.body;
   const expectedSecret = process.env.DISCORD_BOT_SECRET;
   if (!expectedSecret) {
@@ -2177,7 +2312,7 @@ app.post("/api/discord-redeem", discordLimiter, async (req, res) => {
       .status(500)
       .json({ error: "DISCORD_BOT_SECRET is not configured" });
   }
-  if (!safeCompare(secret, expectedSecret)) {
+  if (secret !== expectedSecret) {
     return res.status(401).json({ error: "Unauthorized" });
   }
   if (!key || typeof key !== "string" || key.trim().length < 8) {
@@ -2286,9 +2421,7 @@ async function releaseRedisLock(lockKey: any) {
   if (!redis) return;
   try {
     await redis.del(lockKey);
-  } catch (err) {
-    console.warn("Failed to release redis lock", err);
-  }
+  } catch (_) {}
 }
 __name(releaseRedisLock, "releaseRedisLock");
 app.post("/api/buy", mutationLimiter, requireAuth, async (req, res, next) => {
@@ -2312,7 +2445,7 @@ app.get("/api/pages", async (req, res) => {
     console.error("Internal server error fetching pages:", (err as any).message || err);
     res
       .status(500)
-      .json({ error: "Internal server error" });
+      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
   }
 });
 app.post("/api/pages", requireAdmin, async (req, res) => {
@@ -2331,7 +2464,7 @@ app.post("/api/pages", requireAdmin, async (req, res) => {
     console.error("Internal server error creating page:", err);
     res
       .status(500)
-      .json({ error: "Internal server error" });
+      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
   }
 });
 app.put("/api/pages/:id", requireAdmin, async (req, res) => {
@@ -2351,7 +2484,7 @@ app.put("/api/pages/:id", requireAdmin, async (req, res) => {
     console.error("Internal server error updating page:", err);
     res
       .status(500)
-      .json({ error: "Internal server error" });
+      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
   }
 });
 app.delete("/api/pages/:id", requireAdmin, async (req, res) => {
@@ -2369,7 +2502,7 @@ app.delete("/api/pages/:id", requireAdmin, async (req, res) => {
     console.error("Internal server error deleting page:", err);
     res
       .status(500)
-      .json({ error: "Internal server error" });
+      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
   }
 });
 let memoryLogSystemData = { categories: [], items: [] };
@@ -2430,7 +2563,7 @@ app.get("/api/logs-system", injectUser, async (req, res) => {
   } catch (err: any) {
     res
       .status(500)
-      .json({ error: "Internal server error" });
+      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
   }
 });
 app.post("/api/logs-system", requireAdmin, async (req, res) => {
@@ -2456,7 +2589,7 @@ app.post("/api/logs-system", requireAdmin, async (req, res) => {
     console.error("Internal server error saving log system data:", err);
     res
       .status(500)
-      .json({ error: "Internal server error" });
+      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
   }
 });
 app.get("/api/license_keys", requireAdmin, async (req, res) => {
@@ -2487,7 +2620,7 @@ app.get("/api/license_keys", requireAdmin, async (req, res) => {
     );
     res
       .status(500)
-      .json({ error: "Internal server error" });
+      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
   }
 });
 app.post("/api/license_keys", requireAdmin, async (req, res) => {
@@ -2503,7 +2636,7 @@ app.post("/api/license_keys", requireAdmin, async (req, res) => {
     console.error("Internal server error inserting license_key:", err);
     res
       .status(500)
-      .json({ error: "Internal server error" });
+      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
   }
 });
 app.delete("/api/license_keys/:id", requireAdmin, async (req, res) => {
@@ -2518,7 +2651,7 @@ app.delete("/api/license_keys/:id", requireAdmin, async (req, res) => {
     console.error("Internal server error deleting license_key:", err);
     res
       .status(500)
-      .json({ error: "Internal server error" });
+      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
   }
 });
 app.post("/api/license_keys/bulk_delete", requireAdmin, async (req, res) => {
@@ -2536,7 +2669,7 @@ app.post("/api/license_keys/bulk_delete", requireAdmin, async (req, res) => {
     console.error("Internal server error bulk deleting license_keys:", err);
     res
       .status(500)
-      .json({ error: "Internal server error" });
+      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
   }
 });
 app.patch("/api/license_keys/:id", requireAdmin, async (req, res) => {
@@ -2552,7 +2685,7 @@ app.patch("/api/license_keys/:id", requireAdmin, async (req, res) => {
     console.error("Internal server error updating license_key:", err);
     res
       .status(500)
-      .json({ error: "Internal server error" });
+      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
   }
 });
 app.post("/api/license_keys/bulk", requireAdmin, async (req, res) => {
@@ -2580,10 +2713,10 @@ app.post("/api/license_keys/bulk", requireAdmin, async (req, res) => {
     console.error("Internal server error bulk inserting license_keys:", err);
     res
       .status(500)
-      .json({ error: "Internal server error" });
+      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
   }
 });
-app.get("/api/validate_key/:key", requireAuth, checkLimiter, async (req, res) => {
+app.get("/api/validate_key/:key", requireAuth, async (req, res) => {
   try {
     const snapshot = await admin
       .firestore()
@@ -2627,7 +2760,7 @@ app.get("/api/blocked_ips", requireAdmin, async (req, res) => {
     );
     res
       .status(500)
-      .json({ error: "Internal server error" });
+      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
   }
 });
 app.post("/api/blocked_ips", requireAdmin, async (req, res) => {
@@ -2641,7 +2774,7 @@ app.post("/api/blocked_ips", requireAdmin, async (req, res) => {
     console.error("Internal server error upserting blocked_ip:", err);
     res
       .status(500)
-      .json({ error: "Internal server error" });
+      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
   }
 });
 app.delete("/api/blocked_ips/:ip", requireAdmin, async (req, res) => {
@@ -2656,7 +2789,7 @@ app.delete("/api/blocked_ips/:ip", requireAdmin, async (req, res) => {
     console.error("Internal server error deleting blocked_ip:", err);
     res
       .status(500)
-      .json({ error: "Internal server error" });
+      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
   }
 });
 app.get("/api/check_ip/:ip", requireAdmin, async (req, res) => {
@@ -2671,7 +2804,7 @@ app.get("/api/check_ip/:ip", requireAdmin, async (req, res) => {
     console.error("Internal server error checking IP:", err);
     res
       .status(500)
-      .json({ error: "Internal server error" });
+      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
   }
 });
 app.get("/api/api_keys", requireAdmin, async (req, res, next) => {
@@ -2685,6 +2818,21 @@ app.delete("/api/api_keys/:key", requireAdmin, async (req, res, next) => {
 });
 app.patch("/api/api_keys/:key", requireAdmin, async (req, res, next) => {
   next();
+});
+app.post("/api/admins", requireAdmin, async (req, res) => {
+  try {
+    const { username, role } = req.body;
+    const newDoc = { username, role, granted_at: new Date().toISOString() };
+    const docRef = admin.firestore().collection("admins").doc(username);
+    await docRef.set(newDoc);
+    invalidateUserTokenCache(username);
+    res.json({ id: username, ...newDoc });
+  } catch (err: any) {
+    console.error("Internal server error upserting admin:", err);
+    res
+      .status(500)
+      .json({ error: String(err && (err as any).message ? (err as any).message : err) });
+  }
 });
 let communityData: any = {
   categories: [],

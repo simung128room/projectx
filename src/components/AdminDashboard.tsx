@@ -112,8 +112,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
   const handleSaveUser = async (user: any) => {
      try {
-       await axios.put(`/api/admin/users/${user.uid}`, {
-          balance: Number(editUserBalance)
+       await axios.post('/api/admin/users/update', {
+          uid: user.uid,
+          balance: editUserBalance
        });
        setEditingUserId(null);
        onRefreshData && onRefreshData();
@@ -122,7 +123,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           title: 'สำเร็จ',
           text: 'อัปเดตยอดเงินผู้ใช้เรียบร้อย',
           background: '#1f1c14',
-          color: '#f5f0e8'
+          color: '#fff'
        });
      } catch (err) {
        Swal.fire({
@@ -130,7 +131,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           title: 'ข้อผิดพลาด',
           text: 'ไม่สามารถอัปเดตข้อมูลได้',
           background: '#1f1c14',
-          color: '#f5f0e8'
+          color: '#fff'
        });
      }
   };
@@ -187,7 +188,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       const res = await axios.post('/api/settings', siteSettings);
       Swal.fire({
         icon: 'success', title: 'สำเร็จ', text: 'บันทึกตั้งค่าเรียบร้อย',
-        background: '#1f1c14', color: '#f5f0e8'
+        background: '#1f1c14', color: '#fff'
       })
     } catch(err) {}
   };
@@ -617,9 +618,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                               </div>
                             `,
                             background: '#1f1c14',
-                            color: '#f5f0e8',
+                            color: '#fff',
                             focusConfirm: false,
-                            confirmButtonColor: '#de7356',
+                            confirmButtonColor: '#364153',
                             cancelButtonColor: '#27272a',
                             showCancelButton: true,
                             confirmButtonText: 'บันทึกสถิติ',
@@ -677,9 +678,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                     });
                                   }
                                   
-                                  Swal.fire({ title: 'บันทึกสำเร็จ', text: 'สถิติระบบปรับปรุงเรียบร้อยแล้ว', icon: 'success', confirmButtonColor: '#de7356', background: '#1f1c14', color: '#f5f0e8' });
+                                  Swal.fire({ title: 'บันทึกสำเร็จ', text: 'สถิติระบบปรับปรุงเรียบร้อยแล้ว', icon: 'success', confirmButtonColor: '#364153', background: '#1f1c14', color: '#fff' });
                                 } catch (error: any) {
-                                  Swal.fire({ title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถบันทึกสถิติได้: ' + (error.response?.data?.error || error.message), icon: 'error', confirmButtonColor: '#de7356', background: '#1f1c14', color: '#f5f0e8' });
+                                  Swal.fire({ title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถบันทึกสถิติได้: ' + (error.response?.data?.error || error.message), icon: 'error', confirmButtonColor: '#EF4444', background: '#1f1c14', color: '#fff' });
                                 }
                             }
                         });
@@ -750,7 +751,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                   <button 
                                     onClick={() => {
                                       navigator.clipboard.writeText(p.name);
-                                      Swal.fire({ title: 'Copied!', text: 'คัดลอกชื่อสินค้าแล้ว', icon: 'success', timer: 1000, showConfirmButton: false, background: '#1f1c14', color: '#f5f0e8' });
+                                      Swal.fire({ title: 'Copied!', text: 'คัดลอกชื่อสินค้าแล้ว', icon: 'success', timer: 1000, showConfirmButton: false, background: '#1f1c14', color: '#fff' });
                                     }}
                                     className="text-muted-foreground/80 hover:text-foreground transition-colors"
                                   >
@@ -829,12 +830,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                         text: 'คุณต้องการลบสินค้านี้ใช่หรือไม่?',
                                         icon: 'warning',
                                         showCancelButton: true,
-                                        confirmButtonColor: '#de7356',
+                                        confirmButtonColor: '#dc2626',
                                         cancelButtonColor: '#71717a',
                                         confirmButtonText: 'ลบ',
                                         cancelButtonText: 'ยกเลิก',
                                         background: '#1f1c14',
-                                        color: '#f5f0e8'
+                                        color: '#fff'
                                       }).then(async (result) => {
                                         if (result.isConfirmed) {
                                           try {
@@ -843,7 +844,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                             });
                                             setProducts(prev => prev.filter(prod => prod.id !== p.id));
                                             if (onRefreshData) onRefreshData();
-                                            Swal.fire({ title: 'ลบสำเร็จ', icon: 'success', background: '#1f1c14', color: '#f5f0e8', showConfirmButton: false, timer: 1000 });
+                                            Swal.fire({ title: 'ลบสำเร็จ', icon: 'success', background: '#1f1c14', color: '#fff', showConfirmButton: false, timer: 1000 });
                                           } catch (err: any) {
                                             Swal.fire('Error', 'ไม่สามารถลบสินค้าได้: ' + (err?.response?.data?.error || err.message), 'error');
                                           }
@@ -956,19 +957,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                     text: 'คุณต้องการลบสินค้านี้ใช่หรือไม่?',
                                     icon: 'warning',
                                     showCancelButton: true,
-                                    confirmButtonColor: '#de7356',
+                                    confirmButtonColor: '#dc2626',
                                     cancelButtonColor: '#71717a',
                                     confirmButtonText: 'ลบ',
                                     cancelButtonText: 'ยกเลิก',
                                     background: '#1f1c14',
-                                    color: '#f5f0e8'
+                                    color: '#fff'
                                   }).then(async (result) => {
                                     if (result.isConfirmed) {
                                       try {
                                         await axios.delete(`/api/products/${p.id}`);
                                         setProducts(prev => prev.filter(prod => prod.id !== p.id));
                                         if (onRefreshData) onRefreshData();
-                                        Swal.fire({ title: 'ลบสำเร็จ', icon: 'success', background: '#1f1c14', color: '#f5f0e8', showConfirmButton: false, timer: 1000 });
+                                        Swal.fire({ title: 'ลบสำเร็จ', icon: 'success', background: '#1f1c14', color: '#fff', showConfirmButton: false, timer: 1000 });
                                       } catch (err: any) {
                                         Swal.fire('Error', 'ไม่สามารถลบสินค้าได้', 'error');
                                       }
@@ -1047,7 +1048,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                              <button 
                                onClick={() => {
                                  navigator.clipboard.writeText(key.key);
-                                 Swal.fire({ title: 'Copied!', text: 'คัดลอกคีย์สำเร็จ', icon: 'success', timer: 1000, showConfirmButton: false, confirmButtonColor: '#de7356' });
+                                 Swal.fire({ title: 'Copied!', text: 'คัดลอกคีย์สำเร็จ', icon: 'success', timer: 1000, showConfirmButton: false, confirmButtonColor: '#16a34a' });
                                }}
                                className="text-muted-foreground hover:text-[#364153] transition-colors p-1"
                                title="Copy Key"
@@ -1155,7 +1156,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         showConfirmButton: false,
                         timer: 1500,
                         background: '#1f1c14',
-                        color: '#f5f0e8'
+                        color: '#fff'
                       });
                     } catch (e) {
                       console.error(e);
@@ -1302,8 +1303,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                           confirmButtonText: 'บันทึกใหม่',
                                           cancelButtonText: 'ยกเลิก',
                                           background: '#1f1c14',
-                                          color: '#f5f0e8',
-                                          confirmButtonColor: '#de7356',
+                                          color: '#fff',
+                                          confirmButtonColor: '#364153',
                                           cancelButtonColor: '#27272a'
                                         }).then((result) => {
                                           if (result.isConfirmed && result.value !== undefined) {
@@ -1325,9 +1326,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                             icon: 'warning',
                                             title: 'โปรดกรอกข้อมูลไอดีก่อนส่ง',
                                             text: 'ท่านจำเป็นต้องป้อนข้อมูลที่จะจัดส่งให้กับลูกค้า',
-                                            confirmButtonColor: '#de7356',
+                                            confirmButtonColor: '#dc2626',
                                             background: '#1f1c14',
-                                            color: '#f5f0e8'
+                                            color: '#fff'
                                           });
                                           return;
                                         }
@@ -1390,7 +1391,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           <td className="p-4">
                             <div className="flex items-center gap-2">
                               <span className="text-[#364153] font-medium tracking-tight">{ip.ip}</span>
-                              <button onClick={() => { navigator.clipboard.writeText(ip.ip); Swal.fire({ title: 'Copied!', text: 'คัดลอก IP สำเร็จ', icon: 'success', timer: 1000, showConfirmButton: false, confirmButtonColor: '#de7356' }); }} className="text-muted-foreground hover:text-[#364153]"><Copy className="w-3 h-3" /></button>
+                              <button onClick={() => { navigator.clipboard.writeText(ip.ip); Swal.fire({ title: 'Copied!', text: 'คัดลอก IP สำเร็จ', icon: 'success', timer: 1000, showConfirmButton: false, confirmButtonColor: '#16a34a' }); }} className="text-muted-foreground hover:text-[#364153]"><Copy className="w-3 h-3" /></button>
                             </div>
                           </td>
                           <td className="p-4 text-muted-foreground italic">"{ip.reason}"</td>
@@ -1972,7 +1973,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   setProducts(prev => [...prev, res.data]);
                   if (onRefreshData) onRefreshData();
                   setIsAddingProduct(false);
-                  Swal.fire({ title: 'เพิ่มสินค้าสำเร็จ', icon: 'success', background: '#1f1c14', color: '#f5f0e8' });
+                  Swal.fire({ title: 'เพิ่มสินค้าสำเร็จ', icon: 'success', background: '#1f1c14', color: '#fff' });
                 } catch (err: any) {
                   const errMsg = err?.response?.data?.error || err.message || 'Unknown error';
                   console.error('Error adding product:', err);
@@ -1998,7 +1999,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   setProducts(prev => prev.map(prod => prod.id === p.id ? res.data : prod));
                   if (onRefreshData) onRefreshData();
                   setEditingProduct(undefined);
-                  Swal.fire({ title: 'แก้ไขสินค้าสำเร็จ', icon: 'success', background: '#1f1c14', color: '#f5f0e8' });
+                  Swal.fire({ title: 'แก้ไขสินค้าสำเร็จ', icon: 'success', background: '#1f1c14', color: '#fff' });
                 } catch (err: any) {
                   const status = err?.response?.status;
                   const errMsg = err?.response?.data?.error || err.message || 'Unknown error';
@@ -2050,7 +2051,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       icon: 'info',
                       showConfirmButton: false,
                       allowOutsideClick: false,
-                      background: '#1f1c14', color: '#f5f0e8'
+                      background: '#1f1c14', color: '#fff'
                     });
                   }
 
@@ -2069,7 +2070,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   }
 
                   setStockProduct(undefined);
-                  Swal.fire({ title: 'เพิ่มสต๊อกสำเร็จ', text: `เพิ่มแล้ว ${addedCount} รายการ`, icon: 'success', background: '#1f1c14', color: '#f5f0e8' });
+                  Swal.fire({ title: 'เพิ่มสต๊อกสำเร็จ', text: `เพิ่มแล้ว ${addedCount} รายการ`, icon: 'success', background: '#1f1c14', color: '#fff' });
                 } catch (err: any) {
                   const errorExt = err.response?.data?.error || err.message || JSON.stringify(err);
                   console.error("Update stock error:", err.response?.data || err);

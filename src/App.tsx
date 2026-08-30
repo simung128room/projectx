@@ -199,7 +199,6 @@ const SearchView = lazy(() =>
   import("./components/SearchView").then((m) => ({ default: m.SearchView })),
 );
 
-import { FloatingElements } from './components/FloatingElements';
 import {
   SkeletonHomeLoader,
   SkeletonGenericLoader,
@@ -326,7 +325,7 @@ function AppContent() {
         "ยินดีต้อนรับสู่ APEXSTORE ศูนย์รวมสินค้าไอดีและข้อเสนอยอดฮิต ระบบซื้อขายทำงานอัตโนมัติ 24 ชั่วโมง - กรณีมีปัญหาโปรดติดต่อแอดมิน",
     };
     try {
-      const saved = localStorage.getItem("apex_v2_settings_cache");
+      const saved = localStorage.getItem("apex_settings_cache");
       return saved ? JSON.parse(saved) : defaultSettings;
     } catch {
       return defaultSettings;
@@ -420,7 +419,7 @@ function AppContent() {
 
   const [products, setProducts] = useState<Product[]>(() => {
     try {
-      const saved = localStorage.getItem("apex_v2_products_cache");
+      const saved = localStorage.getItem("apex_products_cache");
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) return parsed;
@@ -439,18 +438,18 @@ function AppContent() {
       topups: 125400,
     };
     try {
-      const saved = localStorage.getItem("apex_v2_stats_cache");
+      const saved = localStorage.getItem("apex_stats_cache");
       return saved ? JSON.parse(saved) : defaultStats;
     } catch (e) {
-      console.warn("Failed to parse apex_v2_stats_cache", e);
-      localStorage.removeItem("apex_v2_stats_cache");
+      console.warn("Failed to parse apex_stats_cache", e);
+      localStorage.removeItem("apex_stats_cache");
       return defaultStats;
     }
   });
 
   const [customPages, setCustomPages] = useState<any[]>(() => {
     try {
-      const saved = localStorage.getItem("apex_v2_pages_cache");
+      const saved = localStorage.getItem("apex_pages_cache");
       return saved ? JSON.parse(saved) : [];
     } catch (e) {
       console.warn("Failed to parse cache", e);
@@ -460,7 +459,7 @@ function AppContent() {
 
   const [categories, setCategories] = useState<any[]>(() => {
     try {
-      const saved = localStorage.getItem("apex_v2_categories_cache");
+      const saved = localStorage.getItem("apex_categories_cache");
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0)
@@ -805,7 +804,7 @@ function AppContent() {
         icon: "error",
         title: "สินค้าไม่เพียงพอ",
         text: "สินค้าหน้านี้มีสต๊อกไม่พอสำหรับจำนวนที่คุณต้องการ",
-        confirmButtonColor: '#de7356',
+        confirmButtonColor: "#dc2626",
       });
       return;
     }
@@ -817,7 +816,7 @@ function AppContent() {
         icon: "error",
         title: "ยอดเงินไม่เพียงพอ",
         text: `กรุณาเติมเงินก่อนทำการสั่งซื้อสินค้า (ยอดรวม: ฿${totalPrice.toLocaleString()})`,
-        confirmButtonColor: '#de7356',
+        confirmButtonColor: "#dc2626",
       });
       return;
     }
@@ -843,9 +842,9 @@ function AppContent() {
           inputValidator: (value) => {
             return !value ? "กรุณาเลือกประเภทไอดีเพื่อดำเนินการต่อ" : "";
           },
-          background: '#1f1c14',
-          color: '#f5f0e8',
-          confirmButtonColor: '#de7356',
+          background: "#121212",
+          color: "#fff",
+          confirmButtonColor: "#3b82f6",
           cancelButtonColor: "#27272a",
         });
 
@@ -865,9 +864,9 @@ function AppContent() {
           inputValidator: (value) => {
             return !value ? "กรุณาระบุรายละเอียดเพื่อดำเนินการต่อ" : "";
           },
-          background: '#1f1c14',
-          color: '#f5f0e8',
-          confirmButtonColor: '#de7356',
+          background: "#121212",
+          color: "#fff",
+          confirmButtonColor: "#3b82f6",
           cancelButtonColor: "#27272a",
         });
 
@@ -953,7 +952,7 @@ function AppContent() {
           icon: "error",
           title: "ขออภัย",
           text: "สินค้าชิ้นนี้เพิ่งหมดไป หรือจำนวนในสต๊อกไม่เพียงพอ",
-          confirmButtonColor: '#de7356',
+          confirmButtonColor: "#dc2626",
         });
 
         // Refetch to update stock and disable button
@@ -977,7 +976,7 @@ function AppContent() {
           icon: "error",
           title: "เกิดข้อผิดพลาด",
           text: errorMessage || "ไม่สามารถทำรายการได้ในขณะนี้ กรุณาลองใหม่",
-          confirmButtonColor: '#de7356',
+          confirmButtonColor: "#dc2626",
         });
       }
     }
@@ -988,6 +987,7 @@ function AppContent() {
   const [purchasedItemReceipt, setPurchasedItemReceipt] = useState<any>(null);
 
   // Product + Stats loaders - No localStorage fallback, trust API
+  useEffect(() => {}, []);
 
   const syncUserPlan = useCallback(
     async (newPlan: UserPlan | null, uid: string) => {
@@ -1179,7 +1179,7 @@ function AppContent() {
             setSiteSettings(res.data);
             try {
               localStorage.setItem(
-                "apex_v2_settings_cache",
+                "apex_settings_cache",
                 JSON.stringify(res.data),
               );
             } catch (e) {
@@ -1194,7 +1194,7 @@ function AppContent() {
             setProducts(finalProds);
             try {
               localStorage.setItem(
-                "apex_v2_products_cache",
+                "apex_products_cache",
                 JSON.stringify(finalProds),
               );
             } catch (e) {
@@ -1209,7 +1209,7 @@ function AppContent() {
             setCategories(sanitized);
             try {
               localStorage.setItem(
-                "apex_v2_categories_cache",
+                "apex_categories_cache",
                 JSON.stringify(sanitized),
               );
             } catch (e) {
@@ -1226,7 +1226,7 @@ function AppContent() {
             setSiteStats(statsObj);
             try {
               localStorage.setItem(
-                "apex_v2_stats_cache",
+                "apex_stats_cache",
                 JSON.stringify(statsObj),
               );
             } catch (e) {
@@ -1242,7 +1242,7 @@ function AppContent() {
             setCustomPages(pagesToSet);
             try {
               localStorage.setItem(
-                "apex_v2_pages_cache",
+                "apex_pages_cache",
                 JSON.stringify(pagesToSet),
               );
             } catch (e) {
@@ -1260,27 +1260,21 @@ function AppContent() {
       });
 
       // Health check for DB readiness
-      const healthPromise = fetchApi("/api/health").then((res) => {
-        if (res.error) {
-          if (res.error !== "canceled" && res.error !== "stale") {
-            setIsDBReady(false);
-            setDbErrorDetail(`Backend API ไม่ตอบสนอง (Offline): ${res.error}`);
-            setClientIp("offline_local");
-          }
-        } else {
+      const healthPromise = axios
+        .get("/api/health")
+        .then(() => {
           setIsDBReady(true);
           setDbErrorDetail(null);
-          setClientIp(res.data?.clientIp || "Unknown");
-        }
-      });
+        })
+        .catch((e) => {
+          setIsDBReady(false);
+          let errorMsg =
+            e.response?.data?.error || e.message || "Unknown Error";
+          setDbErrorDetail(`Backend API ไม่ตอบสนอง (Offline): ${errorMsg}`);
+        });
 
-      // Fetch UI endpoints non-blocking to allow instant home reveal
-      mainFetchPromise.catch((err) => {
-          console.error("Main fetch promise error:", err);
-      });
-
-      // Await health check only, let main data fill in asynchronously to avoid skeleton loop
-      await healthPromise;
+      // Await only the critical home view endpoints + backend health check to reveal the home UI instantly
+      await Promise.all([mainFetchPromise, healthPromise]);
       console.timeEnd(`fetchAllData-${currentRequestId}`);
     } catch (err: any) {
       console.error("Critical fetch error in fetchAllData:", err);
@@ -1310,9 +1304,7 @@ function AppContent() {
                 const parsed = JSON.parse(name);
                 name = parsed.n || parsed.name || name;
               }
-            } catch (e) {
-              console.warn("Failed to parse product name json in purchase history", e);
-            }
+            } catch (e) {}
             return { ...p, productName: name };
           });
           setPurchaseHistory(purchaseData);
@@ -1403,10 +1395,10 @@ function AppContent() {
       if (savedUserPlan) setUserPlan(JSON.parse(savedUserPlan));
 
       // Fast check if cache resources exist to bypass loading screen delays
-      const hasCachedStats = !!localStorage.getItem("apex_v2_stats_cache");
-      const hasCachedProducts = !!localStorage.getItem("apex_v2_products_cache");
+      const hasCachedStats = !!localStorage.getItem("apex_stats_cache");
+      const hasCachedProducts = !!localStorage.getItem("apex_products_cache");
       const hasCachedCategories = !!localStorage.getItem(
-        "apex_v2_categories_cache",
+        "apex_categories_cache",
       );
       const isCacheAvailable =
         hasCachedStats && hasCachedProducts && hasCachedCategories;
@@ -1425,6 +1417,16 @@ function AppContent() {
       // Concurrent parallel boot loading of metadata, pages, settings, stats, and client configuration
       try {
         await Promise.all([
+          axios
+            .get("/api/health")
+            .then((res) => {
+              const ip = res.data.clientIp || "Unknown";
+              setClientIp(ip);
+            })
+            .catch((err) => {
+              setClientIp("offline_local");
+              console.error("IP Check Failed", err);
+            }),
           fetchAllData(),
         ]);
       } catch (err) {
@@ -1455,8 +1457,8 @@ function AppContent() {
         didOpen: () => {
           Swal.showLoading();
         },
-        background: '#1f1c14',
-        color: '#f5f0e8',
+        background: "#121212",
+        color: "#fff",
       });
 
       const res = await axios.post("/api/redeem", { key: keyInput.trim() });
@@ -1474,8 +1476,8 @@ function AppContent() {
         icon: "success",
         title: "ยินดีด้วย!",
         text: `คุณได้รับสิทธิ์ระดับ Premium เรียบร้อยแล้ว`,
-        background: '#1f1c14',
-        color: '#f5f0e8',
+        background: "#121212",
+        color: "#fff",
       });
     } catch (err: any) {
       if (
@@ -1487,16 +1489,16 @@ function AppContent() {
           icon: "error",
           title: "ไม่พบกุญแจนี้",
           text: "รหัสที่คุณกรอกอาจจะผิด หรือถูกใช้งานไปแล้ว",
-          background: '#1f1c14',
-          color: '#f5f0e8',
+          background: "#121212",
+          color: "#fff",
         });
       } else if (err.response && err.response.status === 404) {
         Swal.fire({
           icon: "error",
           title: "ไม่พบกุญแจนี้",
           text: "รหัสที่คุณกรอกอาจจะผิด หรือถูกใช้งานไปแล้ว",
-          background: '#1f1c14',
-          color: '#f5f0e8',
+          background: "#121212",
+          color: "#fff",
         });
       } else {
         handleDbError(err, OperationType.WRITE, "license_keys");
@@ -1532,8 +1534,8 @@ function AppContent() {
       title: "ออกจากระบบแล้ว",
       timer: 1500,
       showConfirmButton: false,
-      background: '#1f1c14',
-      color: '#f5f0e8',
+      background: "#121212",
+      color: "#fff",
     });
   };
 
@@ -1555,7 +1557,7 @@ function AppContent() {
         "</select>" +
         '<input id="swal-input2" class="swal2-input bg-card border-#1f2937 text-foreground w-full" placeholder="จำนวนคีย์ (1-50)" type="number" value="1">',
       focusConfirm: false,
-      background: '#1f1c14',
+      background: "#ffffff",
       color: "#18181b",
       preConfirm: () => {
         return [
@@ -1604,7 +1606,7 @@ function AppContent() {
         '<input id="swal-ip" class="swal2-input bg-card border-#1f2937 text-foreground w-full" placeholder="IP Address เช่น 1.1.1.1">' +
         '<input id="swal-reason" class="swal2-input bg-card border-#1f2937 text-foreground w-full" placeholder="เหตุผลการบล็อค">',
       focusConfirm: false,
-      background: '#1f1c14',
+      background: "#ffffff",
       color: "#18181b",
       preConfirm: () => {
         return [
@@ -1640,10 +1642,10 @@ function AppContent() {
       text: "คุณกำลังลบคีย์ " + keyId,
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: '#de7356',
+      confirmButtonColor: "#ef4444",
       cancelButtonColor: "#27272a",
       confirmButtonText: "ลบออก",
-      background: '#1f1c14',
+      background: "#ffffff",
       color: "#18181b",
     });
 
@@ -1719,7 +1721,7 @@ function AppContent() {
         text: `คุณต้องการลบคีย์จำนวน ${keysToDelete.length} รายการใช่หรือไม่?`,
         icon: "warning",
         showCancelButton: true,
-        confirmButtonColor: '#de7356',
+        confirmButtonColor: "#ef4444",
         confirmButtonText: "ยืนยันการลบ",
         cancelButtonText: "ยกเลิก",
       });
@@ -1774,116 +1776,183 @@ function AppContent() {
     }
   };
 
+  const isLoadingSkeleton = !isDBReady;
 
   return (
     <div className="w-full relative min-h-screen font-sans text-foreground overflow-x-hidden bg-background">
         <ScrollToTop activeView={activeView} />
 
-                {/* ZEROSHOP Floating Glass Navbar */}
-        <div className="sticky top-0 sm:top-3 z-50 w-full px-2 sm:px-6 max-w-7xl mx-auto pointer-events-auto">
-          <nav className="w-full bg-slate-950/70 backdrop-blur-xl border border-white/15 rounded-2xl shadow-[0_12px_40px_rgba(0,0,0,0.6),inset_0_1px_1px_rgba(255,255,255,0.2)] transition-all">
-            <div className="container mx-auto flex h-[68px] items-center px-4 relative justify-between gap-4">
-              
-              {/* Mobile Hamburger (left on mobile, hidden on desktop) */}
-              <div className="flex md:hidden items-center z-[1001] relative">
-                <button 
-                  className="text-white/80 hover:text-white transition-colors duration-300 outline-none select-none relative w-10 h-10 flex items-center justify-center cursor-pointer bg-white/10 backdrop-blur-md border border-white/20 rounded-xl hover:border-blue-400/60 shadow-[inset_0_1px_1px_rgba(255,255,255,0.25)]" 
-                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                  aria-label="เมนู"
-                >
-                  <div className="w-[18px] h-[10px] relative select-none">
-                    <motion.span
-                      animate={isMobileMenuOpen ? { rotate: 45, y: 4 } : { rotate: 0, y: 0 }}
-                      transition={{ type: "spring", stiffness: 260, damping: 20 }}
-                      className="w-full h-[2px] bg-white absolute top-0 left-0 origin-center rounded-full"
-                    />
-                    <motion.span
-                      animate={isMobileMenuOpen ? { opacity: 0, scale: 0.5 } : { opacity: 1, scale: 1 }}
-                      transition={{ type: "spring", stiffness: 260, damping: 20 }}
-                      className="w-full h-[2px] bg-white absolute top-[4px] left-0 origin-center rounded-full"
-                    />
-                    <motion.span
-                      animate={isMobileMenuOpen ? { rotate: -45, y: -4 } : { rotate: 0, y: 0 }}
-                      transition={{ type: "spring", stiffness: 260, damping: 20 }}
-                      className="w-full h-[2px] bg-white absolute bottom-0 left-0 origin-center rounded-full"
-                    />
-                  </div>
-                </button>
-              </div>
+        {/* XENOBUX STORE Navbar */}
+        <nav className="relative top-0 z-50 w-full bg-background/80 backdrop-blur-md border-b border-border sticky">
+          <div className="container mx-auto flex h-[64px] items-center px-4 relative justify-between">
+            
+            {/* Left side controls (Hamburger Menu) */}
+            <div className="flex-1 flex items-center z-[1001] relative">
+              <button 
+                className="text-muted-foreground hover:text-foreground transition-colors duration-300 outline-none select-none relative w-9 h-9 flex items-center justify-center cursor-pointer bg-card border border-border rounded-lg hover:border-ring" 
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                aria-label="เมนู"
+              >
+                <div className="w-[18px] h-[10px] relative select-none">
+                  <motion.span
+                    animate={isMobileMenuOpen ? { rotate: 45, y: 4 } : { rotate: 0, y: 0 }}
+                    transition={{ type: "spring", stiffness: 260, damping: 20 }}
+                    className="w-full h-[2px] bg-zinc-300 absolute top-0 left-0 origin-center rounded-full"
+                  />
+                  <motion.span
+                    animate={isMobileMenuOpen ? { opacity: 0, scale: 0.5 } : { opacity: 1, scale: 1 }}
+                    transition={{ type: "spring", stiffness: 260, damping: 20 }}
+                    className="w-full h-[2px] bg-zinc-300 absolute top-[4px] left-0 origin-center rounded-full"
+                  />
+                  <motion.span
+                    animate={isMobileMenuOpen ? { rotate: -45, y: -4 } : { rotate: 0, y: 0 }}
+                    transition={{ type: "spring", stiffness: 260, damping: 20 }}
+                    className="w-full h-[2px] bg-zinc-300 absolute bottom-0 left-0 origin-center rounded-full"
+                  />
+                </div>
+              </button>
 
-              {/* Logo */}
+              {/* Invisible Backdrop overlay to dismiss dropdown on outer click on desktop */}
+              {isMobileMenuOpen && (
+                <div 
+                  className="hidden md:block fixed inset-0 z-[1001] bg-transparent cursor-default" 
+                  onClick={() => setIsMobileMenuOpen(false)}
+                />
+              )}
+
+              {/* Floating Dropdown for desktop (md and larger) styled exactly like the screenshot with the actual app options */}
+              <AnimatePresence>
+                {isMobileMenuOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 15, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 15, scale: 0.95 }}
+                    transition={{ duration: 0.15, ease: "easeOut" }}
+                    className="hidden md:flex absolute top-[120%] left-0 w-[240px] bg-card border border-border rounded-lg shadow-[0_12px_40px_rgba(0,0,0,0.8)] z-[1002] flex-col p-1.5 select-none overflow-hidden"
+                  >
+                    {/* Subtle top glow overlay */}
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.03),transparent_70%)] pointer-events-none" />
+
+                    {/* Dropdown items */}
+                    <div className="relative z-10 flex flex-col w-full font-sans">
+                      {isAdmin && (
+                        <button 
+                          onClick={() => { setIsMobileMenuOpen(false); setActiveView('admin'); }}
+                          className="w-full text-left px-4 py-2.5 text-[13.5px] font-medium text-zinc-200 hover:text-foreground rounded transition-all bg-transparent hover:bg-border border-none outline-none cursor-pointer flex items-center gap-2.5 group/item"
+                        >
+                          <span className="w-1.5 h-1.5 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)] group-hover/item:scale-110 transition-transform animate-pulse" />
+                          จัดการระบบ (แอดมิน)
+                        </button>
+                      )}
+
+                      <button 
+                        onClick={() => { setIsMobileMenuOpen(false); setActiveView('home'); window.scrollTo(0, 0); }}
+                        className="w-full text-left px-4 py-2.5 text-[13.5px] font-medium text-zinc-200 hover:text-foreground rounded transition-all bg-transparent hover:bg-border border-none outline-none cursor-pointer flex items-center gap-2.5 group/item"
+                      >
+                        <Home className="w-[14px] h-[14px] text-muted-foreground group-hover/item:text-zinc-200 transition-colors" />
+                        หน้าแรก
+                      </button>
+
+                      <button 
+                        onClick={() => { setIsMobileMenuOpen(false); setActiveView('categories'); window.scrollTo(0, 0); }}
+                        className="w-full text-left px-4 py-2.5 text-[13.5px] font-medium text-zinc-200 hover:text-foreground rounded transition-all bg-transparent hover:bg-border border-none outline-none cursor-pointer flex items-center gap-2.5 group/item"
+                      >
+                        <Package className="w-[14px] h-[14px] text-muted-foreground group-hover/item:text-zinc-200 transition-colors" />
+                        สินค้าทั้งหมด
+                      </button>
+
+                      <button 
+                        onClick={() => { setIsMobileMenuOpen(false); if (!user) { setActiveView('login'); } else { setActiveView('wallet'); } }}
+                        className="w-full text-left px-4 py-2.5 text-[13.5px] font-medium text-zinc-200 hover:text-foreground rounded transition-all bg-transparent hover:bg-border border-none outline-none cursor-pointer flex items-center gap-2.5 group/item"
+                      >
+                        <Wallet className="w-[14px] h-[14px] text-muted-foreground group-hover/item:text-zinc-200 transition-colors" />
+                        กระเป๋าเงิน (เติมเงิน)
+                      </button>
+
+                      <button 
+                        onClick={() => { setIsMobileMenuOpen(false); if (!user) { setActiveView('login'); } else { setActiveView('redeem'); } }}
+                        className="w-full text-left px-4 py-2.5 text-[13.5px] font-medium text-zinc-200 hover:text-foreground rounded transition-all bg-transparent hover:bg-border border-none outline-none cursor-pointer flex items-center gap-2.5 group/item"
+                      >
+                        <Gift className="w-[14px] h-[14px] text-amber-500 group-hover/item:scale-105 transition-transform" />
+                        <span className="text-amber-500 font-semibold">รับโบนัสฟรี (Daily Reward)</span>
+                      </button>
+
+                      <button 
+                        onClick={() => { setIsMobileMenuOpen(false); if (!user) { setActiveView('login'); } else { setActiveView('history'); } }}
+                        className="w-full text-left px-4 py-2.5 text-[13.5px] font-medium text-zinc-200 hover:text-foreground rounded transition-all bg-transparent hover:bg-border border-none outline-none cursor-pointer flex items-center gap-2.5 group/item"
+                      >
+                        <History className="w-[14px] h-[14px] text-muted-foreground group-hover/item:text-zinc-200 transition-colors" />
+                        คำสั่งซื้อของฉัน
+                      </button>
+
+                      <button 
+                        onClick={() => { setIsMobileMenuOpen(false); if (!user) { setActiveView('login'); } else { setActiveView('profile'); } }}
+                        className="w-full text-left px-4 py-2.5 text-[13.5px] font-medium text-zinc-200 hover:text-foreground rounded transition-all bg-transparent hover:bg-border border-none outline-none cursor-pointer flex items-center gap-2.5 group/item"
+                      >
+                        <User className="w-[14px] h-[14px] text-muted-foreground group-hover/item:text-zinc-200 transition-colors" />
+                        โปรไฟล์ / บัญชีของฉัน
+                      </button>
+
+                      {!user && (
+                        <button 
+                          onClick={() => { setIsMobileMenuOpen(false); setActiveView('login'); }}
+                          className="w-full text-left px-4 py-2.5 text-[13.5px] font-medium text-amber-400 hover:text-amber-300 rounded transition-all bg-transparent hover:bg-border border-none outline-none cursor-pointer flex items-center gap-2.5"
+                        >
+                          <LogIn className="w-[14px] h-[14px]" />
+                          เข้าสู่ระบบ / สมัครสมาชิก
+                        </button>
+                      )}
+
+                      {user && (
+                        <>
+                          {/* Divider line exactly like screenshot */}
+                          <div className="h-[1px] w-full bg-border my-1" />
+
+                          <button 
+                            onClick={() => { setIsMobileMenuOpen(false); handleLogout(); }}
+                            className="w-full text-left px-4 py-2.5 text-[13.5px] font-semibold text-red-500 hover:text-red-400 hover:bg-red-500/10 rounded transition-all border-none bg-transparent outline-none cursor-pointer flex items-center gap-2.5"
+                          >
+                            <LogOut className="w-[14px] h-[14px] text-red-500" />
+                            ออกจากระบบ
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Centered Logo with clean minimal border */}
+            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[1001]">
               <div 
-                className="flex items-center gap-3 cursor-pointer select-none group z-[1001]" 
+                className="flex items-center cursor-pointer select-none group" 
                 onClick={() => { setActiveView('home'); window.scrollTo(0,0); }}
               >
                 <img 
-                  src="https://img1.pic.in.th/images/1000045512.png" 
-                  alt="ZEROSHOP Logo" 
-                  className="h-[38px] w-[38px] md:h-[42px] md:w-[42px] rounded-[12px] object-cover border border-white/20 shadow-[0_0_15px_rgba(37,99,235,0.3)] transition-transform group-hover:scale-105" 
+                  src="https://img2.pic.in.th/IMG_7319.png" 
+                  alt="nxyshop Logo" 
+                  className="h-[40px] w-[40px] md:h-[44px] md:w-[44px] rounded-full object-cover border border-border transition-transform group-hover:scale-105" 
                 />
-                <span className="font-bold text-[20px] tracking-tight font-display hidden sm:block text-white">
-                  ZERO<span className="text-blue-500">SHOP</span>
-                </span>
-              </div>
-
-              {/* Desktop Menu */}
-              <div className="hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
-                <button onClick={() => { setActiveView('home'); window.scrollTo(0,0); }} className={`text-[15px] font-medium transition-all ${activeView === 'home' ? 'text-blue-400 font-semibold' : 'text-white/70 hover:text-white'}`}>หน้าแรก</button>
-                <button onClick={() => { setActiveView('categories'); window.scrollTo(0,0); }} className={`text-[15px] font-medium transition-all ${activeView === 'categories' ? 'text-blue-400 font-semibold' : 'text-white/70 hover:text-white'}`}>ร้านค้า</button>
-                <button onClick={() => { if (!user) { setActiveView('login'); } else { setActiveView('wallet'); } }} className={`text-[15px] font-medium transition-all ${activeView === 'wallet' ? 'text-blue-400 font-semibold' : 'text-white/70 hover:text-white'}`}>เติมเงิน</button>
-                <button onClick={() => { window.open('#', '_blank'); }} className="text-[15px] font-medium text-white/70 hover:text-white transition-colors">ซื้อเบอร์ sms</button>
-              </div>
-
-              {/* Right side controls */}
-              <div className="flex flex-1 md:flex-none items-center justify-end z-[1001] gap-3">
-                <div className="hidden lg:flex relative w-[220px]">
-                  <Search className="w-[16px] h-[16px] text-white/50 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                  <input 
-                    type="text" 
-                    placeholder="ค้นหาเกม / บัตรเติมเงิน..." 
-                    className="w-full bg-white/5 backdrop-blur-md border border-white/15 rounded-full py-2 pl-9 pr-4 text-[13px] text-white placeholder:text-white/40 focus:outline-none focus:border-blue-400/70 focus:bg-white/10 transition-all shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]"
-                    onClick={() => setShowSearchPopup(true)}
-                    readOnly
-                  />
-                </div>
-                
-                <button 
-                  onClick={() => setShowSearchPopup(true)}
-                  className="lg:hidden text-white/70 hover:text-white transition-colors duration-300 w-10 h-10 flex items-center justify-center bg-white/10 backdrop-blur-md border border-white/15 rounded-xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)]"
-                >
-                  <Search className="w-[18px] h-[18px]" />
-                </button>
-
-                {!user ? (
-                  <button 
-                    onClick={() => setActiveView('login')}
-                    className="px-5 py-2 md:py-2 md:px-6 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-semibold text-[14px] shadow-[0_4px_20px_rgba(37,99,235,0.5),inset_0_1px_1px_rgba(255,255,255,0.3)] transition-all transform hover:scale-105 active:scale-95 outline-none whitespace-nowrap cursor-pointer border border-blue-400/40"
-                  >
-                    เข้าสู่ระบบ
-                  </button>
-                ) : (
-                  <div className="flex items-center gap-2">
-                    <div className="hidden sm:flex flex-col items-end mr-2">
-                      <span className="text-[13px] font-bold text-white">{user.displayName || 'User'}</span>
-                      <div className="flex items-center gap-1 text-[11px] font-mono text-blue-400 font-semibold">
-                        <Wallet className="w-3 h-3 text-blue-400" />
-                        {user.balance.toFixed(2)} ฿
-                      </div>
-                    </div>
-                    <button 
-                      onClick={() => setIsMobileProfilePopupOpen(!isMobileProfilePopupOpen)}
-                      className="w-10 h-10 rounded-full border-2 border-blue-400/60 bg-white/10 backdrop-blur-md overflow-hidden flex items-center justify-center relative cursor-pointer shadow-[0_0_12px_rgba(37,99,235,0.3)] hover:border-blue-300 transition-all"
-                    >
-                      {user.photoURL ? <img src={user.photoURL} alt="Avatar" className="w-full h-full object-cover" /> : <User className="w-[18px] h-[18px] text-blue-400" />}
-                    </button>
-                  </div>
-                )}
               </div>
             </div>
-          </nav>
-        </div>
 
-        {/* Universal Floating Glass Sidebar Drawer ( sidebar ลอย กระจกสะท้อนแสง ) */}
+            {/* Right side controls matching screenshot exactly in a dark theme style */}
+            <div className="flex-1 flex items-center justify-end z-[1001] relative">
+              <button 
+                onClick={() => setShowSearchPopup(true)}
+                className="text-muted-foreground hover:text-foreground transition-all duration-300 outline-none select-none relative w-9 h-9 flex items-center justify-center cursor-pointer bg-card border border-border rounded-lg hover:border-ring"
+                aria-label="ค้นหา"
+              >
+                <Search className="w-[16px] h-[16px] stroke-[2]" />
+              </button>
+            </div>
+            
+          </div>
+        </nav>
+
+
+        {/* Universal Sidebar Drawer */}
         <AnimatePresence>
           {isMobileMenuOpen && (
             <motion.div
@@ -1891,87 +1960,79 @@ function AppContent() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.25 }}
+              transition={{ duration: 0.2 }}
               onClick={() => setIsMobileMenuOpen(false)}
-              className="fixed inset-0 bg-black/75 backdrop-blur-xl z-[999]"
+              className="md:hidden fixed inset-0 bg-black/60 backdrop-blur-md z-[999]"
             />
           )}
 
           {isMobileMenuOpen && (
             <motion.div
               key="sidebar-drawer"
-              initial={{ x: "-100%", opacity: 0 }}
+              initial={{ x: "-100%", opacity: 0.5 }}
               animate={{ x: 0, opacity: 1 }}
-              exit={{ x: "-100%", opacity: 0 }}
-              transition={{ type: "spring", damping: 26, stiffness: 220 }}
-              className="fixed left-3 top-3 bottom-3 w-[275px] max-w-[85vw] bg-slate-950/85 backdrop-blur-2xl border border-white/20 rounded-3xl shadow-[0_25px_60px_rgba(0,0,0,0.9),inset_0_1px_2px_rgba(255,255,255,0.3)] z-[1000] flex flex-col font-sans overflow-hidden"
+              exit={{ x: "-100%", opacity: 0.5 }}
+              transition={{ type: "spring", damping: 28, stiffness: 220 }}
+              className="md:hidden fixed left-0 top-0 bottom-0 h-full w-[260px] max-w-[85vw] bg-background border-r border-border shadow-[0_0_40px_rgba(0,0,0,0.8)] z-[1000] flex flex-col font-sans overflow-x-hidden overflow-y-auto"
             >
-              {/* Glass reflection beam effect */}
-              <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-br from-white/15 via-white/5 to-transparent pointer-events-none" />
-
-              <div className="relative z-10 flex flex-col h-full py-6 px-5 select-none text-white w-full overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
+              <div className="flex flex-col h-full py-6 px-6 select-none bg-background text-foreground w-full" style={{ scrollbarWidth: 'none' }}>
                 {/* Header: Logo and Close Button */}
                 <div className="flex justify-between items-center w-full mb-6">
-                  <div className="flex items-center gap-2.5">
-                    <img src="https://img1.pic.in.th/images/1000045512.png" alt="Logo" className="h-[34px] w-[34px] rounded-xl object-cover border border-white/20 shadow-[0_0_10px_rgba(37,99,235,0.4)]" />
-                    <span className="font-bold text-lg tracking-tight font-display text-white">
-                      ZERO<span className="text-blue-500">SHOP</span>
-                    </span>
-                  </div>
+                  <img src="https://i.postimg.cc/3wDpxHPp/D7D8FA4A-524D-480E-9BF3-8451C296F760.png" alt="Logo" className="h-[28px] w-auto object-contain" />
                   <button 
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="w-9 h-9 flex items-center justify-center text-white/70 hover:text-white transition-colors cursor-pointer rounded-full bg-white/10 border border-white/15 hover:bg-white/20 outline-none"
+                    className="w-10 h-10 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer rounded-full border-none bg-transparent outline-none -mr-4"
                     aria-label="ปิดเมนู"
                   >
-                    <X className="w-5 h-5" />
+                    <X className="w-6 h-6" />
                   </button>
                 </div>
 
-                <div className="h-[1px] w-full bg-white/10 mb-5" />
+                <div className="h-[1px] w-full bg-border mb-4" />
 
                 {/* Overview Section */}
                 <div className="flex flex-col space-y-2">
-                  <span className="text-[11px] text-blue-400 font-bold tracking-wider font-mono uppercase mb-1">ภาพรวม</span>
-                  <button onClick={() => { setIsMobileMenuOpen(false); setActiveView('home'); window.scrollTo(0, 0); }} className={`flex items-center gap-3 text-left font-medium text-[14px] py-2.5 px-3 rounded-xl transition-all cursor-pointer border-none outline-none ${activeView === 'home' ? 'bg-blue-600/30 text-white border border-blue-500/40 shadow-[inset_0_1px_0_rgba(255,255,255,0.2)]' : 'text-white/80 hover:text-white hover:bg-white/10'}`}>
-                    <Home className="w-4 h-4 text-blue-400" />
+                  <span className="text-[12px] text-muted-foreground/80 font-medium tracking-wider font-mono mb-2">ภาพรวม</span>
+                  <button onClick={() => { setIsMobileMenuOpen(false); setActiveView('home'); window.scrollTo(0, 0); }} className="flex items-center gap-3 text-left font-medium text-[15px] text-zinc-300 hover:text-foreground bg-transparent hover:bg-border py-2 px-3 -mx-3 rounded transition-colors cursor-pointer border-none outline-none">
+                    <Home className="w-4 h-4 text-muted-foreground" />
                     หน้าแรก
                   </button>
-                  <button onClick={() => { setIsMobileMenuOpen(false); setActiveView('categories'); window.scrollTo(0, 0); }} className={`flex items-center gap-3 text-left font-medium text-[14px] py-2.5 px-3 rounded-xl transition-all cursor-pointer border-none outline-none ${activeView === 'categories' ? 'bg-blue-600/30 text-white border border-blue-500/40 shadow-[inset_0_1px_0_rgba(255,255,255,0.2)]' : 'text-white/80 hover:text-white hover:bg-white/10'}`}>
-                    <Package className="w-4 h-4 text-blue-400" />
+                  <button onClick={() => { setIsMobileMenuOpen(false); setActiveView('categories'); window.scrollTo(0, 0); }} className="flex items-center gap-3 text-left font-medium text-[15px] text-zinc-300 hover:text-foreground bg-transparent hover:bg-border py-2 px-3 -mx-3 rounded transition-colors cursor-pointer border-none outline-none">
+                    <Package className="w-4 h-4 text-muted-foreground" />
                     สินค้าทั้งหมด
                   </button>
-                  <button onClick={() => { setIsMobileMenuOpen(false); setActiveView('categories'); }} className="flex items-center gap-3 text-left font-medium text-[14px] py-2.5 px-3 rounded-xl text-white/80 hover:text-white hover:bg-white/10 transition-all cursor-pointer border-none outline-none">
-                    <MessageSquare className="w-4 h-4 text-blue-400" />
+                  <button onClick={() => { setIsMobileMenuOpen(false); /* Optional: add contact view/popup */ }} className="flex items-center gap-3 text-left font-medium text-[15px] text-zinc-300 hover:text-foreground bg-transparent hover:bg-border py-2 px-3 -mx-3 rounded transition-colors cursor-pointer border-none outline-none">
+                    <MessageSquare className="w-4 h-4 text-muted-foreground" />
                     ติดต่อเรา
                   </button>
                 </div>
 
-                <div className="h-[1px] w-full bg-white/10 my-4" />
+                <div className="h-[1px] w-full bg-border my-4" />
 
                 {/* Finance Section */}
                 <div className="flex flex-col space-y-2">
-                  <span className="text-[11px] text-blue-400 font-bold tracking-wider font-mono uppercase mb-1">บริการผู้ใช้</span>
-                  <button onClick={() => { setIsMobileMenuOpen(false); if (!user) { setActiveView('login'); } else { setActiveView('wallet'); } }} className={`flex items-center gap-3 text-left font-medium text-[14px] py-2.5 px-3 rounded-xl transition-all cursor-pointer border-none outline-none ${activeView === 'wallet' ? 'bg-blue-600/30 text-white border border-blue-500/40 shadow-[inset_0_1px_0_rgba(255,255,255,0.2)]' : 'text-white/80 hover:text-white hover:bg-white/10'}`}>
-                    <Wallet className="w-4 h-4 text-blue-400" />
-                    เติมเงิน / กระเป๋าเงิน
+                  <span className="text-[12px] text-muted-foreground/80 font-medium tracking-wider font-mono mb-2">บัญชีผู้ใช้</span>
+                  <button onClick={() => { setIsMobileMenuOpen(false); if (!user) { setActiveView('login'); } else { setActiveView('wallet'); } }} className="flex items-center gap-3 text-left font-medium text-[15px] text-zinc-300 hover:text-foreground bg-transparent hover:bg-border py-2 px-3 -mx-3 rounded transition-colors cursor-pointer border-none outline-none">
+                    <Wallet className="w-4 h-4 text-muted-foreground" />
+                    กระเป๋าเงิน
                   </button>
-                  <button onClick={() => { setIsMobileMenuOpen(false); if (!user) { setActiveView('login'); } else { setActiveView('redeem'); } }} className="flex items-center gap-3 text-left font-medium text-[14px] py-2.5 px-3 rounded-xl text-amber-300 hover:bg-amber-500/20 transition-all cursor-pointer border border-amber-500/30 bg-amber-500/10 outline-none">
-                    <Gift className="w-4 h-4 text-amber-400 animate-bounce" />
-                    <span className="font-semibold">รับโบนัสฟรี (Daily)</span>
+                  <button onClick={() => { setIsMobileMenuOpen(false); if (!user) { setActiveView('login'); } else { setActiveView('redeem'); } }} className="flex items-center gap-3 text-left font-medium text-[15px] text-zinc-300 hover:text-foreground bg-transparent hover:bg-border py-2 px-3 -mx-3 rounded transition-colors cursor-pointer border-none outline-none">
+                    <Gift className="w-4 h-4 text-amber-500" />
+                    <span className="text-amber-550 font-semibold">รับโบนัสฟรี (Daily Reward)</span>
                   </button>
-                  <button onClick={() => { setIsMobileMenuOpen(false); if (!user) { setActiveView('login'); } else { setActiveView('history'); } }} className="flex items-center gap-3 text-left font-medium text-[14px] py-2.5 px-3 rounded-xl text-white/80 hover:text-white hover:bg-white/10 transition-all cursor-pointer border-none outline-none">
-                    <History className="w-4 h-4 text-blue-400" />
-                    ประวัติการสั่งซื้อ
+                  <button onClick={() => { setIsMobileMenuOpen(false); if (!user) { setActiveView('login'); } else { setActiveView('history'); } }} className="flex items-center gap-3 text-left font-medium text-[15px] text-zinc-300 hover:text-foreground bg-transparent hover:bg-border py-2 px-3 -mx-3 rounded transition-colors cursor-pointer border-none outline-none">
+                    <History className="w-4 h-4 text-muted-foreground" />
+                    ประวัติธุรกรรม
                   </button>
-                  <button onClick={() => { setIsMobileMenuOpen(false); if (!user) { setActiveView('login'); } else { setActiveView('profile'); } }} className="flex items-center gap-3 text-left font-medium text-[14px] py-2.5 px-3 rounded-xl text-white/80 hover:text-white hover:bg-white/10 transition-all cursor-pointer border-none outline-none">
-                    <User className="w-4 h-4 text-blue-400" />
+                  <button onClick={() => { setIsMobileMenuOpen(false); if (!user) { setActiveView('login'); } else { setActiveView('profile'); } }} className="flex items-center gap-3 text-left font-medium text-[15px] text-zinc-300 hover:text-foreground bg-transparent hover:bg-border py-2 px-3 -mx-3 rounded transition-colors cursor-pointer border-none outline-none">
+                    <User className="w-4 h-4 text-muted-foreground" />
                     บัญชีของฉัน
                   </button>
                 </div>
 
                 <div className="mt-auto flex flex-col w-full pt-4">
                   <div className="flex flex-col space-y-2 mb-2">
-                     <span className="text-[11px] text-blue-400 font-bold tracking-wider font-mono uppercase">บัญชี</span>
+                     <span className="text-[12px] text-muted-foreground/80 font-medium tracking-wider font-mono">บัญชี</span>
                   </div>
 
                   {/* Account Section */}
@@ -1979,27 +2040,27 @@ function AppContent() {
                     {!user ? (
                       <button 
                         onClick={() => { setIsMobileMenuOpen(false); setActiveView('login'); }}
-                        className="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm rounded-xl transition-all cursor-pointer border border-blue-400/40 shadow-[0_4px_15px_rgba(37,99,235,0.4),inset_0_1px_1px_rgba(255,255,255,0.3)] outline-none"
+                        className="w-full py-2.5 bg-foreground text-background hover:opacity-90 font-semibold text-sm rounded transition-colors cursor-pointer border-none outline-none"
                       >
                         เข้าสู่ระบบ
                       </button>
                     ) : (
                       <div className="relative">
                         <div className="flex justify-between items-center mb-4">
-                          <button onClick={() => { }} className="flex-1 max-w-[44px] h-[44px] rounded-xl bg-white/10 border border-white/15 flex items-center justify-center text-white/80 hover:text-white hover:bg-white/20 transition-colors outline-none cursor-pointer">
+                          <button onClick={() => { /* bell action */ }} className="flex-1 max-w-[44px] h-[44px] rounded bg-card border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-border transition-colors outline-none cursor-pointer">
                             <Bell className="w-4 h-4" />
                           </button>
                           <div className="w-2" />
-                          <button onClick={() => { setIsMobileMenuOpen(false); setActiveView('settings'); }} className="flex-1 max-w-[44px] h-[44px] rounded-xl bg-white/10 border border-white/15 flex items-center justify-center text-white/80 hover:text-white hover:bg-white/20 transition-colors outline-none cursor-pointer">
+                          <button onClick={() => { setIsMobileMenuOpen(false); setActiveView('settings'); }} className="flex-1 max-w-[44px] h-[44px] rounded bg-card border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-border transition-colors outline-none cursor-pointer">
                             <Settings className="w-4 h-4" />
                           </button>
                           <div className="w-2" />
-                          <button onClick={() => { setIsMobileMenuOpen(false); setShowSearchPopup(true); }} className="flex-1 max-w-[44px] h-[44px] rounded-xl bg-white/10 border border-white/15 flex items-center justify-center text-white/80 hover:text-white hover:bg-white/20 transition-colors outline-none cursor-pointer">
+                          <button onClick={() => { setIsMobileMenuOpen(false); setShowSearchPopup(true); }} className="flex-1 max-w-[44px] h-[44px] rounded bg-card border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-border transition-colors outline-none cursor-pointer">
                             <Search className="w-4 h-4" />
                           </button>
                           <div className="w-2" />
-                          <button onClick={() => { setIsMobileMenuOpen(false); if (isAdmin) setActiveView('admin'); }} className="flex-1 max-w-[44px] h-[44px] rounded-xl bg-white/10 border border-white/15 flex items-center justify-center text-white/80 hover:text-white hover:bg-white/20 transition-colors outline-none cursor-pointer">
-                            <Key className="w-4 h-4 text-blue-400" />
+                          <button onClick={() => { setIsMobileMenuOpen(false); if (isAdmin) setActiveView('admin'); }} className="flex-1 max-w-[44px] h-[44px] rounded bg-card border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-border transition-colors outline-none cursor-pointer">
+                            <Key className="w-4 h-4" />
                           </button>
                         </div>
                         <AnimatePresence>
@@ -2009,21 +2070,23 @@ function AppContent() {
                               animate={{ opacity: 1, y: 0, scale: 1 }}
                               exit={{ opacity: 0, y: 10, scale: 0.95 }}
                               transition={{ duration: 0.15 }}
-                              className="absolute bottom-[110%] left-0 w-full bg-slate-900 border border-white/20 rounded-2xl shadow-2xl overflow-hidden z-[1001] flex flex-col p-2"
+                              className="absolute bottom-[110%] left-0 w-full bg-card border border-border rounded shadow-2xl overflow-hidden z-[1001] flex flex-col p-1.5"
                             >
-                              <button className="text-left px-3 py-2 text-[14px] font-medium text-white/90 hover:bg-white/10 rounded-lg transition-colors mb-0.5 border-none bg-transparent outline-none cursor-pointer" onClick={() => { setIsMobileProfilePopupOpen(false); setIsMobileMenuOpen(false); setActiveView('profile'); }}>โปรไฟล์</button>
-                              <button className="text-left px-3 py-2 text-[14px] font-medium text-white/90 hover:bg-white/10 rounded-lg transition-colors mb-0.5 border-none bg-transparent outline-none cursor-pointer" onClick={() => { setIsMobileProfilePopupOpen(false); setIsMobileMenuOpen(false); setActiveView('settings'); }}>การตั้งค่า</button>
-                              <button className="text-left px-3 py-2 text-[14px] font-medium text-white/90 hover:bg-white/10 rounded-lg transition-colors mb-0.5 border-none bg-transparent outline-none cursor-pointer" onClick={() => { setIsMobileProfilePopupOpen(false); setIsMobileMenuOpen(false); setActiveView('history'); }}>ประวัติการสั่งซื้อ</button>
-                              <button className="text-left px-3 py-2 text-[14px] font-medium text-white/90 hover:bg-white/10 rounded-lg transition-colors mb-0.5 border-none bg-transparent outline-none cursor-pointer" onClick={() => { setIsMobileProfilePopupOpen(false); setIsMobileMenuOpen(false); setActiveView('wallet'); }}>ประวัติการเติมเงิน</button>
-                              <div className="h-[1px] bg-white/10 my-1 mx-1.5" />
-                              <button className="text-left px-3 py-2 text-[14px] font-semibold text-red-400 hover:bg-red-500/20 rounded-lg transition-colors border-none bg-transparent outline-none cursor-pointer" onClick={() => { setIsMobileProfilePopupOpen(false); setIsMobileMenuOpen(false); handleLogout(); }}>ออกจากระบบ</button>
+                              <button className="text-left px-3 py-2 text-[14px] font-medium text-zinc-200 hover:bg-border hover:text-foreground rounded transition-colors mb-0.5 border-none bg-transparent outline-none cursor-pointer" onClick={() => { setIsMobileProfilePopupOpen(false); setIsMobileMenuOpen(false); setActiveView('profile'); }}>โปรไฟล์</button>
+                              <button className="text-left px-3 py-2 text-[14px] font-medium text-zinc-200 hover:bg-border hover:text-foreground rounded transition-colors mb-0.5 border-none bg-transparent outline-none cursor-pointer" onClick={() => { setIsMobileProfilePopupOpen(false); setIsMobileMenuOpen(false); setActiveView('settings'); }}>การตั้งค่า</button>
+                              <button className="text-left px-3 py-2 text-[14px] font-medium text-zinc-200 hover:bg-border hover:text-foreground rounded transition-colors mb-0.5 border-none bg-transparent outline-none cursor-pointer" onClick={() => { setIsMobileProfilePopupOpen(false); setIsMobileMenuOpen(false); setActiveView('history'); }}>ประวัติการสั่งซื้อ</button>
+                              <button className="text-left px-3 py-2 text-[14px] font-medium text-zinc-200 hover:bg-border hover:text-foreground rounded transition-colors mb-0.5 border-none bg-transparent outline-none cursor-pointer" onClick={() => { setIsMobileProfilePopupOpen(false); setIsMobileMenuOpen(false); setActiveView('wallet'); }}>ประวัติการเติมเงิน</button>
+                              <button className="text-left px-3 py-2 text-[14px] font-medium text-zinc-200 hover:bg-border hover:text-foreground rounded transition-colors mb-0.5 border-none bg-transparent outline-none cursor-pointer" onClick={() => { setIsMobileProfilePopupOpen(false); setIsMobileMenuOpen(false); setActiveView('history'); }}>ออเดอร์ของฉัน</button>
+                              <button className="text-left px-3 py-2 text-[14px] font-medium text-zinc-200 hover:bg-border hover:text-foreground rounded transition-colors mb-0.5 border-none bg-transparent outline-none cursor-pointer" onClick={() => { setIsMobileProfilePopupOpen(false); setIsMobileMenuOpen(false); setActiveView('topup'); }}>กรอกโค๊ด</button>
+                              <div className="h-[1px] bg-border my-1 mx-1.5" />
+                              <button className="text-left px-3 py-2 text-[14px] font-semibold text-red-500 hover:bg-red-500/10 rounded transition-colors border-none bg-transparent outline-none cursor-pointer" onClick={() => { setIsMobileProfilePopupOpen(false); setIsMobileMenuOpen(false); handleLogout(); }}>ออกจากระบบ</button>
                             </motion.div>
                           )}
                         </AnimatePresence>
 
                         <button 
                           onClick={() => setIsMobileProfilePopupOpen(!isMobileProfilePopupOpen)}
-                          className="w-full flex items-center p-2.5 bg-white/10 hover:bg-white/15 border border-white/15 rounded-xl transition-all cursor-pointer outline-none shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)]"
+                          className="w-full flex items-center p-2.5 bg-card hover:bg-border border border-border rounded-lg transition-colors cursor-pointer outline-none"
                         >
                           <div className="w-8 h-8 rounded-full bg-zinc-800 shrink-0 overflow-hidden flex items-center justify-center border border-border">
                             {user.photoURL ? <img src={user.photoURL} alt="Avatar" className="w-full h-full object-cover" /> : <User className="w-4 h-4 text-muted-foreground" />}
@@ -2069,7 +2132,16 @@ function AppContent() {
                   transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
                   className="flex-1 w-full flex flex-col min-h-0"
                 >
-                  <>
+                  {isLoadingSkeleton ? (
+                    activeView === "home" ? (
+                      <HomeViewSkeleton />
+                    ) : (activeView === "categories" || activeView === "category_products") ? (
+                      <CategoriesViewSkeleton />
+                    ) : (
+                      <SupplementaryLoader />
+                    )
+                  ) : (
+                    <>
                       {(activeView === "categories" || activeView === "category_products") && (
                         <CategoriesView
                           categories={categories}
@@ -2262,6 +2334,7 @@ function AppContent() {
                         <TermsView onBack={() => { setActiveView("home"); window.scrollTo(0,0); }} />
                       )}
                     </>
+                  )}
                 </motion.div>
               </AnimatePresence>
             </Suspense>
@@ -2269,57 +2342,49 @@ function AppContent() {
           </div>
 
           
-          <FloatingElements />
           {/* Footer */}
-          <footer className="mt-auto bg-black/20 backdrop-blur-lg border-t border-white/10 relative z-20">
-            <div className="container mx-auto px-6 lg:px-8 py-16">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
-                <div>
-                  <div className="flex items-center gap-2 mb-6 select-none">
-                    <img src="https://img1.pic.in.th/images/1000045512.png" alt="Logo" className="w-8 h-8 rounded-lg" />
-                    <span className="text-[20px] font-bold font-display bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-teal-400 tracking-tight">
-                      ZEROSHOP
-                    </span>
-                  </div>
-                  <p className="text-[13px] text-white/60 leading-relaxed mb-6">
-                    บริการจัดจำหน่ายไอดีและสินค้าเกมชั้นนำราคาประหยัด ปลอดภัย มั่นใจได้ 100% พร้อมบริการดูแลตลอด 24 ชั่วโมง
-                  </p>
+          <footer className="mt-auto bg-muted border-t border-border">
+            <div className="container mx-auto px-8 py-12">
+              <div className="mb-8">
+                <div className="flex items-center gap-1.5 text-sm text-muted-foreground select-none">
+                  <span className="text-[17px] font-sans font-extrabold text-foreground tracking-tight">
+                    nxyshop
+                  </span>
                 </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
                 <div>
-                  <h3 className="font-bold text-[15px] text-white mb-6">เมนูหลัก</h3>
-                  <ul className="space-y-3">
-                    <li><button onClick={() => { setActiveView('home'); window.scrollTo(0,0); }} className="text-[14px] text-white/60 hover:text-teal-400 transition-colors">หน้าแรก</button></li>
-                    <li><button onClick={() => { setActiveView('categories'); window.scrollTo(0,0); }} className="text-[14px] text-white/60 hover:text-teal-400 transition-colors">สินค้าทั้งหมด</button></li>
-                    <li><button onClick={() => { setActiveView('wallet'); window.scrollTo(0,0); }} className="text-[14px] text-white/60 hover:text-teal-400 transition-colors">เติมเงิน</button></li>
-                    <li><button onClick={() => { window.open('#', '_blank'); }} className="text-[14px] text-white/60 hover:text-teal-400 transition-colors">ซื้อเบอร์ SMS</button></li>
+                  <h3 className="font-bold text-sm text-foreground mb-4">หมวดหมู่สินค้า</h3>
+                  <ul className="space-y-2">
+                    <li><button onClick={() => { setActiveView('categories'); window.scrollTo(0,0); }} className="text-sm text-muted-foreground hover:text-foreground transition-colors">สินค้าทั้งหมด</button></li>
                   </ul>
                 </div>
                 <div>
-                  <h3 className="font-bold text-[15px] text-white mb-6">ข้อมูลช่วยเหลือ</h3>
-                  <ul className="space-y-3">
-                    <li><button onClick={() => { setActiveView('terms'); window.scrollTo(0,0); }} className="text-[14px] text-white/60 hover:text-teal-400 transition-colors">ข้อตกลงและเงื่อนไข</button></li>
-                    <li><button onClick={() => { setActiveView('privacy'); window.scrollTo(0,0); }} className="text-[14px] text-white/60 hover:text-teal-400 transition-colors">นโยบายความเป็นส่วนตัว</button></li>
+                  <h3 className="font-bold text-sm text-foreground mb-4">บัญชีผู้ใช้</h3>
+                  <ul className="space-y-2">
+                    <li><button onClick={() => { setActiveView('profile'); window.scrollTo(0,0); }} className="text-sm text-muted-foreground hover:text-foreground transition-colors">จัดการบัญชีของคุณ</button></li>
+                    <li><button onClick={() => { setActiveView('wallet'); window.scrollTo(0,0); }} className="text-sm text-muted-foreground hover:text-foreground transition-colors">ช่องทางชำระเงิน</button></li>
+                    <li><button onClick={() => { setActiveView('history'); window.scrollTo(0,0); }} className="text-sm text-muted-foreground hover:text-foreground transition-colors">ประวัติธุรกรรม</button></li>
                   </ul>
                 </div>
                 <div>
-                  <h3 className="font-bold text-[15px] text-white mb-6">ติดต่อเรา</h3>
-                  <ul className="space-y-3">
-                    <li><button onClick={() => window.open('https://line.me', '_blank')} className="text-[14px] text-white/60 hover:text-teal-400 transition-colors flex items-center gap-2"><span className="text-green-500 text-lg">💬</span> LINE Official</button></li>
-                    <li><button onClick={() => window.open('https://facebook.com', '_blank')} className="text-[14px] text-white/60 hover:text-teal-400 transition-colors flex items-center gap-2"><span className="text-blue-500 text-lg">📘</span> Facebook</button></li>
-                    <li><button onClick={() => window.open('https://discord.com', '_blank')} className="text-[14px] text-white/60 hover:text-teal-400 transition-colors flex items-center gap-2"><span className="text-indigo-400 text-lg">👾</span> Discord</button></li>
+                  <h3 className="font-bold text-sm text-foreground mb-4">ช่วยเหลือ</h3>
+                  <ul className="space-y-2">
+                    <li><button onClick={() => { setShowContactUs(true); }} className="text-sm text-muted-foreground hover:text-foreground transition-colors">ติดต่อเรา</button></li>
                   </ul>
                 </div>
               </div>
-              <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-[13px] text-white/40 pt-8 border-t border-white/10">
-                <p>© 2025 ZEROSHOP.COM All rights reserved.</p>
-                <div className="flex items-center gap-4">
-                  <button onClick={() => { setActiveView('terms'); window.scrollTo(0,0); }} className="hover:text-teal-400 transition-colors">ข้อกำหนด</button>
-                  <span className="w-1 h-1 rounded-full bg-slate-700"></span>
-                  <button onClick={() => { setActiveView('privacy'); window.scrollTo(0,0); }} className="hover:text-teal-400 transition-colors">ความเป็นส่วนตัว</button>
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 text-xs text-muted-foreground pt-8 border-t border-border">
+                <p>Copyright © 2026 nxyshop Inc. สงวนสิทธิ์ทุกประการ</p>
+                <div className="flex flex-wrap items-center gap-3">
+                  <button onClick={() => { setActiveView('terms'); window.scrollTo(0,0); }} className="hover:text-foreground transition-colors">ข้อกำหนดการใช้งาน</button>
+                  <span>|</span>
+                  <button onClick={() => { setActiveView('privacy'); window.scrollTo(0,0); }} className="hover:text-foreground transition-colors">นโยบายความเป็นส่วนตัว</button>
                 </div>
               </div>
             </div>
           </footer>
+
           {/* Modals */}
           <AnimatePresence>
             <PrivacyModal isOpen={showPrivacy} onClose={() => setShowPrivacy(false)} />

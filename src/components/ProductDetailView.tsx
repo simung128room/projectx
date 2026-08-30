@@ -256,10 +256,10 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
                         confirmButtonText: 'เข้าสู่ระบบ',
                         showCancelButton: true,
                         cancelButtonText: 'ปิดหน้านี้',
-                        confirmButtonColor: '#de7356',
+                        confirmButtonColor: '#000000',
                         cancelButtonColor: '#f1f5f9',
-                        background: '#1f1c14',
-                        color: '#f5f0e8'
+                        background: '#0F0F0F',
+                        color: '#ffffff'
                       }).then((result) => {
                         if (result.isConfirmed) {
                           setActiveView('login');
@@ -273,9 +273,9 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, u
                         text: `เราจะส่งข้อความแจ้งเตือนเมื่อ ${product.name} กลับมามีสต็อกอีกครั้ง`,
                         icon: 'success',
                         confirmButtonText: 'ตกลง',
-                        background: '#1f1c14',
-                        color: '#f5f0e8',
-                        confirmButtonColor: '#f5f0e8'
+                        background: '#0F0F0F',
+                        color: '#fff',
+                        confirmButtonColor: '#ffffff'
                       });
                       return;
                     }

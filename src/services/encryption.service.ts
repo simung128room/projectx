@@ -3,10 +3,6 @@ import util from "node:util";
 
 const pbkdf2Async = util.promisify(crypto.pbkdf2);
 
-// Simple LRU cache for decrypted secrets to avoid heavy pbkdf2 on lists
-const decryptCache = new Map<string, string>();
-const MAX_CACHE_SIZE = 1000;
-
 export const getEncryptionKey = () => {
   const key = process.env.BACKEND_ENCRYPTION_KEY;
   if (!key)
@@ -38,9 +34,6 @@ export async function encrypt(text: string) {
 
 export async function decrypt(cipherText: string) {
   if (!cipherText) return cipherText;
-  if (decryptCache.has(cipherText)) {
-    return decryptCache.get(cipherText)!;
-  }
   if (cipherText.startsWith("enc2:")) {
     try {
       const parts = cipherText.substring(5).split(":");
@@ -58,15 +51,30 @@ export async function decrypt(cipherText: string) {
         decipher.update(encryptedText),
         decipher.final(),
       ]);
-      const decryptedString = decrypted.toString("utf8");
-      if (decryptCache.size >= MAX_CACHE_SIZE) {
-        const firstKey = decryptCache.keys().next().value;
-        if (firstKey) decryptCache.delete(firstKey);
-      }
-      decryptCache.set(cipherText, decryptedString);
-      return decryptedString;
+      return decrypted.toString("utf8");
     } catch (err) {
       console.error("Decryption error (enc2):", err);
+      return cipherText;
+    }
+  }
+  if (cipherText.startsWith("enc:")) {
+    try {
+      const parts = cipherText.substring(4).split(":");
+      if (parts.length === 2) {
+        const [ivHex, encryptedHex] = parts;
+        const rawKey = getEncryptionKey();
+        const key = crypto.createHash("sha256").update(String(rawKey)).digest();
+        const iv = Buffer.from(ivHex, "hex");
+        const encryptedText = Buffer.from(encryptedHex, "hex");
+        const decipher = crypto.createDecipheriv("aes-256-cbc", key, iv);
+        const decrypted = Buffer.concat([
+          decipher.update(encryptedText),
+          decipher.final()
+        ]);
+        return decrypted.toString("utf8");
+      }
+    } catch (err) {
+      console.error("Decryption error (enc):", err);
       return cipherText;
     }
   }

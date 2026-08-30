@@ -67,14 +67,14 @@ export const AdminToolsManagement = () => {
       await axios.post('/api/logs-system', { categories: newCats, items: newItems });
       setCategories(newCats);
       setItems(newItems);
-      Swal.fire({title: 'บันทึกสำเร็จ!', icon: 'success', timer: 1500, showConfirmButton: false, background: '#1f1c14', color: '#f5f0e8'});
+      Swal.fire({title: 'บันทึกสำเร็จ!', icon: 'success', timer: 1500, showConfirmButton: false, background:'#121212', color:'#fff'});
     } catch (err) {
-      Swal.fire({title: 'เกิดข้อผิดพลาด', icon: 'error', background: '#1f1c14', color: '#f5f0e8'});
+      Swal.fire({title: 'เกิดข้อผิดพลาด', icon: 'error', background:'#121212', color:'#fff'});
     }
   };
 
   const handleSaveCategory = () => {
-    if (!catName) return Swal.fire({title:'กรอกข้อมูลให้ครบ', icon:'error', background: '#1f1c14', color: '#f5f0e8'});
+    if (!catName) return Swal.fire({title:'กรอกข้อมูลให้ครบ', icon:'error', background:'#121212', color:'#fff'});
     const newCat: LogCategory = {
       id: Math.random().toString(36).substring(2,9),
       name: catName,
@@ -90,7 +90,7 @@ export const AdminToolsManagement = () => {
   };
 
   const handleDeleteCategory = (id: string) => {
-    Swal.fire({ title: 'ยืนยันการลบ?', showCancelButton: true, background: '#1f1c14', color: '#f5f0e8' }).then(r => {
+    Swal.fire({ title: 'ยืนยันการลบ?', showCancelButton: true, background: '#1f1c14', color: '#fff' }).then(r => {
       if (r.isConfirmed) {
         saveData(categories.filter(x => x.id !== id), items.filter(x => x.categoryId !== id));
       }
@@ -103,8 +103,8 @@ export const AdminToolsManagement = () => {
   };
 
   const handleSaveItem = () => {
-    if (!title || !itemCategoryId) return Swal.fire({title:'กรอกข้อมูลให้ครบ', icon:'error', background: '#1f1c14', color: '#f5f0e8'});
-    if (attachments.length === 0) return Swal.fire({title:'ต้องมีอย่างน้อย 1 ไฟล์/เนื้อหา', icon:'error', background: '#1f1c14', color: '#f5f0e8'});
+    if (!title || !itemCategoryId) return Swal.fire({title:'กรอกข้อมูลให้ครบ', icon:'error', background:'#121212', color:'#fff'});
+    if (attachments.length === 0) return Swal.fire({title:'ต้องมีอย่างน้อย 1 ไฟล์/เนื้อหา', icon:'error', background:'#121212', color:'#fff'});
     
     let unlockAt: string | undefined = undefined;
     if (unlockAtDate && unlockAtTime) {
@@ -128,7 +128,7 @@ export const AdminToolsManagement = () => {
   };
 
   const handleDeleteItem = (id: string) => {
-    Swal.fire({ title: 'ยืนยันการลบ?', showCancelButton: true, background: '#1f1c14', color: '#f5f0e8' }).then(r => {
+    Swal.fire({ title: 'ยืนยันการลบ?', showCancelButton: true, background: '#1f1c14', color: '#fff' }).then(r => {
       if (r.isConfirmed) saveData(categories, items.filter(x => x.id !== id));
     });
   };

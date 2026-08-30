@@ -56,7 +56,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
 
       if (authMode === 'signup') {
         try {
-          const res = await axios.post('/api/signup', { email: generatedEmail, password: authPassword, turnstileToken: currentToken });
+          const res = await axios.post('/api/signup', { email: generatedEmail, password: authPassword });
           if (res.data.error) {
              throw new Error(res.data.error);
           }
@@ -71,14 +71,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
           timer: 1500,
           showConfirmButton: false,
           background: '#1f1c14',
-          color: '#f5f0e8'
+          color: '#fff'
         });
         setAuthMode('login');
       } else {
         let error;
         try {
-           const res = await auth.auth.signInWithPassword({ email: generatedEmail, password: authPassword });
-           error = res.error;
+           await auth.auth.signInWithPassword({ email: generatedEmail, password: authPassword });
         } catch(e) {
            error = e;
         }
@@ -94,7 +93,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
           timer: 1500,
           showConfirmButton: false,
           background: '#1f1c14',
-          color: '#f5f0e8'
+          color: '#fff'
         });
         onClose();
       }
@@ -115,7 +114,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
         title: 'มีบางอย่างผิดพลาด',
         text: msg,
         background: '#1f1c14',
-        color: '#f5f0e8'
+        color: '#fff'
       });
     } finally {
       setAuthLoading(false);
@@ -125,15 +124,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
   if (!show) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 " role="dialog" aria-modal="true" onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }} tabIndex={-1} autoFocus>
-      <div className="w-full max-w-sm bg-card border border-border p-8 rounded-2xl shadow-xl shadow-black/50 animate-in fade-in zoom-in duration-300 overflow-hidden relative">
-      <div className={`absolute top-0 right-0 w-32 h-32 -mr-16 -mt-16 ${authMode === 'login' ? 'bg-primary/10' : 'bg-primary/10'}`}></div>
-      <button onClick={onClose} className="absolute top-4 right-4 text-muted-foreground hover:text-foreground transition-colors bg-muted/50 hover:bg-muted rounded-full p-1.5 z-20">
-        <X className="w-4 h-4" />
-      </button>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 ">
+      <div className="w-full max-w-sm bg-card border border-[#374151]  p-8 animate-in fade-in zoom-in duration-300 overflow-hidden relative ">
+      <div className={`absolute top-0 right-0 w-32 h-32 -mr-16 -mt-16 ${authMode === 'login' ? 'bg-[#364153]/10' : 'bg-[#364153]/10'}`}></div>
       <div className="flex flex-col items-center text-center mb-6 relative z-10">
-        <div className={`w-16 h-16 flex items-center justify-center mb-4 border rounded-2xl ${authMode === 'login' ? 'bg-primary/10 border-primary/20' : 'bg-primary/10 border-primary/20'}`}>
-          {authMode === 'login' ? <User className="w-8 h-8 text-primary" /> : <User className="w-8 h-8 text-primary" />}
+        <div className={`w-16 h-16 flex items-center justify-center mb-4 border ${authMode === 'login' ? 'bg-[#364153]/10 border-emerald-500/20' : 'bg-[#364153]/10 border-emerald-500/20'}`}>
+          {authMode === 'login' ? <User className="w-8 h-8 text-[#364153]" /> : <User className="w-8 h-8 text-[#364153]" />}
         </div>
         <h2 className="text-xl font-medium tracking-tight">{authMode === 'login' ? 'เข้าสู่ระบบ' : 'สมัครสมาชิก'}</h2>
         <p className="text-muted-foreground text-xs mt-1">
@@ -142,18 +138,18 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
       </div>
       
       {/* Mode Tabs */}
-      <div className="flex p-1 bg-muted rounded-xl mb-6 relative z-10 border border-border/50">
+      <div className="flex p-1 bg-card mb-6 relative z-10 border border-[#374151]  ">
         <button
           type="button"
           onClick={() => setAuthMode('login')}
-          className={`flex-1 py-2 text-xs font-medium rounded-lg transition-all ${authMode === 'login' ? 'bg-card text-primary shadow-sm border border-border/50' : 'text-muted-foreground hover:text-foreground'}`}
+          className={`flex-1 py-2 text-xs font-medium transition-all ${authMode === 'login' ? 'bg-[#364153]/20 text-[#364153]' : 'text-muted-foreground/80 hover:text-foreground'}`}
         >
           เข้าสู่ระบบ / Login
         </button>
         <button
           type="button"
           onClick={() => setAuthMode('signup')}
-          className={`flex-1 py-2 text-xs font-medium rounded-lg transition-all ${authMode === 'signup' ? 'bg-card text-primary shadow-sm border border-border/50' : 'text-muted-foreground hover:text-foreground'}`}
+          className={`flex-1 py-2 text-xs font-medium transition-all ${authMode === 'signup' ? 'bg-[#364153]/20 text-[#364153]' : 'text-muted-foreground/80 hover:text-foreground'}`}
         >
           สมัครสมาชิก / Sign up
         </button>
@@ -168,7 +164,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
                   type="text" 
                   value={authUsername}
                   onChange={(e) => setAuthUsername(e.target.value)}
-                  className="w-full bg-input border border-border rounded-xl py-3.5 pl-12 pr-4 outline-none focus:border-primary/50 transition-all font-sans text-sm"
+                  className="w-full bg-card border border-[#374151]  py-3.5 pl-12 pr-4 outline-none focus:border-emerald-500/50 transition-all font-sans text-sm "
                   placeholder=""
                   required
                 />
@@ -182,7 +178,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
                   type="password" 
                   value={authPassword}
                   onChange={(e) => setAuthPassword(e.target.value)}
-                  className="w-full bg-input border border-border rounded-xl py-3.5 pl-12 pr-4 outline-none focus:border-primary/50 transition-all font-sans text-sm"
+                  className="w-full bg-card border border-[#374151]  py-3.5 pl-12 pr-4 outline-none focus:border-emerald-500/50 transition-all font-sans text-sm "
                   placeholder=""
                   required
                   minLength={6}
@@ -194,22 +190,28 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
         <button 
           type="submit"
           disabled={authLoading}
-          className={`w-full py-4 mt-6 text-sm font-medium rounded-xl transition-all flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground disabled:opacity-50 disabled:cursor-not-allowed`}
+          className={`w-full py-4 mt-6 text-sm font-medium transition-all flex items-center justify-center gap-2 ${ authMode === 'login' ? 'bg-[#364153] hover:bg-[#364153]' : 'bg-cardmerald-700 hover:bg-[#364153]' } disabled:opacity-50 disabled:cursor-not-allowed`}
         >
           {authLoading ? (
-            <div className="w-5 h-5  border-border border-t-white animate-spin"></div>
+            <div className="w-5 h-5  border-[#374151] border-t-white animate-spin"></div>
           ) : (
             authMode === 'login' ? 'เข้าสู่ระบบ / Login' : 'สมัครสมาชิก / Sign up'
           )}
         </button>
 
-        
+        <button 
+          type="button"
+          onClick={onClose}
+          className="w-full text-muted-foreground hover:text-muted-foreground/80 text-[10px] font-medium uppercase tracking-widest mt-4"
+        >
+          ปิดหน้าต่าง
+        </button>
       </form>
     </div>
 
       {showTurnstileModal && (
         <div className="fixed inset-0 bg-[#000000]/60 backdrop-blur-2xl flex items-center justify-center p-4 z-[80] animate-in zoom-in-95 duration-200">
-          <div className="bg-card border border-border p-6 sm:p-8 rounded-2xl max-w-sm w-full relative overflow-hidden flex flex-col items-center">
+          <div className="bg-card border border-[#374151]  p-6 sm:p-8 max-w-sm w-full relative overflow-hidden flex flex-col items-center ">
             <div className="mb-2 flex items-center justify-center w-full overflow-hidden" style={{ colorScheme: 'dark' }}>
               <div className="flex items-start justify-center w-full">
                 {TURNSTILE_SITE_KEY ? (
@@ -224,7 +226,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
                     className="w-full"
                   />
                 ) : (
-                  <div className="p-3 text-primary text-center text-[10px] font-medium">
+                  <div className="p-3 text-[#364153] text-center text-[10px] font-medium">
                     ยังไม่ได้ตั้งค่า TURNSTILE_SITE_KEY<br/>Bypass Mode Active
                   </div>
                 )}
@@ -236,14 +238,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({ show, onClose, initialMode
                   setShowTurnstileModal(false);
                   executeAuth("bypass");
                 }}
-                className="w-full bg-primary hover:bg-primary text-foreground font-medium py-3.5 transition-all mb-4 text-xs"
+                className="w-full bg-[#364153] hover:bg-[#364153] text-foreground font-medium py-3.5 transition-all mb-4 text-xs"
               >
                 ดำเนินการต่อ (Bypass)
               </button>
             )}
             <button 
               onClick={() => setShowTurnstileModal(false)}
-              className="text-[10px] font-medium text-muted-foreground hover:text-muted-foreground transition-colors uppercase tracking-widest mt-2"
+              className="text-[10px] font-medium text-muted-foreground hover:text-zinc-300 transition-colors uppercase tracking-widest mt-2"
             >
               Cancel
             </button>

@@ -32,10 +32,10 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
       showCancelButton: true,
       confirmButtonText: 'อัปเดตข้อมูล',
       cancelButtonText: 'ยกเลิก',
-      confirmButtonColor: '#de7356',
+      confirmButtonColor: '#364153',
       cancelButtonColor: '#71717a',
       background: '#1f1c14',
-      color: '#f5f0e8'
+      color: '#fff'
     });
 
     if (value) {
@@ -47,9 +47,9 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
         await axios.post(`/api/users/${user.id || user.uid}`, { balance: newBalance });
         setSelectedUser({ ...user, balance: newBalance });
         onRefresh();
-        Swal.fire({ icon: 'success', title: 'อัปเดตเครดิตเรียบร้อย!', showConfirmButton: false, timer: 1200, background: '#1f1c14', color: '#f5f0e8' });
+        Swal.fire({ icon: 'success', title: 'อัปเดตเครดิตเรียบร้อย!', showConfirmButton: false, timer: 1200, background: '#1f1c14', color: '#fff' });
       } catch (err) {
-        Swal.fire({ title: 'Error', text: 'ไม่สามารถบันทึกข้อมูลได้', icon: 'error', background: '#1f1c14', color: '#f5f0e8' });
+        Swal.fire({ title: 'Error', text: 'ไม่สามารถบันทึกข้อมูลได้', icon: 'error', background: '#1f1c14', color: '#fff' });
       }
     }
   };
@@ -65,10 +65,10 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
       `,
       showCancelButton: true,
       confirmButtonText: 'ยืนยัน',
-      confirmButtonColor: '#de7356',
+      confirmButtonColor: '#364153',
       cancelButtonColor: '#71717a',
       background: '#1f1c14',
-      color: '#f5f0e8',
+      color: '#fff',
       preConfirm: () => {
         return {
           role: (document.getElementById('swal-role') as HTMLInputElement).value,
@@ -83,9 +83,9 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
         await axios.post(`/api/users/${user.id || user.uid}`, value);
         setSelectedUser({ ...user, ...value });
         onRefresh();
-        Swal.fire({ icon: 'success', title: 'อัปเดตข้อมูลแล้ว', showConfirmButton: false, timer: 1200, background: '#1f1c14', color: '#f5f0e8' });
+        Swal.fire({ icon: 'success', title: 'อัปเดตข้อมูลแล้ว', showConfirmButton: false, timer: 1200, background: '#1f1c14', color: '#fff' });
       } catch (err) {
-        Swal.fire({ title: 'Error', text: 'ไม่สามารถอัปเดตได้', icon: 'error', background: '#1f1c14', color: '#f5f0e8' });
+        Swal.fire({ title: 'Error', text: 'ไม่สามารถอัปเดตได้', icon: 'error', background: '#1f1c14', color: '#fff' });
       }
     }
   };
@@ -101,7 +101,7 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
       confirmButtonColor: isBanned ? '#364153' : '#EF4444',
       cancelButtonColor: '#71717a',
       background: '#1f1c14',
-      color: '#f5f0e8'
+      color: '#fff'
     });
 
     if (result.isConfirmed) {
@@ -111,9 +111,9 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
         await axios.post(`/api/users/${user.id || user.uid}`, { status: newStatus });
         setSelectedUser({ ...user, status: newStatus });
         onRefresh();
-        Swal.fire({ icon: 'success', title: 'เสร็จสิ้นการตั้งค่า', showConfirmButton: false, timer: 1200, background: '#1f1c14', color: '#f5f0e8' });
+        Swal.fire({ icon: 'success', title: 'เสร็จสิ้นการตั้งค่า', showConfirmButton: false, timer: 1200, background: '#1f1c14', color: '#fff' });
       } catch (err) {
-        Swal.fire({ title: 'Error', text: 'ไม่สามารถเปลี่ยนสถานะได้', icon: 'error', background: '#1f1c14', color: '#f5f0e8' });
+        Swal.fire({ title: 'Error', text: 'ไม่สามารถเปลี่ยนสถานะได้', icon: 'error', background: '#1f1c14', color: '#fff' });
       }
     }
   };
@@ -167,7 +167,7 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
                            onClick={(e) => {
                              e.stopPropagation();
                              navigator.clipboard.writeText(u.email);
-                             Swal.fire({ title: 'Copied!', text: 'คัดลอกอีเมลแล้ว', icon: 'success', timer: 1000, showConfirmButton: false, background: '#1f1c14', color: '#f5f0e8' });
+                             Swal.fire({ title: 'Copied!', text: 'คัดลอกอีเมลแล้ว', icon: 'success', timer: 1000, showConfirmButton: false, background: '#1f1c14', color: '#fff' });
                            }}
                            className="text-muted-foreground/80 hover:text-foreground transition-colors"
                         >
@@ -348,18 +348,18 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
                             inputPlaceholder: 'ใส่รหัสผ่านใหม่ตรงนี้...', 
                             showCancelButton: true, 
                             confirmButtonText: 'เปลี่ยนรหัส', 
-                            confirmButtonColor: '#de7356',
+                            confirmButtonColor: '#364153',
                             cancelButtonColor: '#71717a',
                             background: '#1f1c14',
-                            color: '#f5f0e8'
+                            color: '#fff'
                           });
                           if (password) {
                             try {
                                Swal.showLoading();
                                await axios.post(`/api/users/${selectedUser.id || selectedUser.uid}/password`, { password });
-                               Swal.fire({ icon: 'success', title: 'เปลี่ยนรหัสผ่านสำเร็จ', showConfirmButton: false, timer: 1200, background: '#1f1c14', color: '#f5f0e8' });
+                               Swal.fire({ icon: 'success', title: 'เปลี่ยนรหัสผ่านสำเร็จ', showConfirmButton: false, timer: 1200, background: '#1f1c14', color: '#fff' });
                             } catch (err: any) {
-                               Swal.fire({ title: 'Error', text: err.response?.data?.error || 'ไม่สามารถเปลี่ยนรหัสได้', icon: 'error', background: '#1f1c14', color: '#f5f0e8' });
+                               Swal.fire({ title: 'Error', text: err.response?.data?.error || 'ไม่สามารถเปลี่ยนรหัสได้', icon: 'error', background: '#1f1c14', color: '#fff' });
                             }
                           }
                         }} className="w-full flex items-center justify-between p-3.5 bg-background/50 border border-zinc-850 hover:border-[#374151] rounded-md transition-all group">
@@ -395,20 +395,20 @@ export const AdminUserManagement: React.FC<AdminUserManagementProps> = ({ purcha
                             icon: 'warning',
                             showCancelButton: true,
                             confirmButtonText: 'ลบทันที',
-                            confirmButtonColor: '#de7356',
+                            confirmButtonColor: '#EF4444',
                             cancelButtonColor: '#71717a',
                             background: '#1f1c14',
-                            color: '#f5f0e8'
+                            color: '#fff'
                           });
                           if (result.isConfirmed) {
                             try {
                                Swal.showLoading();
                                await axios.delete(`/api/users/${selectedUser.id || selectedUser.uid}`);
-                               Swal.fire({ icon: 'success', title: 'ระเบิดบัญชีผู้ใช้แล้ว', showConfirmButton: false, timer: 1200, background: '#1f1c14', color: '#f5f0e8' });
+                               Swal.fire({ icon: 'success', title: 'ระเบิดบัญชีผู้ใช้แล้ว', showConfirmButton: false, timer: 1200, background: '#1f1c14', color: '#fff' });
                                setSelectedUser(null);
                                onRefresh();
                             } catch (err: any) {
-                               Swal.fire({ title: 'Error', text: err.response?.data?.error || 'ไม่สามารถลบผู้ใช้งานได้', icon: 'error', background: '#1f1c14', color: '#f5f0e8' });
+                               Swal.fire({ title: 'Error', text: err.response?.data?.error || 'ไม่สามารถลบผู้ใช้งานได้', icon: 'error', background: '#1f1c14', color: '#fff' });
                             }
                           }
                         }} className="w-full flex items-center justify-between p-3 border border-rose-500/10 hover:border-rose-500/30 bg-rose-500/5 hover:bg-rose-500/10 text-rose-400 rounded-md transition-all scale-[0.99] hover:scale-[1] mt-6">

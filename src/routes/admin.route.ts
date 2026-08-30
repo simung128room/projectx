@@ -57,44 +57,31 @@ export function createAdminRouter({
           ...doc.data(),
         }));
       } else {
-        // Mitigation: Do multiple queries with prefix match and merge, limiting results
-        // to prevent loading all users into memory
-        const endSearch = search + "\uf8ff";
+        // Firestore limit memory load for search
+        const snapshot = await db.collection("users").get();
         
-        // Exact match by ID first
-        const idDoc = await db.collection("users").doc(search).get();
-        const idUser = idDoc.exists ? [{ id: idDoc.id, uid: idDoc.id, ...idDoc.data() }] : [];
+        const allUsers = snapshot.docs.map((doc: any) => ({
+          id: doc.id,
+          uid: doc.id,
+          ...doc.data(),
+        }));
 
-        // Prefix match by username
-        const usernameSnap = await db.collection("users")
-          .where("username", ">=", search)
-          .where("username", "<=", endSearch)
-          .limit(limit)
-          .get();
-        
-        // Prefix match by email
-        const emailSnap = await db.collection("users")
-          .where("email", ">=", search)
-          .where("email", "<=", endSearch)
-          .limit(limit)
-          .get();
-          
-        const resultsMap = new Map();
-        
-        if (idUser.length) resultsMap.set(idUser[0].id, idUser[0]);
-        
-        usernameSnap.docs.forEach((doc: any) => {
-          resultsMap.set(doc.id, { id: doc.id, uid: doc.id, ...doc.data() });
+        users = allUsers.filter((u: any) => {
+          const username = (u.username || "").toLowerCase();
+          const email = (u.email || "").toLowerCase();
+          const fullName = (u.fullName || "").toLowerCase();
+          const displayName = (u.displayName || "").toLowerCase();
+          const uid = (u.uid || u.id || "").toLowerCase();
+          return (
+            username.includes(search) ||
+            email.includes(search) ||
+            fullName.includes(search) ||
+            displayName.includes(search) ||
+            uid.includes(search)
+          );
         });
-        
-        emailSnap.docs.forEach((doc: any) => {
-          resultsMap.set(doc.id, { id: doc.id, uid: doc.id, ...doc.data() });
-        });
-
-        users = Array.from(resultsMap.values());
+        users = users.slice(offset, offset + limit);
       }
-
-      users = users.slice(offset, offset + limit);
 
       res.json(users);
     } catch (err: any) {
@@ -103,7 +90,47 @@ export function createAdminRouter({
     }
   });
 
+  // POST /api/admin/users/update (compatibility with old code)
+  router.post("/admin/users/update", requireAdmin, async (req: any, res: any) => {
+    try {
+      const { uid, balance } = req.body;
+      if (!uid) {
+        return res.status(400).json({ error: "Missing uid" });
+      }
 
+      const db = admin.firestore();
+      const userRef = db.collection("users").doc(uid);
+      const userSnap = await userRef.get();
+      if (!userSnap.exists) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      const prevData = userSnap.data() || {};
+      const updateData: Record<string, any> = {};
+      if (balance !== undefined) {
+        updateData.balance = Number(balance);
+      }
+
+      await userRef.update(updateData);
+
+      // Audit Log
+      await writeAuditLog(
+        "ADMIN_USER_UPDATE",
+        req.user?.uid || "admin",
+        uid,
+        req,
+        { previousBalance: prevData.balance, newBalance: balance }
+      ).catch(() => {});
+
+      invalidateUserTokenCache(uid);
+      invalidateCache("users");
+      invalidateStatsCache();
+
+      res.json({ success: true });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message || String(err) });
+    }
+  });
 
   // PUT /api/admin/users/:uid (ban/unban, role/rank change, balance change)
   router.put("/admin/users/:uid", requireAdmin, async (req: any, res: any) => {

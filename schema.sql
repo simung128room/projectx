@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS public.users (
     id text PRIMARY KEY,
     email text UNIQUE,
     username text UNIQUE,
+    password_hash text,
     avatar text,
     balance numeric DEFAULT 0,
     role text DEFAULT 'user',
@@ -478,101 +479,3 @@ BEGIN
   RETURN '{"success": true}'::jsonb;
 END;
 $$;
-
--- =====================================
--- ROW LEVEL SECURITY (RLS)
--- =====================================
-
-DO $$ 
-DECLARE
-    t text;
-BEGIN
-    FOR t IN 
-        SELECT tablename 
-        FROM pg_tables 
-        WHERE schemaname = 'public' 
-    LOOP
-        EXECUTE format('ALTER TABLE public.%I ENABLE ROW LEVEL SECURITY;', t);
-        
-        -- Drop policy if exists to make it idempotent
-        BEGIN
-            EXECUTE format('DROP POLICY IF EXISTS deny_all ON public.%I;', t);
-        EXCEPTION WHEN OTHERS THEN
-            -- ignore
-        END;
-
-        EXECUTE format('CREATE POLICY deny_all ON public.%I FOR ALL USING (false);', t);
-    END LOOP;
-END $$;
-ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
-CREATE POLICY deny_all ON public.users FOR ALL USING (false);
-
-ALTER TABLE public.admins ENABLE ROW LEVEL SECURITY;
-CREATE POLICY deny_all ON public.admins FOR ALL USING (false);
-
-ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
-CREATE POLICY deny_all ON public.products FOR ALL USING (false);
-
-ALTER TABLE public.product_variants ENABLE ROW LEVEL SECURITY;
-CREATE POLICY deny_all ON public.product_variants FOR ALL USING (false);
-
-ALTER TABLE public.categories ENABLE ROW LEVEL SECURITY;
-CREATE POLICY deny_all ON public.categories FOR ALL USING (false);
-
-ALTER TABLE public.carts ENABLE ROW LEVEL SECURITY;
-CREATE POLICY deny_all ON public.carts FOR ALL USING (false);
-
-ALTER TABLE public.cart_items ENABLE ROW LEVEL SECURITY;
-CREATE POLICY deny_all ON public.cart_items FOR ALL USING (false);
-
-ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;
-CREATE POLICY deny_all ON public.orders FOR ALL USING (false);
-
-ALTER TABLE public.order_items ENABLE ROW LEVEL SECURITY;
-CREATE POLICY deny_all ON public.order_items FOR ALL USING (false);
-
-ALTER TABLE public.payments ENABLE ROW LEVEL SECURITY;
-CREATE POLICY deny_all ON public.payments FOR ALL USING (false);
-
-ALTER TABLE public.topups ENABLE ROW LEVEL SECURITY;
-CREATE POLICY deny_all ON public.topups FOR ALL USING (false);
-
-ALTER TABLE public.purchases ENABLE ROW LEVEL SECURITY;
-CREATE POLICY deny_all ON public.purchases FOR ALL USING (false);
-
-ALTER TABLE public.license_keys ENABLE ROW LEVEL SECURITY;
-CREATE POLICY deny_all ON public.license_keys FOR ALL USING (false);
-
-ALTER TABLE public.used_keys ENABLE ROW LEVEL SECURITY;
-CREATE POLICY deny_all ON public.used_keys FOR ALL USING (false);
-
-ALTER TABLE public.api_keys ENABLE ROW LEVEL SECURITY;
-CREATE POLICY deny_all ON public.api_keys FOR ALL USING (false);
-
-ALTER TABLE public.coupons ENABLE ROW LEVEL SECURITY;
-CREATE POLICY deny_all ON public.coupons FOR ALL USING (false);
-
-ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
-CREATE POLICY deny_all ON public.notifications FOR ALL USING (false);
-
-ALTER TABLE public.custom_pages ENABLE ROW LEVEL SECURITY;
-CREATE POLICY deny_all ON public.custom_pages FOR ALL USING (false);
-
-ALTER TABLE public.inventory_logs ENABLE ROW LEVEL SECURITY;
-CREATE POLICY deny_all ON public.inventory_logs FOR ALL USING (false);
-
-ALTER TABLE public.blocked_ips ENABLE ROW LEVEL SECURITY;
-CREATE POLICY deny_all ON public.blocked_ips FOR ALL USING (false);
-
-ALTER TABLE public.admin_logs ENABLE ROW LEVEL SECURITY;
-CREATE POLICY deny_all ON public.admin_logs FOR ALL USING (false);
-
-ALTER TABLE public.security_logs ENABLE ROW LEVEL SECURITY;
-CREATE POLICY deny_all ON public.security_logs FOR ALL USING (false);
-
-ALTER TABLE public.sys_audit_logs ENABLE ROW LEVEL SECURITY;
-CREATE POLICY deny_all ON public.sys_audit_logs FOR ALL USING (false);
-
-ALTER TABLE public.settings ENABLE ROW LEVEL SECURITY;
-CREATE POLICY deny_all ON public.settings FOR ALL USING (false);
-

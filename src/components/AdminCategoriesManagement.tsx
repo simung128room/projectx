@@ -71,11 +71,11 @@ export const AdminCategoriesManagement: React.FC<AdminCategoriesManagementProps>
       }
       
       setProducts(updatedProducts);
-      Swal.fire({ title: 'สำเร็จ', text: 'อัปเดตสินค้าในหมวดหมู่เรียบร้อย', icon: 'success', background: '#1f1c14', color: '#f5f0e8', confirmButtonColor: '#de7356' });
+      Swal.fire({ title: 'สำเร็จ', text: 'อัปเดตสินค้าในหมวดหมู่เรียบร้อย', icon: 'success', background: '#1f1c14', color: '#fff', confirmButtonColor: '#364153' });
       setManagingProductsForCategory(null);
     } catch (err) {
       console.error(err);
-      Swal.fire({ title: 'ข้อผิดพลาด', text: 'ไม่สามารถอัปเดตข้อมูลสินค้าได้', icon: 'error', background: '#1f1c14', color: '#f5f0e8', confirmButtonColor: '#de7356' });
+      Swal.fire({ title: 'ข้อผิดพลาด', text: 'ไม่สามารถอัปเดตข้อมูลสินค้าได้', icon: 'error', background: '#1f1c14', color: '#fff', confirmButtonColor: '#EF4444' });
     } finally {
       setIsUpdatingProducts(false);
     }
@@ -83,7 +83,7 @@ export const AdminCategoriesManagement: React.FC<AdminCategoriesManagementProps>
 
   const saveCategory = async () => {
     if (!formData.name || !formData.title) {
-      Swal.fire({ title: 'ข้อผิดพลาด', text: 'กรุณากรอกชื่ออ้างอิงและหัวข้อหลัก', icon: 'error', background: '#1f1c14', color: '#f5f0e8', confirmButtonColor: '#de7356' });
+      Swal.fire({ title: 'ข้อผิดพลาด', text: 'กรุณากรอกชื่ออ้างอิงและหัวข้อหลัก', icon: 'error', background: '#1f1c14', color: '#fff', confirmButtonColor: '#EF4444' });
       return;
     }
     
@@ -98,10 +98,10 @@ export const AdminCategoriesManagement: React.FC<AdminCategoriesManagementProps>
         setIsAdding(false);
       }
       setFormData({ name: '', title: '', subtitle: '', bannerUrl: '' });
-      Swal.fire({ title: 'สำเร็จ', text: 'บันทึกหมวดหมู่เรียบร้อย', icon: 'success', background: '#1f1c14', color: '#f5f0e8', confirmButtonColor: '#de7356' });
+      Swal.fire({ title: 'สำเร็จ', text: 'บันทึกหมวดหมู่เรียบร้อย', icon: 'success', background: '#1f1c14', color: '#fff', confirmButtonColor: '#364153' });
     } catch (err) {
       console.error(err);
-      Swal.fire({ title: 'Error', text: 'ไม่สามารถบันทึกได้', icon: 'error', background: '#1f1c14', color: '#f5f0e8', confirmButtonColor: '#de7356' });
+      Swal.fire({ title: 'Error', text: 'ไม่สามารถบันทึกได้', icon: 'error', background: '#1f1c14', color: '#fff', confirmButtonColor: '#EF4444' });
     }
   };
 
@@ -113,18 +113,18 @@ export const AdminCategoriesManagement: React.FC<AdminCategoriesManagementProps>
       showCancelButton: true,
       confirmButtonText: 'ลบ',
       cancelButtonText: 'ยกเลิก',
-      confirmButtonColor: '#de7356',
+      confirmButtonColor: '#EF4444',
       cancelButtonColor: '#71717a',
       background: '#1f1c14',
-      color: '#f5f0e8'
+      color: '#fff'
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
           await axios.delete(`/api/categories/${id}`);
           setCategories(categories.filter(c => c.id !== id));
-          Swal.fire({ title: 'สำเร็จ', text: 'ลบหมวดหมู่เรียบร้อย', icon: 'success', background: '#1f1c14', color: '#f5f0e8', timer: 1000, showConfirmButton: false });
+          Swal.fire({ title: 'สำเร็จ', text: 'ลบหมวดหมู่เรียบร้อย', icon: 'success', background: '#1f1c14', color: '#fff', timer: 1000, showConfirmButton: false });
         } catch (err) {
-          Swal.fire({ title: 'Error', text: 'ไม่สามารถลบหมวดหมู่ได้', icon: 'error', background: '#1f1c14', color: '#f5f0e8' });
+          Swal.fire({ title: 'Error', text: 'ไม่สามารถลบหมวดหมู่ได้', icon: 'error', background: '#1f1c14', color: '#fff' });
         }
       }
     });
