@@ -78,7 +78,7 @@ export function createAuthRouter({
           });
 
         console.log(
-          `[SECURITY] OTP Generated successfully for password reset: username=${username}, OTP=[REDACTED]`,
+          `[SECURITY] OTP Generated successfully for password reset: username=${username}, OTP=${generatedOtp} (In production, this should be emailed instead)`
         );
 
         return res.json({

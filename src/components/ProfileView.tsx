@@ -58,9 +58,17 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   const balance = userPlan?.balance || 0;
   const username = userPlan?.username || user?.email?.split('@')[0] || 'Member';
   const email = user?.email || 'เข้าสู่ระบบแล้ว';
-  const registeredAt = userPlan?.registeredAt 
-    ? new Date(userPlan.registeredAt).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }) 
-    : new Date().toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' });
+
+  const formatDateToCE = (dateVal: string | Date | undefined | null) => {
+    if (!dateVal) return '';
+    const d = new Date(dateVal);
+    if (isNaN(d.getTime())) return '';
+    const day = d.getDate();
+    const month = d.toLocaleDateString('th-TH', { month: 'long' });
+    const year = d.getFullYear();
+    return `${day} ${month} ${year}`;
+  };
+  const registeredAt = formatDateToCE(userPlan?.registeredAt) || formatDateToCE(new Date());
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,10 +93,10 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
         title: 'บันทึกข้อมูลเรียบร้อย', 
         timer: 1550, 
         showConfirmButton: false, 
-        background: '#121212', 
-        color: '#fff',
+        background: '#ffffff', 
+        color: '#1f2937',
         customClass: {
-          popup: 'rounded-md border border-border'
+          popup: 'rounded-2xl border border-zinc-200 shadow-[0_15px_40px_rgba(0,0,0,0.05)]'
         }
       });
     } catch (err: any) {
@@ -97,10 +105,10 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
         icon: 'error',
         title: 'บันทึกข้อมูลไม่สำเร็จ',
         text: err.response?.data?.error || err.message || 'เกิดข้อผิดพลาดในการเชื่อมต่อ',
-        background: '#121212',
-        color: '#fff',
+        background: '#ffffff',
+        color: '#1f2937',
         customClass: {
-          popup: 'rounded-md border border-border'
+          popup: 'rounded-2xl border border-zinc-200 shadow-[0_15px_40px_rgba(0,0,0,0.05)]'
         }
       });
     } finally {
@@ -125,27 +133,27 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
     onClick: () => void;
   }) => (
     <motion.button
-      whileHover={{ y: -2 }}
+      whileHover={{ y: -3, scale: 1.01 }}
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
-      className="relative overflow-hidden text-left bg-white border border-[#e2e8f0] hover:border-blue-500/40 rounded-xl p-5 flex items-center gap-4 transition-all duration-300 w-full group cursor-pointer shadow-sm"
+      className="relative overflow-hidden text-left bg-[#161a26] border border-[#1f293d] hover:border-blue-500/30 rounded-2xl p-5 flex items-center gap-4 transition-all duration-300 w-full group cursor-pointer shadow-sm outline-none"
     >
       {/* Background radial highlight */}
       <div 
-        className="absolute -top-12 -right-12 w-24 h-24 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500  pointer-events-none"
-        style={{ bg: glowColor } as any}
+        className="absolute -top-12 -right-12 w-24 h-24 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+        style={{ background: glowColor }}
       />
       {/* Icon enclosure */}
-      <div className={`p-3.5 rounded-md bg-card/[0.04] border border-border group-hover:border-transparent group-hover:scale-105 duration-300 transition-all shrink-0 ${colorClass}`}>
-        <Icon className="w-5 h-5 font-medium" />
+      <div className="p-4 rounded-xl bg-[#11131a] border border-[#2d3748] group-hover:bg-[#1f293d] group-hover:border-blue-500/30 group-hover:scale-105 duration-300 transition-all shrink-0">
+        <Icon className={`w-5 h-5 font-medium transition-colors ${colorClass}`} />
       </div>
       <div className="flex flex-col min-w-0">
-        <span className="text-xs sm:text-sm font-semibold text-foreground tracking-wider uppercase">{label}</span>
-        <span className="text-[10px] text-muted-foreground group-hover:text-muted-foreground font-medium tracking-normal truncate mt-1">
+        <span className="text-xs sm:text-sm font-extrabold text-white tracking-wide uppercase">{label}</span>
+        <span className="text-[11px] text-zinc-500 group-hover:text-blue-400 font-bold tracking-normal truncate mt-1 transition-colors duration-200">
           {subLabel}
         </span>
       </div>
-      <div className="ml-auto opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all duration-350 text-zinc-600 shrink-0">
+      <div className="ml-auto opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300 text-blue-500 shrink-0">
         <ChevronRight className="w-4 h-4" />
       </div>
     </motion.button>
@@ -156,41 +164,40 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
       <div className="max-w-6xl mx-auto px-4 py-8 font-sans space-y-8 select-none">
         
         {/* TOP INTEGRATED PROFILE HERO */}
-        <div className="relative overflow-hidden bg-card border border-zinc-850 rounded-md p-6 sm:p-8 shadow-md flex flex-col sm:flex-row items-center gap-6">
+        <div className="relative overflow-hidden bg-[#11131a] border border-[#1f293d] rounded-[24px] p-6 sm:p-8 shadow-[0_4px_20px_-8px_rgba(0,0,0,0.5)] flex flex-col sm:flex-row items-center gap-6">
+          <div className="absolute top-0 left-0 w-full h-[4px] bg-gradient-to-r from-blue-500 to-indigo-500" />
           
-          
-
           <div className="relative shrink-0">
-            <div className="w-20 h-20 bg-card border border-border p-1 rounded-full overflow-hidden shadow-sm">
+            <div className="w-20 h-20 bg-[#161a26] border border-[#2d3748] p-1 rounded-full overflow-hidden shadow-xs">
               <img 
                 loading="lazy" 
                 src={getAvatarUrl(user?.id || username)} 
                 alt="Avatar" 
-                className="w-full h-full object-cover rounded-full animate-in fade-in"
+                className="w-full h-full object-cover rounded-full animate-in fade-in duration-300"
                 referrerPolicy="no-referrer"
               />
             </div>
-            <div className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full border border-gray-900 flex items-center justify-center text-[10px] shadow bg-[#3b82f6]`} title={role}>
+            <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full border border-[#11131a] flex items-center justify-center text-[10px] shadow bg-blue-500 text-white font-bold" title={role}>
               👑
             </div>
           </div>
 
           <div className="flex-1 text-center sm:text-left space-y-2 min-w-0">
             <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2.5">
-              <h1 className="text-xl font-medium text-foreground tracking-tight truncate max-w-[240px] sm:max-w-md">
+              <h1 className="text-xl font-black text-white tracking-tight truncate max-w-[240px] sm:max-w-md">
                 {username}
               </h1>
-              <span className="text-[9px] font-semibold uppercase tracking-wider px-2.5 py-1 bg-blue-600/10 text-blue-500 border border-blue-500/20 rounded-md shrink-0">
+              <span className="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 ml-0.5 text-blue-400 bg-blue-900/40 border border-blue-500/30 rounded-lg shrink-0">
                 {role}
               </span>
             </div>
-            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-4 gap-y-1.5 text-muted-foreground mt-1">
-              <p className="text-xs font-medium flex items-center gap-1.5 break-all">
-                <Mail className="w-3.5 h-3.5 text-muted-foreground" />
+            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-5 gap-y-1.5 text-zinc-500 mt-1.5">
+              <p className="text-xs font-bold flex items-center gap-1.5 break-all">
+                <Mail className="w-4 h-4 text-zinc-500 shrink-0" />
                 {email}
               </p>
-              <p className="text-xs font-medium flex items-center gap-1.5">
-                <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
+              <p className="text-xs font-bold flex items-center gap-1.5">
+                <Calendar className="w-4 h-4 text-zinc-500 shrink-0" />
                 สมาชิกตั้งแต่ {registeredAt}
               </p>
             </div>
@@ -201,7 +208,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
         <div className="space-y-4">
           <div className="flex items-center gap-2 py-1 select-none">
             <span className="w-1.5 h-3.5 rounded-full bg-blue-600 " />
-            <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-[0.2em]">
+            <span className="text-[10px] font-extrabold text-zinc-400 uppercase tracking-[0.2em]">
               เมนูข้อมูลบัญชีและการตั้งค่า • USER DASHBOARD
             </span>
           </div>
@@ -212,8 +219,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               label="ยอดเงินคงเหลือ"
               subLabel={`คลิกเพื่อเติมเงิน • ฿${Math.floor(balance).toLocaleString()} บาท`}
               icon={Coins}
-              colorClass="text-neon-yellow group-hover:bg-neon-yellow/10 animate-none"
-              glowColor="rgba(251,191,36,0.1)"
+              colorClass="text-amber-500"
+              glowColor="rgba(245,158,11,0.08)"
               onClick={() => setActiveView('wallet')}
             />
 
@@ -221,8 +228,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               label="ประวัติการสั่งซื้อ"
               subLabel="คำสั่งซื้อสินค้าและเติมเงินเดี่ยว"
               icon={Package}
-              colorClass="text-[#3b82f6] group-hover:bg-[#3b82f6]/10 animate-none"
-              glowColor="rgba(59,130,246,0.1)"
+              colorClass="text-blue-500"
+              glowColor="rgba(59,130,246,0.08)"
               onClick={() => setActiveView('my_orders')}
             />
 
@@ -230,8 +237,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               label="ระบบความปลอดภัย"
               subLabel="เปลี่ยนรหัสผ่านเพื่อป้องกันข้อมูล"
               icon={Settings}
-              colorClass="text-muted-foreground group-hover:bg-zinc-500/10 animate-none"
-              glowColor="rgba(156,163,175,0.1)"
+              colorClass="text-zinc-500"
+              glowColor="rgba(107,114,128,0.08)"
               onClick={() => setActiveView('settings')}
             />
 
@@ -239,8 +246,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               label="ออกจากระบบ"
               subLabel="เสร็จสิ้นเซสชั่นและลงชื่อออกเดสก์ท็อป"
               icon={LogOut}
-              colorClass="text-rose-500 group-hover:bg-rose-500/10 animate-none"
-              glowColor="rgba(239,68,68,0.1)"
+              colorClass="text-rose-500"
+              glowColor="rgba(239,68,68,0.08)"
               onClick={() => { 
                 Swal.fire({
                   title: 'ยืนยันการออกจากระบบ?',
@@ -248,13 +255,15 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                   icon: 'warning',
                   showCancelButton: true,
                   confirmButtonColor: '#ef4444',
-                  cancelButtonColor: '#18181b',
+                  cancelButtonColor: '#e4e4e7',
                   cancelButtonText: 'ยกเลิก',
                   confirmButtonText: 'ยืนยันการออก',
-                  background: '#121212',
-                  color: '#fff',
+                  background: '#ffffff',
+                  color: '#1f2937',
                   customClass: {
-                    popup: 'rounded-md border border-border'
+                    popup: 'rounded-2xl border border-zinc-200 shadow-[0_15px_40px_rgba(0,0,0,0.05)]',
+                    confirmButton: 'rounded-xl px-5 py-2.5 font-bold text-xs',
+                    cancelButton: 'rounded-xl px-5 py-2.5 font-bold text-xs text-zinc-600 bg-zinc-100 hover:bg-zinc-200'
                   }
                 }).then((result) => {
                   if (result.isConfirmed) {
@@ -268,15 +277,15 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
         </div>
 
         {/* PROFILE METADATA DETAILS EDIT FORM */}
-        <div className="bg-card border border-zinc-850 rounded-md p-6 shadow-md relative overflow-hidden">
-          <div className="flex items-center gap-2 border-b border-border/60 pb-3 mb-5">
-            <UserCheck className="w-4.5 h-4.5 text-blue-500" />
-            <h2 className="text-sm font-medium text-foreground uppercase tracking-wider">แก้ไขข้อมูลสมาชิกและโปรไฟล์</h2>
+        <div className="bg-[#11131a] border border-[#1f293d] rounded-[24px] p-6 sm:p-8 shadow-[0_4px_20px_-8px_rgba(0,0,0,0.5)] relative overflow-hidden">
+          <div className="flex items-center gap-2 border-b border-[#1f293d] pb-4 mb-6">
+            <UserCheck className="w-5 h-5 text-blue-500 shrink-0" />
+            <h2 className="text-sm font-black text-white uppercase tracking-wider">แก้ไขข้อมูลสมาชิกและโปรไฟล์</h2>
           </div>
 
-          <form onSubmit={handleUpdateProfile} className="space-y-4 max-w-xl">
+          <form onSubmit={handleUpdateProfile} className="space-y-5 max-w-xl">
             <div>
-              <label className="text-[10px] text-muted-foreground font-semibold uppercase tracking-widest mb-1.5 block ml-0.5">
+              <label className="text-[10px] text-zinc-500 font-extrabold uppercase tracking-widest mb-2 block ml-0.5">
                 ชื่อ-นามสกุลผู้ใช้งาน (จริง)
               </label>
               <input 
@@ -284,7 +293,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 placeholder="ระบุชื่อจริงสำหรับการเชื่อมเคาน์เตอร์ธุรกรรม"
-                className="w-full bg-[#0a0a0b] border border-border focus:border-blue-500/45 rounded-md py-3 px-4 text-xs text-foreground outline-none transition-all placeholder:text-zinc-650 font-semibold" 
+                className="w-full bg-[#161a26] hover:bg-[#1f293d] focus:bg-[#161a26] border border-[#2d3748] focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 rounded-2xl py-3.5 px-4 text-xs text-white outline-none transition-all placeholder:text-zinc-500 font-bold" 
               />
             </div>
 
@@ -292,9 +301,16 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               <button 
                 type="submit" 
                 disabled={isUpdating}
-                className="bg-blue-600 hover:bg-[#3b82f6] text-foreground font-semibold py-2.5 px-6 shrink-0 transition-all text-xs rounded-md cursor-pointer uppercase tracking-wider shadow-sm shadow-neon-green/5 disabled:opacity-50"
+                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-extrabold py-3.5 px-7 shrink-0 transition-all duration-300 text-xs rounded-2xl cursor-pointer uppercase tracking-widest shadow-md hover:shadow-lg disabled:opacity-50 border-none flex items-center justify-center gap-2"
               >
-                {isUpdating ? 'กำลังบันทึก...' : 'บันทึกข้อมูลอย่างเป็นทางการ'}
+                {isUpdating ? (
+                  <>
+                    <span className="w-3.5 h-3.5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                    <span>กำลังบันทึกข้อมูล...</span>
+                  </>
+                ) : (
+                  <span>บันทึกข้อมูลอย่างเป็นทางการ</span>
+                )}
               </button>
             </div>
           </form>

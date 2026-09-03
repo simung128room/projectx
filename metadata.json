@@ -1,6 +1,6 @@
 {
-  "name": "Sunoid.shop",
-  "description": "ร้านขายไอดีเกมและแอปพรีเมียมระบบอัตโนมัติ 24 ชั่วโมง",
+  "name": "GameStore & ID Rental",
+  "description": "MINICLOUD - ระบบคลาวด์รันบอทเกมและแมโครอัตโนมัติ 24/7 (Headless Sandbox & Anti-Ban Isolation)",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

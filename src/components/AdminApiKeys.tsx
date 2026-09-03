@@ -14,7 +14,7 @@ export const AdminApiKeys: React.FC = () => {
   const fetchKeys = async () => {
     setIsLoading(true);
     try {
-      const res = await axios.get('/api/api_keys');
+      const res = await axios.get('/api/admin/api-keys');
       setApiKeys(res.data);
     } catch (err: any) {
       console.error(err);
@@ -38,7 +38,7 @@ export const AdminApiKeys: React.FC = () => {
   const handleAddKey = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await axios.post('/api/api_keys', {
+      await axios.post('/api/admin/api-keys', {
         name: newKeyName,
         is_lifetime: isLifetime,
         expire_days: expireDays
@@ -69,7 +69,7 @@ export const AdminApiKeys: React.FC = () => {
 
   const handleToggleStatus = async (key: string, currentStatus: string) => {
     try {
-      await axios.patch(`/api/api_keys/${key}`, {
+      await axios.patch(`/api/admin/api-keys/${key}`, {
         status: currentStatus === 'active' ? 'disabled' : 'active'
       });
       fetchKeys();
@@ -101,7 +101,7 @@ export const AdminApiKeys: React.FC = () => {
 
     if (confirm.isConfirmed) {
       try {
-        await axios.delete(`/api/api_keys/${key}`);
+        await axios.delete(`/api/admin/api-keys/${key}`);
         Swal.fire({
           title: 'ลบเสร็จสิ้น',
           icon: 'success',
@@ -245,7 +245,7 @@ export const AdminApiKeys: React.FC = () => {
                       {k.expires_at ? new Date(k.expires_at).toLocaleString('th-TH') : <span className="font-medium text-zinc-400"> Lifetime ถาวร</span>}
                     </td>
                     <td className="px-5 py-3.5 text-xs text-zinc-500 whitespace-nowrap">
-                      {k.last_used ? new Date(k.last_used).toLocaleString('th-TH') : <span className="italic text-zinc-650">ยังไม่มี</span>}
+                      {k.last_used ? new Date(k.last_used).toLocaleString('th-TH') : <span className="italic text-zinc-500">ยังไม่มี</span>}
                     </td>
                     <td className="px-5 py-3.5 text-right whitespace-nowrap">
                       <div className="flex items-center justify-end gap-1.5">

@@ -14,6 +14,11 @@ const originalFire = Swal.fire;
     opts = { ...args[0] };
   }
   
+  opts.background = '#11131a';
+  opts.color = '#ffffff';
+  opts.confirmButtonColor = '#0084ff';
+  opts.cancelButtonColor = '#1f293d';
+  
   if (!opts.showCancelButton && !opts.input && !opts.confirmButtonText && opts.showConfirmButton !== true) {
     opts.toast = true;
     opts.position = 'top-end';
@@ -21,7 +26,7 @@ const originalFire = Swal.fire;
     opts.timer = opts.timer || 3000;
     opts.timerProgressBar = true;
     opts.customClass = {
-      popup: 'brutalist-toast',
+      popup: 'brutalist-toast border border-zinc-200/50 shadow-xl rounded-2xl',
     };
   }
   return originalFire.call(Swal, opts);

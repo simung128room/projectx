@@ -341,7 +341,7 @@ export const AdminCategoriesManagement: React.FC<AdminCategoriesManagementProps>
                     <div className="flex flex-col items-center justify-center text-zinc-500">
                       <Package className="w-10 h-10 mb-2 opacity-35" />
                       <p className="font-medium">ยังไม่มีหมวดหมู่สินค้าในระบบ</p>
-                      <p className="text-xs text-zinc-650 mt-1">คลิกปุ่ม "เพิ่มหมวดหมู่" ด้านบนขวาเพื่อเริ่มสร้างสรรค์เนื้อหา</p>
+                      <p className="text-xs text-zinc-500 mt-1">คลิกปุ่ม "เพิ่มหมวดหมู่" ด้านบนขวาเพื่อเริ่มสร้างสรรค์เนื้อหา</p>
                     </div>
                   </td>
                 </tr>

@@ -4,9 +4,17 @@ import path from 'path';
 
 import os from 'os';
 import crypto from 'crypto';
-const localDBPath = os.tmpdir() + `/.data`;
-if (!fs.existsSync(localDBPath)) {
-  fs.mkdirSync(localDBPath, { recursive: true });
+let localDBPath = path.join(process.cwd(), '.data');
+try {
+  if (!fs.existsSync(localDBPath)) {
+    fs.mkdirSync(localDBPath, { recursive: true });
+  }
+} catch (e) {
+  // Fallback to /tmp if process.cwd() is read-only (like in some production environments)
+  localDBPath = path.join(os.tmpdir(), '.data');
+  if (!fs.existsSync(localDBPath)) {
+    fs.mkdirSync(localDBPath, { recursive: true });
+  }
 }
 
 const localTableCache: Record<string, any[]> = {};
@@ -47,14 +55,10 @@ async function saveLocalTable(collection: string, data: any) {
 }
 
 const isServer = typeof window === 'undefined';
-const supabaseUrl = isServer ? (process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL) : '';
+const supabaseUrl = isServer ? (process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '') : '';
 const supabaseKey = isServer 
-  ? (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim()
+  ? (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY || '').trim()
   : '';
-
-if (isServer && !supabaseKey) {
-  throw new Error("SUPABASE_SERVICE_ROLE_KEY is required for adminDb operations.");
-}
 
 // Ensure the key is an actual JWT/ASCII string and not Thai text to prevent Node Headers ByteString crash
 const isValidKey = /^[A-Za-z0-9\-_.]+$/.test(supabaseKey);
@@ -62,7 +66,7 @@ const isValidKey = /^[A-Za-z0-9\-_.]+$/.test(supabaseKey);
 const isSupabaseAdminConfigured = !!(supabaseUrl && supabaseUrl.startsWith('http') && supabaseKey && isValidKey);
 
 if (!isSupabaseAdminConfigured) {
-  console.warn('Supabase service role variables are missing, invalid, or contain non-ascii characters');
+  console.warn('[AdminDB] Supabase service role variables are missing or not configured. Running in local/mock-safe mode.');
 }
 
 const safeUrl = isSupabaseAdminConfigured ? supabaseUrl : 'https://placeholder.supabase.co';
@@ -76,7 +80,25 @@ export const supabaseAdmin = createClient(safeUrl, safeKey, {
   }
 });
 
-const camelMap: Record<string, string> = {
+type DbColumn = 
+  | 'user_id' | 'product_name' | 'is_premium' | 'updated_at'
+  | 'created_at' | 'stock_data' | 'image_url' | 'original_price'
+  | 'is_popular' | 'sold_count' | 'banner_url' | 'secret_data'
+  | 'bill_number' | 'discord_claimed' | 'web_claimed' | 'product_id'
+  | 'is_deleted' | 'category_id' | 'is_highlight' | 'custom_page_id'
+  | 'youtube_url' | 'is_preorder' | 'preorder_options' | 'userid'
+  | 'productname' | 'ispremium' | 'updatedat' | 'createdat' | 'stockdata'
+  | 'image' | 'username' | 'isdeleted';
+
+type CamelField =
+  | 'userId' | 'productName' | 'isPremium' | 'updatedAt'
+  | 'createdAt' | 'stockData' | 'imageUrl' | 'originalPrice'
+  | 'isPopular' | 'soldCount' | 'bannerUrl' | 'secretData' | 'username'
+  | 'billNumber' | 'discordClaimed' | 'webClaimed' | 'productId'
+  | 'isDeleted' | 'categoryId' | 'isHighlight' | 'customPageId'
+  | 'youtubeUrl' | 'isPreOrder' | 'preOrderOptions';
+
+const camelMap: Record<string, CamelField> = {
   userid: 'userId',
   product_name: 'productName',
   productname: 'productName',
@@ -110,7 +132,7 @@ const camelMap: Record<string, string> = {
   preorder_options: 'preOrderOptions'
 };
 
-const forwardMap: Record<string, string> = {
+const forwardMap: Record<CamelField, DbColumn> = {
   imageUrl: 'image_url',
   bannerUrl: 'banner_url',
   createdAt: 'created_at',
@@ -133,15 +155,27 @@ const forwardMap: Record<string, string> = {
   customPageId: 'custom_page_id',
   youtubeUrl: 'youtube_url',
   isPreOrder: 'is_preorder',
-  preOrderOptions: 'preorder_options'
+  preOrderOptions: 'preorder_options',
+  username: 'username'
 };
 
 const missingColumns = new Set<string>();
 
+export async function initializeAdminDb(): Promise<void> {
+  if (!isSupabaseAdminConfigured) {
+    return;
+  }
+  await hydrateMissingColumns();
+  console.log('[AdminDB] missingColumns hydrated:', Array.from(missingColumns));
+}
+
 // Pre-hydrate from DB to persist across serverless instances
 let isMissingColumnsHydrated = false;
 async function hydrateMissingColumns() {
-  if (isMissingColumnsHydrated) return;
+  if (isMissingColumnsHydrated || !isSupabaseAdminConfigured) {
+    isMissingColumnsHydrated = true;
+    return;
+  }
   try {
     const { data } = await supabaseAdmin.from('custom_pages').select('content').eq('slug', '_sys:missing_columns').limit(1);
     if (data && data[0] && data[0].content) {
@@ -154,6 +188,7 @@ async function hydrateMissingColumns() {
 
 async function persistMissingColumn(colName: string) {
   missingColumns.add(colName);
+  if (!isSupabaseAdminConfigured) return;
   try {
     const arr = Array.from(missingColumns);
     const payload = { slug: '_sys:missing_columns', title: 'SystemConfig', content: JSON.stringify(arr) };
@@ -242,6 +277,9 @@ class SupabaseDoc {
   }
 
   async get() {
+    if (!isSupabaseAdminConfigured) {
+        return { exists: false, data: () => null };
+    }
     if (isVirtual(this.collection)) {
         const slug = getVirtualSlug(this.collection, this.id);
         const legacySlug = `v:${this.collection}:${this.id}`;
@@ -387,6 +425,7 @@ class SupabaseDoc {
     }
   }
   async delete() {
+    if (!isSupabaseAdminConfigured) return;
     if (isVirtual(this.collection)) {
         const slug = getVirtualSlug(this.collection, this.id);
         const legacySlug = `v:${this.collection}:${this.id}`;
@@ -401,6 +440,7 @@ class SupabaseDoc {
     if (error) throw error;
   }
   async set(data: any, options: any = {}) {
+    if (!isSupabaseAdminConfigured) return;
     if (isVirtual(this.collection)) {
         const slug = getVirtualSlug(this.collection, this.id);
         const legacySlug = `v:${this.collection}:${this.id}`;

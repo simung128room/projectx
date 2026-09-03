@@ -11,6 +11,11 @@ import { AdminApiKeys } from './AdminApiKeys';
 import { ProductManagerModal } from './admin/ProductManagerModal';
 import { AddStockModal } from './admin/AddStockModal';
 import { DatabaseSetupGuide } from './admin/DatabaseSetupGuide';
+import { AdminUserManagement } from './AdminUserManagement';
+import { AdminPagesManagement } from './AdminPagesManagement';
+import { AdminCategoriesManagement } from './AdminCategoriesManagement';
+import { AdminToolsManagement } from './AdminToolsManagement';
+import AdminStockManagement from './AdminStockManagement';
 
 
 interface AdminDashboardProps {
@@ -160,19 +165,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           setAdminTab(id);
           setIsNavOpen(false);
         }}
-        className={`w-full flex items-center gap-3 px-4 py-2.5 transition-all duration-200 relative group rounded-md ${
+        className={`w-full flex items-center gap-3 px-4 py-2.5 transition-all duration-200 relative group rounded-xl border ${
           isActive 
-            ? 'bg-[#050505]/60 text-[#364153] font-semibold' 
-            : 'text-zinc-400 hover:bg-[#050505]/20 hover:text-white'
+            ? 'bg-blue-500/10 text-white border-blue-500/20 font-semibold shadow-md shadow-blue-500/5' 
+            : 'text-zinc-400 border-transparent hover:bg-zinc-900/50 hover:text-white'
         }`}
       >
         {isActive && (
-          <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-[#364153] rounded-r-md shadow-sm" />
+          <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-6 bg-blue-500 rounded-r-full shadow-[0_0_8px_rgba(59,130,246,0.6)]" />
         )}
-        <Icon className={`w-4 h-4 transition-transform duration-200 group-hover:scale-105 ${isActive ? 'text-[#364153]' : 'text-zinc-500 group-hover:text-zinc-300'}`} />
+        <Icon className={`w-4 h-4 transition-transform duration-200 group-hover:scale-105 ${isActive ? 'text-blue-400' : 'text-zinc-500 group-hover:text-zinc-300'}`} />
         <span className="text-xs tracking-wide">{label}</span>
         {isActive && (
-          <ChevronRight className="w-3 h-3 ml-auto opacity-75 text-[#364153]" />
+          <ChevronRight className="w-3 h-3 ml-auto text-blue-400/80 group-hover:translate-x-0.5 transition-transform" />
         )}
       </button>
     );
@@ -214,12 +219,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const salesToday = 0;
   const salesWeek = 0;
   const salesMonth = 0;
-
-  const AdminUserManagement = (props: any) => <div className="p-4 text-white">AdminUserManagement Placeholder (Migrating)</div>;
-  const AdminPagesManagement = (props: any) => <div className="p-4 text-white">AdminPagesManagement Placeholder (Migrating)</div>;
-  const AdminCategoriesManagement = (props: any) => <div className="p-4 text-white">AdminCategoriesManagement Placeholder (Migrating)</div>;
-  const AdminToolsManagement = (props: any) => <div className="p-4 text-white">AdminToolsManagement Placeholder (Migrating)</div>;
-  const AdminStockManagement = (props: any) => <div className="p-4 text-white">AdminStockManagement Placeholder (Migrating)</div>;
 
   return (
     <div className="min-h-screen bg-[#121212] flex font-sans text-white">
@@ -347,26 +346,26 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 exit={{ opacity: 0, y: -10 }}
                 className="space-y-8"
               >
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                {[
-                  { label: 'ผู้ใช้งานทั้งหมด', value: (siteStats?.users || 0).toLocaleString(), icon: Users, color: 'text-[#364153]', bg: 'bg-[#364153]/5', border: 'hover:border-[#364153]/40' },
-                  { label: 'ยอดขายทั้งหมด (สินค้า)', value: totalOrders.toLocaleString(), icon: Package, color: 'text-zinc-400', bg: 'bg-zinc-500/5', border: 'hover:border-[#374151]/40' },
-                  { label: 'คำสั่งซื้อทั้งหมด', value: purchaseHistory.length.toLocaleString(), icon: ShoppingCart, color: 'text-amber-400', bg: 'bg-amber-500/5', border: 'hover:border-amber-500/40' },
-                  { label: 'สินค้าประเภทสต็อก', value: products.filter(p => !p.isPreOrder && p.stock > 0).length.toLocaleString(), icon: Database, color: 'text-blue-400', bg: 'bg-blue-500/5', border: 'hover:border-blue-500/40' }
-                ].map((stat, i) => (
-                  <div key={i} className={`bg-[#050505]/40 border border-[#374151]/60 rounded-md p-6 relative overflow-hidden group transition-all duration-300 hover:translate-y-[-2px] hover:shadow-sm ${stat.border}`}>
-                    <div className="flex items-center justify-between relative z-10">
-                      <div>
-                        <p className="text-zinc-500 text-[10px] font-medium uppercase tracking-wider mb-2">{stat.label}</p>
-                        <h3 className="text-3xl font-semibold text-white tracking-tight font-mono">{stat.value}</h3>
-                      </div>
-                      <div className={`w-12 h-12 rounded-md flex items-center justify-center transition-transform duration-300 group-hover:scale-110 ${stat.bg} ${stat.color} shadow-sm`}>
-                        <stat.icon className="w-5 h-5" />
-                      </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {[
+                { label: 'ผู้ใช้งานทั้งหมด', value: (siteStats?.users || 0).toLocaleString(), icon: Users, color: 'text-blue-400', bg: 'bg-blue-500/10', border: 'hover:border-blue-500/40' },
+                { label: 'ยอดขายทั้งหมด (สินค้า)', value: totalOrders.toLocaleString(), icon: Package, color: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'hover:border-emerald-500/40' },
+                { label: 'คำสั่งซื้อทั้งหมด', value: purchaseHistory.length.toLocaleString(), icon: ShoppingCart, color: 'text-amber-400', bg: 'bg-amber-500/10', border: 'hover:border-amber-500/40' },
+                { label: 'สินค้าประเภทสต็อก', value: products.filter(p => !p.isPreOrder && p.stock > 0).length.toLocaleString(), icon: Database, color: 'text-indigo-400', bg: 'bg-indigo-500/10', border: 'hover:border-indigo-500/40' }
+              ].map((stat, i) => (
+                <div key={i} className={`bg-zinc-900/40 backdrop-blur-md border border-zinc-800/80 rounded-2xl p-6 relative overflow-hidden group transition-all duration-300 hover:translate-y-[-4px] hover:shadow-lg ${stat.border}`}>
+                  <div className="flex items-center justify-between relative z-10">
+                    <div>
+                      <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-wider mb-2">{stat.label}</p>
+                      <h3 className="text-3xl font-extrabold text-white tracking-tight font-mono">{stat.value}</h3>
+                    </div>
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110 ${stat.bg} ${stat.color} shadow-lg shadow-black/20`}>
+                      <stat.icon className="w-5 h-5" />
                     </div>
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
+            </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2 space-y-6">

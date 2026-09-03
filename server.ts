@@ -3,7 +3,7 @@ declare module 'express-serve-static-core' {
   interface Request {
     user?: any;
     isAdmin?: boolean;
-      // @ts-ignore
+      // @ts-ignore - Bypass Express ip property read-only clash
     ip?: string;
   }
 }
@@ -20,6 +20,7 @@ import cors from "cors";
 import axios from "axios";
 import { z } from "zod";
 import { encrypt, decrypt, getEncryptionKey } from "./src/services/encryption.service.js";
+import { AppError } from "./src/lib/errors.js";
 axios.defaults.timeout = 15e3;
 import CircuitBreaker from "opossum";
 import { CookieJar } from "tough-cookie";
@@ -34,63 +35,7 @@ import readline from "readline";
 import os from "os";
 import zlib from "zlib";
 import { promisify } from "util";
-const gzipAsync = promisify(zlib.gzip);
-const gunzipAsync = promisify(zlib.gunzip);
-const compressStock = __name(async (stockData) => {
-  if (!Array.isArray(stockData)) return stockData;
-  if (stockData.length >= 250) {
-    const buffer = await gzipAsync(JSON.stringify(stockData));
-    return [{ __compressed: buffer.toString("base64") }];
-  }
-  const str = JSON.stringify(stockData);
-  if (str.length > 5e4) {
-    const buffer = await gzipAsync(str);
-    return [{ __compressed: buffer.toString("base64") }];
-  }
-  return stockData;
-}, "compressStock");
-const decompressStock = __name(async (data) => {
-  let compData = data;
-  if (typeof data === "string") {
-    try {
-      data = JSON.parse(data);
-      compData = data;
-    } catch (e) {
-      console.error("Caught error:", e);
-    }
-  }
-  if (data && typeof data === "object" && !Array.isArray(data)) {
-    if (data["0"]) {
-      const arr = [];
-      for (let i = 0; i < Object.keys(data).length; i++) {
-        if (data[i] !== void 0) arr.push(data[i]);
-      }
-      data = arr;
-      compData = data;
-    }
-  }
-  if (
-    Array.isArray(data) &&
-    data.length === 1 &&
-    data[0] &&
-    typeof data[0] === "object" &&
-    data[0].__compressed
-  ) {
-    compData = data[0];
-  }
-  if (compData && typeof compData === "object" && compData.__compressed) {
-    try {
-      const buffer = await gunzipAsync(
-        Buffer.from(compData.__compressed, "base64"),
-      );
-      return JSON.parse(buffer.toString("utf-8"));
-    } catch (e) {
-      console.error("decompressStock error:", e);
-      return [];
-    }
-  }
-  return data;
-}, "decompressStock");
+import { compressStock, decompressStock } from "./src/lib/stockUtils.js";
 let freeProxies = [];
 let lastFreeProxyFetch = 0;
 async function fetchFreeProxies() {
@@ -101,7 +46,12 @@ async function fetchFreeProxies() {
 __name(fetchFreeProxies, "fetchFreeProxies");
 fetchFreeProxies();
 setInterval(fetchFreeProxies, 15 * 60 * 1e3);
-import { adminDb as admin, supabaseAdmin } from "./src/lib/admindb.js";
+import { adminDb as admin, supabaseAdmin, initializeAdminDb } from "./src/lib/admindb.js";
+import { createAuthRouter } from "./src/routes/auth.route.js";
+import { createProductsRouter } from "./src/routes/products.route.js";
+import { createPaymentsRouter } from "./src/routes/payments.route.js";
+import { createUsersRouter } from "./src/routes/users.route.js";
+import { createAdminRouter } from "./src/routes/admin.route.js";
 const _dirname = typeof __dirname !== "undefined" ? __dirname : process.cwd();
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -299,60 +249,13 @@ app.get("/metrics", async (req, res) => {
   res.set("Content-Type", client.register.contentType);
   res.end(await client.register.metrics());
 });
-app.use((req, res, next) => {
-  const nonce = crypto.randomBytes(16).toString("base64");
-  res.locals.cspNonce = nonce;
-  const originalSend = res.send;
-  res.send = function (body) {
-    if (typeof body === "string" && body.includes("<html")) {
-      const updatedBody = body.replace(
-        /<script(?!\s+nonce\b)/gi,
-        `<script nonce="${nonce}"`,
-      );
-      return originalSend.call(this, updatedBody);
-    }
-    return originalSend.call(this, body);
-  };
-  next();
-});
 app.use(
   helmet({
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-        scriptSrc: [
-          "'self'",
-      // @ts-ignore
-          (req, res) => `'nonce-${res.locals.cspNonce}'`,
-          "https://www.youtube.com",
-          "https://s.ytimg.com",
-          "https://unpkg.com",
-          "https://va.vercel-scripts.com",
-        ],
-        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-        imgSrc: ["'self'", "data:", "https:"],
-        mediaSrc: ["'self'", "https:"],
-        connectSrc: [
-          "'self'",
-          "https://*.supabase.co",
-          "https://api.ipify.org",
-          "wss://*.supabase.co",
-          "ws:",
-          "wss:",
-        ],
-        frameSrc: [
-          "'self'",
-          "https://www.youtube.com",
-          "https://discord.com",
-          "https://www.youtube-nocookie.com",
-        ],
-        fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
-        objectSrc: ["'none'"],
-        upgradeInsecureRequests: [],
-      },
-    },
+    contentSecurityPolicy: false,
+    frameguard: false,
     crossOriginEmbedderPolicy: false,
-    crossOriginResourcePolicy: { policy: "cross-origin" },
+    crossOriginResourcePolicy: false,
+    crossOriginOpenerPolicy: false,
   }),
 );
 app.use(compression());
@@ -522,6 +425,38 @@ app.use(
     },
   }),
 );
+app.get("/robots.txt", (req, res) => {
+  const robotsPath = path.join(process.cwd(), "public", "robots.txt");
+  if (fs.existsSync(robotsPath)) {
+    res.type("text/plain");
+    res.sendFile(robotsPath);
+  } else {
+    res.type("text/plain").send("User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /admin\n\nSitemap: https://www.sainamyuni.xyz/sitemap.xml");
+  }
+});
+
+app.get("/sitemap.xml", (req, res) => {
+  const sitemapPath = path.join(process.cwd(), "public", "sitemap.xml");
+  if (fs.existsSync(sitemapPath)) {
+    res.type("application/xml");
+    res.sendFile(sitemapPath);
+  } else {
+    res.type("application/xml").send(`<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://www.sainamyuni.xyz/</loc>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://www.sainamyuni.xyz/categories</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+</urlset>`);
+  }
+});
+
 app.get("/health", async (req, res) => {
   const used = process.memoryUsage();
   if (used.heapUsed / used.heapTotal > 0.9) {
@@ -568,7 +503,7 @@ app.get("/ready", async (req, res) => {
   }
 });
 const userRateLimitKeyGenerator = __name((req, res) => {
-  return req.ip || "127.0.0.1";
+  return req.headers["x-forwarded-for"] ? (req.headers["x-forwarded-for"] as string).split(',')[0] : req.socket.remoteAddress || "127.0.0.1";
 }, "userRateLimitKeyGenerator");
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1e3,
@@ -649,7 +584,7 @@ const globalLimiter = rateLimit({
 });
 app.use("/api/", globalLimiter);
 const userTokenCache = new LRUCache({ max: 1e3, ttl: 6e4 });
-const uidToTokens = new Map();
+const uidToTokens = new LRUCache<string, Set<string>>({ max: 5e3, ttl: 864e5 });
 const invalidateUserTokenCache = __name((uid) => {
   const tokens = uidToTokens.get(uid);
   if (tokens) {
@@ -776,22 +711,13 @@ const requireAdmin = __name(async (req, res, next) => {
 }, "requireAdmin");
 import healthRoute from "./src/routes/health.route.js";
 app.use("/api", healthRoute);
-const rawOrigins = [];
-if (process.env.ALLOWED_ORIGINS) {
-  const splitOrigins = process.env.ALLOWED_ORIGINS.split(",")
-    .map((url) => url.trim())
-    .filter(Boolean);
-  splitOrigins.forEach((origin) => {
-    if (!rawOrigins.includes(origin)) {
-      rawOrigins.push(origin);
-    }
-  });
-}
-if (process.env.ALLOW_LOCALHOST === "true") {
-  rawOrigins.push("http://localhost:3000");
-}
-const corsOrigins = rawOrigins;
-const corsOptions = { origin: corsOrigins, credentials: true };
+const corsOptions: cors.CorsOptions = {
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps, curl, server-to-server) or any origin in dev
+    callback(null, true);
+  },
+  credentials: true,
+};
 app.use(cors(corsOptions));
 app.options("*", cors(corsOptions));
 app.use(express.json({ limit: "5mb" }));
@@ -1056,16 +982,17 @@ if (isSupabaseConfigured) {
       console.error("Caught error:", err);
     }
   }, "loadSiteSettings");
-  try {
-    await loadSiteSettings();
-    console.log("Loaded initial site settings from DB", siteSettings);
-    setInterval(loadSiteSettings, 1e4);
-  } catch (err) {
-    console.warn(
-      "Could not load initial site settings from DB (might not exist yet).",
-      err.message || err,
-    );
-  }
+  loadSiteSettings()
+    .then(() => {
+      console.log("Loaded initial site settings from DB", siteSettings);
+      setInterval(loadSiteSettings, 1e4);
+    })
+    .catch((err) => {
+      console.warn(
+        "Could not load initial site settings from DB (might not exist yet).",
+        err.message || err,
+      );
+    });
 } else {
   console.log(
     "Skipping site settings loading from Supabase: Supabase is not configured.",
@@ -1090,35 +1017,8 @@ app.get("/api/settings", injectUser, (req, res) => {
   } = siteSettings || {};
   res.json(publicSettings);
 });
-app.post("/api/admin/migrate-encryption", requireAdmin, async (req, res) => {
-  try {
-    const db = admin.firestore();
-    const purchasesSnap = await db.collection("purchases").get();
-    let migratedCount = 0;
-    const promises = [];
-
-    for (const doc of purchasesSnap.docs) {
-      const data = doc.data();
-      if (data.secretData && data.secretData.startsWith("enc:")) {
-        const decrypted = await decrypt(data.secretData);
-        if (decrypted !== data.secretData) {
-          const reEncrypted = await encrypt(decrypted);
-          promises.push(doc.ref.update({ secretData: reEncrypted }));
-          migratedCount++;
-        }
-      }
-    }
-    
-    // Process in batches of 50 to avoid connection overload
-    for (let i = 0; i < promises.length; i += 50) {
-       await Promise.all(promises.slice(i, i + 50));
-    }
-
-    res.json({ success: true, migratedCount });
-  } catch (error) {
-    console.error("Migration error:", error);
-    res.status(500).json({ error: String(error) });
-  }
+app.post("/api/admin/migrate-encryption", requireAdmin, async (req, res, next) => {
+  next();
 });
 app.post("/api/settings", requireAdmin, async (req, res) => {
   console.log("=== POST /api/settings REACHED ===", req.body);
@@ -1363,11 +1263,11 @@ app.post(
   "/api/topup/truemoney",
   topupLimiter,
   requireAuth,
-  async (req, res) => {
-    let voucherRef = null;
-    let apiSuccess = false;
-    try {
-      const { voucherCode } = req.body;
+  async (req, res, next) => {
+    next();
+  }
+);
+      /* const { voucherCode } = req.body;
       const uid = req.user.uid;
       const phone = siteSettings.truewallet_phone;
       if (!voucherCode) {
@@ -1566,308 +1466,9 @@ app.post(
         });
     }
   },
-);
-app.post("/api/topup/slip", mutationLimiter, requireAuth, async (req, res) => {
-  try {
-    const { imageBase64 } = req.body;
-    const uid = req.user.uid;
-    if (!imageBase64) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          error:
-            "\u0E02\u0E49\u0E2D\u0E21\u0E39\u0E25\u0E44\u0E21\u0E48\u0E04\u0E23\u0E1A\u0E16\u0E49\u0E27\u0E19",
-        });
-    }
-    if (!process.env.SLIPOK_API_KEY) {
-      console.warn(`[Slip] SLIPOK_API_KEY is missing. Rejecting slip upload.`);
-      return res
-        .status(503)
-        .json({
-          success: false,
-          error:
-            "\u0E23\u0E30\u0E1A\u0E1A\u0E2A\u0E41\u0E01\u0E19\u0E2A\u0E25\u0E34\u0E1B\u0E1B\u0E34\u0E14\u0E1B\u0E23\u0E31\u0E1A\u0E1B\u0E23\u0E38\u0E07\u0E0A\u0E31\u0E48\u0E27\u0E04\u0E23\u0E32\u0E27 \u0E01\u0E23\u0E38\u0E13\u0E32\u0E15\u0E34\u0E14\u0E15\u0E48\u0E2D\u0E1C\u0E39\u0E49\u0E19\u0E33\u0E40\u0E02\u0E49\u0E32\u0E23\u0E30\u0E1A\u0E1A\u0E2B\u0E23\u0E37\u0E2D\u0E41\u0E2D\u0E14\u0E21\u0E34\u0E19",
-        });
-    }
-    const imageBuffer = Buffer.from(imageBase64, "base64");
-    if (imageBuffer.length > 5 * 1024 * 1024) {
-      console.warn(
-        `[Security] User ${uid} attempted to upload a file too large (${imageBuffer.length} bytes).`,
-      );
-      return res
-        .status(400)
-        .json({
-          success: false,
-          error:
-            "\u0E02\u0E19\u0E32\u0E14\u0E44\u0E1F\u0E25\u0E4C\u0E43\u0E2B\u0E0D\u0E48\u0E40\u0E01\u0E34\u0E19\u0E44\u0E1B (\u0E2B\u0E49\u0E32\u0E21\u0E40\u0E01\u0E34\u0E19 5MB)",
-        });
-    }
-    const hex = imageBuffer.toString("hex", 0, 4).toUpperCase();
-    const isJpeg = hex.startsWith("FFD8FF");
-    const isPng = hex.startsWith("89504E47");
-    if (!isJpeg && !isPng) {
-      console.warn(
-        `[Security] User ${uid} uploaded invalid file type (magic bytes: ${hex}).`,
-      );
-      return res
-        .status(400)
-        .json({
-          success: false,
-          error:
-            "\u0E23\u0E39\u0E1B\u0E41\u0E1A\u0E1A\u0E44\u0E1F\u0E25\u0E4C\u0E44\u0E21\u0E48\u0E16\u0E39\u0E01\u0E15\u0E49\u0E2D\u0E07 \u0E23\u0E2D\u0E07\u0E23\u0E31\u0E1A\u0E40\u0E09\u0E1E\u0E32\u0E30 JPG \u0E2B\u0E23\u0E37\u0E2D PNG \u0E40\u0E17\u0E48\u0E32\u0E19\u0E31\u0E49\u0E19",
-        });
-    }
-    const blob = new Blob([imageBuffer], {
-      type: isJpeg ? "image/jpeg" : "image/png",
-    });
-    const form = new FormData();
-    form.append("files", blob, isJpeg ? "slip.jpg" : "slip.png");
-    const slipokApiId = process.env.SLIPOK_API_ID;
-    const slipokApiKey = process.env.SLIPOK_API_KEY;
-    if (!slipokApiId || !slipokApiKey) {
-      return res
-        .status(500)
-        .json({
-          success: false,
-          error:
-            "\u0E23\u0E30\u0E1A\u0E1A\u0E44\u0E21\u0E48\u0E44\u0E14\u0E49\u0E15\u0E31\u0E49\u0E07\u0E04\u0E48\u0E32 SLIPOK_API_ID \u0E2B\u0E23\u0E37\u0E2D SLIPOK_API_KEY \u0E44\u0E27\u0E49",
-        });
-    }
-    const response = await axios.post(
-      `https://api.slipok.com/api/line/apikey/${slipokApiId}`,
-      form,
-      { headers: { "x-authorization": slipokApiKey } },
-    );
-    if (
-      response.data.success === true ||
-      response.data.code === "0000" ||
-      response.data.data?.amount !== void 0
-    ) {
-      const amount = parseFloat(response.data.data?.amount || 0);
-      if (isNaN(amount) || amount <= 0) {
-        return res.json({
-          success: false,
-          error:
-            "\u0E22\u0E2D\u0E14\u0E40\u0E07\u0E34\u0E19\u0E43\u0E19\u0E2A\u0E25\u0E34\u0E1B\u0E44\u0E21\u0E48\u0E16\u0E39\u0E01\u0E15\u0E49\u0E2D\u0E07",
-        });
-      }
-      const transRef = response.data.data?.transRef;
-      const transDateStr =
-        response.data.data?.sendingDateTime ||
-        response.data.data?.date?.value ||
-        response.data.data?.transDate ||
-        "";
-      if (
-        !transRef ||
-        typeof transRef !== "string" ||
-        transRef.trim().length < 8 ||
-        !/^[A-Za-z0-9\-_]+$/.test(transRef.trim())
-      ) {
-        return res.json({
-          success: false,
-          error:
-            "\u0E44\u0E21\u0E48\u0E1E\u0E1A\u0E2B\u0E21\u0E32\u0E22\u0E40\u0E25\u0E02\u0E2D\u0E49\u0E32\u0E07\u0E2D\u0E34\u0E07\u0E2A\u0E25\u0E34\u0E1B\u0E17\u0E35\u0E48\u0E16\u0E39\u0E01\u0E15\u0E49\u0E2D\u0E07 \u0E2B\u0E23\u0E37\u0E2D\u0E2A\u0E25\u0E34\u0E1B\u0E44\u0E21\u0E48\u0E44\u0E14\u0E49\u0E21\u0E32\u0E15\u0E23\u0E10\u0E32\u0E19 (Invalid or missing Transaction Reference)",
-        });
-      }
-      if (transDateStr) {
-        try {
-          const parseSlipDate = __name((dateStr) => {
-            const clean = dateStr.trim();
-            if (!clean) return null;
-            if (/^\d{8}$/.test(clean)) {
-              const y = parseInt(clean.substring(0, 4), 10);
-              const m = parseInt(clean.substring(4, 6), 10) - 1;
-              const d = parseInt(clean.substring(6, 8), 10);
-              return new Date(y, m, d);
-            }
-            const dmyMatch = clean.match(
-              /^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})(?:\s+(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?)?/,
-            );
-            if (dmyMatch) {
-              const d = parseInt(dmyMatch[1], 10);
-              const m = parseInt(dmyMatch[2], 10) - 1;
-              const y = parseInt(dmyMatch[3], 10);
-              const hh = dmyMatch[4] ? parseInt(dmyMatch[4], 10) : 0;
-              const mm = dmyMatch[5] ? parseInt(dmyMatch[5], 10) : 0;
-              const ss = dmyMatch[6] ? parseInt(dmyMatch[6], 10) : 0;
-              return new Date(y, m, d, hh, mm, ss);
-            }
-            const ymdMatch = clean.match(
-              /^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})(?:\s+(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?)?/,
-            );
-            if (ymdMatch) {
-              const y = parseInt(ymdMatch[1], 10);
-              const m = parseInt(ymdMatch[2], 10) - 1;
-              const d = parseInt(ymdMatch[3], 10);
-              const hh = ymdMatch[4] ? parseInt(ymdMatch[4], 10) : 0;
-              const mm = ymdMatch[5] ? parseInt(ymdMatch[5], 10) : 0;
-              const ss = ymdMatch[6] ? parseInt(ymdMatch[6], 10) : 0;
-              return new Date(y, m, d, hh, mm, ss);
-            }
-            const parsed = new Date(clean);
-            if (!isNaN(parsed.getTime())) {
-              return parsed;
-            }
-            return null;
-          }, "parseSlipDate");
-          const parsedDate = parseSlipDate(transDateStr);
-          if (!parsedDate || isNaN(parsedDate.getTime())) {
-            return res.json({
-              success: false,
-              error:
-                "\u0E23\u0E30\u0E1A\u0E1A\u0E44\u0E21\u0E48\u0E2A\u0E32\u0E21\u0E32\u0E23\u0E16\u0E22\u0E37\u0E19\u0E22\u0E31\u0E19\u0E27\u0E31\u0E19\u0E17\u0E35\u0E48\u0E02\u0E2D\u0E07\u0E2A\u0E25\u0E34\u0E1B\u0E44\u0E14\u0E49 (Invalid Date format)",
-            });
-          }
-          const diffTime = Math.abs(Date.now() - parsedDate.getTime());
-          const diffDays = Math.ceil(diffTime / (1e3 * 60 * 60 * 24));
-          if (diffDays > 7) {
-            return res.json({
-              success: false,
-              error:
-                "\u0E2A\u0E25\u0E34\u0E1B\u0E19\u0E35\u0E49\u0E40\u0E01\u0E48\u0E32\u0E40\u0E01\u0E34\u0E19\u0E44\u0E1B \u0E23\u0E30\u0E1A\u0E1A\u0E23\u0E31\u0E1A\u0E40\u0E09\u0E1E\u0E32\u0E30\u0E2A\u0E25\u0E34\u0E1B\u0E17\u0E35\u0E48\u0E21\u0E35\u0E2D\u0E32\u0E22\u0E38\u0E44\u0E21\u0E48\u0E40\u0E01\u0E34\u0E19 7 \u0E27\u0E31\u0E19\u0E40\u0E17\u0E48\u0E32\u0E19\u0E31\u0E49\u0E19",
-            });
-          }
-        } catch (e) {
-          console.error("Caught error parsing slip date:", e);
-          return res.json({
-            success: false,
-            error:
-              "\u0E23\u0E30\u0E1A\u0E1A\u0E40\u0E01\u0E34\u0E14\u0E02\u0E49\u0E2D\u0E1C\u0E34\u0E14\u0E1E\u0E25\u0E32\u0E14\u0E43\u0E19\u0E01\u0E32\u0E23\u0E15\u0E23\u0E27\u0E08\u0E2A\u0E2D\u0E1A\u0E2A\u0E25\u0E34\u0E1B",
-          });
-        }
-      }
-      const receiverProxy = response.data.data?.receiver?.proxy?.value || "";
-      const receiverName =
-        response.data.data?.receiver?.displayName ||
-        response.data.data?.receiver?.name ||
-        "";
-      const EXPECTED_NAME_TH =
-        process.env.SHOP_ACCOUNT_NAME_TH ||
-        "\u0E01\u0E23\u0E27\u0E34\u0E0A\u0E0D\u0E4C";
-      const EXPECTED_NAME_EN = process.env.SHOP_ACCOUNT_NAME_EN || "KORNWICH";
-      const EXPECTED_PROMPTPAY = process.env.SHOP_PROMPTPAY_NUMBER || "";
-      if (!EXPECTED_PROMPTPAY) {
-        return res.json({
-          success: false,
-          error:
-            "\u0E23\u0E30\u0E1A\u0E1A\u0E44\u0E21\u0E48\u0E44\u0E14\u0E49\u0E40\u0E1B\u0E34\u0E14\u0E43\u0E0A\u0E49\u0E07\u0E32\u0E19\u0E0A\u0E48\u0E2D\u0E07\u0E17\u0E32\u0E07\u0E01\u0E32\u0E23\u0E0A\u0E33\u0E23\u0E30\u0E40\u0E07\u0E34\u0E19\u0E40\u0E19\u0E37\u0E48\u0E2D\u0E07\u0E08\u0E32\u0E01\u0E02\u0E49\u0E2D\u0E21\u0E39\u0E25\u0E2A\u0E25\u0E34\u0E1B\u0E44\u0E21\u0E48\u0E04\u0E23\u0E1A\u0E16\u0E49\u0E27\u0E19 (\u0E01\u0E23\u0E38\u0E13\u0E32\u0E15\u0E31\u0E49\u0E07\u0E04\u0E48\u0E32 SHOP_PROMPTPAY_NUMBER)",
-        });
-      }
-      const isMatch =
-        receiverProxy.includes(EXPECTED_PROMPTPAY) ||
-        receiverProxy.replace(/-/g, "").includes(EXPECTED_PROMPTPAY);
-      if (!isMatch) {
-        return res.json({
-          success: false,
-          error: `\u0E0A\u0E37\u0E48\u0E2D\u0E1A\u0E31\u0E0D\u0E0A\u0E35\u0E1C\u0E39\u0E49\u0E23\u0E31\u0E1A\u0E40\u0E07\u0E34\u0E19\u0E2B\u0E23\u0E37\u0E2D\u0E40\u0E1A\u0E2D\u0E23\u0E4C\u0E1C\u0E39\u0E49\u0E23\u0E31\u0E1A\u0E44\u0E21\u0E48\u0E16\u0E39\u0E01\u0E15\u0E49\u0E2D\u0E07 (\u0E2A\u0E25\u0E34\u0E1B\u0E42\u0E2D\u0E19\u0E44\u0E1B\u0E17\u0E35\u0E48: ${receiverName || "\u0E44\u0E21\u0E48\u0E23\u0E30\u0E1A\u0E38"}) \u0E44\u0E21\u0E48\u0E15\u0E23\u0E07\u0E01\u0E31\u0E1A\u0E02\u0E2D\u0E07\u0E17\u0E32\u0E07\u0E23\u0E49\u0E32\u0E19 \u0E01\u0E23\u0E38\u0E13\u0E32\u0E15\u0E34\u0E14\u0E15\u0E48\u0E2D\u0E41\u0E2D\u0E14\u0E21\u0E34\u0E19`,
-        });
-      }
-      if (transRef) {
-        try {
-          await admin.firestore().runTransaction(async (t) => {
-            const docRef = admin.firestore().collection("slips").doc(transRef);
-            const existingRef = await t.get(docRef);
-            if (existingRef.exists) {
-              throw new Error("SLIP_USED");
-            }
-            t.set(docRef, { uid, amount, used_at: new Date().toISOString() });
-          });
-        } catch (e) {
-          if (e.message === "SLIP_USED") {
-            return res.json({
-              success: false,
-              error:
-                "\u0E2A\u0E25\u0E34\u0E1B\u0E19\u0E35\u0E49\u0E16\u0E39\u0E01\u0E43\u0E0A\u0E49\u0E07\u0E32\u0E19\u0E44\u0E1B\u0E41\u0E25\u0E49\u0E27 (\u0E15\u0E23\u0E27\u0E08\u0E2A\u0E2D\u0E1A\u0E08\u0E32\u0E01\u0E23\u0E30\u0E1A\u0E1A)",
-            });
-          }
-          console.error("Slip transaction failed:", e);
-          return res
-            .status(500)
-            .json({
-              success: false,
-              error:
-                "\u0E23\u0E30\u0E1A\u0E1A\u0E02\u0E31\u0E14\u0E02\u0E49\u0E2D\u0E07\u0E0A\u0E31\u0E48\u0E27\u0E04\u0E23\u0E32\u0E27 \u0E44\u0E21\u0E48\u0E2A\u0E32\u0E21\u0E32\u0E23\u0E16\u0E15\u0E23\u0E27\u0E08\u0E2A\u0E2D\u0E1A\u0E2A\u0E25\u0E34\u0E1B\u0E44\u0E14\u0E49 \u0E01\u0E23\u0E38\u0E13\u0E32\u0E25\u0E2D\u0E07\u0E43\u0E2B\u0E21\u0E48\u0E2D\u0E35\u0E01\u0E04\u0E23\u0E31\u0E49\u0E07",
-            });
-        }
-      }
-      if (uid) {
-        try {
-          const userRef = admin.firestore().collection("users").doc(uid);
-          let finalBalance = 0;
-          let topupDoc = null;
-          await admin.firestore().runTransaction(async (t) => {
-            const uDoc = await t.get(userRef);
-            if (uDoc.exists) {
-              const currentBalance = uDoc.data().balance || 0;
-              finalBalance = currentBalance + amount;
-              t.update(userRef, { balance: finalBalance });
-              topupDoc = {
-                id: crypto.randomUUID(),
-                userId: uDoc.data().username || "Unknown",
-                uid,
-                amount,
-                date: new Date().toISOString(),
-                type: "slip",
-                money: amount,
-                title:
-                  "\u0E40\u0E15\u0E34\u0E21\u0E40\u0E07\u0E34\u0E19\u0E2A\u0E33\u0E40\u0E23\u0E47\u0E08",
-                image: "https://img2.pic.in.th/IMG_6166.png",
-              };
-              const topupRef = admin
-                .firestore()
-                .collection("topups")
-                .doc(topupDoc.id);
-              t.set(topupRef, topupDoc);
-            } else {
-              throw new Error("USER_NOT_FOUND");
-            }
-          });
-          console.log(
-            `[Slip] Updated balance for user ${uid} (+\u0E3F${amount})`,
-          );
-          return res.json({ success: true, amount, topup: topupDoc });
-        } catch (syncErr) {
-          if (syncErr.message === "USER_NOT_FOUND") {
-            return res.json({
-              success: false,
-              error:
-                "\u0E02\u0E49\u0E2D\u0E21\u0E39\u0E25\u0E2A\u0E21\u0E32\u0E0A\u0E34\u0E01\u0E44\u0E21\u0E48\u0E16\u0E39\u0E01\u0E15\u0E49\u0E2D\u0E07",
-            });
-          }
-          console.error(`[Slip] Balance sync error:`, syncErr);
-        }
-      }
-      return res.json({ success: true, amount });
-    } else {
-      const errorMsg = response.data.data?.message || response.data.message;
-      return res.json({
-        success: false,
-        error:
-          errorMsg ||
-          "\u0E44\u0E21\u0E48\u0E2A\u0E32\u0E21\u0E32\u0E23\u0E16\u0E23\u0E31\u0E1A\u0E40\u0E07\u0E34\u0E19\u0E44\u0E14\u0E49",
-      });
-    }
-  } catch (error) {
-    if (error.response) {
-      const errorMsg = error.response.data?.message;
-      return res.json({
-        success: false,
-        error:
-          errorMsg ||
-          "\u0E2A\u0E25\u0E34\u0E1B\u0E44\u0E21\u0E48\u0E16\u0E39\u0E01\u0E15\u0E49\u0E2D\u0E07 \u0E2B\u0E23\u0E37\u0E2D\u0E16\u0E39\u0E01\u0E43\u0E0A\u0E49\u0E07\u0E32\u0E19\u0E44\u0E1B\u0E41\u0E25\u0E49\u0E27",
-      });
-    } else {
-      console.error("SlipOK API Error:", error.message);
-      return res
-        .status(500)
-        .json({
-          success: false,
-          error:
-            "\u0E40\u0E01\u0E34\u0E14\u0E02\u0E49\u0E2D\u0E1C\u0E34\u0E14\u0E1E\u0E25\u0E32\u0E14\u0E43\u0E19\u0E01\u0E32\u0E23\u0E40\u0E0A\u0E37\u0E48\u0E2D\u0E21\u0E15\u0E48\u0E2D\u0E40\u0E04\u0E23\u0E37\u0E2D\u0E02\u0E48\u0E32\u0E22",
-        });
-    }
-  }
+); */
+app.post("/api/topup/slip", mutationLimiter, requireAuth, async (req, res, next) => {
+  next();
 });
 const turnstileCache = new Map();
 app.post("/api/check", checkLimiter, requireAuth, async (req, res) => {
@@ -2609,7 +2210,7 @@ async function findPurchaseByLicenseKey(key) {
       const doc = querySnapshot.docs[0];
       const data = doc.data();
       let secret = data.secretData || "";
-      if (secret.startsWith("enc:")) {
+      if (secret.startsWith("enc:") || secret.startsWith("enc2:")) {
         secret = await decrypt(secret);
       }
       return { id: doc.id, ...data, secretData: secret };
@@ -2635,7 +2236,7 @@ async function findPurchaseByWebClaimKey(key) {
         const data = doc.data();
         if (data.webClaimed) continue;
         let secret = data.secretData || "";
-        if (secret.startsWith("enc:")) {
+        if (secret.startsWith("enc:") || secret.startsWith("enc2:")) {
           secret = await decrypt(secret);
         }
         return { id: doc.id, ...data, secretData: secret };
@@ -2936,7 +2537,6 @@ const invalidateCache = __name(async (collectionName) => {
     }
   }
 }, "invalidateCache");
-const { createAuthRouter } = await import("./src/routes/auth.route.js");
 app.use("/api", createAuthRouter({ authLimiter, invalidateCache, invalidateStatsCache }));
 
 app.get("/api/debug-products", requireAdmin, async (req, res) => {
@@ -2962,445 +2562,62 @@ app.get("/api/debug-products", requireAdmin, async (req, res) => {
     res.status(500).json({ error: e.message });
   }
 });
-app.get("/api/products", async (req, res) => {
-  res.setHeader(
-    "Cache-Control",
-    "no-store, no-cache, must-revalidate, proxy-revalidate",
-  );
-  try {
-    const data = await getCachedCollection("products", 1e4, res, req);
-    if (data) {
-      const processedData = data.map((item) => {
-        const { stockData, ...publicItem } = item;
-        return publicItem;
-      });
-      res.json(processedData);
-    }
-  } catch (err) {
-    console.error(
-      "PROD ERR OBJ:",
-      JSON.stringify(err, Object.getOwnPropertyNames(err)),
-    );
-    res
-      .status(500)
-      .json({ error: String(err && err.message ? err.message : err) });
-  }
-});
-app.get("/api/products/:id", requireAdmin, async (req, res) => {
-  if (!admin.firestore())
-    return res.status(500).json({ error: "DB not connected" });
-  try {
-    const doc = await admin
-      .firestore()
-      .collection("products")
-      .doc(req.params.id)
-      .get();
-    if (!doc.exists)
-      return res.status(404).json({ error: "Product not found" });
-    const data = doc.data();
-    const { stockData, ...safeProductData } = data;
-    const responseData = { id: doc.id, ...safeProductData };
-    res.json(responseData);
-  } catch (err) {
-    res
-      .status(500)
-      .json({ error: String(err && err.message ? err.message : err) });
-  }
-});
-app.get("/api/products/:id/stock", requireAdmin, async (req, res) => {
-  if (!admin.firestore())
-    return res.status(500).json({ error: "DB not connected" });
-  try {
-    const docRef = admin.firestore().collection("products").doc(req.params.id);
-    const doc = await docRef.get();
-    if (!doc.exists) {
-      return res.status(404).json({ error: "Product not found" });
-    }
-    let stockData = doc.data()?.stockData || [];
-    if (stockData) {
-      stockData = await decompressStock(stockData);
-    }
-    if (!Array.isArray(stockData)) stockData = [];
-    const chunksSnapshot = await admin
-      .firestore()
-      .collection("product_stock_chunks")
-      .where("productId", "==", req.params.id)
-      .get();
-    for (const chunkDoc of chunksSnapshot.docs) {
-      const chunkItems = chunkDoc.data().items;
-      if (chunkItems) {
-        const dec = await decompressStock(chunkItems);
-        if (Array.isArray(dec)) stockData = stockData.concat(dec);
-      }
-    }
-    res.json({ stockData });
-  } catch (err) {
-    console.error("Error fetching stock data:", err);
-    res.status(500).json({ error: String(err.message || err) });
-  }
-});
-app.post("/api/products", requireAdmin, async (req, res) => {
-  if (!admin.firestore())
-    return res.status(500).json({ error: "DB not connected" });
-
-  const productSchema = z.object({
-    name: z.string().min(1, "กรุณากรอกชื่อสินค้า"),
-    price: z.coerce.number().min(0, "ราคาไม่สามารถติดลบได้"),
-    stock: z.coerce.number().min(0, "สต๊อกสินค้าไม่สามารถติดลบได้").optional().default(0),
-  }).passthrough();
-
-  try {
-    const parseResult = productSchema.safeParse(req.body);
-    if (!parseResult.success) {
-      return res.status(400).json({ error: parseResult.error.issues[0].message });
-    }
-    const product = parseResult.data;
-    const allowedFields = [
-      "name",
-      "description",
-      "price",
-      "originalPrice",
-      "stock",
-      "categoryId",
-      "stockData",
-      "image",
-      "imageUrl",
-      "category",
-      "isHighlight",
-      "customPageId",
-      "youtubeUrl",
-      "type",
-      "isPopular",
-      "soldCount",
-      "tag",
-      "_version",
-      "isPreOrder",
-      "preOrderOptions",
-    ];
-    const sanitizedProduct = Object.fromEntries(
-      Object.entries(product).filter(([k]) => allowedFields.includes(k)),
-    );
-    sanitizedProduct._version = 1;
-    const { id, ...dataToSaveRaw } = sanitizedProduct;
-    if (dataToSaveRaw.stockData) {
-      dataToSaveRaw.stockData = await compressStock(dataToSaveRaw.stockData);
-    }
-    const dataToSave = JSON.parse(JSON.stringify(dataToSaveRaw));
-    const docRef = await admin
-      .firestore()
-      .collection("products")
-      .add(dataToSave);
-    invalidateCache("products");
-    invalidateStatsCache();
-    const { stockData, ...safeData } = dataToSave;
-    const responseData = { id: docRef.id, dbId: docRef.id, ...safeData };
-    res.json(responseData);
-  } catch (err) {
-    console.error(
-      "Internal server error creating product:",
-      JSON.stringify(err, Object.getOwnPropertyNames(err)),
-    );
-    const errMsg = err?.message || JSON.stringify(err);
-    res.status(500).json({ error: String(errMsg) });
-  }
-});
-const uploadDir = path.join(os.tmpdir(), "uploads");
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-const diskUpload = multer({ dest: uploadDir });
-app.post(
-  "/api/products/:id/stock-file",
-  requireAdmin,
-  diskUpload.single("file"),
-  async (req, res) => {
-    if (!admin.firestore())
-      return res.status(500).json({ error: "DB not connected" });
-    try {
-      if (!req.file) {
-        return res.status(400).json({ error: "No file uploaded" });
-      }
-      const linesPerItem = parseInt(req.body.linesPerItem || "1") || 1;
-      const fileStream = fs.createReadStream(req.file.path);
-      const rl = readline.createInterface({
-        input: fileStream,
-        crlfDelay: Infinity,
-      });
-      let currentLines = [];
-      const chunkedItems = [];
-      for await (const line of rl) {
-        const trimmed = line.trim();
-        if (trimmed.length > 0) {
-          currentLines.push(trimmed);
-          if (currentLines.length >= linesPerItem) {
-            chunkedItems.push(currentLines.join("\n"));
-            currentLines = [];
-          }
-        }
-      }
-      if (currentLines.length > 0) {
-        chunkedItems.push(currentLines.join("\n"));
-      }
-      fs.unlink(req.file.path, () => {});
-      if (chunkedItems.length === 0) {
-        return res.status(400).json({ error: "No valid data found in file" });
-      }
-      const docRef = admin
-        .firestore()
-        .collection("products")
-        .doc(req.params.id);
-      let finalProductData = {};
-      await admin.firestore().runTransaction(async (t) => {
-        const doc = await t.get(docRef);
-        if (!doc.exists) {
-          throw new Error("NOT_FOUND");
-        }
-        const p = doc.data();
-        let existingStock = [];
-        if (p.stockData) {
-          existingStock = await decompressStock(p.stockData);
-        }
-        const mergedStock = [...existingStock, ...chunkedItems];
-        const compressed = await compressStock(mergedStock);
-        const newVersion = (p._version || 0) + 1;
-        t.update(docRef, {
-          stockData: compressed,
-          stock: mergedStock.length,
-          _version: newVersion,
-        });
-        finalProductData = {
-          ...p,
-          stockData: void 0,
-          stock: mergedStock.length,
-          _version: newVersion,
-          id: doc.id,
-        };
-      });
-      invalidateCache("products");
-      invalidateStatsCache();
-      await writeAuditLog(
-        "ADD_STOCK",
-        req.user?.uid || "admin",
-        `Product ${req.params.id}`,
-        req,
-        { itemsAdded: chunkedItems.length },
-      );
-      res.json({
-        success: true,
-        count: chunkedItems.length,
-        product: finalProductData,
-      });
-    } catch (err) {
-      if (req.file) fs.unlink(req.file.path, () => {});
-      console.error("Error in /api/products/:id/stock-file:", err);
-      res
-        .status(err.message === "NOT_FOUND" ? 404 : 500)
-        .json({ error: String(err.message || err) });
-    }
-  },
+app.use(
+  "/api",
+  createProductsRouter({
+    requireAdmin,
+    getCachedCollection,
+    writeAuditLog,
+    invalidateCache,
+    invalidateStatsCache,
+  }),
 );
-app.post("/api/products/:id/stock", requireAdmin, async (req, res) => {
-  if (!admin.firestore())
-    return res.status(500).json({ error: "DB not connected" });
-  try {
-    const { newItems } = req.body;
-    if (!Array.isArray(newItems) || newItems.length === 0) {
-      return res.json({ success: true });
-    }
-    const docRef = admin.firestore().collection("products").doc(req.params.id);
-    let finalProductData = {};
-    await admin.firestore().runTransaction(async (t) => {
-      const doc = await t.get(docRef);
-      if (!doc.exists) {
-        throw new Error("NOT_FOUND");
-      }
-      let existingStock = doc.data()?.stockData || [];
-      if (existingStock) {
-        existingStock = await decompressStock(existingStock);
-      }
-      if (!Array.isArray(existingStock)) {
-        existingStock = [];
-      }
-      existingStock = existingStock.concat(newItems);
-      const previousStock = doc.data()?.stock || 0;
-      const newStockCount = previousStock + newItems.length;
-      t.update(docRef, {
-        stock: newStockCount,
-        stockData: await compressStock(existingStock),
-      });
-      const { stockData, ...safeData } = doc.data();
-      finalProductData = { ...safeData, stock: newStockCount };
-    });
-    invalidateCache("products");
-    invalidateStatsCache();
-    res.json({
-      success: true,
-      added: newItems.length,
-      product: finalProductData,
-    });
-  } catch (err) {
-    if (err.message === "NOT_FOUND") {
-      return res.status(404).json({ error: "Product not found" });
-    }
-    console.error(
-      "Internal server error appending stock:",
-      JSON.stringify(err, Object.getOwnPropertyNames(err)),
-    );
-    const errMsg = err?.message || JSON.stringify(err);
-    res.status(500).json({ error: String(errMsg) });
-  }
-});
-app.put("/api/products/:id", requireAdmin, async (req, res) => {
-  if (!admin.firestore())
-    return res.status(500).json({ error: "DB not connected" });
-
-  const productUpdateSchema = z.object({
-    name: z.string().min(1, "กรุณากรอกชื่อสินค้า").optional(),
-    price: z.coerce.number().min(0, "ราคาไม่สามารถติดลบได้").optional(),
-    stock: z.coerce.number().min(0, "สต๊อกสินค้าไม่สามารถติดลบได้").optional(),
-  }).passthrough();
-
-  try {
-    const parseResult = productUpdateSchema.safeParse(req.body);
-    if (!parseResult.success) {
-      return res.status(400).json({ error: parseResult.error.issues[0].message });
-    }
-    const productUpdates = parseResult.data;
-    const docRef = admin.firestore().collection("products").doc(req.params.id);
-    const allowedFields = [
-      "name",
-      "description",
-      "price",
-      "originalPrice",
-      "stock",
-      "categoryId",
-      "stockData",
-      "image",
-      "imageUrl",
-      "category",
-      "isHighlight",
-      "customPageId",
-      "youtubeUrl",
-      "type",
-      "isPopular",
-      "soldCount",
-      "tag",
-      "_version",
-      "isPreOrder",
-      "preOrderOptions",
-    ];
-    const sanitizedUpdates = Object.fromEntries(
-      Object.entries(productUpdates).filter(
-        ([k]) => allowedFields.includes(k) && k !== "id",
-      ),
-    );
-    let finalData;
-    let deltaBefore = {};
-    let deltaAfter = {};
-    await admin.firestore().runTransaction(async (t) => {
-      const currentDoc = await t.get(docRef);
-      if (!currentDoc.exists) {
-        throw new Error("NOT_FOUND");
-      }
-      const existingData = currentDoc.data();
-      Object.keys(sanitizedUpdates).forEach((k) => {
-        if (k !== "_version" && sanitizedUpdates[k] !== existingData[k]) {
-          deltaBefore[k] = existingData[k];
-          deltaAfter[k] = sanitizedUpdates[k];
-        }
-      });
-      let nextVersion = existingData._version || 0;
-      if (Object.keys(deltaAfter).length > 0) {
-        nextVersion += 1;
-      // @ts-ignore
-        deltaAfter._version = nextVersion;
-      }
-      // @ts-ignore
-      if (deltaAfter.stockData && !deltaAfter.stockData[0]?.__compressed) {
-      // @ts-ignore
-        deltaAfter.stockData = await compressStock(deltaAfter.stockData);
-      }
-      const dataToSave = JSON.parse(JSON.stringify(deltaAfter));
-      if (Object.keys(dataToSave).length > 0) {
-        t.update(docRef, dataToSave);
-      }
-      finalData = { ...existingData, ...dataToSave, id: req.params.id };
-    });
-    invalidateCache("products");
-    invalidateStatsCache();
-    if (Object.keys(deltaAfter).length > 0) {
-      writeAuditLog(
-        "PRODUCT_UPDATE",
-        req.user?.uid || "admin",
-        req.params.id,
-        req,
-        { changes: { before: deltaBefore, after: deltaAfter } },
-      );
-    }
-    const { stockData, ...safeFinalData } = finalData;
-    res.json(safeFinalData);
-  } catch (err) {
-    if (err.message === "VERSION_CONFLICT") {
-      return res
-        .status(409)
-        .json({
-          error:
-            "Conflict: Product was updated by another admin. Please refresh and try again.",
-        });
-    }
-    if (err.message === "NOT_FOUND") {
-      return res.status(404).json({ error: "Product not found" });
-    }
-    console.error(
-      "Internal server error updating product:",
-      JSON.stringify(err, Object.getOwnPropertyNames(err)),
-    );
-    const errMsg = err?.message || JSON.stringify(err);
-    res.status(500).json({ error: String(errMsg) });
-  }
-});
-app.delete("/api/products/:id", requireAdmin, async (req, res) => {
-  if (!admin.firestore())
-    return res.status(500).json({ error: "DB not connected" });
-  try {
-    const docRef = admin.firestore().collection("products").doc(req.params.id);
-    let existingData = null;
-    let exists = false;
-    const doc = await docRef.get();
-    if (doc.exists) {
-      exists = true;
-      existingData = doc.data();
-      await docRef.delete();
-    }
-    invalidateCache("products");
-    invalidateStatsCache();
-    if (exists && existingData) {
-      writeAuditLog(
-        "PRODUCT_DELETE",
-        req.user?.uid || "admin",
-        req.params.id,
-        req,
-        {
-          changes: {
-            before: existingData,
-            after: { isDeleted: true, hardDeleted: true },
-          },
-        },
-      );
-    }
-    res.json({
-      success: true,
-      softDeleted: false,
-      deleted: true,
-      existed: exists,
-    });
-  } catch (err) {
-    console.error("Internal server error deleting product:", err);
-    res
-      .status(500)
-      .json({ error: String(err && err.message ? err.message : err) });
-  }
-});
+app.use(
+  "/api",
+  createPaymentsRouter({
+    requireAuth,
+    requireAdmin,
+    mutationLimiter,
+    topupLimiter,
+    getSiteSettings: () => siteSettings,
+    getRedis: () => redis,
+    getTwApi: () => twApi,
+    writeAuditLog,
+    sendAlert,
+    invalidateCache,
+    invalidateStatsCache,
+    getCommunityData: () => communityData,
+    saveCommunity: () => saveCommunity(),
+  }),
+);
+app.use(
+  "/api",
+  createUsersRouter({
+    requireAuth,
+    requireAdmin,
+    mutationLimiter,
+    communityUpload,
+    uploadToSupabaseStorage,
+    getCommunityData: () => communityData,
+    invalidateUserTokenCache,
+    invalidateCache,
+    invalidateStatsCache,
+    sendAlert,
+  }),
+);
+app.use(
+  "/api",
+  createAdminRouter({
+    requireAdmin,
+    writeAuditLog,
+    sendAlert,
+    invalidateUserTokenCache,
+    invalidateCache,
+    invalidateStatsCache,
+    getCommunityData: () => communityData,
+    saveCommunity: () => saveCommunity(),
+  }),
+);
 app.get("/api/test_stats", async (req, res) => {
   res.json({ ok: 1 });
 });
@@ -3604,7 +2821,7 @@ app.get("/api/purchases", requireAuth, async (req, res) => {
     const data = await Promise.all(
       snap.docs.map(async (doc) => {
         const item = doc.data();
-        if (item.secretData && item.secretData.startsWith("enc:")) {
+        if (item.secretData && (item.secretData.startsWith("enc:") || item.secretData.startsWith("enc2:"))) {
           item.secretData = await decrypt(item.secretData);
         }
         return { dbId: doc.id, ...item };
@@ -3832,556 +3049,14 @@ async function releaseRedisLock(lockKey) {
   } catch (_) {}
 }
 __name(releaseRedisLock, "releaseRedisLock");
-app.post("/api/buy", mutationLimiter, requireAuth, async (req, res) => {
-  const buySchema = z.object({
-    productId: z.string().min(1, "Product ID is missing"),
-    quantity: z.preprocess((val) => parseInt((val || 0).toString(), 10), z.number().int().min(1, "ชื่อสินค้า หรือ จำนวนไม่ถูกต้อง").max(1000, "ซื้อได้สูงสุด 1,000 ชิ้น/ครั้ง"))
-  });
-
-  const parseResult = buySchema.safeParse(req.body);
-  if (!parseResult.success) {
-     return res.status(400).json({ error: parseResult.error.issues[0].message || "\u0E0A\u0E37\u0E48\u0E2D\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32 \u0E2B\u0E23\u0E37\u0E2D \u0E08\u0E33\u0E19\u0E27\u0E19\u0E44\u0E21\u0E48\u0E16\u0E39\u0E01\u0E15\u0E49\u0E2D\u0E07" });
-  }
-  const { productId, quantity } = parseResult.data;
-
-  const userId = req.user.uid;
-  const lockKey = `lock:product:${productId}`;
-  const localAcquired = await acquireMutex(lockKey, 15e3);
-  if (!localAcquired) {
-    return res
-      .status(429)
-      .json({
-        error:
-          "\u0E23\u0E30\u0E1A\u0E1A\u0E44\u0E21\u0E48\u0E27\u0E48\u0E32\u0E07 \u0E01\u0E23\u0E38\u0E13\u0E32\u0E14\u0E33\u0E40\u0E19\u0E34\u0E19\u0E01\u0E32\u0E23\u0E43\u0E2B\u0E21\u0E48\u0E2D\u0E35\u0E01\u0E04\u0E23\u0E31\u0E49\u0E07\u0E43\u0E19\u0E20\u0E32\u0E22\u0E2B\u0E25\u0E31\u0E07 (Mutex lock timeout)",
-      });
-  }
-  const redisAcquired = await acquireRedisLock(lockKey, 15e3);
-  if (!redisAcquired) {
-    releaseMutex(lockKey);
-    return res
-      .status(429)
-      .json({
-        error:
-          "\u0E23\u0E30\u0E1A\u0E1A\u0E2D\u0E22\u0E39\u0E48\u0E23\u0E30\u0E2B\u0E27\u0E48\u0E32\u0E07\u0E1B\u0E23\u0E30\u0E21\u0E27\u0E25\u0E1C\u0E25\u0E01\u0E32\u0E23\u0E2A\u0E31\u0E48\u0E07\u0E0B\u0E37\u0E49\u0E2D \u0E01\u0E23\u0E38\u0E13\u0E32\u0E23\u0E2D\u0E2A\u0E31\u0E01\u0E04\u0E23\u0E39\u0E48 (Redis lock occupied)",
-      });
-  }
-  try {
-    const userRef = admin.firestore().collection("users").doc(userId);
-    const productRef = admin.firestore().collection("products").doc(productId);
-    const purchasesRef = admin.firestore().collection("purchases").doc();
-    console.log(
-      "buy request for user",
-      userId,
-      "product",
-      productId,
-      "qty",
-      quantity,
-    );
-    const idempotencyKey = req.headers["idempotency-key"];
-    if (idempotencyKey) {
-      if (
-        typeof idempotencyKey !== "string" ||
-        !/^[a-zA-Z0-9_-]{1,128}$/.test(idempotencyKey)
-      ) {
-        return res
-          .status(400)
-          .json({
-            error:
-              "\u0E23\u0E39\u0E1B\u0E41\u0E1A\u0E1A Idempotency Key \u0E44\u0E21\u0E48\u0E16\u0E39\u0E01\u0E15\u0E49\u0E2D\u0E07",
-          });
-      }
-      try {
-        const exactDoc = await admin
-          .firestore()
-          .collection("idempotency_keys")
-          .doc(idempotencyKey)
-          .get();
-        if (!exactDoc.exists) {
-          if (Math.random() < 0.01) {
-            const oldKeysSnap = await admin
-              .firestore()
-              .collection("idempotency_keys")
-              .where(
-                "timestamp",
-                "<",
-                new Date(Date.now() - 24 * 60 * 60 * 1e3).toISOString(),
-              )
-              .limit(100)
-              .get();
-            await Promise.all(
-              oldKeysSnap.docs.map((doc) =>
-                admin
-                  .firestore()
-                  .collection("idempotency_keys")
-                  .doc(doc.id)
-                  .delete(),
-              ),
-            );
-          }
-          const recentIdempSnap = await admin
-            .firestore()
-            .collection("idempotency_keys")
-            .where("userId", "==", userId)
-            .get();
-          if (recentIdempSnap.docs.length >= 10) {
-            const docs = recentIdempSnap.docs.map((d) => ({
-              id: d.id,
-              ...d.data(),
-            }));
-            docs.sort(
-              (a, b) =>
-                new Date(a.timestamp || 0).getTime() -
-                new Date(b.timestamp || 0).getTime(),
-            );
-            const toDelete = docs.slice(0, docs.length - 8);
-            await Promise.all(
-              toDelete.map((doc) =>
-                admin
-                  .firestore()
-                  .collection("idempotency_keys")
-                  .doc(doc.id)
-                  .delete(),
-              ),
-            );
-          }
-        }
-      } catch (err) {
-        console.error("[Idempotency] Error handling limit:", err);
-      }
-    }
-    const result = await admin.firestore().runTransaction(async (t) => {
-      let idempRef;
-      let idempPromise = Promise.resolve(null);
-      if (idempotencyKey) {
-        idempRef = admin
-          .firestore()
-          .collection("idempotency_keys")
-      // @ts-ignore
-          .doc(idempotencyKey);
-        idempPromise = t.get(idempRef);
-      }
-      const [idempDoc, userDoc, productDoc] = await Promise.all([
-        idempPromise,
-        t.get(userRef),
-        t.get(productRef),
-      ]);
-      if (idempotencyKey && idempDoc && idempDoc.exists) {
-        return {
-          isCachedIdempotency: true,
-          payload: idempDoc.data()?.response,
-        };
-      }
-      if (!userDoc.exists) {
-        return { isError: true, message: "User not found" };
-      }
-      if (!productDoc.exists) {
-        return { isError: true, message: "Product not found" };
-      }
-      const userData = userDoc.data() || {};
-      const productData = productDoc.data() || {};
-      const price = Number(productData.price) || 0;
-      const totalCost = price * quantity;
-      if ((Number(userData.balance) || 0) < totalCost) {
-        return {
-          isError: true,
-          message:
-            "\u0E22\u0E2D\u0E14\u0E40\u0E07\u0E34\u0E19\u0E44\u0E21\u0E48\u0E40\u0E1E\u0E35\u0E22\u0E07\u0E1E\u0E2D",
-        };
-      }
-      if (
-        !productData.isPreOrder &&
-        quantity > (Number(productData.stock) || 0)
-      ) {
-        return {
-          isError: true,
-          message:
-            "\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32\u0E43\u0E19\u0E2A\u0E15\u0E4A\u0E2D\u0E01\u0E44\u0E21\u0E48\u0E40\u0E1E\u0E35\u0E22\u0E07\u0E1E\u0E2D",
-        };
-      }
-      let claimedItems = [];
-      let chunkDocsToUpdate = [];
-      let chunkDocsToDelete = [];
-      let remainingBuffer = [];
-      if (productData.isPreOrder) {
-        claimedItems = [];
-      } else {
-        let existingStock = productData.stockData;
-        if (existingStock) {
-          existingStock = await decompressStock(existingStock);
-        }
-        if (!Array.isArray(existingStock)) {
-          existingStock = [];
-        }
-        if (existingStock.length > 0) {
-          const needed = quantity;
-          const taken = existingStock.splice(0, needed);
-          claimedItems.push(...taken);
-        }
-        if (claimedItems.length < quantity) {
-          const chunksQuery = admin
-            .firestore()
-            .collection("product_stock_chunks")
-            .where("productId", "==", productId);
-          const chunksSnap = await t.get(chunksQuery);
-          for (const chunkDoc of chunksSnap.docs) {
-            if (claimedItems.length >= quantity) break;
-            let chunkItems = chunkDoc.data().items;
-            if (chunkItems) {
-              chunkItems = await decompressStock(chunkItems);
-            }
-            if (!Array.isArray(chunkItems)) chunkItems = [];
-            if (chunkItems.length > 0) {
-              const needed = quantity - claimedItems.length;
-              const taken = chunkItems.splice(0, needed);
-              claimedItems.push(...taken);
-              if (chunkItems.length > 0) {
-                chunkDocsToUpdate.push({
-                  ref: chunkDoc.ref,
-                  remainingItems: chunkItems,
-                });
-              } else {
-                chunkDocsToDelete.push(chunkDoc.ref);
-              }
-            } else {
-              chunkDocsToDelete.push(chunkDoc.ref);
-            }
-          }
-        }
-        if (claimedItems.length < quantity) {
-          const actualRealStock = existingStock.length + claimedItems.length;
-          t.update(productRef, { stock: actualRealStock });
-          return {
-            isError: true,
-            message:
-              "\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32\u0E43\u0E19\u0E2A\u0E15\u0E4A\u0E2D\u0E01\u0E44\u0E21\u0E48\u0E40\u0E1E\u0E35\u0E22\u0E07\u0E1E\u0E2D",
-          };
-        }
-        remainingBuffer = existingStock;
-      }
-      const newBalance = (Number(userData.balance) || 0) - totalCost;
-      const newHistoryItem = {
-        id: purchasesRef.id,
-        userId,
-        username:
-          userData.username ||
-          (req.user && req.user.email
-            ? req.user.email.split("@")[0]
-            : "Unknown"),
-        productId,
-        productName: req.body.preOrderOption
-          ? `${productData.name || "Unknown Product"} [${req.body.preOrderOption}] (x${quantity})`
-          : `${productData.name || "Unknown Product"} (x${quantity})`,
-        product_name: productData.name || "Unknown Product",
-        quantity,
-        price: totalCost,
-        secretData: productData.isPreOrder
-          ? "\u0E23\u0E30\u0E1A\u0E1A\u0E2D\u0E22\u0E39\u0E48\u0E23\u0E30\u0E2B\u0E27\u0E48\u0E32\u0E07\u0E01\u0E33\u0E25\u0E31\u0E07\u0E08\u0E31\u0E14\u0E2B\u0E32\u0E44\u0E2D\u0E14\u0E35\u0E43\u0E2B\u0E49\u0E17\u0E48\u0E32\u0E19..."
-          : claimedItems.join("\n"),
-        date: new Date().toISOString(),
-        billNumber:
-          "B-" +
-          Date.now().toString(36).toUpperCase() +
-          crypto.randomBytes(4).toString("hex").toUpperCase(),
-        is_special: false,
-      };
-      if (productData.isPreOrder) {
-      // @ts-ignore
-        newHistoryItem.isPreOrder = true;
-      // @ts-ignore
-        newHistoryItem.preOrderOption = req.body.preOrderOption || "";
-      // @ts-ignore
-        newHistoryItem.preOrderStatus = "pending";
-      }
-      const userUpdatePayload = JSON.parse(
-        JSON.stringify({ balance: newBalance }),
-      );
-      const finalProductStock = productData.isPreOrder
-        ? productData.stock !== void 0
-          ? Math.max(0, (Number(productData.stock) || 0) - quantity)
-          : 0
-        : (Number(productData.stock) || 0) - quantity;
-      const productUpdatePayload = {
-        ...productData,
-        stock: finalProductStock,
-        soldCount: (Number(productData.soldCount) || 0) + quantity,
-      };
-      if (!productData.isPreOrder) {
-        productUpdatePayload.stockData = await compressStock(
-          remainingBuffer.filter((v) => v !== void 0 && v !== null),
-        );
-      }
-      const keysList = productData.isPreOrder
-        ? []
-        : claimedItems.map((k) => String(k).trim()).filter(Boolean);
-      const licenseKeyHashes = keysList.map((k) =>
-        crypto.createHash("sha256").update(k).digest("hex"),
-      );
-      const encryptedSecretData = await encrypt(newHistoryItem.secretData || "");
-      const historyPayload = JSON.parse(
-        JSON.stringify({
-          ...newHistoryItem,
-          secretData: encryptedSecretData,
-          licenseKeyHashes,
-        }),
-      );
-      for (const update of chunkDocsToUpdate) {
-        t.update(update.ref, {
-          items: await compressStock(update.remainingItems),
-        });
-      }
-      for (const delRef of chunkDocsToDelete) {
-        t.delete(delRef);
-      }
-      t.update(userRef, userUpdatePayload);
-      t.update(productRef, productUpdatePayload);
-      t.set(purchasesRef, historyPayload);
-      const { stockData: _omittedStock, ...safeProductData } = productData;
-      const resultPayload = {
-        purchase: newHistoryItem,
-        updatedUser: { ...userData, balance: newBalance },
-        updatedProduct: {
-          id: productId,
-          ...safeProductData,
-          stock: finalProductStock,
-          soldCount: (productData.soldCount || 0) + quantity,
-        },
-      };
-      if (idempRef) {
-        t.set(idempRef, {
-          response: resultPayload,
-          timestamp: new Date().toISOString(),
-          userId,
-        });
-      }
-      return resultPayload;
-    });
-    if (result.isCachedIdempotency) {
-      return res.json({ success: true, ...result.payload });
-    }
-    if (result.isError) {
-      console.warn(
-        `[Buy] Purchase validation failed: User ${userId}, Product ${productId}, Quantity ${quantity}. Message: ${result.message}`,
-      );
-      return res.status(400).json({ error: result.message });
-    }
-    invalidateCache("products");
-    invalidateCache("purchases");
-    invalidateStatsCache();
-    writeAuditLog("PRODUCT_PURCHASE", userId, productId, req, {
-      quantity,
-      totalCost: result.purchase.price,
-      billNumber: result.purchase.billNumber,
-    });
-    res.json({
-      success: true,
-      purchase: result.purchase,
-      updatedUser: result.updatedUser,
-      updatedProduct: result.updatedProduct,
-    });
-  } catch (err) {
-    const msg = err.message || "";
-    console.error("------- BUY ERROR TRACE -------", err);
-    sendAlert(
-      "Transaction Failed / Rollback \u274C",
-      `**User**: ${userId}
-**Product**: ${productId}
-**Error**: ${msg}`,
-      16711680,
-      req.id,
-    );
-    res
-      .status(500)
-      .json({ error: String(err && err.message ? err.message : err) });
-  } finally {
-    releaseMutex(lockKey);
-    await releaseRedisLock(lockKey);
-  }
+app.post("/api/buy", mutationLimiter, requireAuth, async (req, res, next) => {
+  next();
 });
-app.get("/api/topups", requireAuth, async (req, res) => {
-  try {
-    const adminDb = admin.firestore();
-    let q = adminDb.collection("topups");
-    if (req.isAdmin) {
-      const snapshot = await q.limit(100).get();
-      let data = snapshot.docs.map((doc) => ({ dbId: doc.id, ...doc.data() }));
-      data.sort(
-        (a, b) =>
-          new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime(),
-      );
-      return res.json(data);
-    } else if (req.user) {
-      const [snapByUid, snapByUserId] = await Promise.all([
-        adminDb
-          .collection("topups")
-          .where("uid", "==", req.user.uid)
-          .limit(100)
-          .get()
-          .catch(() => null),
-        adminDb
-          .collection("topups")
-          .where("userId", "==", req.user.uid)
-          .limit(100)
-          .get()
-          .catch(() => null),
-      ]);
-      const seen = new Set();
-      let data = [];
-      for (const snap of [snapByUid, snapByUserId]) {
-        if (!snap) continue;
-        for (const doc of snap.docs) {
-          if (!seen.has(doc.id)) {
-            seen.add(doc.id);
-            data.push({ dbId: doc.id, ...doc.data() });
-          }
-        }
-      }
-      data.sort(
-        (a, b) =>
-          new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime(),
-      );
-      return res.json(data.slice(0, 100));
-    } else {
-      return res.json([]);
-    }
-  } catch (err) {
-    console.error("Internal server error fetching topups:", err.message || err);
-    res
-      .status(500)
-      .json({ error: String(err && err.message ? err.message : err) });
-  }
+app.get("/api/topups", requireAuth, async (req, res, next) => {
+  next();
 });
-app.post("/api/topups", requireAdmin, async (req, res) => {
-  if (!admin.firestore())
-    return res.status(500).json({ error: "DB not connected" });
-
-  const topupSchema = z.object({
-    amount: z.coerce.number().min(1, "จำนวนเงินต้องมากกว่า 0"),
-    method: z.enum(["truemoney", "promptpay", "bank_transfer", "giftcode"]).optional(), // Ensure this matches what is expected
-    // add other fields loosely or strictly as needed, fallback passing through
-  }).passthrough();
-
-  try {
-    const parseResult = topupSchema.safeParse(req.body);
-    if (!parseResult.success) {
-      return res.status(400).json({ error: parseResult.error.issues[0].message });
-    }
-    const data = parseResult.data;
-    const docRef = await admin.firestore().collection("topups").add(data);
-    res.json({ id: docRef.id, dbId: docRef.id, ...data });
-  } catch (err) {
-    console.error("Internal server error creating topup:", err);
-    res
-      .status(500)
-      .json({ error: String(err && err.message ? err.message : err) });
-  }
-});
-app.get("/api/categories", async (req, res) => {
-  res.setHeader(
-    "Cache-Control",
-    "no-store, no-cache, must-revalidate, proxy-revalidate",
-  );
-  try {
-    const data = await getCachedCollection("categories", 1e4, res, req);
-    if (data) res.json(data);
-  } catch (err) {
-    console.error(
-      "Internal server error fetching categories:",
-      err.message || err,
-    );
-    res
-      .status(500)
-      .json({ error: String(err && err.message ? err.message : err) });
-  }
-});
-app.post("/api/categories", requireAdmin, async (req, res) => {
-  if (!admin.firestore())
-    return res.status(500).json({ error: "DB not connected" });
-  try {
-    const data = req.body;
-    const { id, ...dataToSave } = data;
-    const docRef = await admin
-      .firestore()
-      .collection("categories")
-      .add(dataToSave);
-    invalidateCache("categories");
-    res.json({ id: docRef.id, dbId: docRef.id, ...dataToSave });
-  } catch (err) {
-    console.error("Internal server error creating category:", err);
-    res
-      .status(500)
-      .json({ error: String(err && err.message ? err.message : err) });
-  }
-});
-app.put("/api/categories/:id", requireAdmin, async (req, res) => {
-  if (!admin.firestore())
-    return res.status(500).json({ error: "DB not connected" });
-  try {
-    const data = req.body;
-    const { id, ...dataToSave } = data;
-    const docRef = admin
-      .firestore()
-      .collection("categories")
-      .doc(req.params.id);
-    await docRef.update(dataToSave);
-    invalidateCache("categories");
-    res.json({ id: req.params.id, ...dataToSave });
-  } catch (err) {
-    console.error("Internal server error updating category:", err);
-    res
-      .status(500)
-      .json({ error: String(err && err.message ? err.message : err) });
-  }
-});
-app.put("/api/products/bulk/category", requireAdmin, async (req, res) => {
-  try {
-    const { idsToAdd, idsToRemove, categoryId } = req.body;
-    const updatePromises = [];
-    if (Array.isArray(idsToAdd)) {
-      for (const id of idsToAdd) {
-        updatePromises.push(
-          admin
-            .firestore()
-            .collection("products")
-            .doc(id)
-            .update({ category: categoryId }),
-        );
-      }
-    }
-    if (Array.isArray(idsToRemove)) {
-      for (const id of idsToRemove) {
-        updatePromises.push(
-          admin
-            .firestore()
-            .collection("products")
-            .doc(id)
-            .update({ category: "" }),
-        );
-      }
-    }
-    await Promise.all(updatePromises);
-    invalidateCache("products");
-    res.json({ success: true });
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  }
-});
-app.delete("/api/categories/:id", requireAdmin, async (req, res) => {
-  if (!admin.firestore())
-    return res.status(500).json({ error: "DB not connected" });
-  try {
-    await admin
-      .firestore()
-      .collection("categories")
-      .doc(req.params.id)
-      .delete();
-    invalidateCache("categories");
-    res.json({ success: true });
-  } catch (err) {
-    console.error("Internal server error deleting category:", err);
-    res
-      .status(500)
-      .json({ error: String(err && err.message ? err.message : err) });
-  }
+app.post("/api/topups", requireAdmin, async (req, res, next) => {
+  next();
 });
 app.get("/api/pages", async (req, res) => {
   res.setHeader(
@@ -4683,77 +3358,11 @@ app.get("/api/validate_key/:key", requireAuth, async (req, res) => {
     res.status(500).json({ valid: false, error: "Internal error" });
   }
 });
-app.get("/api/used_keys", requireAuth, async (req, res) => {
-  try {
-    const db = admin.firestore();
-    let q = db.collection("used_keys");
-    const targetUID = typeof req.query.uid === 'string' ? req.query.uid : undefined;
-    let needsSortInMemory = false;
-    if (req.isAdmin) {
-      if (targetUID) {
-        q = q.where("uid", "==", targetUID);
-        needsSortInMemory = true;
-        q = q.limit(100);
-      } else {
-        q = q.limit(100);
-        needsSortInMemory = true;
-      }
-    } else if (req.user) {
-      q = q.where("uid", "==", req.user.uid).limit(100);
-      needsSortInMemory = true;
-    } else {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
-    const snapshot = await q.get();
-    let data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-    if (needsSortInMemory) {
-      data.sort((a, b) => {
-        const dateA = new Date(a.used_at || 0).getTime();
-        const dateB = new Date(b.used_at || 0).getTime();
-        return dateB - dateA;
-      });
-      data = data.slice(0, 100);
-    }
-    res.json(data);
-  } catch (err) {
-    console.error(
-      "Internal server error fetching used_keys:",
-      err.message || err,
-    );
-    res
-      .status(500)
-      .json({ error: String(err && err.message ? err.message : err) });
-  }
+app.get("/api/used_keys", requireAuth, async (req, res, next) => {
+  next();
 });
-app.post("/api/used_keys", requireAdmin, async (req, res) => {
-  const usedKeySchema = z.object({
-    key: z.string().min(1, "Key is required"),
-    ip: z.string().min(1, "IP is required"),
-    details: z.any().optional(),
-    uid: z.union([z.string().uuid("Invalid UID format"), z.literal("")]).optional().nullable(),
-  });
-
-  try {
-    const parseResult = usedKeySchema.safeParse(req.body);
-    if (!parseResult.success) {
-      return res.status(400).json({ error: parseResult.error.issues[0].message });
-    }
-    const { key, ip, details, uid } = parseResult.data;
-    const newDoc = {
-      key,
-      ip,
-      details,
-      uid: uid || null,
-      used_at: new Date().toISOString(),
-    };
-    const docRef = await admin.firestore().collection("used_keys").add(newDoc);
-    res.json({ id: docRef.id, dbId: docRef.id, ...newDoc });
-  } catch (err) {
-    console.error("Internal server error inserting used_key:", err);
-    res
-      .status(500)
-      .json({ error: String(err && err.message ? err.message : err) });
-  }
+app.post("/api/used_keys", requireAdmin, async (req, res, next) => {
+  next();
 });
 app.get("/api/blocked_ips", requireAdmin, async (req, res) => {
   try {
@@ -4823,77 +3432,17 @@ app.get("/api/check_ip/:ip", requireAdmin, async (req, res) => {
       .json({ error: String(err && err.message ? err.message : err) });
   }
 });
-app.get("/api/api_keys", requireAdmin, async (req, res) => {
-  try {
-    const snapshot = await admin
-      .firestore()
-      .collection("api_keys")
-      .limit(500)
-      .get();
-    const keys = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-    keys.sort(
-      (a, b) =>
-        new Date(b.created_at || 0).getTime() -
-        new Date(a.created_at || 0).getTime(),
-    );
-    res.json(keys);
-  } catch (err) {
-    console.error("API Keys fetch error:", err);
-    res
-      .status(500)
-      .json({ error: String(err && err.message ? err.message : err) });
-  }
+app.get("/api/api_keys", requireAdmin, async (req, res, next) => {
+  next();
 });
-app.post("/api/api_keys", requireAdmin, async (req, res) => {
-  try {
-    const { name, is_lifetime, expire_days } = req.body;
-    const keyString = "apx_" + crypto.randomBytes(16).toString("hex");
-    const now = new Date();
-    let expires_at = null;
-    if (!is_lifetime && expire_days) {
-      now.setDate(now.getDate() + parseInt(expire_days));
-      expires_at = now.toISOString();
-    }
-    const newKey = {
-      key: keyString,
-      name: name || "Unnamed Key",
-      status: "active",
-      created_at: new Date().toISOString(),
-      expires_at,
-      last_used: null,
-    };
-    await admin.firestore().collection("api_keys").doc(keyString).set(newKey);
-    res.json(newKey);
-  } catch (err) {
-    res
-      .status(500)
-      .json({ error: String(err && err.message ? err.message : err) });
-  }
+app.post("/api/api_keys", requireAdmin, async (req, res, next) => {
+  next();
 });
-app.delete("/api/api_keys/:key", requireAdmin, async (req, res) => {
-  try {
-    await admin.firestore().collection("api_keys").doc(req.params.key).delete();
-    res.json({ success: true });
-  } catch (err) {
-    res
-      .status(500)
-      .json({ error: String(err && err.message ? err.message : err) });
-  }
+app.delete("/api/api_keys/:key", requireAdmin, async (req, res, next) => {
+  next();
 });
-app.patch("/api/api_keys/:key", requireAdmin, async (req, res) => {
-  try {
-    const { status } = req.body;
-    await admin
-      .firestore()
-      .collection("api_keys")
-      .doc(req.params.key)
-      .update({ status });
-    res.json({ success: true, status });
-  } catch (err) {
-    res
-      .status(500)
-      .json({ error: String(err && err.message ? err.message : err) });
-  }
+app.patch("/api/api_keys/:key", requireAdmin, async (req, res, next) => {
+  next();
 });
 app.post("/api/admins", requireAdmin, async (req, res) => {
   try {
@@ -4964,243 +3513,23 @@ if (communityData.categories.length === 0) {
   });
   saveCommunity();
 }
-app.post("/api/redeem", mutationLimiter, requireAuth, async (req, res) => {
-  const { key } = req.body;
-  if (!key || typeof key !== "string" || key.trim().length < 8) {
-    return res
-      .status(400)
-      .json({
-        error:
-          "\u0E23\u0E39\u0E1B\u0E41\u0E1A\u0E1A\u0E04\u0E35\u0E22\u0E4C\u0E44\u0E21\u0E48\u0E16\u0E39\u0E01\u0E15\u0E49\u0E2D\u0E07\u0E2B\u0E23\u0E37\u0E2D\u0E2A\u0E31\u0E49\u0E19\u0E40\u0E01\u0E34\u0E19\u0E44\u0E1B (\u0E04\u0E27\u0E32\u0E21\u0E22\u0E32\u0E27\u0E2D\u0E22\u0E48\u0E32\u0E07\u0E19\u0E49\u0E2D\u0E22 8 \u0E15\u0E31\u0E27\u0E2D\u0E31\u0E01\u0E29\u0E23)",
-      });
-  }
-  try {
-    const uid = req.user.uid;
-    let keyData = null;
-    let keyDocRef = null;
-    let isProductKey = false;
-    const snapshot = await admin
-      .firestore()
-      .collection("license_keys")
-      .where("key", "==", key)
-      .where("status", "==", "active")
-      .get();
-    if (!snapshot.docs || snapshot.docs.length === 0) {
-      let foundDoc = await findPurchaseByWebClaimKey(key);
-      if (!foundDoc) {
-        return res
-          .status(400)
-          .json({
-            error:
-              "\u0E44\u0E21\u0E48\u0E1E\u0E1A\u0E04\u0E35\u0E22\u0E4C\u0E43\u0E19\u0E23\u0E30\u0E1A\u0E1A \u0E2B\u0E23\u0E37\u0E2D\u0E04\u0E35\u0E22\u0E4C\u0E19\u0E35\u0E49\u0E16\u0E39\u0E01\u0E43\u0E0A\u0E49\u0E07\u0E32\u0E19\u0E44\u0E1B\u0E41\u0E25\u0E49\u0E27",
-          });
-      }
-      isProductKey = true;
-      keyData = foundDoc;
-      keyDocRef = admin.firestore().collection("purchases").doc(foundDoc.id);
-    } else {
-      keyData = snapshot.docs[0].data();
-      keyDocRef = admin
-        .firestore()
-        .collection("license_keys")
-        .doc(snapshot.docs[0].id);
-    }
-    let rankToGive = "premium";
-    let expireDate = new Date();
-    await admin.firestore().runTransaction(async (t) => {
-      const docSnap = await t.get(keyDocRef);
-      if (!docSnap.exists) throw new Error("Key not found");
-      const docData = docSnap.data();
-      if (isProductKey) {
-        if (docData.webClaimed) throw new Error("Key already used");
-        t.update(keyDocRef, { webClaimed: true });
-      } else {
-        if (docData.status === "used") throw new Error("Key already used");
-        t.update(keyDocRef, { status: "used" });
-      }
-    });
-    if (isProductKey) {
-      rankToGive = keyData.productName?.replace(/ \(.+\)/g, "") || "VIP";
-      await admin
-        .firestore()
-        .collection("used_keys")
-        .add({
-          key,
-          ip: req.ip || "",
-          uid,
-          details: `Redeemed product rank ${rankToGive}`,
-          used_at: new Date().toISOString(),
-        });
-      expireDate.setDate(expireDate.getDate() + 9999);
-    } else {
-      await admin
-        .firestore()
-        .collection("used_keys")
-        .add({
-          key,
-          ip: req.ip || "",
-          uid,
-          details: `Redeemed rank ${keyData.type}`,
-          used_at: new Date().toISOString(),
-        });
-      let days = 1;
-      if (keyData.type === "Week") days = 7;
-      if (keyData.type === "Month") days = 30;
-      if (keyData.type === "3Month") days = 90;
-      if (keyData.type === "Year") days = 365;
-      if (keyData.type === "Lifetime") days = 9999;
-      expireDate.setDate(expireDate.getDate() + days);
-    }
-    communityData.userRanks = communityData.userRanks || {};
-    communityData.userRanks[uid] = rankToGive;
-    saveCommunity();
-    await admin
-      .firestore()
-      .collection("users")
-      .doc(uid)
-      .set(
-        {
-          isPremium: true,
-          rank: rankToGive,
-          premiumExpireDate: expireDate.toISOString(),
-        },
-        { merge: true },
-      );
-    res.json({
-      success: true,
-      rank: rankToGive,
-      type: isProductKey ? "Product Rank" : keyData.type,
-    });
-  } catch (e) {
-    res
-      .status(500)
-      .json({
-        error:
-          e.message === "Key already used"
-            ? "\u0E04\u0E35\u0E22\u0E4C\u0E16\u0E39\u0E01\u0E43\u0E0A\u0E49\u0E07\u0E32\u0E19\u0E44\u0E1B\u0E41\u0E25\u0E49\u0E27"
-            : e.message,
-      });
-  }
+app.post("/api/redeem", mutationLimiter, requireAuth, async (req, res, next) => {
+  next();
 });
-app.get("/api/users/:uid", requireAuth, async (req, res) => {
-  if (req.user.uid !== req.params.uid && !req.isAdmin) {
-    return res.status(403).json({ error: "Forbidden" });
-  }
-  if (!admin.firestore())
-    return res.status(500).json({ error: "DB not connected" });
-  try {
-    const docRef = admin.firestore().collection("users").doc(req.params.uid);
-    const snapshot = await docRef.get();
-    if (snapshot.exists) {
-      const data = snapshot.data();
-      data.rank =
-        communityData.userRanks?.[req.params.uid] || data.rank || "user";
-      res.json(data);
-    } else {
-      res.status(404).json({ error: "User not found" });
-    }
-  } catch (err) {
-    console.error("Error fetching user:", err);
-    res
-      .status(500)
-      .json({ error: String(err && err.message ? err.message : err) });
-  }
+app.get("/api/users/:uid", requireAuth, async (req, res, next) => {
+  next();
 });
-app.post("/api/users/:uid", requireAuth, async (req, res) => {
-  if (req.user.uid !== req.params.uid && !req.isAdmin) {
-    return res.status(403).json({ error: "Forbidden" });
-  }
-  if (!admin.firestore())
-    return res.status(500).json({ error: "DB not connected" });
-  try {
-    const { uid } = req.params;
-    const data = req.body;
-    let dataToUpdate = data;
-    if (!req.isAdmin) {
-      const allowedFields = [
-        "avatar",
-        "displayName",
-        "bio",
-        "username",
-        "fullName",
-        "email",
-        "registeredAt",
-      ];
-      dataToUpdate = Object.fromEntries(
-        Object.entries(data).filter(([k]) => allowedFields.includes(k)),
-      );
-    }
-    const docRef = admin.firestore().collection("users").doc(uid);
-    await docRef.set(
-      { ...dataToUpdate, updatedAt: new Date().toISOString() },
-      { merge: true },
-    );
-    invalidateUserTokenCache(uid);
-    invalidateCache("users");
-    invalidateStatsCache();
-    res.json({ success: true });
-  } catch (err) {
-    console.error("Error saving user:", err.message || JSON.stringify(err));
-    res
-      .status(500)
-      .json({ error: String(err && err.message ? err.message : err) });
-  }
+app.post("/api/users/:uid", requireAuth, async (req, res, next) => {
+  next();
 });
-app.post("/api/users/:uid/password", requireAdmin, async (req, res) => {
-  try {
-    const { uid } = req.params;
-    const { password } = req.body;
-    if (!password) return res.status(400).json({ error: "Missing password" });
-    await supabaseAdmin.auth.admin.updateUserById(uid, { password });
-    invalidateUserTokenCache(uid);
-    res.json({ success: true });
-  } catch (err) {
-    res
-      .status(500)
-      .json({ error: String(err && err.message ? err.message : err) });
-  }
+app.post("/api/users/:uid/password", requireAdmin, async (req, res, next) => {
+  next();
 });
-app.delete("/api/users/:uid", requireAuth, async (req, res) => {
-  try {
-    const { uid } = req.params;
-    if (req.user.uid !== uid && !req.isAdmin) {
-      return res.status(403).json({ error: "Forbidden" });
-    }
-    await supabaseAdmin.auth.admin
-      .deleteUser(uid)
-      .catch((e) => console.error(e));
-    await admin.firestore().collection("users").doc(uid).delete();
-    invalidateUserTokenCache(uid);
-    invalidateCache("users");
-    invalidateStatsCache();
-    res.json({ success: true });
-  } catch (err) {
-    res
-      .status(500)
-      .json({ error: String(err && err.message ? err.message : err) });
-  }
+app.delete("/api/users/:uid", requireAuth, async (req, res, next) => {
+  next();
 });
-app.get("/api/users", requireAdmin, async (req, res) => {
-  try {
-      // @ts-ignore
-    const page = Math.max(1, parseInt(req.query.page) || 1);
-      // @ts-ignore
-    const limit = Math.min(200, parseInt(req.query.limit) || 100);
-    const offset = (page - 1) * limit;
-    const snapshot = await admin
-      .firestore()
-      .collection("users")
-      .limit(limit)
-      .offset(offset)
-      .get();
-    const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-    res.json(data);
-  } catch (err) {
-    console.error("Error fetching all users:", err.message || err);
-    res
-      .status(500)
-      .json({ error: String(err && err.message ? err.message : err) });
-  }
+app.get("/api/users", requireAdmin, async (req, res, next) => {
+  next();
 });
 const logLimiter = rateLimit({
   windowMs: 1 * 60 * 1e3,
@@ -5485,19 +3814,30 @@ app.delete("/api/discord/hypesquad", requireAuth, async (req, res) => {
     .status(410)
     .json({ error: "This feature has been deactivated for security reasons." });
 });
+app.use((err: any, req: any, res: any, next: any) => {
+  if (err instanceof AppError) {
+    return res.status(err.statusCode).json({
+      error: err.message,
+      code: err.code
+    });
+  }
+
+  console.error('[UnhandledError]', {
+    message: err && err.message ? err.message : String(err),
+    stack: err && err.stack ? err.stack : undefined,
+    path: req.path
+  });
+
+  res.status(500).json({
+    error: 'Internal server error'
+  });
+});
 if (!process.env.VERCEL) {
   (async () => {
     if (process.env.NODE_ENV !== "production") {
       console.log("Initializing Vite middleware (async)...");
       try {
-        const { createServer: createViteServer } = await import("vite").then(
-          (s) => {
-            const e = "default";
-            return s[e] && typeof s[e] == "object" && "__esModule" in s[e]
-              ? s[e]
-              : s;
-          },
-        );
+        const { createServer: createViteServer } = await import("vite");
         const vite = await createViteServer({
           server: { middlewareMode: true },
           appType: "spa",
@@ -5512,7 +3852,7 @@ if (!process.env.VERCEL) {
       app.use(
         express.static(distPath, {
           maxAge: "1y",
-          setHeaders: __name((res, path2) => {
+          setHeaders: (res, path2) => {
             if (path2.endsWith(".html")) {
               res.setHeader("Cache-Control", "no-cache");
             } else {
@@ -5523,7 +3863,7 @@ if (!process.env.VERCEL) {
               res.setHeader("Cloudflare-CDN-Cache-Control", "max-age=31536000");
               res.setHeader("CDN-Cache-Control", "max-age=31536000");
             }
-          }, "setHeaders"),
+          },
         }),
       );
       app.get("*", (req, res) => {
@@ -5541,13 +3881,17 @@ if (!process.env.VERCEL) {
         }
       });
     }
-    const server = app.listen(3e3, "0.0.0.0", () => {
-      logger.info(`[Server] Listening on http://0.0.0.0:3000`);
+    initializeAdminDb().catch((e) => {
+      console.error("Failed to initialize missing columns on startup:", e);
     });
-    const gracefulShutdown = __name((signal) => {
+    const server = app.listen(3000, "0.0.0.0", () => {
+      logger.info(`[Server] Listening on http://0.0.0.0:3000`);
+      console.log(`[Server] Ready and listening on http://0.0.0.0:3000`);
+    });
+    const gracefulShutdown = (signal: string) => {
       logger.info(`[Server] Received ${signal}. Shutting down immediately...`);
       process.exit(0);
-    }, "gracefulShutdown");
+    };
     process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
     process.on("SIGINT", () => gracefulShutdown("SIGINT"));
   })();
